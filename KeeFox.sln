@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeeICE", "KeeICE\KeeICE.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFox", "KeeFox\KeeFox.vcproj", "{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C} = {4C1BB6F8-D2CD-49C2-9053-21705681356C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firefox addon", "Firefox addon\Firefox addon.vcproj", "{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "KeeICE installer", "KeeICE installer\KeeICE installer.vdproj", "{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.Release|Win32.ActiveCfg = Release|Any CPU
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Win32.Build.0 = Debug|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Any CPU.ActiveCfg = Release|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Win32.ActiveCfg = Release|Win32
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Win32.Build.0 = Release|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Win32.Build.0 = Debug|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Any CPU.ActiveCfg = Release|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Win32.ActiveCfg = Release|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Win32.Build.0 = Release|Win32
+		{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}.Debug|Any CPU.ActiveCfg = Debug
+		{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}.Debug|Win32.ActiveCfg = Debug
+		{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}.Release|Any CPU.ActiveCfg = Release
+		{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}.Release|Mixed Platforms.ActiveCfg = Release
+		{AC08C6BF-EFA4-49A8-A51B-504978A3A8C7}.Release|Win32.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

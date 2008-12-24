@@ -1,0 +1,317 @@
+Hi everyone,
+
+I have begun work on a KeePass/Firefox integration project called KeeFox. It's a long way from being ready for general use but I thought some people would find it useful to know it's being developed. I'm estimating that it might be ready for a public realease in around a year (with semi-useable previews around the start of 2009). I hope that I'll be able to distribute an XPI on the Firefox add-ons site in order to help KeePass reach a slightly different audience.
+
+The first version will work only with KeePass 2 and Firefox 3, probably on Windows only. I'll consider back-porting to older versions of both applications and porting to more platforms once the first KP2/FF3 version is complete (unless someone wants to help with the relevant code before then).
+
+I have started a sourceforge project at: http://sourceforge.net/projects/keefox
+
+If anyone is interested in tracking the progress of the project or wants to contribute then please take a look at the more detailed information on http://keefox.sourceforge.net/ and the pages that links to.
+
+I'll probably have plenty of questions for the more experienced KeePass developers and users but what is the most appropriate location for airing those questions? Is there a KeePass developers mailing list I should join? Should I post here? Or should I just keep all discussion related to my plugin on a seperate forum?
+
+Thanks to Dominik for all the help and advice he's already given me.
+
+Chris
+
+
+
+KeeICE
+
+As part of the KeeFox project (see my other post), I've had to develop a method to allow KeePass to communicate with third party applciations. I've started a subproject called KeeICE to enable this functionality. KeeICE is currently being developed only for use by KeeFox but I wanted to mention it seperately becuase we have the option to seperate KeeICE and enable it to work with extra third party applications, or even to allow multiple KeePass instances to communicate across a network (e.g. enabling a multi-user option or web-hosted/AJAX version of KeePass).
+
+The "ICE" in the name refers to the Internet Communications Engine project at http://www.zeroc.com. It's not without its limitations but I think it will do the job and it was the best option I could find without committing to all the time required to write my own cross platform IPC code.
+
+If anyone is interested to know more or has any burning ideas for other KeePass plugins that might benefit from a pre-existing shared IPC layer then take a look at the relevant information on the KeeFox website (http://keefox.sourceforge.net/) and get in touch.
+
+Chris
+
+
+
+Hi Dominik,
+
+I hope you're well.
+
+I've been occupied with a few other things these past few months but did have time to make some progress on the integration of KeePass and Firefox. I've called the project KeeFox and recently put a bit more information about it online at http://keefox.sourceforge.net/. I've also made a couple of posts in the KeePass forum which I'm sure you'll notice sooner or later.
+
+You may rememeber that I had managed to get .NET remoting to work in a way that enabled Firefox and KeePass to communicate. I actually scrapped that idea becuase it became clear that there would be a lot of work involved marshalling objects around between managed and unmanaged code and it would all have to be done again if we wanted KeePass v1 integration in the future. I'm now using ICE (http://www.zeroc.com) which seems to have done most of the IPC work for us already.
+
+Anyway, I won't repeat everything I've posted elsewhere online but if you do get a spare moment to take a look at where I'm up to so far and have any questions then just let me know.
+
+Thanks,
+Chris
+
+
+
+keehelp.com
+keesupport
+keeforums
+keeusers
+kee
+
+<body>
+<h1>KeeFox</h1>
+
+<h2>Simple and secure password management for Firefox users with KeePass.</h2>
+
+<p>Lots of people know how useful KeePass is for looking after your many passwords and it has some extremely powerful features that set it apart from simple form filling applications like RoboForm. However, I think there is room for improvement, particularly in terms of the ease of use when it comes to handling passwords when browsing the internet.</p>
+
+<p>It's to that background that I decided to develop a KeePass plugin which can integrate with Firefox. There are already some options available for form filling in Internet Explorer and even some for Firefox but I'm hoping that we can create something which is at least simple enough to use for anyone that can work out how to install a Firefox add-on.</p>
+
+<p>The project also contains what is currently a sub-project called KeeICE - it is this that will plugin to KeePass and enable the KeeFox firefox add-on to communicate with KeePass. This could be extended to be used by other 3rd party applications.</p>
+
+<p>Hopefully we can find a way that installation of the KeeFox Firefox add-on can result in a series of simple steps to guide a new user through the installation of KeePass and the KeeICE plugin. That way, the user can get started using KeePass straight away for the things they do many times every day and then maybe go on to learn about the other KeePass features at a later time.</p>
+
+<p>I've kept a number of random notes during the course of my initial planning but since it's so early in the development process I'll just paste them up here rather then try to formulate them into some useful but quickly obsolete documentation.</p>
+
+<p>If you're interested in learning more about the technical background to the project, please see my article on my personal website: <a href="http://christomlinson.name/articles/keefox-technical-introduction"></a>.</p>
+
+<p>If you're interested in the possible time scales, please see my <a href="http://christomlinson.name/articles/keefox-technical-introduction">draft task list</a>.</p>
+
+
+<h3>Random notes and thoughts</h3>
+
+<pre>
+Aim:
+Integrate firefox experience with KeePass database (this can be done with auto-copy features but it is too complex for an average PC user to understand or bother with). In the past people with enough passwords to benefit from password management application were technically savvy; now that correlation is weakening all the time and I think there are an increasing number of people that could benefit from a simpler way to handle their daily web browsing passwords.
+
+Possible use case examples:
+User logs on to windows; KP starts minimised with windows; firefox started; website with login form visited; KF flags site as recognised KeeFox-enabled site; user clicks "fill from KP database"; KP asks for master database password,keyfile,etc.; user supplies it; form filled and submitted; user logged on to website.
+
+user fills and submits log in / registration form; KF asks "save password?"; user says yes; KP adds new entry to database (asks for KP password as required).
+
+Is there some way to secure normal form filling auto-complete (e.g. credit card number fields that permit auto-complete storage)? or at least highlight what FF is going to save on the form itself and/or after submission? Could consider this as part of later development with more generalised form filling features such as user profile data, credit cards, etc.
+
+Known security issues:
+Installation of IPC server in KeePass exposes KP to a new potential attack vector
+Memory transfer through IPC and into Firefox browser unlikely to be as protected and secure as when using KP standalone
+FF bugs/malicious websites could expose KeePass to remote intrusion attempts
+(All the above are simply new twists on existing issues - i.e. there are many ways online javascript attacks could remotely compromise the KP database and the installation of a program to exploit the ICE server is not much more likely than installation of keyloggers, screenshot stealers, etc. - nonetheless, I'd prefer to not expose any new attack vectors since I'm not qualified to determine if they are easier or harder to exploit than existing possibilities so please do get in touch if you have any ideas on how these risks could best be mitigated.)
+
+Release model:
+Open source (GPL 2). <a href="http://christomlinson.name/contact/chris-tomlinson">Ask me</a> for the source code any time you want. Specific source (and later binary) snapshots will be made available on a regular basis. The <a href="http://christomlinson.name/articles/keefox-technical-introduction">roadmap</a> highlights the main aims of each development snapshot as we head towards a final release.
+
+Intermediate releases before version 1.0 (e.g. 0.1.1) will be published only if a severe problem exposes an exploited security hole (the solution to all other problems is either uninstall or submit a source code patch to fix it). At 1.0 we can be much more helpful than this!
+
+The source code could be added to a public SVN location if other people want to help to develop an aspect of the project - just <a href="http://christomlinson.name/contact/chris-tomlinson">let me know</a>.
+
+Although I think there are many aspects of the built in firefox password management interface that can be improved, I'm going to concentrate on integrating with what's already there before working on the potentially large task of altering the existing way of doing things. Depending on how restrictive this approach is, I may or may not provide this integrated option in 1.0.
+
+bzip2[d],ice33[d] and iceutil[d].dll all need to go somewhere that firefox can load them from. So far, FF executable directory seems to work on windows at least. NOT neat though - is there a better way to achieve this?
+
+random KeeICE thought: Trying to replicate entire plugin class structure isn't practical because ICE can't represent all concepts used in KP (e.g. delegates, properties, etc.) so the marshalling would have been very complex)
+</pre>
+</body>
+
+
+
+
+TODO:
+
+All dates are just an early estimation and I won't be making any effort to treat them as deadlines.
+
+pre: (my notes)
+Finalise component names, license statements, etc.
+Some "difficult issues" write-ups in preparation for website launch
+Prettify this document
+identify where to store source code + get it added to a repository
+find support system (forum?)
+Website
+
+ongoing:
+Review of code to reduce memory leaks and improve performance
+Development of thorough self-test routines
+Locale development (translation of user interface to other languages)
+Peer-review of code to highlight security issues
+icon. fox + padlock? copyright issues if too similar to firefox or KP?
+
+0.1 [July W4]
+FF LoginManagerStorage implementation (maybe missing some parts like entry deletion or http realm logins)
+prompt for DB open as required
+
+
+0.2 [August W3]
+handle keepass start and close events in FF (how to tell difference between KP not runnning and not-installed? ICE runtimes?)
+complete LoginManagerStorage impl. if required (what happens with "clear passwords" integration?!, etc.)
+
+0.3 [September W3]
+Cleanly manage "new user" experience in terms of downloading keepass and setting up new database
+Deal with non-installed pre-requesites (e.g. KeePass v2)
+Package/release system (XPI?)
+XUL locale support
+
+0.4 [October W4]
+Improved LoginManager (ILM)
+ILM: replicate built in login manager (extend existing JS code)
+ILM: handle disabling/enabling built in login manager - options + (un)install
+Allow choice between standard and ILM?
+Make sure passwords don't get corrupt when swapping between LMs
+ILM: allow option to not require master password for everything
+Clean LM swaps (data migrations if necessary)
+match multiple domains for one KP entry (e.g. hotmail, live.com)
+
+0.5 [November W4]
+FF based options control system
+configurable default database and group
+Folders/groups - probably through integration with KP Groups and Firefox places (FFP)
+FFP: tie places URL to KP URL
+FFP: custom places view? used to render a "quick login" drop down menu system
+publish first binary version
+
+0.6-0.7 [December/January]
+integration with some other plugins. e.g. Nexus's Firefox to KeePass
+FFP: integrate with location bar drop down list, history and bookmarks folder (option to log in straight from there)
+FFP: options to show/hide links without logins in main drop down system
+configurable custom-data location
+ILM: support for deleting passwords, etc.
+ILM: auto-submit
+ILM: modal box choice
+ILM: in-page pop-over login choice
+ILM: default auto-submit selection, with hot-key over-ride
+(beta 1?)
+
+0.8 - 1.0 [February - July 2009]
+ILM: Support for custom fields (e.g. radio buttons, checkboxes, PIN numbers, etc.)
+Save after first registration functionality (ILM only?)
+track how many times logins used (FFP: show popular sites, order by frequency, hide infrequenctly used etc.)
+User-idetified "essential improvements"
+thorough bug testing
+user documentation
+user help,tooltips,wizzards,etc.
+notices, etc. in appropriate places in main firefox UI so user knows KeePass is storing passwords
+(beta 2, RCs?)
+
+
+1.1+
+Identities (inc. openID?)
+KeePass v1 support
+
+
+
+
+Maybe TODO:
+Force KeeICE to only communicate with KeeFox
+SSL encrypt ICE communication channel (store private key in KP DB?)
+OpenID: Haven't given this enough thought but maybe some integration of openID features could be good.
+
+
+
+
+
+matching URLs / forms accuratly
+-------------------------------
+
+a: hostname
+b: actionURL
+c: HTTPrealm
+
+
+1: hostname (FF3 style)
+2: domainname
+3: port
+4: protocol
+5: fullURL (excluding query string)
+6: fullURL (including query string)
+7: path
+
+1 includes 2,3,4
+
+FF3 store: a and b hostname only
+FF3 search: a and b hostname only
+ILM store: a and b 5
+ILM search (default): a and b hostname only
+ILM search (option): a and b 5
+
+ILM KFEntry flags: default; reccomended (full (5) URL match - irrespective of search method); auto-fill; auto-submit
+
+ILM: if default: do autofill/autosubmit if configured to
+if one recommended and no default: do autofill/submit
+if one: do autofill/submit
+
+
+
+
+
+
+
+
+configuration:
+--------------
+
+store in KeePass or not? (binary attachment to one entry?) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4 weeks of 8 hour / 5day time so far
+
+
+
+
+
+
+
+
+
+website article:
+
+
+
+
+Sys requirements:
+KeePass 2
+.NET 2
+Firefox 3
+Windows XP
+
+All above could potentially be expanded in the future but this will depend on available time and demand (e.g. will anyone even be using Firefox 2 by the time the version for Firefox 3 is stable?). I'm particuarly keen to get KeeFox working on Linux and Mac systems but until KeePass 2 is stable on those platforms or we can find a way to make KeePass version 1 play along, it won't really be that practical.
+
+Key technologies used:
+C#
+C++
+ICE
+XPCOM
+Javascript
+XUL
+
+The rough chain of events for an "average" use case is:
+
+XUL interface elements in firefox manipulated by user
+ -> javascript event handlers call appropriate XPCOM functions in the C++ firefox add-on DLL
+ -> which in turn calls proxy methods on shared data objects (defined in ICE's IDL language)
+ -> ICE DLL processes the function calls, does its magic and ends up calling the real methods (implemented in C#)
+ -> these functions manipulate the active KP plugin instance (to read/write, prompt user for master password, etc.)
+
+If anyone has ever done anything like this before, they've either not put it online or managed to keep it beyond the eye of Google so I hope that as the project progresses I can expand on some of the technical challanges for the sake of anyone else that wants/needs to implement other software that uses these technologies. To start with, your best bet is to take a look at the source code which I will be posting online soon (e-mail me if you're in a hurry) becuase the key issues have been largely solved in there already and it's now "just" a matter of fleshing out all the detail (which would be mostly irrelevant to a different project anyway). Keep an eye out here for any new content I tag with keywords you're interested in. RSS[link] is your friend (although not your best friend - I've currently got no way to subscribe to individual tag updates)
+
+I also toyed with .NET IPC channels and a mixture of managed and unmanaged C++ code in a rather complex configuration before settling on using ICE for the IPC. Part of the problem with the first approach was that Firefox won't play along with any DLLs that make calls into the managed .NET application space. This meant I had to write a couple of extra layers and play with some ratehr complex managed/unmaged C++ wrappers in order to make it all work. I had it working for a while but the development (and performance?) overhead of multiple marshalling steps was just too big so I scrapped that idea and went looking for some third party library to help (ICE).
+
+
+
+
+
+
+
+
+
+
+ut#zZj^3SO
+
+http://christomlinson.name/phpMyAdmin/
+tags
+RDYKGfKi
+
+
+old path: C:\Program Files\Windows Resource Kits\Tools\;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\Program Files\UltraEdit-32;C:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\PROGRA~1\ATT\Graphviz\bin;C:\Program Files\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files\Common Files\Adobe\AGL;C:\Program Files\Common Files\GTK\2.0\bin;C:\Program Files\Jahshaka\..\gtk2\bin;C:\Program Files\Jahshaka\..\mlt\bin;C:\Program C:\Program Files\Windows Resource Kits\Tools\;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\Program Files\UltraEdit-32;C:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\PROGRA~1\ATT\Graphviz\bin;C:\Program Files\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files\Common Files\Adobe\AGL;C:\Program Files\Common Files\GTK\2.0\bin;C:\Program Files\Jahshaka\..\gtk2\bin;C:\Program Files\Jahshaka\..\mlt\bin;C:\Program Files\OpenLibraries\bin;c:\development\buildtools\windows\bin\x86;C:\Program Files\Subversion\bin;C:\Program Files\ZipGenius 6\;C:\Program Files\TortoiseSVN\bin
