@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chris Tomlinson")]
 [assembly: AssemblyProduct("KeePass Plugin")]
-[assembly: AssemblyCopyright("Copyright © 2008 Chris Tomlinson")]
+[assembly: AssemblyCopyright("Copyright © 2009 Chris Tomlinson")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -41,4 +41,4 @@ using System.Runtime.InteropServices;
 
 // Assembly version information
 [assembly: AssemblyVersion("2.0.5.*")]
-[assembly: AssemblyFileVersion("0.4.0.*")]
+[assembly: AssemblyFileVersion("0.4.3.*")]

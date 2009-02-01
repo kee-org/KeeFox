@@ -355,12 +355,12 @@ this._test = numb;
 
         Application.windows.forEach(function(b) {
             // look at each open browser window (not tab)
-            this.log("Looking at a browser window");
+            //this.log("Looking at a browser window");
             Application.activeWindow.tabs.forEach(function(t) {
                 // look at each open tab in browser window b
-                this.log("Looking at a tab in the browser window:" + t.uri.spec);
+                //this.log("Looking at a tab in the browser window:" + t.uri.spec);
                 if (url == t.uri.spec) {
-                    this.log("suitable tab already open - focussing it now");
+                    //this.log("suitable tab already open - focussing it now");
                     // The URL is already opened. Select this tab.
                     t.focus();
 
@@ -374,9 +374,13 @@ this._test = numb;
 
         if (!found) {
             this.log("tab with this URL not already open so opening one and focussing it now");
-            var newTab = Application.activeWindow.open(this._convert_url(url));
 
-            newTab.focus();
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                        .getService(Components.interfaces.nsIWindowMediator);
+            var newWindow = wm.getMostRecentWindow("navigator:browser");
+            var b = newWindow.getBrowser();
+            var newTab = b.loadOneTab( url, null, null, null, false, null );
+
             return newTab;
         }
     },
@@ -410,17 +414,68 @@ this._test = numb;
         }
 
         // create an nsIProcess
-        var process = Components.classes["@mozilla.org/process/util;1"]
-                            .createInstance(Components.interfaces.nsIProcess);
-        process.init(file);
+        //var process = Components.classes["@mozilla.org/process/util;1"]
+        //                    .createInstance(Components.interfaces.nsIProcess);
+        //process.init(file);
 
         // Run the process.
         // If first param is true, calling thread will be blocked until
         // called process terminates.
         // Second and third params are used to pass command-line arguments
         // to the process.
-        var args = ["argument1", "argument2"];
-        process.run(false, args, args.length);
+        //var args = ["argument1", "argument2"];
+        //process.run(false, args, args.length);
+
+
+
+//  var f = getLocalFileFromNativePathOrUrl(aDownload.getAttribute("file"));
+  //if (f.isExecutable()) {
+    //var dontAsk = false;
+ //   var pref = Cc["@mozilla.org/preferences-service;1"].
+  //             getService(Ci.nsIPrefBranch);
+ //   try {
+  //    dontAsk = !pref.getBoolPref(PREF_BDM_ALERTONEXEOPEN);
+  //  } catch (e) { }
+/*
+    if (!dontAsk) {
+      var strings = document.getElementById("downloadStrings");
+      var name = aDownload.getAttribute("target");
+      var message = strings.getFormattedString("fileExecutableSecurityWarning", [name, name]);
+
+      let title = gStr.fileExecutableSecurityWarningTitle;
+      let dontAsk = gStr.fileExecutableSecurityWarningDontAsk;
+
+      var promptSvc = Cc["@mozilla.org/embedcomp/prompt-service;1"].
+                      getService(Ci.nsIPromptService);
+      var checkbox = { value: false };
+      var open = promptSvc.confirmCheck(window, title, message, dontAsk, checkbox);
+
+      if (!open)
+        return;
+      pref.setBoolPref(PREF_BDM_ALERTONEXEOPEN, !checkbox.value);
+    }
+  }*/
+  try {
+    file.launch();
+  } catch (ex) {
+    // if launch fails, try sending it through the system's external
+    // file: URL handler
+    var uri = Cc["@mozilla.org/network/io-service;1"].
+             getService(Ci.nsIIOService).newFileURI(file);
+ 
+   var protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"].
+                     getService(Ci.nsIExternalProtocolService);
+   protocolSvc.loadUrl(uri);
+
+    
+    //openExternal(file);
+  }
+
+
+
+
+
+
 
         this.log("Installer launched.");
 
@@ -593,4 +648,4 @@ function TutTB_AddDynamicButtons()
 */
 
 
-keeFoxInst = new KeeFox;
+var keeFoxInst = new KeeFox;
