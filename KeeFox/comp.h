@@ -14,10 +14,127 @@
 #include "nsILoginInfo.h"
 #endif
 
+#ifndef __gen_nsIMutableArray_h__
+#include "nsIMutableArray.h"
+#endif
+
 /* For IDL files that don't want to include root IDL files. */
 #ifndef NS_NO_VTABLE
 #define NS_NO_VTABLE
 #endif
+
+/* starting interface:    kfILoginField */
+#define KFILOGINFIELD_IID_STR "7ed5ba34-1375-4887-86fd-0682ddfaa873"
+
+#define KFILOGINFIELD_IID \
+  {0x7ed5ba34, 0x1375, 0x4887, \
+    { 0x86, 0xfd, 0x06, 0x82, 0xdd, 0xfa, 0xa8, 0x73 }}
+
+class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
+ public: 
+
+  NS_DECLARE_STATIC_IID_ACCESSOR(KFILOGINFIELD_IID)
+
+  /* attribute AString name; */
+  NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) = 0;
+
+  /* attribute AString value; */
+  NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) = 0;
+
+  /* void init (in AString aName, in AString aValue); */
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue) = 0;
+
+};
+
+  NS_DEFINE_STATIC_IID_ACCESSOR(kfILoginField, KFILOGINFIELD_IID)
+
+/* Use this macro when declaring classes that implement this interface. */
+#define NS_DECL_KFILOGINFIELD \
+  NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName); \
+  NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName); \
+  NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue); \
+  NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue); \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue); 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object. */
+#define NS_FORWARD_KFILOGINFIELD(_to) \
+  NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) { return _to GetName(aName); } \
+  NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return _to SetName(aName); } \
+  NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) { return _to GetValue(aValue); } \
+  NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) { return _to SetValue(aValue); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue) { return _to Init(aName, aValue); } 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
+#define NS_FORWARD_SAFE_KFILOGINFIELD(_to) \
+  NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetName(aName); } \
+  NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetName(aName); } \
+  NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetValue(aValue); } \
+  NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetValue(aValue); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aName, aValue); } 
+
+#if 0
+/* Use the code below as a template for the implementation class for this interface. */
+
+/* Header file */
+class kfLoginField : public kfILoginField
+{
+public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_KFILOGINFIELD
+
+  kfLoginField();
+
+private:
+  ~kfLoginField();
+
+protected:
+  /* additional members */
+};
+
+/* Implementation file */
+NS_IMPL_ISUPPORTS1(kfLoginField, kfILoginField)
+
+kfLoginField::kfLoginField()
+{
+  /* member initializers and constructor code */
+}
+
+kfLoginField::~kfLoginField()
+{
+  /* destructor code */
+}
+
+/* attribute AString name; */
+NS_IMETHODIMP kfLoginField::GetName(nsAString & aName)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetName(const nsAString & aName)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString value; */
+NS_IMETHODIMP kfLoginField::GetValue(nsAString & aValue)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetValue(const nsAString & aValue)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void init (in AString aName, in AString aValue); */
+NS_IMETHODIMP kfLoginField::Init(const nsAString & aName, const nsAString & aValue)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* End of implementation class template. */
+#endif
+
 
 /* starting interface:    kfILoginInfo */
 #define KFILOGININFO_IID_STR "7ed5ba34-1375-4887-86fd-0682ddfaa870"
@@ -31,21 +148,34 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsILoginInfo {
 
   NS_DECLARE_STATIC_IID_ACCESSOR(KFILOGININFO_IID)
 
+  /* attribute nsIMutableArray customFields; */
+  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) = 0;
+
+  /* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in nsIMutableArray someCustomFields); */
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, nsIMutableArray *someCustomFields) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(kfILoginInfo, KFILOGININFO_IID)
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_KFILOGININFO \
-  /* no methods! */
+  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields); \
+  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields); \
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, nsIMutableArray *someCustomFields); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGININFO(_to) \
-  /* no methods! */
+  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields) { return _to GetCustomFields(aCustomFields); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) { return _to SetCustomFields(aCustomFields); } \
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, nsIMutableArray *someCustomFields) { return _to InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, someCustomFields); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGININFO(_to) \
-  /* no methods! */
+  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetCustomFields(aCustomFields); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCustomFields(aCustomFields); } \
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, nsIMutableArray *someCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, someCustomFields); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -77,6 +207,22 @@ kfLoginInfo::kfLoginInfo()
 kfLoginInfo::~kfLoginInfo()
 {
   /* destructor code */
+}
+
+/* attribute nsIMutableArray customFields; */
+NS_IMETHODIMP kfLoginInfo::GetCustomFields(nsIMutableArray * *aCustomFields)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetCustomFields(nsIMutableArray * aCustomFields)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in nsIMutableArray someCustomFields); */
+NS_IMETHODIMP kfLoginInfo::InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, nsIMutableArray *someCustomFields)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* End of implementation class template. */

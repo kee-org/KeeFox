@@ -43,10 +43,27 @@ kfLoginInfo.prototype = {
     password      : null,
     usernameField : null,
     passwordField : null,
+    customFields : null,
+    
+    _alert : function (msg) {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                           .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+
+        // get a reference to the prompt service component.
+        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+
+        // show an alert. For the first argument, supply the parent window. The second
+        // argument is the dialog title and the third argument is the message
+        // to display.
+        promptService.alert(window,"Alert",msg);
+    },
 
     init : function (aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField) {
+                     //this._alert(arguments.length);
         this.hostname      = aHostname;
         this.formSubmitURL = aFormSubmitURL;
         this.httpRealm     = aHttpRealm;
@@ -54,6 +71,19 @@ kfLoginInfo.prototype = {
         this.password      = aPassword;
         this.usernameField = aUsernameField;
         this.passwordField = aPasswordField;
+        
+    },
+    
+    initCustom : function (aHostname, aFormSubmitURL, aHttpRealm,
+                     aUsername,      aPassword,
+                     aUsernameField, aPasswordField, customFieldsArray) {
+                     
+        this.init(aHostname, aFormSubmitURL, aHttpRealm,
+                     aUsername,      aPassword,
+                     aUsernameField, aPasswordField);
+        
+        this.customFields = customFieldsArray;   
+       
     },
 
 //CPT: had to hack this a bit. might come back to bite later. now if either httprealm is empty string we will not test for equality.

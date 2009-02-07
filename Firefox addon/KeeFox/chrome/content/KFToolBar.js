@@ -93,13 +93,36 @@ KFToolbar.prototype = {
 
         for (var i = 0; i < logins.length; i++) {
             var login = logins[i];
+            
+            var userNameID = null;
+            var passwordID = null;
+            var custFields = login.customFields;
+            //this.log(custFields);
+            if (custFields != undefined)
+            {
+                this.log("found some custom fields");
+                var enumerator = custFields.enumerate();
+                var s = "";
+                while (enumerator.hasMoreElements())
+                {
+                  var customField = enumerator.getNext().QueryInterface(Components.interfaces.kfILoginField);
+                  
+                  // for now we're only using custom fields to increase form selection accuracy
+                  if (customField.name == 'Form field special_form_username_ID value')
+                    userNameID = customField.value;
+                   else if (customField.name == 'Form field special_form_password_ID value')
+                    passwordID = customField.value;
+                }
+                //this.log(s);
+            }
+
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("toolbarbutton");
             tempButton.setAttribute("label", "Button " + i);
             tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "',null,null)");
+                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "',"+userNameID+","+passwordID+")");
             container.appendChild(tempButton);
 
 

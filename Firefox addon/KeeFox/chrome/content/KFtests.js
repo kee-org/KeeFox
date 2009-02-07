@@ -102,8 +102,9 @@ KFtests.prototype = {
         this.log("Preparing test users");
 
         var testuser1 = new kfLoginInfo;
-        testuser1.init("https://oyster.tfl.gov.uk", "https://oyster.tfl.gov.uk", null,
-      "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz", "j_username", "j_password"); // https://oyster.tfl.gov.uk/oyster/entry.do/ku
+        testuser1.initCustom("https://oyster.tfl.gov.uk", "https://oyster.tfl.gov.uk", null,
+      "abcdefghijklmnopqrstuvwxy", "abcdefghijklmnopqrstuvwxy", "j_username", "j_password",
+      keeFoxInst.kfLoginInfoCustomFieldsWrapper("username id","cvalue1","password id","cvalue2")); // https://oyster.tfl.gov.uk/oyster/entry.do/ku
 
         var testuser2 = new kfLoginInfo;
         testuser2.init("https://oyster.tfl.gov.uk/oyster/entry.do", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
@@ -117,7 +118,13 @@ KFtests.prototype = {
         testuser4.init("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦u4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦p4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦uf4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦pf4");
 
+        var testuser5 = new kfLoginInfo;
+        testuser5.initCustom("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
+      "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr",keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
 
+        var testuser6 = new kfLoginInfo;
+        testuser6.initCustom("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
+      "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr",keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
 
         var logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 0), "Using empty database - good", "KeePass is not loaded with an empty database. Please fix this before re-running the tests", true);
@@ -134,6 +141,12 @@ KFtests.prototype = {
         this._kfilm.addLogin(testuser4);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 4), "4th test login added successfully", "4th test login couldn't be added to KeePass", true);
+        this._kfilm.addLogin(testuser5);
+        logins = this._kfilm.getAllLogins({});
+        this._KeeFoxAssert((logins.length == 5), "5th test login added successfully", "5th test login couldn't be added to KeePass", true);
+        this._kfilm.addLogin(testuser6);
+        logins = this._kfilm.getAllLogins({});
+        this._KeeFoxAssert((logins.length == 6), "6th test login added successfully", "6th test login couldn't be added to KeePass", true);
 
         var countResult = this._kfilm.countLogins("https://oyster.tfl.gov.uk", "", null);
         this._KeeFoxAssert((countResult == 2), "Login count correct.", "Login count failed: https://oyster.tfl.gov.uk + all formURLs + no HTTP realm = " + countResult + ". Should be 2", false);
@@ -145,7 +158,7 @@ KFtests.prototype = {
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: https://oyster.tfl.gov.uk + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 1", false);
 
         countResult = this._kfilm.countLogins("", "https://third.party.form.submit.url", null);
-        this._KeeFoxAssert((countResult == 2), "Login count correct.", "Login count failed: any host + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 2", false);
+        this._KeeFoxAssert((countResult == 3), "Login count correct.", "Login count failed: any host + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 2", false);
 
         countResult = this._kfilm.countLogins("https://oyster.tfl.gov.uk", null, "some incorrect realm");
         this._KeeFoxAssert((countResult == 0), "Login count correct.", "Login count failed: https://oyster.tfl.gov.uk + no forms + invalid HTTP realm = " + countResult + ". Should be 0", false);
@@ -157,16 +170,18 @@ KFtests.prototype = {
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: any host + no forms + Test REALM3 = " + countResult + ". Should be 1", false);
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", "https://third.party.form.submit.url", null);
-        this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 1", false);
+        this._KeeFoxAssert((countResult == 2), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 1", false);
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", "", null);
-        this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + any form + no HTTP realm = " + countResult + ". Should be 1", false);
+        this._KeeFoxAssert((countResult == 2), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + any form + no HTTP realm = " + countResult + ". Should be 1", false);
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", null, "Test REALM3");
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + no forms + Test REALM3 = " + countResult + ". Should be 1", false);
 
-
         if (this._KeeFoxTestErrorOccurred)
+        {
             this.error("Some tests failed.");
+            throw new Error("Some assertions failed.");
+        }
     }
   }

@@ -138,12 +138,6 @@ KFILM.prototype = {
         
 // During initialisation
 //TODO: why? should we really do anything like this duing init?
-//var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                 .getService(Components.interfaces.nsIWindowMediator);
-//var window = wm.getMostRecentWindow("navigator:browser");
-//var gBrowser = window.getBrowser();
-//var container = gBrowser.tabContainer;
-//container.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
 // well, at some point we need to clear the toolbar settings when changing between tabs... 
 // remove all the old logins from the toolbar
             //this._toolbar.removeLogins();
@@ -303,12 +297,6 @@ KFILM.prototype = {
                     this._pwmgr._fillDocument(doc);
                     return;
 
-                case "DOMAutoComplete":
-                case "blur":
-                    inputElement = event.target;
-                    this._pwmgr._fillPassword(inputElement);
-                    return;
-
                 default:
                     this._pwmgr.log("Oops! This event unexpected.");
                     return;
@@ -316,156 +304,12 @@ KFILM.prototype = {
         }
     },
     
-    /*
-     * autoCompleteSearch
-     *
-     * Yuck. This is called directly by satchel:
-     * nsFormFillController::StartSearch()
-     * [toolkit/components/satchel/src/nsFormFillController.cpp]
-     *
-     * We really ought to have a simple way for code to register an
-     * auto-complete provider, and not have satchel calling pwmgr directly.
-     *
-     yes, I agree, this is shit. How can I get FF to call this function rather
-     than the login manager version as per cpp file above?
-     maybe have to repeat a ton of mozilla code to implement autocomplete
-     stuff myself becuase of this limitation? :-(
-     
-     */
-    autoCompleteSearch : function (aSearchString, aPreviousResult, aElement) {
-        // aPreviousResult & aResult are nsIAutoCompleteResult,
-        // aElement is nsIDOMHTMLInputElement
-
-        //if (!this._remember)
-        //    return false;
-
-        this.log("AutoCompleteSearch invoked. Search is: " + aSearchString);
-
-        var result = null;
-
-        if (aPreviousResult) {
-            this.log("Using previous autocomplete result");
-            result = aPreviousResult;
-
-            // We have a list of results for a shorter search string, so just
-            // filter them further based on the new search string.
-            // Count backwards, because result.matchCount is decremented
-            // when we remove an entry.
-            for (var i = result.matchCount - 1; i >= 0; i--) {
-                var match = result.getValueAt(i);
-
-                // Remove results that are too short, or have different prefix.
-                if (aSearchString.length > match.length ||
-                    aSearchString.toLowerCase() !=
-                        match.substr(0, aSearchString.length).toLowerCase())
-                {
-                    this.log("Removing autocomplete entry '" + match + "'");
-                    result.removeValueAt(i, false);
-                }
-            }
-        } else {
-            this.log("Creating new autocomplete search result.");
-
-            var doc = aElement.ownerDocument;
-            var origin = this._getPasswordOrigin(doc.documentURI);
-            var actionOrigin = this._getActionOrigin(aElement.form);
-
-            var logins = this.findLogins({}, origin, actionOrigin, null);
-            var matchingLogins = [];
-
-            for (i = 0; i < logins.length; i++) {
-                var username = logins[i].username.toLowerCase();
-                if (aSearchString.length <= username.length &&
-                    aSearchString.toLowerCase() ==
-                        username.substr(0, aSearchString.length))
-                {
-                    matchingLogins.push(logins[i]);
-                }
-            }
-            this.log(matchingLogins.length + " autocomplete logins avail.");
-            result = new UserAutoCompleteResult(aSearchString, matchingLogins);
-        }
-
-        return result;
-    },
-    
-    /*
-     * _isAutoCompleteDisabled
-     *
-     * Returns true if the page requests autocomplete be disabled for the
-     * specified form input.
-     */
-    _isAutocompleteDisabled :  function (element) {
-        if (element && element.hasAttribute("autocomplete") &&
-            element.getAttribute("autocomplete").toLowerCase() == "off")
-            return true;
-
-        return false;
-    },
-    
-    /*
-     * _fillPassword
-     *
-     * The user has autocompleted a username field, so fill in the password.
-     */
-    _fillPassword : function (usernameField) {
-        this.log("fillPassword autocomplete username: " + usernameField.value);
-
-        var form = usernameField.form;
-        var doc = form.ownerDocument;
-
-        var hostname = this._getPasswordOrigin(doc.documentURI);
-        var formSubmitURL = this._getActionOrigin(form)
-
-        // Find the password field. We should always have at least one,
-        // or else something has gone rather wrong.
-        var pwFields = this._getPasswordFields(form, false);
-        if (!pwFields) {
-            const err = "No password field for autocomplete password fill.";
-
-            // We want to know about this even if debugging is disabled.
-            if (!this._debug)
-                dump(err);
-            else
-                this.log(err);
-
-            return;
-        }
-
-        // If there are multiple passwords fields, we can't really figure
-        // out what each field is for, so just fill out the last field.
-        var passwordField = pwFields[0].element;
-
-        // Temporary LoginInfo with the info we know.
-        var currentLogin = new this._kfLoginInfo();
-        currentLogin.init(hostname, formSubmitURL, null,
-                          usernameField.value, null,
-                          usernameField.name, passwordField.name);
-
-        // Look for a existing login and use its password.
-        var match = null;
-        var logins = this.findLogins({}, hostname, formSubmitURL, null);
-        this.log(logins.count);
-        if (!logins.some(function(l) {
-                                match = l;
-                                return currentLogin.matches(l, true);
-                        }))
-        {
-            this.log("Can't find a login for this autocomplete result.");
-            return;
-        }
-
-        this.log("Found a matching login, filling in password.");
-        passwordField.value = match.password;
-    },
-    
-    
     
     /*
      * _getPasswordFields
      *
      * Returns an array of password field elements for the specified form.
-     * If no pw fields are found, or if more than 3 are found, then null
+     * If no pw fields are found, or if more than 10 are found, then null
      * is returned.
      *
      * skipEmptyFields can be set to ignore password fields with no value.
@@ -490,7 +334,7 @@ KFILM.prototype = {
         if (pwFields.length == 0) {
             this.log("(form ignored -- no password fields.)");
             return null;
-        } else if (pwFields.length > 3) {
+        } else if (pwFields.length > 10) {
             this.log("(form ignored -- too many password fields. [got " +
                         pwFields.length + "])");
             return null;
@@ -507,14 +351,9 @@ KFILM.prototype = {
      * Can handle complex forms by trying to figure out what the
      * relevant fields are.
      *
-     * Returns: [usernameField, newPasswordField, oldPasswordField]
+     * Returns: [usernameField, passwords, ...]
      *
      * usernameField may be null.
-     * newPasswordField will always be non-null.
-     * oldPasswordField may be null. If null, newPasswordField is just
-     * "theLoginField". If not null, the form is apparently a
-     * change-password field, with oldPasswordField containing the password
-     * that is being changed.
      */
     _getFormFields : function (form, isSubmission) {
         var usernameField = null;
@@ -523,19 +362,29 @@ KFILM.prototype = {
         // If there's no password field, there's nothing for us to do.
         var pwFields = this._getPasswordFields(form, isSubmission);
         if (!pwFields)
-            return [null, null, null];
+            return [null, null];
 
 
         // Locate the username field in the form by searching backwards
         // from the first passwordfield, assume the first text field is the
-        // username. We might not find a username field if the user is
+        // username. If this fails, try to find a hidden field with one of a number of names.
+        // We might not find a username field if the user is
         // already logged in to the site. 
+        // could be extended to consider name of text fields too in order to make better
+        // judgement rather than just pick first one we find.
         for (var i = pwFields[0].index - 1; i >= 0; i--) {
             if (form.elements[i].type == "text") {
                 usernameField = form.elements[i];
                 break;
             }
         }
+        if (!usernameField)
+            for (var i = 0; i < form.elements.length; i++) {
+                if (form.elements[i].type == "hidden" && form.elements[i].name == "j_username") { // TODO: array of username field names
+                    usernameField = form.elements[i];
+                    break;
+                }
+            }
 
         if (!usernameField)
             this.log("(form -- no username field found)");
@@ -544,10 +393,13 @@ KFILM.prototype = {
         // If we're not submitting a form (it's a page load), there are no
         // password field values for us to use for identifying fields. So,
         // just assume the first password field is the one to be filled in.
-        if (!isSubmission || pwFields.length == 1)
-            return [usernameField, pwFields[0].element, null];
+        // blah, just do it anyway. caller can make the decision - it shouldn't
+        // be down to this function to interpret the situation since it may be 
+        // easier to do basde on knowledge of circumstances that led to the function being called
+        //if (!isSubmission || pwFields.length == 1)
+            return [usernameField, pwFields];
 
-
+/*
         // Try to figure out WTF is in the form based on the password values.
         var oldPasswordField, newPasswordField;
         var pw1 = pwFields[0].element.value;
@@ -589,6 +441,7 @@ KFILM.prototype = {
         }
 
         return [usernameField, newPasswordField, oldPasswordField];
+        */
     },
     
     
@@ -747,22 +600,6 @@ KFILM.prototype = {
     },
     
     /*
-     * _attachToInput
-     *
-     * Hooks up autocomplete support to a username field, to allow
-     * a user editing the field to select an existing login and have
-     * the password field filled in.
-     */
-    _attachToInput : function (element) {
-        this.log("attaching autocomplete stuff");
-        element.addEventListener("blur",
-                                this._domEventListener, false);
-        element.addEventListener("DOMAutoComplete",
-                                this._domEventListener, false);
-        this._formFillService.markAsLoginManagerField(element);
-    },
-    
-    /*
      * _fillDocument
      *
      * Called when a page has loaded. For each form in the document,
@@ -807,8 +644,13 @@ KFILM.prototype = {
             // so that the user isn't prompted for a master password
             // without need.
             //TODO: is this Mozilla stuff useful or should we change it?
-            var [usernameField, passwordField, ignored] =
+            var [usernameField, passwords] =
                 this._getFormFields(form, false);
+            var passwordField;
+            
+            if (passwords != null && passwords[0] != null)
+                passwordField = passwords[0];
+                
             // Need a valid password field to do anything.
             if (passwordField == null)
             {
@@ -997,42 +839,66 @@ KFILM.prototype = {
         if (usernameID != null)
         {
             usernameField = doc.getElementById(usernameID);
-            form = usernameField.form;
             
-            // Find the password field. We should always have at least one,
-            // or else something has gone rather wrong.
-            var pwFields = this._getPasswordFields(form, false);
-            if (!pwFields) {
-                const err = "No password field for autocomplete password fill.";
+            if (usernameField != null)
+            {
+                form = usernameField.form;
+            
+                // Find the password field. We should always have at least one,
+                // or else something has gone rather wrong.
+                var pwFields = this._getPasswordFields(form, false);
+                if (!pwFields) {
+                    const err = "No password field for autocomplete password fill.";
 
-                // We want to know about this even if debugging is disabled.
-                if (!this._debug)
-                    dump(err);
-                else
-                    this.log(err);
+                    // We want to know about this even if debugging is disabled.
+                    if (!this._debug)
+                        dump(err);
+                    else
+                        this.log(err);
 
-                return;
+                    return;
+                }
+
+                // If there are multiple passwords fields, we can't really figure
+                // out what each field is for, so just fill out the last field.
+                var passwordField = pwFields[0].element;
             }
-
-            // If there are multiple passwords fields, we can't really figure
-            // out what each field is for, so just fill out the last field.
-            var passwordField = pwFields[0].element;
             
-        } else if (formID != null)
+        }
+        
+        if ((form == undefined || form == null) && formID != null)
         {
             form = usernameField.form;
-            [usernameField, passwordField, ignored] = this._getFormFields(form, false);
-        } else
+            if (form != null)
+            {
+                [usernameField, passwords] = this._getFormFields(form, false);
+                var passwordField = passwords[0].element;
+            }
+        }
+        
+        if (form == undefined || form == null)
         {
             for (var i = 0; i < doc.forms.length; i++) {
                 var formi = doc.forms[i];
                 if (this._getActionOrigin(formi) == actionURL)
                 {
                     form = formi;
+                    [usernameField, passwords] = this._getFormFields(form, false);
+                    
+                    if (passwords == null || passwords.length == 0)
+                        continue;
+                    
+                    var passwordField = passwords[0].element;
                     break;
                 }
             }
-            [usernameField, passwordField, ignored] = this._getFormFields(form, false);
+            
+        }
+        
+        if (passwordField == null)
+        {
+            this.log("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
+            return;
         }
 
         var hostname = this._getPasswordOrigin(doc.documentURI);
@@ -1040,11 +906,12 @@ KFILM.prototype = {
 
         
 
+//TODO: initCustom then extend search function to weight the id of form items
         // Temporary LoginInfo with the info we know.
         var currentLogin = new this._kfLoginInfo();
         currentLogin.init(hostname, actionURL, null,
                           usernameValue, null,
-                          usernameField.name, passwordField.name);
+                          (usernameField ? usernameField.name  : ""), passwordField.name);
 
         // Look for a existing login and use its password.
         var match = null;
@@ -1061,8 +928,10 @@ KFILM.prototype = {
         }
 
         this.log("Found a matching login, filling in password.");
+        // TODO: this whole function could be improved if there's a way to support filling of multiple password fields (either with different or the same password)
         passwordField.value = match.password;
-        usernameField.value = match.username;
+        if (usernameField != null)
+            usernameField.value = match.username;
     },
     
     /*
@@ -1074,6 +943,8 @@ KFILM.prototype = {
      * our stored password.
      */
     _onFormSubmit : function (form) {
+
+        this.log("Form submit handler started");
 
         var doc = form.ownerDocument;
         var win = doc.defaultView;
@@ -1091,68 +962,206 @@ KFILM.prototype = {
         //}
 
 
+/* this is where we have to really improve built in stuff...
+ we know what form has been submitted but everything else has to be inferred
+ 
+ 1 password & optional username = login
+ 2 password & optional username = login including PIN
+ 3 password & optional username = login including multiple PINs
+ etc.
+ 
+ 2 password & text or hidden username = sign up
+ 2 password = second stage sign up
+ 2 password = second stage log in
+ 
+ doesn't matter if login or signup - in both cases we need to check if details 
+ already stored and if different we prompt for update?
+ 
+ password change is important difference. this will be if 
+ 
+ */
         // Get the appropriate fields from the form.
-        var [usernameField, newPasswordField, oldPasswordField] =
+        
+        var newPasswordField, oldPasswordField;
+        
+        // all except passwords are optional. must be at least one password in the array
+        //potentially extend with another Array of custom fields in future (e.g. profile details, sign-in options)
+        var [usernameField, passwords] =
             this._getFormFields(form, true);
 
         // Need at least 1 valid password field to do anything.
-        if (newPasswordField == null)
+        if (passwords == null || passwords[0] == null || passwords[0] == undefined)
         {
-            this.log("No new password field found in form submission.");
+            this.log("No password field found in form submission.");
             return;
         }
+        
+        if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
+        {
+            
+            // naive duplicate finder - more than sufficient for the number of passwords per domain
+            twoPasswordsMatchIndex=-1;
+            for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
+                for(j=0;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
+                    if(passwords[j].element.value==passwords[i].element.value) twoPasswordsMatchIndex=j;
+            
+            if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup
+            {
+                // we don't support these situations yet
+                this.log("unsupported situation");
+                return;
+            } else // it's probably a password change form
+            {
+                this.log("Looks like a password change form has been submitted");
+                // there may be more than one pair of matches - tough, we're plucking for the first one
+                // we know the index of one matching password
+                
+                // if there are only two passwords
+                if (passwords.length == 2)
+                {
+                    newPasswordField = passwords[0].element;
+                    this.log("test1:" + newPasswordField.value);
+                } else
+                {
+                    newPasswordField = passwords[twoPasswordsMatchIndex].element;
+                    this.log("test2:" + newPasswordField.value);
+                    for(i=0;i<passwords.length;i++)
+                        if(newPasswordField.value != passwords[i].element.value)
+                            oldPasswordField = passwords[i].element;
+                }
+            
+            }
+        
 
-        // Check for autocomplete=off attribute. We don't use it to prevent
-        // autofilling (for existing logins), but won't save logins when it's
-        // present.
-        //if (this._isAutocompleteDisabled(form) ||
-        //    this._isAutocompleteDisabled(usernameField) ||
-        //    this._isAutocompleteDisabled(newPasswordField) ||
-        //    this._isAutocompleteDisabled(oldPasswordField)) {
-        //        this.log("(form submission ignored -- autocomplete=off found)");
-        //        return;
-        //}
-
+        
+        } else
+        {
+            newPasswordField = passwords[0].element;
+            this.log("test3a:" + newPasswordField.value);
+            //this.log("test3b:" + newPasswordField.element);
+            //this.log("test3c:" + newPasswordField.element.value);
+        }
+        
+        // at this point, newPasswordField has been chosen and oldPasswordField has been chosen if applicable
 
         var formLogin = new this._kfLoginInfo();
-        formLogin.init(hostname, formSubmitURL, null,
+        
+        if ((usernameField != null && usernameField.id != null) || (newPasswordField != null && newPasswordField.id != null))
+        {
+            var customWrapper;
+            if (newPasswordField == null || newPasswordField.id == null)
+                customWrapper = keeFoxInst.kfLoginInfoCustomFieldsWrapper("special_form_username_ID",usernameField.id);
+            else if (usernameField == null || usernameField.id == null)
+                customWrapper = keeFoxInst.kfLoginInfoCustomFieldsWrapper("special_form_password_ID",newPasswordField.id);
+            else
+                customWrapper = keeFoxInst.kfLoginInfoCustomFieldsWrapper("special_form_username_ID",usernameField.id,"special_form_password_ID",newPasswordField.id);
+            
+            this.log("test:" + newPasswordField.value);
+            
+            formLogin.initCustom(hostname, formSubmitURL, null,
+                    (usernameField ? usernameField.value : ""),
+                    newPasswordField.value,
+                    (usernameField ? usernameField.name  : ""),
+                    newPasswordField.name, customWrapper);
+            this.log("login object initialised with custom data");
+        } else
+        {
+            formLogin.init(hostname, formSubmitURL, null,
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
                     newPasswordField.name);
+            this.log("login object initialised without custom data");
+        }
+        
+        // Look for an existing login that matches the form login.
+        var existingLogin = null;
+        var logins = this.findLogins({}, hostname, formSubmitURL, null);
 
-        // If we didn't find a username field, but seem to be changing a
-        // password, allow the user to select from a list of applicable
-        // logins to update the password for.
-        if (!usernameField && oldPasswordField) {
+        for (var i = 0; i < logins.length; i++)
+        {
+            var same, login = logins[i];
 
-            var logins = this.findLogins({}, hostname, formSubmitURL, null);
-
-            if (logins.length == 0) {
-                // Could prompt to save this as a new password-only login.
-                // This seems uncommon, and might be wrong, so ignore.
-                this.log("(no logins for this host -- pwchange ignored)");
-                return;
-            }
-
-            keeFoxUI.setWindow(win);
-            keeFoxUI.setDocument(doc);
-
-            if (logins.length == 1) {
-                var oldLogin = logins[0];
-                formLogin.username      = oldLogin.username;
-                formLogin.usernameField = oldLogin.usernameField;
-
-                keeFoxUI.promptToChangePassword(oldLogin, formLogin);
+            // If one login has a username but the other doesn't, ignore
+            // the username when comparing and only match if they have the
+            // same password. Otherwise, compare the logins and match even
+            // if the passwords differ.
+            if (!login.username && formLogin.username) {
+                var restoreMe = formLogin.username;
+                formLogin.username = ""; 
+                same = formLogin.matches(login, false);
+                formLogin.username = restoreMe;
+            } else if (!formLogin.username && login.username) {
+                formLogin.username = login.username;
+                same = formLogin.matches(login, false);
+                formLogin.username = ""; // we know it's always blank.
             } else {
-                keeFoxUI.promptToChangePasswordWithUsernames(
-                                    logins, logins.length, formLogin);
+                same = formLogin.matches(login, true);
             }
 
-            return;
+            if (same) {
+                this.log("login object matches with a stored login");
+                existingLogin = login;
+                break;
+            }
         }
 
+        
 
+        if (oldPasswordField != null) // we are changing the password
+        {
+            
+            if (existingLogin) // as long as we have previously stored a login for this site...
+            {
+                this.log("we are changing the password");
+                keeFoxUI.setWindow(win);
+                keeFoxUI.setDocument(doc);
+
+                if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form)
+                    var oldLogin = logins[0];
+                    formLogin.username      = oldLogin.username;
+                    formLogin.usernameField = oldLogin.usernameField;
+
+                    keeFoxUI.promptToChangePassword(oldLogin, formLogin);
+                } else {
+                    keeFoxUI.promptToChangePasswordWithUsernames(
+                                        logins, logins.length, formLogin);
+                } // TODO: allow option to override change password option and instead save as a new password. (need a new prompt function)
+            }
+            return;
+        
+        } else // maybe it is new...
+        {
+            if (existingLogin) // no, it's already in the database so ignore
+            {
+                this.log("we are logging in with a known password so doing nothing.");
+                // this could miss some cases. e.g.
+                // password previously changed outside of this password management system (maybe matching algorithm above needs to compare passwords too in cases like this?)
+                return;
+            }
+            
+        
+        }
+        
+        // if we get to this stage, we are faced with a new login or signup submission so prompt user to save details
+        this.log("password is not recognised so prompting user to save it");
+        
+        // Prompt user to save login (via dialog or notification bar)
+        //this.log("orig window has name:" + win.name);
+        keeFoxUI.setWindow(win);
+        keeFoxUI.setDocument(doc);
+        // why is forLogin.password broken here? look at dos console? original input? form field identification?
+        this.log("details1:" + formLogin.username + ":" + formLogin.password + ":" );
+        keeFoxUI.promptToSavePassword(formLogin);
+        this.log("details2:" + formLogin.username + ":" + formLogin.password + ":" );
+        
+        
+        
+        
+
+/* this Mozilla code is effectively ehre just to enable automatic updating of passwords.
+Neat, but I'm not convinced that it is 100% fool-proof and essential. maybe it will
+ help me implement a similar feature in the future.
         // Look for an existing login that matches the form login.
         var existingLogin = null;
         var logins = this.findLogins({}, hostname, formSubmitURL, null);
@@ -1196,7 +1205,7 @@ KFILM.prototype = {
              * in different contexts (enter your PIN, answer a security
              * question, etc), and without a username we can't be sure if
              * modifying an existing login is the right thing to do.
-             */
+             *
             if (existingLogin.password != formLogin.password) {
                 if (formLogin.username) {
                     this.log("...Updating password for existing login.");
@@ -1211,14 +1220,61 @@ KFILM.prototype = {
 
             return;
         }
+        */
 
-
-        // Prompt user to save login (via dialog or notification bar)
-        //this.log("orig window has name:" + win.name);
-        keeFoxUI.setWindow(win);
-        keeFoxUI.setDocument(doc);
-        keeFoxUI.promptToSavePassword(formLogin);
     }
     
     
    };
+   
+   
+   
+   
+   
+   
+   /*
+   
+   
+        // Try to figure out WTF is in the form based on the password values.
+        var oldPasswordField, newPasswordField;
+        var pw1 = pwFields[0].element.value;
+        var pw2 = pwFields[1].element.value;
+        var pw3 = (pwFields[2] ? pwFields[2].element.value : null);
+
+        if (pwFields.length == 3) {
+            // Look for two identical passwords, that's the new password
+
+            if (pw1 == pw2 && pw2 == pw3) {
+                // All 3 passwords the same? Weird! Treat as if 1 pw field.
+                newPasswordField = pwFields[0].element;
+                oldPasswordField = null;
+            } else if (pw1 == pw2) {
+                newPasswordField = pwFields[0].element;
+                oldPasswordField = pwFields[2].element;
+            } else if (pw2 == pw3) {
+                oldPasswordField = pwFields[0].element;
+                newPasswordField = pwFields[2].element;
+            } else  if (pw1 == pw3) {
+                // A bit odd, but could make sense with the right page layout.
+                newPasswordField = pwFields[0].element;
+                oldPasswordField = pwFields[1].element;
+            } else {
+                // We can't tell which of the 3 passwords should be saved.
+                this.log("(form ignored -- all 3 pw fields differ)");
+                return [null, null, null];
+            }
+        } else { // pwFields.length == 2
+            if (pw1 == pw2) {
+                // Treat as if 1 pw field
+                newPasswordField = pwFields[0].element;
+                oldPasswordField = null;
+            } else {
+                // Just assume that the 2nd password is the new password
+                oldPasswordField = pwFields[0].element;
+                newPasswordField = pwFields[1].element;
+            }
+        }
+
+        return [usernameField, newPasswordField, oldPasswordField];
+        
+        */

@@ -145,8 +145,11 @@ this._test = numb;
     },
 
     _checkForConflictingExtensions: function() {
-        //if (Application.extensions.has("roboform"))?
-        //TODO: warning? - disable one?
+        if (Application.extensions.has("{22119944-ED35-4ab1-910B-E619EA06A115}"))
+        {
+            this.log("Roboform found.");
+            //TODO: warning? - disable one?
+        }
     },
 
     _registerUninstallListeners: function() {
@@ -617,6 +620,31 @@ this._test = numb;
         // browser is the XUL element of the browser that's just been selected
         keeFoxToolbar.setLogins(null);
         keeFoxILM._fillDocument(browser.contentDocument);
+    },
+    
+    
+    // TODO: put this somewhere sensible, maybe a utils file, depending on what else we come up over the next few months...
+    kfLoginInfoCustomFieldsWrapper : function () {
+                     
+        var customFieldsArray = null;
+
+        if ( arguments.length > 0 ) // we're being given some custom fields to deal with...
+        {
+            customFieldsArray = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+            
+            for (i = 0; i+1 < arguments.length; i=i+2)
+            {
+                var kfLoginField = new Components.Constructor(
+            "@christomlinson.name/kfLoginField;1", Ci.kfILoginField);
+            
+                var customField = new kfLoginField;
+                customField.init( arguments[i], arguments[i+1]);
+                customFieldsArray.appendElement(customField,false);
+            }
+        }
+        
+        return customFieldsArray;
     }
 
 };

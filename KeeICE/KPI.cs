@@ -211,7 +211,7 @@ namespace KeeICE
                 // double check above runs before Invoked method finishes...
 
                 //TODO: messy when firefox makes request during keepass startup - UI not created yet but this thread locks it so it will never appear until user creates DB - catch 22 in most cases
-                // really?
+                // really? this TODO may be outdated...
 
             
             }
@@ -279,15 +279,20 @@ namespace KeeICE
                     newLogin.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.value));
                     newLogin.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "username"));
                 }
+                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTtext)
+                {
+                    newLogin.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
+                    newLogin.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "text"));
+                }
                 //TODO: other field types
             }
 
             newLogin.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.hostName));
-            newLogin.Strings.Set("Form match URL", new ProtectedString(false, login.formURL));
-            newLogin.Strings.Set("Form HTTP realm", new ProtectedString(false, login.HTTPRealm));
+            newLogin.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.formURL));
+            newLogin.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm));
 
             // Set some of the string fields
-            newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(false, login.title));
+            newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.title));
 
             host.Database.RootGroup.AddEntry(newLogin, true);
 
@@ -328,9 +333,9 @@ void DoStuffOnUI()
             //host.Database.RootGroup.
             foreach (PwEntry pwe in output)
             {
-                //pwe.
-                ArrayList formFieldList = new ArrayList(); // why 8?!!
-                //host.Database.IOConnectionInfo.
+
+                ArrayList formFieldList = new ArrayList();
+
                 foreach (System.Collections.Generic.KeyValuePair
                     <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
                 {
@@ -354,7 +359,7 @@ void DoStuffOnUI()
                         else if (pweValue == "text")
                         {
                             formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
+                    "Custom", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
                         }
                         else if (pweValue == "radio")
                         {

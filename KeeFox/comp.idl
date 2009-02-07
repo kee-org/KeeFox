@@ -19,10 +19,26 @@
 
 #include "nsISupports.idl"
 #include "nsILoginInfo.idl"
+#include "nsIMutableArray.idl"
 //#include "nsILoginManagerStorage.idl"
+
+// TODO: more attributes needed? would be nice if not, maybe automatically detect form field type at fill-in
+// stage rather than store in KeePass?
+[scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa873)]
+interface kfILoginField : nsISupports {
+  attribute AString name;
+  attribute AString value;
+  void init(in AString aName, in AString aValue);
+};
 
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa870)]
 interface kfILoginInfo : nsILoginInfo {
+  attribute nsIMutableArray customFields;
+  void initCustom(in AString aHostname,
+              in AString aFormSubmitURL, in AString aHttpRealm,
+              in AString aUsername,      in AString aPassword,
+              in AString aUsernameField, in AString aPasswordField,
+			  in nsIMutableArray someCustomFields);
   //void callBackToKeeFoxJS(in long word);
 };
 
