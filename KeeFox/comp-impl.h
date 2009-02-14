@@ -29,6 +29,8 @@
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include "generated/KeeICE.h"
+#include "nsILoginInfo.h"
+#include "nsCOMPtr.h"
 
 using std::string;
 using std::vector;
@@ -87,7 +89,8 @@ private:
 	bool IsLocationInCache(string url);
 	int CountLocationsInCache(string url);
 	void DeleteLocationFromCache(string url);
-
+	KeeICE::KFlib::KPEntry ConvertLoginInfoToKPEntry (kfILoginInfo *aLogin);
+	nsCOMPtr<kfILoginInfo> ConvertKPEntryToLoginInfo (KeeICE::KFlib::KPEntry aLogin);
 
 protected:
 	/* additional members */

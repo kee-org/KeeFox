@@ -9,7 +9,7 @@
          hidden="false" persist="hidden">
     	
     	<toolbarbutton id="KeeFox_RunSelfTests-Button" tooltiptext="Execute KeeFox self tests to verify instalation is working as expected."
-               label="Test KeeFox" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" />
+               class="chrisgreen" label="Test KeeFox" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" />
 
       <toolbarbutton id="KeeFox_Main-Button" tooltiptext="KeeFox is loading and doing a few startup tests. It shouldn't take long..."
                label="KeeFox loading..." oncommand="keeFoxInst.KeeFox_MainButtonClick(event, 'hw')" disabled="true" />

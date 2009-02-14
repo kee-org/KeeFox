@@ -51,6 +51,7 @@ module KFlib {
 		KPFormFieldList formFieldList;
 		bool default; // for this hostname
 		bool exactMatch; // URLs match exactly
+		string uniqueID;
     };
     
     sequence<KPEntry> KPEntryList;
@@ -78,10 +79,12 @@ module KFlib {
         //KPDatabase getDatabase();
         bool checkVersion(float keeFoxVersion, float keeICEVersion, out int result); 
         string getDatabaseName();
+        string getDatabaseFileName();
+        void changeDatabase(string fileName, bool closeCurrent);
         void AddLogin(KPEntry login) throws KeeICEException;
         void ModifyLogin(KPEntry oldLogin, KPEntry newLogin) throws KeeICEException;
         int getAllLogins(out KPEntryList logins) throws KeeICEException;
-        int findLogins(string hostname, string actionURL, string httpRealm, loginSearchType lst, bool requireFullURLMatches, out KPEntryList logins) throws KeeICEException;
+        int findLogins(string hostname, string actionURL, string httpRealm, loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KPEntryList logins) throws KeeICEException;
         int countLogins(string hostname, string actionURL, string httpRealm, loginSearchType lst, bool requireFullURLMatches) throws KeeICEException;
         //bool getDirty();
         void addClient(Ice::Identity ident);

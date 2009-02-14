@@ -57,8 +57,37 @@ namespace KeeICE
 
         public override string getDatabaseName(Ice.Current current__)
         {
-
             return host.Database.Name;
+        }
+
+        public override string getDatabaseFileName(Ice.Current current__)
+        {
+            return host.Database.IOConnectionInfo.Path;
+        }
+
+        /// <summary>
+        /// changes current active database
+        /// </summary>
+        /// <param name="fileName">Path to database to open. If empty, user is prompted to choose a file</param>
+        /// <param name="closeCurrent">if true, currently active database is closed first. if false,
+        /// both stay open with fileName DB active</param>
+        public override void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__)
+        {
+            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null)
+            {
+                host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
+            }
+
+            KeePassLib.Serialization.IOConnectionInfo ioci = null;
+
+            if (fileName != null && fileName.Length > 0)
+            {
+                ioci = new KeePassLib.Serialization.IOConnectionInfo();
+                ioci.Path = fileName;
+            }
+
+            host.MainWindow.OpenDatabase(ioci,null,false);
+            return;
         }
 
         /// <summary>
@@ -198,7 +227,7 @@ namespace KeeICE
         /// <summary>
         /// halts thread until a DB is open in the KeePass application
         /// </summary>
-        private void ensureDBisOpen() {
+        private bool ensureDBisOpen() {
         
             if (!host.Database.IsOpen)
             {    //TODO: this simple thread sync won't work if more than one ICE client gets invovled
@@ -208,6 +237,10 @@ namespace KeeICE
                 //MessageBox.Show("please open a DB [TODO: make this more useful than a simple error message]. KeeICE disabled until DB is opened.");
                 host.MainWindow.Invoke(new MethodInvoker(promptUserToOpenDB)); 
                 ensureDBisOpenEWH.WaitOne(); // wait until DB has been opened
+
+                if (!host.Database.IsOpen)
+                    return false;
+
                 // double check above runs before Invoked method finishes...
 
                 //TODO: messy when firefox makes request during keepass startup - UI not created yet but this thread locks it so it will never appear until user creates DB - catch 22 in most cases
@@ -215,6 +248,7 @@ namespace KeeICE
 
             
             }
+            return true;
         }
 
         void promptUserToOpenDB()
@@ -229,9 +263,14 @@ namespace KeeICE
             form1.InitEx();
             
             */
-            
+
+            KeePass.Program.MainForm.OpenDatabase(KeePass.Program.Config.Application.LastUsedFile, null, false);
+
+            if (!host.Database.IsOpen)
+                KPI.ensureDBisOpenEWH.Set(); // signal that any waiting ICE thread can go ahead
+
             // set to true whenever we're ready to relinquish control back to the main KeePass app
-            bool promptAborted = false;
+            /*bool promptAborted = false;
 
             while (!promptAborted)
             {
@@ -257,67 +296,148 @@ namespace KeeICE
                    if (openMRUresult != DialogResult.Yes)
                        promptAborted = true;
                }
-            }
+            }*/
         }
 
-        public override void AddLogin(KFlib.KPEntry login, Ice.Current current__)
+        private KFlib.KPEntry getKPEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
         {
-            // Make sure there is an active database
-            ensureDBisOpen();
+            ArrayList formFieldList = new ArrayList();
 
-            PwEntry newLogin = new PwEntry(true,true);
+            foreach (System.Collections.Generic.KeyValuePair
+                <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
+            {
+                string pweKey = pwestring.Key;
+                string pweValue = pwestring.Value.ReadString();
+
+                if (pweKey.StartsWith("Form field ") && pweKey.EndsWith(" type") && pweKey.Length > 16)
+                {
+                    string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
+
+                    if (pweValue == "password")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Password", pwe.Strings.ReadSafe("Password"), KFlib.formFieldType.FFTpassword));
+                    }
+                    else if (pweValue == "username")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "User name", pwe.Strings.ReadSafe("UserName"), KFlib.formFieldType.FFTusername));
+                    }
+                    else if (pweValue == "text")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
+                    }
+/* old...
+ * else if (pweValue == "text")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Custom", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
+                    }
+ * ****/
+                    else if (pweValue == "radio")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTradio));
+                    }
+                    else if (pweValue == "select")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTselect));
+                    }
+                    else if (pweValue == "checkbox")
+                    {
+                        formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTcheckbox));
+                    }
+                }
+
+            }
+            byte[] temp1 = pwe.Uuid.UuidBytes;
+            string temp2 = pwe.Uuid.ToString();
+            string temp3 = pwe.Uuid.ToHexString();
+
+            KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
+            KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe("title"), temp, false, isExactMatch, pwe.Uuid.ToHexString());
+            return kpe;
+        }
+
+        private void setPwEntryFromKPEntry(PwEntry pwe, KFlib.KPEntry login)
+        {
 
             foreach (KFlib.KPFormField kpff in login.formFieldList)
             {
                 if (kpff.type == KeeICE.KFlib.formFieldType.FFTpassword)
                 {
-                    newLogin.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.value));
-                    newLogin.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "password"));
+                    pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "password"));
                 }
                 else if (kpff.type == KeeICE.KFlib.formFieldType.FFTusername)
                 {
-                    newLogin.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.value));
-                    newLogin.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "username"));
+                    pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "username"));
                 }
                 else if (kpff.type == KeeICE.KFlib.formFieldType.FFTtext)
                 {
-                    newLogin.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
-                    newLogin.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "text"));
+                    pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "text"));
                 }
                 //TODO: other field types
             }
 
-            newLogin.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.hostName));
-            newLogin.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.formURL));
-            newLogin.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm));
+            pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.hostName));
+            pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.formURL));
+            pwe.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm));
 
             // Set some of the string fields
-            newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.title));
+            pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.title));
+        }
+
+        public override void AddLogin(KFlib.KPEntry login, Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return;
+
+            PwEntry newLogin = new PwEntry(true,true);
+
+            setPwEntryFromKPEntry(newLogin, login);
 
             host.Database.RootGroup.AddEntry(newLogin, true);
 
-            
-
-            //_app.Invoke;
-            host.MainWindow.Invoke(new MethodInvoker(DoStuffOnUI));
-            
-
-            //host.Database.Save(KeePassLib.Interfaces.LogStatusType.AdditionalInfo);
+            host.MainWindow.Invoke(new MethodInvoker(saveDB));
         }
 
 
-void DoStuffOnUI()
-{
-    KeePassLib.Interfaces.IStatusLogger logger = new Log();
-    host.Database.Save(logger);
-    host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-}
+        void saveDB()
+        {
+            KeePassLib.Interfaces.IStatusLogger logger = new Log();
+            host.Database.Save(logger);
+            host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+        }
 
 
         public override void ModifyLogin(KFlib.KPEntry oldLogin, KFlib.KPEntry newLogin, Ice.Current current__)
         {
+            if (oldLogin == null)
+                throw new Exception("old login must be passed to the ModifyLogin function. It wasn't");
+            if (newLogin == null)
+                throw new Exception("new login must be passed to the ModifyLogin function. It wasn't");
+            if (oldLogin.uniqueID == null || oldLogin.uniqueID == "")
+                throw new Exception("old login doesn't contain a uniqueID");
+
             // Make sure there is an active database
-            ensureDBisOpen();
+            if (!ensureDBisOpen()) return;
+
+            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLogin.uniqueID)); 
+            
+            PwEntry modificationTarget = host.Database.RootGroup.FindEntry(pwuuid, true);
+
+            if (modificationTarget == null)
+                throw new Exception("Could not find correct entry to modify. No changes made to KeePass database.");
+
+            setPwEntryFromKPEntry(modificationTarget, newLogin);
+
+            host.MainWindow.Invoke(new MethodInvoker(saveDB));
         }
 
         public override int getAllLogins(out KFlib.KPEntry[] logins, Ice.Current current__)
@@ -326,64 +446,14 @@ void DoStuffOnUI()
             ArrayList allEntries = new ArrayList();
 
             // Make sure there is an active database
-            ensureDBisOpen();
+            if (!ensureDBisOpen()) { logins = null; return -1; }
 
             KeePassLib.Collections.PwObjectList<PwEntry> output;
             output = host.Database.RootGroup.GetEntries(true);
             //host.Database.RootGroup.
             foreach (PwEntry pwe in output)
             {
-
-                ArrayList formFieldList = new ArrayList();
-
-                foreach (System.Collections.Generic.KeyValuePair
-                    <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
-                {
-                    string pweKey = pwestring.Key;
-                    string pweValue = pwestring.Value.ReadString();
-
-                    if (pweKey.StartsWith("Form field ") && pweKey.EndsWith(" type") && pweKey.Length > 16)
-                    {
-                        string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
-
-                        if (pweValue == "password")
-                        {
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "Password", pwe.Strings.ReadSafe("Password"), KFlib.formFieldType.FFTpassword));
-                        }
-                        else if (pweValue == "username")
-                        {
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "User name", pwe.Strings.ReadSafe("UserName"), KFlib.formFieldType.FFTusername));
-                        }
-                        else if (pweValue == "text")
-                        {
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "Custom", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
-                        }
-                        else if (pweValue == "radio")
-                        {
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTradio));
-                        }
-                        else if (pweValue == "select")
-                        {
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTselect));
-                        }
-                        else if (pweValue == "checkbox")
-                        {
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                    "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTcheckbox));
-                        }
-                    }
-
-
-                    
-                }
-
-                KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
-                KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe("title"), temp, false, false);
+                KFlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
                 allEntries.Add(kpe);
                 count++;
 
@@ -394,10 +464,31 @@ void DoStuffOnUI()
             return count;
         }
 
-        public override int findLogins(string hostname, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, out KFlib.KPEntry[] logins, Ice.Current current__)
+
+
+        public override int findLogins(string hostname, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KFlib.KPEntry[] logins, Ice.Current current__)
         {
             string fullURL = hostname;
             string fullActionURL = actionURL;
+
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) { logins = null; return -1; }
+
+            // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
+            if (uniqueID != null && uniqueID.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uniqueID));
+
+                PwEntry matchedLogin = host.Database.RootGroup.FindEntry(pwuuid, true);
+
+                if (matchedLogin == null)
+                    throw new Exception("Could not find requested entry.");
+
+                logins = new KFlib.KPEntry[1];
+                logins[0] = getKPEntryFromPwEntry(matchedLogin, true);
+                if (logins[0] != null)
+                    return 1;
+            }
 
             // make sure that hostname and actionURL always represent only the hostname portion
             // of the URL
@@ -427,8 +518,7 @@ void DoStuffOnUI()
             int count = 0;
             ArrayList allEntries = new ArrayList();
 
-            // Make sure there is an active database
-            ensureDBisOpen();
+            
 
             SearchParameters sp = new SearchParameters();
             sp.SearchInUrls = true;
@@ -476,53 +566,7 @@ void DoStuffOnUI()
 
                 if (entryIsAMatch)
                 {
-                    ArrayList formFieldList = new ArrayList();
-
-                    foreach (System.Collections.Generic.KeyValuePair
-                        <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
-                    {
-                        string pweKey = pwestring.Key;
-                        string pweValue = pwestring.Value.ReadString();
-
-                        if (pweKey.StartsWith("Form field ") && pweKey.EndsWith(" type") && pweKey.Length > 16)
-                        {
-                            string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
-
-                            if (pweValue == "password")
-                            {
-                                formFieldList.Add(new KFlib.KPFormField(fieldName,
-                        "Password", pwe.Strings.ReadSafe("Password"), KFlib.formFieldType.FFTpassword));
-                            }
-                            else if (pweValue == "username")
-                            {
-                                formFieldList.Add(new KFlib.KPFormField(fieldName,
-                        "User name", pwe.Strings.ReadSafe("UserName"), KFlib.formFieldType.FFTusername));
-                            }
-                            else if (pweValue == "text")
-                            {
-                                formFieldList.Add(new KFlib.KPFormField(fieldName,
-                        "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
-                            }
-                            else if (pweValue == "radio")
-                            {
-                                formFieldList.Add(new KFlib.KPFormField(fieldName,
-                        "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTradio));
-                            }
-                            else if (pweValue == "select")
-                            {
-                                formFieldList.Add(new KFlib.KPFormField(fieldName,
-                        "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTselect));
-                            }
-                            else if (pweValue == "checkbox")
-                            {
-                                formFieldList.Add(new KFlib.KPFormField(fieldName,
-                        "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTcheckbox));
-                            }
-                        }
-
-                    }
-                    KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
-                    KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe("title"), temp, false, entryIsAnExactMatch);
+                    KFlib.KPEntry kpe = getKPEntryFromPwEntry(pwe,entryIsAnExactMatch);
                     allEntries.Add(kpe);
                     count++;
                 }
@@ -642,7 +686,7 @@ void DoStuffOnUI()
             else
             {
                 // Make sure there is an active database
-                ensureDBisOpen();
+                if (!ensureDBisOpen()) return -1;
 
                 SearchParameters sp = new SearchParameters();
                 sp.SearchInUrls = true;

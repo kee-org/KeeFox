@@ -220,6 +220,8 @@ namespace KeeICE
 
             public bool exactMatch;
 
+            public string uniqueID;
+
             #endregion
 
             #region Constructors
@@ -228,7 +230,7 @@ namespace KeeICE
             {
             }
 
-            public KPEntry(string hostName, string formURL, string HTTPRealm, string title, KeeICE.KFlib.KPFormField[] formFieldList, bool @default, bool exactMatch)
+            public KPEntry(string hostName, string formURL, string HTTPRealm, string title, KeeICE.KFlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID)
             {
                 this.hostName = hostName;
                 this.formURL = formURL;
@@ -237,6 +239,7 @@ namespace KeeICE
                 this.formFieldList = formFieldList;
                 this.@default = @default;
                 this.exactMatch = exactMatch;
+                this.uniqueID = uniqueID;
             }
 
             #endregion
@@ -277,6 +280,10 @@ namespace KeeICE
                 }
                 h__ = 5 * h__ + @default.GetHashCode();
                 h__ = 5 * h__ + exactMatch.GetHashCode();
+                if(uniqueID != null)
+                {
+                    h__ = 5 * h__ + uniqueID.GetHashCode();
+                }
                 return h__;
             }
 
@@ -373,6 +380,20 @@ namespace KeeICE
                 {
                     return false;
                 }
+                if(uniqueID == null)
+                {
+                    if(o__.uniqueID != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!uniqueID.Equals(o__.uniqueID))
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
 
@@ -414,6 +435,7 @@ namespace KeeICE
                 }
                 os__.writeBool(@default);
                 os__.writeBool(exactMatch);
+                os__.writeString(uniqueID);
             }
 
             public void read__(IceInternal.BasicStream is__)
@@ -437,6 +459,7 @@ namespace KeeICE
                 }
                 @default = is__.readBool();
                 exactMatch = is__.readBool();
+                uniqueID = is__.readString();
             }
 
             #endregion
@@ -926,6 +949,12 @@ namespace KeeICE
             string getDatabaseName();
             string getDatabaseName(_System.Collections.Generic.Dictionary<string, string> context__);
 
+            string getDatabaseFileName();
+            string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__);
+
+            void changeDatabase(string fileName, bool closeCurrent);
+            void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__);
+
             void AddLogin(KeeICE.KFlib.KPEntry login);
             void AddLogin(KeeICE.KFlib.KPEntry login, _System.Collections.Generic.Dictionary<string, string> context__);
 
@@ -935,8 +964,8 @@ namespace KeeICE
             int getAllLogins(out KeeICE.KFlib.KPEntry[] logins);
             int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins);
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
             int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches);
             int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__);
@@ -973,13 +1002,17 @@ namespace KeeICE
 
             string getDatabaseName(Ice.Current current__);
 
+            string getDatabaseFileName(Ice.Current current__);
+
+            void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__);
+
             void AddLogin(KeeICE.KFlib.KPEntry login, Ice.Current current__);
 
             void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, Ice.Current current__);
 
             int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
 
             int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__);
 
@@ -992,13 +1025,17 @@ namespace KeeICE
 
             string getDatabaseName();
 
+            string getDatabaseFileName();
+
+            void changeDatabase(string fileName, bool closeCurrent);
+
             void AddLogin(KeeICE.KFlib.KPEntry login);
 
             void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin);
 
             int getAllLogins(out KeeICE.KFlib.KPEntry[] logins);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins);
 
             int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches);
 
@@ -1082,7 +1119,7 @@ namespace KeeICE
                 KeeICE.KFlib.KPEntry[] v__;
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 7);
+                    is__.startSeq(szx__, 8);
                     v__ = new KeeICE.KFlib.KPEntry[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
@@ -1401,6 +1438,44 @@ namespace KeeICE
                 }
             }
 
+            public void changeDatabase(string fileName, bool closeCurrent)
+            {
+                changeDatabase(fileName, closeCurrent, null, false);
+            }
+
+            public void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                changeDatabase(fileName, closeCurrent, context__, true);
+            }
+
+            private void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            {
+                if(explicitContext__ && context__ == null)
+                {
+                    context__ = emptyContext_;
+                }
+                int cnt__ = 0;
+                while(true)
+                {
+                    Ice.ObjectDel_ delBase__ = null;
+                    try
+                    {
+                        delBase__ = getDelegate__(false);
+                        KPDel_ del__ = (KPDel_)delBase__;
+                        del__.changeDatabase(fileName, closeCurrent, context__);
+                        return;
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapper__(delBase__, ex__, null);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        handleException__(delBase__, ex__, null, ref cnt__);
+                    }
+                }
+            }
+
             public bool checkVersion(float keeFoxVersion, float keeICEVersion, out int result)
             {
                 return checkVersion(keeFoxVersion, keeICEVersion, out result, null, false);
@@ -1477,17 +1552,17 @@ namespace KeeICE
                 }
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins)
             {
-                return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, out logins, null, false);
+                return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, null, false);
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
-                return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, out logins, context__, true);
+                return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, context__, true);
             }
 
-            private int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1502,7 +1577,7 @@ namespace KeeICE
                         checkTwowayOnly__("findLogins");
                         delBase__ = getDelegate__(false);
                         KPDel_ del__ = (KPDel_)delBase__;
-                        return del__.findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, out logins, context__);
+                        return del__.findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, context__);
                     }
                     catch(IceInternal.LocalExceptionWrapper ex__)
                     {
@@ -1541,6 +1616,44 @@ namespace KeeICE
                         delBase__ = getDelegate__(false);
                         KPDel_ del__ = (KPDel_)delBase__;
                         return del__.getAllLogins(out logins, context__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapper__(delBase__, ex__, null);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        handleException__(delBase__, ex__, null, ref cnt__);
+                    }
+                }
+            }
+
+            public string getDatabaseFileName()
+            {
+                return getDatabaseFileName(null, false);
+            }
+
+            public string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                return getDatabaseFileName(context__, true);
+            }
+
+            private string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            {
+                if(explicitContext__ && context__ == null)
+                {
+                    context__ = emptyContext_;
+                }
+                int cnt__ = 0;
+                while(true)
+                {
+                    Ice.ObjectDel_ delBase__ = null;
+                    try
+                    {
+                        checkTwowayOnly__("getDatabaseFileName");
+                        delBase__ = getDelegate__(false);
+                        KPDel_ del__ = (KPDel_)delBase__;
+                        return del__.getDatabaseFileName(context__);
                     }
                     catch(IceInternal.LocalExceptionWrapper ex__)
                     {
@@ -1972,13 +2085,17 @@ namespace KeeICE
 
             string getDatabaseName(_System.Collections.Generic.Dictionary<string, string> context__);
 
+            string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__);
+
+            void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__);
+
             void AddLogin(KeeICE.KFlib.KPEntry login, _System.Collections.Generic.Dictionary<string, string> context__);
 
             void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__);
 
             int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
             int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__);
 
@@ -2216,6 +2333,51 @@ namespace KeeICE
                 }
             }
 
+            public void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                IceInternal.Outgoing og__ = handler__.getOutgoing("changeDatabase", Ice.OperationMode.Normal, context__);
+                try
+                {
+                    try
+                    {
+                        IceInternal.BasicStream os__ = og__.ostr();
+                        os__.writeString(fileName);
+                        os__.writeBool(closeCurrent);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        og__.abort(ex__);
+                    }
+                    bool ok__ = og__.invoke();
+                    if(!og__.istr().isEmpty())
+                    {
+                        try
+                        {
+                            if(!ok__)
+                            {
+                                try
+                                {
+                                    og__.throwUserException();
+                                }
+                                catch(Ice.UserException ex)
+                                {
+                                    throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                                }
+                            }
+                            og__.istr().skipEmptyEncaps();
+                        }
+                        catch(Ice.LocalException ex__)
+                        {
+                            throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                        }
+                    }
+                }
+                finally
+                {
+                    handler__.reclaimOutgoing(og__);
+                }
+            }
+
             public bool checkVersion(float keeFoxVersion, float keeICEVersion, out int result, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("checkVersion", Ice.OperationMode.Normal, context__);
@@ -2318,7 +2480,7 @@ namespace KeeICE
                 }
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("findLogins", Ice.OperationMode.Normal, context__);
                 try
@@ -2331,6 +2493,7 @@ namespace KeeICE
                         os__.writeString(httpRealm);
                         os__.writeByte((byte)lst, 3);
                         os__.writeBool(requireFullURLMatches);
+                        os__.writeString(uniqueID);
                     }
                     catch(Ice.LocalException ex__)
                     {
@@ -2358,7 +2521,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 7);
+                            is__.startSeq(szx__, 8);
                             logins = new KeeICE.KFlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -2412,7 +2575,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 7);
+                            is__.startSeq(szx__, 8);
                             logins = new KeeICE.KFlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -2425,6 +2588,43 @@ namespace KeeICE
                         }
                         int ret__;
                         ret__ = is__.readInt();
+                        is__.endReadEncaps();
+                        return ret__;
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                    }
+                }
+                finally
+                {
+                    handler__.reclaimOutgoing(og__);
+                }
+            }
+
+            public string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                IceInternal.Outgoing og__ = handler__.getOutgoing("getDatabaseFileName", Ice.OperationMode.Normal, context__);
+                try
+                {
+                    bool ok__ = og__.invoke();
+                    try
+                    {
+                        if(!ok__)
+                        {
+                            try
+                            {
+                                og__.throwUserException();
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                            }
+                        }
+                        IceInternal.BasicStream is__ = og__.istr();
+                        is__.startReadEncaps();
+                        string ret__;
+                        ret__ = is__.readString();
                         is__.endReadEncaps();
                         return ret__;
                     }
@@ -2737,6 +2937,48 @@ namespace KeeICE
                 }
             }
 
+            public void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                Ice.Current current__ = new Ice.Current();
+                initCurrent__(ref current__, "changeDatabase", Ice.OperationMode.Normal, context__);
+                IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
+                {
+                    KP servant__ = null;
+                    try
+                    {
+                        servant__ = (KP)obj__;
+                    }
+                    catch(_System.InvalidCastException)
+                    {
+                        throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);
+                    }
+                    servant__.changeDatabase(fileName, closeCurrent, current__);
+                    return Ice.DispatchStatus.DispatchOK;
+                };
+                IceInternal.Direct direct__ = null;
+                try
+                {
+                    direct__ = new IceInternal.Direct(current__, run__);
+                    try
+                    {
+                        Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                        _System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);
+                    }
+                    finally
+                    {
+                        direct__.destroy();
+                    }
+                }
+                catch(Ice.SystemException)
+                {
+                    throw;
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
+                }
+            }
+
             public bool checkVersion(float keeFoxVersion, float keeICEVersion, out int result, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
@@ -2844,7 +3086,7 @@ namespace KeeICE
                 return result__;
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "findLogins", Ice.OperationMode.Normal, context__);
@@ -2864,7 +3106,7 @@ namespace KeeICE
                     }
                     try
                     {
-                        result__ = servant__.findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, out loginsHolder__, current__);
+                        result__ = servant__.findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out loginsHolder__, current__);
                         return Ice.DispatchStatus.DispatchOK;
                     }
                     catch(Ice.UserException ex__)
@@ -2967,6 +3209,50 @@ namespace KeeICE
                     IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
                 }
                 logins = loginsHolder__;
+                return result__;
+            }
+
+            public string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                Ice.Current current__ = new Ice.Current();
+                initCurrent__(ref current__, "getDatabaseFileName", Ice.OperationMode.Normal, context__);
+                string result__ = null;
+                IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
+                {
+                    KP servant__ = null;
+                    try
+                    {
+                        servant__ = (KP)obj__;
+                    }
+                    catch(_System.InvalidCastException)
+                    {
+                        throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);
+                    }
+                    result__ = servant__.getDatabaseFileName(current__);
+                    return Ice.DispatchStatus.DispatchOK;
+                };
+                IceInternal.Direct direct__ = null;
+                try
+                {
+                    direct__ = new IceInternal.Direct(current__, run__);
+                    try
+                    {
+                        Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                        _System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);
+                    }
+                    finally
+                    {
+                        direct__.destroy();
+                    }
+                }
+                catch(Ice.SystemException)
+                {
+                    throw;
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
+                }
                 return result__;
             }
 
@@ -3241,6 +3527,20 @@ namespace KeeICE
 
             public abstract string getDatabaseName(Ice.Current current__);
 
+            public string getDatabaseFileName()
+            {
+                return getDatabaseFileName(Ice.ObjectImpl.defaultCurrent);
+            }
+
+            public abstract string getDatabaseFileName(Ice.Current current__);
+
+            public void changeDatabase(string fileName, bool closeCurrent)
+            {
+                changeDatabase(fileName, closeCurrent, Ice.ObjectImpl.defaultCurrent);
+            }
+
+            public abstract void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__);
+
             public void AddLogin(KeeICE.KFlib.KPEntry login)
             {
                 AddLogin(login, Ice.ObjectImpl.defaultCurrent);
@@ -3262,12 +3562,12 @@ namespace KeeICE
 
             public abstract int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins)
             {
-                return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, out logins, Ice.ObjectImpl.defaultCurrent);
+                return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
+            public abstract int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
 
             public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches)
             {
@@ -3357,6 +3657,30 @@ namespace KeeICE
                 IceInternal.BasicStream os__ = inS__.ostr();
                 string ret__ = obj__.getDatabaseName(current__);
                 os__.writeString(ret__);
+                return Ice.DispatchStatus.DispatchOK;
+            }
+
+            public static Ice.DispatchStatus getDatabaseFileName___(KP obj__, IceInternal.Incoming inS__, Ice.Current current__)
+            {
+                checkMode__(Ice.OperationMode.Normal, current__.mode);
+                inS__.istr().skipEmptyEncaps();
+                IceInternal.BasicStream os__ = inS__.ostr();
+                string ret__ = obj__.getDatabaseFileName(current__);
+                os__.writeString(ret__);
+                return Ice.DispatchStatus.DispatchOK;
+            }
+
+            public static Ice.DispatchStatus changeDatabase___(KP obj__, IceInternal.Incoming inS__, Ice.Current current__)
+            {
+                checkMode__(Ice.OperationMode.Normal, current__.mode);
+                IceInternal.BasicStream is__ = inS__.istr();
+                is__.startReadEncaps();
+                string fileName;
+                fileName = is__.readString();
+                bool closeCurrent;
+                closeCurrent = is__.readBool();
+                is__.endReadEncaps();
+                obj__.changeDatabase(fileName, closeCurrent, current__);
                 return Ice.DispatchStatus.DispatchOK;
             }
 
@@ -3465,12 +3789,14 @@ namespace KeeICE
                 lst = (KeeICE.KFlib.loginSearchType)is__.readByte(3);
                 bool requireFullURLMatches;
                 requireFullURLMatches = is__.readBool();
+                string uniqueID;
+                uniqueID = is__.readString();
                 is__.endReadEncaps();
                 KeeICE.KFlib.KPEntry[] logins;
                 IceInternal.BasicStream os__ = inS__.ostr();
                 try
                 {
-                    int ret__ = obj__.findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, out logins, current__);
+                    int ret__ = obj__.findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, current__);
                     if(logins == null)
                     {
                         os__.writeSize(0);
@@ -3545,10 +3871,12 @@ namespace KeeICE
                 "AddLogin",
                 "ModifyLogin",
                 "addClient",
+                "changeDatabase",
                 "checkVersion",
                 "countLogins",
                 "findLogins",
                 "getAllLogins",
+                "getDatabaseFileName",
                 "getDatabaseName",
                 "ice_id",
                 "ice_ids",
@@ -3580,37 +3908,45 @@ namespace KeeICE
                     }
                     case 3:
                     {
-                        return checkVersion___(this, inS__, current__);
+                        return changeDatabase___(this, inS__, current__);
                     }
                     case 4:
                     {
-                        return countLogins___(this, inS__, current__);
+                        return checkVersion___(this, inS__, current__);
                     }
                     case 5:
                     {
-                        return findLogins___(this, inS__, current__);
+                        return countLogins___(this, inS__, current__);
                     }
                     case 6:
                     {
-                        return getAllLogins___(this, inS__, current__);
+                        return findLogins___(this, inS__, current__);
                     }
                     case 7:
                     {
-                        return getDatabaseName___(this, inS__, current__);
+                        return getAllLogins___(this, inS__, current__);
                     }
                     case 8:
                     {
-                        return ice_id___(this, inS__, current__);
+                        return getDatabaseFileName___(this, inS__, current__);
                     }
                     case 9:
                     {
-                        return ice_ids___(this, inS__, current__);
+                        return getDatabaseName___(this, inS__, current__);
                     }
                     case 10:
                     {
-                        return ice_isA___(this, inS__, current__);
+                        return ice_id___(this, inS__, current__);
                     }
                     case 11:
+                    {
+                        return ice_ids___(this, inS__, current__);
+                    }
+                    case 12:
+                    {
+                        return ice_isA___(this, inS__, current__);
+                    }
+                    case 13:
                     {
                         return ice_ping___(this, inS__, current__);
                     }

@@ -43,6 +43,7 @@ kfLoginInfo.prototype = {
     password      : null,
     usernameField : null,
     passwordField : null,
+    uniqueID : null,
     customFields : null,
     
     _alert : function (msg) {
@@ -62,7 +63,8 @@ kfLoginInfo.prototype = {
 
     init : function (aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
-                     aUsernameField, aPasswordField) {
+                     aUsernameField, aPasswordField,
+                     aUniqueID) {
                      //this._alert(arguments.length);
         this.hostname      = aHostname;
         this.formSubmitURL = aFormSubmitURL;
@@ -71,16 +73,19 @@ kfLoginInfo.prototype = {
         this.password      = aPassword;
         this.usernameField = aUsernameField;
         this.passwordField = aPasswordField;
+        this.uniqueID = aUniqueID;
         
     },
     
     initCustom : function (aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
-                     aUsernameField, aPasswordField, customFieldsArray) {
+                     aUsernameField, aPasswordField,
+                     aUniqueID, customFieldsArray) {
                      
         this.init(aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
-                     aUsernameField, aPasswordField);
+                     aUsernameField, aPasswordField,
+                     aUniqueID);
         
         this.customFields = customFieldsArray;   
        
@@ -108,6 +113,8 @@ kfLoginInfo.prototype = {
         return true;
     },
 
+//TODO: compare all custom fields for equality 
+//(though maybe matching on just the uniqueID is a better way to move towards?)
     equals : function (aLogin) {
         if (this.hostname      != aLogin.hostname      ||
             this.formSubmitURL != aLogin.formSubmitURL ||
@@ -115,7 +122,8 @@ kfLoginInfo.prototype = {
             this.username      != aLogin.username      ||
             this.password      != aLogin.password      ||
             this.usernameField != aLogin.usernameField ||
-            this.passwordField != aLogin.passwordField)
+            this.passwordField != aLogin.passwordField ||
+            this.uniqueID != aLogin.uniqueID)
             return false;
 
         return true;

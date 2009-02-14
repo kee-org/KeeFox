@@ -122,7 +122,7 @@ KFToolbar.prototype = {
             tempButton.setAttribute("label", "Button " + i);
             tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "',"+userNameID+","+passwordID+")");
+                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "')");
             container.appendChild(tempButton);
 
 
@@ -224,13 +224,13 @@ KFToolbar.prototype = {
         var DBname = mainWindow.keeFoxInst._KeeFoxXPCOMobj.getDBName();
         
         // this effectively checks that that KeeICE didn't go away while we were
-        // waiting for FF to trigger the load event
+        // waiting for FF to trigger the function via the window load event
         if (DBname != null)
         {
             mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-            mainButton.setAttribute("label", "KeeFox has logged you in to your '" + DBname + "' database");
+            mainButton.setAttribute("label", "Logged in");
             mainButton.setAttribute("disabled", "false");
-            mainButton.setAttribute("tooltiptext", "KeeFox is ready to go");
+            mainButton.setAttribute("tooltiptext", "You are logged in to your '" + DBname + "' password database");
             mainButton.setAttribute("oncommand", "keeFoxInst.KeeFoxMainButton_Click()");
         }
     },
@@ -265,6 +265,20 @@ KFToolbar.prototype = {
 
         this.log("Tests finished - everything worked!");
         this._alert("Tests finished - everything worked!");
+    },
+    
+    flashItem: function (flashyItem, numberOfTimes, theWindow) {
+    
+        keeFoxToolbar.log("test:" + numberOfTimes);
+        if (numberOfTimes < 1)
+            return;
+        
+        if (numberOfTimes % 2 == 1)
+            flashyItem.setAttribute("class", "chrisgreen");  
+        else
+            flashyItem.setAttribute("class", "chrisred");
+        
+        theWindow.setTimeout(arguments.callee, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes-1, theWindow);
     }
 
 

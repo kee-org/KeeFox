@@ -211,7 +211,7 @@ KFUI.prototype = {
             var newLogin = Cc["@mozilla.org/login-manager/loginInfo;1"].
                            createInstance(Ci.nsILoginInfo);
             newLogin.init(hostname, null, httpRealm,
-                          username, password, "", "");
+                          username, password, "", "", null);
 
             // XXX We can't prompt with multiple logins yet (bug 227632), so
             // the entered login might correspond to an existing login
@@ -610,6 +610,75 @@ KFUI.prototype = {
             this._kfilm.modifyLogin(selectedLogin, aNewLogin);
         }
     },
+
+
+
+
+
+
+    _showLoginToKFNotification : function () {
+
+        var notifyBox = this._getNotifyBox();
+        
+        // Ugh. We can't use the strings from the popup window, because they
+        // have the access key marked in the string (eg "Mo&zilla"), along
+        // with some weird rules for handling access keys that do not occur
+        // in the string, for L10N. See commonDialog.js's setLabelForNode().
+
+        /*
+        var loginButtonText =
+              this._getLocalizedString("notifyBarLoginButtonText");
+        var loginButtonAccessKey =
+              this._getLocalizedString("notifyBarLoginButtonAccessKey");
+        */
+        var loginButtonText =
+              "Login to password manager";
+        var loginButtonAccessKey =
+              "L";
+        var notNowButtonText =
+              this._getLocalizedString("notifyBarNotNowButtonText");
+        var notNowButtonAccessKey =
+              this._getLocalizedString("notifyBarNotNowButtonAccessKey");
+
+        var brandShortName =
+              this._brandBundle.GetStringFromName("brandShortName");
+        var notificationText  = "You are not logged in to your KeePass password database.";
+
+        // The callbacks in |buttons| have a closure to access the variables
+        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
+        // without a getService() call.
+        var kfilm = this._kfilm;
+        var kf = this._kf;
+
+
+        var buttons = [
+            // "Remember" button
+            {
+                label:     loginButtonText,
+                accessKey: loginButtonAccessKey,
+                popup:     null,
+                callback: function(aNotificationBar, aButton) {
+                    kf.loginToKeePass(); // TODO: "fill" current page (after recieve KeeICE callback to indicate successful DB load.
+                }
+            },
+
+            // "Not now" button
+            {
+                label:     notNowButtonText,
+                accessKey: notNowButtonAccessKey,
+                popup:     null,
+                callback:  function() { /* NOP */ } 
+            }
+        ];
+
+        this._showLoginNotification(notifyBox, "keefox-login",
+             notificationText, buttons);
+    },
+    
+    
+    
+
+
 
 
 

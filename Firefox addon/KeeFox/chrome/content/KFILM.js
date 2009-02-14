@@ -538,11 +538,12 @@ KFILM.prototype = {
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (count, hostname, formSubmitURL, httpRealm) {
+    findLogins : function (count, hostname, formSubmitURL, httpRealm, uniqueID) {
         this.log("Searching for logins matching host: " + hostname +
-            ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm);
+            ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm
+             + ", uniqueID: " + uniqueID);
 
-        return this._kf._KeeFoxXPCOMobj.findLogins(count, hostname, formSubmitURL, httpRealm);
+        return this._kf._KeeFoxXPCOMobj.findLogins(count, hostname, formSubmitURL, httpRealm, uniqueID);
     },
     
     countLogins : function (hostName,actionURL,loginSearchType)
@@ -607,17 +608,43 @@ KFILM.prototype = {
      */
     _fillDocument : function (doc)
     {
+    this.log(doc.defaultView);
     
+    var mainWindow = doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIWebNavigation)
+                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                   .rootTreeItem
+                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIDOMWindow);
+
+        if (mainWindow.content.document != doc)// TODO: check this is a valid way to come to this decision
+        {
+            this.log("skipping document fill (this is not the currently active tab)");
+            return;
+        }
+
         this.log("attempting document fill");
         
-        temp = this._testKeePassConnection();
-        this.log ("if it's running, this should be the KeePass DB name: " + temp);
+        //temp = this._testKeePassConnection();
+        //this.log ("if it's running, this should be the KeePass DB name: " + temp);
     
     
         var forms = doc.forms;
         if (!forms || forms.length == 0)
         {
             this.log("No forms found on this page");
+            return;
+        }
+        
+        // if we're not logged in to KeePass then we should prompt user (or not)
+        // TODO: this isn't testing what the comment suggests yet!
+        if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", true))
+        {
+            notifyBarWhenLoggedOut = true; // TODO: get from preferences
+            
+            if (notifyBarWhenLoggedOut)
+                keeFoxUI._showLoginToKFNotification();
+            keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
             return;
         }
 
@@ -633,7 +660,6 @@ KFILM.prototype = {
         this.log("fillDocument processing " + forms.length +
                  " forms on " + doc.documentURI);
 
-        var autofillForm = true;//this._prefBranch.getBoolPref("autofillForms");
         var previousActionOrigin = null;
 
         for (var i = 0; i < forms.length; i++) {
@@ -703,108 +729,64 @@ KFILM.prototype = {
                 continue;
             
             this.log("match found!");
-        
-            var useMozillaFillMethod = false; // getPref
             
-            if (useMozillaFillMethod)
-            {
-                this.log("Using Mozilla-style autocomplete password fill");
-                // Attach autocomplete stuff to the username field, if we have
-                // one. This is normally used to select from multiple accounts,
-                // but even with one account we should refill if the user edits.
-                if (usernameField)
-                    this._attachToInput(usernameField);
+            var autofillForm = true;//this._prefBranch.getBoolPref("autofillForms");
+        
+            if (autofillForm) {
 
-                // If the form has an autocomplete=off attribute in play, don't
-                // fill in the login automatically. We check this after attaching
-                // the autocomplete stuff to the username field, so the user can
-                // still manually select a login to be filled in.
-                var isFormDisabled = false;
-                if (this._isAutocompleteDisabled(form) ||
-                    this._isAutocompleteDisabled(usernameField) ||
-                    this._isAutocompleteDisabled(passwordField)) {
+                if (usernameField && usernameField.value) {
+                    // If username was specified in the form, only fill in the
+                    // password if we find a matching login.
 
-                    isFormDisabled = true;
-                    this.log("form[" + i + "]: not filled, has autocomplete=off");
-                }
+                    var username = usernameField.value;
 
-                if (autofillForm && !isFormDisabled) {
+                    var matchingLogin;
+                    var found = logins.some(function(l) {
+                                                matchingLogin = l;
+                                                return (l.username == username);
+                                            });
+                    if (found)
+                        passwordField.value = matchingLogin.password;
+                    else
+                        this.log("Password not filled. None of the stored " +
+                                 "logins match the username already present.");
 
-                    if (usernameField && usernameField.value) {
-                        // If username was specified in the form, only fill in the
-                        // password if we find a matching login.
-
-                        var username = usernameField.value;
-
-                        var matchingLogin;
-                        var found = logins.some(function(l) {
-                                                    matchingLogin = l;
-                                                    return (l.username == username);
-                                                });
-                        if (found)
-                            passwordField.value = matchingLogin.password;
-                        else
-                            this.log("Password not filled. None of the stored " +
-                                     "logins match the username already present.");
-
-                    } else if (usernameField && logins.length == 2) {
-                    //TODO: this needs reworking RE KeePass storage options
-                        // Special case, for sites which have a normal user+pass
-                        // login *and* a password-only login (eg, a PIN)...
-                        // When we have a username field and 1 of 2 available
-                        // logins is password-only, go ahead and prefill the
-                        // one with a username.
-                        if (!logins[0].username && logins[1].username) {
-                            usernameField.value = logins[1].username;
-                            passwordField.value = logins[1].password;
-                        } else if (!logins[1].username && logins[0].username) {
-                            usernameField.value = logins[0].username;
-                            passwordField.value = logins[0].password;
-                        }
-                    } 
-                    
-                    //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
-                    // or make this the point where we look for exactURL matches, etc.
-                    
-                    else if (logins.length == 1) {
-                    
-                        if (usernameField)
-                            usernameField.value = logins[0].username;
+                } else if (usernameField && logins.length == 2) {
+                //TODO: this needs reworking RE KeePass storage options
+                    // Special case, for sites which have a normal user+pass
+                    // login *and* a password-only login (eg, a PIN)...
+                    // When we have a username field and 1 of 2 available
+                    // logins is password-only, go ahead and prefill the
+                    // one with a username.
+                    if (!logins[0].username && logins[1].username) {
+                        usernameField.value = logins[1].username;
+                        passwordField.value = logins[1].password;
+                    } else if (!logins[1].username && logins[0].username) {
+                        usernameField.value = logins[0].username;
                         passwordField.value = logins[0].password;
-                    } else {
-                        this.log("Multiple logins for form, so not filling any."); //TODO: weak! We can do better soon...
                     }
-                //} else
-                //{
-                //TODO: lots of code shared between the fill options - once we know what we're
-                // doing we can combine and then branch more selectively
+                } 
                 
-                //    this.log("Using yellow bar password fill");
+                //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
+                // or make this the point where we look for exactURL matches, etc.
                 
-                // actually, not sure how great this option would be... could be a bit annoying!
+                else if (logins.length == 1) {
                 
-               
+                    if (usernameField)
+                        usernameField.value = logins[0].username;
+                    passwordField.value = logins[0].password;
+                } else {
+                    this.log("Multiple logins for form, so not filling any."); //TODO: weak! We can do better soon...
                 }
-            } else
-            {
+                
+            }// else
+            //{
                 this.log("Using toolbar password fill.");
 
                 this._toolbar.setLogins(logins);
                 
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-            }
+            //}
         } // foreach form
 
     },
@@ -826,7 +808,10 @@ KFILM.prototype = {
     
     // TODO: handle situations where either forms fields or logins have dissapeared in the mean time.
     
-    fill : function (usernameName,usernameValue,actionURL,usernameID,formID) {
+    
+    
+    //TODO: formID innacurate (so not used yet)
+    fill : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
         this.log("fill login details from username field: " + usernameName + ":" + usernameValue);
         
         var doc = Application.activeWindow.activeTab.document;
@@ -836,7 +821,9 @@ KFILM.prototype = {
         var passwordField;
         var ignored;
         
-        if (usernameID != null)
+        
+        
+        if ((form == undefined || form == null) && usernameID != null)
         {
             usernameField = doc.getElementById(usernameID);
             
@@ -866,7 +853,7 @@ KFILM.prototype = {
             
         }
         
-        if ((form == undefined || form == null) && formID != null)
+        /*if ((form == undefined || form == null) && formID != null)
         {
             form = usernameField.form;
             if (form != null)
@@ -874,7 +861,7 @@ KFILM.prototype = {
                 [usernameField, passwords] = this._getFormFields(form, false);
                 var passwordField = passwords[0].element;
             }
-        }
+        }*/
         
         if (form == undefined || form == null)
         {
@@ -904,24 +891,37 @@ KFILM.prototype = {
         var hostname = this._getPasswordOrigin(doc.documentURI);
        // var formSubmitURL = this._getActionOrigin(form)
 
-        
-
 //TODO: initCustom then extend search function to weight the id of form items
         // Temporary LoginInfo with the info we know.
         var currentLogin = new this._kfLoginInfo();
         currentLogin.init(hostname, actionURL, null,
                           usernameValue, null,
-                          (usernameField ? usernameField.name  : ""), passwordField.name);
+                          (usernameField ? usernameField.name  : ""),
+                          passwordField.name, uniqueID);
 
         // Look for a existing login and use its password.
         var match = null;
-        var logins = this.findLogins({}, hostname, actionURL, null);
+        var logins = this.findLogins({}, hostname, actionURL, null, uniqueID);
         this.log(logins.length);
         this.log(logins[0]);
-        if (!logins.some(function(l) {
-                                match = l;
-                                return currentLogin.matches(l, true);
-                        }))
+        
+        if (uniqueID && logins.length == 1)
+        {
+            match = logins[0];
+        } else
+        {
+            for (var i=0; i < logins.length; i++)
+            {
+                if (currentLogin.matches(logins[i], true))
+                {
+                    match = logins[i];
+                    this.log(logins[i]);
+                    break;
+                }
+            }
+        }
+        
+        if (match == null)
         {
             this.log("Can't find a login for this autocomplete result.");
             return;
@@ -1002,7 +1002,7 @@ KFILM.prototype = {
             // naive duplicate finder - more than sufficient for the number of passwords per domain
             twoPasswordsMatchIndex=-1;
             for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
-                for(j=0;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
+                for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
                     if(passwords[j].element.value==passwords[i].element.value) twoPasswordsMatchIndex=j;
             
             if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup
@@ -1062,7 +1062,7 @@ KFILM.prototype = {
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
-                    newPasswordField.name, customWrapper);
+                    newPasswordField.name, null, customWrapper);
             this.log("login object initialised with custom data");
         } else
         {
@@ -1070,30 +1070,34 @@ KFILM.prototype = {
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
-                    newPasswordField.name);
+                    newPasswordField.name, null);
             this.log("login object initialised without custom data");
         }
         
         // Look for an existing login that matches the form login.
         var existingLogin = null;
-        var logins = this.findLogins({}, hostname, formSubmitURL, null);
-
+        var logins = this.findLogins({}, hostname, formSubmitURL, null, null);
+this.log("temp1");
         for (var i = 0; i < logins.length; i++)
-        {
+        {this.log("temp1a");
             var same, login = logins[i];
 
             // If one login has a username but the other doesn't, ignore
             // the username when comparing and only match if they have the
             // same password. Otherwise, compare the logins and match even
             // if the passwords differ.
+            // CPT: this seems flawed. maybe i put it in the wrong place now but it
+            // doesn't make sence to match passwords under any circumstances when we're
+            // on the lookout for changed passwords.
+            //TODO maybe: handle seperate cases based on existance of oldPasswordField
             if (!login.username && formLogin.username) {
                 var restoreMe = formLogin.username;
                 formLogin.username = ""; 
-                same = formLogin.matches(login, false);
+                same = formLogin.matches(login, true);
                 formLogin.username = restoreMe;
             } else if (!formLogin.username && login.username) {
                 formLogin.username = login.username;
-                same = formLogin.matches(login, false);
+                same = formLogin.matches(login, true);
                 formLogin.username = ""; // we know it's always blank.
             } else {
                 same = formLogin.matches(login, true);
@@ -1105,7 +1109,7 @@ KFILM.prototype = {
                 break;
             }
         }
-
+this.log("temp2");
         
 
         if (oldPasswordField != null) // we are changing the password

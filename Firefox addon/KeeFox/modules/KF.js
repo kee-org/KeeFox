@@ -79,6 +79,7 @@ this._test = numb;
     _toolbar: null,
     _kfui: null,
     _KeeFoxTestErrorOccurred: false,
+    keePassLocation: null,
     
     __logService : null, // Console logging service, used for debugging.
     get _logService() {
@@ -170,6 +171,7 @@ this._test = numb;
         {
             this.log("yeah, it looks like setup has already been done but since we've been asked to do it, we will now make sure that the window that this scope is a part of has been set up to properly reflect the KeeFox status");
             currentKFToolbar.setupButton_ready(currentWindow);
+            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
             return;
         }
         //TODO: handle case where we know keeice is disabled so just jump straight
@@ -234,7 +236,7 @@ this._test = numb;
                 // installed on this machine in the system path - let's try to find out which...
 
                 // read KeePass entry from registry
-                var keePassLocation;
+                
                 keePassLocation = "not installed";
                 this.log("Reading KeePass installation location from Windows registry");
 
@@ -302,6 +304,8 @@ this._test = numb;
                 this.log("Updating the toolbar becuase everything has started correctly.");
                 currentKFToolbar.setupButton_ready(currentWindow);
                 this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
+                currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
+
             } else if (this._keeFoxStorage.get("KeeICEInstalled", false)) {
                 // update toolbar etc to say "launch KeePass" (flash this every time a page loads with forms on and KeePass still not running?)
                 currentKFToolbar.setupButton_loadKeePass(currentWindow);
@@ -322,7 +326,7 @@ this._test = numb;
 
     // temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
     // starts a regular check for KeeICE becoming available again.
-    //TODO: this hasn't been tested, especially multiple windows aspect
+    //TODO: test more thoroughly, especially multiple windows aspect
     _pauseKeeFox: function() {
         this.log("Pausing KeeFox.");
         this._keeFoxStorage.set("KeeICEActive", false);
@@ -344,6 +348,45 @@ this._test = numb;
         }
 
         this.log("KeeFox paused.");
+    },
+    
+    //TODO: test more, especially multiple windows and multiple databases at the same time
+    _refreshKPDB: function () {
+        this.log("Refreshing KeeFox's view of the KeePass database.");
+
+        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
+                 getService(Ci.nsIWindowMediator);
+        var enumerator = wm.getEnumerator("navigator:browser");
+        var tabbrowser = null;
+
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            win.keeFoxToolbar.removeLogins();
+            win.keeFoxToolbar.setupButton_ready(win);
+            win.keeFoxILM._fillDocument(win.content.document);
+        }
+
+        this.log("KeeFox feels very refreshed now.");
+    },
+    
+    getDatabaseFileName: function () {
+        return this._KeeFoxXPCOMobj.getDBFileName();
+    
+    
+    },
+    
+    changeDatabase: function (fileName, closeCurrent) {
+        this._KeeFoxXPCOMobj.ChangeDB(fileName, closeCurrent);
+    
+    
+    },
+    
+    
+    
+    loginToKeePass: function () {
+        //TODO: find some way to open a prgram with parameters. sounds like a call into the C++ DLL and then shell execute from out of there might be an option...
+        this._KeeFoxXPCOMobj.LaunchKeePass("notepad.exe", "test.txt");
+    
     },
 
     // Helper for making nsURI from string
@@ -475,11 +518,6 @@ this._test = numb;
   }
 
 
-
-
-
-
-
         this.log("Installer launched.");
 
     },
@@ -488,10 +526,7 @@ this._test = numb;
         this.log("KeeFox not installed correctly. Going to try to launch the install page (maybe do this automatically or timed or something in future?)");
 
         //TODO: remember when we've done this so we don't do it every 20 seconds!
-        //TODO: handle situation where (generally at startup) any kind of session manager or other extension over-writes the single about:blank page
-        // becuase we end up loading a URL and then having it over-written by the restored session. 
-        // need to wait until session is restored before loading the installation page but no FF documentation on that
-
+        //NB: FF < 3.0.5 may fail to open the tab due to bug where "session loaded" event fires too soon.
         // load page in new tab called KeeFox installer with install button (linked to same action as toolbar button) (and screenshot of button? - maybe not needed - just have a massive "install" graphic?)
         installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/installKeeICE.html");
 
@@ -572,6 +607,7 @@ this._test = numb;
                 //currentKFToolbar.setupButton_readyListener._KFToolBar = currentKFToolbar;
                 currentWindow.addEventListener("load", currentKFToolbar.setupButton_readyListener, false);
             }
+            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
 
         }
     },
@@ -601,13 +637,15 @@ this._test = numb;
             case 1: logService.logStringMessage("Javascript callbacks from KeeFox XPCOM DLL are now enabled."); break;
             case 2: logService.logStringMessage("KeeICE callbacks from KeePass to KeeFox XPCOM are now enabled."); break;
             case 3: logService.logStringMessage("KeePass' currently active DB is about to be opened."); break;
-            case 4: logService.logStringMessage("KeePass' currently active DB has just been opened."); break;
+            case 4: logService.logStringMessage("KeePass' currently active DB has just been opened."); keeFoxInst._refreshKPDB(); break;
             case 5: logService.logStringMessage("KeePass' currently active DB is about to be closed."); break;
             case 6: logService.logStringMessage("KeePass' currently active DB has just been closed."); /*keeFoxInst._pauseKeeFox();*/ break;
             case 7: logService.logStringMessage("KeePass' currently active DB is about to be saved."); break;
             case 8: logService.logStringMessage("KeePass' currently active DB has just been saved."); break;
             case 9: logService.logStringMessage("KeePass' currently active DB is about to be deleted."); break;
             case 10: logService.logStringMessage("KeePass' currently active DB has just been deleted."); break;
+            case 11: logService.logStringMessage("KeePass' active DB has been changed/selected."); keeFoxInst._refreshKPDB(); break;
+            case 12: logService.logStringMessage("KeePass is shutting down."); keeFoxInst._pauseKeeFox(); break;
             default: logService.logStringMessage("ERROR: Invalid signal received by CallBackToKeeFoxJS (" + sig + ")"); break;
         }
 
@@ -615,11 +653,8 @@ this._test = numb;
 
 //TODO: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM
     _onTabSelected: function(event) {
-        this.log("tab selected");
-        var browser = gBrowser.selectedTab.linkedBrowser;
-        // browser is the XUL element of the browser that's just been selected
-        keeFoxToolbar.setLogins(null);
-        keeFoxILM._fillDocument(browser.contentDocument);
+        event.target.ownerDocument.defaultView.keeFoxToolbar.setLogins(null);
+        event.target.ownerDocument.defaultView.keeFoxILM._fillDocument(event.target.contentWindow.document);
     },
     
     

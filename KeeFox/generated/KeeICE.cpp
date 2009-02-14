@@ -35,6 +35,10 @@ static const ::std::string __KeeICE__KFlib__KP__checkVersion_name = "checkVersio
 
 static const ::std::string __KeeICE__KFlib__KP__getDatabaseName_name = "getDatabaseName";
 
+static const ::std::string __KeeICE__KFlib__KP__getDatabaseFileName_name = "getDatabaseFileName";
+
+static const ::std::string __KeeICE__KFlib__KP__changeDatabase_name = "changeDatabase";
+
 static const ::std::string __KeeICE__KFlib__KP__AddLogin_name = "AddLogin";
 
 static const ::std::string __KeeICE__KFlib__KP__ModifyLogin_name = "ModifyLogin";
@@ -282,6 +286,10 @@ KeeICE::KFlib::KPEntry::operator==(const KPEntry& __rhs) const
     {
         return false;
     }
+    if(uniqueID != __rhs.uniqueID)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -348,6 +356,14 @@ KeeICE::KFlib::KPEntry::operator<(const KPEntry& __rhs) const
     {
         return false;
     }
+    if(uniqueID < __rhs.uniqueID)
+    {
+        return true;
+    }
+    else if(__rhs.uniqueID < uniqueID)
+    {
+        return false;
+    }
     return false;
 }
 
@@ -368,6 +384,7 @@ KeeICE::KFlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
     }
     __os->write(_cpp_default);
     __os->write(exactMatch);
+    __os->write(uniqueID);
 }
 
 void
@@ -380,6 +397,7 @@ KeeICE::KFlib::KPEntry::__read(::IceInternal::BasicStream* __is)
     ::KeeICE::KFlib::__readKPFormFieldList(__is, formFieldList);
     __is->read(_cpp_default);
     __is->read(exactMatch);
+    __is->read(uniqueID);
 }
 
 void
@@ -398,7 +416,7 @@ KeeICE::KFlib::__readKPEntryList(::IceInternal::BasicStream* __is, ::KeeICE::KFl
 {
     ::Ice::Int sz;
     __is->readSize(sz);
-    __is->startSeq(sz, 7);
+    __is->startSeq(sz, 8);
     v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {
@@ -810,6 +828,56 @@ IceProxy::KeeICE::KFlib::KP::getDatabaseName(const ::Ice::Context* __ctx)
     }
 }
 
+::std::string
+IceProxy::KeeICE::KFlib::KP::getDatabaseFileName(const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;
+        try
+        {
+            __checkTwowayOnly(__KeeICE__KFlib__KP__getDatabaseFileName_name);
+            __delBase = __getDelegate(false);
+            ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
+            return __del->getDatabaseFileName(__ctx);
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__delBase, __ex, 0);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__delBase, __ex, 0, __cnt);
+        }
+    }
+}
+
+void
+IceProxy::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool closeCurrent, const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;
+        try
+        {
+            __delBase = __getDelegate(false);
+            ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
+            __del->changeDatabase(fileName, closeCurrent, __ctx);
+            return;
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__delBase, __ex, 0);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__delBase, __ex, 0, __cnt);
+        }
+    }
+}
+
 void
 IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::Ice::Context* __ctx)
 {
@@ -888,7 +956,7 @@ IceProxy::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logins, 
 }
 
 ::Ice::Int
-IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -899,7 +967,7 @@ IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::s
             __checkTwowayOnly(__KeeICE__KFlib__KP__findLogins_name);
             __delBase = __getDelegate(false);
             ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
-            return __del->findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, logins, __ctx);
+            return __del->findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, __ctx);
         }
         catch(const ::IceInternal::LocalExceptionWrapper& __ex)
         {
@@ -1149,6 +1217,78 @@ IceDelegateM::KeeICE::KFlib::KP::getDatabaseName(const ::Ice::Context* __context
     }
 }
 
+::std::string
+IceDelegateM::KeeICE::KFlib::KP::getDatabaseFileName(const ::Ice::Context* __context)
+{
+    ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__getDatabaseFileName_name, ::Ice::Normal, __context);
+    bool __ok = __og.invoke();
+    try
+    {
+        if(!__ok)
+        {
+            try
+            {
+                __og.throwUserException();
+            }
+            catch(const ::Ice::UserException& __ex)
+            {
+                ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                throw __uue;
+            }
+        }
+        ::std::string __ret;
+        ::IceInternal::BasicStream* __is = __og.is();
+        __is->startReadEncaps();
+        __is->read(__ret);
+        __is->endReadEncaps();
+        return __ret;
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+    }
+}
+
+void
+IceDelegateM::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool closeCurrent, const ::Ice::Context* __context)
+{
+    ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__changeDatabase_name, ::Ice::Normal, __context);
+    try
+    {
+        ::IceInternal::BasicStream* __os = __og.os();
+        __os->write(fileName);
+        __os->write(closeCurrent);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        __og.abort(__ex);
+    }
+    bool __ok = __og.invoke();
+    if(!__og.is()->b.empty())
+    {
+        try
+        {
+            if(!__ok)
+            {
+                try
+                {
+                    __og.throwUserException();
+                }
+                catch(const ::Ice::UserException& __ex)
+                {
+                    ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                    throw __uue;
+                }
+            }
+            __og.is()->skipEmptyEncaps();
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+        }
+    }
+}
+
 void
 IceDelegateM::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::Ice::Context* __context)
 {
@@ -1272,7 +1412,7 @@ IceDelegateM::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logi
 }
 
 ::Ice::Int
-IceDelegateM::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __context)
+IceDelegateM::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __context)
 {
     ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__findLogins_name, ::Ice::Normal, __context);
     try
@@ -1283,6 +1423,7 @@ IceDelegateM::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const
         __os->write(httpRealm);
         ::KeeICE::KFlib::__write(__os, lst);
         __os->write(requireFullURLMatches);
+        __os->write(uniqueID);
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1650,6 +1791,138 @@ IceDelegateD::KeeICE::KFlib::KP::getDatabaseName(const ::Ice::Context* __context
     return __result;
 }
 
+::std::string
+IceDelegateD::KeeICE::KFlib::KP::getDatabaseFileName(const ::Ice::Context* __context)
+{
+    class _DirectI : public ::IceInternal::Direct
+    {
+    public:
+
+        _DirectI(::std::string& __result, const ::Ice::Current& __current) : 
+            ::IceInternal::Direct(__current),
+            _result(__result)
+        {
+        }
+        
+        virtual ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            ::KeeICE::KFlib::KP* servant = dynamic_cast< ::KeeICE::KFlib::KP*>(object);
+            if(!servant)
+            {
+                throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
+            }
+            _result = servant->getDatabaseFileName(_current);
+            return ::Ice::DispatchOK;
+        }
+        
+    private:
+        
+        ::std::string& _result;
+    };
+    
+    ::Ice::Current __current;
+    __initCurrent(__current, __KeeICE__KFlib__KP__getDatabaseFileName_name, ::Ice::Normal, __context);
+    ::std::string __result;
+    try
+    {
+        _DirectI __direct(__result, __current);
+        try
+        {
+            __direct.servant()->__collocDispatch(__direct);
+        }
+        catch(...)
+        {
+            __direct.destroy();
+            throw;
+        }
+        __direct.destroy();
+    }
+    catch(const ::Ice::SystemException&)
+    {
+        throw;
+    }
+    catch(const ::IceInternal::LocalExceptionWrapper&)
+    {
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        ::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
+    }
+    return __result;
+}
+
+void
+IceDelegateD::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool closeCurrent, const ::Ice::Context* __context)
+{
+    class _DirectI : public ::IceInternal::Direct
+    {
+    public:
+
+        _DirectI(const ::std::string& fileName, bool closeCurrent, const ::Ice::Current& __current) : 
+            ::IceInternal::Direct(__current),
+            _m_fileName(fileName),
+            _m_closeCurrent(closeCurrent)
+        {
+        }
+        
+        virtual ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            ::KeeICE::KFlib::KP* servant = dynamic_cast< ::KeeICE::KFlib::KP*>(object);
+            if(!servant)
+            {
+                throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
+            }
+            servant->changeDatabase(_m_fileName, _m_closeCurrent, _current);
+            return ::Ice::DispatchOK;
+        }
+        
+    private:
+        
+        const ::std::string& _m_fileName;
+        bool _m_closeCurrent;
+    };
+    
+    ::Ice::Current __current;
+    __initCurrent(__current, __KeeICE__KFlib__KP__changeDatabase_name, ::Ice::Normal, __context);
+    try
+    {
+        _DirectI __direct(fileName, closeCurrent, __current);
+        try
+        {
+            __direct.servant()->__collocDispatch(__direct);
+        }
+        catch(...)
+        {
+            __direct.destroy();
+            throw;
+        }
+        __direct.destroy();
+    }
+    catch(const ::Ice::SystemException&)
+    {
+        throw;
+    }
+    catch(const ::IceInternal::LocalExceptionWrapper&)
+    {
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        ::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
+    }
+}
+
 void
 IceDelegateD::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::Ice::Context* __context)
 {
@@ -1885,13 +2158,13 @@ IceDelegateD::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logi
 }
 
 ::Ice::Int
-IceDelegateD::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __context)
+IceDelegateD::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __context)
 {
     class _DirectI : public ::IceInternal::Direct
     {
     public:
 
-        _DirectI(::Ice::Int& __result, const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Current& __current) : 
+        _DirectI(::Ice::Int& __result, const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Current& __current) : 
             ::IceInternal::Direct(__current),
             _result(__result),
             _m_hostname(hostname),
@@ -1899,6 +2172,7 @@ IceDelegateD::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const
             _m_httpRealm(httpRealm),
             _m_lst(lst),
             _m_requireFullURLMatches(requireFullURLMatches),
+            _m_uniqueID(uniqueID),
             _m_logins(logins)
         {
         }
@@ -1913,7 +2187,7 @@ IceDelegateD::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const
             }
             try
             {
-                _result = servant->findLogins(_m_hostname, _m_actionURL, _m_httpRealm, _m_lst, _m_requireFullURLMatches, _m_logins, _current);
+                _result = servant->findLogins(_m_hostname, _m_actionURL, _m_httpRealm, _m_lst, _m_requireFullURLMatches, _m_uniqueID, _m_logins, _current);
                 return ::Ice::DispatchOK;
             }
             catch(const ::Ice::UserException& __ex)
@@ -1931,6 +2205,7 @@ IceDelegateD::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const
         const ::std::string& _m_httpRealm;
         ::KeeICE::KFlib::loginSearchType _m_lst;
         bool _m_requireFullURLMatches;
+        const ::std::string& _m_uniqueID;
         ::KeeICE::KFlib::KPEntryList& _m_logins;
     };
     
@@ -1939,7 +2214,7 @@ IceDelegateD::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const
     ::Ice::Int __result;
     try
     {
-        _DirectI __direct(__result, hostname, actionURL, httpRealm, lst, requireFullURLMatches, logins, __current);
+        _DirectI __direct(__result, hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, __current);
         try
         {
             __direct.servant()->__collocDispatch(__direct);
@@ -2424,6 +2699,32 @@ KeeICE::KFlib::KP::___getDatabaseName(::IceInternal::Incoming& __inS, const ::Ic
 }
 
 ::Ice::DispatchStatus
+KeeICE::KFlib::KP::___getDatabaseFileName(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    __inS.is()->skipEmptyEncaps();
+    ::IceInternal::BasicStream* __os = __inS.os();
+    ::std::string __ret = getDatabaseFileName(__current);
+    __os->write(__ret);
+    return ::Ice::DispatchOK;
+}
+
+::Ice::DispatchStatus
+KeeICE::KFlib::KP::___changeDatabase(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __is = __inS.is();
+    __is->startReadEncaps();
+    ::std::string fileName;
+    bool closeCurrent;
+    __is->read(fileName);
+    __is->read(closeCurrent);
+    __is->endReadEncaps();
+    changeDatabase(fileName, closeCurrent, __current);
+    return ::Ice::DispatchOK;
+}
+
+::Ice::DispatchStatus
 KeeICE::KFlib::KP::___AddLogin(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
@@ -2508,17 +2809,19 @@ KeeICE::KFlib::KP::___findLogins(::IceInternal::Incoming& __inS, const ::Ice::Cu
     ::std::string httpRealm;
     ::KeeICE::KFlib::loginSearchType lst;
     bool requireFullURLMatches;
+    ::std::string uniqueID;
     __is->read(hostname);
     __is->read(actionURL);
     __is->read(httpRealm);
     ::KeeICE::KFlib::__read(__is, lst);
     __is->read(requireFullURLMatches);
+    __is->read(uniqueID);
     __is->endReadEncaps();
     ::IceInternal::BasicStream* __os = __inS.os();
     ::KeeICE::KFlib::KPEntryList logins;
     try
     {
-        ::Ice::Int __ret = findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, logins, __current);
+        ::Ice::Int __ret = findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, __current);
         if(logins.size() == 0)
         {
             __os->writeSize(0);
@@ -2586,10 +2889,12 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
     "AddLogin",
     "ModifyLogin",
     "addClient",
+    "changeDatabase",
     "checkVersion",
     "countLogins",
     "findLogins",
     "getAllLogins",
+    "getDatabaseFileName",
     "getDatabaseName",
     "ice_id",
     "ice_ids",
@@ -2600,7 +2905,7 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
 ::Ice::DispatchStatus
 KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 12, current.operation);
+    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 14, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -2622,37 +2927,45 @@ KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current&
         }
         case 3:
         {
-            return ___checkVersion(in, current);
+            return ___changeDatabase(in, current);
         }
         case 4:
         {
-            return ___countLogins(in, current);
+            return ___checkVersion(in, current);
         }
         case 5:
         {
-            return ___findLogins(in, current);
+            return ___countLogins(in, current);
         }
         case 6:
         {
-            return ___getAllLogins(in, current);
+            return ___findLogins(in, current);
         }
         case 7:
         {
-            return ___getDatabaseName(in, current);
+            return ___getAllLogins(in, current);
         }
         case 8:
         {
-            return ___ice_id(in, current);
+            return ___getDatabaseFileName(in, current);
         }
         case 9:
         {
-            return ___ice_ids(in, current);
+            return ___getDatabaseName(in, current);
         }
         case 10:
         {
-            return ___ice_isA(in, current);
+            return ___ice_id(in, current);
         }
         case 11:
+        {
+            return ___ice_ids(in, current);
+        }
+        case 12:
+        {
+            return ___ice_isA(in, current);
+        }
+        case 13:
         {
             return ___ice_ping(in, current);
         }

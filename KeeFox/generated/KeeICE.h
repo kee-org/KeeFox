@@ -198,6 +198,7 @@ struct KPEntry
     ::KeeICE::KFlib::KPFormFieldList formFieldList;
     bool _cpp_default;
     bool exactMatch;
+    ::std::string uniqueID;
 
     bool operator==(const KPEntry&) const;
     bool operator<(const KPEntry&) const;
@@ -578,6 +579,36 @@ private:
     
 public:
 
+    ::std::string getDatabaseFileName()
+    {
+        return getDatabaseFileName(0);
+    }
+    ::std::string getDatabaseFileName(const ::Ice::Context& __ctx)
+    {
+        return getDatabaseFileName(&__ctx);
+    }
+    
+private:
+
+    ::std::string getDatabaseFileName(const ::Ice::Context*);
+    
+public:
+
+    void changeDatabase(const ::std::string& fileName, bool closeCurrent)
+    {
+        changeDatabase(fileName, closeCurrent, 0);
+    }
+    void changeDatabase(const ::std::string& fileName, bool closeCurrent, const ::Ice::Context& __ctx)
+    {
+        changeDatabase(fileName, closeCurrent, &__ctx);
+    }
+    
+private:
+
+    void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
+    
+public:
+
     void AddLogin(const ::KeeICE::KFlib::KPEntry& login)
     {
         AddLogin(login, 0);
@@ -623,18 +654,18 @@ private:
     
 public:
 
-    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, ::KeeICE::KFlib::KPEntryList& logins)
+    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins)
     {
-        return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, logins, 0);
+        return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, 0);
     }
-    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context& __ctx)
+    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context& __ctx)
     {
-        return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, logins, &__ctx);
+        return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, &__ctx);
     }
     
 private:
 
-    ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
+    ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
     
 public:
 
@@ -1115,13 +1146,17 @@ public:
 
     virtual ::std::string getDatabaseName(const ::Ice::Context*) = 0;
 
+    virtual ::std::string getDatabaseFileName(const ::Ice::Context*) = 0;
+
+    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*) = 0;
+
     virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*) = 0;
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*) = 0;
 
     virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*) = 0;
 
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*) = 0;
+    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*) = 0;
 
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*) = 0;
 
@@ -1167,13 +1202,17 @@ public:
 
     virtual ::std::string getDatabaseName(const ::Ice::Context*);
 
+    virtual ::std::string getDatabaseFileName(const ::Ice::Context*);
+
+    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
+
     virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
     virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
 
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
+    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
 
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
 
@@ -1220,13 +1259,17 @@ public:
 
     virtual ::std::string getDatabaseName(const ::Ice::Context*);
 
+    virtual ::std::string getDatabaseFileName(const ::Ice::Context*);
+
+    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
+
     virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
     virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
 
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
+    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
 
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
 
@@ -1298,6 +1341,12 @@ public:
     virtual ::std::string getDatabaseName(const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___getDatabaseName(::IceInternal::Incoming&, const ::Ice::Current&);
 
+    virtual ::std::string getDatabaseFileName(const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___getDatabaseFileName(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___changeDatabase(::IceInternal::Incoming&, const ::Ice::Current&);
+
     virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___AddLogin(::IceInternal::Incoming&, const ::Ice::Current&);
 
@@ -1307,7 +1356,7 @@ public:
     virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___getAllLogins(::IceInternal::Incoming&, const ::Ice::Current&);
 
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___findLogins(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Current& = ::Ice::Current()) = 0;

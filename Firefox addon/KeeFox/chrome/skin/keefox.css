@@ -1,3 +1,16 @@
 #KeeFox_RunSelfTests-Button {
     list-style-image: url("chrome://keefox/skin/main.png");
 }
+
+toolbarbutton{-moz-appearance: none !important;}
+
+toolbarbutton.chrisred 
+{
+	-moz-appearance: none !important;
+	background-color: yellow;
+}
+
+toolbarbutton.chrisgreen 
+{
+	
+}

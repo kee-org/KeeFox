@@ -31,15 +31,113 @@ interface kfILoginField : nsISupports {
   void init(in AString aName, in AString aValue);
 };
 
+// based on Mozilla's nsILoginInfo
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa870)]
-interface kfILoginInfo : nsILoginInfo {
-  attribute nsIMutableArray customFields;
-  void initCustom(in AString aHostname,
+interface kfILoginInfo : nsISupports {
+	/**
+     * The hostname the login applies to.
+     *
+     * The hostname should be formatted as an URL. For example,
+     * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
+     */
+    attribute AString hostname;
+
+    /**
+     * The URL a form-based login was submitted to.
+     *
+     * For logins obtained from HTML forms, this field is the |action|
+     * attribute from the |form| element, with the path removed. For
+     * example "http://www.site.com". [Forms with no |action| attribute
+     * default to submitting to their origin URL, so we store that.]
+     *
+     * For logins obtained from a HTTP or FTP protocol authentication,
+     * this field is NULL.
+     */
+    attribute AString formSubmitURL;
+
+    /**
+     * The HTTP Realm a login was requested for.
+     *
+     * When an HTTP server sends a 401 result, the WWW-Authenticate
+     * header includes a realm to identify the "protection space." See
+     * RFC2617. If the response sent has a missing or blank realm, the
+     * hostname is used instead.
+     *
+     * For logins obtained from HTML forms, this field is NULL.
+     */
+    attribute AString httpRealm;
+
+    /**
+     * The username for the login.
+     */
+    attribute AString username;
+
+    /**
+     * The |name| attribute for the username input field.
+     *
+     * For logins obtained from a HTTP or FTP protocol authentication,
+     * this field is NULL.
+     */
+    attribute AString usernameField;
+
+    /**
+     * The password for the login.
+     */
+    attribute AString password;
+
+    /**
+     * The |name| attribute for the password input field.
+     *
+     * For logins obtained from a HTTP or FTP protocol authentication,
+     * this field is NULL.
+     */
+    attribute AString passwordField;
+
+
+	attribute nsIMutableArray customFields;
+
+	attribute AString uniqueID;
+
+
+    /**
+     * Initialize a newly created nsLoginInfo object.
+     *
+     * The arguments are the fields for the new object.
+     */
+    void init(in AString aHostname,
               in AString aFormSubmitURL, in AString aHttpRealm,
               in AString aUsername,      in AString aPassword,
               in AString aUsernameField, in AString aPasswordField,
-			  in nsIMutableArray someCustomFields);
-  //void callBackToKeeFoxJS(in long word);
+			  in AString uniqueID);
+
+    /**
+     * Test for strict equality with another nsILoginInfo object.
+     *
+     * @param aLoginInfo
+     *        The other object to test.
+     */
+    boolean equals(in kfILoginInfo aLoginInfo);
+
+    /**
+     * Test for loose equivalency with another nsILoginInfo object. The
+     * passwordField and usernameField values are ignored, and the password
+     * values may be optionally ignored. If one login's formSubmitURL is an
+     * empty string (but not null), it will be treated as a wildcard. [The
+     * blank value indicates the login was stored before bug 360493 was fixed.]
+     *
+     * @param aLoginInfo
+     *        The other object to test.
+     * @param ignorePassword
+     *        If true, ignore the password when checking for match.
+     */
+    boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword);
+
+	void initCustom(in AString aHostname,
+              in AString aFormSubmitURL, in AString aHttpRealm,
+              in AString aUsername,      in AString aPassword,
+              in AString aUsernameField, in AString aPasswordField,
+			  in AString uniqueID, in nsIMutableArray someCustomFields);
+
 };
 
 
@@ -57,7 +155,10 @@ interface IKeeFox : nsISupports
 	void addObserver(in KeeFoxObserver observer);
   long add(in long a, in long b);
   AString getDBName();
+  AString getDBFileName();
+  void ChangeDB(in AString fileName, in boolean closeCurrent);
   attribute AString name;
+  void LaunchKeePass(in AString fileName, in AString DBFile);
 
 
   
@@ -133,6 +234,7 @@ interface IKeeFox : nsISupports
      */
     void findLogins(out unsigned long count, in AString aHostname,
                     in AString aActionURL,   in AString aHttpRealm,
+					in AString aUniqueID,
                     [retval, array, size_is(count)] out kfILoginInfo logins);
 
 
