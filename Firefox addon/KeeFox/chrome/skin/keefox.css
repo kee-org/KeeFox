@@ -2,15 +2,15 @@
     list-style-image: url("chrome://keefox/skin/main.png");
 }
 
-toolbarbutton{-moz-appearance: none !important;}
+/*toolbarbutton{-moz-appearance: none !important;}*/
 
-toolbarbutton.chrisred 
+toolbarbutton#KeeFox_Main-Button 
 {
 	-moz-appearance: none !important;
-	background-color: yellow;
+	list-style-image: url("chrome://mozapps/skin/passwordmgr/key.png");
 }
 
-toolbarbutton.chrisgreen 
+toolbarbutton.highlight 
 {
-	
+	background-color: yellow !important;
 }

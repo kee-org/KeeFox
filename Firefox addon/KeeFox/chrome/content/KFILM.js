@@ -637,13 +637,28 @@ KFILM.prototype = {
         }
         
         // if we're not logged in to KeePass then we should prompt user (or not)
-        // TODO: this isn't testing what the comment suggests yet!
-        if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", true))
+        if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
         {
-            notifyBarWhenLoggedOut = true; // TODO: get from preferences
+            notifyBarWhenKeeICEInactive = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeeICEInactive",false);
+            
+            if (notifyBarWhenKeeICEInactive)
+            {
+                keeFoxUI.setWindow(doc.defaultView);
+                keeFoxUI.setDocument(doc);
+                keeFoxUI._showLaunchKFNotification();
+            }
+            keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
+            return;
+        } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+        {
+            notifyBarWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",false);
             
             if (notifyBarWhenLoggedOut)
+            {
+                keeFoxUI.setWindow(doc.defaultView);
+                keeFoxUI.setDocument(doc);
                 keeFoxUI._showLoginToKFNotification();
+            }
             keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
             return;
         }
@@ -797,19 +812,11 @@ KFILM.prototype = {
     // KeePass, we should be safe. maybe breaks if same form action used but just with hidden ids to change the mode 
     // of the resulting page. maybe try form and/or input field id match first and fall abck to action URL?
     
-    // so, how idetify the login to be used? could use session storage to link a given login object with a given form/tab
-    // but could be nice for security to not store unencrypted passwords anywhere that might persist (e.g. be restored
-    // by session manager, tab mix plus, etc.). so maybe performance hit of accessing the logins from keepass every time
-    // is worthwhile. so we just need a way to be sure we find exactly the right password when we re-run the search.
-    // username field, username value, action url / http realm - all required. optionally pass on id of form and username
-    // field too so we know exactly where to place the form details when they are found.
-    
-    // can call this function after deciding to autofill to share code?
+    // login to be used is indentified via KeePass uniqueID (GUID)
+    // can we call this function after deciding to autofill (to share code)?
     
     // TODO: handle situations where either forms fields or logins have dissapeared in the mean time.
-    
-    
-    
+
     //TODO: formID innacurate (so not used yet)
     fill : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
         this.log("fill login details from username field: " + usernameName + ":" + usernameValue);
@@ -977,7 +984,7 @@ KFILM.prototype = {
  doesn't matter if login or signup - in both cases we need to check if details 
  already stored and if different we prompt for update?
  
- password change is important difference. this will be if 
+ password change is important difference. this will be if ?...
  
  */
         // Get the appropriate fields from the form.
@@ -995,6 +1002,7 @@ KFILM.prototype = {
             this.log("No password field found in form submission.");
             return;
         }
+        
         
         if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
         {
@@ -1077,6 +1085,21 @@ KFILM.prototype = {
         // Look for an existing login that matches the form login.
         var existingLogin = null;
         var logins = this.findLogins({}, hostname, formSubmitURL, null, null);
+        
+        // if user was not logged in and cancelled the login process, we can't
+        // proceed (becuase all passwords will appear to be new)
+        // rather than use the normal storage variable, I'm going to the source (KeICE)
+        // just to cover situations where this thread reaches this point before the usual
+        // variable has been updated.
+        var dbName = this._kf._KeeFoxXPCOMobj.getDBName();
+                
+        if (dbName == "")
+        {
+            this.log("User did not successfully open a KeePass database. Aborting password save procedure.");
+            return;
+        }
+        
+        
 this.log("temp1");
         for (var i = 0; i < logins.length; i++)
         {this.log("temp1a");

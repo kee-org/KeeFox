@@ -262,7 +262,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\content\keefox.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.properties"
 			>
 		</File>
 		<File
@@ -295,6 +303,18 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\KFUI.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\en-US\options.dtd"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\options.xul"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\defaults\preferences\prefs.js"
 			>
 		</File>
 	</Files>

@@ -62,6 +62,15 @@ function KeeFox()
     this._KeeICEminVersion = 0.4;
     this._KeeFoxVersion = 0.4;
     this.temp = 1;
+    var prefs = this._keeFoxExtension.prefs;
+    
+    if (prefs.has("notifyBarWhenLoggedOut"))
+        prefs.get("notifyBarWhenLoggedOut").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("notifyBarWhenKeeICEInactive"))
+        prefs.get("notifyBarWhenKeeICEInactive").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("rememberMRUDB"))
+        prefs.get("rememberMRUDB").events.addListener("change", this.preferenceChangeHandler);
+
 }
 
 KeeFox.prototype = {
@@ -72,6 +81,7 @@ editTest : function (numb)
 {
 this._test = numb;
 },
+    strbundle: null,
 
     _KeeFoxXPCOMobj: null,
 
@@ -142,6 +152,28 @@ this._test = numb;
                     this._kf.log("This event was unexpected and has been ignored.");
                     return;
             }
+        }
+    },
+
+// notify all interested objects and functions of changes in preference settings
+// (lots of references to preferences will not be cached so there's not lots to do here)
+    preferenceChangeHandler: function(event) {
+    
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
+
+    // get a reference to the prompt service component.
+    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                        .getService(Components.interfaces.nsIPromptService);
+
+    //promptService.alert(window,"Alert",msg);
+    
+        switch (event.data) {
+            case "notifyBarWhenLoggedOut": break;
+            case "notifyBarWhenKeeICEInactive": break;
+            case "rememberMRUDB": if (this._keeFoxExtension.prefs.getValue("rememberMRUDB",false)) keeFoxInst._keeFoxExtension.prefs.setValue("keePassMRUDB",""); break;
+            default: break;
         }
     },
 
@@ -273,6 +305,9 @@ this._test = numb;
 
                 } else {
                     // if success, check that the KeeFox dll is in place - if fail: launchInstaller();
+                    
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                    
                     var KeeFoxDLLfound;
                     KeeFoxDLLfound = false;
 
@@ -301,7 +336,19 @@ this._test = numb;
 
             // set toolbar
             if (this._keeFoxStorage.get("KeeICEActive", false)) {
-                this.log("Updating the toolbar becuase everything has started correctly.");
+                var dbName = this._KeeFoxXPCOMobj.getDBName();
+                
+                if (dbName == "")
+                {
+                    this.log("Everything has started correctly but no database has been opened yet.");
+                    this._keeFoxStorage.set("KeePassDatabaseOpen", false);
+                } else
+                {
+                    this.log("Everything has started correctly and the '" + dbName + "' database has been opened.");
+                    this._keeFoxStorage.set("KeePassDatabaseOpen", true);
+                }
+                    
+                
                 currentKFToolbar.setupButton_ready(currentWindow);
                 this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
                 currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
@@ -354,6 +401,18 @@ this._test = numb;
     _refreshKPDB: function () {
         this.log("Refreshing KeeFox's view of the KeePass database.");
 
+        var dbName = this._KeeFoxXPCOMobj.getDBName();
+                
+        if (dbName == "")
+        {
+            this.log("No database is currently open.");
+            this._keeFoxStorage.set("KeePassDatabaseOpen", false);
+        } else
+        {
+            this.log("The '" + dbName + "' database is open.");
+            this._keeFoxStorage.set("KeePassDatabaseOpen", true);
+        }
+                
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
                  getService(Ci.nsIWindowMediator);
         var enumerator = wm.getEnumerator("navigator:browser");
@@ -363,7 +422,15 @@ this._test = numb;
             var win = enumerator.getNext();
             win.keeFoxToolbar.removeLogins();
             win.keeFoxToolbar.setupButton_ready(win);
-            win.keeFoxILM._fillDocument(win.content.document);
+            if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
+                win.keeFoxILM._fillDocument(win.content.document);
+        }
+        
+        if (this._keeFoxStorage.get("KeePassDatabaseOpen",false) && this._keeFoxExtension.prefs.getValue("rememberMRUDB",false))
+        {
+            var MRUFN = this.getDatabaseFileName();
+            if (MRUFN != null && MRUFN != undefined)
+                this._keeFoxExtension.prefs.setValue("keePassMRUDB",MRUFN);
         }
 
         this.log("KeeFox feels very refreshed now.");
@@ -381,11 +448,29 @@ this._test = numb;
     
     },
     
-    
-    
-    loginToKeePass: function () {
+    launchKeePass: function () {
         //TODO: find some way to open a prgram with parameters. sounds like a call into the C++ DLL and then shell execute from out of there might be an option...
-        this._KeeFoxXPCOMobj.LaunchKeePass("notepad.exe", "test.txt");
+        
+        if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
+        {
+            return; // TODO: work it out, prompt user or just bomb out with notification why
+        }
+        var fileName = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","C:\\Program files\\KeePass\\") + "KeePass.exe";
+        this._KeeFoxXPCOMobj.LaunchKeePass('"' + fileName + '"', '"' + this._keeFoxExtension.prefs.getValue("keePassMRUDB","") + '"');
+    
+    },
+    
+    // if the MRU database is known, open that but otherwise send empty string which will cause user
+    // to be prompted to choose a DB to open
+    loginToKeePass: function () {
+        
+        //if (this._keeFoxExtension.prefs.has("keePassMRUDB"))
+      //  {
+            this._KeeFoxXPCOMobj.ChangeDB(this._keeFoxExtension.prefs.getValue("keePassMRUDB",""), true);
+       /* } else
+        {
+            this._KeeFoxXPCOMobj.ChangeDB("", true);
+        }*/
     
     },
 
@@ -550,6 +635,9 @@ this._test = numb;
     // windows in one go so it needs to be fixed but will probably get away with it in the short-term
     // longer term, we need to be registering the startup events only on objects that understand different window scopes
     init: function(currentKFToolbar, currentWindow) {
+        
+        this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
+
         this.log("Testing to see if we've already established whether KeeICE is running.");
 
         if (!this._keeFoxStorage.has("KeeICEActive")) {

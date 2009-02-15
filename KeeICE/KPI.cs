@@ -57,7 +57,9 @@ namespace KeeICE
 
         public override string getDatabaseName(Ice.Current current__)
         {
-            return host.Database.Name;
+            if (!host.Database.IsOpen)
+                return "";
+            return (host.Database.Name.Length > 0 ? host.Database.Name : "no name");
         }
 
         public override string getDatabaseFileName(Ice.Current current__)
@@ -86,7 +88,7 @@ namespace KeeICE
                 ioci.Path = fileName;
             }
 
-            host.MainWindow.OpenDatabase(ioci,null,false);
+            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
             return;
         }
 

@@ -206,9 +206,9 @@ KFToolbar.prototype = {
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-        mainButton.setAttribute("label", "Install KeeFox");
+        mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
-        mainButton.setAttribute("tooltiptext", "KeeFox needs to install some extra things before it can work on your computer. Click here to do that.");
+        mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
     },
 
@@ -220,19 +220,26 @@ KFToolbar.prototype = {
                    .rootTreeItem
                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIDOMWindow);
-                   
-        var DBname = mainWindow.keeFoxInst._KeeFoxXPCOMobj.getDBName();
         
-        // this effectively checks that that KeeICE didn't go away while we were
-        // waiting for FF to trigger the function via the window load event
-        if (DBname != null)
+        mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
+        mainButton.setAttribute("disabled", "false");
+                       
+        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-            mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-            mainButton.setAttribute("label", "Logged in");
-            mainButton.setAttribute("disabled", "false");
-            mainButton.setAttribute("tooltiptext", "You are logged in to your '" + DBname + "' password database");
+            var DBname = mainWindow.keeFoxInst._KeeFoxXPCOMobj.getDBName();
+            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedIn.label"));
+            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
             mainButton.setAttribute("oncommand", "keeFoxInst.KeeFoxMainButton_Click()");
+        
+        } else
+        {
+            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedOut.label"));
+            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loggedOut.tip") );
+            mainButton.setAttribute("oncommand", "keeFoxInst.loginToKeePass()");
         }
+
+            
+        
     },
 
     setupButton_loadKeePass: function(targetWindow) {
@@ -245,10 +252,10 @@ KFToolbar.prototype = {
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-        mainButton.setAttribute("label", "Launch KeePass");
+        mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
         mainButton.setAttribute("disabled", "false");
-        mainButton.setAttribute("tooltiptext", "You need to open and log into KeePass to use KeeFox. Click here to do that.");
-        mainButton.setAttribute("oncommand", "keeFoxInst.KeeFoxMainButton_Click-launchKeePass()");
+        mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
+        mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass()");
     },
     
     KeeFox_RunSelfTests: function(event, KFtester) {
@@ -274,9 +281,9 @@ KFToolbar.prototype = {
             return;
         
         if (numberOfTimes % 2 == 1)
-            flashyItem.setAttribute("class", "chrisgreen");  
+            flashyItem.setAttribute("class", "");  
         else
-            flashyItem.setAttribute("class", "chrisred");
+            flashyItem.setAttribute("class", "highlight");
         
         theWindow.setTimeout(arguments.callee, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes-1, theWindow);
     }
