@@ -33,23 +33,47 @@
       </menupopup>
     </toolbarbutton>
 
-
     <toolbarbutton id="KeeFox_Main-Button" tooltiptext="&KeeFox_Main-Button.loading.tip;"
-             label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;" oncommand="keeFoxInst.KeeFox_MainButtonClick(event, 'hw')" disabled="true" />
+                 label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;" disabled="true" maxwidth="200"/>
+      
+    <toolbarbutton id="KeeFox_Main-Button-login-test" tooltiptext="test"
+             label="temp" accesskey="t" type="menu-button" image="chrome://mozapps/skin/passwordmgr/key.png">
+      <menupopup>
+        <menuitem id="KeeFox_Login-uniqueHEX1" tooltiptext="Click to load the website associated with this password and login automatically [change tooltip text based on options set when menu dynamically created]"
+                   class="menuitem-iconic" label="Test login 1" oncommand="alert('login!'+this.value);" value="uniqueHEX1" context="KeeFox-login-context" image="chrome://mozapps/skin/passwordmgr/key.png"/>
+
+        <menu class="menu-iconic" id="KeeFox_Group-uniqueHEX2G" label="Group 1" image="chrome://mozapps/skin/passwordmgr/key.png">
+          <menupopup id="new-popup">
+            <menuitem class="menuitem-iconic" id="KeeFox_Login-uniqueHEX2" label="Test login 2" oncommand="alert('login!'+this.value);" value="uniqueHEX2" context="KeeFox-login-context" image="chrome://keefox/skin/key-highlighted.png" />
+            <menuitem class="menuitem-iconic" id="KeeFox_Login-uniqueHEX3" label="Test login 3" oncommand="alert('login!'+this.value);" value="uniqueHEX3" context="KeeFox-login-context" />
+          </menupopup>
+        </menu>
+        
+      </menupopup>
+    </toolbarbutton>
     
-    <toolbaritem id="TutTB-DynButtonContainer" />
+    <!--<toolbaritem id="TutTB-DynButtonContainer" />-->
 
   </toolbarpalette>
   
   <toolbox id="navigator-toolbox">
 		<toolbar id="KeeFox-Toolbar" toolbarname="KeeFox" accesskey="K"
          class="chromeclass-toolbar" context="toolbar-context-menu" 
-         hidden="false" persist="hidden" customizable="true" defaultset="KeeFox_Menu-Button,KeeFox_Main-Button,TutTB-DynButtonContainer">
+         hidden="false" persist="hidden" customizable="true" defaultset="KeeFox_Menu-Button,KeeFox_Main-Button,KeeFox_Main-Button-login-test">
 
-      
     </toolbar>
 
 	</toolbox>
+
+  <popupset>
+    <menupopup id="KeeFox-login-context" position="after_start">
+      <menuitem label="Page 1 (click)" oncommand="alert(document.popupNode);alert(document.popupNode.value);"/>
+      <menuitem label="Page 2"/>
+    </menupopup>
+  </popupset>
+
+  <!--<button label="Pop Me Up" context="KeeFox-login-context"/>-->
+
 
   <menupopup id="menu_ToolsPopup">
     <menuitem label="KeeFox Options..."
@@ -60,6 +84,8 @@
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );' />
   </menupopup>
+  
+  
 
   <!-- e.g. of removal:
   <menupopup id="menu_ToolsPopup" removeelement="true">

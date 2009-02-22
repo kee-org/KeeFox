@@ -237,7 +237,7 @@ namespace KeeICE
                 ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
                 // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
                 //MessageBox.Show("please open a DB [TODO: make this more useful than a simple error message]. KeeICE disabled until DB is opened.");
-                host.MainWindow.Invoke(new MethodInvoker(promptUserToOpenDB)); 
+                host.MainWindow.BeginInvoke(new MethodInvoker(promptUserToOpenDB)); 
                 ensureDBisOpenEWH.WaitOne(); // wait until DB has been opened
 
                 if (!host.Database.IsOpen)
@@ -360,7 +360,7 @@ namespace KeeICE
             string temp3 = pwe.Uuid.ToHexString();
 
             KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
-            KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe("title"), temp, false, isExactMatch, pwe.Uuid.ToHexString());
+            KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, pwe.Uuid.ToHexString());
             return kpe;
         }
 

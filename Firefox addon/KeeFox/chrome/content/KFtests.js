@@ -210,21 +210,6 @@ return;
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", null, "Test REALM3");
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + no forms + Test REALM3 = " + countResult + ". Should be 1", false);
 
-// DB opened through C++ method doesn't get connected via ICE? or some other thing causes connection to be lost and no attempt made to reestablish
-
-       // TODO: list multiple DBs (so they can be changed from firefox).
-        
-        // test moving the toolbar buttons to other toolbars so it's not required to always take up entire row.
-         //-------
-        // populate drop down menu on toolbar with all matching logins
-        // submit form (eventually optional) after filling form (either from matching login on toolbar or automatic filling)
-        // make automatic filling work sensibly: do it if we only find one matching form or if there is an exact URL match on the action attribute
-        
-        //TODO maybe: store priority flag in KP DB so auto form fill (and toolbar ordering) can be more closely controlled by user.
-        //TODO maybe: store form id in KeePass DB and use that to make form filling even more accurate.
-        
-        //TODO later: context menu on matching passwords (e.g. edit in KeePass, delete from KeePass) - how to do this?
-        // prob. need some sort of notification message sent back via KeeICE saying "edit {GUID}" or somethign...
 
         if (this._KeeFoxTestErrorOccurred)
         {

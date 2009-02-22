@@ -59,6 +59,7 @@ function KeeFox()
 {
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
+    this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
     this._KeeICEminVersion = 0.4;
     this._KeeFoxVersion = 0.4;
     this.temp = 1;
@@ -84,6 +85,7 @@ this._test = numb;
     strbundle: null,
 
     _KeeFoxXPCOMobj: null,
+    ICEconnectorTimer: null,
 
     _kfilm: null, // The KeeFox Improved Login Manager (probably not used any more)
     _toolbar: null,
@@ -231,6 +233,7 @@ this._test = numb;
                 this.log("Verifying KeeICE version is valid for this KeeFox extension version");
                 var versionCheckResult = {};
 
+                // false only if ICE connection fault or KeeICE internal error
                 if (this._KeeFoxXPCOMobj.checkVersion(this._KeeFoxVersion, this._KeeICEminVersion, versionCheckResult)) {
                     this._keeFoxStorage.set("KeeVersionCheckResult", versionCheckResult.value);
                     if (versionCheckResult.value == 1) {
@@ -250,8 +253,8 @@ this._test = numb;
                 } else {
                     this.log("Couldn't test version becuase KeeICE not available");
                 }
+                
             }
-
 
             if (KeeICEComOpen && this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // version check succeeded
             {
@@ -336,7 +339,7 @@ this._test = numb;
 
             // set toolbar
             if (this._keeFoxStorage.get("KeeICEActive", false)) {
-                var dbName = this._KeeFoxXPCOMobj.getDBName();
+                var dbName = this.getDatabaseName();
                 
                 if (dbName == "")
                 {
@@ -355,20 +358,54 @@ this._test = numb;
 
             } else if (this._keeFoxStorage.get("KeeICEInstalled", false)) {
                 // update toolbar etc to say "launch KeePass" (flash this every time a page loads with forms on and KeePass still not running?)
-                currentKFToolbar.setupButton_loadKeePass(currentWindow);
+                //currentKFToolbar.setupButton_loadKeePass(currentWindow);
+                currentKFToolbar.setupButton_ready(currentWindow);
                 this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
-            }
-
-            if (!this._keeFoxStorage.get("KeeICEActive", true)) {
-                //TODO: be more clever - only do required tests based on why startup failed, maybe only on demand
-                // rather than timer and look out for crashed KeeICE
-
+                
+                //TODO: only look for new ICE server, not run the entire startup sequence...
                 // register next ICE ping / listener
+                
+                // fire off a new thread every x seconds (until the thread cancels the timer)
+                var event = { notify: function(timer) { 
+                
+                    var target = 
+                      Components.classes["@mozilla.org/thread-manager;1"].
+                      getService().newThread(0);
+                   
+                    target.dispatch(new KeeFoxICEconnector(), target.DISPATCH_NORMAL);
+                    
+                 } }
+                
+                this.ICEconnectorTimer.initWithCallback(event, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                
+              
+            } else
+            {
+                // register next ICE ping / listener (we only do it every 30 seconds to minimise impact if user never bothers to install KeeICE plugin)
+                // TODO: should we even do this at all? Maybe successfull install process could load a chrome page which triggers the startup routines.
                 var event = { notify: function(timer) { keeFoxInst._keeFoxBrowserStartup(currentKFToolbar,currentWindow); } }
                 var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-                timer.initWithCallback(event, 20000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                timer.initWithCallback(event, 30000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
             }
         }
+    },
+    
+    // check to see if KeeICE has been enabled once every 10 seconds
+    // (this can lead to a small delay in KeeFox reporting the change in state
+    // but in most cases the user will be busy entering their master password
+    // anyway)
+    startICEcallbackConnector: function() {
+    var event = { notify: function(timer) { 
+        
+            var target = 
+              Components.classes["@mozilla.org/thread-manager;1"].
+              getService().newThread(0);
+           
+            target.dispatch(new KeeFoxICEconnector(), target.DISPATCH_NORMAL);
+            
+         } }
+        
+        this.ICEconnectorTimer.initWithCallback(event, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     },
 
     // temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
@@ -386,14 +423,22 @@ this._test = numb;
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
             win.keeFoxToolbar.removeLogins();
-            win.keeFoxToolbar.setupButton_loadKeePass(win);
+            //win.keeFoxToolbar.setupButton_loadKeePass(win);
+            win.keeFoxToolbar.setupButton_ready(win);
+            win.keeFoxUI._removeOLDKFNotifications();
+            win.removeEventListener("TabSelect", this._onTabSelected, false);
             
             // register next ICE ping / listener
-            var event = { notify: function(timer) { keeFoxInst._keeFoxBrowserStartup(win.keeFoxToolbar,win); } }
-            var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-            timer.initWithCallback(event, 20000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+            //var event = { notify: function(timer) { keeFoxInst._keeFoxBrowserStartup(win.keeFoxToolbar,win); } }
+            //var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+            //timer.initWithCallback(event, 20000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+            
         }
-
+        // clean up the old ICE client connection
+        this._KeeFoxXPCOMobj.shutdownICE();
+        
+        // fire off a new thread every x seconds (until successful thread callback cancels the timer)
+        this.startICEcallbackConnector();
         this.log("KeeFox paused.");
     },
     
@@ -401,7 +446,7 @@ this._test = numb;
     _refreshKPDB: function () {
         this.log("Refreshing KeeFox's view of the KeePass database.");
 
-        var dbName = this._KeeFoxXPCOMobj.getDBName();
+        var dbName = this.getDatabaseName();
                 
         if (dbName == "")
         {
@@ -422,6 +467,8 @@ this._test = numb;
             var win = enumerator.getNext();
             win.keeFoxToolbar.removeLogins();
             win.keeFoxToolbar.setupButton_ready(win);
+            win.keeFoxUI._removeOLDKFNotifications();
+            win.addEventListener("TabSelect", this._onTabSelected, false);
             if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 win.keeFoxILM._fillDocument(win.content.document);
         }
@@ -436,16 +483,151 @@ this._test = numb;
         this.log("KeeFox feels very refreshed now.");
     },
     
+    getDatabaseName: function() {
+        try {
+            return this._KeeFoxXPCOMobj.getDBName();
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+
+  
+        }
+    },
+    
     getDatabaseFileName: function () {
-        return this._KeeFoxXPCOMobj.getDBFileName();
-    
-    
+        try {
+            return this._KeeFoxXPCOMobj.getDBFileName();
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+        return "";
     },
     
     changeDatabase: function (fileName, closeCurrent) {
-        this._KeeFoxXPCOMobj.ChangeDB(fileName, closeCurrent);
+        try {
+            this._KeeFoxXPCOMobj.ChangeDB(fileName, closeCurrent);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+    },
     
+    addLogin: function (login) {
+        try {
+            return this._KeeFoxXPCOMobj.addLogin(login);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+    },
     
+    removeLogin: function (login) {
+        try {
+            return this._KeeFoxXPCOMobj.removeLogin(login);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+    },
+    
+    modifyLogin: function (oldLogin, newLogin) {
+        try {
+            return this._KeeFoxXPCOMobj.modifyLogin(oldLogin, newLogin);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+    },
+    
+    getAllLogins: function (count) {
+        try {
+            return this._KeeFoxXPCOMobj.getAllLogins(count);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+    },
+    
+    findLogins: function (count, hostname, formSubmitURL, httpRealm, uniqueID) {
+        try {
+            return this._KeeFoxXPCOMobj.findLogins(count, hostname, formSubmitURL, httpRealm, uniqueID);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
+    },
+    
+    countLogins: function (hostName,actionURL,loginSearchType) {
+        try {
+            return this._KeeFoxXPCOMobj.countLogins(hostName,actionURL,loginSearchType);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                throw e;
+            }
+        }
     },
     
     launchKeePass: function () {
@@ -466,7 +648,7 @@ this._test = numb;
         
         //if (this._keeFoxExtension.prefs.has("keePassMRUDB"))
       //  {
-            this._KeeFoxXPCOMobj.ChangeDB(this._keeFoxExtension.prefs.getValue("keePassMRUDB",""), true);
+            this.changeDatabase(this._keeFoxExtension.prefs.getValue("keePassMRUDB",""), true);
        /* } else
         {
             this._KeeFoxXPCOMobj.ChangeDB("", true);
@@ -610,7 +792,6 @@ this._test = numb;
     _launchInstaller: function(currentKFToolbar,currentWindow) {
         this.log("KeeFox not installed correctly. Going to try to launch the install page (maybe do this automatically or timed or something in future?)");
 
-        //TODO: remember when we've done this so we don't do it every 20 seconds!
         //NB: FF < 3.0.5 may fail to open the tab due to bug where "session loaded" event fires too soon.
         // load page in new tab called KeeFox installer with install button (linked to same action as toolbar button) (and screenshot of button? - maybe not needed - just have a massive "install" graphic?)
         installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/installKeeICE.html");
@@ -674,7 +855,8 @@ this._test = numb;
             if (currentWindow.document)
             {
                 this.log("setting up the toolbar");
-                currentKFToolbar.setupButton_loadKeePass(currentWindow);
+                //currentKFToolbar.setupButton_loadKeePass(currentWindow);
+                currentKFToolbar.setupButton_ready(currentWindow);
             } else
             {
                 this.log("registering an event listener so we can configure the toolbar when Firefox is ready for us");
@@ -703,7 +885,22 @@ this._test = numb;
     _configureKeeICECallbacks: function() {
         this.log("Setting up a way to receive notification of KeeICE status changes.");
         //netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-        this._KeeFoxXPCOMobj.addObserver(this.CallBackToKeeFoxJS);
+        
+        try {
+            this._KeeFoxXPCOMobj.addObserver(this.CallBackToKeeFoxJS);
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this.startICEcallbackConnector();
+                break;
+             default:
+                throw e;
+            }
+
+  
+        }
     },
 
     // we could define multiple callback functions but that looks like it needs 
@@ -727,9 +924,9 @@ this._test = numb;
             case 3: logService.logStringMessage("KeePass' currently active DB is about to be opened."); break;
             case 4: logService.logStringMessage("KeePass' currently active DB has just been opened."); keeFoxInst._refreshKPDB(); break;
             case 5: logService.logStringMessage("KeePass' currently active DB is about to be closed."); break;
-            case 6: logService.logStringMessage("KeePass' currently active DB has just been closed."); /*keeFoxInst._pauseKeeFox();*/ break;
+            case 6: logService.logStringMessage("KeePass' currently active DB has just been closed."); keeFoxInst._refreshKPDB(); break;
             case 7: logService.logStringMessage("KeePass' currently active DB is about to be saved."); break;
-            case 8: logService.logStringMessage("KeePass' currently active DB has just been saved."); break;
+            case 8: logService.logStringMessage("KeePass' currently active DB has just been saved."); keeFoxInst._refreshKPDB(); break;
             case 9: logService.logStringMessage("KeePass' currently active DB is about to be deleted."); break;
             case 10: logService.logStringMessage("KeePass' currently active DB has just been deleted."); break;
             case 11: logService.logStringMessage("KeePass' active DB has been changed/selected."); keeFoxInst._refreshKPDB(); break;
@@ -800,3 +997,71 @@ function TutTB_AddDynamicButtons()
 
 
 var keeFoxInst = new KeeFox;
+
+
+
+function KeeFoxICEconnector() {
+}
+KeeFoxICEconnector.prototype = {
+  QueryInterface: function(iid) {
+    if (iid.equals(Components.interfaces.nsIRunnable) ||
+        iid.equals(Components.interfaces.nsISupports))
+      return this;
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  },
+  run: function() {
+
+    if (keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false) && !keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+    {
+        var versionCheckResult = {};
+        KeeICEComOpen = false;
+        
+        // false only if ICE connection fault or KeeICE internal error
+        if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
+            
+            var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
+            main.dispatch(new KFmainThread (versionCheckResult.value), main.DISPATCH_NORMAL);
+
+            
+        }
+    }
+  }
+};
+
+
+var KFmainThread = function(result) {
+  this.result = result;
+};
+
+KFmainThread.prototype = {
+  run: function() {
+    try {
+      // This is where we react to the completion of the working thread.
+      keeFoxInst.log('Thread finished with result: ' + this.result);
+      keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
+      //TODO: set up variables, etc. as per if it were an initial startup
+      keeFoxInst.ICEconnectorTimer.cancel();
+      
+      keeFoxInst.log("Successfully established connection with KeeICE");
+                // remember this across all windows
+                keeFoxInst._keeFoxStorage.set("KeeICEActive", true);
+                keeFoxInst._keeFoxStorage.set("KeeICEInstalled", true);
+    
+    //keeFoxInst._refreshKPDB();
+    keeFoxInst._configureKeeICECallbacks();
+    keeFoxInst._refreshKPDB();
+
+    } catch(err) {
+      Components.utils.reportError(err);
+    }
+  },
+  
+  QueryInterface: function(iid) {
+    if (iid.equals(Components.interfaces.nsIRunnable) ||
+        iid.equals(Components.interfaces.nsISupports)) {
+            return this;
+    }
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  }
+};
+

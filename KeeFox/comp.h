@@ -229,13 +229,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) = 0;
 
+  /* attribute AString title; */
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) = 0;
+
   /**
      * Initialize a newly created nsLoginInfo object.
      *
      * The arguments are the fields for the new object.
      */
-  /* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID); */
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID) = 0;
+  /* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle); */
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) = 0;
 
   /**
      * Test for strict equality with another nsILoginInfo object.
@@ -261,8 +265,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   /* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword); */
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval) = 0;
 
-  /* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in nsIMutableArray someCustomFields); */
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, nsIMutableArray *someCustomFields) = 0;
+  /* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields); */
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) = 0;
 
 };
 
@@ -288,10 +292,12 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields); \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID); \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID); \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle); \
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle); \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval); \
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval); \
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, nsIMutableArray *someCustomFields); 
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGININFO(_to) \
@@ -313,10 +319,12 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) { return _to SetCustomFields(aCustomFields); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return _to GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return _to SetUniqueID(aUniqueID); } \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID) { return _to Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return _to GetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return _to SetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) { return _to Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) { return _to Equals(aLoginInfo, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval) { return _to Matches(aLoginInfo, ignorePassword, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, nsIMutableArray *someCustomFields) { return _to InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, someCustomFields); } 
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) { return _to InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle, someCustomFields); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGININFO(_to) \
@@ -338,10 +346,12 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCustomFields(aCustomFields); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUniqueID(aUniqueID); } \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Equals(aLoginInfo, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Matches(aLoginInfo, ignorePassword, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, nsIMutableArray *someCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, someCustomFields); } 
+  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle, someCustomFields); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -465,8 +475,18 @@ NS_IMETHODIMP kfLoginInfo::SetUniqueID(const nsAString & aUniqueID)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID); */
-NS_IMETHODIMP kfLoginInfo::Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID)
+/* attribute AString title; */
+NS_IMETHODIMP kfLoginInfo::GetTitle(nsAString & aTitle)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetTitle(const nsAString & aTitle)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle); */
+NS_IMETHODIMP kfLoginInfo::Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -483,8 +503,8 @@ NS_IMETHODIMP kfLoginInfo::Matches(kfILoginInfo *aLoginInfo, PRBool ignorePasswo
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in nsIMutableArray someCustomFields); */
-NS_IMETHODIMP kfLoginInfo::InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, nsIMutableArray *someCustomFields)
+/* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields); */
+NS_IMETHODIMP kfLoginInfo::InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -603,6 +623,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   /* void LaunchKeePass (in AString fileName, in AString DBFile); */
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) = 0;
 
+  /* void shutdownICE (); */
+  NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) = 0;
+
   /**
      * Store a new login.
      *
@@ -715,6 +738,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName); \
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName); \
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile); \
+  NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void); \
   NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin); \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin); \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin); \
@@ -733,6 +757,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) { return _to GetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return _to SetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return _to LaunchKeePass(fileName, DBFile); } \
+  NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return _to ShutdownICE(); } \
   NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) { return _to AddLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return _to RemoveLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return _to ModifyLogin(oldLogin, newLogin); } \
@@ -751,6 +776,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchKeePass(fileName, DBFile); } \
+  NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->ShutdownICE(); } \
   NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->RemoveLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->ModifyLogin(oldLogin, newLogin); } \
@@ -838,6 +864,12 @@ NS_IMETHODIMP _MYCLASS_::SetName(const nsAString & aName)
 
 /* void LaunchKeePass (in AString fileName, in AString DBFile); */
 NS_IMETHODIMP _MYCLASS_::LaunchKeePass(const nsAString & fileName, const nsAString & DBFile)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void shutdownICE (); */
+NS_IMETHODIMP _MYCLASS_::ShutdownICE()
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

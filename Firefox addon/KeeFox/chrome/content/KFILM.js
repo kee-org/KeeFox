@@ -89,10 +89,6 @@ KFILM.prototype = {
 
     init : function () {
         this.log("ILM init start");
-        //if (this._test != null)
-        //this.log("test:" + this._test);
-
-        //this.log("currentWindowName:" + this._currentWindow.name);
         
         // Cache references to current |this| in utility objects
         this._webProgressListener._domEventListener = this._domEventListener;
@@ -450,7 +446,7 @@ KFILM.prototype = {
         //this._kf._KeeFoxXPCOMobj.getDBName(new WrapperClass(theObject));
         if (this._kf._keeFoxStorage.get("KeeICEActive",false))
         {
-            return this._kf._KeeFoxXPCOMobj.getDBName();
+            return this._kf.getDatabaseName();
         }
     },
     
@@ -493,7 +489,7 @@ KFILM.prototype = {
             throw "This login already exists.";
 
         this.log("Adding login: " + login);
-        return this._kf._KeeFoxXPCOMobj.addLogin(login);
+        return this._kf.addLogin(login);
     },
 
 
@@ -504,7 +500,7 @@ KFILM.prototype = {
      */
     removeLogin : function (login) {
         this.log("Removing login: " + login);
-        return this._kf._KeeFoxXPCOMobj.removeLogin(login);
+        return this._kf.removeLogin(login);
     },
 
 
@@ -515,7 +511,7 @@ KFILM.prototype = {
      */
     modifyLogin : function (oldLogin, newLogin) {
         this.log("Modifying oldLogin: " + oldLogin + " newLogin: " + newLogin);
-        return this._kf._KeeFoxXPCOMobj.modifyLogin(oldLogin, newLogin);
+        return this._kf.modifyLogin(oldLogin, newLogin);
     },
 
 
@@ -530,7 +526,7 @@ KFILM.prototype = {
      */
     getAllLogins : function (count) {
         this.log("Getting a list of all logins");
-        return this._kf._KeeFoxXPCOMobj.getAllLogins(count);
+        return this._kf.getAllLogins(count);
     },
         
     /*
@@ -543,7 +539,7 @@ KFILM.prototype = {
             ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm
              + ", uniqueID: " + uniqueID);
 
-        return this._kf._KeeFoxXPCOMobj.findLogins(count, hostname, formSubmitURL, httpRealm, uniqueID);
+        return this._kf.findLogins(count, hostname, formSubmitURL, httpRealm, uniqueID);
     },
     
     countLogins : function (hostName,actionURL,loginSearchType)
@@ -551,7 +547,7 @@ KFILM.prototype = {
         
         if (this._kf._keeFoxStorage.get("KeeICEActive",false))
         {
-            return this._kf._KeeFoxXPCOMobj.countLogins(hostName,actionURL,loginSearchType);
+            return this._kf.countLogins(hostName,actionURL,loginSearchType);
         }
     },
     
@@ -896,15 +892,19 @@ KFILM.prototype = {
         }
 
         var hostname = this._getPasswordOrigin(doc.documentURI);
+        
+        var title = doc.title;
+        
        // var formSubmitURL = this._getActionOrigin(form)
 
 //TODO: initCustom then extend search function to weight the id of form items
         // Temporary LoginInfo with the info we know.
         var currentLogin = new this._kfLoginInfo();
+        this.log("titleA:"+title);
         currentLogin.init(hostname, actionURL, null,
                           usernameValue, null,
                           (usernameField ? usernameField.name  : ""),
-                          passwordField.name, uniqueID);
+                          passwordField.name, uniqueID, title);
 
         // Look for a existing login and use its password.
         var match = null;
@@ -961,7 +961,9 @@ KFILM.prototype = {
         //    return;
 
         var hostname      = this._getPasswordOrigin(doc.documentURI);
-        var formSubmitURL = this._getActionOrigin(form)
+        var formSubmitURL = this._getActionOrigin(form);
+        var title = doc.title;
+
         //if (!this.getLoginSavingEnabled(hostname)) {
         //    this.log("(form submission ignored -- saving is " +
         //             "disabled for: " + hostname + ")");
@@ -1028,11 +1030,9 @@ KFILM.prototype = {
                 if (passwords.length == 2)
                 {
                     newPasswordField = passwords[0].element;
-                    this.log("test1:" + newPasswordField.value);
                 } else
                 {
                     newPasswordField = passwords[twoPasswordsMatchIndex].element;
-                    this.log("test2:" + newPasswordField.value);
                     for(i=0;i<passwords.length;i++)
                         if(newPasswordField.value != passwords[i].element.value)
                             oldPasswordField = passwords[i].element;
@@ -1045,15 +1045,12 @@ KFILM.prototype = {
         } else
         {
             newPasswordField = passwords[0].element;
-            this.log("test3a:" + newPasswordField.value);
-            //this.log("test3b:" + newPasswordField.element);
-            //this.log("test3c:" + newPasswordField.element.value);
         }
         
         // at this point, newPasswordField has been chosen and oldPasswordField has been chosen if applicable
 
         var formLogin = new this._kfLoginInfo();
-        
+ 
         if ((usernameField != null && usernameField.id != null) || (newPasswordField != null && newPasswordField.id != null))
         {
             var customWrapper;
@@ -1064,13 +1061,11 @@ KFILM.prototype = {
             else
                 customWrapper = keeFoxInst.kfLoginInfoCustomFieldsWrapper("special_form_username_ID",usernameField.id,"special_form_password_ID",newPasswordField.id);
             
-            this.log("test:" + newPasswordField.value);
-            
             formLogin.initCustom(hostname, formSubmitURL, null,
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
-                    newPasswordField.name, null, customWrapper);
+                    newPasswordField.name, null, title, customWrapper);
             this.log("login object initialised with custom data");
         } else
         {
@@ -1078,7 +1073,7 @@ KFILM.prototype = {
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
-                    newPasswordField.name, null);
+                    newPasswordField.name, null, title);
             this.log("login object initialised without custom data");
         }
         
@@ -1091,7 +1086,7 @@ KFILM.prototype = {
         // rather than use the normal storage variable, I'm going to the source (KeICE)
         // just to cover situations where this thread reaches this point before the usual
         // variable has been updated.
-        var dbName = this._kf._KeeFoxXPCOMobj.getDBName();
+        var dbName = this._kf.getDatabaseName();
                 
         if (dbName == "")
         {
@@ -1099,10 +1094,8 @@ KFILM.prototype = {
             return;
         }
         
-        
-this.log("temp1");
         for (var i = 0; i < logins.length; i++)
-        {this.log("temp1a");
+        {
             var same, login = logins[i];
 
             // If one login has a username but the other doesn't, ignore
@@ -1132,8 +1125,6 @@ this.log("temp1");
                 break;
             }
         }
-this.log("temp2");
-        
 
         if (oldPasswordField != null) // we are changing the password
         {
@@ -1172,15 +1163,15 @@ this.log("temp2");
         
         // if we get to this stage, we are faced with a new login or signup submission so prompt user to save details
         this.log("password is not recognised so prompting user to save it");
-        
+
         // Prompt user to save login (via dialog or notification bar)
         //this.log("orig window has name:" + win.name);
         keeFoxUI.setWindow(win);
         keeFoxUI.setDocument(doc);
         // why is forLogin.password broken here? look at dos console? original input? form field identification?
-        this.log("details1:" + formLogin.username + ":" + formLogin.password + ":" );
+        //this.log("details1:" + formLogin.username + ":" + formLogin.password + ":" );
         keeFoxUI.promptToSavePassword(formLogin);
-        this.log("details2:" + formLogin.username + ":" + formLogin.password + ":" );
+        //this.log("details2:" + formLogin.username + ":" + formLogin.password + ":" );
         
         
         

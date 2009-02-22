@@ -207,11 +207,12 @@ KFUI.prototype = {
 
         try {
             var [username, password] = this._GetAuthInfo(aAuthInfo);
-
+            var title = doc.title;
+this.log("titleC:"+title);
             var newLogin = Cc["@mozilla.org/login-manager/loginInfo;1"].
                            createInstance(Ci.nsILoginInfo);
             newLogin.init(hostname, null, httpRealm,
-                          username, password, "", "", null);
+                          username, password, "", "", null, title);
 
             // XXX We can't prompt with multiple logins yet (bug 227632), so
             // the entered login might correspond to an existing login
@@ -658,7 +659,7 @@ KFUI.prototype = {
                 accessKey: loginButtonAccessKey,
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
-                    kf.launchKeePass(); // TODO: "fill" current page (after recieve KeeICE callback to indicate successful DB load.
+                    kf.launchKeePass();
                 }
             },
 
@@ -717,7 +718,7 @@ KFUI.prototype = {
                 accessKey: loginButtonAccessKey,
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
-                    kf.loginToKeePass(); // TODO: "fill" current page (after recieve KeeICE callback to indicate successful DB load.
+                    kf.loginToKeePass();
                 }
             },
 
@@ -732,6 +733,39 @@ KFUI.prototype = {
 
         this._showLoginNotification(notifyBox, "keefox-login",
              notificationText, buttons);
+    },
+    
+    /*
+     * _removeOLDKFNotifications
+     *
+     */
+    _removeOLDKFNotifications : function () {
+
+        var notifyBox = this._getNotifyBox();
+        
+        if (notifyBox)
+        {
+            var oldBar = notifyBox.getNotificationWithValue("password-save");
+
+            if (oldBar) {
+                this.log("Removing save-password notification bar.");
+                notifyBox.removeNotification(oldBar);
+            }
+            
+            oldBar = notifyBox.getNotificationWithValue("keefox-login");
+
+            if (oldBar) {
+                this.log("Removing keefox-login notification bar.");
+                notifyBox.removeNotification(oldBar);
+            }
+            
+            oldBar = notifyBox.getNotificationWithValue("keefox-launch");
+
+            if (oldBar) {
+                this.log("Removing keefox-launch notification bar.");
+                notifyBox.removeNotification(oldBar);
+            }
+        }
     },
     
     

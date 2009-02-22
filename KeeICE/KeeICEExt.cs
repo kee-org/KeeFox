@@ -213,7 +213,14 @@ namespace KeeICE
 		{
             if (keeICEServer.kp != null)
                 keeICEServer.kp.issueICEClientCallbacks(12); //KF_STATUS_EXITING
+            
+            // TODO: this only works when one ICE thread is waiting - we'll have to redevelop this locking mechanism soon...
+            // tell any waiting ICE threads to just go ahead (and not wait for the user to finish interacting
+            // with the KP UI.
+            KPI.ensureDBisOpenEWH.Set();
+            
             keeICEServer.ic.shutdown();
+            keeICEServer.ic.waitForShutdown();
             //if (keeICEServer.kp != null) 
             //    keeICEServer.kp.issueICEClientCallbacks(6); //KF_STATUS_DATABASE_CLOSED
             keeICEServer.ic.destroy();

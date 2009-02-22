@@ -67,19 +67,21 @@ KFToolbar.prototype = {
     removeLogins: function() {
 
         // Get the toolbaritem "container" that we added to our XUL markup
-        var container = this._currentWindow.document.getElementById("TutTB-DynButtonContainer");
+        var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
 
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
+        
+        this.setupButton_ready(null,this._currentWindow);
     },
     
     //TODO: update login object to support form field id info for onward passage to kfilm.fill instead of nulls
     setLogins: function(logins) {
-
+this.log("setLogins");
         // Get the toolbaritem "container" that we added to our XUL markup
-        var container = this._currentWindow.document.getElementById("TutTB-DynButtonContainer");
+        var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
 
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
@@ -87,7 +89,16 @@ KFToolbar.prototype = {
         }
 
         if (logins == null || logins.length == 0)
+        {
+            this.setupButton_ready(null,this._currentWindow);
             return;
+        }
+       
+        container.setAttribute("class", "login-found");
+        container.setAttribute("type", "menu-button");
+        container.setAttribute("disabled", "false");
+                
+        menupopup = this._currentWindow.document.createElement("menupopup");
 
         this.log("setting " + logins.length + " toolbar logins");
 
@@ -115,19 +126,31 @@ KFToolbar.prototype = {
                 }
                 //this.log(s);
             }
+            
+            if (i==0)
+            {
+                container.setAttribute("label", login.title);
+                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
+                container.setAttribute("oncommand", "keeFoxILM.fill('" +
+                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+            
+            }
 
 
             var tempButton = null;
-            tempButton = this._currentWindow.document.createElement("toolbarbutton");
-            tempButton.setAttribute("label", "Button " + i);
+            tempButton = this._currentWindow.document.createElement("menuitem");
+            tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "')");
-            container.appendChild(tempButton);
+                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
+            menupopup.appendChild(tempButton);
 
 
         }
-
+        
+        container.appendChild(menupopup);
+this.log("test2:"+container.getAttribute("oncommand"));
     },
 
     setupButton_installListener: {
@@ -197,7 +220,7 @@ KFToolbar.prototype = {
     },
 
     setupButton_install: function(targetWindow) {
-        
+        this.log("setupButton_install");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -206,33 +229,69 @@ KFToolbar.prototype = {
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
+        
+        // Remove all of the existing buttons
+        for (i = mainButton.childNodes.length; i > 0; i--) {
+            mainButton.removeChild(mainButton.childNodes[0]);
+        }
+        mainButton.setAttribute("class", "");
+        //mainButton.setAttribute("type", "");
+        mainButton.removeAttribute("type");
         mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
         mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
     },
 
-    setupButton_ready: function(targetWindow) {
-
-        var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+// I think this will gradually become a generic "update toolbar status" method sicne it makes more sense to
+// decide what state the toolbar needs to show when this function is executing rather than calling
+// one of many different ones from other locations
+    setupButton_ready: function(targetWindow, mainWindowIN) {
+        this.log("setupButton_ready");
+        var mainButton;
+        var mainWindow;
+        
+        if (mainWindowIN != null)
+            mainWindow = mainWindowIN;
+        else
+        {
+            mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                    .rootTreeItem
                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIDOMWindow);
+        }
         
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
         mainButton.setAttribute("disabled", "false");
-                       
+        // Remove all of the existing buttons
+        for (i = mainButton.childNodes.length; i > 0; i--) {
+            mainButton.removeChild(mainButton.childNodes[0]);
+        }
+        mainButton.setAttribute("class", "");
+        //mainButton.setAttribute("type", "");
+        mainButton.removeAttribute("type");
+        
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-            var DBname = mainWindow.keeFoxInst._KeeFoxXPCOMobj.getDBName();
+        this.log("setupButton_ready1");
+            var DBname = mainWindow.keeFoxInst.getDatabaseName();
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
-            mainButton.setAttribute("oncommand", "keeFoxInst.KeeFoxMainButton_Click()");
+           // mainButton.setAttribute("oncommand", "alert('blah')");
+            mainButton.setAttribute("disabled", "true");
+            mainButton.removeAttribute("oncommand");
         
+        } else if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+        {
+        this.log("setupButton_ready2");
+            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
+            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
+            mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass()");
         } else
         {
+        this.log("setupButton_ready3");
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedOut.label"));
             mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loggedOut.tip") );
             mainButton.setAttribute("oncommand", "keeFoxInst.loginToKeePass()");
@@ -243,7 +302,7 @@ KFToolbar.prototype = {
     },
 
     setupButton_loadKeePass: function(targetWindow) {
-        
+        this.log("setupButton_loadKeePass");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -254,6 +313,13 @@ KFToolbar.prototype = {
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
         mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
         mainButton.setAttribute("disabled", "false");
+        // Remove all of the existing buttons
+        for (i = mainButton.childNodes.length; i > 0; i--) {
+            mainButton.removeChild(mainButton.childNodes[0]);
+        }
+        mainButton.setAttribute("class", "");
+       // mainButton.setAttribute("type", "");
+       mainButton.removeAttribute("type");
         mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass()");
     },
@@ -276,7 +342,7 @@ KFToolbar.prototype = {
     
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
     
-        keeFoxToolbar.log("test:" + numberOfTimes);
+        //keeFoxToolbar.log("test:" + numberOfTimes);
         if (numberOfTimes < 1)
             return;
         

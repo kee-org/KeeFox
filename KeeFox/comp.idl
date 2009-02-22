@@ -98,6 +98,8 @@ interface kfILoginInfo : nsISupports {
 
 	attribute AString uniqueID;
 
+	attribute AString title;
+
 
     /**
      * Initialize a newly created nsLoginInfo object.
@@ -108,7 +110,7 @@ interface kfILoginInfo : nsISupports {
               in AString aFormSubmitURL, in AString aHttpRealm,
               in AString aUsername,      in AString aPassword,
               in AString aUsernameField, in AString aPasswordField,
-			  in AString uniqueID);
+			  in AString uniqueID, in AString aTitle);
 
     /**
      * Test for strict equality with another nsILoginInfo object.
@@ -136,7 +138,7 @@ interface kfILoginInfo : nsISupports {
               in AString aFormSubmitURL, in AString aHttpRealm,
               in AString aUsername,      in AString aPassword,
               in AString aUsernameField, in AString aPasswordField,
-			  in AString uniqueID, in nsIMutableArray someCustomFields);
+			  in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields);
 
 };
 
@@ -159,7 +161,7 @@ interface IKeeFox : nsISupports
   void ChangeDB(in AString fileName, in boolean closeCurrent);
   attribute AString name;
   void LaunchKeePass(in AString fileName, in AString DBFile);
-
+	void shutdownICE();
 
   
   /**

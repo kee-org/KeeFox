@@ -44,6 +44,7 @@ kfLoginInfo.prototype = {
     usernameField : null,
     passwordField : null,
     uniqueID : null,
+    title : null,
     customFields : null,
     
     _alert : function (msg) {
@@ -64,8 +65,8 @@ kfLoginInfo.prototype = {
     init : function (aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField,
-                     aUniqueID) {
-                     //this._alert(arguments.length);
+                     aUniqueID, aTitle) {
+
         this.hostname      = aHostname;
         this.formSubmitURL = aFormSubmitURL;
         this.httpRealm     = aHttpRealm;
@@ -74,18 +75,18 @@ kfLoginInfo.prototype = {
         this.usernameField = aUsernameField;
         this.passwordField = aPasswordField;
         this.uniqueID = aUniqueID;
-        
+        this.title = aTitle;
     },
     
     initCustom : function (aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField,
-                     aUniqueID, customFieldsArray) {
-                     
+                     aUniqueID, aTitle, customFieldsArray) {
+
         this.init(aHostname, aFormSubmitURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField,
-                     aUniqueID);
+                     aUniqueID, aTitle);
         
         this.customFields = customFieldsArray;   
        
@@ -123,7 +124,8 @@ kfLoginInfo.prototype = {
             this.password      != aLogin.password      ||
             this.usernameField != aLogin.usernameField ||
             this.passwordField != aLogin.passwordField ||
-            this.uniqueID != aLogin.uniqueID)
+            this.uniqueID != aLogin.uniqueID ||
+            this.title != aLogin.title)
             return false;
 
         return true;
