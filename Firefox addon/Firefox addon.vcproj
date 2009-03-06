@@ -250,7 +250,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\install.js"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\install.rdf"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\install.xul"
 			>
 		</File>
 		<File

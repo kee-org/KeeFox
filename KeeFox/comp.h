@@ -10,10 +10,6 @@
 #include "nsISupports.h"
 #endif
 
-#ifndef __gen_nsILoginInfo_h__
-#include "nsILoginInfo.h"
-#endif
-
 #ifndef __gen_nsIMutableArray_h__
 #include "nsIMutableArray.h"
 #endif

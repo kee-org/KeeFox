@@ -203,6 +203,12 @@ namespace KeeICE
 
             keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
 
+            if (keeICEServer.m_host.CommandLineArgs["welcomeToKeeFox"] != null)
+            {
+                MessageBox.Show("Welcome to KeeFox! KeeFox stores your passwords securely using KeePass. Please setup a new KeePass database if required or load an existing one.");
+
+            }
+
 			return true; // Initialization successful
 		}
 

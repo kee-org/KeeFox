@@ -47,14 +47,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zc:wchar_t-"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\Ice-3.3.0-VC90\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\sdk\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nspr&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\pipnss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\string&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\system_wrappers&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\xpcom&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\loginmgr&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;XP_WIN;XP_WIN32;_DEBUG;MANAGEDWRAPPER_EXPORTS"
 				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				ForcedIncludeFiles="xpcom-config.h"
 			/>
@@ -88,6 +88,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -109,7 +110,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)Firefox addon\KeeFox\components"
+			OutputDirectory="$(SolutionDir)Firefox addon\KeeFox\keefox-libraries"
 			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -137,12 +138,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\Ice-3.3.0-VC90\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\sdk\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nspr&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\pipnss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\string&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\system_wrappers&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\xpcom&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\loginmgr&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\Ice-3.3.0-VC90\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\sdk\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nspr&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\pipnss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\string&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\system_wrappers&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\xpcom&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;XP_WIN;XP_WIN32;MANAGEDWRAPPER_EXPORTS;NDEBUG"
 				RuntimeLibrary="2"
+				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				ForcedIncludeFiles="xpcom-config.h"
 			/>
@@ -158,21 +160,24 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib Ice.lib IceUtil.lib $(NOINHERIT)"
+				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib Ice.lib IceUtil.lib $(NOINHERIT) shell32.lib Advapi32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\xulrunner-sdk\bin&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\lib&quot;;&quot;$(SolutionDir)..\Ice-3.3.0-VC90\lib&quot;"
+				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libc.lib, libcmt.lib, libcd.lib, libcmtd.lib, msvcrtd.lib"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
+				AllowIsolation="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -464,6 +469,18 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\VistaTools.cxx"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
 			</File>

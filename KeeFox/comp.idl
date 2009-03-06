@@ -18,7 +18,7 @@
 */
 
 #include "nsISupports.idl"
-#include "nsILoginInfo.idl"
+//#include "nsILoginInfo.idl"
 #include "nsIMutableArray.idl"
 //#include "nsILoginManagerStorage.idl"
 

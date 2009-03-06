@@ -283,6 +283,12 @@ this.log("test2:"+container.getAttribute("oncommand"));
             mainButton.setAttribute("disabled", "true");
             mainButton.removeAttribute("oncommand");
         
+        } else if (!keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false))
+        {
+            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
+            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
+            mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
+        
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
         {
         this.log("setupButton_ready2");

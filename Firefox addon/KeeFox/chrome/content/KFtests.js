@@ -94,11 +94,11 @@ KFtests.prototype = {
       //  keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenLoggedOut",!keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",true));
        // keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeeICEInactive",!keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeeICEInactive",true));
         
-        keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenLoggedOut",true);
-        keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeeICEInactive",true);
+ //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenLoggedOut",true);
+ //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeeICEInactive",true);
 
 //keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_RunSelfTests-Button'), 12, keeFoxToolbar._currentWindow);
-return;
+//return;
 
         this.log("Constructing kfILoginInfo interface");
 
@@ -112,32 +112,32 @@ return;
 
         var testuser1 = new kfLoginInfo;
         testuser1.initCustom("https://oyster.tfl.gov.uk", "https://oyster.tfl.gov.uk", null,
-      "abcdefghijklmnopqrstuvwxy", "abcdefghijklmnopqrstuvwxy", "j_username", "j_password", null,
+      "abcdefghijklmnopqrstuvwxy", "abcdefghijklmnopqrstuvwxy", "j_username", "j_password", null, "Test title 1",
       keeFoxInst.kfLoginInfoCustomFieldsWrapper("username id","cvalue1","password id","cvalue2")); // https://oyster.tfl.gov.uk/oyster/entry.do/ku
 
         var testuser2 = new kfLoginInfo;
         testuser2.init("https://oyster.tfl.gov.uk/oyster/entry.do", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "put_user2_here", "put_pw2_here", null);
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "put_user2_here", "put_pw2_here", null, "Test title 2");
 
         var testuser3 = new kfLoginInfo;
         testuser3.init("http://dummyhost.mozilla.org", null, "Test REALM3",
-      "dummydude2", "itsasecret2", "uf3", "pf3", null);
+      "dummydude2", "itsasecret2", "uf3", "pf3", null, "Test title 3");
 
         var testuser4 = new kfLoginInfo;
         testuser4.init("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦u4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦p4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦uf4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦pf4", null);
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦u4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦p4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦uf4", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!\"£$%^&*()-_=+{}~@:[]#';/.,?><|\¬`¦pf4", null, "Test title 4");
 
         var testuser5 = new kfLoginInfo;
         testuser5.initCustom("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
-      "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", null,keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
+      "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", null, "Test title 5",keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
 
         var testuser6 = new kfLoginInfo;
         testuser6.initCustom("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
-      "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", null,keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
+      "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", "abcdefghijklmnopqr", null, "Test title 6",keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
 
         var testuser7 = new kfLoginInfo;
         testuser7.initCustom("http://dummyhost.mozilla.org/full/url.php", "https://third.party.form.submit.url/including/path/and/file.cgi", null,
-      "abcdefghijklmnopqr7", "abcdefghijklmnopqr7", "abcdefghijklmnopqr7", "abcdefghijklmnopqr7", null,keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
+      "abcdefghijklmnopqr7", "abcdefghijklmnopqr7", "abcdefghijklmnopqr7", "abcdefghijklmnopqr7", null, "Test title 7",keeFoxInst.kfLoginInfoCustomFieldsWrapper("custom1","cvalue1","custom2","cvalue2"));
 
 // temp for debugging modification
 //this._kfilm.modifyLogin(testuser5,testuser6);
@@ -147,14 +147,14 @@ return;
 //this._kfilm.modifyLogin(testuser5,testuser7);
 
 // temp for debugging database change
-        var originalDBFileName = keeFoxInst.getDatabaseFileName();
-        keeFoxInst.changeDatabase("C:\\Documents and Settings\\Chris Tomlinson\\My Documents\\NewDatabase.kdbx", true);
-        this._alert("swapped");
-        keeFoxInst.changeDatabase(originalDBFileName, false);
-        this._alert("added");
+ //       var originalDBFileName = keeFoxInst.getDatabaseFileName();
+ //       keeFoxInst.changeDatabase("C:\\Documents and Settings\\Chris Tomlinson\\My Documents\\NewDatabase.kdbx", true);
+//        this._alert("swapped");
+  //      keeFoxInst.changeDatabase(originalDBFileName, false);
+//        this._alert("added");
         
 // temp for when we don't want to overwrite DB content
-return;
+//return;
 
 
 

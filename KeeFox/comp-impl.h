@@ -29,7 +29,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include "generated/KeeICE.h"
-#include "nsILoginInfo.h"
+//#include "nsILoginInfo.h"
 #include "nsCOMPtr.h"
 
 using std::string;
