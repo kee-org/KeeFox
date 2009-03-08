@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox Improved Login Manager javascript file. The KFILM object
   is mainly concerned with user-visible behaviour and actual use of the data
@@ -31,10 +31,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
 
-//TODO: setup listeners, etc., disable built-in login manager, use example code to build
-// basic form and/or http detection, call test function from interface, make seperate JS file
-// to handle interface / notification bar stuff? or just set of functions in that same file to
-// handle stuff like xpcom calls, marshalling, etc. refer to bookmarks
+//TODO: disable built-in login manager
 
 function KFILM(kf,keeFoxToolbar,currentWindow) {
     this.log ("KFILM constructor started");
@@ -129,14 +126,6 @@ KFILM.prototype = {
         } catch (e) {
             this.log("couldn't add nsIWebProgress listener: " + e);
         }
-
-            
-        
-// During initialisation
-//TODO: why? should we really do anything like this duing init?
-// well, at some point we need to clear the toolbar settings when changing between tabs... 
-// remove all the old logins from the toolbar
-            //this._toolbar.removeLogins();
         
         this.log("ILM init complete");
     },

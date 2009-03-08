@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   The KeeFox object will handle 
   communication with the KeeFox XPCOM objects, including situations such as
@@ -60,8 +60,8 @@ function KeeFox()
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
     this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-    this._KeeICEminVersion = 0.4;
-    this._KeeFoxVersion = 0.4;
+    this._KeeICEminVersion = 0.5;
+    this._KeeFoxVersion = 0.5;
     this.temp = 1;
     var prefs = this._keeFoxExtension.prefs;
     
@@ -687,8 +687,6 @@ this._test = numb;
     },
     
     launchKeePass: function () {
-        //TODO: find some way to open a prgram with parameters. sounds like a call into the C++ DLL and then shell execute from out of there might be an option...
-        
         if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
             return; // TODO: work it out, prompt user or just bomb out with notification why
@@ -769,7 +767,6 @@ this._test = numb;
         return dir.path;
     },
 
-// TODO: make a version for advanced installer
     KeeFox_MainButtonClick_install: function(event, temp) {
         this.log("install button clicked. Loading (and focusing) install page.");
         installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
@@ -820,6 +817,8 @@ this._test = numb;
                               getService(Ci.nsIObserverService);
             this._observer._kf = this;
             this._observer._currentKFToolbar = currentKFToolbar;
+            
+            this.log("debug:" + currentKFToolbar._currentWindow);
                 
             observerService.addObserver(this._observer, "sessionstore-windows-restored", false);
         
@@ -900,7 +899,7 @@ this._test = numb;
             switch(topic) {
                 case "sessionstore-windows-restored":
                     this._kf.log("sessionstore-windows-restored message recieved");
-                    this._kf._keeFoxBrowserStartup(this._currentKFToolbar, this._currentKFToolbar.currentWindow);
+                    this._kf._keeFoxBrowserStartup(this._currentKFToolbar, this._currentKFToolbar._currentWindow);
                     this._kf.log("sessionstore-windows-restored message processed");
                     break;
             }
@@ -996,35 +995,7 @@ this._test = numb;
 };
 
 
-/* could be useful...
-
-function TutTB_AddDynamicButtons()
-{
-    // Get the toolbaritem "container" that we added to our XUL markup
-    var container = document.getElementById("TutTB-DynButtonContainer");
-
-    // Remove all of the existing buttons
-    for(i=container.childNodes.length; i > 0; i--) {
-        container.removeChild(container.childNodes[0]);
-    }
-
-    // Add 5 dynamic buttons
-    for(var i=0; i<5; i++) {
-        var tempButton = null;
-        tempButton = document.createElement("toolbarbutton");
-        tempButton.setAttribute("label", "Button " + i);
-        tempButton.setAttribute("tooltiptext", "Button " + i);
-        tempButton.setAttribute("oncommand", "TutTB_SomeFunction()");
-        container.appendChild(tempButton);
-    }
-}
-
-*/
-
-
 var keeFoxInst = new KeeFox;
-
-
 
 function KeeFoxICEconnector() {
 }
@@ -1096,5 +1067,7 @@ KFmainThread.prototype = {
 regular test for installed status does not run (at least before first install) - looks like all regular events are not running. no ICE callbacks registered.
 
 login.live.com doesn't work - no forms found. need to wait for later event trigger? i guess the forms are dynamically added after page has finished loading.
+
+(vista?) clicking on "logged out" toolbar button loads "open DB from URL" dialog (maybe cos no MRU straight after install?)
 
 */

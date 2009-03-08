@@ -20,9 +20,10 @@
 
         <menuseparator />
 
+        <!--
         <menuitem id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
                    class="" label="&KeeFox_Menu-Button.changeDB.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.changeDB.key;" />
-
+-->
         <menuitem id="KeeFox_Options-Button" tooltiptext="&KeeFox_Menu-Button.options.tip;"
                    class="" label="&KeeFox_Menu-Button.options.label;" oncommand='openDialog(
                "chrome://keefox/content/options.xul",
@@ -36,7 +37,7 @@
     <toolbarbutton id="KeeFox_Main-Button" tooltiptext="&KeeFox_Main-Button.loading.tip;"
                  label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;" disabled="true" maxwidth="200"/>
       
-    <toolbarbutton id="KeeFox_Main-Button-login-test" tooltiptext="test"
+    <!--<toolbarbutton id="KeeFox_Main-Button-login-test" tooltiptext="test"
              label="temp" accesskey="t" type="menu-button" image="chrome://mozapps/skin/passwordmgr/key.png">
       <menupopup>
         <menuitem id="KeeFox_Login-uniqueHEX1" tooltiptext="Click to load the website associated with this password and login automatically [change tooltip text based on options set when menu dynamically created]"
@@ -50,9 +51,7 @@
         </menu>
         
       </menupopup>
-    </toolbarbutton>
-    
-    <!--<toolbaritem id="TutTB-DynButtonContainer" />-->
+    </toolbarbutton>-->
 
   </toolbarpalette>
   

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="5004890e-8865-4d16-8e66-4b3090b75648" Name="KeeICE" Language="1033" Version="0.4.5.0" Manufacturer="Chris Tomlinson" UpgradeCode="5dd4618b-6d8a-4ec0-87cd-302621727b98">
+	<Product Id="5004890e-8865-4d16-8e66-4b3090b75648" Name="KeeICE" Language="1033" Version="0.5.0.0" Manufacturer="Chris Tomlinson" UpgradeCode="5dd4618b-6d8a-4ec0-87cd-302621727b98">
 		<Package InstallerVersion="200" Compressed="yes" />
 
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />

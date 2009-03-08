@@ -1,10 +1,9 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This KFToolBar.js file contains functions and data related to the visible
-  toolbar that the XUL defines. In future, we may make this deal in terms of
-  individual buttons rather than a rigid toolbar.
+  toolbar buttons that kefox.xul defines.
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -77,7 +76,6 @@ KFToolbar.prototype = {
         this.setupButton_ready(null,this._currentWindow);
     },
     
-    //TODO: update login object to support form field id info for onward passage to kfilm.fill instead of nulls
     setLogins: function(logins) {
 this.log("setLogins");
         // Get the toolbaritem "container" that we added to our XUL markup
@@ -348,7 +346,6 @@ this.log("test2:"+container.getAttribute("oncommand"));
     
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
     
-        //keeFoxToolbar.log("test:" + numberOfTimes);
         if (numberOfTimes < 1)
             return;
         

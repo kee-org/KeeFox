@@ -1,3 +1,23 @@
+/*
+KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  
+This install.js file helps manage the installation of .NET, KeePass and KeeICE.
+  
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 function prepareInstallPage()
 {
@@ -171,7 +191,7 @@ on next page ("click here"), detect .net framework:
             
             
             // what happens when someone creates a new firefox profile? (or moves stuff to a temporary/new machine, etc.)? i guess the detection scripts will find out what's going on and record it in the preferences again.
-            // i'll just work on these kind of things and then get it so taht the admin install on XP works fine and test the vista admin and non-admin in case they work too but not worry about making other install routines work for this release.
+
   
 */
 

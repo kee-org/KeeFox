@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This is a set of KeeFox javascript tests.
   It will mainly be used for development but may also be useful for end user
@@ -190,7 +190,7 @@ KFtests.prototype = {
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: https://oyster.tfl.gov.uk + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 1", false);
 
         countResult = this._kfilm.countLogins("", "https://third.party.form.submit.url", null);
-        this._KeeFoxAssert((countResult == 3), "Login count correct.", "Login count failed: any host + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 2", false);
+        this._KeeFoxAssert((countResult == 4), "Login count correct.", "Login count failed: any host + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 4", false);
 
         countResult = this._kfilm.countLogins("https://oyster.tfl.gov.uk", null, "some incorrect realm");
         this._KeeFoxAssert((countResult == 0), "Login count correct.", "Login count failed: https://oyster.tfl.gov.uk + no forms + invalid HTTP realm = " + countResult + ". Should be 0", false);
@@ -202,10 +202,10 @@ KFtests.prototype = {
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: any host + no forms + Test REALM3 = " + countResult + ". Should be 1", false);
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", "https://third.party.form.submit.url", null);
-        this._KeeFoxAssert((countResult == 2), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 1", false);
+        this._KeeFoxAssert((countResult == 3), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + https://third.party.form.submit.url + no HTTP realm = " + countResult + ". Should be 3", false);
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", "", null);
-        this._KeeFoxAssert((countResult == 2), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + any form + no HTTP realm = " + countResult + ". Should be 1", false);
+        this._KeeFoxAssert((countResult == 3), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + any form + no HTTP realm = " + countResult + ". Should be 3", false);
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", null, "Test REALM3");
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + no forms + Test REALM3 = " + countResult + ". Should be 1", false);

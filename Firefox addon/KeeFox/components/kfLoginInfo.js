@@ -1,10 +1,10 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This is pretty much just a copy of the LoginInfo object that Mozilla provide
-  but it will end up being modified to the support some of the extra features
-  that KeeFox will support above the built-in login manager.
+  but it has been modified to  support some of the extra features
+  that KeeFox can support above the built-in login manager.
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

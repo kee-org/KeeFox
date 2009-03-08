@@ -17,22 +17,3 @@
   </box>
 
 </window>
-
-
-<!--<wizard id="KeeFoxInstallWizard" title="KeeFox setup"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-  <script type="application/x-javascript" src="chrome://keefox/content/install.js" />
-
-
-  <wizardpage onpageshow="checkDotNet(); return true;" onpageadvanced="runInstaller();">
-    <description>
-      KeeFox needs to install and configure a few things before it can manage your passwords. You may be asked to provide an administrative password for this computer. Please press next to install.
-    </description>
-  </wizardpage>
-
-  <wizardpage description="Confirmation">
-       <label value="It is installed."/>
-  </wizardpage>
-
-</wizard>-->

@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>chris.tomlinson@keefox</em:id>
-    <em:version>0.4</em:version>
+    <em:version>0.5</em:version>
     <em:type>2</em:type>
 
     <em:optionsURL>chrome://keefox/content/options.xul</em:optionsURL>
@@ -31,13 +31,13 @@
       <Description>
         <em:locale>en-GB</em:locale>
         <em:name>KeeFox</em:name>
-        <em:description>KeePass password manager integration (british)</em:description>
+        <em:description>KeePass password manager integration</em:description>
         <em:creator>Chris Tomlinson</em:creator>
         <em:translator>Luckyrat</em:translator>
         <em:homepageURL>http://christomlinson.name</em:homepageURL>
       </Description>
     </em:localized>
-    <em:localized>
+    <!--<em:localized>
       <Description>
         <em:locale>es-ES</em:locale>
         <em:name>KeeFox</em:name>
@@ -46,7 +46,7 @@
         <em:translator>Luckyrato</em:translator>
         <em:homepageURL>http://christomlinson.name</em:homepageURL>
       </Description>
-    </em:localized>
+    </em:localized>-->
 
   </Description>      
 </RDF>

@@ -5,7 +5,7 @@
     <ProductVersion>3.0</ProductVersion>
     <ProjectGuid>{3d6017ca-5701-4c23-b43f-bb248d06af76}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>KeeICE-0.4.5-installer</OutputName>
+    <OutputName>KeeICE-0.5.0-installer</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.0\Wix.targets</WixTargetsPath>
     <Name>KeeICE installer</Name>

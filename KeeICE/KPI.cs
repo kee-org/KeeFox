@@ -43,8 +43,8 @@ namespace KeeICE
 {
     public class KPI : KFlib.KPDisp_
     {
-        const float minClientVersion = 0.4F; // lowest version of client we're prepared to communicate with
-        const float keeICEVersion = 0.4F; // version of this build
+        const float minClientVersion = 0.5F; // lowest version of client we're prepared to communicate with
+        const float keeICEVersion = 0.5F; // version of this build
 
         IPluginHost host;
         bool isDirty = false;
