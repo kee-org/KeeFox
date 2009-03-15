@@ -22,7 +22,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)Firefox addon\KeeFox\components"
+			OutputDirectory="$(SolutionDir)Firefox addon\KeeFox\keefox-libraries"
 			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/Zc:wchar_t-"
-				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib Iced.lib IceUtild.lib $(NOINHERIT) shell32.lib"
+				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib Iced.lib IceUtild.lib $(NOINHERIT) shell32.lib  Advapi32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\xulrunner-sdk\bin&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\lib&quot;;&quot;$(SolutionDir)..\Ice-3.3.0-VC90\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib, libcmt.lib, libcd.lib, libcmtd.lib, msvcrt.lib"
@@ -475,6 +475,14 @@
 			<File
 				RelativePath=".\VistaTools.cxx"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"

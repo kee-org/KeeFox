@@ -17,10 +17,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)Firefox addon\KeeFox\component"
+			OutputDirectory="$(SolutionDir)Firefox addon\KeeFox\components"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -40,11 +40,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\Ice-3.3.0-VC90\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\sdk\include&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nspr&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\pipnss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\string&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\nss&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\system_wrappers&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include\xpcom&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\include&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;XP_WIN;XP_WIN32;MANAGEDWRAPPER_EXPORTS;NDEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="false"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				ForcedIncludeFiles="xpcom-config.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -57,6 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib $(NOINHERIT) shell32.lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\xulrunner-sdk\bin&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\lib&quot;;"
+				IgnoreDefaultLibraryNames="libc.lib, libcmt.lib, libcd.lib, libcmtd.lib, msvcrt.lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -130,10 +137,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib Ice.lib IceUtil.lib $(NOINHERIT) shell32.lib"
+				AdditionalDependencies="nspr4.lib xpcom.lib xpcomglue_s.lib User32.lib plc4.lib nssutil3.lib nss3.lib ssl3.lib smime3.lib xul.lib plds4.lib mozreg_s.lib js3250.lib crmf.lib unicharutil_external_s.lib $(NOINHERIT) shell32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\xulrunner-sdk\bin&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\lib&quot;;&quot;$(SolutionDir)..\Ice-3.3.0-VC90\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\xulrunner-sdk\bin&quot;;&quot;$(SolutionDir)..\xulrunner-sdk\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib, libcd.lib, libcmtd.lib, msvcrtd.lib, msvcrt.lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="0"

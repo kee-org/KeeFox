@@ -72,6 +72,11 @@ function KeeFox()
     if (prefs.has("rememberMRUDB"))
         prefs.get("rememberMRUDB").events.addListener("change", this.preferenceChangeHandler);
 
+//TODO: not ideal place to call these since they should happen only once per firefox session, not every time keefox wakes up
+        this._checkForConflictingExtensions();
+        this._registerUninstallListeners();
+        this._registerPlacesListeners();
+        
 }
 
 KeeFox.prototype = {
@@ -216,10 +221,7 @@ this._test = numb;
         var KeeFoxInitSuccess;
         KeeFoxInitSuccess = this._initKeeFox(currentKFToolbar,currentWindow);
 
-//TODO: not ideal place to call these since they should happen only once per firefox session, not every time keefox wakes up
-        this._checkForConflictingExtensions();
-        this._registerUninstallListeners();
-        this._registerPlacesListeners();
+
 
         if (KeeFoxInitSuccess) {
             this.log("KeeFox initialised OK");
@@ -254,8 +256,34 @@ this._test = numb;
                 }
                 
             }
+            
+            var KeePassEXEfound;
+            var KeeICEDLLfound;
+            
+            var keePassLocation;
+            keePassLocation = "not installed";
+            var keeICELocation;
+            keeICELocation = "not installed";
+            
+            keePassLocation = this._discoverKeePassInstallLocation();
+            if (keePassLocation != "not installed")
+            {
+                KeePassEXEfound = this._confirmKeePassInstallLocation(keePassLocation);
+                if (KeePassEXEfound)
+                {
+                    keeICELocation = this._discoverKeeICEInstallLocation();
+                    KeeICEDLLfound = this._confirmKeeICEInstallLocation(keeICELocation);
+                    if (!KeeICEDLLfound)
+                        this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",""); //TODO: set this to "not installed"?
+                    
+                } else
+                {
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO: set this to "not installed"?
+                }
+            }
 
-            if (KeeICEComOpen && this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // version check succeeded
+            //HACK: debug : if (KeeICEComOpen && this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // version check succeeded
+            if (2==1)
             {
                 this.log("Successfully established connection with KeeICE");
                 // remember this across all windows
@@ -264,126 +292,28 @@ this._test = numb;
 
             } else { 
                 this.log("Couldn't communicate with KeeICE");
-                // if it fails KeeICE is either not running or not installed - let's try to find out which...
-
-                keeICELocation = "not installed";
-                keePassLocation = "not installed";
-                
-                if (this._keeFoxExtension.prefs.has("keeICEInstalledLocation"))
-                {
-                    keeICELocation = this._keeFoxExtension.prefs.getValue("keeICEInstalledLocation","not installed");
-                }
-                
-                if (this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
-                {
-                    keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-                }
-
-                if (keeICELocation == "not installed" || keePassLocation == "not installed")
-                {
-                    this.log("KeeICE install location not found in preferences");
-                    this.log("Reading KeePass installation location from Windows registry");
-
-                    var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
-                                    .createInstance(Components.interfaces.nsIWindowsRegKey);
-                    wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                           "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-                           wrk.ACCESS_READ);
-                    if (wrk.hasChild("KeePassPasswordSafe2_is1"))
-                    {
-                        var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
-                        if (subkey.hasValue("InstallLocation"))
-                        {
-                            keePassLocation = subkey.readStringValue("InstallLocation");
-                            keeICELocation = keePassLocation + "plugins\\";
-                            this.log("KeePass install location found: " + keePassLocation);
-                        }
-                        subkey.close();
-                    } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
-                    {
-                        var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
-                        if (subkey.hasValue("InstallLocation"))
-                        {
-                            keePassLocation = subkey.readStringValue("InstallLocation");
-                            keeICELocation = keePassLocation + "plugins\\";
-                            this.log("KeePass install location found: " + keePassLocation);
-                        } // TODO: install location not found here - try "HKEY_CLASSES_ROOT\KeePass Database\shell\open\command" and some guesses?
-                        subkey.close();
-                    }
-
-                    wrk.close();
-                }
+                // if it fails KeeICE is either not running or not installed - let's find out which...
+                // (we've already set up the information we need to construct the installation wizzard if required)
 
                 if (keeICELocation == "not installed")
                 {
-                    this.log("KeeICE location not found");
-                    //TODO: alternative location finding mechanisms for technical windows users and other OSes
-
+                    this.log("KeeICE location was not found");
                     this._launchInstaller(currentKFToolbar,currentWindow);
-
-                    //TODO: should we register to know when the reg value has changed under any circumstances?...
-
                 } else
                 {
-                    // if success, check that the KeePass EXE is in place - if fail: launchInstaller();
                     
-                    var KeePassEXEfound;
-                    KeePassEXEfound = false;
-
-                    this.log("Looking for the KeePass EXE in " + keePassLocation);
-
-                    var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-                    try {
-                        file.initWithPath(keePassLocation);
-                        if (file.isDirectory())
-                        {
-                            file.append("KeePass.exe");
-                            if (file.isFile())
-                                KeePassEXEfound = true;
-                        }
-                    } catch (ex)
-                    {
-                        /* no need to do anything */
-                    }
-
                     if (!KeePassEXEfound)
                     {
                         this.log("KeePass EXE not present in expected location");
                         this._launchInstaller(currentKFToolbar,currentWindow);
                     } else
                     {
-                        this.log("KeePass EXE found in correct location.");
-   
-                        var KeeICEDLLfound;
-                        KeeICEDLLfound = false;
-
-                        this.log("Looking for the KeeICE plugin DLL in " + keeICELocation);
-
-                        var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-                        try {
-                            file.initWithPath(keeICELocation);
-                            if (file.isDirectory())
-                            {
-                                file.append("KeeICE.dll");
-                                if (file.isFile())
-                                    KeeICEDLLfound = true;
-                            }
-                        } catch (ex)
-                        {
-                            /* no need to do anything */
-                        }
-                    
-
                         if (!KeeICEDLLfound) {
                             this.log("KeeICE plugin DLL not present in KeePass plugins directory so needs to be installed");
                             this._launchInstaller(currentKFToolbar,currentWindow);
                         } else {
-                            this.log("KeeICE plugin DLL found in correct location. KeePass is not running or plugin is disabled.");
+                            this.log("KeePass is not running or plugin is disabled.");
                             this._keeFoxStorage.set("KeeICEInstalled", true);
-                            
-                            this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                            this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",keeICELocation);
-                    
                         }
                     }
                 }
@@ -443,7 +373,128 @@ this._test = numb;
                 var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
                 timer.initWithCallback(event, 30000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
             }
+        } // end if "keefox has loaded its binary components correctly"
+    },
+    
+    // works out where KeePass is installed and records it in a Firefox preference
+    _discoverKeePassInstallLocation: function() {
+        keePassLocation = "not installed";
+ 
+        if (this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
+        {
+            keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
+            this.log("KeePass install location found in preferences: " + keePassLocation);
         }
+
+        if (keePassLocation == "not installed")
+        {
+            this.log("Reading KeePass installation location from Windows registry");
+
+            var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
+                            .createInstance(Components.interfaces.nsIWindowsRegKey);
+            wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+                   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+                   wrk.ACCESS_READ);
+            if (wrk.hasChild("KeePassPasswordSafe2_is1"))
+            {
+                var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
+                if (subkey.hasValue("InstallLocation"))
+                {
+                    keePassLocation = subkey.readStringValue("InstallLocation");
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                    this.log("KeePass install location found: " + keePassLocation);
+                }
+                subkey.close();
+            } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
+            {
+                var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
+                if (subkey.hasValue("InstallLocation"))
+                {
+                    keePassLocation = subkey.readStringValue("InstallLocation");
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                    this.log("KeePass install location found: " + keePassLocation);
+                } // TODO: install location not found here - try "HKEY_CLASSES_ROOT\KeePass Database\shell\open\command" and some guesses?
+                subkey.close();
+            }
+
+            wrk.close();
+        }
+        
+        return keePassLocation;
+    },
+    
+    // works out where KeeICE is installed and records it in a Firefox preference
+    _discoverKeeICEInstallLocation: function() {
+        keeICELocation = "not installed";
+        keePassLocation = "not installed";
+        return keeICELocation; //HACK: debug
+        
+        if (this._keeFoxExtension.prefs.has("keeICEInstalledLocation"))
+        {
+            keeICELocation = this._keeFoxExtension.prefs.getValue("keeICEInstalledLocation","not installed");
+            this.log("KeeICE install location found in preferences: " + keeICELocation);
+        }
+        
+        if (keeICELocation == "not installed" && this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
+        {
+            keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
+            keeICELocation = keePassLocation + "plugins\\";
+            this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",keeICELocation);
+            this.log("KeeICE install location inferred: " + keeICELocation);
+        }
+        
+        return keeICELocation;
+    },
+    
+    _confirmKeePassInstallLocation: function(keePassLocation) {
+        var KeePassEXEfound;
+        KeePassEXEfound = false;
+
+        this.log("Looking for the KeePass EXE in " + keePassLocation);
+
+        var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+        try {
+            file.initWithPath(keePassLocation);
+            if (file.isDirectory())
+            {
+                file.append("KeePass.exe");
+                if (file.isFile())
+                {
+                    KeePassEXEfound = true;
+                    this.log("KeePass EXE found in correct location.");
+                }
+            }
+        } catch (ex)
+        {
+            /* no need to do anything */
+        }
+        return KeePassEXEfound;
+    },
+    
+    _confirmKeeICEInstallLocation: function(keeICELocation) {
+        var KeeICEDLLfound;
+        KeeICEDLLfound = false;
+
+        this.log("Looking for the KeeICE plugin DLL in " + keeICELocation);
+
+        var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+        try {
+            file.initWithPath(keeICELocation);
+            if (file.isDirectory())
+            {
+                file.append("KeeICE.dll");
+                if (file.isFile())
+                {
+                    KeeICEDLLfound = true;
+                    this.log("KeeICE DLL found in correct location.");
+                }
+            }
+        } catch (ex)
+        {
+            /* no need to do anything */
+        }
+        
+        return KeeICEDLLfound;
     },
     
     // check to see if KeeICE has been enabled once every 10 seconds
@@ -696,6 +747,12 @@ this._test = numb;
     
     },
     
+    // run in a secondary thread - don't access the UI!
+    runAnInstaller: function (fileName, params) {
+        this._KeeFoxXPCOMobj.RunAnInstaller('"' + fileName + '"', '"' + params + '"');
+    },
+    
+    
     // if the MRU database is known, open that but otherwise send empty string which will cause user
     // to be prompted to choose a DB to open
     loginToKeePass: function () {
@@ -708,6 +765,10 @@ this._test = numb;
             this._KeeFoxXPCOMobj.ChangeDB("", true);
         }*/
     
+    },
+    
+    IsUserAdministrator: function () {
+        return this._KeeFoxXPCOMobj.IsUserAdministrator();
     },
 
     // Helper for making nsURI from string
@@ -752,6 +813,14 @@ this._test = numb;
             this._installerTabLoaded = true;
             return newTab;
         }
+    },
+    
+    _myDepsDir: function() {
+        var file = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+        file.initWithPath(keeFoxInst._myInstalledDir());
+        file.append("deps");
+        return file.path;
     },
 
     _myInstalledDir: function() {
@@ -997,77 +1066,48 @@ this._test = numb;
 
 var keeFoxInst = new KeeFox;
 
-function KeeFoxICEconnector() {
-}
-KeeFoxICEconnector.prototype = {
-  QueryInterface: function(iid) {
-    if (iid.equals(Components.interfaces.nsIRunnable) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-  run: function() {
-
-    if (keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false) && !keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
-    {
-        var versionCheckResult = {};
-        KeeICEComOpen = false;
-        
-        // false only if ICE connection fault or KeeICE internal error
-        if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
-            
-            var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-            main.dispatch(new KFmainThread (versionCheckResult.value), main.DISPATCH_NORMAL);
-
-            
-        }
-    }
-  }
-};
-
-
-var KFmainThread = function(result) {
-  this.result = result;
-};
-
-KFmainThread.prototype = {
-  run: function() {
-    try {
-      // This is where we react to the completion of the working thread.
-      keeFoxInst.log('Thread finished with result: ' + this.result);
-      keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
-      //TODO: set up variables, etc. as per if it were an initial startup
-      keeFoxInst.ICEconnectorTimer.cancel();
-      
-      keeFoxInst.log("Successfully established connection with KeeICE");
-                // remember this across all windows
-                keeFoxInst._keeFoxStorage.set("KeeICEActive", true);
-                keeFoxInst._keeFoxStorage.set("KeeICEInstalled", true);
-    
-    //keeFoxInst._refreshKPDB();
-    keeFoxInst._configureKeeICECallbacks();
-    keeFoxInst._refreshKPDB();
-
-    } catch(err) {
-      Components.utils.reportError(err);
-    }
-  },
-  
-  QueryInterface: function(iid) {
-    if (iid.equals(Components.interfaces.nsIRunnable) ||
-        iid.equals(Components.interfaces.nsISupports)) {
-            return this;
-    }
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  }
-};
-
 /* TODO: chrome://keefox/content/install.xul loaded instead of focussed when tab with that content is restored from previous firefox session.
-
-regular test for installed status does not run (at least before first install) - looks like all regular events are not running. no ICE callbacks registered.
 
 login.live.com doesn't work - no forms found. need to wait for later event trigger? i guess the forms are dynamically added after page has finished loading.
 
 (vista?) clicking on "logged out" toolbar button loads "open DB from URL" dialog (maybe cos no MRU straight after install?)
+
+
+
+
+
+
+
+
+
+// "run automatic setup" ?
+// setup.exe with simplified KeeICEInstaller.msi
+// "completed" command runs KeePass through command line arguments to create an empty DB?
+// or maybe prompt user for master password at that point or before clicking the "automatic setup" button?
+
+// write basic step-by-step manual installation instructions (where to move files to/from and what registry settings or FF options to set?)
+
+
+// submit form (eventually optional) after filling form (either from matching login on toolbar or automatic filling)
+// make automatic filling work sensibly: do it if we only find one matching form or if there is an exact URL match on the action attribute
+// make multiple password fields work
+// more install fixes and more testing, glitch fixing
+// move onto "value added stuff" such as:
+// send group details from KeePass and use to create "list of all logins" toolbar menu
+// TODO: list multiple DBs (so they can be changed from firefox).
+//TODO later: context menu on matching passwords (e.g. edit in KeePass, delete from KeePass) - how to do this?
+// prob. need some sort of notification message sent back via KeeICE saying "edit {GUID}" or somethign...
+
+// try to release 0.6 (beta) sometime just after Easter if Vista testing at mum's needed
+       
+//TODO maybe: store priority flag in KP DB so auto form fill (and toolbar ordering) can be more closely controlled by user.
+//TODO maybe: store form id in KeePass DB and use that to make form filling even more accurate.
+
+//TODO: launch sepearte thread for install processes / downloads to keep GUI responsive
+//TODO: add-on description needs to say "requires .NET framework which may require administrative assistance to install on Windows XP"
+
+
+flashing icon should be optional
+
 
 */

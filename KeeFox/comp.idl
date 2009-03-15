@@ -160,8 +160,10 @@ interface IKeeFox : nsISupports
   AString getDBFileName();
   void ChangeDB(in AString fileName, in boolean closeCurrent);
   attribute AString name;
+  void RunAnInstaller(in AString fileName, in AString params);
   void LaunchKeePass(in AString fileName, in AString DBFile);
 	void shutdownICE();
+	boolean IsUserAdministrator();
 
   
   /**

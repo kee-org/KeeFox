@@ -305,8 +305,8 @@ MyShellExec(	HWND hwnd,
 				LPCTSTR pszVerb, 
 				LPCTSTR pszPath, 
 				LPCTSTR pszParameters = NULL,
-				LPCTSTR pszDirectory = NULL );
-
+				LPCTSTR pszDirectory = NULL,
+				BOOL wait = FALSE);
 
 #ifdef IMPLEMENT_VISTA_TOOLS
 
@@ -319,22 +319,43 @@ MyShellExec(	HWND hwnd,
 				LPCTSTR pszVerb, 
 				LPCTSTR pszPath, 
 				LPCTSTR pszParameters, // = NULL,
-				LPCTSTR pszDirectory ) // = NULL )
+				LPCTSTR pszDirectory,  // = NULL,
+				BOOL wait)
 {
 	SHELLEXECUTEINFO shex;
+	DWORD dwRet;
 
 	memset( &shex, 0, sizeof( shex) );
 
 	shex.cbSize			= sizeof( SHELLEXECUTEINFO ); 
-	shex.fMask			= 0; 
 	shex.hwnd			= hwnd;
 	shex.lpVerb			= pszVerb; 
 	shex.lpFile			= pszPath; 
 	shex.lpParameters	= pszParameters; 
 	shex.lpDirectory	= pszDirectory; 
 	shex.nShow			= SW_NORMAL; 
- 
-	return ::ShellExecuteEx( &shex );
+	if (wait)
+		shex.fMask		= SEE_MASK_NOCLOSEPROCESS; 
+	else
+		shex.fMask		= 0;
+
+	// Returns Non-Zero on success
+      if( ::ShellExecuteEx( &shex ) )
+      {
+            DWORD dwSignaled = ::WaitForSingleObject( shex.hProcess , INFINITE );
+            // WAIT_OBJECT_0 is success for the event trigger
+            if ( dwSignaled == WAIT_OBJECT_0 )
+            {
+                  // Returns Non-Zero on success
+                  if( ::GetExitCodeProcess( shex.hProcess , &dwRet ) )
+                  {
+					  //dwRet = ::GetLastError( );
+                      return TRUE;
+                  }
+            }
+      }
+      //dwRet = ::GetLastError( );
+      return FALSE;
 }
 
 BOOL IsVista()
@@ -471,7 +492,7 @@ RunElevated(
 	__in_opt	LPCTSTR pszParameters, //	= NULL, 
 	__in_opt	LPCTSTR pszDirectory ) //	= NULL );
 {
-	return MyShellExec( hwnd, L"runas", pszPath, pszParameters, pszDirectory );
+	return MyShellExec( hwnd, L"runas", pszPath, pszParameters, pszDirectory, TRUE );
 }
 
 #ifndef DONTWANT_RunNonElevated
@@ -519,7 +540,8 @@ VistaEelevator_HookProc_MsgRet( int code, WPARAM wParam, LPARAM lParam )
 							NULL, 
 							szVE_Path, 
 							szVE_Parameters, 
-							szVE_Directory );
+							szVE_Directory,
+							TRUE);
 		}
     }
 
@@ -546,7 +568,8 @@ RunNonElevated(
 							NULL, 
 							pszPath, 
 							pszParameters, 
-							pszDirectory );
+							pszDirectory,
+							TRUE);
 	}
 
 	#ifndef WIN64
@@ -674,6 +697,45 @@ RunNonElevated(
 	return bSuccess;
 }
 #endif //DONTWANT_RunNonElevated
+
+
+//      Function returns TRUE on success, and FALSE on failure
+//      dwRet - is set to the process return code on success, and the result of GetLastError() on failure
+//  nShow - is SW_SHOW ect...
+//  tcWorkingDir - string of the working directory
+//      tcExe - is the excutable name
+//      tcArgs - are arguments to the executable
+/*BOOL ShellExecuteWait( DWORD& dwRet , int nShow , TCHAR* tcExe , TCHAR* tcWorkingDir = NULL , TCHAR* tcArgs = NULL  )
+{
+      BOOL bRet = FALSE;
+      SHELLEXECUTEINFO sexi = {0};
+      sexi.cbSize = sizeof( SHELLEXECUTEINFO );
+      // No Parent ( Note this is just for the example )
+      sexi.hwnd = NULL;
+      // Set flag so the hProcess handle is initialized by the call to ShellExecuteEx
+      sexi.fMask = SEE_MASK_NOCLOSEPROCESS;
+      sexi.lpDirectory = tcWorkingDir;
+      sexi.lpFile = tcExe;
+      sexi.lpParameters = tcArgs;
+      sexi.nShow = nShow;
+      
+      // Returns Non-Zero on success
+      if( ::ShellExecuteEx( &sexi ) )
+      {
+            DWORD dwSignaled = ::WaitForSingleObject( sexi.hProcess , INFINITE );
+            // WAIT_OBJECT_0 is success for the event trigger
+            if ( dwSignaled == WAIT_OBJECT_0 )
+            {
+                  // Returns Non-Zero on success
+                  if( ::GetExitCodeProcess( sexi.hProcess , &dwRet ) )
+                  {
+                        bRet = TRUE;
+                  }
+            }
+      }
+      dwRet = ::GetLastError( );
+      return bRet;
+}*/
 
 
 #endif// IMPLEMENT_VISTA_TOOLS

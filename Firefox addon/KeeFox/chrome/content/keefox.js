@@ -33,6 +33,8 @@ loader.loadSubScript("resource://kfscripts/KFUI.js");
 
 Components.utils.import("resource://kfmod/KF.js");
 
+
+loader.loadSubScript("resource://kfscripts/KFUtils.js"); 
 loader.loadSubScript("resource://kfscripts/KFtests.js"); 
 
 var keeFoxToolbar, keeFoxILM, keeFoxUI, KFtester;
@@ -100,3 +102,6 @@ var keeFoxInitStartupListener = {
 // TODO: we actually end up creating a new listener for each Firefox window and 
 // just ignoring the notifications sent by unrelated windows. I think that removing
 // the event listener after initial setup is finished will keep things more efficient
+
+
+var KFtempComplete = false;

@@ -616,11 +616,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) = 0;
 
+  /* void RunAnInstaller (in AString fileName, in AString params); */
+  NS_SCRIPTABLE NS_IMETHOD RunAnInstaller(const nsAString & fileName, const nsAString & params) = 0;
+
   /* void LaunchKeePass (in AString fileName, in AString DBFile); */
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) = 0;
 
   /* void shutdownICE (); */
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) = 0;
+
+  /* boolean IsUserAdministrator (); */
+  NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) = 0;
 
   /**
      * Store a new login.
@@ -733,8 +739,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD ChangeDB(const nsAString & fileName, PRBool closeCurrent); \
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName); \
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName); \
+  NS_SCRIPTABLE NS_IMETHOD RunAnInstaller(const nsAString & fileName, const nsAString & params); \
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile); \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void); \
+  NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval); \
   NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin); \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin); \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin); \
@@ -752,8 +760,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD ChangeDB(const nsAString & fileName, PRBool closeCurrent) { return _to ChangeDB(fileName, closeCurrent); } \
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) { return _to GetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return _to SetName(aName); } \
+  NS_SCRIPTABLE NS_IMETHOD RunAnInstaller(const nsAString & fileName, const nsAString & params) { return _to RunAnInstaller(fileName, params); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return _to LaunchKeePass(fileName, DBFile); } \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return _to ShutdownICE(); } \
+  NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) { return _to IsUserAdministrator(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) { return _to AddLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return _to RemoveLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return _to ModifyLogin(oldLogin, newLogin); } \
@@ -771,8 +781,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD ChangeDB(const nsAString & fileName, PRBool closeCurrent) { return !_to ? NS_ERROR_NULL_POINTER : _to->ChangeDB(fileName, closeCurrent); } \
   NS_SCRIPTABLE NS_IMETHOD GetName(nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetName(aName); } \
+  NS_SCRIPTABLE NS_IMETHOD RunAnInstaller(const nsAString & fileName, const nsAString & params) { return !_to ? NS_ERROR_NULL_POINTER : _to->RunAnInstaller(fileName, params); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchKeePass(fileName, DBFile); } \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->ShutdownICE(); } \
+  NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsUserAdministrator(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->RemoveLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->ModifyLogin(oldLogin, newLogin); } \
@@ -858,6 +870,12 @@ NS_IMETHODIMP _MYCLASS_::SetName(const nsAString & aName)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+/* void RunAnInstaller (in AString fileName, in AString params); */
+NS_IMETHODIMP _MYCLASS_::RunAnInstaller(const nsAString & fileName, const nsAString & params)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 /* void LaunchKeePass (in AString fileName, in AString DBFile); */
 NS_IMETHODIMP _MYCLASS_::LaunchKeePass(const nsAString & fileName, const nsAString & DBFile)
 {
@@ -866,6 +884,12 @@ NS_IMETHODIMP _MYCLASS_::LaunchKeePass(const nsAString & fileName, const nsAStri
 
 /* void shutdownICE (); */
 NS_IMETHODIMP _MYCLASS_::ShutdownICE()
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean IsUserAdministrator (); */
+NS_IMETHODIMP _MYCLASS_::IsUserAdministrator(PRBool *_retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

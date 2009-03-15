@@ -314,6 +314,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\KFUtils.js"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\options.dtd"
 			>
 		</File>
