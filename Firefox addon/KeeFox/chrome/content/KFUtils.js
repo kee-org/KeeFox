@@ -1,31 +1,5 @@
 
-function KeeFoxICEconnector() {
-}
-KeeFoxICEconnector.prototype = {
-  QueryInterface: function(iid) {
-    if (iid.equals(Components.interfaces.nsIRunnable) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-  run: function() {
 
-    if (keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false) && !keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
-    {
-        var versionCheckResult = {};
-        KeeICEComOpen = false;
-        
-        // false only if ICE connection fault or KeeICE internal error
-        if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
-            
-            var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-            main.dispatch(new KFmainThreadHandler("ICEversionCheck", "finished", versionCheckResult.value, null , null), main.DISPATCH_NORMAL);
-
-            
-        }
-    }
-  }
-};
 
 function KFexecutableInstallerRunner(path, params, reason, mainWindow, browserWindow) {
     this.path = path;
@@ -43,15 +17,11 @@ KFexecutableInstallerRunner.prototype = {
     },
     run: function() {
 //try {
-var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(keeFoxInst._myDepsDir());
-    
-  //  var f = keeFoxInst._myDepsDir();
-        file.append(this.path);
+
   //      f.append("notepad.exe");
+  //var mozillaThreadSafteyBugFix = this.path;
   
-  keeFoxInst._KeeFoxXPCOMobj.RunAnInstaller(file.path, this.params);
+  keeFoxInst._KeeFoxXPCOMobj.RunAnInstaller(this.path,this.params);//file.path, this.params);
         
 // create an nsIProcess
 //var process = Components.classes["@mozilla.org/process/util;1"]
@@ -120,41 +90,111 @@ KFmainThreadHandler.prototype = {
 
                 case "executableInstallerRunner":
                     if (this.reason == "IC1NETSetupFinished") {
-                        this.browserWindow.IC1InstallState ^= this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_NET_EXECUTING;
-                        this.browserWindow.IC1InstallState |= this.browserWindow.KF_INSTALL_STATE_NET_EXECUTED;
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_EXECUTING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET_EXECUTED;
+                        this.browserWindow.IC1setupKP(this.mainWindow);
+                    } else if (this.reason == "IC1NET35SetupFinished") {
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_EXECUTING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET35_EXECUTED;
                         this.browserWindow.IC1setupKP(this.mainWindow);
                     } else if (this.reason == "IC1KPSetupFinished") {
-                        this.browserWindow.IC1InstallState ^= this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_KP_EXECUTING;
-                        this.browserWindow.IC1InstallState |= this.browserWindow.KF_INSTALL_STATE_KP_EXECUTED;
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_EXECUTING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_EXECUTED;
                         this.browserWindow.IC1setupKI(this.mainWindow);
-                    } // TODO:... other ICs
+                    } else if (this.reason == "IC2KPSetupFinished") {
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_EXECUTING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_EXECUTED;
+                        this.browserWindow.IC2setupKI(this.mainWindow);
+                    }
                     break;
 
-                case "installCase1Download":
+                case "IC1PriDownload":
                     // if we've just finished downloading NET
-                    if (this.reason == "finished" && this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
+                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
                     
                         keeFoxInst.log("Finished downloading IC1setupNET");
-                        this.browserWindow.IC1InstallState ^= this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
-                        this.browserWindow.IC1InstallState |= this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADED;
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADED;
                         this.browserWindow.IC1setupNET(this.mainWindow);
                     }
                     // if we've just finished downloading KP
-                    else if (this.reason == "finished" && this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+                    else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
                         keeFoxInst.log("Finished downloading IC1setupKP");
-                        this.browserWindow.IC1InstallState ^= this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
-                        this.browserWindow.IC1InstallState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
                         this.browserWindow.IC1setupKP(this.mainWindow);
                     }
                     // if we're still downloading NET
-                    else if (this.reason == "progress" && this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
+                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
                         keeFoxInst.log(this.result + "% of IC1setupNETdownloaded");
                         this.browserWindow.document.getElementById('IC1setupNETdownloadingProgressBar').value = this.result;
                     }
                     // if we're still downloading KP
-                    else if (this.reason == "progress" && this.browserWindow.IC1InstallState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
                         keeFoxInst.log(this.result + "% of IC1setupKPdownloaded");
                         this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
+                    }
+                    break;
+                    
+                    case "IC1SecDownload":
+                    // if we've just finished downloading NET3.5
+                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
+                    
+                        keeFoxInst.log("Finished downloading IC1setupNET35");
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADED;
+                        this.browserWindow.IC1setupNET35(this.mainWindow);
+                    }
+                    // if we've just finished downloading KP
+                    else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+                        keeFoxInst.log("Finished downloading IC1setupKP");
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
+                        this.browserWindow.IC1setupKP(this.mainWindow);
+                    }
+                    // if we're still downloading NET35
+                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
+                        keeFoxInst.log(this.result + "% of IC1setupNET35downloaded");
+                        this.browserWindow.document.getElementById('IC1setupNET35downloadingProgressBar').value = this.result;
+                    }
+                    // if we're still downloading KP
+                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+                        keeFoxInst.log(this.result + "% of IC1setupKPdownloaded");
+                        this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
+                    }
+                    break;
+                    
+                    case "IC2PriDownload": // another naughty shortcut here (maybe I should re-write this whole install routine already!)
+                    // The IC2SecDownload just uses the same file as IC1Pri so we just check below whether we run silent or not
+                    // if we've just finished downloading KP
+                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+                        keeFoxInst.log("Finished downloading IC2setupKP");
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
+                        if (this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_SELECTED_PRI)
+                            this.browserWindow.IC2setupKP(this.mainWindow);
+                        else
+                            this.browserWindow.IC2setupCustomKP(this.mainWindow);
+                    }
+                    // if we're still downloading KP
+                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+                        keeFoxInst.log(this.result + "% of IC2setupKPdownloaded");
+                        this.browserWindow.document.getElementById('IC2setupKPdownloadingProgressBar').value = this.result;
+                    }
+                    break;
+                    
+                    case "IC5PriDownload":
+                    // if we've just finished downloading KP ZIP file
+                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
+                        keeFoxInst.log("Finished downloading IC5zipKP");
+                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
+                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADED;
+                        this.browserWindow.IC5zipKP(this.mainWindow);
+                    }
+                    // if we're still downloading KP ZIP file
+                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
+                        keeFoxInst.log(this.result + "% of IC5zipKPdownloaded");
+                        this.browserWindow.document.getElementById('IC5zipKPdownloadingProgressBar').value = this.result;
                     }
                     break;
 
@@ -230,7 +270,10 @@ function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow)
 
     var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
     .createInstance(Components.interfaces.nsIWebBrowserPersist);
-    var file = keeFoxInst._myDepsDir();
+    var file = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+        file.initWithPath(keeFoxInst._myDepsDir());
+
     file.append(destinationFile);
      //Components.classes["@mozilla.org/file/local;1"]
     //.createInstance(Components.interfaces.nsILocalFile);
@@ -260,8 +303,11 @@ function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow)
 function KFMD5checksumVerification(path, testMD5) {
 
     try {
-        var f = keeFoxInst._myDepsDir();
+        var f = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+        f.initWithPath(keeFoxInst._myDepsDir());
         f.append(path);
+        
     //var f = Components.classes["@mozilla.org/file/local;1"]
     //                      .createInstance(Components.interfaces.nsILocalFile);
     //    f.initWithPath(keeFoxInst._myDepsDir() + path);

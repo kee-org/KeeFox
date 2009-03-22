@@ -292,7 +292,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
         this.log("setupButton_ready2");
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
             mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
-            mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass()");
+            mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
         } else
         {
         this.log("setupButton_ready3");
@@ -325,7 +325,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
        // mainButton.setAttribute("type", "");
        mainButton.removeAttribute("type");
         mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
-        mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass()");
+        mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
     },
     
     KeeFox_RunSelfTests: function(event, KFtester) {

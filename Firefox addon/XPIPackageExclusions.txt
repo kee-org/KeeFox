@@ -1,0 +1,6 @@
+\_svn
+.pdb
+.dll.manifest
+.lib
+.exp
+KeeICEInstaller

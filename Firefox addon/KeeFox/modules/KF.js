@@ -91,7 +91,7 @@ this._test = numb;
 
     _KeeFoxXPCOMobj: null,
     ICEconnectorTimer: null,
-
+    ICEconnectorEvent: null,
     _kfilm: null, // The KeeFox Improved Login Manager (probably not used any more)
     _toolbar: null,
     _kfui: null,
@@ -282,8 +282,8 @@ this._test = numb;
                 }
             }
 
-            //HACK: debug : if (KeeICEComOpen && this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // version check succeeded
-            if (2==1)
+            if (KeeICEComOpen && this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // version check succeeded
+            //if (2==1)
             {
                 this.log("Successfully established connection with KeeICE");
                 // remember this across all windows
@@ -352,9 +352,18 @@ this._test = numb;
                 // register next ICE ping / listener
                 
                 // fire off a new thread every x seconds (until the thread cancels the timer)
-                var event = { notify: function(timer) { 
+                //this.ICEconnectorEvent = { notify: function(timer) { 
+                /*
+                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+.getInterface(Components.interfaces.nsIWebNavigation)
+.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+.rootTreeItem
+.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+.getInterface(Components.interfaces.nsIDOMWindow);*/
+
+//var mainWindow = keeFoxInst._currentWindow;
                 
-                    var target = 
+             /*       var target = 
                       Components.classes["@mozilla.org/thread-manager;1"].
                       getService().newThread(0);
                    
@@ -362,16 +371,22 @@ this._test = numb;
                     
                  } }
                 
-                this.ICEconnectorTimer.initWithCallback(event, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                this.ICEconnectorTimer.initWithCallback(this.ICEconnectorEvent, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                */
                 
+                var observerService = Cc["@mozilla.org/observer-service;1"].
+                              getService(Ci.nsIObserverService);
+                this._observer._kf = this;
+
+                this.ICEconnectorTimer.init(this._observer, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
               
             } else
             {
                 // register next ICE ping / listener (we only do it every 30 seconds to minimise impact if user never bothers to install KeeICE plugin)
                 // TODO: should we even do this at all? Maybe successfull install process could load a chrome page which triggers the startup routines.
-                var event = { notify: function(timer) { keeFoxInst._keeFoxBrowserStartup(currentKFToolbar,currentWindow); } }
-                var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-                timer.initWithCallback(event, 30000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                //var event = { notify: function(timer) { keeFoxInst._keeFoxBrowserStartup(currentKFToolbar,currentWindow); } }
+                //var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+                //timer.initWithCallback(event, 30000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
             }
         } // end if "keefox has loaded its binary components correctly"
     },
@@ -383,7 +398,10 @@ this._test = numb;
         if (this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
             keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-            this.log("KeePass install location found in preferences: " + keePassLocation);
+            if (keePassLocation != "")
+                this.log("KeePass install location found in preferences: " + keePassLocation);
+            else
+                keePassLocation = "not installed";
         }
 
         if (keePassLocation == "not installed")
@@ -427,15 +445,20 @@ this._test = numb;
     _discoverKeeICEInstallLocation: function() {
         keeICELocation = "not installed";
         keePassLocation = "not installed";
-        return keeICELocation; //HACK: debug
+        //return keeICELocation; //HACK: debug
         
         if (this._keeFoxExtension.prefs.has("keeICEInstalledLocation"))
         {
             keeICELocation = this._keeFoxExtension.prefs.getValue("keeICEInstalledLocation","not installed");
-            this.log("KeeICE install location found in preferences: " + keeICELocation);
+            if (keeICELocation != "")
+                this.log("KeeICE install location found in preferences: " + keeICELocation);
+            else
+                keeICELocation = "not installed";
         }
         
-        if (keeICELocation == "not installed" && this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
+        if (keeICELocation == "not installed" 
+            && this._keeFoxExtension.prefs.has("keePassInstalledLocation") 
+            && this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","") != "")
         {
             keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
             keeICELocation = keePassLocation + "plugins\\";
@@ -737,13 +760,14 @@ this._test = numb;
         }
     },
     
-    launchKeePass: function () {
+    launchKeePass: function (params) {
         if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
             return; // TODO: work it out, prompt user or just bomb out with notification why
         }
         var fileName = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","C:\\Program files\\KeePass\\") + "KeePass.exe";
-        this._KeeFoxXPCOMobj.LaunchKeePass('"' + fileName + '"', '"' + this._keeFoxExtension.prefs.getValue("keePassMRUDB","") + '"');
+        var clps = (params != "") ? (params + " " + '"' + this._keeFoxExtension.prefs.getValue("keePassMRUDB","") + '"') : ('"' + this._keeFoxExtension.prefs.getValue("keePassMRUDB","") + '"');
+        this._KeeFoxXPCOMobj.LaunchKeePass('"' + fileName + '"', clps);
     
     },
     
@@ -971,7 +995,21 @@ this._test = numb;
                     this._kf._keeFoxBrowserStartup(this._currentKFToolbar, this._currentKFToolbar._currentWindow);
                     this._kf.log("sessionstore-windows-restored message processed");
                     break;
+                case "timer-callback":    
+                    var target = 
+                      Components.classes["@mozilla.org/thread-manager;1"].
+                      getService().newThread(0);
+                   
+                    target.dispatch(new KeeFoxICEconnector(), target.DISPATCH_NORMAL);
+                    //target.dispatch(this.ICEconnectorEvent, target.DISPATCH_NORMAL);
+                    break;
+
             }
+
+        },
+        
+        notify : function (subject, topic, data) {
+            
 
         }
     },
@@ -1063,48 +1101,88 @@ this._test = numb;
 
 };
 
-
 var keeFoxInst = new KeeFox;
 
-/* TODO: chrome://keefox/content/install.xul loaded instead of focussed when tab with that content is restored from previous firefox session.
-
-login.live.com doesn't work - no forms found. need to wait for later event trigger? i guess the forms are dynamically added after page has finished loading.
-
-(vista?) clicking on "logged out" toolbar button loads "open DB from URL" dialog (maybe cos no MRU straight after install?)
 
 
 
 
+function KeeFoxICEconnector() {
+}
+KeeFoxICEconnector.prototype = {
+  QueryInterface: function(iid) {
+    if (iid.equals(Components.interfaces.nsIRunnable) ||
+        iid.equals(Components.interfaces.nsISupports))
+      return this;
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  },
+  run: function() {
+
+    if (keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false) && !keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+    {
+        var versionCheckResult = {};
+        KeeICEComOpen = false;
+        
+        // false only if ICE connection fault or KeeICE internal error
+        if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
+            
+            var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
+            main.dispatch(new KFmoduleMainThreadHandler("ICEversionCheck", "finished", versionCheckResult.value, null , null), main.DISPATCH_NORMAL);
+
+            
+        }
+    }
+  }
+};
 
 
 
+var KFmoduleMainThreadHandler = function(source, reason, result, mainWindow, browserWindow) {
+  this.source = source;
+  this.reason = reason;
+  this.result = result;
+  this.mainWindow = mainWindow;
+  this.browserWindow = browserWindow;
+};
 
+KFmoduleMainThreadHandler.prototype = {
+    run: function() {
+        try {
+            keeFoxInst.log(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
+            switch (this.source) {
+                case "ICEversionCheck":
+                    if (this.reason == "finished") {
+                        keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
+                        //TODO: set up variables, etc. as per if it were an initial startup
+                        keeFoxInst.ICEconnectorTimer.cancel();
 
-// "run automatic setup" ?
-// setup.exe with simplified KeeICEInstaller.msi
-// "completed" command runs KeePass through command line arguments to create an empty DB?
-// or maybe prompt user for master password at that point or before clicking the "automatic setup" button?
+                        keeFoxInst.log("Successfully established connection with KeeICE");
+                        // remember this across all windows
+                        keeFoxInst._keeFoxStorage.set("KeeICEActive", true);
+                        keeFoxInst._keeFoxStorage.set("KeeICEInstalled", true);
 
-// write basic step-by-step manual installation instructions (where to move files to/from and what registry settings or FF options to set?)
+                        //keeFoxInst._refreshKPDB();
+                        keeFoxInst._configureKeeICECallbacks();
+                        keeFoxInst._refreshKPDB();
+                    }
+                    break;
 
+            }
 
-// submit form (eventually optional) after filling form (either from matching login on toolbar or automatic filling)
-// make automatic filling work sensibly: do it if we only find one matching form or if there is an exact URL match on the action attribute
-// make multiple password fields work
-// more install fixes and more testing, glitch fixing
-// move onto "value added stuff" such as:
-// send group details from KeePass and use to create "list of all logins" toolbar menu
-// TODO: list multiple DBs (so they can be changed from firefox).
-//TODO later: context menu on matching passwords (e.g. edit in KeePass, delete from KeePass) - how to do this?
-// prob. need some sort of notification message sent back via KeeICE saying "edit {GUID}" or somethign...
+        } catch (err) {
+            Components.utils.reportError(err);
+        }
+    },
 
-// try to release 0.6 (beta) sometime just after Easter if Vista testing at mum's needed
-       
-//TODO maybe: store priority flag in KP DB so auto form fill (and toolbar ordering) can be more closely controlled by user.
-//TODO maybe: store form id in KeePass DB and use that to make form filling even more accurate.
+    QueryInterface: function(iid) {
+        if (iid.equals(Components.interfaces.nsIRunnable) ||
+        iid.equals(Components.interfaces.nsISupports)) {
+            return this;
+        }
+        throw Components.results.NS_ERROR_NO_INTERFACE;
+    }
+};
 
-//TODO: launch sepearte thread for install processes / downloads to keep GUI responsive
-//TODO: add-on description needs to say "requires .NET framework which may require administrative assistance to install on Windows XP"
 
 
 flashing icon should be optional

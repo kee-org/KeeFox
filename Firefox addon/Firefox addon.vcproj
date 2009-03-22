@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="10"
 			CharacterSet="2"
 			>
 			<Tool
@@ -29,54 +29,7 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
 				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				WarningLevel="3"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				GenerateDebugInformation="true"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -86,7 +39,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="10"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -97,59 +50,11 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
 				Name="VCMIDLTool"
 			/>
 			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				GenerateDebugInformation="true"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)KeeFox\*&quot; &quot;$(SolutionDir)XPIs\current\&quot; /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM compress the files into the complete XPI&#x0D;&#x0A;cd $(SolutionDir)XPIs\current&#x0D;&#x0A;del ..\current.xpi&#x0D;&#x0A;&quot;c:\Program Files\ZipGenius 6\zg.exe&quot; -add &quot;..\current.xpi&quot; R1 K0 C5 +&quot;*&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)$(OutDir)&quot; /i /d /y&#x0D;&#x0A;REM if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail &#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK"
 			/>
 		</Configuration>
 		<Configuration
@@ -250,6 +155,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\skin\install.css"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\content\install.js"
 			>
 		</File>
@@ -284,6 +193,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\content\keefox.xul"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\modules\KF.js"
@@ -327,6 +244,10 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\defaults\preferences\prefs.js"
+			>
+		</File>
+		<File
+			RelativePath=".\XPIPackageExclusions.txt"
 			>
 		</File>
 	</Files>

@@ -659,7 +659,7 @@ this.log("titleC:"+title);
                 accessKey: loginButtonAccessKey,
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
-                    kf.launchKeePass();
+                    kf.launchKeePass('');
                 }
             },
 

@@ -194,7 +194,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copying XPT definition to development firefox component directory"
-				CommandLine="copy &quot;$(SolutionDir)KeeFox\comp.xpt&quot; &quot;$(SolutionDir)Firefox addon\KeeFox\components\comp.xpt&quot;"
+				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;copy &quot;$(SolutionDir)KeeFox\comp.xpt&quot; &quot;$(SolutionDir)Firefox addon\KeeFox\components\comp.xpt&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail &#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK"
 			/>
 		</Configuration>
 		<Configuration

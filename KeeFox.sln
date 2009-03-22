@@ -9,10 +9,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFox", "KeeFox\KeeFox.vcp
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firefox addon", "Firefox addon\Firefox addon.vcproj", "{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3} = {AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7} = {0BDCB786-3AD0-458D-9850-9BAF04223FF7}
+		{132C16D6-7DC0-47C7-BA04-D72429AC0550} = {132C16D6-7DC0-47C7-BA04-D72429AC0550}
+		{4C1BB6F8-D2CD-49C2-9053-21705681356C} = {4C1BB6F8-D2CD-49C2-9053-21705681356C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFoxLoader", "KeeFoxLoader\KeeFoxLoader.vcproj", "{132C16D6-7DC0-47C7-BA04-D72429AC0550}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "KeeICE installer", "KeeICEInstaller\KeeICE installer.wixproj", "{3D6017CA-5701-4C23-B43F-BB248D06AF76}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeICECopier", "KeeICECopier\KeeICECopier.vcproj", "{0BDCB786-3AD0-458D-9850-9BAF04223FF7}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
@@ -72,11 +80,13 @@ Global
 		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.teast|x86.ActiveCfg = teast|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Win32.ActiveCfg = Debug|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|Win32.Build.0 = Debug|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Debug|x86.ActiveCfg = Debug|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Any CPU.ActiveCfg = Release|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Win32.ActiveCfg = Release|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|Win32.Build.0 = Release|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Release|x86.ActiveCfg = Release|Win32
@@ -119,6 +129,24 @@ Global
 		{3D6017CA-5701-4C23-B43F-BB248D06AF76}.teast|Win32.ActiveCfg = Release|x86
 		{3D6017CA-5701-4C23-B43F-BB248D06AF76}.teast|x86.ActiveCfg = Release|x86
 		{3D6017CA-5701-4C23-B43F-BB248D06AF76}.teast|x86.Build.0 = Release|x86
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Debug|Win32.Build.0 = Debug|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Debug|x86.ActiveCfg = Debug|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Release|Any CPU.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Release|Win32.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Release|Win32.Build.0 = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.Release|x86.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.teast|Any CPU.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.teast|Mixed Platforms.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.teast|Mixed Platforms.Build.0 = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.teast|Win32.ActiveCfg = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.teast|Win32.Build.0 = Release|Win32
+		{0BDCB786-3AD0-458D-9850-9BAF04223FF7}.teast|x86.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

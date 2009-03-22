@@ -698,44 +698,4 @@ RunNonElevated(
 }
 #endif //DONTWANT_RunNonElevated
 
-
-//      Function returns TRUE on success, and FALSE on failure
-//      dwRet - is set to the process return code on success, and the result of GetLastError() on failure
-//  nShow - is SW_SHOW ect...
-//  tcWorkingDir - string of the working directory
-//      tcExe - is the excutable name
-//      tcArgs - are arguments to the executable
-/*BOOL ShellExecuteWait( DWORD& dwRet , int nShow , TCHAR* tcExe , TCHAR* tcWorkingDir = NULL , TCHAR* tcArgs = NULL  )
-{
-      BOOL bRet = FALSE;
-      SHELLEXECUTEINFO sexi = {0};
-      sexi.cbSize = sizeof( SHELLEXECUTEINFO );
-      // No Parent ( Note this is just for the example )
-      sexi.hwnd = NULL;
-      // Set flag so the hProcess handle is initialized by the call to ShellExecuteEx
-      sexi.fMask = SEE_MASK_NOCLOSEPROCESS;
-      sexi.lpDirectory = tcWorkingDir;
-      sexi.lpFile = tcExe;
-      sexi.lpParameters = tcArgs;
-      sexi.nShow = nShow;
-      
-      // Returns Non-Zero on success
-      if( ::ShellExecuteEx( &sexi ) )
-      {
-            DWORD dwSignaled = ::WaitForSingleObject( sexi.hProcess , INFINITE );
-            // WAIT_OBJECT_0 is success for the event trigger
-            if ( dwSignaled == WAIT_OBJECT_0 )
-            {
-                  // Returns Non-Zero on success
-                  if( ::GetExitCodeProcess( sexi.hProcess , &dwRet ) )
-                  {
-                        bRet = TRUE;
-                  }
-            }
-      }
-      dwRet = ::GetLastError( );
-      return bRet;
-}*/
-
-
 #endif// IMPLEMENT_VISTA_TOOLS

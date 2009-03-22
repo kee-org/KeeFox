@@ -102,6 +102,3 @@ var keeFoxInitStartupListener = {
 // TODO: we actually end up creating a new listener for each Firefox window and 
 // just ignoring the notifications sent by unrelated windows. I think that removing
 // the event listener after initial setup is finished will keep things more efficient
-
-
-var KFtempComplete = false;

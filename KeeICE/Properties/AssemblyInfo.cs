@@ -2,7 +2,7 @@
   KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 
 // General assembly properties
 [assembly: AssemblyTitle("KeeICE")]
-[assembly: AssemblyDescription("Provides Inter Process Communication (IPC) facilities to KeePass")]
+[assembly: AssemblyDescription("Provides Inter Process Communication (IPC) facilities to KeePass. Used by the KeeFox Firefox add-on.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chris Tomlinson")]
 [assembly: AssemblyProduct("KeePass Plugin")]
@@ -40,5 +40,5 @@ using System.Runtime.InteropServices;
 [assembly: Guid("D36DD08D-2080-448a-8509-BF3D8D95B106")]
 
 // Assembly version information
-[assembly: AssemblyVersion("2.0.5.*")]
+[assembly: AssemblyVersion("2.0.7.*")]
 [assembly: AssemblyFileVersion("0.5.0.0")]
