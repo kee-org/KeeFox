@@ -22,15 +22,27 @@
 #ifndef __KEEFOX_IMPL_H__
 #define __KEEFOX_IMPL_H__
 
+#if _MSC_VER
+#pragma warning( push, 0 )
+#pragma warning( disable : 4512 )
+#pragma warning( disable : 4100 )
+#pragma warning( disable : 4702 )
+#endif
+
 #include "comp.h"
 #include "nsStringAPI.h"
 #include <string>
 #include <vector>
+
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include "generated/KeeICE.h"
 //#include "nsILoginInfo.h"
 #include "nsCOMPtr.h"
+
+#if _MSC_VER
+#pragma warning( pop ) 
+#endif
 
 using std::string;
 using std::vector;

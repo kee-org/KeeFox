@@ -634,8 +634,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
      * @param aLogin
      *        The login to be added.
      */
-  /* void addLogin (in kfILoginInfo aLogin); */
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) = 0;
+  /* void addLogin (in kfILoginInfo aLogin, in AString parentUUID); */
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID) = 0;
 
   /**
      * Remove a login from the login manager.
@@ -743,7 +743,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile); \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void); \
   NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval); \
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin); \
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID); \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin); \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin); \
   NS_SCRIPTABLE NS_IMETHOD GetAllLogins(PRUint32 *count, kfILoginInfo ***logins); \
@@ -764,7 +764,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return _to LaunchKeePass(fileName, DBFile); } \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return _to ShutdownICE(); } \
   NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) { return _to IsUserAdministrator(_retval); } \
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) { return _to AddLogin(aLogin); } \
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID) { return _to AddLogin(aLogin, parentUUID); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return _to RemoveLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return _to ModifyLogin(oldLogin, newLogin); } \
   NS_SCRIPTABLE NS_IMETHOD GetAllLogins(PRUint32 *count, kfILoginInfo ***logins) { return _to GetAllLogins(count, logins); } \
@@ -785,7 +785,7 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchKeePass(fileName, DBFile); } \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->ShutdownICE(); } \
   NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsUserAdministrator(_retval); } \
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddLogin(aLogin); } \
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddLogin(aLogin, parentUUID); } \
   NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->RemoveLogin(aLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->ModifyLogin(oldLogin, newLogin); } \
   NS_SCRIPTABLE NS_IMETHOD GetAllLogins(PRUint32 *count, kfILoginInfo ***logins) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAllLogins(count, logins); } \
@@ -894,8 +894,8 @@ NS_IMETHODIMP _MYCLASS_::IsUserAdministrator(PRBool *_retval)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void addLogin (in kfILoginInfo aLogin); */
-NS_IMETHODIMP _MYCLASS_::AddLogin(kfILoginInfo *aLogin)
+/* void addLogin (in kfILoginInfo aLogin, in AString parentUUID); */
+NS_IMETHODIMP _MYCLASS_::AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

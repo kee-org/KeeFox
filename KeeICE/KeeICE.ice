@@ -42,6 +42,14 @@ module KFlib {
     
     sequence<KPFormField> KPFormFieldList;
     
+    struct KPGroup
+    {
+		string title;
+		string uniqueID;
+    };
+    
+    sequence<KPGroup> KPGroupList;
+    
     struct KPEntry
     {
 		string hostName;
@@ -61,10 +69,10 @@ module KFlib {
         string reason;
     };
     
-    interface KPGroup
-    {
-        void Touch(bool isModified);
-    };
+    //interface KPGroup
+    //{
+    //    void Touch(bool isModified);
+    //};
     
     
     //interface KPDatabase
@@ -81,13 +89,30 @@ module KFlib {
         string getDatabaseName();
         string getDatabaseFileName();
         void changeDatabase(string fileName, bool closeCurrent);
-        void AddLogin(KPEntry login) throws KeeICEException;
+        void AddLogin(KPEntry login, string parentUUID) throws KeeICEException;
         void ModifyLogin(KPEntry oldLogin, KPEntry newLogin) throws KeeICEException;
         int getAllLogins(out KPEntryList logins) throws KeeICEException;
         int findLogins(string hostname, string actionURL, string httpRealm, loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KPEntryList logins) throws KeeICEException;
         int countLogins(string hostname, string actionURL, string httpRealm, loginSearchType lst, bool requireFullURLMatches) throws KeeICEException;
         //bool getDirty();
         void addClient(Ice::Identity ident);
+        
+        int findGroups(string name, string uuid, out KPGroupList groups); // if both null, returns root group
+        
+        KPGroup getParent(string uuid);
+		KPGroupList getChildGroups(string uuid);
+		KPEntryList getChildEntries(string uuid);
+		KPGroup addGroup(string name, string parentUuid); // returns the new group
+		
+		bool removeGroup(string uuid); //host.Database.RootGroup.Groups.Remove();
+		bool removeEntry(string uuid); //host.Database.RootGroup.Groups.Remove();
+
+		//KPGroup getParentOfGroup(KPGroup group);
+		//KPGroupList getChildGroups(KPGroup group);
+		//KPEntryList getChildEntries(KPGroup group);
+		//KPGroup addGroup(string name, KPGroup parentGroup); 
+		
+		//KPGroup getParentOfEntry(KPEntry entry);
     };
     
     struct KPDatabase

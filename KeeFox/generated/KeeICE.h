@@ -50,8 +50,6 @@ namespace KeeICE
 namespace KFlib
 {
 
-class KPGroup;
-
 class KP;
 
 class CallbackReceiver;
@@ -67,10 +65,6 @@ namespace KeeICE
 
 namespace KFlib
 {
-
-class KPGroup;
-bool operator==(const KPGroup&, const KPGroup&);
-bool operator<(const KPGroup&, const KPGroup&);
 
 class KP;
 bool operator==(const KP&, const KP&);
@@ -87,9 +81,6 @@ bool operator<(const CallbackReceiver&, const CallbackReceiver&);
 namespace IceInternal
 {
 
-::Ice::Object* upCast(::KeeICE::KFlib::KPGroup*);
-::IceProxy::Ice::Object* upCast(::IceProxy::KeeICE::KFlib::KPGroup*);
-
 ::Ice::Object* upCast(::KeeICE::KFlib::KP*);
 ::IceProxy::Ice::Object* upCast(::IceProxy::KeeICE::KFlib::KP*);
 
@@ -103,12 +94,6 @@ namespace KeeICE
 
 namespace KFlib
 {
-
-typedef ::IceInternal::Handle< ::KeeICE::KFlib::KPGroup> KPGroupPtr;
-typedef ::IceInternal::ProxyHandle< ::IceProxy::KeeICE::KFlib::KPGroup> KPGroupPrx;
-
-void __read(::IceInternal::BasicStream*, KPGroupPrx&);
-void __patch__KPGroupPtr(void*, ::Ice::ObjectPtr&);
 
 typedef ::IceInternal::Handle< ::KeeICE::KFlib::KP> KPPtr;
 typedef ::IceInternal::ProxyHandle< ::IceProxy::KeeICE::KFlib::KP> KPPrx;
@@ -188,6 +173,38 @@ struct KPFormField
 typedef ::std::vector< ::KeeICE::KFlib::KPFormField> KPFormFieldList;
 void __writeKPFormFieldList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPFormField*, const ::KeeICE::KFlib::KPFormField*);
 void __readKPFormFieldList(::IceInternal::BasicStream*, KPFormFieldList&);
+
+struct KPGroup
+{
+    ::std::string title;
+    ::std::string uniqueID;
+
+    bool operator==(const KPGroup&) const;
+    bool operator<(const KPGroup&) const;
+    bool operator!=(const KPGroup& __rhs) const
+    {
+        return !operator==(__rhs);
+    }
+    bool operator<=(const KPGroup& __rhs) const
+    {
+        return operator<(__rhs) || operator==(__rhs);
+    }
+    bool operator>(const KPGroup& __rhs) const
+    {
+        return !operator<(__rhs) && !operator==(__rhs);
+    }
+    bool operator>=(const KPGroup& __rhs) const
+    {
+        return !operator<(__rhs);
+    }
+
+    void __write(::IceInternal::BasicStream*) const;
+    void __read(::IceInternal::BasicStream*);
+};
+
+typedef ::std::vector< ::KeeICE::KFlib::KPGroup> KPGroupList;
+void __writeKPGroupList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPGroup*, const ::KeeICE::KFlib::KPGroup*);
+void __readKPGroupList(::IceInternal::BasicStream*, KPGroupList&);
 
 struct KPEntry
 {
@@ -327,224 +344,6 @@ namespace KeeICE
 namespace KFlib
 {
 
-class KPGroup : virtual public ::IceProxy::Ice::Object
-{
-public:
-
-    void Touch(bool isModified)
-    {
-        Touch(isModified, 0);
-    }
-    void Touch(bool isModified, const ::Ice::Context& __ctx)
-    {
-        Touch(isModified, &__ctx);
-    }
-    
-private:
-
-    void Touch(bool, const ::Ice::Context*);
-    
-public:
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_context(const ::Ice::Context& __context) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_context(__context).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_context(__context).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_adapterId(const std::string& __id) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_adapterId(__id).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_adapterId(__id).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_endpoints(const ::Ice::EndpointSeq& __endpoints) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_endpoints(__endpoints).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_endpoints(__endpoints).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_locatorCacheTimeout(int __timeout) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_locatorCacheTimeout(__timeout).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_locatorCacheTimeout(__timeout).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_connectionCached(bool __cached) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_connectionCached(__cached).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_connectionCached(__cached).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_endpointSelection(::Ice::EndpointSelectionType __est) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_endpointSelection(__est).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_endpointSelection(__est).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_secure(bool __secure) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_secure(__secure).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_secure(__secure).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_preferSecure(bool __preferSecure) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_preferSecure(__preferSecure).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_preferSecure(__preferSecure).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_router(const ::Ice::RouterPrx& __router) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_router(__router).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_router(__router).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_locator(const ::Ice::LocatorPrx& __locator) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_locator(__locator).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_locator(__locator).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_collocationOptimized(bool __co) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_collocationOptimized(__co).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_collocationOptimized(__co).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_twoway() const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_twoway().get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_twoway().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_oneway() const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_oneway().get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_oneway().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_batchOneway() const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_batchOneway().get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_batchOneway().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_datagram() const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_datagram().get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_datagram().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_batchDatagram() const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_batchDatagram().get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_batchDatagram().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_compress(bool __compress) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_compress(__compress).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_compress(__compress).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_timeout(int __timeout) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_timeout(__timeout).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_timeout(__timeout).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KPGroup> ice_connectionId(const std::string& __id) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KPGroup*>(_Base::ice_connectionId(__id).get());
-    #else
-        return dynamic_cast<KPGroup*>(::IceProxy::Ice::Object::ice_connectionId(__id).get());
-    #endif
-    }
-    
-    static const ::std::string& ice_staticId();
-
-private: 
-
-    virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
-    virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
-    virtual ::IceProxy::Ice::Object* __newInstance() const;
-};
-
 class KP : virtual public ::IceProxy::Ice::Object
 {
 public:
@@ -609,18 +408,18 @@ private:
     
 public:
 
-    void AddLogin(const ::KeeICE::KFlib::KPEntry& login)
+    void AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID)
     {
-        AddLogin(login, 0);
+        AddLogin(login, parentUUID, 0);
     }
-    void AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::Ice::Context& __ctx)
+    void AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context& __ctx)
     {
-        AddLogin(login, &__ctx);
+        AddLogin(login, parentUUID, &__ctx);
     }
     
 private:
 
-    void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
+    void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
     
 public:
 
@@ -696,6 +495,111 @@ public:
 private:
 
     void addClient(const ::Ice::Identity&, const ::Ice::Context*);
+    
+public:
+
+    ::Ice::Int findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KFlib::KPGroupList& groups)
+    {
+        return findGroups(name, uuid, groups, 0);
+    }
+    ::Ice::Int findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KFlib::KPGroupList& groups, const ::Ice::Context& __ctx)
+    {
+        return findGroups(name, uuid, groups, &__ctx);
+    }
+    
+private:
+
+    ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
+    
+public:
+
+    ::KeeICE::KFlib::KPGroup getParent(const ::std::string& uuid)
+    {
+        return getParent(uuid, 0);
+    }
+    ::KeeICE::KFlib::KPGroup getParent(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return getParent(uuid, &__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string& uuid)
+    {
+        return getChildGroups(uuid, 0);
+    }
+    ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return getChildGroups(uuid, &__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string& uuid)
+    {
+        return getChildEntries(uuid, 0);
+    }
+    ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return getChildEntries(uuid, &__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    ::KeeICE::KFlib::KPGroup addGroup(const ::std::string& name, const ::std::string& parentUuid)
+    {
+        return addGroup(name, parentUuid, 0);
+    }
+    ::KeeICE::KFlib::KPGroup addGroup(const ::std::string& name, const ::std::string& parentUuid, const ::Ice::Context& __ctx)
+    {
+        return addGroup(name, parentUuid, &__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    bool removeGroup(const ::std::string& uuid)
+    {
+        return removeGroup(uuid, 0);
+    }
+    bool removeGroup(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return removeGroup(uuid, &__ctx);
+    }
+    
+private:
+
+    bool removeGroup(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    bool removeEntry(const ::std::string& uuid)
+    {
+        return removeEntry(uuid, 0);
+    }
+    bool removeEntry(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return removeEntry(uuid, &__ctx);
+    }
+    
+private:
+
+    bool removeEntry(const ::std::string&, const ::Ice::Context*);
     
 public:
     
@@ -1131,13 +1035,6 @@ namespace KeeICE
 namespace KFlib
 {
 
-class KPGroup : virtual public ::IceDelegate::Ice::Object
-{
-public:
-
-    virtual void Touch(bool, const ::Ice::Context*) = 0;
-};
-
 class KP : virtual public ::IceDelegate::Ice::Object
 {
 public:
@@ -1150,7 +1047,7 @@ public:
 
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*) = 0;
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*) = 0;
+    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*) = 0;
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*) = 0;
 
@@ -1161,6 +1058,20 @@ public:
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*) = 0;
 
     virtual void addClient(const ::Ice::Identity&, const ::Ice::Context*) = 0;
+
+    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*) = 0;
+
+    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual bool removeGroup(const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual bool removeEntry(const ::std::string&, const ::Ice::Context*) = 0;
 };
 
 class CallbackReceiver : virtual public ::IceDelegate::Ice::Object
@@ -1185,14 +1096,6 @@ namespace KeeICE
 namespace KFlib
 {
 
-class KPGroup : virtual public ::IceDelegate::KeeICE::KFlib::KPGroup,
-                virtual public ::IceDelegateM::Ice::Object
-{
-public:
-
-    virtual void Touch(bool, const ::Ice::Context*);
-};
-
 class KP : virtual public ::IceDelegate::KeeICE::KFlib::KP,
            virtual public ::IceDelegateM::Ice::Object
 {
@@ -1206,7 +1109,7 @@ public:
 
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
+    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
@@ -1217,6 +1120,20 @@ public:
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
 
     virtual void addClient(const ::Ice::Identity&, const ::Ice::Context*);
+
+    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
+
+    virtual bool removeGroup(const ::std::string&, const ::Ice::Context*);
+
+    virtual bool removeEntry(const ::std::string&, const ::Ice::Context*);
 };
 
 class CallbackReceiver : virtual public ::IceDelegate::KeeICE::KFlib::CallbackReceiver,
@@ -1242,14 +1159,6 @@ namespace KeeICE
 namespace KFlib
 {
 
-class KPGroup : virtual public ::IceDelegate::KeeICE::KFlib::KPGroup,
-                virtual public ::IceDelegateD::Ice::Object
-{
-public:
-
-    virtual void Touch(bool, const ::Ice::Context*);
-};
-
 class KP : virtual public ::IceDelegate::KeeICE::KFlib::KP,
            virtual public ::IceDelegateD::Ice::Object
 {
@@ -1263,7 +1172,7 @@ public:
 
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
+    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
@@ -1274,6 +1183,20 @@ public:
     virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
 
     virtual void addClient(const ::Ice::Identity&, const ::Ice::Context*);
+
+    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
+
+    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
+
+    virtual bool removeGroup(const ::std::string&, const ::Ice::Context*);
+
+    virtual bool removeEntry(const ::std::string&, const ::Ice::Context*);
 };
 
 class CallbackReceiver : virtual public ::IceDelegate::KeeICE::KFlib::CallbackReceiver,
@@ -1295,31 +1218,6 @@ namespace KeeICE
 
 namespace KFlib
 {
-
-class KPGroup : virtual public ::Ice::Object
-{
-public:
-
-    typedef KPGroupPrx ProxyType;
-    typedef KPGroupPtr PointerType;
-    
-    virtual ::Ice::ObjectPtr ice_clone() const;
-
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current()) const;
-    virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;
-    static const ::std::string& ice_staticId();
-
-    virtual void Touch(bool, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___Touch(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*, bool);
-    virtual void __write(const ::Ice::OutputStreamPtr&) const;
-    virtual void __read(const ::Ice::InputStreamPtr&, bool);
-};
 
 class KP : virtual public ::Ice::Object
 {
@@ -1347,7 +1245,7 @@ public:
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___changeDatabase(::IceInternal::Incoming&, const ::Ice::Current&);
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___AddLogin(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
@@ -1364,6 +1262,27 @@ public:
 
     virtual void addClient(const ::Ice::Identity&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___addClient(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___findGroups(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___getParent(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___getChildGroups(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___getChildEntries(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___addGroup(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual bool removeGroup(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___removeGroup(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual bool removeEntry(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___removeEntry(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
 

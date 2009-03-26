@@ -189,7 +189,6 @@ default:    copy the two KeeICE files to the discovered KP location.
       </vbox>
       
     </vbox>
-  </vbox>
 
     <vbox id="nonAdmincopyKIToKnownKPLocationInstallExpandee" hidden="true">
       <description>You can install KeePass in a second location on your computer (or on a portable drive / USB drive). Just press the button below but do be aware of the potential confusion you might experience in future as a result of having two seperate copies of KeePass. In most cases it is recommended that you use the administrator password to install KeeICE using the button above.</description>

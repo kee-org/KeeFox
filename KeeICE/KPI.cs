@@ -43,6 +43,9 @@ namespace KeeICE
 {
     public class KPI : KFlib.KPDisp_
     {
+
+#region Class variables, constructor and destructor
+
         const float minClientVersion = 0.5F; // lowest version of client we're prepared to communicate with
         const float keeICEVersion = 0.5F; // version of this build
 
@@ -55,66 +58,7 @@ namespace KeeICE
         private bool _destroy;
         private ArrayList _clients;
 
-        public override string getDatabaseName(Ice.Current current__)
-        {
-            if (!host.Database.IsOpen)
-                return "";
-            return (host.Database.Name.Length > 0 ? host.Database.Name : "no name");
-        }
-
-        public override string getDatabaseFileName(Ice.Current current__)
-        {
-            return host.Database.IOConnectionInfo.Path;
-        }
-
-        /// <summary>
-        /// changes current active database
-        /// </summary>
-        /// <param name="fileName">Path to database to open. If empty, user is prompted to choose a file</param>
-        /// <param name="closeCurrent">if true, currently active database is closed first. if false,
-        /// both stay open with fileName DB active</param>
-        public override void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__)
-        {
-            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null)
-            {
-                host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
-            }
-
-            KeePassLib.Serialization.IOConnectionInfo ioci = null;
-
-            if (fileName != null && fileName.Length > 0)
-            {
-                ioci = new KeePassLib.Serialization.IOConnectionInfo();
-                ioci.Path = fileName;
-            }
-
-            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
-            return;
-        }
-
-        /// <summary>
-        /// checks version of client and server are compatible. Currently just a basic old vs new check
-        /// but could be expanded to add more complex ranges of allowed versions if required - e.g. if
-        /// other clients apart from KeeFox start using KeeICE we my need to tweak things a bit to keep all
-        /// versions of all clients working correctly.
-        /// </summary>
-        /// <param name="clientVersion">version of client making the request</param>
-        /// <param name="minKeeICEVersion">lowest version of server that client is prepared to work with</param>
-        /// <param name="result">0 if version check OK, 1 if client is too old, -1 if we (server) are too old</param>
-        /// <param name="current__"></param>
-        /// <returns>true unless something went wrong</returns>
-        public override bool checkVersion(float clientVersion, float minKeeICEVersion, out int result, Ice.Current current__)
-        {
-            if (minClientVersion > clientVersion)
-                result = 1;
-            else if (minKeeICEVersion > keeICEVersion)
-                result = -1;
-            else
-                result = 0;
-            return true; // unless something went wrong
-        }
-
-        public KPI(IPluginHost host,Ice.Communicator communicator)
+        public KPI(IPluginHost host, Ice.Communicator communicator)
         {
             this.host = host;
             _communicator = communicator;
@@ -122,49 +66,20 @@ namespace KeeICE
             _clients = new ArrayList();
         }
 
-        /*
-        public void Run()
+        public void destroy()
         {
-            int num = 0;
-            while(true)
+            lock (this)
             {
-                ArrayList clients;
-                lock(this)
-                {
-                    System.Threading.Monitor.Wait(this, 2000);
-                    if(_destroy)
-                    {
-                        break;
-                    }
+                System.Console.Out.WriteLine("destroying callback sender");
+                _destroy = true;
 
-                    clients = new ArrayList(_clients);
-                }
-
-                if(clients.Count > 0)
-                {
-                    ++num;
-                    foreach (KeeICE.KFlib.CallbackReceiverPrx c in clients)
-                    {
-                        try
-                        {
-                            c.callback(num);
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            Console.Error.WriteLine("removing client `" +
-                                                    _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
-
-                            lock(this)
-                            {
-                                _clients.Remove(c);
-                            }
-                        }
-                    }
-                }
+                System.Threading.Monitor.Pulse(this);
             }
         }
-         * 
-         * */
+#endregion
+
+
+#region ICE client management
 
         public void issueICEClientCallbacks(int num)
         {
@@ -210,21 +125,10 @@ namespace KeeICE
             }
         }
 
+#endregion
 
 
-        
-
-        public void destroy()
-        {
-            lock(this)
-            {
-                System.Console.Out.WriteLine("destroying callback sender");
-                _destroy = true;
-                
-                System.Threading.Monitor.Pulse(this);
-            }
-        }
-
+#region KeePass GUI routines
 
         /// <summary>
         /// halts thread until a DB is open in the KeePass application
@@ -270,36 +174,19 @@ namespace KeeICE
 
             if (!host.Database.IsOpen)
                 KPI.ensureDBisOpenEWH.Set(); // signal that any waiting ICE thread can go ahead
-
-            // set to true whenever we're ready to relinquish control back to the main KeePass app
-            /*bool promptAborted = false;
-
-            while (!promptAborted)
-            {
-                KeePass.Forms.KeyPromptForm keyPromptForm = new KeyPromptForm();
-                keyPromptForm.InitEx(KeePass.Program.Config.Application.LastUsedFile.Path, false);
-                DialogResult res = keyPromptForm.ShowDialog(); // TODO: how to set the "currently active" window?
-
-                if (res == DialogResult.OK)
-                {
-                    if (keyPromptForm.CompositeKey == null)
-                        promptAborted = true;
-                    else
-                    {
-                        KeePass.Program.MainForm.OpenDatabase(KeePass.Program.Config.Application.LastUsedFile, keyPromptForm.CompositeKey,false);
-                        if (KeePass.Program.MainForm.IsAtLeastOneFileOpen())
-                            promptAborted = true;
-                    }
-                    // do we need to do something like this at some point in this function?
-                    //host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-                } else if (res == DialogResult.Cancel)
-                {
-                    DialogResult openMRUresult = MessageBox.Show("Please open a database. Applications like KeeFox may remain paused until you do so. Would you like to try to open your most recently used password database?","Open a database",MessageBoxButtons.YesNo);
-                   if (openMRUresult != DialogResult.Yes)
-                       promptAborted = true;
-               }
-            }*/
         }
+
+        void saveDB()
+        {
+            KeePassLib.Interfaces.IStatusLogger logger = new Log();
+            host.Database.Save(logger);
+            host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+        }
+
+#endregion
+
+
+#region Utility functions to convert between KeeICE object schema and KeePass schema
 
         private KFlib.KPEntry getKPEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
         {
@@ -364,6 +251,18 @@ namespace KeeICE
             return kpe;
         }
 
+        private KFlib.KPGroup getKPGroupFromPwGroup(PwGroup pwg, bool isExactMatch)
+        {
+            ArrayList formFieldList = new ArrayList();
+            
+            //byte[] temp1 = pwg.Uuid.UuidBytes;
+            //string temp2 = pwg.Uuid.ToString();
+            //string temp3 = pwg.Uuid.ToHexString();
+
+            KFlib.KPGroup kpg = new KFlib.KPGroup(pwg.Name, pwg.Uuid.ToHexString());
+            return kpg;
+        }
+
         private void setPwEntryFromKPEntry(PwEntry pwe, KFlib.KPEntry login)
         {
 
@@ -394,8 +293,138 @@ namespace KeeICE
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.title));
         }
+#endregion
 
-        public override void AddLogin(KFlib.KPEntry login, Ice.Current current__)
+
+#region Implementation of KeeICE.ice functions relating to retrival and manipulation of databases and the KeePass app
+
+        public override string getDatabaseName(Ice.Current current__)
+        {
+            if (!host.Database.IsOpen)
+                return "";
+            return (host.Database.Name.Length > 0 ? host.Database.Name : "no name");
+        }
+
+        public override string getDatabaseFileName(Ice.Current current__)
+        {
+            return host.Database.IOConnectionInfo.Path;
+        }
+
+        /// <summary>
+        /// changes current active database
+        /// </summary>
+        /// <param name="fileName">Path to database to open. If empty, user is prompted to choose a file</param>
+        /// <param name="closeCurrent">if true, currently active database is closed first. if false,
+        /// both stay open with fileName DB active</param>
+        public override void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__)
+        {
+            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null)
+            {
+                host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
+            }
+
+            KeePassLib.Serialization.IOConnectionInfo ioci = null;
+
+            if (fileName != null && fileName.Length > 0)
+            {
+                ioci = new KeePassLib.Serialization.IOConnectionInfo();
+                ioci.Path = fileName;
+            }
+
+            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
+            return;
+        }
+
+        /// <summary>
+        /// checks version of client and server are compatible. Currently just a basic old vs new check
+        /// but could be expanded to add more complex ranges of allowed versions if required - e.g. if
+        /// other clients apart from KeeFox start using KeeICE we my need to tweak things a bit to keep all
+        /// versions of all clients working correctly.
+        /// </summary>
+        /// <param name="clientVersion">version of client making the request</param>
+        /// <param name="minKeeICEVersion">lowest version of server that client is prepared to work with</param>
+        /// <param name="result">0 if version check OK, 1 if client is too old, -1 if we (server) are too old</param>
+        /// <param name="current__"></param>
+        /// <returns>true unless something went wrong</returns>
+        public override bool checkVersion(float clientVersion, float minKeeICEVersion, out int result, Ice.Current current__)
+        {
+            if (minClientVersion > clientVersion)
+                result = 1;
+            else if (minKeeICEVersion > keeICEVersion)
+                result = -1;
+            else
+                result = 0;
+            return true; // unless something went wrong
+        }
+
+#endregion
+
+
+#region Implementation of KeeICE.ice functions relating to retrival and manipulation of entries and groups
+
+        /// <summary>
+        /// removes a single entry from the database
+        /// </summary>
+        /// <param name="uuid">The unique indentifier of the entry we want to remove</param>
+        /// <returns>true if entry removed successfully, false if it failed</returns>
+        public override bool removeEntry(string uuid, Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return false;
+
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwEntry matchedLogin = host.Database.RootGroup.FindEntry(pwuuid, true);
+
+                if (matchedLogin == null)
+                    throw new Exception("Could not find requested entry.");
+
+                matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
+
+                host.MainWindow.Invoke(new MethodInvoker(saveDB));
+
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// removes a single group and its contents from the database
+        /// </summary>
+        /// <param name="uuid">The unique indentifier of the group we want to remove</param>
+        /// <returns>true if group removed successfully, false if it failed</returns>
+        public override bool removeGroup(string uuid, Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return false;
+
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    throw new Exception("Could not find requested entry.");
+
+                matchedGroup.ParentGroup.Groups.Remove(matchedGroup);
+
+                host.MainWindow.Invoke(new MethodInvoker(saveDB));
+
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Add a new password/login to the active KeePass database
+        /// </summary>
+        /// <param name="login">The KeeICE representation of the login to be added</param>
+        /// <param name="parentUUID">The UUID of the parent group for the new login. If null, the root group will be used.</param>
+        /// <param name="current__"></param>
+        public override void AddLogin(KFlib.KPEntry login, string parentUUID, Ice.Current current__)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return;
@@ -404,20 +433,64 @@ namespace KeeICE
 
             setPwEntryFromKPEntry(newLogin, login);
 
-            host.Database.RootGroup.AddEntry(newLogin, true);
+            PwGroup parentGroup = host.Database.RootGroup; // if in doubt we'll stick it in the root folder
 
+            if (parentUUID != null && parentUUID.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    parentGroup = matchedGroup;
+            }
+
+            parentGroup.AddEntry(newLogin, true);
+            
             host.MainWindow.Invoke(new MethodInvoker(saveDB));
         }
 
-
-        void saveDB()
+        /// <summary>
+        /// Add a new group/folder to the active KeePass database
+        /// </summary>
+        /// <param name="name">The name of the group to be added</param>
+        /// <param name="parentUUID">The UUID of the parent group for the new group. If null, the root group will be used.</param>
+        /// <param name="current__"></param>
+        public override KFlib.KPGroup addGroup(string name, string parentUUID, Ice.Current current__)
         {
-            KeePassLib.Interfaces.IStatusLogger logger = new Log();
-            host.Database.Save(logger);
-            host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return null;
+
+            PwGroup newGroup = new PwGroup(true, true);
+            newGroup.Name = name;
+
+            PwGroup parentGroup = host.Database.RootGroup; // if in doubt we'll stick it in the root folder
+
+            if (parentUUID != null && parentUUID.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    parentGroup = matchedGroup;
+            }
+
+            parentGroup.AddGroup(newGroup, true);
+
+            host.MainWindow.Invoke(new MethodInvoker(saveDB));
+
+            KFlib.KPGroup output = getKPGroupFromPwGroup(newGroup, true);
+
+            return output;
         }
 
-
+        /// <summary>
+        /// Modify an existing login
+        /// </summary>
+        /// <param name="oldLogin">The old login that will be replaced. In fact only the UUID contained within it will be used for now.</param>
+        /// <param name="newLogin">The login object that will replace the old one.</param>
+        /// <param name="current__"></param>
         public override void ModifyLogin(KFlib.KPEntry oldLogin, KFlib.KPEntry newLogin, Ice.Current current__)
         {
             if (oldLogin == null)
@@ -442,8 +515,57 @@ namespace KeeICE
             host.MainWindow.Invoke(new MethodInvoker(saveDB));
         }
 
+        /// <summary>
+        /// Return the parent group of the object with the supplied UUID
+        /// </summary>
+        /// <param name="uuid">the UUID of the object we want to find the parent of</param>
+        /// <param name="current__"></param>
+        /// <returns>the parent group</returns>
+        public override KFlib.KPGroup getParent(string uuid, Ice.Current current__)
+        {
+            KFlib.KPGroup output;
+
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return null;
+
+            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+            try
+            {
+
+                PwEntry thisEntry = host.Database.RootGroup.FindEntry(pwuuid, true);
+                if (thisEntry != null && thisEntry.ParentGroup != null)
+                {
+                    output = getKPGroupFromPwGroup(thisEntry.ParentGroup, true);
+                    return output;
+                }
+
+                PwGroup thisGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                if (thisGroup != null && thisGroup.ParentGroup != null)
+                {
+                    output = getKPGroupFromPwGroup(thisGroup.ParentGroup, true);
+                    return output;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            output = getKPGroupFromPwGroup(host.Database.RootGroup, true);
+            return output;
+        }
+
+        /// <summary>
+        /// Return a list of every login in the database
+        /// </summary>
+        /// <param name="logins">the list of all logins</param>
+        /// <param name="current__"></param>
+        /// <returns>the number of logins in the list</returns>
         public override int getAllLogins(out KFlib.KPEntry[] logins, Ice.Current current__)
         {
+            logins = this.getChildEntries(host.Database.RootGroup.Uuid.ToHexString(), current__);
+            return logins.Length;
+            /*
             int count = 0;
             ArrayList allEntries = new ArrayList();
 
@@ -463,10 +585,119 @@ namespace KeeICE
 
             logins = (KFlib.KPEntry[])allEntries.ToArray(typeof(KFlib.KPEntry));
 
-            return count;
+            return count;*/
         }
 
+        /// <summary>
+        /// Returns a list of every entry contained within a group (not recursive)
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every entry directly inside the group.</returns>
+        public override KFlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__)
+        {
+            KFlib.KPEntry[] entries = null;
+            ArrayList allEntries = new ArrayList();
 
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) { return null; }
+
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    throw new Exception("Could not find requested group.");
+
+                KeePassLib.Collections.PwObjectList<PwEntry> output;
+                output = matchedGroup.GetEntries(false);
+
+                foreach (PwEntry pwe in output)
+                {
+                    KFlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
+                    allEntries.Add(kpe);
+                }
+
+                entries = (KFlib.KPEntry[])allEntries.ToArray(typeof(KFlib.KPEntry));
+            }
+
+            return entries;
+        }
+
+        /// <summary>
+        /// Returns a list of every group contained within a group (not recursive)
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every group directly inside the group.</returns>
+        public override KFlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__)
+        {
+            KFlib.KPGroup[] entries = null;
+            ArrayList allGroups = new ArrayList();
+
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) { return null; }
+
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    throw new Exception("Could not find requested group.");
+
+                KeePassLib.Collections.PwObjectList<PwGroup> output;
+                output = matchedGroup.Groups;
+
+                foreach (PwGroup pwg in output)
+                {
+                    KFlib.KPGroup kpg = getKPGroupFromPwGroup(pwg, false);
+                    allGroups.Add(kpg);
+                }
+
+                entries = (KFlib.KPGroup[])allGroups.ToArray(typeof(KFlib.KPGroup));
+            }
+
+            return entries;
+        }
+
+        /// <summary>
+        /// Return a list of groups. If uuid is supplied, the list will have a maximum of one entry. Otherwise it could have any number. If name and uuid are null, all groups will be returned. TODO: KeePass doesn't have an easy way to search groups by name so postponing that functionality until really needed (or implemented by KeePass API anyway) - for now, name IS COMPLETELY IGNORED
+        /// </summary>
+        /// <param name="name">The name of a groups we are looking for. Must be an exact match.</param>
+        /// <param name="uuid">The UUID of the group we are looking for.</param>
+        /// <param name="groups">The output result (a list of KPGroups)</param>
+        /// <param name="current__"></param>
+        /// <returns>The number of items in the list of groups.</returns>
+        public override int findGroups(string name, string uuid, out KFlib.KPGroup[] groups, Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) { groups = null; return -1; }
+
+            // if uniqueID is supplied, match just that one group. if not found, move on to search the content of the logins...
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    throw new Exception("Could not find requested group.");
+
+                groups = new KFlib.KPGroup[1];
+                groups[0] = getKPGroupFromPwGroup(matchedGroup, true);
+                if (groups[0] != null)
+                    return 1;
+            }
+
+
+            groups = null;
+
+            return 0;
+        }
 
         public override int findLogins(string hostname, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KFlib.KPEntry[] logins, Ice.Current current__)
         {
@@ -744,6 +975,9 @@ namespace KeeICE
 
             return count;
         }
+
+#endregion
+
     }
 }
 

@@ -172,7 +172,7 @@ interface IKeeFox : nsISupports
      * @param aLogin
      *        The login to be added.
      */
-    void addLogin(in kfILoginInfo aLogin);
+    void addLogin(in kfILoginInfo aLogin, in AString parentUUID);
 
 
     /**

@@ -72,6 +72,9 @@ MODIFICATIONS:
 	v.2.1 (2008-Feb-24) removed RunAsStdUser();
 */
 
+#define DONTWANT_RunNonElevated
+#define NO_DLL_IMPORTS
+
 #include <strsafe.h>
 
 #if ( NTDDI_VERSION < NTDDI_LONGHORN )

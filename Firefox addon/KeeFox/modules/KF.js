@@ -1184,7 +1184,7 @@ KFmoduleMainThreadHandler.prototype = {
 };
 
 
-
+/*
 flashing icon should be optional
 
 
