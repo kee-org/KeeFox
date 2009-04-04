@@ -444,7 +444,7 @@ KFILM.prototype = {
      *
      * Add a new login to login storage.
      */
-    addLogin : function (login) {
+    addLogin : function (login, parentUUID) {
         // Sanity check the login
         if (login.hostname == null || login.hostname.length == 0)
             throw "Can't add a login with a null or empty hostname.";
@@ -477,19 +477,65 @@ KFILM.prototype = {
         if (logins.some(function(l) login.matches(l, true)))
             throw "This login already exists.";
 
-        this.log("Adding login: " + login);
-        return this._kf.addLogin(login);
+        this.log("Adding login: " + login + " to group: " + parentUUID);
+        return this._kf.addLogin(login, parentUUID);
     },
+    
+    /*
+     * addGroup
+     *
+     * Add a new group to the KeePass database
+     */
+    addGroup : function (title, parentUUID) {
+        // Sanity check the login
+        if (title == null || title.length == 0)
+            throw "Can't add a group with no title.";
 
+
+        this.log("Adding group: " + title + " to group: " + parentUUID);
+        return this._kf.addGroup(title, parentUUID);
+    },
+    
+    getParentGroup : function (uniqueID) {
+        this.log("Getting parent group of: " + uniqueID);
+        return this._kf.getParentGroup(uniqueID);
+    },
+    
+    getRootGroup : function () {
+        this.log("Getting root group");
+        return this._kf.getRootGroup();
+    },
+    
+    getChildGroups : function (count, uniqueID) {
+        this.log("Getting all child groups of: " + uniqueID);
+        return this._kf.getChildGroups(count, uniqueID);
+    },
+    
+    getChildEntries : function (count, uniqueID) {
+        this.log("Getting all child entries of: " + uniqueID);
+        return this._kf.getChildEntries(count, uniqueID);
+    },
+    
+    
 
     /*
      * removeLogin
      *
      * Remove the specified login from the stored logins.
      */
-    removeLogin : function (login) {
-        this.log("Removing login: " + login);
-        return this._kf.removeLogin(login);
+    removeLogin : function (uniqueID) {
+        this.log("Removing login: " + uniqueID);
+        return this._kf.removeLogin(uniqueID);
+    },
+    
+    /*
+     * removeGroup
+     *
+     * Remove the specified group and its contents from the KeePass DB.
+     */
+    removeGroup : function (uniqueID) {
+        this.log("Removing group: " + uniqueID);
+        return this._kf.removeGroup(uniqueID);
     },
 
 
@@ -789,6 +835,11 @@ KFILM.prototype = {
             //}
         } // foreach form
 
+    },
+    
+    loadAndAutoSubmit : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
+        //TODO: implement this
+        this.log("loadAndAutoSubmit");
     },
     
     // TODO: how do we know which login the user wants filled in? could use form id or username input id but what if

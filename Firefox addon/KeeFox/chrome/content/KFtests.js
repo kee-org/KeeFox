@@ -108,6 +108,22 @@ KFtests.prototype = {
 
         if (kfLoginInfo == null) { this.log("Could not construct kfILoginInfo. KeeFox may need to be re-installed."); throw "noLoginInfo"; }
 
+        this.log("Constructing kfIGroupInfo interface");
+
+        var kfIGroupInfo = new Components.Constructor(
+                      "@christomlinson.name/kfGroupInfo;1",
+                      Components.interfaces.kfIGroupInfo);
+
+        if (kfIGroupInfo == null) { this.log("Could not construct kfIGroupInfo. KeeFox may need to be re-installed."); throw "noGroupInfo"; }
+
+        this.log("Preparing test groups");
+
+       // var testgroup1 = {};// = new kfGroupInfo;
+        //testgroup1.init("Test Group", null);
+        var testgroup1 = this._kfilm.addGroup("Test Group", null);
+//alert("test");
+//alert(testgroup1.uniqueID);
+//return;
         this.log("Preparing test users");
 
         var testuser1 = new kfLoginInfo;
@@ -161,22 +177,22 @@ KFtests.prototype = {
         var logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 0), "Using empty database - good", "KeePass is not loaded with an empty database. Please fix this before re-running the tests", true);
 
-        this._kfilm.addLogin(testuser1);
+        var testuser1login = this._kfilm.addLogin(testuser1, testgroup1.uniqueID);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 1), "1st test login added successfully", "1st test login couldn't be added to KeePass", true);
-        this._kfilm.addLogin(testuser2);
+        this._kfilm.addLogin(testuser2, testgroup1.uniqueID);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 2), "2nd test login added successfully", "2nd test login couldn't be added to KeePass", true);
-        this._kfilm.addLogin(testuser3);
+        this._kfilm.addLogin(testuser3, testgroup1.uniqueID);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 3), "3rd test login added successfully", "3rd test login couldn't be added to KeePass", true);
-        this._kfilm.addLogin(testuser4);
+        this._kfilm.addLogin(testuser4, null);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 4), "4th test login added successfully", "4th test login couldn't be added to KeePass", true);
-        this._kfilm.addLogin(testuser5);
+        this._kfilm.addLogin(testuser5, null);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 5), "5th test login added successfully", "5th test login couldn't be added to KeePass", true);
-        this._kfilm.addLogin(testuser6);
+        this._kfilm.addLogin(testuser6, null);
         logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 6), "6th test login added successfully", "6th test login couldn't be added to KeePass", true);
 
@@ -209,6 +225,62 @@ KFtests.prototype = {
 
         countResult = this._kfilm.countLogins("http://dummyhost.mozilla.org", null, "Test REALM3");
         this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: http://dummyhost.mozilla.org + no forms + Test REALM3 = " + countResult + ". Should be 1", false);
+
+
+var rootGroup = this._kfilm.getRootGroup();
+this._KeeFoxAssert((rootGroup.uniqueID != null), "root group found.", "root group could not be found.", false);
+
+//TODO: find the uniqueID of user 1! make addLogin return new login object?
+
+alert(testuser1login.uniqueID);
+alert(rootGroup.uniqueID);
+
+var parentTest = this._kfilm.getParentGroup(testuser1login.uniqueID);
+this._KeeFoxAssert((parentTest.uniqueID == testgroup1.uniqueID), "testuser1 parent group is correct.", "testuser1 parent group is wrong", false);
+
+parentTest = this._kfilm.getParentGroup(testgroup1.uniqueID);
+this._KeeFoxAssert((parentTest.uniqueID == rootGroup.uniqueID), "testgroup1 parent group is correct.", "testgroup1 parent group is wrong", false);
+
+
+var foundGroups = this._kfilm.getChildGroups({}, rootGroup.uniqueID);
+this._KeeFoxAssert((foundGroups.length == 7), "root group has correct number of child groups", "Number of groups directly under root group is wrong. It is " + foundGroups.length + " but should be 7.", false);
+
+foundGroups = this._kfilm.getChildGroups({}, testgroup1.uniqueID);
+this._KeeFoxAssert((foundGroups.length == 0), "testgroup1 has correct number of child groups", "Number of groups directly under testgroup1 is wrong. It is " + foundGroups.length + " but should be 0.", false);
+
+var foundLogins = this._kfilm.getChildEntries({}, rootGroup.uniqueID);
+this._KeeFoxAssert((foundLogins.length == 3), "root group has correct number of child entries", "Number of entries directly under root group is wrong. It is " + foundLogins.length + " but should be 3.", false);
+
+foundLogins = this._kfilm.getChildEntries({}, testgroup1.uniqueID);
+this._KeeFoxAssert((foundLogins.length == 3), "testgroup1 has correct number of child entries", "Number of entries directly under testgroup1 is wrong. It is " + foundLogins.length + " but should be 3.", false);
+
+this._kfilm.removeLogin(testuser1login.uniqueID);
+countResult = this._kfilm.countLogins("https://oyster.tfl.gov.uk", "", null);
+        this._KeeFoxAssert((countResult == 1), "Login count correct.", "Login count failed: https://oyster.tfl.gov.uk after testuser1 deleted = " + countResult + ". Should be 1", false);
+
+this._kfilm.removeGroup(testgroup1.uniqueID);
+
+logins = this._kfilm.getAllLogins({});
+        this._KeeFoxAssert((logins.length == 3), "Group deleted OK", "Something went wrong with the removal of testgroup1. Found " + logins.length + " logins but expected 3.", true);
+        
+/*
+TODO:
+commit current code with brief list of new stuff
+(friday)
+
+Refresh KeeFox Logins view and matched logins view after KeePass dialog boxes close (return true from KeePass = something has changed OR preferably just get event raised and then handled via usual ICE callback)
+callback 11,11,6,12 after keepass close instruction causes deadlock in ICE so both apps freeze. maybe only after group edit view had been opened?
+implement loadAndAutoSubmit line 800 ish KFILM
+make live.com work (need to to hook onto "DOM changed" event and examine forms then? if works, then in future need way to limit demand on CPU from constantly checking for forms. maybe max one check per 2 seconds?)
+populate options menu with all possible checkboxes and text boxes for locations, etc.
+(next friday)
+
+task tracker, etc.
+(next next friday)
+
+maybe: allow "save password" to ask which folder
+
+	*/	
 
 
         if (this._KeeFoxTestErrorOccurred)

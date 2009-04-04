@@ -52,23 +52,6 @@ using namespace KeeICE::KFlib;
 #define KEEFOX_CLASSNAME "KeeFox"
 #define KEEFOX_CID { 0x245626, 0x5cc1, 0x11db, { 0x96, 0x73, 0x0, 0xe0, 0x81, 0x61, 0x16, 0x5f } }
 
-/*
-class kfLoginInfo : public kfILoginInfo
-{
-public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_KFILOGININFO
-  NS_DECL_NSILOGININFO
-  kfLoginInfo();
-
-private:
-  ~kfLoginInfo();
-
-protected:
-  /* additional members */
-//};
-//*/
-
 class KeeFoxCallBackHelper {
 public:
 
@@ -103,29 +86,14 @@ private:
 	void DeleteLocationFromCache(string url);
 	KeeICE::KFlib::KPEntry ConvertLoginInfoToKPEntry (kfILoginInfo *aLogin);
 	nsCOMPtr<kfILoginInfo> ConvertKPEntryToLoginInfo (KeeICE::KFlib::KPEntry aLogin);
+	KeeICE::KFlib::KPGroup ConvertGroupInfoToKPGroup (kfIGroupInfo *aGroup);
+	nsCOMPtr<kfIGroupInfo> ConvertKPGroupToGroupInfo (KeeICE::KFlib::KPGroup group);
 
 protected:
 	/* additional members */
 	nsString mName;
 	KeeICEProxy KeeICE;
 };
-
-
-/*
-class KeePassEntry
-{
-public:
-	KeePassEntry(int array_size);
-	~KeePassEntry();
-	void ChangeSize(int array_size);
-	KeePassInternetField getKPIF(int index);
-
-private:
-	KeePassInternetField *keePassInternetFields;
-	int size;
-};
-
-*/
 
 
 #endif

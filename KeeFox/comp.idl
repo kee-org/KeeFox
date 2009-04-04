@@ -145,6 +145,17 @@ interface kfILoginInfo : nsISupports {
 
 
 
+[scriptable, function, uuid(21e05ab1-d964-476f-ba73-c318c51a118e)]
+interface kfIGroupInfo : nsISupports {
+
+	attribute AString title;
+	attribute AString uniqueID;
+
+    void init(in AString title, in AString uniqueID);
+};
+
+
+
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa872)]
 interface KeeFoxObserver : nsISupports {
   void callBackToKeeFoxJS(in long word);
@@ -155,7 +166,7 @@ interface IKeeFox : nsISupports
 {
 	boolean checkVersion(in float keeFoxVersion, in float keeICEVersion, out long result); 
 	void addObserver(in KeeFoxObserver observer);
-  long add(in long a, in long b);
+
   AString getDBName();
   AString getDBFileName();
   void ChangeDB(in AString fileName, in boolean closeCurrent);
@@ -171,24 +182,19 @@ interface IKeeFox : nsISupports
      *
      * @param aLogin
      *        The login to be added.
+	 * @param parentUUID
+     *        The unique id of the parent group of this new login (if null, root group will be used).
      */
-    void addLogin(in kfILoginInfo aLogin, in AString parentUUID);
-
-
-    /**
-     * Remove a login from the login manager.
-     *
-     * @param aLogin
-     *        The login to be removed.
-     */
-    void removeLogin(in kfILoginInfo aLogin);
+    void addLogin(in kfILoginInfo aLogin, in AString parentUUID, [retval] out kfILoginInfo newLogin);
 
 
     /**
      * Modify an existing login in the login manager.
      *
-     * @param aLogin
+     * @param oldLogin
      *        The login to be modified.
+	 * @param newLogin
+     *        The new login data.
      */
     void modifyLogin(in kfILoginInfo oldLogin, in kfILoginInfo newLogin);
   
@@ -266,7 +272,29 @@ interface IKeeFox : nsISupports
                              in AString aHttpRealm);
   //CountLogins(nsAString const &aHostname, nsAString const &aActionURL,
 	//nsAString const &aHttpRealm, unsigned int *_retval);
+
+
+   void findGroups(out unsigned long count, in AString name,	in AString aUniqueID,
+                    [retval, array, size_is(count)] out kfIGroupInfo groups);
   
+   // create a new group and return it in the newGroup parameter
+    void addGroup(in AString name, in AString parentUUID, [retval] out kfIGroupInfo newGroup);
+
+    boolean deleteLogin(in AString uniqueID);
+	boolean deleteGroup(in AString uniqueID);
+
+	void getParentGroup(in AString uniqueID, [retval] out kfIGroupInfo parentGroup);
+	void getChildGroups(out unsigned long count, in AString uniqueID,
+		[retval, array, size_is(count)] out kfIGroupInfo groups);
+	void getChildEntries(out unsigned long count, in AString uniqueID,
+		[retval, array, size_is(count)] out kfILoginInfo logins);
+
+	void getRootGroup([retval] out kfIGroupInfo rootGroup);
+
+	void launchLoginEditor(in AString uniqueID);
+	void launchGroupEditor(in AString uniqueID);
+
+
 };
 
 //interface IKeeFox : nsILoginManagerStorage

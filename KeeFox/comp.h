@@ -509,6 +509,119 @@ NS_IMETHODIMP kfLoginInfo::InitCustom(const nsAString & aHostname, const nsAStri
 #endif
 
 
+/* starting interface:    kfIGroupInfo */
+#define KFIGROUPINFO_IID_STR "21e05ab1-d964-476f-ba73-c318c51a118e"
+
+#define KFIGROUPINFO_IID \
+  {0x21e05ab1, 0xd964, 0x476f, \
+    { 0xba, 0x73, 0xc3, 0x18, 0xc5, 0x1a, 0x11, 0x8e }}
+
+class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
+ public: 
+
+  NS_DECLARE_STATIC_IID_ACCESSOR(KFIGROUPINFO_IID)
+
+  /* attribute AString title; */
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) = 0;
+
+  /* attribute AString uniqueID; */
+  NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) = 0;
+
+  /* void init (in AString title, in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) = 0;
+
+};
+
+  NS_DEFINE_STATIC_IID_ACCESSOR(kfIGroupInfo, KFIGROUPINFO_IID)
+
+/* Use this macro when declaring classes that implement this interface. */
+#define NS_DECL_KFIGROUPINFO \
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle); \
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle); \
+  NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID); 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object. */
+#define NS_FORWARD_KFIGROUPINFO(_to) \
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return _to GetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return _to SetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return _to GetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return _to SetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) { return _to Init(title, uniqueID); } 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
+#define NS_FORWARD_SAFE_KFIGROUPINFO(_to) \
+  NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(title, uniqueID); } 
+
+#if 0
+/* Use the code below as a template for the implementation class for this interface. */
+
+/* Header file */
+class kfGroupInfo : public kfIGroupInfo
+{
+public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_KFIGROUPINFO
+
+  kfGroupInfo();
+
+private:
+  ~kfGroupInfo();
+
+protected:
+  /* additional members */
+};
+
+/* Implementation file */
+NS_IMPL_ISUPPORTS1(kfGroupInfo, kfIGroupInfo)
+
+kfGroupInfo::kfGroupInfo()
+{
+  /* member initializers and constructor code */
+}
+
+kfGroupInfo::~kfGroupInfo()
+{
+  /* destructor code */
+}
+
+/* attribute AString title; */
+NS_IMETHODIMP kfGroupInfo::GetTitle(nsAString & aTitle)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfGroupInfo::SetTitle(const nsAString & aTitle)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString uniqueID; */
+NS_IMETHODIMP kfGroupInfo::GetUniqueID(nsAString & aUniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfGroupInfo::SetUniqueID(const nsAString & aUniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void init (in AString title, in AString uniqueID); */
+NS_IMETHODIMP kfGroupInfo::Init(const nsAString & title, const nsAString & uniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* End of implementation class template. */
+#endif
+
+
 /* starting interface:    KeeFoxObserver */
 #define KEEFOXOBSERVER_IID_STR "7ed5ba34-1375-4887-86fd-0682ddfaa872"
 
@@ -600,9 +713,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   /* void addObserver (in KeeFoxObserver observer); */
   NS_SCRIPTABLE NS_IMETHOD AddObserver(KeeFoxObserver *observer) = 0;
 
-  /* long add (in long a, in long b); */
-  NS_SCRIPTABLE NS_IMETHOD Add(PRInt32 a, PRInt32 b, PRInt32 *_retval) = 0;
-
   /* AString getDBName (); */
   NS_SCRIPTABLE NS_IMETHOD GetDBName(nsAString & _retval) = 0;
 
@@ -633,24 +743,19 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
      *
      * @param aLogin
      *        The login to be added.
+	 * @param parentUUID
+     *        The unique id of the parent group of this new login (if null, root group will be used).
      */
-  /* void addLogin (in kfILoginInfo aLogin, in AString parentUUID); */
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID) = 0;
-
-  /**
-     * Remove a login from the login manager.
-     *
-     * @param aLogin
-     *        The login to be removed.
-     */
-  /* void removeLogin (in kfILoginInfo aLogin); */
-  NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) = 0;
+  /* void addLogin (in kfILoginInfo aLogin, in AString parentUUID, [retval] out kfILoginInfo newLogin); */
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID, kfILoginInfo **newLogin) = 0;
 
   /**
      * Modify an existing login in the login manager.
      *
-     * @param aLogin
+     * @param oldLogin
      *        The login to be modified.
+	 * @param newLogin
+     *        The new login data.
      */
   /* void modifyLogin (in kfILoginInfo oldLogin, in kfILoginInfo newLogin); */
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) = 0;
@@ -725,6 +830,36 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   /* unsigned long countLogins (in AString aHostname, in AString aActionURL, in AString aHttpRealm); */
   NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval) = 0;
 
+  /* void findGroups (out unsigned long count, in AString name, in AString aUniqueID, [array, size_is (count), retval] out kfIGroupInfo groups); */
+  NS_SCRIPTABLE NS_IMETHOD FindGroups(PRUint32 *count, const nsAString & name, const nsAString & aUniqueID, kfIGroupInfo ***groups) = 0;
+
+  /* void addGroup (in AString name, in AString parentUUID, [retval] out kfIGroupInfo newGroup); */
+  NS_SCRIPTABLE NS_IMETHOD AddGroup(const nsAString & name, const nsAString & parentUUID, kfIGroupInfo **newGroup) = 0;
+
+  /* boolean deleteLogin (in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD DeleteLogin(const nsAString & uniqueID, PRBool *_retval) = 0;
+
+  /* boolean deleteGroup (in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD DeleteGroup(const nsAString & uniqueID, PRBool *_retval) = 0;
+
+  /* void getParentGroup (in AString uniqueID, [retval] out kfIGroupInfo parentGroup); */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroup(const nsAString & uniqueID, kfIGroupInfo **parentGroup) = 0;
+
+  /* void getChildGroups (out unsigned long count, in AString uniqueID, [array, size_is (count), retval] out kfIGroupInfo groups); */
+  NS_SCRIPTABLE NS_IMETHOD GetChildGroups(PRUint32 *count, const nsAString & uniqueID, kfIGroupInfo ***groups) = 0;
+
+  /* void getChildEntries (out unsigned long count, in AString uniqueID, [array, size_is (count), retval] out kfILoginInfo logins); */
+  NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) = 0;
+
+  /* void getRootGroup ([retval] out kfIGroupInfo rootGroup); */
+  NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) = 0;
+
+  /* void launchLoginEditor (in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) = 0;
+
+  /* void launchGroupEditor (in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(IKeeFox, IKEEFOX_IID)
@@ -733,7 +868,6 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
 #define NS_DECL_IKEEFOX \
   NS_SCRIPTABLE NS_IMETHOD CheckVersion(float keeFoxVersion, float keeICEVersion, PRInt32 *result, PRBool *_retval); \
   NS_SCRIPTABLE NS_IMETHOD AddObserver(KeeFoxObserver *observer); \
-  NS_SCRIPTABLE NS_IMETHOD Add(PRInt32 a, PRInt32 b, PRInt32 *_retval); \
   NS_SCRIPTABLE NS_IMETHOD GetDBName(nsAString & _retval); \
   NS_SCRIPTABLE NS_IMETHOD GetDBFileName(nsAString & _retval); \
   NS_SCRIPTABLE NS_IMETHOD ChangeDB(const nsAString & fileName, PRBool closeCurrent); \
@@ -743,18 +877,26 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile); \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void); \
   NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval); \
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID); \
-  NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin); \
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID, kfILoginInfo **newLogin); \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin); \
   NS_SCRIPTABLE NS_IMETHOD GetAllLogins(PRUint32 *count, kfILoginInfo ***logins); \
   NS_SCRIPTABLE NS_IMETHOD FindLogins(PRUint32 *count, const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, const nsAString & aUniqueID, kfILoginInfo ***logins); \
-  NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval); 
+  NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD FindGroups(PRUint32 *count, const nsAString & name, const nsAString & aUniqueID, kfIGroupInfo ***groups); \
+  NS_SCRIPTABLE NS_IMETHOD AddGroup(const nsAString & name, const nsAString & parentUUID, kfIGroupInfo **newGroup); \
+  NS_SCRIPTABLE NS_IMETHOD DeleteLogin(const nsAString & uniqueID, PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD DeleteGroup(const nsAString & uniqueID, PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroup(const nsAString & uniqueID, kfIGroupInfo **parentGroup); \
+  NS_SCRIPTABLE NS_IMETHOD GetChildGroups(PRUint32 *count, const nsAString & uniqueID, kfIGroupInfo ***groups); \
+  NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins); \
+  NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup); \
+  NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_IKEEFOX(_to) \
   NS_SCRIPTABLE NS_IMETHOD CheckVersion(float keeFoxVersion, float keeICEVersion, PRInt32 *result, PRBool *_retval) { return _to CheckVersion(keeFoxVersion, keeICEVersion, result, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD AddObserver(KeeFoxObserver *observer) { return _to AddObserver(observer); } \
-  NS_SCRIPTABLE NS_IMETHOD Add(PRInt32 a, PRInt32 b, PRInt32 *_retval) { return _to Add(a, b, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetDBName(nsAString & _retval) { return _to GetDBName(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetDBFileName(nsAString & _retval) { return _to GetDBFileName(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD ChangeDB(const nsAString & fileName, PRBool closeCurrent) { return _to ChangeDB(fileName, closeCurrent); } \
@@ -764,18 +906,26 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return _to LaunchKeePass(fileName, DBFile); } \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return _to ShutdownICE(); } \
   NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) { return _to IsUserAdministrator(_retval); } \
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID) { return _to AddLogin(aLogin, parentUUID); } \
-  NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return _to RemoveLogin(aLogin); } \
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID, kfILoginInfo **newLogin) { return _to AddLogin(aLogin, parentUUID, newLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return _to ModifyLogin(oldLogin, newLogin); } \
   NS_SCRIPTABLE NS_IMETHOD GetAllLogins(PRUint32 *count, kfILoginInfo ***logins) { return _to GetAllLogins(count, logins); } \
   NS_SCRIPTABLE NS_IMETHOD FindLogins(PRUint32 *count, const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, const nsAString & aUniqueID, kfILoginInfo ***logins) { return _to FindLogins(count, aHostname, aActionURL, aHttpRealm, aUniqueID, logins); } \
-  NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval) { return _to CountLogins(aHostname, aActionURL, aHttpRealm, _retval); } 
+  NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval) { return _to CountLogins(aHostname, aActionURL, aHttpRealm, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD FindGroups(PRUint32 *count, const nsAString & name, const nsAString & aUniqueID, kfIGroupInfo ***groups) { return _to FindGroups(count, name, aUniqueID, groups); } \
+  NS_SCRIPTABLE NS_IMETHOD AddGroup(const nsAString & name, const nsAString & parentUUID, kfIGroupInfo **newGroup) { return _to AddGroup(name, parentUUID, newGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD DeleteLogin(const nsAString & uniqueID, PRBool *_retval) { return _to DeleteLogin(uniqueID, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD DeleteGroup(const nsAString & uniqueID, PRBool *_retval) { return _to DeleteGroup(uniqueID, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroup(const nsAString & uniqueID, kfIGroupInfo **parentGroup) { return _to GetParentGroup(uniqueID, parentGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD GetChildGroups(PRUint32 *count, const nsAString & uniqueID, kfIGroupInfo ***groups) { return _to GetChildGroups(count, uniqueID, groups); } \
+  NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) { return _to GetChildEntries(count, uniqueID, logins); } \
+  NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) { return _to GetRootGroup(rootGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) { return _to LaunchLoginEditor(uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return _to LaunchGroupEditor(uniqueID); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_IKEEFOX(_to) \
   NS_SCRIPTABLE NS_IMETHOD CheckVersion(float keeFoxVersion, float keeICEVersion, PRInt32 *result, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->CheckVersion(keeFoxVersion, keeICEVersion, result, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD AddObserver(KeeFoxObserver *observer) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddObserver(observer); } \
-  NS_SCRIPTABLE NS_IMETHOD Add(PRInt32 a, PRInt32 b, PRInt32 *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Add(a, b, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetDBName(nsAString & _retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDBName(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD GetDBFileName(nsAString & _retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDBFileName(_retval); } \
   NS_SCRIPTABLE NS_IMETHOD ChangeDB(const nsAString & fileName, PRBool closeCurrent) { return !_to ? NS_ERROR_NULL_POINTER : _to->ChangeDB(fileName, closeCurrent); } \
@@ -785,12 +935,21 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD LaunchKeePass(const nsAString & fileName, const nsAString & DBFile) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchKeePass(fileName, DBFile); } \
   NS_SCRIPTABLE NS_IMETHOD ShutdownICE(void) { return !_to ? NS_ERROR_NULL_POINTER : _to->ShutdownICE(); } \
   NS_SCRIPTABLE NS_IMETHOD IsUserAdministrator(PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->IsUserAdministrator(_retval); } \
-  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddLogin(aLogin, parentUUID); } \
-  NS_SCRIPTABLE NS_IMETHOD RemoveLogin(kfILoginInfo *aLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->RemoveLogin(aLogin); } \
+  NS_SCRIPTABLE NS_IMETHOD AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID, kfILoginInfo **newLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddLogin(aLogin, parentUUID, newLogin); } \
   NS_SCRIPTABLE NS_IMETHOD ModifyLogin(kfILoginInfo *oldLogin, kfILoginInfo *newLogin) { return !_to ? NS_ERROR_NULL_POINTER : _to->ModifyLogin(oldLogin, newLogin); } \
   NS_SCRIPTABLE NS_IMETHOD GetAllLogins(PRUint32 *count, kfILoginInfo ***logins) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAllLogins(count, logins); } \
   NS_SCRIPTABLE NS_IMETHOD FindLogins(PRUint32 *count, const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, const nsAString & aUniqueID, kfILoginInfo ***logins) { return !_to ? NS_ERROR_NULL_POINTER : _to->FindLogins(count, aHostname, aActionURL, aHttpRealm, aUniqueID, logins); } \
-  NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->CountLogins(aHostname, aActionURL, aHttpRealm, _retval); } 
+  NS_SCRIPTABLE NS_IMETHOD CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->CountLogins(aHostname, aActionURL, aHttpRealm, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD FindGroups(PRUint32 *count, const nsAString & name, const nsAString & aUniqueID, kfIGroupInfo ***groups) { return !_to ? NS_ERROR_NULL_POINTER : _to->FindGroups(count, name, aUniqueID, groups); } \
+  NS_SCRIPTABLE NS_IMETHOD AddGroup(const nsAString & name, const nsAString & parentUUID, kfIGroupInfo **newGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->AddGroup(name, parentUUID, newGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD DeleteLogin(const nsAString & uniqueID, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->DeleteLogin(uniqueID, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD DeleteGroup(const nsAString & uniqueID, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->DeleteGroup(uniqueID, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroup(const nsAString & uniqueID, kfIGroupInfo **parentGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroup(uniqueID, parentGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD GetChildGroups(PRUint32 *count, const nsAString & uniqueID, kfIGroupInfo ***groups) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetChildGroups(count, uniqueID, groups); } \
+  NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetChildEntries(count, uniqueID, logins); } \
+  NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRootGroup(rootGroup); } \
+  NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchLoginEditor(uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchGroupEditor(uniqueID); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -832,12 +991,6 @@ NS_IMETHODIMP _MYCLASS_::CheckVersion(float keeFoxVersion, float keeICEVersion, 
 
 /* void addObserver (in KeeFoxObserver observer); */
 NS_IMETHODIMP _MYCLASS_::AddObserver(KeeFoxObserver *observer)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* long add (in long a, in long b); */
-NS_IMETHODIMP _MYCLASS_::Add(PRInt32 a, PRInt32 b, PRInt32 *_retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -894,14 +1047,8 @@ NS_IMETHODIMP _MYCLASS_::IsUserAdministrator(PRBool *_retval)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void addLogin (in kfILoginInfo aLogin, in AString parentUUID); */
-NS_IMETHODIMP _MYCLASS_::AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* void removeLogin (in kfILoginInfo aLogin); */
-NS_IMETHODIMP _MYCLASS_::RemoveLogin(kfILoginInfo *aLogin)
+/* void addLogin (in kfILoginInfo aLogin, in AString parentUUID, [retval] out kfILoginInfo newLogin); */
+NS_IMETHODIMP _MYCLASS_::AddLogin(kfILoginInfo *aLogin, const nsAString & parentUUID, kfILoginInfo **newLogin)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -926,6 +1073,66 @@ NS_IMETHODIMP _MYCLASS_::FindLogins(PRUint32 *count, const nsAString & aHostname
 
 /* unsigned long countLogins (in AString aHostname, in AString aActionURL, in AString aHttpRealm); */
 NS_IMETHODIMP _MYCLASS_::CountLogins(const nsAString & aHostname, const nsAString & aActionURL, const nsAString & aHttpRealm, PRUint32 *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void findGroups (out unsigned long count, in AString name, in AString aUniqueID, [array, size_is (count), retval] out kfIGroupInfo groups); */
+NS_IMETHODIMP _MYCLASS_::FindGroups(PRUint32 *count, const nsAString & name, const nsAString & aUniqueID, kfIGroupInfo ***groups)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void addGroup (in AString name, in AString parentUUID, [retval] out kfIGroupInfo newGroup); */
+NS_IMETHODIMP _MYCLASS_::AddGroup(const nsAString & name, const nsAString & parentUUID, kfIGroupInfo **newGroup)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean deleteLogin (in AString uniqueID); */
+NS_IMETHODIMP _MYCLASS_::DeleteLogin(const nsAString & uniqueID, PRBool *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean deleteGroup (in AString uniqueID); */
+NS_IMETHODIMP _MYCLASS_::DeleteGroup(const nsAString & uniqueID, PRBool *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void getParentGroup (in AString uniqueID, [retval] out kfIGroupInfo parentGroup); */
+NS_IMETHODIMP _MYCLASS_::GetParentGroup(const nsAString & uniqueID, kfIGroupInfo **parentGroup)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void getChildGroups (out unsigned long count, in AString uniqueID, [array, size_is (count), retval] out kfIGroupInfo groups); */
+NS_IMETHODIMP _MYCLASS_::GetChildGroups(PRUint32 *count, const nsAString & uniqueID, kfIGroupInfo ***groups)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void getChildEntries (out unsigned long count, in AString uniqueID, [array, size_is (count), retval] out kfILoginInfo logins); */
+NS_IMETHODIMP _MYCLASS_::GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void getRootGroup ([retval] out kfIGroupInfo rootGroup); */
+NS_IMETHODIMP _MYCLASS_::GetRootGroup(kfIGroupInfo **rootGroup)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void launchLoginEditor (in AString uniqueID); */
+NS_IMETHODIMP _MYCLASS_::LaunchLoginEditor(const nsAString & uniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void launchGroupEditor (in AString uniqueID); */
+NS_IMETHODIMP _MYCLASS_::LaunchGroupEditor(const nsAString & uniqueID)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

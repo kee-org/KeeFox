@@ -150,6 +150,203 @@ this.log("setLogins");
         container.appendChild(menupopup);
 this.log("test2:"+container.getAttribute("oncommand"));
     },
+    
+    setAllLogins: function() {
+        this.log("setAllLogins");
+        
+        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+        {
+            var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
+            
+            this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
+        } else
+        {
+            // get the popup menu for this list of logins and subgroups
+            var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
+
+            // Remove all of the existing buttons
+            for (i = container.childNodes.length; i > 0; i--) {
+                container.removeChild(container.childNodes[0]);
+            }
+        }
+        
+       /*
+        var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, rootGroup.uniqueID);
+        var foundLogins = this._currentWindow.keeFoxILM.getChildEntries({}, rootGroup.uniqueID);
+
+        if (logins == null || logins.length == 0)
+        {
+            this.setupButton_ready(null,this._currentWindow);
+            return;
+        }
+       
+        container.setAttribute("class", "login-found");
+        container.setAttribute("type", "menu-button");
+        container.setAttribute("disabled", "false");
+                
+        menupopup = this._currentWindow.document.createElement("menupopup");
+
+        this.log("setting " + logins.length + " toolbar logins");
+
+        for (var i = 0; i < logins.length; i++) {
+            var login = logins[i];
+            
+            var userNameID = null;
+            var passwordID = null;
+            var custFields = login.customFields;
+            //this.log(custFields);
+            if (custFields != undefined)
+            {
+                this.log("found some custom fields");
+                var enumerator = custFields.enumerate();
+                var s = "";
+                while (enumerator.hasMoreElements())
+                {
+                  var customField = enumerator.getNext().QueryInterface(Components.interfaces.kfILoginField);
+                  
+                  // for now we're only using custom fields to increase form selection accuracy
+                  if (customField.name == 'Form field special_form_username_ID value')
+                    userNameID = customField.value;
+                   else if (customField.name == 'Form field special_form_password_ID value')
+                    passwordID = customField.value;
+                }
+                //this.log(s);
+            }
+            
+            if (i==0)
+            {
+                container.setAttribute("label", login.title);
+                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
+                container.setAttribute("oncommand", "keeFoxILM.fill('" +
+                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+            
+            }
+
+
+            var tempButton = null;
+            tempButton = this._currentWindow.document.createElement("menuitem");
+            tempButton.setAttribute("label", login.title);
+            tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
+            tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
+                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
+            menupopup.appendChild(tempButton);
+
+
+        }
+        
+        container.appendChild(menupopup);
+this.log("test2:"+container.getAttribute("oncommand"));
+*/
+    },
+    
+    setOneLoginsMenu: function(containerID, groupUniqueID) {
+        this.log("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
+
+        // get the popup menu for this list of logins and subgroups
+        var container = this._currentWindow.document.getElementById(containerID);
+
+        // Remove all of the existing buttons
+        for (i = container.childNodes.length; i > 0; i--) {
+            container.removeChild(container.childNodes[0]);
+        }
+        
+        var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, groupUniqueID);
+        var foundLogins = this._currentWindow.keeFoxILM.getChildEntries({}, groupUniqueID);
+
+        if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0))
+        {
+            var noItemsButton = null;
+            noItemsButton = this._currentWindow.document.createElement("menuitem");
+            noItemsButton.setAttribute("label", keeFoxInst.strbundle.getString("loginsButtonEmpty.label"));
+            noItemsButton.setAttribute("disabled", "true");
+            noItemsButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonEmpty.tip"));
+            container.appendChild(noItemsButton);
+            return;
+        }
+       /*
+        container.setAttribute("class", "login-found");
+        container.setAttribute("type", "menu-button");
+        container.setAttribute("disabled", "false");
+                
+        menupopup = this._currentWindow.document.createElement("menupopup");
+
+        this.log("setting " + logins.length + " toolbar logins");
+*/
+        for (var i = 0; i < foundGroups.length; i++) {
+            var group = foundGroups[i];
+            
+            /*
+            
+            if (i==0)
+            {
+                container.setAttribute("label", login.title);
+                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
+                container.setAttribute("oncommand", "keeFoxILM.fill('" +
+                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+            
+            }
+*/
+
+            // maybe this duplicated oncommand, etc. is un-needed?
+            var newMenu = null;
+            newMenu = this._currentWindow.document.createElement("menu");
+            newMenu.setAttribute("label", group.title);
+            newMenu.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonGroup.tip"));
+            newMenu.setAttribute("onpopupshowing", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
+                group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
+            newMenu.setAttribute("class", "menuitem-iconic");
+            newMenu.setAttribute("value", group.uniqueID);
+            newMenu.setAttribute("context", "KeeFox-group-context");
+            newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            container.appendChild(newMenu);
+            
+            var newMenuPopup = null;
+            newMenuPopup = this._currentWindow.document.createElement("menupopup");
+            newMenuPopup.setAttribute("id", "KeeFox_Group-" + group.uniqueID);
+            //newMenuPopup.setAttribute("label", group.title);
+            //newMenuPopup.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonGroup.tip"));
+            //newMenuPopup.setAttribute("oncommand", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
+            //    group.uniqueID + "','" + group.uniqueID + "');");
+            newMenu.appendChild(newMenuPopup);
+
+
+        }
+        
+        for (var i = 0; i < foundLogins.length; i++) {
+            var login = foundLogins[i];
+            
+            /*
+            
+            if (i==0)
+            {
+                container.setAttribute("label", login.title);
+                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
+                container.setAttribute("oncommand", "keeFoxILM.fill('" +
+                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+            
+            }
+*/
+
+            var tempButton = null;
+            tempButton = this._currentWindow.document.createElement("menuitem");
+            tempButton.setAttribute("label", login.title);
+            tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonLogin.tip"));
+            tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
+                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+            tempButton.setAttribute("class", "menuitem-iconic");
+            tempButton.setAttribute("value", login.uniqueID);
+            tempButton.setAttribute("context", "KeeFox-login-context");
+            tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+
+            container.appendChild(tempButton);
+
+
+        }
+        
+    },
 
     setupButton_installListener: {
         _KFToolBar: null,

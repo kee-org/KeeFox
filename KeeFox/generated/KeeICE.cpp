@@ -51,6 +51,8 @@ static const ::std::string __KeeICE__KFlib__KP__addClient_name = "addClient";
 
 static const ::std::string __KeeICE__KFlib__KP__findGroups_name = "findGroups";
 
+static const ::std::string __KeeICE__KFlib__KP__getRoot_name = "getRoot";
+
 static const ::std::string __KeeICE__KFlib__KP__getParent_name = "getParent";
 
 static const ::std::string __KeeICE__KFlib__KP__getChildGroups_name = "getChildGroups";
@@ -62,6 +64,10 @@ static const ::std::string __KeeICE__KFlib__KP__addGroup_name = "addGroup";
 static const ::std::string __KeeICE__KFlib__KP__removeGroup_name = "removeGroup";
 
 static const ::std::string __KeeICE__KFlib__KP__removeEntry_name = "removeEntry";
+
+static const ::std::string __KeeICE__KFlib__KP__LaunchGroupEditor_name = "LaunchGroupEditor";
+
+static const ::std::string __KeeICE__KFlib__KP__LaunchLoginEditor_name = "LaunchLoginEditor";
 
 static const ::std::string __KeeICE__KFlib__CallbackReceiver__callback_name = "callback";
 
@@ -907,7 +913,7 @@ IceProxy::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool 
     }
 }
 
-void
+::KeeICE::KFlib::KPEntry
 IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
@@ -919,8 +925,7 @@ IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, con
             __checkTwowayOnly(__KeeICE__KFlib__KP__AddLogin_name);
             __delBase = __getDelegate(false);
             ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
-            __del->AddLogin(login, parentUUID, __ctx);
-            return;
+            return __del->AddLogin(login, parentUUID, __ctx);
         }
         catch(const ::IceInternal::LocalExceptionWrapper& __ex)
         {
@@ -1085,6 +1090,31 @@ IceProxy::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::std::
 }
 
 ::KeeICE::KFlib::KPGroup
+IceProxy::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;
+        try
+        {
+            __checkTwowayOnly(__KeeICE__KFlib__KP__getRoot_name);
+            __delBase = __getDelegate(false);
+            ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
+            return __del->getRoot(__ctx);
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__delBase, __ex, 0);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__delBase, __ex, 0, __cnt);
+        }
+    }
+}
+
+::KeeICE::KFlib::KPGroup
 IceProxy::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
@@ -1222,6 +1252,56 @@ IceProxy::KeeICE::KFlib::KP::removeEntry(const ::std::string& uuid, const ::Ice:
             __delBase = __getDelegate(false);
             ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
             return __del->removeEntry(uuid, __ctx);
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__delBase, __ex, 0);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__delBase, __ex, 0, __cnt);
+        }
+    }
+}
+
+void
+IceProxy::KeeICE::KFlib::KP::LaunchGroupEditor(const ::std::string& uuid, const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;
+        try
+        {
+            __delBase = __getDelegate(false);
+            ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
+            __del->LaunchGroupEditor(uuid, __ctx);
+            return;
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__delBase, __ex, 0);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__delBase, __ex, 0, __cnt);
+        }
+    }
+}
+
+void
+IceProxy::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;
+        try
+        {
+            __delBase = __getDelegate(false);
+            ::IceDelegate::KeeICE::KFlib::KP* __del = dynamic_cast< ::IceDelegate::KeeICE::KFlib::KP*>(__delBase.get());
+            __del->LaunchLoginEditor(uuid, __ctx);
+            return;
         }
         catch(const ::IceInternal::LocalExceptionWrapper& __ex)
         {
@@ -1454,7 +1534,7 @@ IceDelegateM::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, b
     }
 }
 
-void
+::KeeICE::KFlib::KPEntry
 IceDelegateM::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context* __context)
 {
     ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__AddLogin_name, ::Ice::Normal, __context);
@@ -1487,9 +1567,12 @@ IceDelegateM::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login,
                 throw __uue;
             }
         }
+        ::KeeICE::KFlib::KPEntry __ret;
         ::IceInternal::BasicStream* __is = __og.is();
         __is->startReadEncaps();
+        __ret.__read(__is);
         __is->endReadEncaps();
+        return __ret;
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1760,6 +1843,38 @@ IceDelegateM::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::s
 }
 
 ::KeeICE::KFlib::KPGroup
+IceDelegateM::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __context)
+{
+    ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__getRoot_name, ::Ice::Normal, __context);
+    bool __ok = __og.invoke();
+    try
+    {
+        if(!__ok)
+        {
+            try
+            {
+                __og.throwUserException();
+            }
+            catch(const ::Ice::UserException& __ex)
+            {
+                ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                throw __uue;
+            }
+        }
+        ::KeeICE::KFlib::KPGroup __ret;
+        ::IceInternal::BasicStream* __is = __og.is();
+        __is->startReadEncaps();
+        __ret.__read(__is);
+        __is->endReadEncaps();
+        return __ret;
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+    }
+}
+
+::KeeICE::KFlib::KPGroup
 IceDelegateM::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::Context* __context)
 {
     ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__getParent_name, ::Ice::Normal, __context);
@@ -2003,6 +2118,84 @@ IceDelegateM::KeeICE::KFlib::KP::removeEntry(const ::std::string& uuid, const ::
     catch(const ::Ice::LocalException& __ex)
     {
         throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+    }
+}
+
+void
+IceDelegateM::KeeICE::KFlib::KP::LaunchGroupEditor(const ::std::string& uuid, const ::Ice::Context* __context)
+{
+    ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__LaunchGroupEditor_name, ::Ice::Normal, __context);
+    try
+    {
+        ::IceInternal::BasicStream* __os = __og.os();
+        __os->write(uuid);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        __og.abort(__ex);
+    }
+    bool __ok = __og.invoke();
+    if(!__og.is()->b.empty())
+    {
+        try
+        {
+            if(!__ok)
+            {
+                try
+                {
+                    __og.throwUserException();
+                }
+                catch(const ::Ice::UserException& __ex)
+                {
+                    ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                    throw __uue;
+                }
+            }
+            __og.is()->skipEmptyEncaps();
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+        }
+    }
+}
+
+void
+IceDelegateM::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const ::Ice::Context* __context)
+{
+    ::IceInternal::Outgoing __og(__handler.get(), __KeeICE__KFlib__KP__LaunchLoginEditor_name, ::Ice::Normal, __context);
+    try
+    {
+        ::IceInternal::BasicStream* __os = __og.os();
+        __os->write(uuid);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        __og.abort(__ex);
+    }
+    bool __ok = __og.invoke();
+    if(!__og.is()->b.empty())
+    {
+        try
+        {
+            if(!__ok)
+            {
+                try
+                {
+                    __og.throwUserException();
+                }
+                catch(const ::Ice::UserException& __ex)
+                {
+                    ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                    throw __uue;
+                }
+            }
+            __og.is()->skipEmptyEncaps();
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+        }
     }
 }
 
@@ -2315,15 +2508,16 @@ IceDelegateD::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, b
     }
 }
 
-void
+::KeeICE::KFlib::KPEntry
 IceDelegateD::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context* __context)
 {
     class _DirectI : public ::IceInternal::Direct
     {
     public:
 
-        _DirectI(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Current& __current) : 
+        _DirectI(::KeeICE::KFlib::KPEntry& __result, const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Current& __current) : 
             ::IceInternal::Direct(__current),
+            _result(__result),
             _m_login(login),
             _m_parentUUID(parentUUID)
         {
@@ -2339,7 +2533,7 @@ IceDelegateD::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login,
             }
             try
             {
-                servant->AddLogin(_m_login, _m_parentUUID, _current);
+                _result = servant->AddLogin(_m_login, _m_parentUUID, _current);
                 return ::Ice::DispatchOK;
             }
             catch(const ::Ice::UserException& __ex)
@@ -2351,15 +2545,17 @@ IceDelegateD::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login,
         
     private:
         
+        ::KeeICE::KFlib::KPEntry& _result;
         const ::KeeICE::KFlib::KPEntry& _m_login;
         const ::std::string& _m_parentUUID;
     };
     
     ::Ice::Current __current;
     __initCurrent(__current, __KeeICE__KFlib__KP__AddLogin_name, ::Ice::Normal, __context);
+    ::KeeICE::KFlib::KPEntry __result;
     try
     {
-        _DirectI __direct(login, parentUUID, __current);
+        _DirectI __direct(__result, login, parentUUID, __current);
         try
         {
             __direct.servant()->__collocDispatch(__direct);
@@ -2391,6 +2587,7 @@ IceDelegateD::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login,
     {
         throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
     }
+    return __result;
 }
 
 void
@@ -2868,6 +3065,72 @@ IceDelegateD::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::s
 }
 
 ::KeeICE::KFlib::KPGroup
+IceDelegateD::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __context)
+{
+    class _DirectI : public ::IceInternal::Direct
+    {
+    public:
+
+        _DirectI(::KeeICE::KFlib::KPGroup& __result, const ::Ice::Current& __current) : 
+            ::IceInternal::Direct(__current),
+            _result(__result)
+        {
+        }
+        
+        virtual ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            ::KeeICE::KFlib::KP* servant = dynamic_cast< ::KeeICE::KFlib::KP*>(object);
+            if(!servant)
+            {
+                throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
+            }
+            _result = servant->getRoot(_current);
+            return ::Ice::DispatchOK;
+        }
+        
+    private:
+        
+        ::KeeICE::KFlib::KPGroup& _result;
+    };
+    
+    ::Ice::Current __current;
+    __initCurrent(__current, __KeeICE__KFlib__KP__getRoot_name, ::Ice::Normal, __context);
+    ::KeeICE::KFlib::KPGroup __result;
+    try
+    {
+        _DirectI __direct(__result, __current);
+        try
+        {
+            __direct.servant()->__collocDispatch(__direct);
+        }
+        catch(...)
+        {
+            __direct.destroy();
+            throw;
+        }
+        __direct.destroy();
+    }
+    catch(const ::Ice::SystemException&)
+    {
+        throw;
+    }
+    catch(const ::IceInternal::LocalExceptionWrapper&)
+    {
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        ::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
+    }
+    return __result;
+}
+
+::KeeICE::KFlib::KPGroup
 IceDelegateD::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::Context* __context)
 {
     class _DirectI : public ::IceInternal::Direct
@@ -3278,6 +3541,134 @@ IceDelegateD::KeeICE::KFlib::KP::removeEntry(const ::std::string& uuid, const ::
 }
 
 void
+IceDelegateD::KeeICE::KFlib::KP::LaunchGroupEditor(const ::std::string& uuid, const ::Ice::Context* __context)
+{
+    class _DirectI : public ::IceInternal::Direct
+    {
+    public:
+
+        _DirectI(const ::std::string& uuid, const ::Ice::Current& __current) : 
+            ::IceInternal::Direct(__current),
+            _m_uuid(uuid)
+        {
+        }
+        
+        virtual ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            ::KeeICE::KFlib::KP* servant = dynamic_cast< ::KeeICE::KFlib::KP*>(object);
+            if(!servant)
+            {
+                throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
+            }
+            servant->LaunchGroupEditor(_m_uuid, _current);
+            return ::Ice::DispatchOK;
+        }
+        
+    private:
+        
+        const ::std::string& _m_uuid;
+    };
+    
+    ::Ice::Current __current;
+    __initCurrent(__current, __KeeICE__KFlib__KP__LaunchGroupEditor_name, ::Ice::Normal, __context);
+    try
+    {
+        _DirectI __direct(uuid, __current);
+        try
+        {
+            __direct.servant()->__collocDispatch(__direct);
+        }
+        catch(...)
+        {
+            __direct.destroy();
+            throw;
+        }
+        __direct.destroy();
+    }
+    catch(const ::Ice::SystemException&)
+    {
+        throw;
+    }
+    catch(const ::IceInternal::LocalExceptionWrapper&)
+    {
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        ::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
+    }
+}
+
+void
+IceDelegateD::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const ::Ice::Context* __context)
+{
+    class _DirectI : public ::IceInternal::Direct
+    {
+    public:
+
+        _DirectI(const ::std::string& uuid, const ::Ice::Current& __current) : 
+            ::IceInternal::Direct(__current),
+            _m_uuid(uuid)
+        {
+        }
+        
+        virtual ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            ::KeeICE::KFlib::KP* servant = dynamic_cast< ::KeeICE::KFlib::KP*>(object);
+            if(!servant)
+            {
+                throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
+            }
+            servant->LaunchLoginEditor(_m_uuid, _current);
+            return ::Ice::DispatchOK;
+        }
+        
+    private:
+        
+        const ::std::string& _m_uuid;
+    };
+    
+    ::Ice::Current __current;
+    __initCurrent(__current, __KeeICE__KFlib__KP__LaunchLoginEditor_name, ::Ice::Normal, __context);
+    try
+    {
+        _DirectI __direct(uuid, __current);
+        try
+        {
+            __direct.servant()->__collocDispatch(__direct);
+        }
+        catch(...)
+        {
+            __direct.destroy();
+            throw;
+        }
+        __direct.destroy();
+    }
+    catch(const ::Ice::SystemException&)
+    {
+        throw;
+    }
+    catch(const ::IceInternal::LocalExceptionWrapper&)
+    {
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        ::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
+    }
+}
+
+void
 IceDelegateD::KeeICE::KFlib::CallbackReceiver::callback(::Ice::Int num, const ::Ice::Context* __context)
 {
     class _DirectI : public ::IceInternal::Direct
@@ -3448,7 +3839,8 @@ KeeICE::KFlib::KP::___AddLogin(::IceInternal::Incoming& __inS, const ::Ice::Curr
     ::IceInternal::BasicStream* __os = __inS.os();
     try
     {
-        AddLogin(login, parentUUID, __current);
+        ::KeeICE::KFlib::KPEntry __ret = AddLogin(login, parentUUID, __current);
+        __ret.__write(__os);
     }
     catch(const ::KeeICE::KFlib::KeeICEException& __ex)
     {
@@ -3623,6 +4015,17 @@ KeeICE::KFlib::KP::___findGroups(::IceInternal::Incoming& __inS, const ::Ice::Cu
 }
 
 ::Ice::DispatchStatus
+KeeICE::KFlib::KP::___getRoot(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    __inS.is()->skipEmptyEncaps();
+    ::IceInternal::BasicStream* __os = __inS.os();
+    ::KeeICE::KFlib::KPGroup __ret = getRoot(__current);
+    __ret.__write(__os);
+    return ::Ice::DispatchOK;
+}
+
+::Ice::DispatchStatus
 KeeICE::KFlib::KP::___getParent(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
@@ -3728,9 +4131,37 @@ KeeICE::KFlib::KP::___removeEntry(::IceInternal::Incoming& __inS, const ::Ice::C
     return ::Ice::DispatchOK;
 }
 
+::Ice::DispatchStatus
+KeeICE::KFlib::KP::___LaunchGroupEditor(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __is = __inS.is();
+    __is->startReadEncaps();
+    ::std::string uuid;
+    __is->read(uuid);
+    __is->endReadEncaps();
+    LaunchGroupEditor(uuid, __current);
+    return ::Ice::DispatchOK;
+}
+
+::Ice::DispatchStatus
+KeeICE::KFlib::KP::___LaunchLoginEditor(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __is = __inS.is();
+    __is->startReadEncaps();
+    ::std::string uuid;
+    __is->read(uuid);
+    __is->endReadEncaps();
+    LaunchLoginEditor(uuid, __current);
+    return ::Ice::DispatchOK;
+}
+
 static ::std::string __KeeICE__KFlib__KP_all[] =
 {
     "AddLogin",
+    "LaunchGroupEditor",
+    "LaunchLoginEditor",
     "ModifyLogin",
     "addClient",
     "addGroup",
@@ -3745,6 +4176,7 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
     "getDatabaseFileName",
     "getDatabaseName",
     "getParent",
+    "getRoot",
     "ice_id",
     "ice_ids",
     "ice_isA",
@@ -3756,7 +4188,7 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
 ::Ice::DispatchStatus
 KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 21, current.operation);
+    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 24, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -3770,81 +4202,93 @@ KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current&
         }
         case 1:
         {
-            return ___ModifyLogin(in, current);
+            return ___LaunchGroupEditor(in, current);
         }
         case 2:
         {
-            return ___addClient(in, current);
+            return ___LaunchLoginEditor(in, current);
         }
         case 3:
         {
-            return ___addGroup(in, current);
+            return ___ModifyLogin(in, current);
         }
         case 4:
         {
-            return ___changeDatabase(in, current);
+            return ___addClient(in, current);
         }
         case 5:
         {
-            return ___checkVersion(in, current);
+            return ___addGroup(in, current);
         }
         case 6:
         {
-            return ___countLogins(in, current);
+            return ___changeDatabase(in, current);
         }
         case 7:
         {
-            return ___findGroups(in, current);
+            return ___checkVersion(in, current);
         }
         case 8:
         {
-            return ___findLogins(in, current);
+            return ___countLogins(in, current);
         }
         case 9:
         {
-            return ___getAllLogins(in, current);
+            return ___findGroups(in, current);
         }
         case 10:
         {
-            return ___getChildEntries(in, current);
+            return ___findLogins(in, current);
         }
         case 11:
         {
-            return ___getChildGroups(in, current);
+            return ___getAllLogins(in, current);
         }
         case 12:
         {
-            return ___getDatabaseFileName(in, current);
+            return ___getChildEntries(in, current);
         }
         case 13:
         {
-            return ___getDatabaseName(in, current);
+            return ___getChildGroups(in, current);
         }
         case 14:
         {
-            return ___getParent(in, current);
+            return ___getDatabaseFileName(in, current);
         }
         case 15:
         {
-            return ___ice_id(in, current);
+            return ___getDatabaseName(in, current);
         }
         case 16:
         {
-            return ___ice_ids(in, current);
+            return ___getParent(in, current);
         }
         case 17:
         {
-            return ___ice_isA(in, current);
+            return ___getRoot(in, current);
         }
         case 18:
         {
-            return ___ice_ping(in, current);
+            return ___ice_id(in, current);
         }
         case 19:
         {
-            return ___removeEntry(in, current);
+            return ___ice_ids(in, current);
         }
         case 20:
+        {
+            return ___ice_isA(in, current);
+        }
+        case 21:
+        {
+            return ___ice_ping(in, current);
+        }
+        case 22:
+        {
+            return ___removeEntry(in, current);
+        }
+        case 23:
         {
             return ___removeGroup(in, current);
         }

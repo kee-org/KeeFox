@@ -228,7 +228,7 @@ this.log("titleC:"+title);
                 if (notifyBox)
                     this._showSaveLoginNotification(notifyBox, newLogin);
                 else
-                    this._pwmgr.addLogin(newLogin);
+                    this._pwmgr.addLogin(newLogin, null);
 
             } else if (password != selectedLogin.password) {
 
@@ -369,7 +369,7 @@ this.log("titleC:"+title);
                 accessKey: rememberButtonAccessKey,
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
-                    kfilm.addLogin(aLogin);
+                    kfilm.addLogin(aLogin, null);
                 }
             },
 
@@ -454,7 +454,7 @@ this.log("titleC:"+title);
             this._kfilm.setLoginSavingEnabled(aLogin.hostname, false);
         } else if (userChoice == 0) {
             this.log("Saving login for " + aLogin.hostname);
-            this._kfilm.addLogin(aLogin);
+            this._kfilm.addLogin(aLogin, null);
         } else {
             // userChoice == 1 --> just ignore the login.
             this.log("Ignoring login.");

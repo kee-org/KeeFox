@@ -183,6 +183,81 @@ namespace KeeICE
             host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
         }
 
+        void openGroupEditorWindow(PwGroup pg)
+        {
+            GroupForm gf = new GroupForm();
+            gf.InitEx(pg, host.MainWindow.ClientIcons, host.Database);
+
+            gf.BringToFront();
+            gf.ShowInTaskbar = true;
+            if (gf.ShowDialog() == DialogResult.OK)
+            {
+                saveDB();
+                /*
+                 * TODO: find a way to raise a FileSaved event. But will this have other side-effects such as circular ICE callbacks? probably a good thing to do anyway so other plugins that regsiter onFileSaved events are able to do their thing (and also applies to all other events normally triggered by UI)
+                 * if (host.MainWindow.FileSaved != null)
+                {
+                    FileSavedEventArgs args = new FileSavedEventArgs(bSuccess, pd, eventGuid);
+                    host.MainWindow.FileSaved(sender, args);
+                }*/
+            }
+                 
+        }
+
+        private delegate void dlgOpenGroupEditorWindow(PwGroup pg);
+
+        public override void LaunchGroupEditor(string uuid, Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return;
+
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    throw new Exception("Could not find requested entry.");
+
+                host.MainWindow.Invoke(new dlgOpenGroupEditorWindow(openGroupEditorWindow), matchedGroup );
+            }
+
+        }
+
+        void openLoginEditorWindow(PwEntry pe)
+        {
+            //TODO: focus existing editor window for this login if there is one. Maybe use host.MainWindow.OwnedForms or keep our own list of open forms in this plugin (and destroy them when plugin is destroyed) + same for Group editor
+            PwEntryForm ef = new PwEntryForm();
+            ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false);
+
+            ef.BringToFront();
+            ef.ShowInTaskbar = true;
+            if (ef.ShowDialog() == DialogResult.OK)
+                saveDB();
+        }
+
+        private delegate void dlgOpenLoginEditorWindow(PwEntry pg);
+
+        public override void LaunchLoginEditor(string uuid, Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) return;
+
+            if (uuid != null && uuid.Length > 0)
+            {
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwEntry matchedLogin = host.Database.RootGroup.FindEntry(pwuuid, true);
+
+                if (matchedLogin == null)
+                    throw new Exception("Could not find requested entry.");
+
+                host.MainWindow.Invoke(new dlgOpenLoginEditorWindow(openLoginEditorWindow), matchedLogin);
+            }
+
+        }
+
 #endregion
 
 
@@ -242,12 +317,12 @@ namespace KeeICE
                 }
 
             }
-            byte[] temp1 = pwe.Uuid.UuidBytes;
-            string temp2 = pwe.Uuid.ToString();
-            string temp3 = pwe.Uuid.ToHexString();
+            //byte[] temp1 = pwe.Uuid.UuidBytes;
+            //string temp2 = pwe.Uuid.ToString();
+            //string temp3 = pwe.Uuid.ToHexString();
 
             KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
-            KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, pwe.Uuid.ToHexString());
+            KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes));
             return kpe;
         }
 
@@ -259,7 +334,7 @@ namespace KeeICE
             //string temp2 = pwg.Uuid.ToString();
             //string temp3 = pwg.Uuid.ToHexString();
 
-            KFlib.KPGroup kpg = new KFlib.KPGroup(pwg.Name, pwg.Uuid.ToHexString());
+            KFlib.KPGroup kpg = new KFlib.KPGroup(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes));
             return kpg;
         }
 
@@ -381,6 +456,7 @@ namespace KeeICE
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
 
+                //TODO: recycle if option is set, warn if not.
                 matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
 
                 host.MainWindow.Invoke(new MethodInvoker(saveDB));
@@ -411,6 +487,7 @@ namespace KeeICE
 
                 matchedGroup.ParentGroup.Groups.Remove(matchedGroup);
 
+                //TODO: recycle if option is set, warn if not.
                 host.MainWindow.Invoke(new MethodInvoker(saveDB));
 
                 return true;
@@ -424,10 +501,10 @@ namespace KeeICE
         /// <param name="login">The KeeICE representation of the login to be added</param>
         /// <param name="parentUUID">The UUID of the parent group for the new login. If null, the root group will be used.</param>
         /// <param name="current__"></param>
-        public override void AddLogin(KFlib.KPEntry login, string parentUUID, Ice.Current current__)
+        public override KFlib.KPEntry AddLogin(KFlib.KPEntry login, string parentUUID, Ice.Current current__)
         {
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return;
+            if (!ensureDBisOpen()) return null;
 
             PwEntry newLogin = new PwEntry(true,true);
 
@@ -441,13 +518,17 @@ namespace KeeICE
 
                 PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
 
-                if (matchedGroup == null)
+                if (matchedGroup != null)
                     parentGroup = matchedGroup;
             }
 
             parentGroup.AddEntry(newLogin, true);
             
             host.MainWindow.Invoke(new MethodInvoker(saveDB));
+
+            KFlib.KPEntry output = getKPEntryFromPwEntry(newLogin, true);
+
+            return output;
         }
 
         /// <summary>
@@ -470,9 +551,9 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
-                if (matchedGroup == null)
+                if (matchedGroup != null)
                     parentGroup = matchedGroup;
             }
 
@@ -556,6 +637,19 @@ namespace KeeICE
         }
 
         /// <summary>
+        /// Return the root group of the active database
+        /// </summary>
+        /// <param name="current__"></param>
+        /// <returns>the root group</returns>
+        public override KFlib.KPGroup getRoot(Ice.Current current__)
+        {
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) { return null; }
+
+            return getKPGroupFromPwGroup(host.Database.RootGroup, true);
+        }
+
+        /// <summary>
         /// Return a list of every login in the database
         /// </summary>
         /// <param name="logins">the list of all logins</param>
@@ -563,9 +657,6 @@ namespace KeeICE
         /// <returns>the number of logins in the list</returns>
         public override int getAllLogins(out KFlib.KPEntry[] logins, Ice.Current current__)
         {
-            logins = this.getChildEntries(host.Database.RootGroup.Uuid.ToHexString(), current__);
-            return logins.Length;
-            /*
             int count = 0;
             ArrayList allEntries = new ArrayList();
 
@@ -585,7 +676,7 @@ namespace KeeICE
 
             logins = (KFlib.KPEntry[])allEntries.ToArray(typeof(KFlib.KPEntry));
 
-            return count;*/
+            return count;
         }
 
         /// <summary>
@@ -606,7 +697,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group.");
@@ -644,7 +735,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group.");
@@ -682,7 +773,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group.");

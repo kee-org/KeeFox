@@ -89,7 +89,7 @@ module KFlib {
         string getDatabaseName();
         string getDatabaseFileName();
         void changeDatabase(string fileName, bool closeCurrent);
-        void AddLogin(KPEntry login, string parentUUID) throws KeeICEException;
+        KPEntry AddLogin(KPEntry login, string parentUUID) throws KeeICEException;
         void ModifyLogin(KPEntry oldLogin, KPEntry newLogin) throws KeeICEException;
         int getAllLogins(out KPEntryList logins) throws KeeICEException;
         int findLogins(string hostname, string actionURL, string httpRealm, loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KPEntryList logins) throws KeeICEException;
@@ -99,6 +99,7 @@ module KFlib {
         
         int findGroups(string name, string uuid, out KPGroupList groups); // if both null, returns root group
         
+        KPGroup getRoot();
         KPGroup getParent(string uuid);
 		KPGroupList getChildGroups(string uuid);
 		KPEntryList getChildEntries(string uuid);
@@ -106,6 +107,9 @@ module KFlib {
 		
 		bool removeGroup(string uuid); //host.Database.RootGroup.Groups.Remove();
 		bool removeEntry(string uuid); //host.Database.RootGroup.Groups.Remove();
+
+		void LaunchGroupEditor(string uuid);
+		void LaunchLoginEditor(string uuid);
 
 		//KPGroup getParentOfGroup(KPGroup group);
 		//KPGroupList getChildGroups(KPGroup group);

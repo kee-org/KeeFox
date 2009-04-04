@@ -408,18 +408,18 @@ private:
     
 public:
 
-    void AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID)
+    ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID)
     {
-        AddLogin(login, parentUUID, 0);
+        return AddLogin(login, parentUUID, 0);
     }
-    void AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context& __ctx)
+    ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context& __ctx)
     {
-        AddLogin(login, parentUUID, &__ctx);
+        return AddLogin(login, parentUUID, &__ctx);
     }
     
 private:
 
-    void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
+    ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
     
 public:
 
@@ -513,6 +513,21 @@ private:
     
 public:
 
+    ::KeeICE::KFlib::KPGroup getRoot()
+    {
+        return getRoot(0);
+    }
+    ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context& __ctx)
+    {
+        return getRoot(&__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*);
+    
+public:
+
     ::KeeICE::KFlib::KPGroup getParent(const ::std::string& uuid)
     {
         return getParent(uuid, 0);
@@ -600,6 +615,36 @@ public:
 private:
 
     bool removeEntry(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    void LaunchGroupEditor(const ::std::string& uuid)
+    {
+        LaunchGroupEditor(uuid, 0);
+    }
+    void LaunchGroupEditor(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        LaunchGroupEditor(uuid, &__ctx);
+    }
+    
+private:
+
+    void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    void LaunchLoginEditor(const ::std::string& uuid)
+    {
+        LaunchLoginEditor(uuid, 0);
+    }
+    void LaunchLoginEditor(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        LaunchLoginEditor(uuid, &__ctx);
+    }
+    
+private:
+
+    void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
     
 public:
     
@@ -1047,7 +1092,7 @@ public:
 
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*) = 0;
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*) = 0;
+    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*) = 0;
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*) = 0;
 
@@ -1061,6 +1106,8 @@ public:
 
     virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*) = 0;
 
+    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*) = 0;
+
     virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*) = 0;
 
     virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*) = 0;
@@ -1072,6 +1119,10 @@ public:
     virtual bool removeGroup(const ::std::string&, const ::Ice::Context*) = 0;
 
     virtual bool removeEntry(const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*) = 0;
+
+    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*) = 0;
 };
 
 class CallbackReceiver : virtual public ::IceDelegate::Ice::Object
@@ -1109,7 +1160,7 @@ public:
 
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
+    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
@@ -1123,6 +1174,8 @@ public:
 
     virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
 
+    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*);
+
     virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
 
     virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
@@ -1134,6 +1187,10 @@ public:
     virtual bool removeGroup(const ::std::string&, const ::Ice::Context*);
 
     virtual bool removeEntry(const ::std::string&, const ::Ice::Context*);
+
+    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*);
+
+    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
 };
 
 class CallbackReceiver : virtual public ::IceDelegate::KeeICE::KFlib::CallbackReceiver,
@@ -1172,7 +1229,7 @@ public:
 
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
+    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
 
@@ -1186,6 +1243,8 @@ public:
 
     virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
 
+    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*);
+
     virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
 
     virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
@@ -1197,6 +1256,10 @@ public:
     virtual bool removeGroup(const ::std::string&, const ::Ice::Context*);
 
     virtual bool removeEntry(const ::std::string&, const ::Ice::Context*);
+
+    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*);
+
+    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
 };
 
 class CallbackReceiver : virtual public ::IceDelegate::KeeICE::KFlib::CallbackReceiver,
@@ -1245,7 +1308,7 @@ public:
     virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___changeDatabase(::IceInternal::Incoming&, const ::Ice::Current&);
 
-    virtual void AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___AddLogin(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
@@ -1266,6 +1329,9 @@ public:
     virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___findGroups(::IceInternal::Incoming&, const ::Ice::Current&);
 
+    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___getRoot(::IceInternal::Incoming&, const ::Ice::Current&);
+
     virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___getParent(::IceInternal::Incoming&, const ::Ice::Current&);
 
@@ -1283,6 +1349,12 @@ public:
 
     virtual bool removeEntry(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___removeEntry(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___LaunchGroupEditor(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___LaunchLoginEditor(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
 

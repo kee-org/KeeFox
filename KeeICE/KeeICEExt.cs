@@ -52,7 +52,7 @@ namespace KeeICE
 
         public override int run(string[] args)
         {
-            Thread t;
+            //Thread t;
             
                 // Terminate cleanly on receipt of a signal
                 //
