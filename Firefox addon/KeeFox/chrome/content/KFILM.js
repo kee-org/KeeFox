@@ -34,14 +34,14 @@ var Application = Components.classes["@mozilla.org/fuel/application;1"].getServi
 //TODO: disable built-in login manager
 
 function KFILM(kf,keeFoxToolbar,currentWindow) {
-    this.log ("KFILM constructor started");
-    this.log("currentWindowName:" + currentWindow.name);
 
     this._kf = kf;
     this._toolbar = keeFoxToolbar;
     this._currentWindow = currentWindow;
+    this._refillTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
 
     this.init();
+    this.log("currentWindowName:" + currentWindow.name);
     this.log ("KFILM constructor finished");
 }
 
@@ -52,6 +52,7 @@ KFILM.prototype = {
     _kf : null, // KeeFox object (e.g. for xpcom service access)
     _toolbar : null, // the keefox toolbar in this scope
     _kfLoginInfo : null, // Constructor for kfILoginInfo implementation
+    _refillTimer : null,
 
     __logService : null, // Console logging service, used for debugging.
     get _logService() {
@@ -81,7 +82,8 @@ KFILM.prototype = {
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
-        this._logService.logStringMessage(message);
+        if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
+            this._logService.logStringMessage(message);
     },
 
     init : function () {
@@ -93,17 +95,6 @@ KFILM.prototype = {
         
         this._domEventListener._pwmgr    = this;
         this._observer._pwmgr            = this;
-        
-        // Preferences. Add observer so we get notified of changes.
-        //this._prefBranch = Cc["@mozilla.org/preferences-service;1"].
-        //                   getService(Ci.nsIPrefService).getBranch("signon.");
-        //this._prefBranch.QueryInterface(Ci.nsIPrefBranch2);
-        //this._prefBranch.addObserver("", this._observer, false);
-
-        // Get current preference values.
-        //this._debug = this._prefBranch.getBoolPref("debug");
-
-        //this._remember = this._prefBranch.getBoolPref("rememberSignons");
 
         // Get constructor for kfILoginInfo
         this._kfLoginInfo = new Components.Constructor(
@@ -159,7 +150,7 @@ KFILM.prototype = {
         // nsObserver
         observe : function (subject, topic, data) {
 
-            if (topic == "nsPref:changed") {
+            /*if (topic == "nsPref:changed") {
                 var prefName = data;
                 this._pwmgr.log("got change to " + prefName + " preference");
 
@@ -172,7 +163,7 @@ KFILM.prototype = {
                 } else {
                     this._pwmgr.log("Oops! Pref not handled, change ignored.");
                 }
-            } else if (topic == "xpcom-shutdown") {
+            } else */if (topic == "xpcom-shutdown") {
                 for (let i in this._pwmgr) {
                   try {
                     this._pwmgr[i] = null;
@@ -248,6 +239,18 @@ KFILM.prototype = {
             // Add event listener to process page when DOM is complete.
             domDoc.addEventListener("DOMContentLoaded",
                                     this._domEventListener, false);
+            
+            // Add event listener to process page when DOM is complete.
+            //TODO: this doesn't work. Would be interesting to see what happens if we get it working but what we really want is an event that's guaranteed to run after all site onload code has finished - not sure if that's possible...
+            // domDoc.addEventListener("load",
+            //                        this._domEventListener, false);
+            
+            // attempt to refill the forms on the current tab in this window at a regular interval
+            // This is to enable manual form filling of sites which generate forms dynamically
+            // (i.e. after initial DOM load)
+            if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",true))
+                this._pwmgr._refillTimer.init(this._domEventListener, 500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                                    
             return;
         },
 
@@ -268,9 +271,26 @@ KFILM.prototype = {
     _domEventListener : {
         _pwmgr : null,
 
-        QueryInterface : XPCOMUtils.generateQI([Ci.nsIDOMEventListener,
+        QueryInterface : XPCOMUtils.generateQI([Ci.nsIObserver, 
+                                                Ci.nsIDOMEventListener,
                                                 Ci.nsISupportsWeakReference]),
 
+        // nsObserver
+        observe : function (subject, topic, data) {
+            var doc;
+            switch(topic) {
+                case "sessionstore-windows-restored":
+
+                    break;
+                case "timer-callback":    
+                    //this._pwmgr.log("timer fired");
+                    doc = this._pwmgr._currentWindow.content.document;
+                    this._pwmgr._fillDocument(doc,false); //TODO: find some ways of deciding that there is no need to call this function in some cases. E.g. DOMMutation events? but just having those events on a page drops all other DOM performance by > 50% so will be too slow for DOM heavy sites. maybe do one every 2 seconds regardless and some others more frequently only if # of forms has changed?
+                    break;
+
+            }
+
+        },
 
         handleEvent : function (event) {
             this._pwmgr.log("domEventListener: got event " + event.type);
@@ -279,7 +299,24 @@ KFILM.prototype = {
             switch (event.type) {
                 case "DOMContentLoaded":
                     doc = event.target;
-                    this._pwmgr._fillDocument(doc);
+                    //this._pwmgr._fillDocument(doc,true);
+                    /*for (var i = 0; i < doc.forms.length; i++) {
+                        var form = doc.forms[i];
+                        for (var j = 0; j < form.elements.length; j++) {
+                            alert(form.elements[j].value);
+                        }
+                    }*/
+                    return;
+                    
+                case "load":
+                    doc = event.target;
+                    this._pwmgr._fillDocument(doc,true);
+                    /*for (var i = 0; i < doc.forms.length; i++) {
+                        var form = doc.forms[i];
+                        for (var j = 0; j < form.elements.length; j++) {
+                            alert(form.elements[j].value);
+                        }
+                    }*/
                     return;
 
                 default:
@@ -303,7 +340,7 @@ KFILM.prototype = {
         // Locate the password fields in the form.
         var pwFields = [];
         for (var i = 0; i < form.elements.length; i++) {
-            if (form.elements[i].type != "password")
+            if (form.elements[i].type.toLowerCase() != "password")
                 continue;
 
             if (skipEmptyFields && !form.elements[i].value)
@@ -569,12 +606,12 @@ KFILM.prototype = {
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (count, hostname, formSubmitURL, httpRealm, uniqueID) {
-        this.log("Searching for logins matching host: " + hostname +
+    findLogins : function (count, URL, formSubmitURL, httpRealm, uniqueID) {
+        this.log("Searching for logins matching URL: " + URL +
             ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm
              + ", uniqueID: " + uniqueID);
 
-        return this._kf.findLogins(count, hostname, formSubmitURL, httpRealm, uniqueID);
+        return this._kf.findLogins(count, URL, formSubmitURL, httpRealm, uniqueID);
     },
     
     countLogins : function (hostName,actionURL,loginSearchType)
@@ -592,6 +629,11 @@ KFILM.prototype = {
      * Get the parts of the URL we want for identification.
      */
     _getPasswordOrigin : function (uriString, allowJS) {
+    
+        // temporarily(?) returning the URI string as is - if it needs to
+        // be trimmed to host and port this will be done in KeeICE
+        return uriString;
+    
         var realm = "";
         try {
             var uri = this._ioService.newURI(uriString, null, null);
@@ -616,7 +658,7 @@ KFILM.prototype = {
             this.log("Couldn't parse origin for " + uriString);
             realm = null;
         }
-
+this.log("realm:"+realm);
         return realm;
     },
     
@@ -627,7 +669,7 @@ KFILM.prototype = {
         // A blank or mission action submits to where it came from.
         if (uriString == "")
             uriString = form.baseURI;
-
+//this.log("uri:"+uriString);
         return this._getPasswordOrigin(uriString, true);
     },
     
@@ -637,11 +679,15 @@ KFILM.prototype = {
      * Called when a page has loaded. For each form in the document,
      * we check to see if it can be filled with a stored login.
      */
-    _fillDocument : function (doc)
+    _fillDocument : function (doc, initialPageLoad)
     {
-    this.log(doc.defaultView);
-    
-    var mainWindow = doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        // We'll do things diferently if this is a fill operation some time after the page has alread loaded (e.g. don't auto-fill or auto-submit in case we overwrite user's data)
+        if ( initialPageLoad === undefined )
+            initialPageLoad = false;
+
+
+        var passwords;
+        var mainWindow = doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                    .rootTreeItem
@@ -656,9 +702,48 @@ KFILM.prototype = {
 
         this.log("attempting document fill");
         
-        //temp = this._testKeePassConnection();
-        //this.log ("if it's running, this should be the KeePass DB name: " + temp);
-    
+        var uniqueID = "";
+        
+        // auto fill the form by default unless a preference or tab variable tells us otherwise
+        var autoFillForm = this._kf._keeFoxExtension.prefs.getValue("autoFillForms",true);
+        if (!initialPageLoad)
+            autoFillForm = false;
+        
+        // do not auto submit the form by default unless a preference or tab variable tells us otherwise
+        var autoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitForms",false);
+        if (!initialPageLoad)
+            autoSubmitForm = false;
+        
+        // overwrite existing username by default unless a preference or tab variable tells us otherwise
+        var overWriteUsernameAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteUsernameAutomatically",true);
+        if (!initialPageLoad)
+            overWriteUsernameAutomatically = false;
+        
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                    .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(doc)];
+        var retrievedData = ss.getTabValue(currentTab, "KF_uniqueID");
+
+        if (retrievedData != undefined && retrievedData != null && retrievedData != "")
+        {
+            this.log("Found this KeePass uniqueID in the tab: " + retrievedData);
+            ss.deleteTabValue(currentTab, "KF_uniqueID");
+            uniqueID = retrievedData;
+            
+            // we defiitely want to fill the form with this data
+            autoFillForm = true;
+            overWriteUsernameAutomatically = true;
+            
+            // but need to check whether we want to autosubmit it too
+            var localAutoSubmitPref = ss.getTabValue(currentTab, "KF_autoSubmit");
+
+            if (localAutoSubmitPref != undefined && localAutoSubmitPref != null && localAutoSubmitPref == "yes")
+            {
+                this.log("We want to auto-submit this form.");
+                autoSubmitForm = true;
+            }
+        }
     
         var forms = doc.forms;
         if (!forms || forms.length == 0)
@@ -707,6 +792,10 @@ KFILM.prototype = {
                  " forms on " + doc.documentURI);
 
         var previousActionOrigin = null;
+        var formsReadyForSubmit = 0; // tracks how many forms we auto-fill on this page
+        
+        var allMatchingLogins = [];
+        var formToAutoSubmit;
 
         for (var i = 0; i < forms.length; i++) {
             var form = forms[i];
@@ -720,16 +809,16 @@ KFILM.prototype = {
                 this._getFormFields(form, false);
             var passwordField;
             
-            if (passwords != null && passwords[0] != null)
-                passwordField = passwords[0];
+            if (passwords != null && passwords.length > 0 && passwords[0] != null)
+                passwordField = passwords[0].element;
                 
             // Need a valid password field to do anything.
-            if (passwordField == null)
+            if (passwordField == null || passwordField == undefined)
             {
                 this.log("no password field found in this form");
                 continue;
             }
-
+//alert("ttt:"+passwordField.value);
 
             // Only the actionOrigin might be changing, so if it's the same
             // as the last form on the page we can reuse the same logins.
@@ -776,15 +865,38 @@ KFILM.prototype = {
             
             this.log("match found!");
             
-            var autofillForm = true;//this._prefBranch.getBoolPref("autofillForms");
-        
-            if (autofillForm) {
+            if (autoFillForm) {
 
-                if (usernameField && usernameField.value) {
+                // first, if we have been instructed to load a specific login on this page, do that
+                if (uniqueID.length > 0)
+                {
+                    var matchingLogin;
+                    var found = logins.some(function(l) {
+                                                matchingLogin = l;
+                                                return (l.uniqueID == uniqueID);
+                                            });
+                    if (found)
+                    {
+                        passwordField.value = matchingLogin.password;
+                        alert(passwordField.value);
+                        if (usernameField)
+                            usernameField.value = matchingLogin.username;
+                        formsReadyForSubmit++;
+                        formToAutoSubmit = form;
+                    }
+                    else
+                    {
+                        this.log("Password not filled. None of the stored " +
+                                 "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
+                    }
+                
+                } else if (!overWriteUsernameAutomatically && usernameField && usernameField.value) {
                     // If username was specified in the form, only fill in the
                     // password if we find a matching login.
 
                     var username = usernameField.value;
+                    
+                    this.log("username found: " + username);
 
                     var matchingLogin;
                     var found = logins.some(function(l) {
@@ -792,11 +904,16 @@ KFILM.prototype = {
                                                 return (l.username == username);
                                             });
                     if (found)
+                    {
                         passwordField.value = matchingLogin.password;
+                        formsReadyForSubmit++;
+                        formToAutoSubmit = form;
+                    }
                     else
+                    {
                         this.log("Password not filled. None of the stored " +
                                  "logins match the username already present.");
-
+                    }
                 } else if (usernameField && logins.length == 2) {
                 //TODO: this needs reworking RE KeePass storage options
                     // Special case, for sites which have a normal user+pass
@@ -807,10 +924,15 @@ KFILM.prototype = {
                     if (!logins[0].username && logins[1].username) {
                         usernameField.value = logins[1].username;
                         passwordField.value = logins[1].password;
+                        formsReadyForSubmit++;
+                        formToAutoSubmit = form;
                     } else if (!logins[1].username && logins[0].username) {
                         usernameField.value = logins[0].username;
                         passwordField.value = logins[0].password;
+                        formsReadyForSubmit++;
+                        formToAutoSubmit = form;
                     }
+                    
                 } 
                 
                 //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
@@ -821,25 +943,64 @@ KFILM.prototype = {
                     if (usernameField)
                         usernameField.value = logins[0].username;
                     passwordField.value = logins[0].password;
+                    formsReadyForSubmit++;
+                    formToAutoSubmit = form;
                 } else {
                     this.log("Multiple logins for form, so not filling any."); //TODO: weak! We can do better soon...
                 }
                 
-            }// else
-            //{
-                this.log("Using toolbar password fill.");
+            }
+            
+            // only remember the logins which are not already in our list of matching logins
+            // (not sure yet if this will happen in a completely bug free final version - it depends on how I design the comparison of form action URL - but it's handy in my currently buggy version anyway!)
+            var newUniqueLogins = logins.filter(function(i) {
+                                                //matchingLogin = l;
+                                                return (allMatchingLogins.every(function(j) {
+                                                    //matchingLogin = l;
+                                                    return (i.uniqueid != j.uniqueid);
+                                                }));
+                                            });
+            allMatchingLogins = allMatchingLogins.concat(newUniqueLogins);
+            
+            //alert(passwordField.value);
 
-                this._toolbar.setLogins(logins);
-                
-                
-            //}
         } // foreach form
 
+        //this.log(formsReadyForSubmit);
+        
+        if (autoSubmitForm && formsReadyForSubmit == 1) //TODO: use some extra info so we can sometimes submit forms even when more than one on the page has been auto-filled.
+        {
+      //  alert("submit...");
+
+                        for (var j = 0; j < formToAutoSubmit.elements.length; j++) {
+        //                    alert(formToAutoSubmit.elements[j].value);
+                        }
+
+            this.log("Auto-submitting form...");
+            formToAutoSubmit.submit();
+    //        alert("submit done.");
+        
+        } else
+        {
+            this.log("Using toolbar password fill.");
+
+            this._toolbar.setLogins(allMatchingLogins);
+        } 
     },
     
     loadAndAutoSubmit : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
-        //TODO: implement this
         this.log("loadAndAutoSubmit");
+        
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                        .getService(Components.interfaces.nsIWindowMediator);
+        var newWindow = wm.getMostRecentWindow("navigator:browser");
+        var b = newWindow.getBrowser();
+        var newTab = b.loadOneTab( actionURL, null, null, null, false, null );
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                .getService(Components.interfaces.nsISessionStore);
+
+        ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
+        ss.setTabValue(newTab, "KF_autoSubmit", "yes");
     },
     
     // TODO: how do we know which login the user wants filled in? could use form id or username input id but what if
@@ -864,7 +1025,7 @@ KFILM.prototype = {
         var passwordField;
         var ignored;
         
-        
+        var autoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
         
         if ((form == undefined || form == null) && usernameID != null)
         {
@@ -907,11 +1068,12 @@ KFILM.prototype = {
         }*/
         
         if (form == undefined || form == null)
-        {
+        {this.log("0");
             for (var i = 0; i < doc.forms.length; i++) {
                 var formi = doc.forms[i];
-                if (this._getActionOrigin(formi) == actionURL)
-                {
+                this.log("1:"+actionURL+":"+this._getActionOrigin(formi));
+                //if (this._getActionOrigin(formi) == actionURL) //TODO: this means that we can never fill in a form where the action URL has changed - need to improve that.
+                //{this.log("2");
                     form = formi;
                     [usernameField, passwords] = this._getFormFields(form, false);
                     
@@ -920,7 +1082,7 @@ KFILM.prototype = {
                     
                     var passwordField = passwords[0].element;
                     break;
-                }
+                //}
             }
             
         }
@@ -979,6 +1141,9 @@ KFILM.prototype = {
         passwordField.value = match.password;
         if (usernameField != null)
             usernameField.value = match.username;
+            
+        if (autoSubmitForm)
+            form.submit();
     },
     
     /*
@@ -1000,8 +1165,8 @@ KFILM.prototype = {
         //if (!this._remember)
         //    return;
 
-        var hostname      = this._getPasswordOrigin(doc.documentURI);
-        var formSubmitURL = this._getActionOrigin(form);
+        var URL      = this._getPasswordOrigin(doc.documentURI);
+        var formActionURL = this._getActionOrigin(form);
         var title = doc.title;
 
         //if (!this.getLoginSavingEnabled(hostname)) {
@@ -1101,7 +1266,7 @@ KFILM.prototype = {
             else
                 customWrapper = keeFoxInst.kfLoginInfoCustomFieldsWrapper("special_form_username_ID",usernameField.id,"special_form_password_ID",newPasswordField.id);
             
-            formLogin.initCustom(hostname, formSubmitURL, null,
+            formLogin.initCustom(URL, formActionURL, null,
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
@@ -1109,7 +1274,7 @@ KFILM.prototype = {
             this.log("login object initialised with custom data");
         } else
         {
-            formLogin.init(hostname, formSubmitURL, null,
+            formLogin.init(URL, formActionURL, null,
                     (usernameField ? usernameField.value : ""),
                     newPasswordField.value,
                     (usernameField ? usernameField.name  : ""),
@@ -1119,7 +1284,7 @@ KFILM.prototype = {
         
         // Look for an existing login that matches the form login.
         var existingLogin = null;
-        var logins = this.findLogins({}, hostname, formSubmitURL, null, null);
+        var logins = this.findLogins({}, URL, formActionURL, null, null);
         
         // if user was not logged in and cancelled the login process, we can't
         // proceed (becuase all passwords will appear to be new)

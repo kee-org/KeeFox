@@ -150,9 +150,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
      * The hostname should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
-  /* attribute AString hostname; */
-  NS_SCRIPTABLE NS_IMETHOD GetHostname(nsAString & aHostname) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetHostname(const nsAString & aHostname) = 0;
+  /* attribute AString URL; */
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) = 0;
 
   /**
      * The URL a form-based login was submitted to.
@@ -165,9 +165,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
      * For logins obtained from a HTTP or FTP protocol authentication,
      * this field is NULL.
      */
-  /* attribute AString formSubmitURL; */
-  NS_SCRIPTABLE NS_IMETHOD GetFormSubmitURL(nsAString & aFormSubmitURL) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetFormSubmitURL(const nsAString & aFormSubmitURL) = 0;
+  /* attribute AString formActionURL; */
+  NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL) = 0;
 
   /**
      * The HTTP Realm a login was requested for.
@@ -270,10 +270,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_KFILOGININFO \
-  NS_SCRIPTABLE NS_IMETHOD GetHostname(nsAString & aHostname); \
-  NS_SCRIPTABLE NS_IMETHOD SetHostname(const nsAString & aHostname); \
-  NS_SCRIPTABLE NS_IMETHOD GetFormSubmitURL(nsAString & aFormSubmitURL); \
-  NS_SCRIPTABLE NS_IMETHOD SetFormSubmitURL(const nsAString & aFormSubmitURL); \
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL); \
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL); \
+  NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL); \
+  NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL); \
   NS_SCRIPTABLE NS_IMETHOD GetHttpRealm(nsAString & aHttpRealm); \
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm); \
   NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername); \
@@ -297,10 +297,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGININFO(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetHostname(nsAString & aHostname) { return _to GetHostname(aHostname); } \
-  NS_SCRIPTABLE NS_IMETHOD SetHostname(const nsAString & aHostname) { return _to SetHostname(aHostname); } \
-  NS_SCRIPTABLE NS_IMETHOD GetFormSubmitURL(nsAString & aFormSubmitURL) { return _to GetFormSubmitURL(aFormSubmitURL); } \
-  NS_SCRIPTABLE NS_IMETHOD SetFormSubmitURL(const nsAString & aFormSubmitURL) { return _to SetFormSubmitURL(aFormSubmitURL); } \
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return _to GetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) { return _to SetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL) { return _to GetFormActionURL(aFormActionURL); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL) { return _to SetFormActionURL(aFormActionURL); } \
   NS_SCRIPTABLE NS_IMETHOD GetHttpRealm(nsAString & aHttpRealm) { return _to GetHttpRealm(aHttpRealm); } \
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm) { return _to SetHttpRealm(aHttpRealm); } \
   NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername) { return _to GetUsername(aUsername); } \
@@ -324,10 +324,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGININFO(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetHostname(nsAString & aHostname) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetHostname(aHostname); } \
-  NS_SCRIPTABLE NS_IMETHOD SetHostname(const nsAString & aHostname) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetHostname(aHostname); } \
-  NS_SCRIPTABLE NS_IMETHOD GetFormSubmitURL(nsAString & aFormSubmitURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFormSubmitURL(aFormSubmitURL); } \
-  NS_SCRIPTABLE NS_IMETHOD SetFormSubmitURL(const nsAString & aFormSubmitURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFormSubmitURL(aFormSubmitURL); } \
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFormActionURL(aFormActionURL); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFormActionURL(aFormActionURL); } \
   NS_SCRIPTABLE NS_IMETHOD GetHttpRealm(nsAString & aHttpRealm) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetHttpRealm(aHttpRealm); } \
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetHttpRealm(aHttpRealm); } \
   NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUsername(aUsername); } \
@@ -381,22 +381,22 @@ kfLoginInfo::~kfLoginInfo()
   /* destructor code */
 }
 
-/* attribute AString hostname; */
-NS_IMETHODIMP kfLoginInfo::GetHostname(nsAString & aHostname)
+/* attribute AString URL; */
+NS_IMETHODIMP kfLoginInfo::GetURL(nsAString & aURL)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginInfo::SetHostname(const nsAString & aHostname)
+NS_IMETHODIMP kfLoginInfo::SetURL(const nsAString & aURL)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* attribute AString formSubmitURL; */
-NS_IMETHODIMP kfLoginInfo::GetFormSubmitURL(nsAString & aFormSubmitURL)
+/* attribute AString formActionURL; */
+NS_IMETHODIMP kfLoginInfo::GetFormActionURL(nsAString & aFormActionURL)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginInfo::SetFormSubmitURL(const nsAString & aFormSubmitURL)
+NS_IMETHODIMP kfLoginInfo::SetFormActionURL(const nsAString & aFormActionURL)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

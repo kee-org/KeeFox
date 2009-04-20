@@ -71,6 +71,24 @@ function KeeFox()
         prefs.get("notifyBarWhenKeeICEInactive").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("rememberMRUDB"))
         prefs.get("rememberMRUDB").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("dynamicFormScanning"))
+        prefs.get("dynamicFormScanning").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("autoFillForms"))
+        prefs.get("autoFillForms").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("autoSubmitForms"))
+        prefs.get("autoSubmitForms").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("overWriteUsernameAutomatically"))
+        prefs.get("overWriteUsernameAutomatically").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("autoSubmitMatchedForms"))
+        prefs.get("autoSubmitMatchedForms").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("overWriteUsernameAutomatically"))
+        prefs.get("overWriteUsernameAutomatically").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("keeICEInstalledLocation"))
+        prefs.get("keeICEInstalledLocation").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("keePassInstalledLocation"))
+        prefs.get("keePassInstalledLocation").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("keePassMRUDB"))
+        prefs.get("keePassMRUDB").events.addListener("change", this.preferenceChangeHandler);    
 
 //TODO: not ideal place to call these since they should happen only once per firefox session, not every time keefox wakes up
         this._checkForConflictingExtensions();
@@ -109,7 +127,8 @@ this._test = numb;
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
-        this._logService.logStringMessage(message);
+        if (this._keeFoxExtension.prefs.getValue("debugToConsole",false))
+            this._logService.logStringMessage(message);
     },
 
     _initKeeFox: function(currentKFToolbar,currentWindow) {

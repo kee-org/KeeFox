@@ -36,8 +36,8 @@ kfLoginInfo.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Ci.kfILoginInfo]), 
     
     
-    hostname      : null,
-    formSubmitURL : null,
+    URL      : null,
+    formActionURL : null,
     httpRealm     : null,
     username      : null,
     password      : null,
@@ -62,13 +62,13 @@ kfLoginInfo.prototype = {
         promptService.alert(window,"Alert",msg);
     },
 
-    init : function (aHostname, aFormSubmitURL, aHttpRealm,
+    init : function (aURL, aFormActionURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField,
                      aUniqueID, aTitle) {
 
-        this.hostname      = aHostname;
-        this.formSubmitURL = aFormSubmitURL;
+        this.URL      = aURL;
+        this.formActionURL = aFormActionURL;
         this.httpRealm     = aHttpRealm;
         this.username      = aUsername;
         this.password      = aPassword;
@@ -78,12 +78,12 @@ kfLoginInfo.prototype = {
         this.title = aTitle;
     },
     
-    initCustom : function (aHostname, aFormSubmitURL, aHttpRealm,
+    initCustom : function (aURL, aFormActionURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField,
                      aUniqueID, aTitle, customFieldsArray) {
 
-        this.init(aHostname, aFormSubmitURL, aHttpRealm,
+        this.init(aURL, aFormActionURL, aHttpRealm,
                      aUsername,      aPassword,
                      aUsernameField, aPasswordField,
                      aUniqueID, aTitle);
@@ -93,10 +93,10 @@ kfLoginInfo.prototype = {
     },
 
 //CPT: had to hack this a bit. might come back to bite later. now if either httprealm is empty string we will not test for equality.
-// maybe want to do the same for hostname, or maybe it'll cause probs down the line. it's all becuase ICE can't distinguish
+// maybe want to do the same for URL, or maybe it'll cause probs down the line. it's all becuase ICE can't distinguish
 // between null and empty string but there may be nicer ways to workaround...
     matches : function (aLogin, ignorePassword) {
-        if (this.hostname      != aLogin.hostname      ||
+        if (this.URL      != aLogin.URL      ||
             (this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ) ||
             this.username      != aLogin.username)
             return false;
@@ -104,9 +104,9 @@ kfLoginInfo.prototype = {
         if (!ignorePassword && this.password != aLogin.password)
             return false;
 
-        // If either formSubmitURL is blank (but not null), then match.
-        if (this.formSubmitURL != "" && aLogin.formSubmitURL != "" &&
-            this.formSubmitURL != aLogin.formSubmitURL)
+        // If either formActionURL is blank (but not null), then match.
+        if (this.formActionURL != "" && aLogin.formActionURL != "" &&
+            this.formActionURL != aLogin.formActionURL)
             return false;
 
         // The .usernameField and .passwordField values are ignored.
@@ -117,8 +117,8 @@ kfLoginInfo.prototype = {
 //TODO: compare all custom fields for equality 
 //(though maybe matching on just the uniqueID is a better way to move towards?)
     equals : function (aLogin) {
-        if (this.hostname      != aLogin.hostname      ||
-            this.formSubmitURL != aLogin.formSubmitURL ||
+        if (this.URL      != aLogin.URL      ||
+            this.formActionURL != aLogin.formActionURL ||
             this.httpRealm     != aLogin.httpRealm     ||
             this.username      != aLogin.username      ||
             this.password      != aLogin.password      ||

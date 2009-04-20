@@ -334,9 +334,9 @@ namespace KeeICE
         {
             #region Slice data members
 
-            public string hostName;
+            public string URL;
 
-            public string formURL;
+            public string formActionURL;
 
             public string HTTPRealm;
 
@@ -358,10 +358,10 @@ namespace KeeICE
             {
             }
 
-            public KPEntry(string hostName, string formURL, string HTTPRealm, string title, KeeICE.KFlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID)
+            public KPEntry(string URL, string formActionURL, string HTTPRealm, string title, KeeICE.KFlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID)
             {
-                this.hostName = hostName;
-                this.formURL = formURL;
+                this.URL = URL;
+                this.formActionURL = formActionURL;
                 this.HTTPRealm = HTTPRealm;
                 this.title = title;
                 this.formFieldList = formFieldList;
@@ -386,13 +386,13 @@ namespace KeeICE
             public override int GetHashCode()
             {
                 int h__ = 0;
-                if(hostName != null)
+                if(URL != null)
                 {
-                    h__ = 5 * h__ + hostName.GetHashCode();
+                    h__ = 5 * h__ + URL.GetHashCode();
                 }
-                if(formURL != null)
+                if(formActionURL != null)
                 {
-                    h__ = 5 * h__ + formURL.GetHashCode();
+                    h__ = 5 * h__ + formActionURL.GetHashCode();
                 }
                 if(HTTPRealm != null)
                 {
@@ -430,30 +430,30 @@ namespace KeeICE
                     return false;
                 }
                 KPEntry o__ = (KPEntry)other__;
-                if(hostName == null)
+                if(URL == null)
                 {
-                    if(o__.hostName != null)
+                    if(o__.URL != null)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if(!hostName.Equals(o__.hostName))
+                    if(!URL.Equals(o__.URL))
                     {
                         return false;
                     }
                 }
-                if(formURL == null)
+                if(formActionURL == null)
                 {
-                    if(o__.formURL != null)
+                    if(o__.formActionURL != null)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if(!formURL.Equals(o__.formURL))
+                    if(!formActionURL.Equals(o__.formActionURL))
                     {
                         return false;
                     }
@@ -545,8 +545,8 @@ namespace KeeICE
 
             public void write__(IceInternal.BasicStream os__)
             {
-                os__.writeString(hostName);
-                os__.writeString(formURL);
+                os__.writeString(URL);
+                os__.writeString(formActionURL);
                 os__.writeString(HTTPRealm);
                 os__.writeString(title);
                 if(formFieldList == null)
@@ -568,8 +568,8 @@ namespace KeeICE
 
             public void read__(IceInternal.BasicStream is__)
             {
-                hostName = is__.readString();
-                formURL = is__.readString();
+                URL = is__.readString();
+                formActionURL = is__.readString();
                 HTTPRealm = is__.readString();
                 title = is__.readString();
                 {

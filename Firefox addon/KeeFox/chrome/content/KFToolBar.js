@@ -55,7 +55,8 @@ KFToolbar.prototype = {
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
-        this._logService.logStringMessage(message);
+        if (this._currentWindow.keeFoxInst._keeFoxExtension.prefs.getValue("debugToConsole",false))
+            this._logService.logStringMessage(message);
     },
     
     // Internal function for logging error messages to the Error Console window
@@ -80,6 +81,13 @@ KFToolbar.prototype = {
 this.log("setLogins");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
+        
+        // if the logins container is locked (becuase it's currently open) we don't
+        // make any changes. In future, maybe we could delay the change rather than
+        // completely ignore it but for now, the frequent "dynamic form polling"
+        // feature will ensure a minimal wait for update once the lock is released.
+        if (container.getAttribute('KFLock') == "enabled")
+            return;
 
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
@@ -95,6 +103,8 @@ this.log("setLogins");
         container.setAttribute("class", "login-found");
         container.setAttribute("type", "menu-button");
         container.setAttribute("disabled", "false");
+        container.setAttribute("onpopupshowing", "this.setAttribute('KFLock','enabled');");
+        container.setAttribute("onpopuphiding", "this.setAttribute('KFLock','disabled');");
                 
         menupopup = this._currentWindow.document.createElement("menupopup");
 
@@ -130,7 +140,7 @@ this.log("setLogins");
                 container.setAttribute("label", login.title);
                 container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                    login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
                   //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
             
             }
@@ -141,7 +151,7 @@ this.log("setLogins");
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
+                login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
             menupopup.appendChild(tempButton);
 
 
@@ -335,7 +345,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonLogin.tip"));
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                login.usernameField + "','" + login.username + "','" + login.URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");

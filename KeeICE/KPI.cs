@@ -178,9 +178,11 @@ namespace KeeICE
 
         void saveDB()
         {
-            KeePassLib.Interfaces.IStatusLogger logger = new Log();
-            host.Database.Save(logger);
-            host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+            //KeePassLib.Interfaces.IStatusLogger logger = new Log();
+            //host.Database.Save(logger);
+            //host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+            if (host.MainWindow.UIFileSave(true))
+                host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
         }
 
         void openGroupEditorWindow(PwGroup pg)
@@ -190,17 +192,13 @@ namespace KeeICE
 
             gf.BringToFront();
             gf.ShowInTaskbar = true;
+
+            host.MainWindow.Focus();
+            gf.TopMost = true;
+            gf.Focus();
+            gf.Activate();
             if (gf.ShowDialog() == DialogResult.OK)
-            {
                 saveDB();
-                /*
-                 * TODO: find a way to raise a FileSaved event. But will this have other side-effects such as circular ICE callbacks? probably a good thing to do anyway so other plugins that regsiter onFileSaved events are able to do their thing (and also applies to all other events normally triggered by UI)
-                 * if (host.MainWindow.FileSaved != null)
-                {
-                    FileSavedEventArgs args = new FileSavedEventArgs(bSuccess, pd, eventGuid);
-                    host.MainWindow.FileSaved(sender, args);
-                }*/
-            }
                  
         }
 
@@ -233,6 +231,12 @@ namespace KeeICE
 
             ef.BringToFront();
             ef.ShowInTaskbar = true;
+            
+            host.MainWindow.Focus();
+            ef.TopMost = true;
+            ef.Focus();
+            ef.Activate();
+
             if (ef.ShowDialog() == DialogResult.OK)
                 saveDB();
         }
@@ -361,8 +365,8 @@ namespace KeeICE
                 //TODO: other field types
             }
 
-            pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.hostName));
-            pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.formURL));
+            pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.URL));
+            pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.formActionURL));
             pwe.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm));
 
             // Set some of the string fields
@@ -790,10 +794,12 @@ namespace KeeICE
             return 0;
         }
 
-        public override int findLogins(string hostname, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KFlib.KPEntry[] logins, Ice.Current current__)
+        public override int findLogins(string URL, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KFlib.KPEntry[] logins, Ice.Current current__)
         {
-            string fullURL = hostname;
-            string fullActionURL = actionURL;
+            //string fullURL = URL;
+            string hostname = URL;
+            string actionHost = actionURL;
+            //string fullActionURL = actionURL;
 
             // Make sure there is an active database
             if (!ensureDBisOpen()) { logins = null; return -1; }
@@ -816,14 +822,15 @@ namespace KeeICE
 
             // make sure that hostname and actionURL always represent only the hostname portion
             // of the URL
-            int protocolIndex = hostname.IndexOf("://");
+            //TODO: I'm tempted to change this so that the protocol must match too (e.g. http forms won't match a stored https login) although a restriction like that may be more use on the action URL /me goes away to think...
+            int protocolIndex = URL.IndexOf("://");
             if (protocolIndex > -1)
             {
-                string hostAndPort = hostname.Substring(protocolIndex + 3);
+                string hostAndPort = URL.Substring(protocolIndex + 3);
                 int pathStart = hostAndPort.IndexOf("/", 0);
                 if (pathStart > -1 && hostAndPort.Length > pathStart)
                 {
-                    hostname = hostname.Substring(0, pathStart + protocolIndex + 3);
+                    hostname = URL.Substring(0, pathStart + protocolIndex + 3);
                 }
             }
 
@@ -834,7 +841,7 @@ namespace KeeICE
                 int pathStart = actionURLAndPort.IndexOf("/", 0);
                 if (pathStart > -1 && actionURLAndPort.Length > pathStart)
                 {
-                    actionURL = actionURL.Substring(0, pathStart + protocolIndex + 3);
+                    actionHost = actionURL.Substring(0, pathStart + protocolIndex + 3);
                 }
             }
 
@@ -850,7 +857,7 @@ namespace KeeICE
             if (hostname.Length == 0)
                 sp.SearchString = ".*";
             else if (requireFullURLMatches)
-                sp.SearchString = System.Text.RegularExpressions.Regex.Escape(fullURL);
+                sp.SearchString = System.Text.RegularExpressions.Regex.Escape(URL);
             else
                 sp.SearchString = System.Text.RegularExpressions.Regex.Escape(hostname);
 
@@ -862,11 +869,11 @@ namespace KeeICE
                 bool entryIsAMatch = false;
                 bool entryIsAnExactMatch = false;
 
-                if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL").Length > 0
+                if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
                         && lst != KFlib.loginSearchType.LSTnoForms
-                        && (actionURL == "" || pwe.Strings.ReadSafe("Form match URL").Contains(actionURL)))
+                        && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
                 {
-                    if (pwe.Strings.ReadSafe("Form match URL") == fullActionURL && pwe.Strings.ReadSafe("URL") == fullURL)
+                    if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                     {
                         entryIsAnExactMatch = true;
                         entryIsAMatch = true;
@@ -875,11 +882,13 @@ namespace KeeICE
                         entryIsAMatch = true;
                 }
 
-                if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
-                    && lst != KFlib.loginSearchType.LSTnoRealms
-                    && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm))
+                if (lst != KFlib.loginSearchType.LSTnoRealms
+                    && pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
+                    && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
                 {
-                    if (pwe.Strings.ReadSafe("URL") == fullURL)
+                    if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
+                    && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm) 
+                    && pwe.Strings.ReadSafe("URL") == URL)
                     {
                         entryIsAnExactMatch = true;
                         entryIsAMatch = true;
@@ -903,22 +912,24 @@ namespace KeeICE
         }
 
 
-        public override int countLogins(string hostname, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__)
+        public override int countLogins(string URL, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__)
         {
-            string fullURL = hostname;
-            string fullActionURL = actionURL;
+            //string fullURL = hostname;
+            //string fullActionURL = actionURL;
+            string hostname = URL;
+            string actionHost = actionURL;
 
             // make sure that hostname and actionURL always represent only the hostname portion
             // of the URL
 
-            int protocolIndex = hostname.IndexOf("://");
+            int protocolIndex = URL.IndexOf("://");
             if (protocolIndex > -1)
             {
-                string hostAndPort = hostname.Substring(protocolIndex + 3);
+                string hostAndPort = URL.Substring(protocolIndex + 3);
                 int pathStart = hostAndPort.IndexOf("/", 0);
                 if (pathStart > -1 && hostAndPort.Length > pathStart)
                 {
-                    hostname = hostname.Substring(0, pathStart + protocolIndex + 3);
+                    hostname = URL.Substring(0, pathStart + protocolIndex + 3);
                 }
             }
 
@@ -929,7 +940,7 @@ namespace KeeICE
                 int pathStart = actionURLAndPort.IndexOf("/", 0);
                 if (pathStart > -1 && actionURLAndPort.Length > pathStart)
                 {
-                    actionURL = actionURL.Substring(0, pathStart + protocolIndex + 3);
+                    actionHost = actionURL.Substring(0, pathStart + protocolIndex + 3);
                 }
             }
 
@@ -938,7 +949,7 @@ namespace KeeICE
 
             if (permitUnencryptedURLs)
             {
-
+/*
                 //TODO: how to ensure text file and KP DB stay in sync? use an onSave event?
                 // what about if plugin unregistered for a while? their own fault? do need a way to
                 // reset though
@@ -1005,7 +1016,7 @@ namespace KeeICE
                         }
                     }
 
-                }
+                }*/
             }
             else
             {
@@ -1015,10 +1026,10 @@ namespace KeeICE
                 SearchParameters sp = new SearchParameters();
                 sp.SearchInUrls = true;
                 sp.RegularExpression = true;
-                if (hostname.Length == 0)
+                if (URL.Length == 0)
                     sp.SearchString = ".*";
                 else if (requireFullURLMatches)
-                    sp.SearchString = System.Text.RegularExpressions.Regex.Escape(fullURL);
+                    sp.SearchString = System.Text.RegularExpressions.Regex.Escape(URL);
                 else
                     sp.SearchString = System.Text.RegularExpressions.Regex.Escape(hostname);
 
@@ -1030,11 +1041,11 @@ namespace KeeICE
                     bool entryIsAMatch = false;
                     bool entryIsAnExactMatch = false;
 
-                    if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL").Length > 0
+                    if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
                         && lst != KFlib.loginSearchType.LSTnoForms
-                        && (actionURL == "" || pwe.Strings.ReadSafe("Form match URL").Contains(actionURL)))
+                        && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
                     {
-                        if (pwe.Strings.ReadSafe("Form match URL") == fullActionURL && pwe.Strings.ReadSafe("URL") == fullURL)
+                        if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                         {
                             entryIsAnExactMatch = true;
                             entryIsAMatch = true;
@@ -1043,11 +1054,13 @@ namespace KeeICE
                             entryIsAMatch = true;
                     }
 
-                    if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
-                        && lst != KFlib.loginSearchType.LSTnoRealms
-                        && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm))
+                    if (lst != KFlib.loginSearchType.LSTnoRealms
+                        && pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
+                        && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
                     {
-                        if (pwe.Strings.ReadSafe("URL") == fullURL)
+                        if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
+                        && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
+                        && pwe.Strings.ReadSafe("URL") == URL)
                         {
                             entryIsAnExactMatch = true;
                             entryIsAMatch = true;
@@ -1058,7 +1071,6 @@ namespace KeeICE
 
                     if (entryIsAMatch)
                         count++;
-
 
                 }
             }

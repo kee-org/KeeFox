@@ -52,8 +52,8 @@ module KFlib {
     
     struct KPEntry
     {
-		string hostName;
-		string formURL;
+		string URL;
+		string formActionURL;
 		string HTTPRealm;
 		string title;
 		KPFormFieldList formFieldList;

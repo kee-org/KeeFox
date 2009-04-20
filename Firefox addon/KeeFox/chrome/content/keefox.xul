@@ -35,7 +35,8 @@
     </toolbarbutton>
 
     <toolbarbutton id="KeeFox_Main-Button" tooltiptext="&KeeFox_Main-Button.loading.tip;"
-                 label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;" disabled="true" maxwidth="200"/>
+                 label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;"
+                   KFLock="disabled" disabled="true" maxwidth="200"/>
       
     <toolbarbutton id="KeeFox_Logins-Button" tooltiptext="&KeeFox_Logins-Button.tip;"
              label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu" image="chrome://mozapps/skin/passwordmgr/key.png">

@@ -342,11 +342,11 @@ KeeICE::KFlib::KPEntry::operator==(const KPEntry& __rhs) const
     {
         return true;
     }
-    if(hostName != __rhs.hostName)
+    if(URL != __rhs.URL)
     {
         return false;
     }
-    if(formURL != __rhs.formURL)
+    if(formActionURL != __rhs.formActionURL)
     {
         return false;
     }
@@ -384,19 +384,19 @@ KeeICE::KFlib::KPEntry::operator<(const KPEntry& __rhs) const
     {
         return false;
     }
-    if(hostName < __rhs.hostName)
+    if(URL < __rhs.URL)
     {
         return true;
     }
-    else if(__rhs.hostName < hostName)
+    else if(__rhs.URL < URL)
     {
         return false;
     }
-    if(formURL < __rhs.formURL)
+    if(formActionURL < __rhs.formActionURL)
     {
         return true;
     }
-    else if(__rhs.formURL < formURL)
+    else if(__rhs.formActionURL < formActionURL)
     {
         return false;
     }
@@ -454,8 +454,8 @@ KeeICE::KFlib::KPEntry::operator<(const KPEntry& __rhs) const
 void
 KeeICE::KFlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
 {
-    __os->write(hostName);
-    __os->write(formURL);
+    __os->write(URL);
+    __os->write(formActionURL);
     __os->write(HTTPRealm);
     __os->write(title);
     if(formFieldList.size() == 0)
@@ -474,8 +474,8 @@ KeeICE::KFlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
 void
 KeeICE::KFlib::KPEntry::__read(::IceInternal::BasicStream* __is)
 {
-    __is->read(hostName);
-    __is->read(formURL);
+    __is->read(URL);
+    __is->read(formActionURL);
     __is->read(HTTPRealm);
     __is->read(title);
     ::KeeICE::KFlib::__readKPFormFieldList(__is, formFieldList);

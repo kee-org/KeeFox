@@ -262,26 +262,7 @@ this._kfilm.removeGroup(testgroup1.uniqueID);
 
 logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 3), "Group deleted OK", "Something went wrong with the removal of testgroup1. Found " + logins.length + " logins but expected 3.", true);
-        
-/*
-TODO:
-commit current code with brief list of new stuff
-(friday)
-
-Refresh KeeFox Logins view and matched logins view after KeePass dialog boxes close (return true from KeePass = something has changed OR preferably just get event raised and then handled via usual ICE callback)
-callback 11,11,6,12 after keepass close instruction causes deadlock in ICE so both apps freeze. maybe only after group edit view had been opened?
-implement loadAndAutoSubmit line 800 ish KFILM
-make live.com work (need to to hook onto "DOM changed" event and examine forms then? if works, then in future need way to limit demand on CPU from constantly checking for forms. maybe max one check per 2 seconds?)
-populate options menu with all possible checkboxes and text boxes for locations, etc.
-(next friday)
-
-task tracker, etc.
-(next next friday)
-
-maybe: allow "save password" to ask which folder
-
-	*/	
-
+  
 
         if (this._KeeFoxTestErrorOccurred)
         {

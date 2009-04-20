@@ -208,8 +208,8 @@ void __readKPGroupList(::IceInternal::BasicStream*, KPGroupList&);
 
 struct KPEntry
 {
-    ::std::string hostName;
-    ::std::string formURL;
+    ::std::string URL;
+    ::std::string formActionURL;
     ::std::string HTTPRealm;
     ::std::string title;
     ::KeeICE::KFlib::KPFormFieldList formFieldList;

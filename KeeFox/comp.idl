@@ -40,7 +40,7 @@ interface kfILoginInfo : nsISupports {
      * The hostname should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
-    attribute AString hostname;
+    attribute AString URL;
 
     /**
      * The URL a form-based login was submitted to.
@@ -53,7 +53,7 @@ interface kfILoginInfo : nsISupports {
      * For logins obtained from a HTTP or FTP protocol authentication,
      * this field is NULL.
      */
-    attribute AString formSubmitURL;
+    attribute AString formActionURL;
 
     /**
      * The HTTP Realm a login was requested for.

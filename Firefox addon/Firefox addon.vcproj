@@ -171,10 +171,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\content\installKeeICE.html"
-			>
-		</File>
-		<File
 			RelativePath=".\KeeFox\chrome\skin\keefox.css"
 			>
 		</File>
