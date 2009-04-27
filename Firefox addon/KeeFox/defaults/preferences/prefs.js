@@ -1,3 +1,11 @@
 user_pref("extensions.chris.tomlinson@keefox.notifyBarWhenKeeICEInactive", true);
 user_pref("extensions.chris.tomlinson@keefox.notifyBarWhenLoggedOut", true);
+user_pref("extensions.chris.tomlinson@keefox.flashIconWhenKeeICEInactive", true);
+user_pref("extensions.chris.tomlinson@keefox.flashIconWhenLoggedOut", true);
 user_pref("extensions.chris.tomlinson@keefox.rememberMRUDB", true);
+user_pref("extensions.chris.tomlinson@keefox.debugToConsole", false);
+user_pref("extensions.chris.tomlinson@keefox.dynamicFormScanning", false);
+user_pref("extensions.chris.tomlinson@keefox.autoFillForms", true);
+user_pref("extensions.chris.tomlinson@keefox.autoSubmitForms", false);
+user_pref("extensions.chris.tomlinson@keefox.overWriteUsernameAutomatically", true);
+user_pref("extensions.chris.tomlinson@keefox.autoSubmitMatchedForms", true);

@@ -84,7 +84,7 @@ function prepareInstallPage() {
 //TODO: (0.7) support upgrades of KP and KI
 
 // only let this install script run once per firefox session
-//TODO: try to find out why this is needed so frequently
+//TODO: try to find out why this is needed so frequently (session restore / loadOnceInTab should keep it to one instance)
 //TODO: reset the flag in some cases (e.g. setup.exe cancelled) so user can begin again without FF restart
 if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
 {
@@ -101,8 +101,8 @@ mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
    // runKeeICEExecutableInstaller(keePassLocation);
     
     //mainWindow.keeFoxInst.log(checkDotNetFramework(mainWindow));
-
-    else {
+// deleted: else - no idea why it was there!
+    {
         if (userHasAdminRights(mainWindow))
             if (keePassLocation != "not installed")
                 installCase = 3;
@@ -509,7 +509,7 @@ functions to support the execution of IC5 (and IC2 tertiary)
  test to see if KeePass is installed in specified location, if it isn't, extract the portable zip file there
  then in either case we will copy the KeeICE files into the plugin folder
  */
- //TODO: rearrange this install process so that the folder is chosen first (before download) just in case user cancels first (so no bandwidth wasted)
+ //TODO: rearrange this install process so that the folder is chosen first (before download - or during?) just in case user cancels first (so minimal bandwidth wasted)
 function IC5zipKP() {
 
     if ((installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_TER))
@@ -856,12 +856,11 @@ function copyKeeICEFilesTo(keePassLocation)
         keeICELocation = mainWindow.keeFoxInst._discoverKeeICEInstallLocation(); // this also stores the preference
         KeeICEDLLfound = mainWindow.keeFoxInst._confirmKeeICEInstallLocation(keeICELocation);
         
-        // if we can't find the DLLs, they were probably not copied because of a permissions fault so lets try
-        // a fully escalated executable to get them put into place
+        // still not found!
         if (!KeeICEDLLfound)
         {
             mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keeICEInstalledLocation","");
-            //TODO: handle this unusual situation (e.g. Vista user cancelling UAC request)
+            //TODO: better handle this unusual situation (e.g. Vista user cancelling UAC request)
         }
     }
 }
@@ -882,7 +881,7 @@ function runKeeICEExecutableInstaller(keePassLocation)
 
 }
 
-//TODO: would be nice if this could go in a seperate thread but my guess is that would be masochistic
+// TODO: would be nice if this could go in a seperate thread but my guess is that would be masochistic
 // in the mean time I've tried sticking some thread.processNextEvent calls in at strategic points...
 function extractKPZip (zipFilePath, storeLocation) {
 
@@ -953,21 +952,13 @@ function extractKPZip (zipFilePath, storeLocation) {
 END:
 utility functions
 ********************/
-
-    
- /*   
-function finaliseInstall()
-{
-}*/
-   
+  
 /*
 
-TODO: 
+TODO in 0.7: 
 see if moving nsfile stuff outside of seperate thread stops all crashes again or if i just been unlucky
 test each install start point in VMs
-
 scrolling box for chrome window
-
 work out and configure sensible keepass defaults for use as a mainly browser based password management system (put option changes into the new user wizzard in KeeICE)
 
 */

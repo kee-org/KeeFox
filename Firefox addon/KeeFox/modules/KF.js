@@ -60,15 +60,20 @@ function KeeFox()
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
     this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-    this._KeeICEminVersion = 0.5;
-    this._KeeFoxVersion = 0.5;
+    this._KeeICEminVersion = 0.6;
+    this._KeeFoxVersion = 0.6;
     this.temp = 1;
+    this.callBackCount = 0;
     var prefs = this._keeFoxExtension.prefs;
     
     if (prefs.has("notifyBarWhenLoggedOut"))
         prefs.get("notifyBarWhenLoggedOut").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("notifyBarWhenKeeICEInactive"))
         prefs.get("notifyBarWhenKeeICEInactive").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("flashIconWhenLoggedOut"))
+        prefs.get("flashIconWhenLoggedOut").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("flashIconWhenKeeICEInactive"))
+        prefs.get("flashIconWhenKeeICEInactive").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("rememberMRUDB"))
         prefs.get("rememberMRUDB").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("dynamicFormScanning"))
@@ -81,8 +86,6 @@ function KeeFox()
         prefs.get("overWriteUsernameAutomatically").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("autoSubmitMatchedForms"))
         prefs.get("autoSubmitMatchedForms").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("overWriteUsernameAutomatically"))
-        prefs.get("overWriteUsernameAutomatically").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("keeICEInstalledLocation"))
         prefs.get("keeICEInstalledLocation").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("keePassInstalledLocation"))
@@ -90,10 +93,9 @@ function KeeFox()
     if (prefs.has("keePassMRUDB"))
         prefs.get("keePassMRUDB").events.addListener("change", this.preferenceChangeHandler);    
 
-//TODO: not ideal place to call these since they should happen only once per firefox session, not every time keefox wakes up
-        this._checkForConflictingExtensions();
-        this._registerUninstallListeners();
-        this._registerPlacesListeners();
+    this._checkForConflictingExtensions();
+    this._registerUninstallListeners();
+    this._registerPlacesListeners();
         
 }
 
@@ -106,6 +108,7 @@ editTest : function (numb)
 this._test = numb;
 },
     strbundle: null,
+    callBackCount : null,
 
     _KeeFoxXPCOMobj: null,
     ICEconnectorTimer: null,
@@ -127,6 +130,7 @@ this._test = numb;
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
+        dump(message+"\n");
         if (this._keeFoxExtension.prefs.getValue("debugToConsole",false))
             this._logService.logStringMessage(message);
     },
@@ -214,7 +218,7 @@ this._test = numb;
 
     _registerUninstallListeners: function() {
         //TODO: get my extension and add event listener for uninstall so we can explain 
-        //to user what will be uninstaleld and offer extra options for related apps
+        //to user what will be uninstaleld and offer extra options for related apps (i.e. "Uninstall KeePass too?")
     },
 
     _registerPlacesListeners: function() {
@@ -467,7 +471,7 @@ this._test = numb;
     _discoverKeeICEInstallLocation: function() {
         keeICELocation = "not installed";
         keePassLocation = "not installed";
-        //return keeICELocation; //HACK: debug
+        //return keeICELocation; //HACK: debug (forces install process to start)
         
         if (this._keeFoxExtension.prefs.has("keeICEInstalledLocation"))
         {
@@ -560,12 +564,13 @@ this._test = numb;
         this.ICEconnectorTimer.initWithCallback(event, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     },
 
-    // temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
+    // Temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
     // starts a regular check for KeeICE becoming available again.
     //TODO: test more thoroughly, especially multiple windows aspect
     _pauseKeeFox: function() {
         this.log("Pausing KeeFox.");
         this._keeFoxStorage.set("KeeICEActive", false);
+        this._keeFoxStorage.set("KeePassDatabaseOpen", false); // grrr. This was HOPEFULLY the missing statement that led to the deadlocks (actually a slowly executing infinite recursive loop that would take a long time to exhast the stack - win.keeFoxToolbar.setupButton_ready calls KF.getSatabaseName calls KF._pauseKeeFox). This note remains as a painful reminder and maybe a clue for future debugging!
         
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
                  getService(Ci.nsIWindowMediator);
@@ -626,7 +631,8 @@ this._test = numb;
             if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
             {
                 //win.keeFoxToolbar.setAllLogins(); // calling this from the JS callback causes a crash. why? not enough ICE threads? GC unable to understand? we need to update this view after each callback so what other possiblities are there? run it in a different thread? but then can't access UI... although could always call back to main thread AGAIN. run it as an event that is fired some time after the callback has left the JS scope? or just increase number of ICE threads available? or is it only happening on the 2nd JS callback in quick succession? if so could we skip one or delay an event or something? why does it sometimes think DB is closed? is the callback from a callback catching KeePass in an odd state?
-                win.keeFoxILM._fillDocument(win.content.document);
+                // actually, could have been same problem as other deadlocks, relating to infinite recursion and stack problems??? either way, doesn't look we need to call it any more so will remove before 1.0 ...
+                win.keeFoxILM._fillDocument(win.content.document,false);
             }
         }
         
@@ -669,6 +675,7 @@ this._test = numb;
                 this._pauseKeeFox();
                 break;
              default:
+                this.log("Unexpected exception while connecting to KeeICE. Please inform the KeeFox team that they should consider handling an exception with this code: " + e.result);
                 throw e;
             }
         }
@@ -1200,17 +1207,23 @@ this._test = numb;
     // we could define multiple callback functions but that looks like it needs 
     // really messy xpcom code so we'll stick with the one and just switch...
     //TODO?: will we need optional extra data parameter?
-    //TODO: handle difference between KeeICE going away and just the open
-    // DB going away. (not necessarilly just in this function)
     // this is only called once no matter how many windows are open. so functions within need to handle all open windows
     // for now, that just means every window although in future maybe there could be a need to store a list of relevant
     // windows and call those instead
+    //TODO: read "debug output" preference and skip output when appropriate
     CallBackToKeeFoxJS: function(sig) {
 
         var logService = Cc["@mozilla.org/consoleservice;1"].
                                 getService(Ci.nsIConsoleService);
 
         logService.logStringMessage("Signal received by CallBackToKeeFoxJS (" + sig + ")");
+        dump("Signal received by CallBackToKeeFoxJS (" + sig + ")");
+        
+        
+        keeFoxInst.callBackCount++;
+        logService.logStringMessage("new callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        dump("new callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        
         switch (sig) {
             case 0: logService.logStringMessage("Javascript callbacks from KeeFox XPCOM DLL are now disabled."); keeFoxInst._pauseKeeFox(); break;
             case 1: logService.logStringMessage("Javascript callbacks from KeeFox XPCOM DLL are now enabled."); break;
@@ -1227,13 +1240,17 @@ this._test = numb;
             case 12: logService.logStringMessage("KeePass is shutting down."); keeFoxInst._pauseKeeFox(); break;
             default: logService.logStringMessage("ERROR: Invalid signal received by CallBackToKeeFoxJS (" + sig + ")"); break;
         }
+        
+        keeFoxInst.callBackCount--;
+        logService.logStringMessage("finshed callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        dump("finshed callback count (" + sig + "):" + keeFoxInst.callBackCount);
 
     },
 
 //TODO: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM
     _onTabSelected: function(event) {
         event.target.ownerDocument.defaultView.keeFoxToolbar.setLogins(null);
-        event.target.ownerDocument.defaultView.keeFoxILM._fillDocument(event.target.contentWindow.document);
+        event.target.ownerDocument.defaultView.keeFoxILM._fillDocument(event.target.contentWindow.document,false);
     },
     
     
@@ -1268,7 +1285,8 @@ var keeFoxInst = new KeeFox;
 
 
 
-
+//TODO: it seems possible for this run function to be called during the KeeICE shutdown procedure but while ICE is still accepting new connections. This means that the vesion check succeeds and the main thread is told that ICE has returned, thereby cancelling the regular check. This probably happens more frequently while debugging delays are included in KeeICE but may happen in the wild too.
+// Could something similar happen to cause the deadlock after the KeePass window closed?
 function KeeFoxICEconnector() {
 }
 KeeFoxICEconnector.prototype = {
@@ -1315,6 +1333,7 @@ KFmoduleMainThreadHandler.prototype = {
                 case "ICEversionCheck":
                     if (this.reason == "finished") {
                         keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
+                        
                         //TODO: set up variables, etc. as per if it were an initial startup
                         keeFoxInst.ICEconnectorTimer.cancel();
 

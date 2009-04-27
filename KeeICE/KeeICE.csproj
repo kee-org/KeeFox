@@ -122,6 +122,12 @@
 "$(SolutionDir)..\Ice-3.3.0-VC90\bin\slice2cpp" -IC:\development\Ice-3.3.0-VC90\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
     <PostBuildEvent>echo POSTBUILDSTEP for $(ProjectName)
 
+REM IF NOT "$(ConfigurationName)"=="Debug" Goto :NotDebug
+REM Here, do things only for debug
+REM :NotDebug
+REM IF NOT "$(ConfigurationName)"=="Release" Goto :NotRelease
+REM :NotRelease
+
 copy "$(OutDir)Ice.dll" "$(SolutionDir)Firefox addon\KeeFox\deps\Ice.dll"
 if errorlevel 1 goto BuildEventFailed
 

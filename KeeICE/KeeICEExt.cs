@@ -65,8 +65,8 @@ namespace KeeICE
 			    props.setProperty("Ice.ACM.Client", "0");
                 props.setProperty("Ice.ThreadPool.Client.Size", "2");
                 props.setProperty("Ice.ThreadPool.Server.Size", "2");
-                props.setProperty("Ice.ThreadPool.Client.SizeMax", "20");
-                props.setProperty("Ice.ThreadPool.Server.SizeMax", "20");
+                props.setProperty("Ice.ThreadPool.Client.SizeMax", "200");
+                props.setProperty("Ice.ThreadPool.Server.SizeMax", "200");
 
 			    // Initialize a communicator with these properties.
 			    //
@@ -215,21 +215,24 @@ namespace KeeICE
 		/// <summary>
 		/// Free channel resources
 		/// </summary>
+        /// <remarks>what if an incoming KF request does a Reset on ensureDBisOpenEWH while ic is in shutdown procedures? could it deadlock the ICE thread?</remarks>
 		public override void Terminate()
 		{
             if (keeICEServer.kp != null)
                 keeICEServer.kp.issueICEClientCallbacks(12); //KF_STATUS_EXITING
             
-            // TODO: this only works when one ICE thread is waiting - we'll have to redevelop this locking mechanism soon...
-            // tell any waiting ICE threads to just go ahead (and not wait for the user to finish interacting
+            // Tell any waiting ICE threads to just go ahead (and not wait for the user to finish interacting
             // with the KP UI.
             KPI.ensureDBisOpenEWH.Set();
-            
-            keeICEServer.ic.shutdown();
-            keeICEServer.ic.waitForShutdown();
+            //Thread.Sleep(1000);
+            keeICEServer.ic.shutdown(); // no longer accept incoming connections from ICE clients
+            //Thread.Sleep(1000);
+            keeICEServer.ic.waitForShutdown(); // waits for current operations to complete
+            //Thread.Sleep(1000);
             //if (keeICEServer.kp != null) 
             //    keeICEServer.kp.issueICEClientCallbacks(6); //KF_STATUS_DATABASE_CLOSED
             keeICEServer.ic.destroy();
+            //Thread.Sleep(1000);
 
             // remove event listeners
             keeICEServer.m_host.MainWindow.FileOpened -= OnKPDBOpen;
@@ -241,7 +244,6 @@ namespace KeeICE
 
         private void OnKPDBSelected(object sender, EventArgs e)
         {
-            //KPI.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting ICE thread can go ahead
             if (keeICEServer.kp != null)
                 keeICEServer.kp.issueICEClientCallbacks(11); //KF_STATUS_DATABASE_SELECTED
         }

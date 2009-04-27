@@ -55,6 +55,7 @@ KFToolbar.prototype = {
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
+        dump(message+"\n");
         if (this._currentWindow.keeFoxInst._keeFoxExtension.prefs.getValue("debugToConsole",false))
             this._logService.logStringMessage(message);
     },
@@ -138,7 +139,7 @@ this.log("setLogins");
             if (i==0)
             {
                 container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
+                container.setAttribute("tooltiptext", login.username );
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
                     login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
                   //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
@@ -149,7 +150,7 @@ this.log("setLogins");
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
+            tempButton.setAttribute("tooltiptext", login.username);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
                 login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
             menupopup.appendChild(tempButton);
@@ -168,9 +169,11 @@ this.log("test2:"+container.getAttribute("oncommand"));
         {
             var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
             
-            this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
-        } else
-        {
+            if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
+                this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
+            return;
+        }// else
+        //{
             // get the popup menu for this list of logins and subgroups
             var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
 
@@ -178,7 +181,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
             for (i = container.childNodes.length; i > 0; i--) {
                 container.removeChild(container.childNodes[0]);
             }
-        }
+        //}
         
        /*
         var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, rootGroup.uniqueID);
@@ -480,14 +483,16 @@ this.log("test2:"+container.getAttribute("oncommand"));
         
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-        this.log("setupButton_ready1");
+            this.log("setupButton_ready1");
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
+            if (DBname == null || DBname == "")
+                return; // KeeICE suddenly dissapeared - toolbar will have been updated from deeper in the stack
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
            // mainButton.setAttribute("oncommand", "alert('blah')");
             mainButton.setAttribute("disabled", "true");
             mainButton.removeAttribute("oncommand");
-        
+        this.log("setupButton_ready1end");
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false))
         {
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));

@@ -100,6 +100,8 @@ interface kfILoginInfo : nsISupports {
 
 	attribute AString title;
 
+	attribute long relevanceScore;
+
 
     /**
      * Initialize a newly created nsLoginInfo object.
@@ -132,7 +134,7 @@ interface kfILoginInfo : nsISupports {
      * @param ignorePassword
      *        If true, ignore the password when checking for match.
      */
-    boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword);
+    boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes);
 
 	void initCustom(in AString aHostname,
               in AString aFormSubmitURL, in AString aHttpRealm,

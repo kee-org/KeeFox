@@ -262,7 +262,52 @@ this._kfilm.removeGroup(testgroup1.uniqueID);
 
 logins = this._kfilm.getAllLogins({});
         this._KeeFoxAssert((logins.length == 3), "Group deleted OK", "Something went wrong with the removal of testgroup1. Found " + logins.length + " logins but expected 3.", true);
-  
+        
+/*
+TODO:
+
+stop the auto-submit triggering after log out? does it happen? how to stop if it does?
+
+task tracker, etc.
+callback 11,11,6,12 after keepass close instruction causes deadlock in ICE so both apps freeze. also seems to try opening multiple (3) databases after FF is closed (which can't always be done...)
+tidy installer if needed and check a few cases in XP and Vista VMs
+(sunday)
+
+publish 0.6
+(next friday)
+
+automatic form completion for matching password entries
+automatic form submission
+direct ("two click"?) login for any password entry straight from firefox toolbar
+
+Some configuration settings and password entry custom fields will change in next version. I'll try to migrate some but it'll mainly be to establish a working process for doing so in subsequent finished versions so it may still be necessary to wipe it al clean for a fresh start with 0.7. Watch this space...
+
+HTTP authentication popup box support
+multiple password fields on one page
+multiple page login procedures
+add passwords to specific sub folder
+better handling of sites with multiple passwords, e.g. password priorities?
+custom form field support, e.g. "use HTTPS login" checkbox
+many interface improvements including prettification, especially the setup process
+
+
+two page logins could be handled with same password entry - each time page loads, the uniqueref will idetify which password to use and algorithm could be altered to consider all custom fields with type password as valid password matches. but how to do it from the "matched logins" system? just multiple clicks (one per page) would be easiest and probably perfectly acceptable. how to save passwords though? after initial "save password"? prompt, can we remember the details and combine them with the next form submission on that same tab? do we need user to tell us "it's multi-page" or can we guess? (risks merging two unrelated logins). how to do multilpe auto-submits without infinite repeats like now when password error throws one back to the original page?
+
+
+set of custom fields like:
+page_2_username...
+
+their relevance score increases (doubles?) if it is matched against a form on the 2nd load of submision set.
+
+track numberOfTabFillsRemaining. starts at 1 for now (eventually can be more id "page_2_custom" fields are found in most relevant matched login;
+decremented after every form fill (not necessarilly submision);
+if tab loads and finds it at <=0 then autofill and autosubmit are cancelled.
+eventually during matched click fill, reset the value (so autosubmit can continue if initial form submision went wrong for some reason).
+
+for now, set it to 0 on autofill and set it to null when it finds it at <=0 (effectively just an extendable flag)
+
+	*/	
+
 
         if (this._KeeFoxTestErrorOccurred)
         {

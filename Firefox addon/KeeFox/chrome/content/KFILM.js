@@ -82,9 +82,54 @@ KFILM.prototype = {
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
+        dump(message+"\n");
         if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
             this._logService.logStringMessage(message);
     },
+    
+    
+    //TODO: improve weighting of matches to reflect real world tests
+    _calculateRelevanceScore : function (login, form, usernameField, passwordField) {
+
+        var score = 0;
+        var actionURL = this._getActionOrigin(form);
+        var URL = form.baseURI;
+        
+        if (actionURL == login.formActionURL)
+            score += 20;
+            
+        if (this._getURIExcludingQS(actionURL) == this._getURIExcludingQS(login.formActionURL))
+            score += 15;
+            
+        if (this._getURISchemeHostAndPort(actionURL) == this._getURISchemeHostAndPort(login.formActionURL))
+            score += 10;
+            
+        if (this._getURIHostAndPort(actionURL) == this._getURIHostAndPort(login.formActionURL))
+            score += 8;
+
+        if (URL == login.URL)
+            score += 7;
+            
+        if (this._getURIExcludingQS(URL) == this._getURIExcludingQS(login.URL))
+            score += 6;
+            
+        if (this._getURISchemeHostAndPort(URL) == this._getURISchemeHostAndPort(login.URL))
+            score += 5;
+            
+        if (this._getURIHostAndPort(URL) == this._getURIHostAndPort(login.URL))
+            score += 4;
+
+        // TODO: username and password field test unlikely to help much but shouldn't harm either so will leave it in for testing for a bit
+        if (usernameField == login.usernameField)
+            score += 3;
+            
+        if (passwordField == login.passwordField)
+            score += 2;
+        
+        this.log("Relevance for " + login.username + " is: "+score);
+        return score;
+    },
+    
 
     init : function () {
         this.log("ILM init start");
@@ -233,7 +278,7 @@ KFILM.prototype = {
             // Fastback doesn't fire DOMContentLoaded, so process forms now.
             if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING) {
                 this._pwmgr.log("onStateChange: restoring document");
-                return this._pwmgr._fillDocument(domDoc);
+                return this._pwmgr._fillDocument(domDoc,true);
             }
 
             // Add event listener to process page when DOM is complete.
@@ -241,14 +286,14 @@ KFILM.prototype = {
                                     this._domEventListener, false);
             
             // Add event listener to process page when DOM is complete.
-            //TODO: this doesn't work. Would be interesting to see what happens if we get it working but what we really want is an event that's guaranteed to run after all site onload code has finished - not sure if that's possible...
+            //TODO: this doesn't work. Would be interesting to see what happens if we get it working but what we really want is an event that's guaranteed to run after all site onload code has finished - not sure if that's possible... plus we get support for fully dynamic websites with the workaround anyway.
             // domDoc.addEventListener("load",
             //                        this._domEventListener, false);
             
             // attempt to refill the forms on the current tab in this window at a regular interval
             // This is to enable manual form filling of sites which generate forms dynamically
             // (i.e. after initial DOM load)
-            if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",true))
+            if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                 this._pwmgr._refillTimer.init(this._domEventListener, 500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                                     
             return;
@@ -299,17 +344,27 @@ KFILM.prototype = {
             switch (event.type) {
                 case "DOMContentLoaded":
                     doc = event.target;
-                    //this._pwmgr._fillDocument(doc,true);
-                    /*for (var i = 0; i < doc.forms.length; i++) {
-                        var form = doc.forms[i];
-                        for (var j = 0; j < form.elements.length; j++) {
-                            alert(form.elements[j].value);
-                        }
-                    }*/
-                    return;
-                    
-                case "load":
-                    doc = event.target;
+                    /*
+                    var KFTabState = {
+        docFillAttemptCount: null
+        //TODO: store this to help improve refill feature:
+        // number of forms in document
+        // form.length = number of control items in a form
+        }
+        
+        KFTabState.docFillAttemptCount = 0;
+        
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                        .getService(Components.interfaces.nsIWindowMediator);
+        var newWindow = wm.getMostRecentWindow("navigator:browser");
+        var b = newWindow.getBrowser();
+        var newTab = b.loadOneTab( actionURL, null, null, null, false, null );
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                .getService(Components.interfaces.nsISessionStore);
+
+        ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
+        ss.setTabValue(newTab, "KF_autoSubmit", "yes");*/
+        
                     this._pwmgr._fillDocument(doc,true);
                     /*for (var i = 0; i < doc.forms.length; i++) {
                         var form = doc.forms[i];
@@ -318,6 +373,17 @@ KFILM.prototype = {
                         }
                     }*/
                     return;
+                    
+                //case "load":
+                    //doc = event.target;
+                    //this._pwmgr._fillDocument(doc,true);
+                    /*for (var i = 0; i < doc.forms.length; i++) {
+                        var form = doc.forms[i];
+                        for (var j = 0; j < form.elements.length; j++) {
+                            alert(form.elements[j].value);
+                        }
+                    }*/
+                 //   return;
 
                 default:
                     this._pwmgr.log("Oops! This event unexpected.");
@@ -386,7 +452,7 @@ KFILM.prototype = {
         if (!pwFields)
             return [null, null];
 
-
+this.log("testingaaa");
         // Locate the username field in the form by searching backwards
         // from the first passwordfield, assume the first text field is the
         // username. If this fails, try to find a hidden field with one of a number of names.
@@ -411,13 +477,13 @@ KFILM.prototype = {
         if (!usernameField)
             this.log("(form -- no username field found)");
 
-
+this.log("testingbbb:"+pwFields.length);
         // If we're not submitting a form (it's a page load), there are no
         // password field values for us to use for identifying fields. So,
         // just assume the first password field is the one to be filled in.
         // blah, just do it anyway. caller can make the decision - it shouldn't
         // be down to this function to interpret the situation since it may be 
-        // easier to do basde on knowledge of circumstances that led to the function being called
+        // easier to do based on knowledge of the circumstances that led to the function being called
         //if (!isSubmission || pwFields.length == 1)
             return [usernameField, pwFields];
 
@@ -483,7 +549,7 @@ KFILM.prototype = {
      */
     addLogin : function (login, parentUUID) {
         // Sanity check the login
-        if (login.hostname == null || login.hostname.length == 0)
+        if (login.URL == null || login.URL.length == 0)
             throw "Can't add a login with a null or empty hostname.";
 
         // For logins w/o a username, set to "", not null.
@@ -493,13 +559,13 @@ KFILM.prototype = {
         if (login.password == null || login.password.length == 0)
             throw "Can't add a login with a null or empty password.";
 
-        if (login.formSubmitURL || login.formSubmitURL == "") {
+        if (login.formActionURL || login.formActionURL == "") {
             // We have a form submit URL. Can't have a HTTP realm.
             if (login.httpRealm != null)
                 throw "Can't add a login with both a httpRealm and formSubmitURL.";
         } else if (login.httpRealm) {
             // We have a HTTP realm. Can't have a form submit URL.
-            if (login.formSubmitURL != null)
+            if (login.formActionURL != null)
                 throw "Can't add a login with both a httpRealm and formSubmitURL.";
         } else {
             // Need one or the other!
@@ -508,7 +574,7 @@ KFILM.prototype = {
 
 
         // Look for an existing entry.
-        var logins = this.findLogins({}, login.hostname, login.formSubmitURL,
+        var logins = this.findLogins({}, login.URL, login.formActionURL,
                                      login.httpRealm);
 
         if (logins.some(function(l) login.matches(l, true)))
@@ -622,6 +688,98 @@ KFILM.prototype = {
             return this._kf.countLogins(hostName,actionURL,loginSearchType);
         }
     },
+
+    /*
+     * _getURIExcludingQS
+     *
+     * Get a string that incldues all but a URI's query string
+     */
+    _getURIExcludingQS : function (uriString) {
+
+        var realm = "";
+        try {
+            var uri = this._ioService.newURI(uriString, null, null);
+
+            realm = uri.scheme + "://" + uri.host;
+
+            // If the URI explicitly specified a port, only include it when
+            // it's not the default. (We never want "http://foo.com:80")
+            var port = uri.port;
+            if (port != -1) {
+                var handler = this._ioService.getProtocolHandler(uri.scheme);
+                if (port != handler.defaultPort)
+                    realm += ":" + port;
+            }
+            
+            var QSbreak = uri.path.indexOf('?');
+            
+            realm += uri.path.substring(1,QSbreak > 1 ? QSbreak : uri.path.length);
+
+        } catch (e) {
+            this.log("Couldn't parse origin for " + uriString);
+            realm = null;
+        }
+        return realm;
+    },
+    
+    /*
+     * _getURIHostAndPort
+     *
+     * Get a string that includes only a URI's host and port
+     */
+    _getURIHostAndPort : function (uriString) {
+
+        var realm = "";
+        try {
+            var uri = this._ioService.newURI(uriString, null, null);
+
+            realm = uri.host;
+
+            // If the URI explicitly specified a port, only include it when
+            // it's not the default. (We never want "http://foo.com:80")
+            var port = uri.port;
+            if (port != -1) {
+                var handler = this._ioService.getProtocolHandler(uri.scheme);
+                if (port != handler.defaultPort)
+                    realm += ":" + port;
+            }
+
+        } catch (e) {
+            this.log("Couldn't parse origin for " + uriString);
+            realm = null;
+        }
+        return realm;
+    },
+    
+    /*
+     * _getURISchemeHostAndPort
+     *
+     * Get a string that includes only a URI's scheme, host and port
+     */
+    _getURISchemeHostAndPort : function (uriString) {
+
+        var realm = "";
+        try {
+            var uri = this._ioService.newURI(uriString, null, null);
+
+            realm = uri.scheme + "://" + uri.host;
+
+            // If the URI explicitly specified a port, only include it when
+            // it's not the default. (We never want "http://foo.com:80")
+            var port = uri.port;
+            if (port != -1) {
+                var handler = this._ioService.getProtocolHandler(uri.scheme);
+                if (port != handler.defaultPort)
+                    realm += ":" + port;
+            }
+
+        } catch (e) {
+            this.log("Couldn't parse origin for " + uriString);
+            realm = null;
+        }
+        this.log("_getURISchemeHostAndPort:"+realm);
+        return realm;
+    },
     
     /*
      * _getPasswordOrigin
@@ -673,6 +831,7 @@ this.log("realm:"+realm);
         return this._getPasswordOrigin(uriString, true);
     },
     
+    //TODO: something in here may be the trigger for the deadlock bug when closing KeePass (when JS bug in this function stops it working, I've struggled to reproduce the intermittent deadlock). Top suspect is the getDatabaseName call in TB.setupButton_ready via TB.setLogins
     /*
      * _fillDocument
      *
@@ -681,7 +840,7 @@ this.log("realm:"+realm);
      */
     _fillDocument : function (doc, initialPageLoad)
     {
-        // We'll do things diferently if this is a fill operation some time after the page has alread loaded (e.g. don't auto-fill or auto-submit in case we overwrite user's data)
+        // We'll do things differently if this is a fill operation some time after the page has alread loaded (e.g. don't auto-fill or auto-submit in case we overwrite user's data)
         if ( initialPageLoad === undefined )
             initialPageLoad = false;
 
@@ -694,7 +853,7 @@ this.log("realm:"+realm);
                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
-        if (mainWindow.content.document != doc)// TODO: check this is a valid way to come to this decision
+        if (mainWindow.content.document != doc)
         {
             this.log("skipping document fill (this is not the currently active tab)");
             return;
@@ -703,6 +862,7 @@ this.log("realm:"+realm);
         this.log("attempting document fill");
         
         var uniqueID = "";
+        var logins = [];
         
         // auto fill the form by default unless a preference or tab variable tells us otherwise
         var autoFillForm = this._kf._keeFoxExtension.prefs.getValue("autoFillForms",true);
@@ -724,11 +884,25 @@ this.log("realm:"+realm);
         var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
         var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(doc)];
         var retrievedData = ss.getTabValue(currentTab, "KF_uniqueID");
-
+        var numberOfTabFillsRemaining = ss.getTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+        
+        // If we have exceeded the maximum number of expected pages during this form filling session, we reset the record of those fills
+        // and ensure that we don't auto-fill or auto-submit the form (chances are high that password or server fault occured)
+        if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining.length > 0)
+        {
+            this.log("Found this numberOfTabFillsRemaining in the tab: " + numberOfTabFillsRemaining);
+            if (numberOfTabFillsRemaining == "0")
+            {
+                autoSubmitForm = false;
+                autoFillForm = false;
+                ss.deleteTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+            }
+        }
+        
         if (retrievedData != undefined && retrievedData != null && retrievedData != "")
         {
             this.log("Found this KeePass uniqueID in the tab: " + retrievedData);
-            ss.deleteTabValue(currentTab, "KF_uniqueID");
+            ss.deleteTabValue(currentTab, "KF_uniqueID"); //TODO: for multi-page logins, will need to do this selectively based on number of fills remaining
             uniqueID = retrievedData;
             
             // we defiitely want to fill the form with this data
@@ -757,29 +931,37 @@ this.log("realm:"+realm);
         {
             notifyBarWhenKeeICEInactive = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeeICEInactive",false);
             
-            if (notifyBarWhenKeeICEInactive)
+            if (notifyBarWhenKeeICEInactive && initialPageLoad)
             {
                 keeFoxUI.setWindow(doc.defaultView);
                 keeFoxUI.setDocument(doc);
                 keeFoxUI._showLaunchKFNotification();
             }
-            keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
+            
+            flashIconWhenKeeICEInactive = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenKeeICEInactive",true);
+ 
+            if (flashIconWhenKeeICEInactive && initialPageLoad)
+                keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
             return;
         } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
             notifyBarWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",false);
             
-            if (notifyBarWhenLoggedOut)
+            if (notifyBarWhenLoggedOut && initialPageLoad)
             {
                 keeFoxUI.setWindow(doc.defaultView);
                 keeFoxUI.setDocument(doc);
                 keeFoxUI._showLoginToKFNotification();
             }
-            keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
+            
+            flashIconWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
+            
+            if (flashIconWhenLoggedOut && initialPageLoad)
+                keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keeFoxToolbar._currentWindow);
             return;
         }
 
-        var formOrigin = this._getPasswordOrigin(doc.documentURI);
+        var formOrigin = this._getURIHostAndPort(doc.documentURI);
 
         // If there are no logins for this site, bail out now.
         if (!this.countLogins(formOrigin, "", null))
@@ -796,10 +978,16 @@ this.log("realm:"+realm);
         
         var allMatchingLogins = [];
         var formToAutoSubmit;
+        var formRelevanceScores = [];
+        var usernameFields = [];
+        var passwordFields = [];
 
         for (var i = 0; i < forms.length; i++) {
             var form = forms[i];
-
+            var loginRelevanceScores = [];
+            logins[i] = [];
+            
+this.log("test:"+i);
             // Heuristically determine what the user/pass fields are
             // We do this before checking to see if logins are stored,
             // so that the user isn't prompted for a master password
@@ -807,10 +995,13 @@ this.log("realm:"+realm);
             //TODO: is this Mozilla stuff useful or should we change it?
             var [usernameField, passwords] =
                 this._getFormFields(form, false);
-            var passwordField;
+            var passwordField = null;
             
             if (passwords != null && passwords.length > 0 && passwords[0] != null)
+            {
+            this.log("pwfound");
                 passwordField = passwords[0].element;
+                }
                 
             // Need a valid password field to do anything.
             if (passwordField == null || passwordField == undefined)
@@ -818,11 +1009,10 @@ this.log("realm:"+realm);
                 this.log("no password field found in this form");
                 continue;
             }
-//alert("ttt:"+passwordField.value);
 
             // Only the actionOrigin might be changing, so if it's the same
             // as the last form on the page we can reuse the same logins.
-            var actionOrigin = this._getActionOrigin(form);
+            var actionOrigin = this._getURIHostAndPort(this._getActionOrigin(form));
             if (actionOrigin != previousActionOrigin) {
                 var foundLogins =
                     this.findLogins({}, formOrigin, actionOrigin, null);
@@ -849,7 +1039,7 @@ this.log("realm:"+realm);
             if (passwordField.maxLength >= 0)
                 maxPasswordLen = passwordField.maxLength;
 
-            logins = foundLogins.filter(function (l) {
+            logins[i] = foundLogins.filter(function (l) {
                     var fit = (l.username.length <= maxUsernameLen &&
                                l.password.length <= maxPasswordLen);
                     if (!fit)
@@ -860,126 +1050,156 @@ this.log("realm:"+realm);
 
 
             // Nothing to do if we have no matching logins available.
-            if (logins.length == 0)
+            if (logins[i].length == 0)
                 continue;
             
             this.log("match found!");
             
-            if (autoFillForm) {
-
-                // first, if we have been instructed to load a specific login on this page, do that
-                if (uniqueID.length > 0)
-                {
-                    var matchingLogin;
-                    var found = logins.some(function(l) {
-                                                matchingLogin = l;
-                                                return (l.uniqueID == uniqueID);
-                                            });
-                    if (found)
-                    {
-                        passwordField.value = matchingLogin.password;
-                        alert(passwordField.value);
-                        if (usernameField)
-                            usernameField.value = matchingLogin.username;
-                        formsReadyForSubmit++;
-                        formToAutoSubmit = form;
-                    }
-                    else
-                    {
-                        this.log("Password not filled. None of the stored " +
-                                 "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
-                    }
-                
-                } else if (!overWriteUsernameAutomatically && usernameField && usernameField.value) {
-                    // If username was specified in the form, only fill in the
-                    // password if we find a matching login.
-
-                    var username = usernameField.value;
-                    
-                    this.log("username found: " + username);
-
-                    var matchingLogin;
-                    var found = logins.some(function(l) {
-                                                matchingLogin = l;
-                                                return (l.username == username);
-                                            });
-                    if (found)
-                    {
-                        passwordField.value = matchingLogin.password;
-                        formsReadyForSubmit++;
-                        formToAutoSubmit = form;
-                    }
-                    else
-                    {
-                        this.log("Password not filled. None of the stored " +
-                                 "logins match the username already present.");
-                    }
-                } else if (usernameField && logins.length == 2) {
-                //TODO: this needs reworking RE KeePass storage options
-                    // Special case, for sites which have a normal user+pass
-                    // login *and* a password-only login (eg, a PIN)...
-                    // When we have a username field and 1 of 2 available
-                    // logins is password-only, go ahead and prefill the
-                    // one with a username.
-                    if (!logins[0].username && logins[1].username) {
-                        usernameField.value = logins[1].username;
-                        passwordField.value = logins[1].password;
-                        formsReadyForSubmit++;
-                        formToAutoSubmit = form;
-                    } else if (!logins[1].username && logins[0].username) {
-                        usernameField.value = logins[0].username;
-                        passwordField.value = logins[0].password;
-                        formsReadyForSubmit++;
-                        formToAutoSubmit = form;
-                    }
-                    
-                } 
-                
-                //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
-                // or make this the point where we look for exactURL matches, etc.
-                
-                else if (logins.length == 1) {
-                
-                    if (usernameField)
-                        usernameField.value = logins[0].username;
-                    passwordField.value = logins[0].password;
-                    formsReadyForSubmit++;
-                    formToAutoSubmit = form;
-                } else {
-                    this.log("Multiple logins for form, so not filling any."); //TODO: weak! We can do better soon...
-                }
-                
-            }
+            usernameFields[i] = usernameField;
+            passwordFields[i] = passwordField;
             
+            // determine the relevance of each login entry to this form
+            // we could skip this when autofilling based on uniqueID but we would have to check for
+            // matches first or else we risk no match and no alternative matching logins on the toolbar
+           for (var v = 0; v < logins[i].length; v++)
+            logins[i][v].relevanceScore = this._calculateRelevanceScore (logins[i][v],form,usernameField,passwordField);
+            
+            // the overall relevance of this form is the maximum of it's matching entries (so we fill the most relevant form)
+            formRelevanceScores[i] = 0;
+            logins[i].forEach(function(c) { if (c.relevanceScore > formRelevanceScores[i])
+                                            formRelevanceScores[i] = c.relevanceScore; } );
+             
             // only remember the logins which are not already in our list of matching logins
             // (not sure yet if this will happen in a completely bug free final version - it depends on how I design the comparison of form action URL - but it's handy in my currently buggy version anyway!)
-            var newUniqueLogins = logins.filter(function(i) {
+            var newUniqueLogins = logins[i].filter(function(d) {
                                                 //matchingLogin = l;
-                                                return (allMatchingLogins.every(function(j) {
+                                                return (allMatchingLogins.every(function(e) {
                                                     //matchingLogin = l;
-                                                    return (i.uniqueid != j.uniqueid);
+                                                    return (d.uniqueid != e.uniqueid);
                                                 }));
                                             });
             allMatchingLogins = allMatchingLogins.concat(newUniqueLogins);
             
-            //alert(passwordField.value);
-
-        } // foreach form
-
-        //this.log(formsReadyForSubmit);
+            
+        }  // end of form for loop
         
-        if (autoSubmitForm && formsReadyForSubmit == 1) //TODO: use some extra info so we can sometimes submit forms even when more than one on the page has been auto-filled.
-        {
-      //  alert("submit...");
+        var mostRelevantFormIndex = 0;
+        formRelevanceScores.forEach(function(c) { if (c.relevanceScore > formRelevanceScores[mostRelevantFormIndex])
+                                            mostRelevantFormIndex = index; } );
+        
+        // from now on we concentrate on just the most relevant form and the fields we found earlier
+        form = forms[mostRelevantFormIndex];
+        var passwordField = passwordFields[mostRelevantFormIndex];
+        var usernameField = usernameFields[mostRelevantFormIndex];
 
-                        for (var j = 0; j < formToAutoSubmit.elements.length; j++) {
-        //                    alert(formToAutoSubmit.elements[j].value);
-                        }
+        if (autoFillForm) {
+
+            // first, if we have been instructed to load a specific login on this page, do that
+            //TODO: this may not work if requested login can't be exactly matched to a form but another login can
+            if (uniqueID.length > 0)
+            {
+                var matchingLogin;
+                var found = logins[mostRelevantFormIndex].some(function(l) {
+                                            matchingLogin = l;
+                                            return (l.uniqueID == uniqueID);
+                                        });
+                if (found)
+                {
+                    passwordField.value = matchingLogin.password;
+                    //alert(passwordField.value);
+                    if (usernameField)
+                        usernameField.value = matchingLogin.username;
+                    formsReadyForSubmit++;
+                }
+                else
+                {
+                    this.log("Password not filled. None of the stored " +
+                             "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
+                }
+            
+            } else if (!overWriteUsernameAutomatically && usernameField && usernameField.value) {
+                // If username was specified in the form, only fill in the
+                // password if we find a matching login.
+
+                var username = usernameField.value;
+                
+                this.log("username found: " + username);
+
+                var matchingLogin;
+                var found = logins[mostRelevantFormIndex].some(function(l) {
+                                            matchingLogin = l;
+                                            return (l.username == username);
+                                        });
+                if (found)
+                {
+                    passwordField.value = matchingLogin.password;
+                    formsReadyForSubmit++;
+                }
+                else
+                {
+                    this.log("Password not filled. None of the stored " +
+                             "logins match the username already present.");
+                }
+             } /* else if (usernameField && logins.length == 2) {
+            //TODO: this needs reworking RE KeePass storage options
+                // Special case, for sites which have a normal user+pass
+                // login *and* a password-only login (eg, a PIN)...
+                // When we have a username field and 1 of 2 available
+                // logins is password-only, go ahead and prefill the
+                // one with a username.
+                if (!logins[0].username && logins[1].username) {
+                    usernameField.value = logins[1].username;
+                    passwordField.value = logins[1].password;
+                    formsReadyForSubmit++;
+                    formToAutoSubmit = form;
+                } else if (!logins[1].username && logins[0].username) {
+                    usernameField.value = logins[0].username;
+                    passwordField.value = logins[0].password;
+                    formsReadyForSubmit++;
+                    formToAutoSubmit = form;
+                }
+                
+            } */
+            
+            //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
+            
+            else if (logins[mostRelevantFormIndex].length == 1) {
+            
+                if (usernameField)
+                    usernameField.value = logins[mostRelevantFormIndex][0].username;
+                passwordField.value = logins[mostRelevantFormIndex][0].password;
+                formsReadyForSubmit++;
+            } else {
+                this.log("Multiple logins for form, so estimating most relevant.");
+                var mostRelevantLoginIndex = 0;
+                
+                for (var count = 0; count < logins[mostRelevantFormIndex].length; count++)
+                    if (logins[mostRelevantFormIndex][count].relevanceScore > logins[mostRelevantFormIndex][mostRelevantLoginIndex].relevanceScore)
+                        mostRelevantLoginIndex = count;
+                    
+                    if (usernameField)
+                        usernameField.value = logins[mostRelevantFormIndex][mostRelevantLoginIndex].username;
+                    passwordField.value = logins[mostRelevantFormIndex][mostRelevantLoginIndex].password;
+                    formsReadyForSubmit++;
+                    
+            }
+            
+        }
+       
+        //alert(passwordField.value);
+       
+        // if any forms were auto-filled successfully, consume one of our permitted form fills
+        if (formsReadyForSubmit >= 1)
+            ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", "0"); //TODO: number of pages expected for this login - 1
+        
+        if (autoSubmitForm && formsReadyForSubmit == 1)
+        {
+        //  for (var j = 0; j < form.elements.length; j++) {
+        //      alert(formToAutoSubmit.elements[j].value);
+        //  }
 
             this.log("Auto-submitting form...");
-            formToAutoSubmit.submit();
-    //        alert("submit done.");
-        
+            form.submit();
         } else
         {
             this.log("Using toolbar password fill.");
@@ -1003,19 +1223,11 @@ this.log("realm:"+realm);
         ss.setTabValue(newTab, "KF_autoSubmit", "yes");
     },
     
-    // TODO: how do we know which login the user wants filled in? could use form id or username input id but what if
-    // there is not one of those? form action could work? I guess we can only be as accurate as the data held in KeePass
-    // anyway. ultimately, if a form has a username and password field and submits to the same action as the one in 
-    // KeePass, we should be safe. maybe breaks if same form action used but just with hidden ids to change the mode 
-    // of the resulting page. maybe try form and/or input field id match first and fall abck to action URL?
-    
     // login to be used is indentified via KeePass uniqueID (GUID)
-    // can we call this function after deciding to autofill (to share code)?
-    
     // TODO: handle situations where either forms fields or logins have dissapeared in the mean time.
-
-    //TODO: formID innacurate (so not used yet)
-    fill : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
+    // TODO: formID innacurate (so not used yet)
+    // TODO: extend so more than one form can be filled, with option to automatically submit form that matches most accuratly
+        fill : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
         this.log("fill login details from username field: " + usernameName + ":" + usernameValue);
         
         var doc = Application.activeWindow.activeTab.document;
@@ -1071,9 +1283,11 @@ this.log("realm:"+realm);
         {this.log("0");
             for (var i = 0; i < doc.forms.length; i++) {
                 var formi = doc.forms[i];
-                this.log("1:"+actionURL+":"+this._getActionOrigin(formi));
-                //if (this._getActionOrigin(formi) == actionURL) //TODO: this means that we can never fill in a form where the action URL has changed - need to improve that.
-                //{this.log("2");
+                //this.log("1:"+actionURL+":"+this._getActionOrigin(formi));
+                
+                // only fill in forms that match the host and port of the selected login
+                // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
+                if (this._getURISchemeHostAndPort(this._getActionOrigin(formi)) == this._getURISchemeHostAndPort(actionURL))                {
                     form = formi;
                     [usernameField, passwords] = this._getFormFields(form, false);
                     
@@ -1082,7 +1296,7 @@ this.log("realm:"+realm);
                     
                     var passwordField = passwords[0].element;
                     break;
-                //}
+                }
             }
             
         }
@@ -1093,24 +1307,21 @@ this.log("realm:"+realm);
             return;
         }
 
-        var hostname = this._getPasswordOrigin(doc.documentURI);
+        var URL = this._getPasswordOrigin(doc.documentURI);
         
         var title = doc.title;
         
-       // var formSubmitURL = this._getActionOrigin(form)
-
-//TODO: initCustom then extend search function to weight the id of form items
         // Temporary LoginInfo with the info we know.
         var currentLogin = new this._kfLoginInfo();
         this.log("titleA:"+title);
-        currentLogin.init(hostname, actionURL, null,
+        currentLogin.init(URL, actionURL, null,
                           usernameValue, null,
                           (usernameField ? usernameField.name  : ""),
                           passwordField.name, uniqueID, title);
 
         // Look for a existing login and use its password.
         var match = null;
-        var logins = this.findLogins({}, hostname, actionURL, null, uniqueID);
+        var logins = this.findLogins({}, URL, actionURL, null, uniqueID);
         this.log(logins.length);
         this.log(logins[0]);
         
@@ -1139,7 +1350,7 @@ this.log("realm:"+realm);
         this.log("Found a matching login, filling in password.");
         // TODO: this whole function could be improved if there's a way to support filling of multiple password fields (either with different or the same password)
         passwordField.value = match.password;
-        if (usernameField != null)
+        if (usernameField != null && (usernameField.value.length == 0 || this._kf._keeFoxExtension.prefs.getValue("overWriteUsernameAutomatically",true)))
             usernameField.value = match.username;
             
         if (autoSubmitForm)
@@ -1228,7 +1439,7 @@ this.log("realm:"+realm);
             } else // it's probably a password change form
             {
                 this.log("Looks like a password change form has been submitted");
-                // there may be more than one pair of matches - tough, we're plucking for the first one
+                // there may be more than one pair of matches - though, we're plucking for the first one
                 // we know the index of one matching password
                 
                 // if there are only two passwords
@@ -1308,20 +1519,20 @@ this.log("realm:"+realm);
             // same password. Otherwise, compare the logins and match even
             // if the passwords differ.
             // CPT: this seems flawed. maybe i put it in the wrong place now but it
-            // doesn't make sence to match passwords under any circumstances when we're
+            // doesn't make sense to match passwords under any circumstances when we're
             // on the lookout for changed passwords.
             //TODO maybe: handle seperate cases based on existance of oldPasswordField
             if (!login.username && formLogin.username) {
                 var restoreMe = formLogin.username;
                 formLogin.username = ""; 
-                same = formLogin.matches(login, true);
+                same = formLogin.matches(login, true, true, true);
                 formLogin.username = restoreMe;
             } else if (!formLogin.username && login.username) {
                 formLogin.username = login.username;
-                same = formLogin.matches(login, true);
+                same = formLogin.matches(login, true, true, true);
                 formLogin.username = ""; // we know it's always blank.
             } else {
-                same = formLogin.matches(login, true);
+                same = formLogin.matches(login, true, true, true);
             }
 
             if (same) {

@@ -58,7 +58,7 @@ module KFlib {
 		string title;
 		KPFormFieldList formFieldList;
 		bool default; // for this hostname
-		bool exactMatch; // URLs match exactly
+		bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between KeeICE clients or vary based on specific use cases in the client)
 		string uniqueID;
     };
     

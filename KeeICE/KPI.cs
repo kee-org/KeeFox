@@ -46,8 +46,8 @@ namespace KeeICE
 
 #region Class variables, constructor and destructor
 
-        const float minClientVersion = 0.5F; // lowest version of client we're prepared to communicate with
-        const float keeICEVersion = 0.5F; // version of this build
+        const float minClientVersion = 0.6F; // lowest version of client we're prepared to communicate with
+        const float keeICEVersion = 0.6F; // version of this build
 
         IPluginHost host;
         bool isDirty = false;
@@ -131,18 +131,18 @@ namespace KeeICE
 #region KeePass GUI routines
 
         /// <summary>
-        /// halts thread until a DB is open in the KeePass application
+        /// Halts thread until a DB is open in the KeePass application
         /// </summary>
+        /// <remarks>This simple thread sync may not work if more than one ICE client gets involved.</remarks>
         private bool ensureDBisOpen() {
         
             if (!host.Database.IsOpen)
-            {    //TODO: this simple thread sync won't work if more than one ICE client gets invovled
-
+            {
                 ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
                 // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
-                //MessageBox.Show("please open a DB [TODO: make this more useful than a simple error message]. KeeICE disabled until DB is opened.");
+                // TODO: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
                 host.MainWindow.BeginInvoke(new MethodInvoker(promptUserToOpenDB)); 
-                ensureDBisOpenEWH.WaitOne(); // wait until DB has been opened
+                ensureDBisOpenEWH.WaitOne(15000); // wait until DB has been opened
 
                 if (!host.Database.IsOpen)
                     return false;
@@ -150,7 +150,7 @@ namespace KeeICE
                 // double check above runs before Invoked method finishes...
 
                 //TODO: messy when firefox makes request during keepass startup - UI not created yet but this thread locks it so it will never appear until user creates DB - catch 22 in most cases
-                // really? this TODO may be outdated...
+                // really? this TODO may be outdated... (I think it was due to KeePass 2.06 bug where open dialog didn't appear on task bar?) maybe.
 
             
             }
@@ -694,11 +694,11 @@ namespace KeeICE
             KFlib.KPEntry[] entries = null;
             ArrayList allEntries = new ArrayList();
 
-            // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
-
             if (uuid != null && uuid.Length > 0)
             {
+                // Make sure there is an active database
+                if (!ensureDBisOpen()) { return null; } 
+                
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
                 PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
@@ -732,11 +732,11 @@ namespace KeeICE
             KFlib.KPGroup[] entries = null;
             ArrayList allGroups = new ArrayList();
 
-            // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
-
             if (uuid != null && uuid.Length > 0)
             {
+                // Make sure there is an active database
+                if (!ensureDBisOpen()) { return null; }
+
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
                 PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
@@ -769,12 +769,12 @@ namespace KeeICE
         /// <returns>The number of items in the list of groups.</returns>
         public override int findGroups(string name, string uuid, out KFlib.KPGroup[] groups, Ice.Current current__)
         {
-            // Make sure there is an active database
-            if (!ensureDBisOpen()) { groups = null; return -1; }
-
             // if uniqueID is supplied, match just that one group. if not found, move on to search the content of the logins...
             if (uuid != null && uuid.Length > 0)
             {
+                // Make sure there is an active database
+                if (!ensureDBisOpen()) { groups = null; return -1; }
+
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
                 PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
@@ -822,7 +822,10 @@ namespace KeeICE
 
             // make sure that hostname and actionURL always represent only the hostname portion
             // of the URL
-            //TODO: I'm tempted to change this so that the protocol must match too (e.g. http forms won't match a stored https login) although a restriction like that may be more use on the action URL /me goes away to think...
+            // It's tempting to demand that the protocol must match too (e.g. http forms won't
+            // match a stored https login) but best not to define such a restriction in KeeICE
+            // - the ICE client (e.g. KeeFox) can decide to penalise protocol mismatches, 
+            // potentially dependant on user configuration options in the client.
             int protocolIndex = URL.IndexOf("://");
             if (protocolIndex > -1)
             {

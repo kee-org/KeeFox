@@ -229,6 +229,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) = 0;
 
+  /* attribute long relevanceScore; */
+  NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) = 0;
+
   /**
      * Initialize a newly created nsLoginInfo object.
      *
@@ -258,8 +262,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
      * @param ignorePassword
      *        If true, ignore the password when checking for match.
      */
-  /* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword); */
-  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval) = 0;
+  /* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes); */
+  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) = 0;
 
   /* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields); */
   NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) = 0;
@@ -290,9 +294,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID); \
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle); \
+  NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore); \
+  NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore); \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval); \
-  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval); \
   NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
@@ -317,9 +323,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return _to SetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return _to GetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return _to SetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) { return _to GetRelevanceScore(aRelevanceScore); } \
+  NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) { return _to SetRelevanceScore(aRelevanceScore); } \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) { return _to Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) { return _to Equals(aLoginInfo, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval) { return _to Matches(aLoginInfo, ignorePassword, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) { return _to Matches(aLoginInfo, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) { return _to InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle, someCustomFields); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
@@ -344,9 +352,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetTitle(aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRelevanceScore(aRelevanceScore); } \
+  NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetRelevanceScore(aRelevanceScore); } \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Equals(aLoginInfo, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Matches(aLoginInfo, ignorePassword, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Matches(aLoginInfo, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle, someCustomFields); } 
 
 #if 0
@@ -481,6 +491,16 @@ NS_IMETHODIMP kfLoginInfo::SetTitle(const nsAString & aTitle)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+/* attribute long relevanceScore; */
+NS_IMETHODIMP kfLoginInfo::GetRelevanceScore(PRInt32 *aRelevanceScore)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetRelevanceScore(PRInt32 aRelevanceScore)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 /* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle); */
 NS_IMETHODIMP kfLoginInfo::Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle)
 {
@@ -493,8 +513,8 @@ NS_IMETHODIMP kfLoginInfo::Equals(kfILoginInfo *aLoginInfo, PRBool *_retval)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword); */
-NS_IMETHODIMP kfLoginInfo::Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool *_retval)
+/* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes); */
+NS_IMETHODIMP kfLoginInfo::Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

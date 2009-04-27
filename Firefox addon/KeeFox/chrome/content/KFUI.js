@@ -123,14 +123,10 @@ KFUI.prototype = {
 
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
-        /*if (!this._debug)
-            return;
+        dump(message+"\n");
+        if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
+            this._logService.logStringMessage(message);
 
-        dump("Pwmgr Prompter: " + message + "\n");
-        this._logService.logStringMessage("Pwmgr Prompter: " + message);
-        */
-        this._logService.logStringMessage(message);
-        //debug(message);
     },
 
 
@@ -266,9 +262,10 @@ this.log("titleC:"+title);
      */
     //init : function (aWindow,kf,kfilm) {
     init : function (kf,kfilm) {
-        //this._window = aWindow;
+        
         this._kf = kf;
         this._kfilm = kfilm;
+        this._window = this._kfilm._currentWindow;
 
         //var prefBranch = Cc["@mozilla.org/preferences-service;1"].
         //                 getService(Ci.nsIPrefService).getBranch("signon.");
@@ -339,22 +336,22 @@ this.log("titleC:"+title);
         // with some weird rules for handling access keys that do not occur
         // in the string, for L10N. See commonDialog.js's setLabelForNode().
         var neverButtonText =
-              this._getLocalizedString("notifyBarNeverForSiteButtonText");
+              this._getLocalizedString("notifyBarNeverForSiteButton.label");
         var neverButtonAccessKey =
-              this._getLocalizedString("notifyBarNeverForSiteButtonAccessKey");
+              this._getLocalizedString("notifyBarNeverForSiteButton.key");
         var rememberButtonText =
-              this._getLocalizedString("notifyBarRememberButtonText");
+              this._getLocalizedString("notifyBarRememberButton.label");
         var rememberButtonAccessKey =
-              this._getLocalizedString("notifyBarRememberButtonAccessKey");
+              this._getLocalizedString("notifyBarRememberButton.key");
         var notNowButtonText =
-              this._getLocalizedString("notifyBarNotNowButtonText");
+              this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButtonAccessKey");
+              this._getLocalizedString("notifyBarNotNowButton.key");
 
-        var brandShortName =
-              this._brandBundle.GetStringFromName("brandShortName");
+        //var brandShortName =
+        //      this._brandBundle.GetStringFromName("brandShortName");
         var notificationText  = this._getLocalizedString(
-                                        "savePasswordText", [brandShortName]);
+                                        "savePasswordText", ["KeeFox"]);
 
         // The callbacks in |buttons| have a closure to access the variables
         // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
@@ -374,14 +371,14 @@ this.log("titleC:"+title);
             },
 
             // "Never for this site" button
-            {
+            /*{
                 label:     neverButtonText,
                 accessKey: neverButtonAccessKey,
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
                     kfilm.setLoginSavingEnabled(aLogin.hostname, false);
                 }
-            },
+            },*/
 
             // "Not now" button
             {
@@ -419,7 +416,7 @@ this.log("titleC:"+title);
      * asks the user what to do.
      *
      */
-    _showSaveLoginDialog : function (aLogin) {
+    /*_showSaveLoginDialog : function (aLogin) {
         const buttonFlags = Ci.nsIPrompt.BUTTON_POS_1_DEFAULT +
             (Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_0) +
             (Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_1) +
@@ -459,7 +456,7 @@ this.log("titleC:"+title);
             // userChoice == 1 --> just ignore the login.
             this.log("Ignoring login.");
         }
-    },
+    },*/
 
 
     /*
@@ -497,13 +494,13 @@ this.log("titleC:"+title);
                                           "passwordChangeTextNoUser");
 
         var changeButtonText =
-              this._getLocalizedString("notifyBarChangeButtonText");
+              this._getLocalizedString("notifyBarChangeButton.label");
         var changeButtonAccessKey =
-              this._getLocalizedString("notifyBarChangeButtonAccessKey");
+              this._getLocalizedString("notifyBarChangeButton.key");
         var dontChangeButtonText =
-              this._getLocalizedString("notifyBarDontChangeButtonText");
+              this._getLocalizedString("notifyBarDontChangeButton.label");
         var dontChangeButtonAccessKey =
-              this._getLocalizedString("notifyBarDontChangeButtonAccessKey");
+              this._getLocalizedString("notifyBarDontChangeButton.key");
 
         // The callbacks in |buttons| have a closure to access the variables
         // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
@@ -543,7 +540,7 @@ this.log("titleC:"+title);
      * Shows the Change Password dialog.
      *
      */
-    _showChangeLoginDialog : function (aOldLogin, aNewLogin) {
+    /*_showChangeLoginDialog : function (aOldLogin, aNewLogin) {
         const buttonFlags = Ci.nsIPrompt.STD_YES_NO_BUTTONS;
 
         var dialogText;
@@ -567,7 +564,7 @@ this.log("titleC:"+title);
             this.log("Updating password for user " + aOldLogin.username);
             this._kfilm.modifyLogin(aOldLogin, aNewLogin);
         }
-    },
+    },*/
 
 
     /*
@@ -583,7 +580,7 @@ this.log("titleC:"+title);
      * 
      * Note; XPCOM stupidity: |count| is just |logins.length|.
      */
-    promptToChangePasswordWithUsernames : function (logins, count, aNewLogin) {
+    /*promptToChangePasswordWithUsernames : function (logins, count, aNewLogin) {
         const buttonFlags = Ci.nsIPrompt.STD_YES_NO_BUTTONS;
 
         var usernames = logins.map(function (l) l.username);
@@ -610,7 +607,7 @@ this.log("titleC:"+title);
 
             this._kfilm.modifyLogin(selectedLogin, aNewLogin);
         }
-    },
+    },*/
 
 
 
@@ -620,34 +617,20 @@ this.log("titleC:"+title);
     _showLaunchKFNotification : function () {
 
         var notifyBox = this._getNotifyBox();
-        
-        // Ugh. We can't use the strings from the popup window, because they
-        // have the access key marked in the string (eg "Mo&zilla"), along
-        // with some weird rules for handling access keys that do not occur
-        // in the string, for L10N. See commonDialog.js's setLabelForNode().
 
-        /*
         var loginButtonText =
-              this._getLocalizedString("notifyBarLoginButtonText");
+              this._getLocalizedString("notifyBarLaunchKeePassButton.label");
         var loginButtonAccessKey =
-              this._getLocalizedString("notifyBarLoginButtonAccessKey");
-        */
-        var loginButtonText =
-              "Load your password manager";
-        var loginButtonAccessKey =
-              "L";
+              this._getLocalizedString("notifyBarLaunchKeePassButton.key");
         var notNowButtonText =
-              this._getLocalizedString("notifyBarNotNowButtonText");
+              this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButtonAccessKey");
+              this._getLocalizedString("notifyBarNotNowButton.key");
 
-        var brandShortName =
-              this._brandBundle.GetStringFromName("brandShortName");
-        var notificationText  = "You are not logged in to your KeePass password database.";
+        var notificationText  = 
+            this._getLocalizedString("notifyBarLaunchKeePass.label");
+        
 
-        // The callbacks in |buttons| have a closure to access the variables
-        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
-        // without a getService() call.
         var kfilm = this._kfilm;
         var kf = this._kf;
 
@@ -679,34 +662,19 @@ this.log("titleC:"+title);
     _showLoginToKFNotification : function () {
 
         var notifyBox = this._getNotifyBox();
-        
-        // Ugh. We can't use the strings from the popup window, because they
-        // have the access key marked in the string (eg "Mo&zilla"), along
-        // with some weird rules for handling access keys that do not occur
-        // in the string, for L10N. See commonDialog.js's setLabelForNode().
 
-        /*
         var loginButtonText =
-              this._getLocalizedString("notifyBarLoginButtonText");
+              this._getLocalizedString("notifyBarLoginToKeePassButton.label");
         var loginButtonAccessKey =
-              this._getLocalizedString("notifyBarLoginButtonAccessKey");
-        */
-        var loginButtonText =
-              "Login to password manager";
-        var loginButtonAccessKey =
-              "L";
+              this._getLocalizedString("notifyBarLoginToKeePassButton.key");
         var notNowButtonText =
-              this._getLocalizedString("notifyBarNotNowButtonText");
+              this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButtonAccessKey");
+              this._getLocalizedString("notifyBarNotNowButton.key");
 
-        var brandShortName =
-              this._brandBundle.GetStringFromName("brandShortName");
-        var notificationText  = "You are not logged in to your KeePass password database.";
+        var notificationText  = 
+            this._getLocalizedString("notifyBarLoginToKeePass.label");
 
-        // The callbacks in |buttons| have a closure to access the variables
-        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
-        // without a getService() call.
         var kfilm = this._kfilm;
         var kf = this._kf;
 
@@ -881,10 +849,9 @@ this.log("titleC:"+title);
      */ 
     _getLocalizedString : function (key, formatArgs) {
         if (formatArgs)
-            return this._strBundle.formatStringFromName(
-                                        key, formatArgs, formatArgs.length);
+            return this._kf.strbundle.getFormattedString(key, formatArgs);
         else
-            return this._strBundle.GetStringFromName(key);
+            return this._kf.strbundle.getString(key);
     },
 
 

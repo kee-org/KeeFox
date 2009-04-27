@@ -4,3 +4,9 @@
 .lib
 .exp
 KeeICEInstaller
+Microsoft.VC90.DebugCRT
+debug-keefox-libraries
+.ilk
+iceutil33d.dll
+ice33d.dll
+bzip2d.dll

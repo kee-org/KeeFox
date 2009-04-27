@@ -41,15 +41,6 @@
     <toolbarbutton id="KeeFox_Logins-Button" tooltiptext="&KeeFox_Logins-Button.tip;"
              label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu" image="chrome://mozapps/skin/passwordmgr/key.png">
       <menupopup id="KeeFox_Logins-Button-root">
-        <!--<menuitem id="KeeFox_Login-uniqueHEX1" tooltiptext="Click to load the website associated with this password and login automatically [change tooltip text based on options set when menu dynamically created]"
-                   class="menuitem-iconic" label="Test login 1" oncommand="alert('login!'+this.value);" value="uniqueHEX1" context="KeeFox-login-context" image="chrome://mozapps/skin/passwordmgr/key.png"/>
-
-        <menu class="menu-iconic" id="KeeFox_Group-uniqueHEX2G" label="Group 1" image="chrome://mozapps/skin/passwordmgr/key.png">
-          <menupopup id="new-popup">
-            <menuitem class="menuitem-iconic" id="KeeFox_Login-uniqueHEX2" label="Test login 2" oncommand="alert('login!'+this.value);" value="uniqueHEX2" context="KeeFox-login-context" image="chrome://keefox/skin/key-highlighted.png" />
-            <menuitem class="menuitem-iconic" id="KeeFox_Login-uniqueHEX3" label="Test login 3" oncommand="alert('login!'+this.value);" value="uniqueHEX3" context="KeeFox-login-context" />
-          </menupopup>
-        </menu>-->
         
       </menupopup>
     </toolbarbutton>

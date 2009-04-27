@@ -46,6 +46,7 @@ kfLoginInfo.prototype = {
     uniqueID : null,
     title : null,
     customFields : null,
+    relevanceScore : null,
     
     _alert : function (msg) {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -95,9 +96,20 @@ kfLoginInfo.prototype = {
 //CPT: had to hack this a bit. might come back to bite later. now if either httprealm is empty string we will not test for equality.
 // maybe want to do the same for URL, or maybe it'll cause probs down the line. it's all becuase ICE can't distinguish
 // between null and empty string but there may be nicer ways to workaround...
-    matches : function (aLogin, ignorePassword) {
-        if (this.URL      != aLogin.URL      ||
-            (this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ) ||
+    matches : function (aLogin, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes) {
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                           .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+        
+        window.keeFoxILM.log("match1:"+ignoreURIPaths+":"+ignoreURIPathsAndSchemes);
+        if (ignoreURIPathsAndSchemes && window.keeFoxILM._getURISchemeHostAndPort(aLogin.URL) != window.keeFoxILM._getURISchemeHostAndPort(this.URL))
+            return false;
+        else if (!ignoreURIPathsAndSchemes && ignoreURIPaths && window.keeFoxILM._getURIHostAndPort(aLogin.URL) != window.keeFoxILM._getURIHostAndPort(this.URL))
+            return false;
+        else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && this.URL != aLogin.URL)
+            return false;
+        window.keeFoxILM.log("match2");
+        if ((this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ) ||
             this.username      != aLogin.username)
             return false;
 
@@ -105,9 +117,15 @@ kfLoginInfo.prototype = {
             return false;
 
         // If either formActionURL is blank (but not null), then match.
-        if (this.formActionURL != "" && aLogin.formActionURL != "" &&
-            this.formActionURL != aLogin.formActionURL)
+        if (this.formActionURL != "" && aLogin.formActionURL != "")
+        {
+            if (ignoreURIPathsAndSchemes && window.keeFoxILM._getURISchemeHostAndPort(aLogin.formActionURL) != window.keeFoxILM._getURISchemeHostAndPort(this.formActionURL))
             return false;
+        else if (!ignoreURIPathsAndSchemes && ignoreURIPaths && window.keeFoxILM._getURIHostAndPort(aLogin.formActionURL) != window.keeFoxILM._getURIHostAndPort(this.formActionURL))
+            return false;
+        else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && this.formActionURL != aLogin.formActionURL)
+            return false;
+        }
 
         // The .usernameField and .passwordField values are ignored.
 
