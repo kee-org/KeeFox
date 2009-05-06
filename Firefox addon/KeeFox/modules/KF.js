@@ -592,7 +592,7 @@ this._test = numb;
             //timer.initWithCallback(event, 20000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
             
         }
-        // clean up the old ICE client connection
+        // clean up the old ICE client connection (now done in C++)
         this._KeeFoxXPCOMobj.shutdownICE();
         
         // fire off a new thread every x seconds (until successful thread callback cancels the timer)
@@ -942,6 +942,7 @@ this._test = numb;
     
     // run in a secondary thread - don't access the UI!
     runAnInstaller: function (fileName, params) {
+    //dump(fileName + ":" + params);
         this._KeeFoxXPCOMobj.RunAnInstaller('"' + fileName + '"', '"' + params + '"');
     },
     
@@ -1188,7 +1189,7 @@ this._test = numb;
         //netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
         
         try {
-            this._KeeFoxXPCOMobj.addObserver(this.CallBackToKeeFoxJS);
+            this._KeeFoxXPCOMobj.addObserver(this.CallBackToKeeFoxJS); // this should have no effect if observer is already registered
         } catch (e)
         {
              switch (e.result) {
@@ -1220,9 +1221,9 @@ this._test = numb;
         dump("Signal received by CallBackToKeeFoxJS (" + sig + ")");
         
         
-        keeFoxInst.callBackCount++;
-        logService.logStringMessage("new callback count (" + sig + "):" + keeFoxInst.callBackCount);
-        dump("new callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        //keeFoxInst.callBackCount++;
+        //logService.logStringMessage("new callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        //dump("new callback count (" + sig + "):" + keeFoxInst.callBackCount);
         
         switch (sig) {
             case 0: logService.logStringMessage("Javascript callbacks from KeeFox XPCOM DLL are now disabled."); keeFoxInst._pauseKeeFox(); break;
@@ -1241,9 +1242,9 @@ this._test = numb;
             default: logService.logStringMessage("ERROR: Invalid signal received by CallBackToKeeFoxJS (" + sig + ")"); break;
         }
         
-        keeFoxInst.callBackCount--;
-        logService.logStringMessage("finshed callback count (" + sig + "):" + keeFoxInst.callBackCount);
-        dump("finshed callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        //keeFoxInst.callBackCount--;
+        //logService.logStringMessage("finshed callback count (" + sig + "):" + keeFoxInst.callBackCount);
+        //dump("finshed callback count (" + sig + "):" + keeFoxInst.callBackCount);
 
     },
 
@@ -1285,6 +1286,8 @@ var keeFoxInst = new KeeFox;
 
 
 
+
+// THIS RUNS IN A WORKER THREAD
 //TODO: it seems possible for this run function to be called during the KeeICE shutdown procedure but while ICE is still accepting new connections. This means that the vesion check succeeds and the main thread is told that ICE has returned, thereby cancelling the regular check. This probably happens more frequently while debugging delays are included in KeeICE but may happen in the wild too.
 // Could something similar happen to cause the deadlock after the KeePass window closed?
 function KeeFoxICEconnector() {
@@ -1297,13 +1300,19 @@ KeeFoxICEconnector.prototype = {
     throw Components.results.NS_ERROR_NO_INTERFACE;
   },
   run: function() {
+  
+ //TODO: PRIME CANDIDATE FOR EXPLANATION OF NEW EXTRA RANDOM CRASHES
+    var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
+    var keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
+    var keeFoxStorage = keeFoxExtension.storage;
 
-    if (keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false) && !keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+    if (keeFoxStorage.get("KeeICEInstalled", false) && !keeFoxStorage.get("KeeICEActive", false))
     {
         var versionCheckResult = {};
         KeeICEComOpen = false;
         
         // false only if ICE connection fault or KeeICE internal error
+        //TODO: is it even safe to call my own XPCOM obejcts from this different thread? one option is to get the xpcom service seperately here and in other worker thread locations.
         if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
             
             var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
@@ -1418,10 +1427,3 @@ launchLoginEditorThread.prototype = {
     throw Components.results.NS_ERROR_NO_INTERFACE;
   }
 };
-
-
-/*
-flashing icon should be optional
-
-
-*/

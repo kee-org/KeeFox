@@ -577,7 +577,7 @@ this.log("testingbbb:"+pwFields.length);
         var logins = this.findLogins({}, login.URL, login.formActionURL,
                                      login.httpRealm);
 
-        if (logins.some(function(l) login.matches(l, true)))
+        if (logins.some(function(l) login.matches(l, true, false, false)))
             throw "This login already exists.";
 
         this.log("Adding login: " + login + " to group: " + parentUUID);
@@ -1332,7 +1332,7 @@ this.log("test:"+i);
         {
             for (var i=0; i < logins.length; i++)
             {
-                if (currentLogin.matches(logins[i], true))
+                if (currentLogin.matches(logins[i], true, false, false))
                 {
                     match = logins[i];
                     this.log(logins[i]);

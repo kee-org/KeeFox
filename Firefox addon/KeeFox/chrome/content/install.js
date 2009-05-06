@@ -808,17 +808,20 @@ function checkDotNetFramework(mainWindow) {
     return dotNetFrameworkFound;
 }
 
-
+//TODO: doesn't work on Windows 7
 function copyKeeICEFilesTo(keePassLocation)
 {
+//dump(keePassLocation);
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);
     destFolder.append("plugins");
-    if (!destFolder.exists())
-        destFolder.create(destFolder.DIRECTORY_TYPE, 0775);
+
+//dump("test1");
 
     try {
+        if (!destFolder.exists())
+            destFolder.create(destFolder.DIRECTORY_TYPE, 0775);
         var KeeICEfile = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         KeeICEfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
@@ -867,6 +870,7 @@ function copyKeeICEFilesTo(keePassLocation)
 
 function runKeeICEExecutableInstaller(keePassLocation)
 {
+dump(keePassLocation);
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);

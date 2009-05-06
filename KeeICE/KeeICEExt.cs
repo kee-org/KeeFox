@@ -224,8 +224,17 @@ namespace KeeICE
             // Tell any waiting ICE threads to just go ahead (and not wait for the user to finish interacting
             // with the KP UI.
             KPI.ensureDBisOpenEWH.Set();
+
+            // cancel the ICE client callback timer
+            //keeICEServer.kp.cancelCallbackTimer();
+            // flush any remaining callback events to the ICE clients
+            //keeICEServer.kp.issueICEClientCallbacksReal(null);
+            
             //Thread.Sleep(1000);
             keeICEServer.ic.shutdown(); // no longer accept incoming connections from ICE clients
+
+
+
             //Thread.Sleep(1000);
             keeICEServer.ic.waitForShutdown(); // waits for current operations to complete
             //Thread.Sleep(1000);

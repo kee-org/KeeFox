@@ -58,12 +58,32 @@ namespace KeeICE
         private bool _destroy;
         private ArrayList _clients;
 
+        Queue q = new Queue();
+        TimerCallback timerCallBack;
+        System.Threading.Timer timer;
+
         public KPI(IPluginHost host, Ice.Communicator communicator)
         {
             this.host = host;
             _communicator = communicator;
             _destroy = false;
             _clients = new ArrayList();
+
+
+            // TODO: can probably come up with something that doesn't need to poll
+            // every second but it'll get the job done with relatively little cost
+            // so it'll do for now.
+            
+            //create timer with callback
+            timerCallBack =
+                new TimerCallback(this.issueICEClientCallbacksReal);
+            timer = new System.Threading.Timer(timerCallBack, null,
+                TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+
+        public void cancelCallbackTimer()
+        {
+            timer.Dispose();
         }
 
         public void destroy()
@@ -80,34 +100,79 @@ namespace KeeICE
 
 
 #region ICE client management
-
         public void issueICEClientCallbacks(int num)
         {
-            
-            ArrayList clients;
-            lock (this)
+            lock (q.SyncRoot)
             {
-                clients = new ArrayList(_clients);
+                q.Enqueue(num);
+                if (num == 12)
+                {
+                    cancelCallbackTimer();
+                    issueICEClientCallbacksReal(null);
+
+                }
+            }
+            
+
+        }
+
+        public void issueICEClientCallbacksReal(Object state)
+        {
+            //int nextCallbackNum = -1;
+            ArrayList callBacks = null;
+                    
+            lock (q.SyncRoot)
+            {
+                if (q.Count > 0)
+                {
+                    callBacks = new ArrayList(q.ToArray());
+                    q.Clear();                    
+                }
             }
 
-            if (clients.Count > 0)
+            if (callBacks != null)
             {
-                foreach (KeeICE.KFlib.CallbackReceiverPrx c in clients)
-                {
-                    try
-                    {
-                        c.callback(num);
-                    }
-                    catch (Ice.LocalException ex)
-                    {
-                        Console.Error.WriteLine("removing client `" +
-                                                _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
+                int previousCB = -1;
 
-                        lock (this)
+                foreach (int cb in callBacks)
+                {
+                    // No point in doing the same thing twice in a row
+                    // (although we can't generally make too many assumptions
+                    // about the ICE client's requirments, it's pretty safe 
+                    // to say that the quantity of callbacks has no relevance)
+                    // Maybe one day we can allow specific optimisations
+                    // but it's probably best implemented in an ICE client
+                    if (cb == previousCB)
+                        continue;
+                    previousCB = cb;
+
+                    ArrayList clients;
+                    lock (this)
+                    {
+                        clients = new ArrayList(_clients);
+                    }
+
+                    if (clients.Count > 0)
+                    {
+                        foreach (KeeICE.KFlib.CallbackReceiverPrx c in clients)
                         {
-                            _clients.Remove(c);
+                            try
+                            {
+                                c.callback(cb);
+                            }
+                            catch (Ice.LocalException ex)
+                            {
+                                Console.Error.WriteLine("removing client `" +
+                                                        _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
+
+                                lock (this)
+                                {
+                                    _clients.Remove(c);
+                                }
+                            }
                         }
                     }
+
                 }
             }
            
