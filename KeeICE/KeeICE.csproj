@@ -119,7 +119,7 @@
   -->
   <PropertyGroup>
     <PreBuildEvent>"$(SolutionDir)..\Ice-3.3.0-VC90\bin\slice2cs" -IC:\development\Ice-3.3.0-VC90\slice\ --output-dir "$(ProjectDir)generated" "$(ProjectDir)KeeICE.ice"
-"$(SolutionDir)..\Ice-3.3.0-VC90\bin\slice2cpp" -IC:\development\Ice-3.3.0-VC90\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
+"$(SolutionDir)..\IceE-1.3.0\cpp\bin\slice2cppe" -IC:\development\IceE-1.3.0\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
     <PostBuildEvent>echo POSTBUILDSTEP for $(ProjectName)
 
 REM IF NOT "$(ConfigurationName)"=="Debug" Goto :NotDebug

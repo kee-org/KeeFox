@@ -34,8 +34,8 @@
 #include <string>
 #include <vector>
 
-#include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
+#include <IceE/IceE.h>
+//#include <IceUtil/IceUtil.h>
 #include "generated/KeeICE.h"
 //#include "nsILoginInfo.h"
 #include "nsCOMPtr.h"
@@ -59,13 +59,15 @@ public:
 	static bool javascriptCallBacksReady;
 };
 
-class KeeICEProxy : virtual public Ice::Application {
+class KeeICEProxy {
 public:
 	Ice::CommunicatorPtr ic;
 	KPPrx KP;
 	//KPDatabasePrx DB;
     virtual int run(int, char*[]);
 	int establishICEConnection();
+	int main(int argc, char* argv[]);
+
 };
 
 class CKeeFox : public IKeeFox

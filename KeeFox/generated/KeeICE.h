@@ -1,43 +1,39 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// This copy of Ice-E is licensed to you under the terms described in the
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice version 3.3.0
+// Ice-E version 1.3.0
 // Generated from file `KeeICE.ice'
 
 #ifndef __C__development_KeeFox_KeeFox_generated_KeeICE_h__
 #define __C__development_KeeFox_KeeFox_generated_KeeICE_h__
 
-#include <Ice/LocalObjectF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
-#include <Ice/Proxy.h>
-#include <Ice/Object.h>
-#include <Ice/Outgoing.h>
-#include <Ice/Incoming.h>
-#include <Ice/Direct.h>
-#include <Ice/UserExceptionFactory.h>
-#include <Ice/FactoryTable.h>
-#include <Ice/StreamF.h>
-#include <Ice/Identity.h>
-#include <Ice/UndefSysMacros.h>
+#include <IceE/ProxyF.h>
+#include <IceE/ObjectF.h>
+#include <IceE/Exception.h>
+#include <IceE/ScopedArray.h>
+#include <IceE/Proxy.h>
+#include <IceE/Object.h>
+#ifndef ICEE_PURE_CLIENT
+#  include <IceE/Incoming.h>
+#endif
+#include <IceE/Outgoing.h>
+#include <IceE/UserExceptionFactory.h>
+#include <IceE/FactoryTable.h>
+#include <IceE/Identity.h>
+#include <IceE/UndefSysMacros.h>
 
-#ifndef ICE_IGNORE_VERSION
-#   if ICE_INT_VERSION / 100 != 303
-#       error Ice version mismatch!
+#ifndef ICEE_IGNORE_VERSION
+#   if ICEE_INT_VERSION / 100 != 103
+#       error IceE version mismatch!
 #   endif
-#   if ICE_INT_VERSION % 100 > 50
-#       error Beta header file detected
-#   endif
-#   if ICE_INT_VERSION % 100 < 0
-#       error Ice patch level mismatch!
+#   if ICEE_INT_VERSION % 100 < 0
+#       error IceE patch level mismatch!
 #   endif
 #endif
 
@@ -262,8 +258,6 @@ public:
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool);
-    virtual void __write(const ::Ice::OutputStreamPtr&) const;
-    virtual void __read(const ::Ice::InputStreamPtr&, bool);
 };
 
 static KeeICEException __KeeICEException_init;
@@ -329,6 +323,163 @@ struct KFConfiguration
 
     void __write(::IceInternal::BasicStream*) const;
     void __read(::IceInternal::BasicStream*);
+};
+
+}
+
+}
+
+namespace KeeICE
+{
+
+namespace KFlib
+{
+
+class KP : virtual public ::Ice::Object
+{
+public:
+
+    typedef KPPrx ProxyType;
+    typedef KPPtr PointerType;
+    
+
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current()) const;
+    virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;
+    static const ::std::string& ice_staticId();
+
+    virtual bool checkVersion(::Ice::Float, ::Ice::Float, ::Ice::Int&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___checkVersion(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::std::string getDatabaseName(const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getDatabaseName(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::std::string getDatabaseFileName(const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getDatabaseFileName(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___changeDatabase(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___AddLogin(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___ModifyLogin(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getAllLogins(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___findLogins(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___countLogins(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void addClient(const ::Ice::Identity&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___addClient(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___findGroups(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getRoot(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getParent(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getChildGroups(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getChildEntries(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___addGroup(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual bool removeGroup(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___removeGroup(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual bool removeEntry(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___removeEntry(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___LaunchGroupEditor(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___LaunchLoginEditor(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+#ifndef ICEE_PURE_CLIENT
+    virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __read(::IceInternal::BasicStream*, bool);
+};
+
+class CallbackReceiver : virtual public ::Ice::Object
+{
+public:
+
+    typedef CallbackReceiverPrx ProxyType;
+    typedef CallbackReceiverPtr PointerType;
+    
+
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current()) const;
+    virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;
+    static const ::std::string& ice_staticId();
+
+    virtual void callback(::Ice::Int, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___callback(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+#ifndef ICEE_PURE_CLIENT
+    virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __read(::IceInternal::BasicStream*, bool);
 };
 
 }
@@ -650,200 +801,67 @@ public:
     
     ::IceInternal::ProxyHandle<KP> ice_context(const ::Ice::Context& __context) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_context(__context).get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_context(__context).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_adapterId(const std::string& __id) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_adapterId(__id).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_adapterId(__id).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_endpoints(const ::Ice::EndpointSeq& __endpoints) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_endpoints(__endpoints).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_endpoints(__endpoints).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_locatorCacheTimeout(int __timeout) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_locatorCacheTimeout(__timeout).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_locatorCacheTimeout(__timeout).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_connectionCached(bool __cached) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_connectionCached(__cached).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_connectionCached(__cached).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_endpointSelection(::Ice::EndpointSelectionType __est) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_endpointSelection(__est).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_endpointSelection(__est).get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<KP> ice_secure(bool __secure) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_secure(__secure).get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_secure(__secure).get());
-    #endif
     }
     
-    ::IceInternal::ProxyHandle<KP> ice_preferSecure(bool __preferSecure) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_preferSecure(__preferSecure).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_preferSecure(__preferSecure).get());
-    #endif
-    }
-    
+#ifdef ICEE_HAS_ROUTER
     ::IceInternal::ProxyHandle<KP> ice_router(const ::Ice::RouterPrx& __router) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_router(__router).get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_router(__router).get());
-    #endif
     }
+#endif // ICEE_HAS_ROUTER
     
+#ifdef ICEE_HAS_LOCATOR
     ::IceInternal::ProxyHandle<KP> ice_locator(const ::Ice::LocatorPrx& __locator) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_locator(__locator).get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_locator(__locator).get());
-    #endif
     }
     
-    ::IceInternal::ProxyHandle<KP> ice_collocationOptimized(bool __co) const
+    ::IceInternal::ProxyHandle<KP> ice_adapterId(const std::string& __id) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_collocationOptimized(__co).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_collocationOptimized(__co).get());
-    #endif
+        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_adapterId(__id).get());
     }
+#endif // ICEE_HAS_LOCATOR
     
     ::IceInternal::ProxyHandle<KP> ice_twoway() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_twoway().get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_twoway().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<KP> ice_oneway() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_oneway().get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_oneway().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<KP> ice_batchOneway() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_batchOneway().get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_batchOneway().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<KP> ice_datagram() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_datagram().get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_datagram().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<KP> ice_batchDatagram() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_batchDatagram().get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_batchDatagram().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_compress(bool __compress) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_compress(__compress).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_compress(__compress).get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<KP> ice_timeout(int __timeout) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_timeout(__timeout).get());
-    #else
         return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_timeout(__timeout).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<KP> ice_connectionId(const std::string& __id) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<KP*>(_Base::ice_connectionId(__id).get());
-    #else
-        return dynamic_cast<KP*>(::IceProxy::Ice::Object::ice_connectionId(__id).get());
-    #endif
     }
     
     static const ::std::string& ice_staticId();
-
-private: 
-
-    virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
-    virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
+    
+private:
+    
     virtual ::IceProxy::Ice::Object* __newInstance() const;
 };
 
@@ -868,526 +886,71 @@ public:
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_context(const ::Ice::Context& __context) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_context(__context).get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_context(__context).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_adapterId(const std::string& __id) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_adapterId(__id).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_adapterId(__id).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_endpoints(const ::Ice::EndpointSeq& __endpoints) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_endpoints(__endpoints).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_endpoints(__endpoints).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_locatorCacheTimeout(int __timeout) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_locatorCacheTimeout(__timeout).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_locatorCacheTimeout(__timeout).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_connectionCached(bool __cached) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_connectionCached(__cached).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_connectionCached(__cached).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_endpointSelection(::Ice::EndpointSelectionType __est) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_endpointSelection(__est).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_endpointSelection(__est).get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_secure(bool __secure) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_secure(__secure).get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_secure(__secure).get());
-    #endif
     }
     
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_preferSecure(bool __preferSecure) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_preferSecure(__preferSecure).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_preferSecure(__preferSecure).get());
-    #endif
-    }
-    
+#ifdef ICEE_HAS_ROUTER
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_router(const ::Ice::RouterPrx& __router) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_router(__router).get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_router(__router).get());
-    #endif
     }
+#endif // ICEE_HAS_ROUTER
     
+#ifdef ICEE_HAS_LOCATOR
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_locator(const ::Ice::LocatorPrx& __locator) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_locator(__locator).get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_locator(__locator).get());
-    #endif
     }
     
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_collocationOptimized(bool __co) const
+    ::IceInternal::ProxyHandle<CallbackReceiver> ice_adapterId(const std::string& __id) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_collocationOptimized(__co).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_collocationOptimized(__co).get());
-    #endif
+        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_adapterId(__id).get());
     }
+#endif // ICEE_HAS_LOCATOR
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_twoway() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_twoway().get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_twoway().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_oneway() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_oneway().get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_oneway().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_batchOneway() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_batchOneway().get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_batchOneway().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_datagram() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_datagram().get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_datagram().get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_batchDatagram() const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_batchDatagram().get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_batchDatagram().get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_compress(bool __compress) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_compress(__compress).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_compress(__compress).get());
-    #endif
     }
     
     ::IceInternal::ProxyHandle<CallbackReceiver> ice_timeout(int __timeout) const
     {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_timeout(__timeout).get());
-    #else
         return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_timeout(__timeout).get());
-    #endif
-    }
-    
-    ::IceInternal::ProxyHandle<CallbackReceiver> ice_connectionId(const std::string& __id) const
-    {
-    #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-        typedef ::IceProxy::Ice::Object _Base;
-        return dynamic_cast<CallbackReceiver*>(_Base::ice_connectionId(__id).get());
-    #else
-        return dynamic_cast<CallbackReceiver*>(::IceProxy::Ice::Object::ice_connectionId(__id).get());
-    #endif
     }
     
     static const ::std::string& ice_staticId();
-
-private: 
-
-    virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
-    virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
+    
+private:
+    
     virtual ::IceProxy::Ice::Object* __newInstance() const;
 };
 
 }
-
-}
-
-}
-
-namespace IceDelegate
-{
-
-namespace KeeICE
-{
-
-namespace KFlib
-{
-
-class KP : virtual public ::IceDelegate::Ice::Object
-{
-public:
-
-    virtual bool checkVersion(::Ice::Float, ::Ice::Float, ::Ice::Int&, const ::Ice::Context*) = 0;
-
-    virtual ::std::string getDatabaseName(const ::Ice::Context*) = 0;
-
-    virtual ::std::string getDatabaseFileName(const ::Ice::Context*) = 0;
-
-    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*) = 0;
-
-    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*) = 0;
-
-    virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*) = 0;
-
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*) = 0;
-
-    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*) = 0;
-
-    virtual void addClient(const ::Ice::Identity&, const ::Ice::Context*) = 0;
-
-    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*) = 0;
-
-    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*) = 0;
-
-    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual bool removeGroup(const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual bool removeEntry(const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*) = 0;
-
-    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*) = 0;
-};
-
-class CallbackReceiver : virtual public ::IceDelegate::Ice::Object
-{
-public:
-
-    virtual void callback(::Ice::Int, const ::Ice::Context*) = 0;
-};
-
-}
-
-}
-
-}
-
-namespace IceDelegateM
-{
-
-namespace KeeICE
-{
-
-namespace KFlib
-{
-
-class KP : virtual public ::IceDelegate::KeeICE::KFlib::KP,
-           virtual public ::IceDelegateM::Ice::Object
-{
-public:
-
-    virtual bool checkVersion(::Ice::Float, ::Ice::Float, ::Ice::Int&, const ::Ice::Context*);
-
-    virtual ::std::string getDatabaseName(const ::Ice::Context*);
-
-    virtual ::std::string getDatabaseFileName(const ::Ice::Context*);
-
-    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
-
-    virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
-
-    virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
-
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
-
-    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
-
-    virtual void addClient(const ::Ice::Identity&, const ::Ice::Context*);
-
-    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
-
-    virtual bool removeGroup(const ::std::string&, const ::Ice::Context*);
-
-    virtual bool removeEntry(const ::std::string&, const ::Ice::Context*);
-
-    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*);
-
-    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
-};
-
-class CallbackReceiver : virtual public ::IceDelegate::KeeICE::KFlib::CallbackReceiver,
-                         virtual public ::IceDelegateM::Ice::Object
-{
-public:
-
-    virtual void callback(::Ice::Int, const ::Ice::Context*);
-};
-
-}
-
-}
-
-}
-
-namespace IceDelegateD
-{
-
-namespace KeeICE
-{
-
-namespace KFlib
-{
-
-class KP : virtual public ::IceDelegate::KeeICE::KFlib::KP,
-           virtual public ::IceDelegateD::Ice::Object
-{
-public:
-
-    virtual bool checkVersion(::Ice::Float, ::Ice::Float, ::Ice::Int&, const ::Ice::Context*);
-
-    virtual ::std::string getDatabaseName(const ::Ice::Context*);
-
-    virtual ::std::string getDatabaseFileName(const ::Ice::Context*);
-
-    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
-
-    virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
-
-    virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
-
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
-
-    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
-
-    virtual void addClient(const ::Ice::Identity&, const ::Ice::Context*);
-
-    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
-
-    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
-
-    virtual bool removeGroup(const ::std::string&, const ::Ice::Context*);
-
-    virtual bool removeEntry(const ::std::string&, const ::Ice::Context*);
-
-    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Context*);
-
-    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
-};
-
-class CallbackReceiver : virtual public ::IceDelegate::KeeICE::KFlib::CallbackReceiver,
-                         virtual public ::IceDelegateD::Ice::Object
-{
-public:
-
-    virtual void callback(::Ice::Int, const ::Ice::Context*);
-};
-
-}
-
-}
-
-}
-
-namespace KeeICE
-{
-
-namespace KFlib
-{
-
-class KP : virtual public ::Ice::Object
-{
-public:
-
-    typedef KPPrx ProxyType;
-    typedef KPPtr PointerType;
-    
-    virtual ::Ice::ObjectPtr ice_clone() const;
-
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current()) const;
-    virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;
-    static const ::std::string& ice_staticId();
-
-    virtual bool checkVersion(::Ice::Float, ::Ice::Float, ::Ice::Int&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___checkVersion(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::std::string getDatabaseName(const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getDatabaseName(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::std::string getDatabaseFileName(const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getDatabaseFileName(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void changeDatabase(const ::std::string&, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___changeDatabase(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___AddLogin(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___ModifyLogin(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getAllLogins(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___findLogins(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___countLogins(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void addClient(const ::Ice::Identity&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___addClient(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___findGroups(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getRoot(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getParent(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getChildGroups(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___getChildEntries(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___addGroup(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual bool removeGroup(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___removeGroup(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual bool removeEntry(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___removeEntry(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void LaunchGroupEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___LaunchGroupEditor(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___LaunchLoginEditor(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*, bool);
-    virtual void __write(const ::Ice::OutputStreamPtr&) const;
-    virtual void __read(const ::Ice::InputStreamPtr&, bool);
-};
-
-class CallbackReceiver : virtual public ::Ice::Object
-{
-public:
-
-    typedef CallbackReceiverPrx ProxyType;
-    typedef CallbackReceiverPtr PointerType;
-    
-    virtual ::Ice::ObjectPtr ice_clone() const;
-
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current()) const;
-    virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;
-    static const ::std::string& ice_staticId();
-
-    virtual void callback(::Ice::Int, const ::Ice::Current& = ::Ice::Current()) = 0;
-    ::Ice::DispatchStatus ___callback(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
-
-    virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*, bool);
-    virtual void __write(const ::Ice::OutputStreamPtr&) const;
-    virtual void __read(const ::Ice::InputStreamPtr&, bool);
-};
 
 }
 

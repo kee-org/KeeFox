@@ -22,7 +22,7 @@
 #ifndef SIMPLE_ICE
 #define SIMPLE_ICE
 
-#include <Ice/Identity.ice>
+#include <IceE/Identity.ice>
 
 module KeeICE {
 module KFlib {

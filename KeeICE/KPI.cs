@@ -207,7 +207,7 @@ namespace KeeICE
                 // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
                 // TODO: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
                 host.MainWindow.BeginInvoke(new MethodInvoker(promptUserToOpenDB)); 
-                ensureDBisOpenEWH.WaitOne(15000); // wait until DB has been opened
+                ensureDBisOpenEWH.WaitOne(15000,false); // wait until DB has been opened
 
                 if (!host.Database.IsOpen)
                     return false;
