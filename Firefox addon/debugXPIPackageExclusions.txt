@@ -1,0 +1,5 @@
+\_svn
+.lib
+.exp
+KeeICEInstaller
+Microsoft.VC90.CRT

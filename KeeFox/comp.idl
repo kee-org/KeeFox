@@ -1,0 +1,303 @@
+/*
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+#include "nsISupports.idl"
+//#include "nsILoginInfo.idl"
+#include "nsIMutableArray.idl"
+//#include "nsILoginManagerStorage.idl"
+
+// TODO: more attributes needed? would be nice if not, maybe automatically detect form field type at fill-in
+// stage rather than store in KeePass?
+[scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa873)]
+interface kfILoginField : nsISupports {
+  attribute AString name;
+  attribute AString value;
+  void init(in AString aName, in AString aValue);
+};
+
+// based on Mozilla's nsILoginInfo
+[scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa870)]
+interface kfILoginInfo : nsISupports {
+	/**
+     * The hostname the login applies to.
+     *
+     * The hostname should be formatted as an URL. For example,
+     * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
+     */
+    attribute AString URL;
+
+    /**
+     * The URL a form-based login was submitted to.
+     *
+     * For logins obtained from HTML forms, this field is the |action|
+     * attribute from the |form| element, with the path removed. For
+     * example "http://www.site.com". [Forms with no |action| attribute
+     * default to submitting to their origin URL, so we store that.]
+     *
+     * For logins obtained from a HTTP or FTP protocol authentication,
+     * this field is NULL.
+     */
+    attribute AString formActionURL;
+
+    /**
+     * The HTTP Realm a login was requested for.
+     *
+     * When an HTTP server sends a 401 result, the WWW-Authenticate
+     * header includes a realm to identify the "protection space." See
+     * RFC2617. If the response sent has a missing or blank realm, the
+     * hostname is used instead.
+     *
+     * For logins obtained from HTML forms, this field is NULL.
+     */
+    attribute AString httpRealm;
+
+    /**
+     * The username for the login.
+     */
+    attribute AString username;
+
+    /**
+     * The |name| attribute for the username input field.
+     *
+     * For logins obtained from a HTTP or FTP protocol authentication,
+     * this field is NULL.
+     */
+    attribute AString usernameField;
+
+    /**
+     * The password for the login.
+     */
+    attribute AString password;
+
+    /**
+     * The |name| attribute for the password input field.
+     *
+     * For logins obtained from a HTTP or FTP protocol authentication,
+     * this field is NULL.
+     */
+    attribute AString passwordField;
+
+
+	attribute nsIMutableArray customFields;
+
+	attribute AString uniqueID;
+
+	attribute AString title;
+
+	attribute long relevanceScore;
+
+
+    /**
+     * Initialize a newly created nsLoginInfo object.
+     *
+     * The arguments are the fields for the new object.
+     */
+    void init(in AString aHostname,
+              in AString aFormSubmitURL, in AString aHttpRealm,
+              in AString aUsername,      in AString aPassword,
+              in AString aUsernameField, in AString aPasswordField,
+			  in AString uniqueID, in AString aTitle);
+
+    /**
+     * Test for strict equality with another nsILoginInfo object.
+     *
+     * @param aLoginInfo
+     *        The other object to test.
+     */
+    boolean equals(in kfILoginInfo aLoginInfo);
+
+    /**
+     * Test for loose equivalency with another nsILoginInfo object. The
+     * passwordField and usernameField values are ignored, and the password
+     * values may be optionally ignored. If one login's formSubmitURL is an
+     * empty string (but not null), it will be treated as a wildcard. [The
+     * blank value indicates the login was stored before bug 360493 was fixed.]
+     *
+     * @param aLoginInfo
+     *        The other object to test.
+     * @param ignorePassword
+     *        If true, ignore the password when checking for match.
+     */
+    boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes);
+
+	void initCustom(in AString aHostname,
+              in AString aFormSubmitURL, in AString aHttpRealm,
+              in AString aUsername,      in AString aPassword,
+              in AString aUsernameField, in AString aPasswordField,
+			  in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields);
+
+};
+
+
+
+
+[scriptable, function, uuid(21e05ab1-d964-476f-ba73-c318c51a118e)]
+interface kfIGroupInfo : nsISupports {
+
+	attribute AString title;
+	attribute AString uniqueID;
+
+    void init(in AString title, in AString uniqueID);
+};
+
+
+
+[scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa872)]
+interface KeeFoxObserver : nsISupports {
+  void callBackToKeeFoxJS(in long word);
+};
+
+[scriptable, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa871)]
+interface IKeeFox : nsISupports
+{
+	boolean checkVersion(in float keeFoxVersion, in float keeICEVersion, out long result); 
+	void addObserver(in KeeFoxObserver observer);
+
+  AString getDBName();
+  AString getDBFileName();
+  void ChangeDB(in AString fileName, in boolean closeCurrent);
+  attribute AString name;
+  void RunAnInstaller(in AString fileName, in AString params);
+  void LaunchKeePass(in AString fileName, in AString DBFile);
+	void shutdownICE();
+	boolean IsUserAdministrator();
+
+  
+  /**
+     * Store a new login.
+     *
+     * @param aLogin
+     *        The login to be added.
+	 * @param parentUUID
+     *        The unique id of the parent group of this new login (if null, root group will be used).
+     */
+    void addLogin(in kfILoginInfo aLogin, in AString parentUUID, [retval] out kfILoginInfo newLogin);
+
+
+    /**
+     * Modify an existing login in the login manager.
+     *
+     * @param oldLogin
+     *        The login to be modified.
+	 * @param newLogin
+     *        The new login data.
+     */
+    void modifyLogin(in kfILoginInfo oldLogin, in kfILoginInfo newLogin);
+  
+  /**
+     * Fetch all logins in the login manager. An array is always returned;
+     * if there are no logins the array is empty.
+     *
+     * @param count
+     *        The number of elements in the array. JS callers can simply use
+     *        the array's .length property, and supply an dummy object for
+     *        this out param. For example: |getAllLogins({})|
+     * @param logins
+     *        An array of nsILoginInfo objects. 
+     *
+     * NOTE: This can be called from JS as:
+     *       var logins = pwmgr.getAllLogins({});
+     *       (|logins| is an array).
+     */
+    void getAllLogins(out unsigned long count,
+                      [retval, array, size_is(count)] out kfILoginInfo logins);
+
+  /**
+     * Search for logins matching the specified criteria. Called when looking
+     * for logins that might be applicable to a form or authentication request.
+     *
+     * @param count
+     *        The number of elements in the array. JS callers can simply use
+     *        the array's .length property, and supply an dummy object for
+     *        this out param. For example: |findLogins({}, hostname, ...)|
+     * @param aHostname
+     *        The hostname to restrict searches to, in URL format. For
+     *        example: "http://www.site.com".
+     * @param aActionURL
+     *        For form logins, this argument should be the URL to which the
+     *        form will be submitted. For protocol logins, specify null.
+     * @param aHttpRealm
+     *        For protocol logins, this argument should be the HTTP Realm
+     *        for which the login applies. This is obtained from the
+     *        WWW-Authenticate header. See RFC2617. For form logins,
+     *        specify null.
+     * @param logins
+     *        An array of nsILoginInfo objects. 
+     *
+     * NOTE: This can be called from JS as:
+     *       var logins = pwmgr.findLogins({}, hostname, ...);
+     *
+     */
+    void findLogins(out unsigned long count, in AString aHostname,
+                    in AString aActionURL,   in AString aHttpRealm,
+					in AString aUniqueID,
+                    [retval, array, size_is(count)] out kfILoginInfo logins);
+
+
+  /**
+    * Search for logins matching the specified criteria, as with
+    * findLogins(). This interface only returns the number of matching
+    * logins (and not the logins themselves), which allows a caller to
+    * check for logins without causing the user to be prompted for a master
+    * password to decrypt the logins.
+    *
+    * @param aHostname
+    *        The hostname to restrict searches to. Specify an empty string
+    *        to match all hosts. A null value will not match any logins, and
+    *        will thus always return a count of 0.
+    * @param aActionURL
+    *        The URL to which a form login will be submitted. To match any
+    *        form login, specify an empty string. To not match any form
+    *        login, specify null.
+    * @param aHttpRealm
+    *        The HTTP Realm for which the login applies. To match logins for
+    *        any realm, specify an empty string. To not match logins for any
+    *        realm, specify null.
+    */
+   unsigned long countLogins(in AString aHostname, in AString aActionURL,
+                             in AString aHttpRealm);
+  //CountLogins(nsAString const &aHostname, nsAString const &aActionURL,
+	//nsAString const &aHttpRealm, unsigned int *_retval);
+
+
+   void findGroups(out unsigned long count, in AString name,	in AString aUniqueID,
+                    [retval, array, size_is(count)] out kfIGroupInfo groups);
+  
+   // create a new group and return it in the newGroup parameter
+    void addGroup(in AString name, in AString parentUUID, [retval] out kfIGroupInfo newGroup);
+
+    boolean deleteLogin(in AString uniqueID);
+	boolean deleteGroup(in AString uniqueID);
+
+	void getParentGroup(in AString uniqueID, [retval] out kfIGroupInfo parentGroup);
+	void getChildGroups(out unsigned long count, in AString uniqueID,
+		[retval, array, size_is(count)] out kfIGroupInfo groups);
+	void getChildEntries(out unsigned long count, in AString uniqueID,
+		[retval, array, size_is(count)] out kfILoginInfo logins);
+
+	void getRootGroup([retval] out kfIGroupInfo rootGroup);
+
+	void launchLoginEditor(in AString uniqueID);
+	void launchGroupEditor(in AString uniqueID);
+
+
+};
+
+//interface IKeeFox : nsILoginManagerStorage
+

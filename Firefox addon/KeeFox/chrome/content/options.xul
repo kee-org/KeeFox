@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE prefwindow SYSTEM "chrome://keefox/locale/options.dtd">
+
+<prefwindow id="KeeFox-prefs"
+     title="&KeeFox-Options.title;"
+     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            type="prefwindow"
+      windowtype="Browser:Preferences"
+          onload="window.sizeToContent();"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          height="500"
+        >
+
+      <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
+    <preferences>
+      <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.chris.tomlinson@keefox.dynamicFormScanning" type="bool"/>
+      <preference id="KeeFox-pref-autoFillForms" name="extensions.chris.tomlinson@keefox.autoFillForms" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitForms" name="extensions.chris.tomlinson@keefox.autoSubmitForms" type="bool"/>
+      <preference id="KeeFox-pref-overWriteUsernameAutomatically" name="extensions.chris.tomlinson@keefox.overWriteUsernameAutomatically" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.chris.tomlinson@keefox.autoSubmitMatchedForms" type="bool"/>
+      <preference id="KeeFox-pref-rememberMRUDB" name="extensions.chris.tomlinson@keefox.rememberMRUDB" type="bool"/>
+
+      <preference id="KeeFox-pref-notifyBarWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.notifyBarWhenKeeICEInactive" type="bool"/>
+      <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.chris.tomlinson@keefox.notifyBarWhenLoggedOut" type="bool"/>
+      <preference id="KeeFox-pref-flashIconWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.flashIconWhenKeeICEInactive" type="bool"/>
+      <preference id="KeeFox-pref-flashIconWhenLoggedOut" name="extensions.chris.tomlinson@keefox.flashIconWhenLoggedOut" type="bool"/>
+
+      <preference id="KeeFox-pref-keeICEInstalledLocation" name="extensions.chris.tomlinson@keefox.keeICEInstalledLocation" type="string"/>
+      <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.chris.tomlinson@keefox.keePassInstalledLocation" type="string"/>
+      <preference id="KeeFox-pref-keePassMRUDB" name="extensions.chris.tomlinson@keefox.keePassMRUDB" type="string"/>
+      <preference id="KeeFox-pref-debugToConsole" name="extensions.chris.tomlinson@keefox.debugToConsole" type="bool"/>
+    </preferences>
+
+        <tabbox flex="1">
+          <tabs>
+            <tab label="&KeeFox-pref-General.heading;"/>
+            <tab label="&KeeFox-pref-Notifications.heading;"/>
+            <tab label="&KeeFox-pref-Advanced.heading;"/>
+          </tabs>
+          <tabpanels flex="1">
+            
+            <tabpanel>
+              <vbox align="center">
+                <checkbox id="dynamicFormScanning" preference="KeeFox-pref-dynamicFormScanning"
+                          label="&KeeFox-pref-dynamicFormScanning.label;" />
+                <checkbox id="autoFillForms" preference="KeeFox-pref-autoFillForms"
+                          label="&KeeFox-pref-autoFillForms.label;" />
+                <checkbox id="autoSubmitForms" preference="KeeFox-pref-autoSubmitForms"
+                          label="&KeeFox-pref-autoSubmitForms.label;" />
+                <checkbox id="overWriteUsernameAutomatically" preference="KeeFox-pref-overWriteUsernameAutomatically"
+                          label="&KeeFox-pref-overWriteUsernameAutomatically.label;" />
+                <checkbox id="autoSubmitMatchedForms" preference="KeeFox-pref-autoSubmitMatchedForms"
+                          label="&KeeFox-pref-autoSubmitMatchedForms.label;" />
+                <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
+                          label="&KeeFox-pref-rememberMRUDB.label;" />
+
+              </vbox>
+            </tabpanel>
+
+            <tabpanel>
+              <vbox align="center">
+                <checkbox id="notifyBarWhenKeeICEInactive" preference="KeeFox-pref-notifyBarWhenKeeICEInactive"
+                          label="&KeeFox-pref-notifyBarWhenKeeICEInactive.label;" />
+                <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
+                        label="&KeeFox-pref-notifyBarWhenLoggedOut.label;" />
+                <checkbox id="flashIconWhenKeeICEInactive" preference="KeeFox-pref-flashIconWhenKeeICEInactive"
+                        label="&KeeFox-pref-flashIconWhenKeeICEInactive.label;" />
+                <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
+                        label="&KeeFox-pref-flashIconWhenLoggedOut.label;" />
+
+              </vbox>
+            </tabpanel>
+            
+            <tabpanel>
+              <vbox align="center">
+                <label control="keeICEInstalledLocation" value="&KeeFox-pref-keeICEInstalledLocation.label;"/>
+                <textbox preference="KeeFox-pref-keeICEInstalledLocation" id="keeICEInstalledLocation" maxlength="255"/>
+                <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;"/>
+                <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255"/>
+                <label control="keePassMRUDB" value="&KeeFox-pref-keePassMRUDB.label;"/>
+                <textbox preference="KeeFox-pref-keePassMRUDB" id="keePassMRUDB" maxlength="255"/>
+
+                <checkbox id="debugToConsole" preference="KeeFox-pref-debugToConsole"
+                        label="&KeeFox-pref-debugToConsole.label;" />
+
+              </vbox>
+            </tabpanel>
+          </tabpanels>
+        </tabbox>
+              
+  </prefpane>
+
+</prefwindow>

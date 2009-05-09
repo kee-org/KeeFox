@@ -1,0 +1,17 @@
+<!ENTITY KeeFox_Main-Button.loading.label "KeeFox loading...">
+<!ENTITY KeeFox_Main-Button.loading.key "">
+<!ENTITY KeeFox_Main-Button.loading.tip "KeeFox is loading and doing a few startup tests. It shouldn't take long...">
+<!ENTITY KeeFox_Menu-Button.tip "Click to see the KeeFox menu">
+<!ENTITY KeeFox_Menu-Button.label "KeeFox">
+<!ENTITY KeeFox_Menu-Button.test.label "Test KeeFox">
+<!ENTITY KeeFox_Menu-Button.test.tip "Execute KeeFox self tests to verify instalation is working as expected.">
+<!ENTITY KeeFox_Menu-Button.test.key "T">
+<!ENTITY KeeFox_Menu-Button.changeDB.label "Change database">
+<!ENTITY KeeFox_Menu-Button.changeDB.tip "Choose a different KeePass password database.">
+<!ENTITY KeeFox_Menu-Button.changeDB.key "C">
+<!ENTITY KeeFox_Menu-Button.options.label "Options">
+<!ENTITY KeeFox_Menu-Button.options.tip "View and change your preferred KeeFox options.">
+<!ENTITY KeeFox_Menu-Button.options.key "O">
+<!ENTITY KeeFox_Logins-Button.tip "Explore all your logins and quickly log in to your websites.">
+<!ENTITY KeeFox_Logins-Button.label "Logins">
+<!ENTITY KeeFox_Logins-Button.key "L">

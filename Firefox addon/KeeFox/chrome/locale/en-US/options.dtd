@@ -1,0 +1,29 @@
+<!ENTITY KeeFox-Options.title "KeeFox Options">
+
+<!ENTITY KeeFox-pref-General.heading "General">
+<!ENTITY KeeFox-pref-Notifications.heading "Notifications">
+<!ENTITY KeeFox-pref-Advanced.heading "Advanced">
+<!ENTITY KeeFox-pref-General.description "These are the most important options that govern the behaviour of KeeFox">
+<!ENTITY KeeFox-pref-Notifications.description "Change these options to alter how KeeFox attracts your attention">
+<!ENTITY KeeFox-pref-Advanced.description "These options may help you to debug a problem or configure advanced settings but most users can ignore these">
+<!ENTITY KeeFox-pref-General.tooltip "Main options">
+<!ENTITY KeeFox-pref-Notifications.tooltip "Notification options">
+<!ENTITY KeeFox-pref-Advanced.tooltip "Advanced options">
+
+<!ENTITY KeeFox-pref-dynamicFormScanning.label "Enable detection of advanced forms">
+<!ENTITY KeeFox-pref-autoFillForms.label "Fill in forms automatically when a matching password is found">
+<!ENTITY KeeFox-pref-autoSubmitForms.label "Submit forms automatically when a matching password is found">
+<!ENTITY KeeFox-pref-overWriteUsernameAutomatically.label "Overwrite the contents of any matching non-empty forms">
+<!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Submit forms when you choose a matching password">
+<!ENTITY KeeFox-pref-rememberMRUDB.label "Remember the most recently used KeePass database">
+
+<!ENTITY KeeFox-pref-notifyBarWhenKeeICEInactive.label "Display a notification bar when KeePass needs to be opened">
+<!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Display a notification bar when you need to log in to a KeePass database">
+<!ENTITY KeeFox-pref-flashIconWhenKeeICEInactive.label "Flash the KeeFox login icon when KeePass needs to be opened">
+<!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Flash the KeeFox login icon when you need to log in to a KeePass database">
+
+<!ENTITY KeeFox-pref-keeICEInstalledLocation.label "KeeICE plugin installation location">
+<!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installation location">
+<!ENTITY KeeFox-pref-keePassMRUDB.label "Location of most recently used KeePass database">
+<!ENTITY KeeFox-pref-debugToConsole.label "Output debug information to the Firefox console">
+

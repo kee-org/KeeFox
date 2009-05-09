@@ -1,0 +1,22 @@
+#KeeFox_Menu-Button {
+    list-style-image: url("chrome://keefox/skin/main.png");
+}
+
+/*toolbarbutton{-moz-appearance: none !important;}*/
+
+toolbarbutton#KeeFox_Main-Button 
+{
+	list-style-image: url("chrome://mozapps/skin/passwordmgr/key.png");
+}
+
+toolbarbutton.highlight, toolbarbutton.login-found  
+{
+	list-style-image: url("chrome://keefox/skin/key-highlighted.png") !important;
+}
+
+.toolbarbutton-menubutton-button
+{
+-moz-box-orient: horizontal !important;
+}
+
+/* .toolbarbuttonmenu-text */
