@@ -125,6 +125,28 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Analyse|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="10"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)KeeFox\*&quot; &quot;$(SolutionDir)XPIs\current\&quot; /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM compress the files into the complete XPI&#x0D;&#x0A;cd $(SolutionDir)XPIs\current&#x0D;&#x0A;del ..\current.xpi&#x0D;&#x0A;&quot;c:\Program Files\ZipGenius 6\zg.exe&quot; -add &quot;..\current.xpi&quot; R1 K0 C5 +&quot;*&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)$(OutDir)&quot; /i /d /y&#x0D;&#x0A;REM if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail&#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK&#x0D;&#x0A;"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>

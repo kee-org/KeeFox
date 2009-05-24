@@ -171,6 +171,86 @@
 				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Firefox addon\KeeFox\deps\$(TargetFileName)&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail&#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK&#x0D;&#x0A;"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Analyse|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="shell32.lib chkstk.obj"
+				LinkIncremental="1"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				EntryPointSymbol="windowsMainEntry"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)Firefox addon\KeeFox\deps\$(TargetFileName)&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail&#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK&#x0D;&#x0A;"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>

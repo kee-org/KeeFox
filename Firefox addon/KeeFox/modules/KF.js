@@ -59,7 +59,6 @@ function KeeFox()
 {
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
-    this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
     this._KeeICEminVersion = 0.6;
     this._KeeFoxVersion = 0.6;
     this.temp = 1;
@@ -111,8 +110,10 @@ this._test = numb;
     callBackCount : null,
 
     _KeeFoxXPCOMobj: null,
-    ICEconnectorTimer: null,
-    ICEconnectorEvent: null,
+    activeICEconnector: null,
+    activeICEconnectorThread: null,
+    //ICEconnectorTimer: null,
+    //ICEconnectorEvent: null,
     _kfilm: null, // The KeeFox Improved Login Manager (probably not used any more)
     _toolbar: null,
     _kfui: null,
@@ -400,11 +401,12 @@ this._test = numb;
                 this.ICEconnectorTimer.initWithCallback(this.ICEconnectorEvent, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                 */
                 
-                var observerService = Cc["@mozilla.org/observer-service;1"].
-                              getService(Ci.nsIObserverService);
-                this._observer._kf = this;
+                //var observerService = Cc["@mozilla.org/observer-service;1"].
+                //              getService(Ci.nsIObserverService);
+                //this._observer._kf = this;
 
-                this.ICEconnectorTimer.init(this._observer, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                //this.ICEconnectorTimer.init(this._observer, 5000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+              this.startICEcallbackConnector();
               
             } else
             {
@@ -551,17 +553,17 @@ this._test = numb;
     // but in most cases the user will be busy entering their master password
     // anyway)
     startICEcallbackConnector: function() {
-    var event = { notify: function(timer) { 
-        
-            var target = 
+    
+            this.activeICEconnector = new KeeFoxICEconnector();
+            this.activeICEconnectorThread = 
               Components.classes["@mozilla.org/thread-manager;1"].
               getService().newThread(0);
            
-            target.dispatch(new KeeFoxICEconnector(), target.DISPATCH_NORMAL);
+            this.activeICEconnectorThread.dispatch(this.activeICEconnector, this.activeICEconnectorThread.DISPATCH_NORMAL);
             
-         } }
-        
-        this.ICEconnectorTimer.initWithCallback(event, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+        // } }
+        //dump("initICEconnectorTimer");
+        //this.ICEconnectorTimer.initWithCallback(event, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     },
 
     // Temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
@@ -1290,17 +1292,43 @@ var keeFoxInst = new KeeFox;
 // THIS RUNS IN A WORKER THREAD
 //TODO: it seems possible for this run function to be called during the KeeICE shutdown procedure but while ICE is still accepting new connections. This means that the vesion check succeeds and the main thread is told that ICE has returned, thereby cancelling the regular check. This probably happens more frequently while debugging delays are included in KeeICE but may happen in the wild too.
 // Could something similar happen to cause the deadlock after the KeePass window closed?
+
 function KeeFoxICEconnector() {
+
+    // start a timer that reguarly calls the run function in this object
+    // to see if KeeICE has been enabled
+    // (this can lead to a small delay in KeeFox reporting the change in state
+    // but in most cases the user will be busy entering their master password
+    // anyway)
+
+    //this.event = { notify: function(timer) { 
+        //dump("testing");
+        //return;
+            //var connector = this;
+            //var target = 
+            //  Components.classes["@mozilla.org/thread-manager;1"].
+            //  getService().newThread(0);
+           
+            //target.dispatch(connector, target.DISPATCH_NORMAL);
+            
+        // } }
+        //dump("initICEconnectorTimer");
+        //this.ICEconnectorTimer.initWithCallback(event, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    
 }
 KeeFoxICEconnector.prototype = {
+    ICEconnectorTimer: null,
+    timerStillUseful: null,
   QueryInterface: function(iid) {
     if (iid.equals(Components.interfaces.nsIRunnable) ||
         iid.equals(Components.interfaces.nsISupports))
       return this;
     throw Components.results.NS_ERROR_NO_INTERFACE;
   },
-  run: function() {
   
+  notify: function(timer) { 
+  
+        dump("started");
  //TODO: PRIME CANDIDATE FOR EXPLANATION OF NEW EXTRA RANDOM CRASHES
     var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
     var keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
@@ -1311,16 +1339,41 @@ KeeFoxICEconnector.prototype = {
         var versionCheckResult = {};
         KeeICEComOpen = false;
         
+        dump("working");
+        
         // false only if ICE connection fault or KeeICE internal error
         //TODO: is it even safe to call my own XPCOM obejcts from this different thread? one option is to get the xpcom service seperately here and in other worker thread locations.
         if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
-            
+            dump("result");
             var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
             main.dispatch(new KFmoduleMainThreadHandler("ICEversionCheck", "finished", versionCheckResult.value, null , null), main.DISPATCH_NORMAL);
 
-            
+            this.timerStillUseful = false;
         }
+        dump("finished");
     }
+    dump("fail");
+        },
+        
+        
+  run: function() {
+  dump("start running");
+    this.timerStillUseful = true;
+    this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+            this.ICEconnectorTimer.initWithCallback(this, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    
+    var thread = Components.classes["@mozilla.org/thread-manager;1"]
+                        .getService(Components.interfaces.nsIThreadManager)
+                        .currentThread;
+
+    while (this.timerStillUseful)
+        thread.processNextEvent(true);
+        
+    this.ICEconnectorTimer.cancel();
+    this.ICEconnectorTimer = null;
+    this.timerStillUseful = null;
+       
+  dump("end running");
   }
 };
 
@@ -1344,7 +1397,9 @@ KFmoduleMainThreadHandler.prototype = {
                         keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
                         
                         //TODO: set up variables, etc. as per if it were an initial startup
-                        keeFoxInst.ICEconnectorTimer.cancel();
+                        
+                        // TODO: cancel ICE connection timer and then kill thread
+                        //keeFoxInst.ICEconnectorTimer.cancel();
 
                         keeFoxInst.log("Successfully established connection with KeeICE");
                         // remember this across all windows

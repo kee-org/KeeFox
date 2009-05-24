@@ -1435,6 +1435,7 @@ this.log("test:"+i);
             {
                 // we don't support these situations yet
                 this.log("unsupported situation");
+                //TODO: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
                 return;
             } else // it's probably a password change form
             {

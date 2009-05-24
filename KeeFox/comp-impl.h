@@ -66,7 +66,7 @@ public:
 	//KPDatabasePrx DB;
     virtual int run(int, char*[]);
 	int establishICEConnection();
-	int main(int argc, char* argv[]);
+	//int main(int argc, char* argv[]);
 
 };
 
