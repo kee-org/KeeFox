@@ -35,11 +35,22 @@ kfLoginField.prototype = {
     
     name      : null,
     value : null,
+    fieldId : null,
+    DOMelement : null,
+    type : null,
     
-    init : function ( aName, aValue )
+    init : function ( aName, aValue, aID, aType )
     {
+        var logService = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+        logService.logStringMessage("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + "]");
+        
         this.name = aName;
         this.value = aValue;
+        if (aID == null || aID == undefined)
+            this.fieldId = "";
+        else
+            this.fieldId = aID;
+        this.type = aType;
     }
   
 };

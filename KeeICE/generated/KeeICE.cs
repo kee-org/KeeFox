@@ -53,6 +53,8 @@ namespace KeeICE
 
             public KeeICE.KFlib.formFieldType type;
 
+            public string id;
+
             #endregion
 
             #region Constructors
@@ -61,12 +63,13 @@ namespace KeeICE
             {
             }
 
-            public KPFormField(string name, string displayName, string value, KeeICE.KFlib.formFieldType type)
+            public KPFormField(string name, string displayName, string value, KeeICE.KFlib.formFieldType type, string id)
             {
                 this.name = name;
                 this.displayName = displayName;
                 this.value = value;
                 this.type = type;
+                this.id = id;
             }
 
             #endregion
@@ -98,6 +101,10 @@ namespace KeeICE
                     h__ = 5 * h__ + value.GetHashCode();
                 }
                 h__ = 5 * h__ + type.GetHashCode();
+                if(id != null)
+                {
+                    h__ = 5 * h__ + id.GetHashCode();
+                }
                 return h__;
             }
 
@@ -162,6 +169,20 @@ namespace KeeICE
                 {
                     return false;
                 }
+                if(id == null)
+                {
+                    if(o__.id != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!id.Equals(o__.id))
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
 
@@ -189,6 +210,7 @@ namespace KeeICE
                 os__.writeString(displayName);
                 os__.writeString(value);
                 os__.writeByte((byte)type, 6);
+                os__.writeString(id);
             }
 
             public void read__(IceInternal.BasicStream is__)
@@ -197,6 +219,7 @@ namespace KeeICE
                 displayName = is__.readString();
                 value = is__.readString();
                 type = (KeeICE.KFlib.formFieldType)is__.readByte(6);
+                id = is__.readString();
             }
 
             #endregion
@@ -574,7 +597,7 @@ namespace KeeICE
                 title = is__.readString();
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 4);
+                    is__.startSeq(szx__, 5);
                     formFieldList = new KeeICE.KFlib.KPFormField[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
@@ -1259,7 +1282,7 @@ namespace KeeICE
                 KeeICE.KFlib.KPFormField[] v__;
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 4);
+                    is__.startSeq(szx__, 5);
                     v__ = new KeeICE.KFlib.KPFormField[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {

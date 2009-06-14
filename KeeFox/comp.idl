@@ -21,6 +21,7 @@
 //#include "nsILoginInfo.idl"
 #include "nsIMutableArray.idl"
 //#include "nsILoginManagerStorage.idl"
+#include "nsIDOMHTMLInputElement.idl"
 
 // TODO: more attributes needed? would be nice if not, maybe automatically detect form field type at fill-in
 // stage rather than store in KeePass?
@@ -28,7 +29,10 @@
 interface kfILoginField : nsISupports {
   attribute AString name;
   attribute AString value;
-  void init(in AString aName, in AString aValue);
+  attribute AString fieldId;
+  attribute nsIDOMHTMLInputElement DOMelement; //TODO: find the correct type - it could be XPCNativeWrapper
+  attribute AString type;
+  void init(in AString aName, in AString aValue, in AString aID, in AString aType);
 };
 
 // based on Mozilla's nsILoginInfo
@@ -68,33 +72,17 @@ interface kfILoginInfo : nsISupports {
     attribute AString httpRealm;
 
     /**
-     * The username for the login.
+     * The index of the otherField which represents the "main" username.
      */
-    attribute AString username;
-
-    /**
-     * The |name| attribute for the username input field.
-     *
-     * For logins obtained from a HTTP or FTP protocol authentication,
-     * this field is NULL.
-     */
-    attribute AString usernameField;
+    attribute long usernameIndex;
 
     /**
      * The password for the login.
      */
-    attribute AString password;
-
-    /**
-     * The |name| attribute for the password input field.
-     *
-     * For logins obtained from a HTTP or FTP protocol authentication,
-     * this field is NULL.
-     */
-    attribute AString passwordField;
+    attribute nsIMutableArray passwords;
 
 
-	attribute nsIMutableArray customFields;
+	attribute nsIMutableArray otherFields;
 
 	attribute AString uniqueID;
 
@@ -103,16 +91,6 @@ interface kfILoginInfo : nsISupports {
 	attribute long relevanceScore;
 
 
-    /**
-     * Initialize a newly created nsLoginInfo object.
-     *
-     * The arguments are the fields for the new object.
-     */
-    void init(in AString aHostname,
-              in AString aFormSubmitURL, in AString aHttpRealm,
-              in AString aUsername,      in AString aPassword,
-              in AString aUsernameField, in AString aPasswordField,
-			  in AString uniqueID, in AString aTitle);
 
     /**
      * Test for strict equality with another nsILoginInfo object.
@@ -136,11 +114,16 @@ interface kfILoginInfo : nsISupports {
      */
     boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes);
 
-	void initCustom(in AString aHostname,
+	
+    /**
+     * Initialize a newly created nsLoginInfo object.
+     *
+     * The arguments are the fields for the new object.
+     */
+	void init(in AString aHostname,
               in AString aFormSubmitURL, in AString aHttpRealm,
-              in AString aUsername,      in AString aPassword,
-              in AString aUsernameField, in AString aPasswordField,
-			  in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields);
+              in long aUsernameIndex,      in nsIMutableArray aPasswords,
+			  in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray);
 
 };
 

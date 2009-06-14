@@ -39,13 +39,11 @@ kfLoginInfo.prototype = {
     URL      : null,
     formActionURL : null,
     httpRealm     : null,
-    username      : null,
-    password      : null,
-    usernameField : null,
-    passwordField : null,
+    usernameIndex      : null,
+    passwords      : null,
     uniqueID : null,
     title : null,
-    customFields : null,
+    otherFields : null,
     relevanceScore : null,
     
     _alert : function (msg) {
@@ -64,39 +62,66 @@ kfLoginInfo.prototype = {
     },
 
     init : function (aURL, aFormActionURL, aHttpRealm,
-                     aUsername,      aPassword,
-                     aUsernameField, aPasswordField,
-                     aUniqueID, aTitle) {
+                     aUsernameIndex,      aPasswords,
+                     aUniqueID, aTitle, otherFieldsArray) {
 
+        this.otherFields = otherFieldsArray;   
         this.URL      = aURL;
         this.formActionURL = aFormActionURL;
         this.httpRealm     = aHttpRealm;
-        this.username      = aUsername;
-        this.password      = aPassword;
-        this.usernameField = aUsernameField;
-        this.passwordField = aPasswordField;
+        this.usernameIndex      = aUsernameIndex;
+        this.passwords      = aPasswords;
         this.uniqueID = aUniqueID;
         this.title = aTitle;
     },
-    
-    initCustom : function (aURL, aFormActionURL, aHttpRealm,
-                     aUsername,      aPassword,
-                     aUsernameField, aPasswordField,
-                     aUniqueID, aTitle, customFieldsArray) {
-
-        this.init(aURL, aFormActionURL, aHttpRealm,
-                     aUsername,      aPassword,
-                     aUsernameField, aPasswordField,
-                     aUniqueID, aTitle);
         
-        this.customFields = customFieldsArray;   
-       
+    // the order of password fields must also match
+    // TODO: do we need to relax this test so order is irrelevant?
+    _allPasswordsMatch : function (passwords)
+    {
+        if (this.passwords.length != passwords.length)
+            return false;
+            
+        for (i = 0; i < this.passwords.length; i++)
+        {
+            if (passwords.queryElementAt(i,Components.interfaces.kfILoginField).value !=
+                this.passwords.queryElementAt(i,Components.interfaces.kfILoginField).value)
+                return false;
+        }
+        return true;
     },
+
+    _usernamesMatch : function (login)
+    {
+        if (this.otherFields.length != login.otherFields.length)
+            return false;
+            
+        var loginUsername = null;
+        if (login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > login.usernameIndex && login.otherFields[login.usernameIndex] != undefined)
+        {
+            var temp = login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+            loginUsername = temp.value;
+        }
+        
+        var thisUsername = null;
+        if (this.usernameIndex >= 0 && this.otherFields != null && this.otherFields.length > this.usernameIndex && this.otherFields[this.usernameIndex] != undefined)
+        {
+            var temp = this.otherFields.queryElementAt(this.usernameIndex,Components.interfaces.kfILoginField);
+            thisUsername = temp.value;
+        }
+        
+        if (thisUsername != loginUsername)
+            return false;
+        
+        return true;
+    },
+    
+    
 
 //CPT: had to hack this a bit. might come back to bite later. now if either httprealm is empty string we will not test for equality.
 // maybe want to do the same for URL, or maybe it'll cause probs down the line. it's all becuase ICE can't distinguish
 // between null and empty string but there may be nicer ways to workaround...
-    matches : function (aLogin, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes) {
+    matches : function (aLogin, ignorePasswords, ignoreURIPaths, ignoreURIPathsAndSchemes, ignoreUsernames) {
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                            .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");
@@ -109,11 +134,13 @@ kfLoginInfo.prototype = {
         else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && this.URL != aLogin.URL)
             return false;
         window.keeFoxILM.log("match2");
-        if ((this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ) ||
-            this.username      != aLogin.username)
+        if ((this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ))
+            return false;
+            
+        if (!ignoreUsernames && !this._usernamesMatch(aLogin))
             return false;
 
-        if (!ignorePassword && this.password != aLogin.password)
+        if (!ignorePasswords && !this._allPasswordsMatch(aLogin.passwords))
             return false;
 
         // If either formActionURL is blank (but not null), then match.
@@ -132,16 +159,15 @@ kfLoginInfo.prototype = {
         return true;
     },
 
-//TODO: compare all custom fields for equality 
+//TODO: compare all other fields for equality 
 //(though maybe matching on just the uniqueID is a better way to move towards?)
+//TODO: I don't think this is used but if it is we need to add ability to compare all passwords and custom fields
     equals : function (aLogin) {
         if (this.URL      != aLogin.URL      ||
             this.formActionURL != aLogin.formActionURL ||
             this.httpRealm     != aLogin.httpRealm     ||
-            this.username      != aLogin.username      ||
-            this.password      != aLogin.password      ||
-            this.usernameField != aLogin.usernameField ||
-            this.passwordField != aLogin.passwordField ||
+            this.usernameIndex      != aLogin.usernameIndex      ||
+            //this.password.value      != aLogin.password.value      ||
             this.uniqueID != aLogin.uniqueID ||
             this.title != aLogin.title)
             return false;

@@ -142,6 +142,7 @@ struct KPFormField
     ::std::string displayName;
     ::std::string value;
     ::KeeICE::KFlib::formFieldType type;
+    ::std::string id;
 
     bool operator==(const KPFormField&) const;
     bool operator<(const KPFormField&) const;

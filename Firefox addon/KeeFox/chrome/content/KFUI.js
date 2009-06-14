@@ -485,10 +485,17 @@ this.log("titleC:"+title);
      */
     _showChangeLoginNotification : function (aNotifyBox, aOldLogin, aNewLogin) {
         var notificationText;
-        if (aOldLogin.username)
+        var oldUsernameValue = "";
+        
+        if (aOldLogin.usernameIndex >= 0 && aOldLogin.otherFields != null && aOldLogin.otherFields.length > 0)
+        {
+            oldUsernameValue = aOldLogin.otherFields[aOldLogin.usernameIndex].value;
+        }
+        
+        if (oldUsernameValue.length > 0)
             notificationText  = this._getLocalizedString(
                                           "passwordChangeText",
-                                          [aOldLogin.username]);
+                                          [oldUsernameValue]);
         else
             notificationText  = this._getLocalizedString(
                                           "passwordChangeTextNoUser");
@@ -826,12 +833,12 @@ this.log("titleC:"+title);
      * is the same as some other existing login. So, pick a login with a
      * matching username, or return null.
      */
-    _repickSelectedLogin : function (foundLogins, username) {
+    /*_repickSelectedLogin : function (foundLogins, username) {
         for (var i = 0; i < foundLogins.length; i++)
             if (foundLogins[i].username == username)
                 return foundLogins[i];
         return null;
-    },
+    },*/
 
     
     /*

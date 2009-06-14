@@ -81,10 +81,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Ice-3.3.0-VC90\bin\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.0.7.28344, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+    <Reference Include="KeePass, Version=2.0.7.35762, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files\KeePass Password Safe 2\KeePass.exe</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
@@ -131,7 +130,7 @@
   -->
   <PropertyGroup>
     <PreBuildEvent>"$(SolutionDir)..\Ice-3.3.0-VC90\bin\slice2cs" -IC:\development\Ice-3.3.0-VC90\slice\ --output-dir "$(ProjectDir)generated" "$(ProjectDir)KeeICE.ice"
-"$(SolutionDir)..\IceE-1.3.0\cpp\bin\slice2cppe" -IC:\development\IceE-1.3.0\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
+"$(SolutionDir)..\IceE-1.3.0\cpp\bin\slice2cppe" -DICEE -IC:\development\IceE-1.3.0\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
     <PostBuildEvent>echo POSTBUILDSTEP for $(ProjectName)
 
 REM IF NOT "$(ConfigurationName)"=="Debug" Goto :NotDebug

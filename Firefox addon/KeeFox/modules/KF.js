@@ -47,14 +47,6 @@ function alert(msg)
     promptService.alert(window,"Alert",msg);
 }
 
-//TODO: delete or put this inside keeFox prototype
-function error(aMsg)
-{
-    var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-                                 .getService(Components.interfaces.nsIConsoleService);
-    consoleService.logStringMessage("ERROR: " + aMsg);
-}
-
 function KeeFox()
 {
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
@@ -158,7 +150,7 @@ this._test = numb;
                 }
             }
         } catch (err) {
-            error(err);
+            this.log("Error: "+err);
         }
         return false;
     },
@@ -814,6 +806,7 @@ this._test = numb;
     
     getChildEntries: function (count, uniqueID) {
         try {
+        this.log(uniqueID);
             return this._KeeFoxXPCOMobj.getChildEntries(count, uniqueID);
         } catch (e)
         {
@@ -1258,27 +1251,27 @@ this._test = numb;
     
     
     // TODO: put this somewhere sensible, maybe a utils file, depending on what else we come up over the next few months...
-    kfLoginInfoCustomFieldsWrapper : function () {
+    kfLoginFieldsConstructor : function () {
                      
-        var customFieldsArray = null;
+        var fieldsArray = null;
 
         if ( arguments.length > 0 ) // we're being given some custom fields to deal with...
         {
-            customFieldsArray = Components.classes["@mozilla.org/array;1"]
+            fieldsArray = Components.classes["@mozilla.org/array;1"]
                         .createInstance(Components.interfaces.nsIMutableArray);
             
-            for (i = 0; i+1 < arguments.length; i=i+2)
+            for (i = 0; i+1 < arguments.length; i=i+3)
             {
                 var kfLoginField = new Components.Constructor(
             "@christomlinson.name/kfLoginField;1", Ci.kfILoginField);
             
-                var customField = new kfLoginField;
-                customField.init( arguments[i], arguments[i+1]);
-                customFieldsArray.appendElement(customField,false);
+                var field = new kfLoginField;
+                field.init( arguments[i], arguments[i+1], arguments[i+2]);
+                fieldsArray.appendElement(field,false);
             }
         }
         
-        return customFieldsArray;
+        return fieldsArray;
     }
 
 };

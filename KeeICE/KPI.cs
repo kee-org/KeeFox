@@ -292,7 +292,7 @@ namespace KeeICE
         {
             //TODO: focus existing editor window for this login if there is one. Maybe use host.MainWindow.OwnedForms or keep our own list of open forms in this plugin (and destroy them when plugin is destroyed) + same for Group editor
             PwEntryForm ef = new PwEntryForm();
-            ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false);
+            ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false, false);
 
             ef.BringToFront();
             ef.ShowInTaskbar = true;
@@ -345,50 +345,50 @@ namespace KeeICE
                 if (pweKey.StartsWith("Form field ") && pweKey.EndsWith(" type") && pweKey.Length > 16)
                 {
                     string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
+                    string fieldId = "";
+
+                    if (pwe.Strings.Exists("Form field " + fieldName + " id"))
+                        fieldId = pwe.Strings.ReadSafe("Form field " + fieldName + " id");
 
                     if (pweValue == "password")
                     {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Password", pwe.Strings.ReadSafe("Password"), KFlib.formFieldType.FFTpassword));
+                        // If there is a matching custom string for this password, use that but if not
+                        // we can just use the standard entry password.
+                        if (pwe.Strings.Exists("Form field " + fieldName + " value"))
+                            formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Password", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTpassword,fieldId));
+                        else
+                            formFieldList.Add(new KFlib.KPFormField(fieldName,
+                "Password", pwe.Strings.ReadSafe("Password"), KFlib.formFieldType.FFTpassword, fieldId));
                     }
                     else if (pweValue == "username")
                     {
                         formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "User name", pwe.Strings.ReadSafe("UserName"), KFlib.formFieldType.FFTusername));
+                "User name", pwe.Strings.ReadSafe("UserName"), KFlib.formFieldType.FFTusername, fieldId));
                     }
                     else if (pweValue == "text")
                     {
                         formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext, fieldId));
                     }
-/* old...
- * else if (pweValue == "text")
-                    {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Custom", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext));
-                    }
- * ****/
                     else if (pweValue == "radio")
                     {
                         formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTradio));
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTradio, fieldId));
                     }
                     else if (pweValue == "select")
                     {
                         formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTselect));
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTselect, fieldId));
                     }
                     else if (pweValue == "checkbox")
                     {
                         formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Unknown display (not supported yet)", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTcheckbox));
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTcheckbox, fieldId));
                     }
                 }
 
             }
-            //byte[] temp1 = pwe.Uuid.UuidBytes;
-            //string temp2 = pwe.Uuid.ToString();
-            //string temp3 = pwe.Uuid.ToHexString();
 
             KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
             KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes));
@@ -398,23 +398,26 @@ namespace KeeICE
         private KFlib.KPGroup getKPGroupFromPwGroup(PwGroup pwg, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
-            
-            //byte[] temp1 = pwg.Uuid.UuidBytes;
-            //string temp2 = pwg.Uuid.ToString();
-            //string temp3 = pwg.Uuid.ToHexString();
-
+          
             KFlib.KPGroup kpg = new KFlib.KPGroup(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes));
             return kpg;
         }
 
         private void setPwEntryFromKPEntry(PwEntry pwe, KFlib.KPEntry login)
         {
+            bool firstPasswordFound = false;
 
             foreach (KFlib.KPFormField kpff in login.formFieldList)
             {
-                if (kpff.type == KeeICE.KFlib.formFieldType.FFTpassword)
+                if (kpff.type == KeeICE.KFlib.formFieldType.FFTpassword && !firstPasswordFound)
                 {
                     pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "password"));
+                    firstPasswordFound = true;
+                }
+                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTpassword)
+                {
+                    pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.value)); // we protect this string if user has asked to protect passwords
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "password"));
                 }
                 else if (kpff.type == KeeICE.KFlib.formFieldType.FFTusername)
@@ -427,7 +430,24 @@ namespace KeeICE
                     pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "text"));
                 }
-                //TODO: other field types
+                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTcheckbox)
+                {
+                    pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "checkbox"));
+                }
+                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTradio)
+                {
+                    pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "radio"));
+                }
+                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTselect)
+                {
+                    pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
+                    pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "select"));
+                }
+
+                if (kpff.id != null && kpff.id.Length > 0)
+                    pwe.Strings.Set("Form field " + kpff.name + " id", new ProtectedString(false, kpff.id));
             }
 
             pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.URL));
@@ -528,7 +548,7 @@ namespace KeeICE
                 //TODO: recycle if option is set, warn if not.
                 matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
 
-                host.MainWindow.Invoke(new MethodInvoker(saveDB));
+                host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
                 return true;
             }
@@ -557,7 +577,7 @@ namespace KeeICE
                 matchedGroup.ParentGroup.Groups.Remove(matchedGroup);
 
                 //TODO: recycle if option is set, warn if not.
-                host.MainWindow.Invoke(new MethodInvoker(saveDB));
+                host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
                 return true;
             }
@@ -592,8 +612,8 @@ namespace KeeICE
             }
 
             parentGroup.AddEntry(newLogin, true);
-            
-            host.MainWindow.Invoke(new MethodInvoker(saveDB));
+
+            host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
             KFlib.KPEntry output = getKPEntryFromPwEntry(newLogin, true);
 
@@ -628,7 +648,7 @@ namespace KeeICE
 
             parentGroup.AddGroup(newGroup, true);
 
-            host.MainWindow.Invoke(new MethodInvoker(saveDB));
+            host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
             KFlib.KPGroup output = getKPGroupFromPwGroup(newGroup, true);
 
@@ -662,7 +682,7 @@ namespace KeeICE
 
             setPwEntryFromKPEntry(modificationTarget, newLogin);
 
-            host.MainWindow.Invoke(new MethodInvoker(saveDB));
+            host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
         }
 
         /// <summary>
@@ -797,30 +817,34 @@ namespace KeeICE
             KFlib.KPGroup[] entries = null;
             ArrayList allGroups = new ArrayList();
 
+            PwGroup matchedGroup;
+            
+            // Make sure there is an active database
+            if (!ensureDBisOpen()) { return null; }
+
             if (uuid != null && uuid.Length > 0)
             {
-                // Make sure there is an active database
-                if (!ensureDBisOpen()) { return null; }
-
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
-
-                if (matchedGroup == null)
-                    throw new Exception("Could not find requested group.");
-
-                KeePassLib.Collections.PwObjectList<PwGroup> output;
-                output = matchedGroup.Groups;
-
-                foreach (PwGroup pwg in output)
-                {
-                    KFlib.KPGroup kpg = getKPGroupFromPwGroup(pwg, false);
-                    allGroups.Add(kpg);
-                }
-
-                entries = (KFlib.KPGroup[])allGroups.ToArray(typeof(KFlib.KPGroup));
+                matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+            } else
+            {
+                matchedGroup = host.Database.RootGroup;
             }
 
+            if (matchedGroup == null)
+                throw new Exception("Could not find requested group.");
+
+            KeePassLib.Collections.PwObjectList<PwGroup> output;
+            output = matchedGroup.Groups;
+
+            foreach (PwGroup pwg in output)
+            {
+                KFlib.KPGroup kpg = getKPGroupFromPwGroup(pwg, false);
+                allGroups.Add(kpg);
+            }
+
+            entries = (KFlib.KPGroup[])allGroups.ToArray(typeof(KFlib.KPGroup));
             return entries;
         }
 
@@ -931,7 +955,7 @@ namespace KeeICE
 
             KeePassLib.Collections.PwObjectList<PwEntry> output;
             output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-            host.Database.RootGroup.SearchEntries(sp, output);
+            host.Database.RootGroup.SearchEntries(sp, output, false);
             foreach (PwEntry pwe in output)
             {
                 bool entryIsAMatch = false;
@@ -1103,7 +1127,7 @@ namespace KeeICE
 
                 KeePassLib.Collections.PwObjectList<PwEntry> output;
                 output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-                host.Database.RootGroup.SearchEntries(sp, output);
+                host.Database.RootGroup.SearchEntries(sp, output, false);
                 foreach (PwEntry pwe in output)
                 {
                     bool entryIsAMatch = false;

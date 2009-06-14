@@ -173,6 +173,36 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Test Pages"
+			Filter="Test Pages"
+			>
+			<File
+				RelativePath=".\Test Pages\StandardUsernamePassword.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\StandardUsernamePasswordUnusualFields.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username2Passwords1Checkbox1Radio.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username2Passwords1Text.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username3Passwords.htm"
+				DeploymentContent="true"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\KeeFox\chrome.manifest"
 			>
@@ -238,6 +268,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\KFILM_Fill.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\KFILM_Submit.js"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\components\kfLoginField.js"
 			>
 		</File>
@@ -246,7 +284,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\content\KFtests.js"
+			RelativePath=".\KeeFox\chrome\content\KFtest.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\KFtestDefinitions.js"
 			>
 		</File>
 		<File

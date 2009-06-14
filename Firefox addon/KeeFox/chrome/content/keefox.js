@@ -35,7 +35,7 @@ Components.utils.import("resource://kfmod/KF.js");
 
 
 loader.loadSubScript("resource://kfscripts/KFUtils.js"); 
-loader.loadSubScript("resource://kfscripts/KFtests.js"); 
+loader.loadSubScript("resource://kfscripts/KFtest.js"); 
 
 var keeFoxToolbar, keeFoxILM, keeFoxUI, KFtester;
 
@@ -67,10 +67,10 @@ var keeFoxInitStartupListener = {
             }
             this._kf.log("it's the right window");
             
-            //TODO: remove this. useful for debugging window stuff but bad to leave it in for too long...
-            currentWindow.name = "testwin" + this._kf.temp;
-            this._kf.temp++;
-            this._kf.log("currentName:" + currentWindow.name);
+            // old window management debug code
+            //currentWindow.name = "testwin" + this._kf.temp;
+            //this._kf.temp++;
+            //this._kf.log("currentName:" + currentWindow.name);
             //this._kf.log("_assignedWindowName:" + this._assignedWindow.name);
             
             switch (event.type) {

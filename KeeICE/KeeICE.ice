@@ -22,7 +22,11 @@
 #ifndef SIMPLE_ICE
 #define SIMPLE_ICE
 
+#ifdef ICEE
 #include <IceE/Identity.ice>
+#else
+#include <Ice/Identity.ice>
+#endif
 
 module KeeICE {
 module KFlib {
@@ -37,6 +41,7 @@ module KFlib {
 		string displayName;
 		string value;
 		formFieldType type;
+		string id; // this is missing!!!
 		//compulsory, multiple selections,useful javascript functions?
     };
     
@@ -60,6 +65,10 @@ module KFlib {
 		bool default; // for this hostname
 		bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between KeeICE clients or vary based on specific use cases in the client)
 		string uniqueID;
+		// long priority (remove "default") "KeeFox config: priority = 1" (1 = 30000 relevancy score, 2 = 29999 relevancy score)
+		// bool ignore "KeeFox config: ignore"
+		// long autoTypeWhen "KeeFox config: autoType after page 2" (after/before or > / <) (page # or # seconds or #ms)
+		// bool autoTypeOnly "KeeFox config: only autoType" 
     };
     
     sequence<KPEntry> KPEntryList;

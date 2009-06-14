@@ -157,6 +157,10 @@ KeeICE::KFlib::KPFormField::operator==(const KPFormField& __rhs) const
     {
         return false;
     }
+    if(id != __rhs.id)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -199,6 +203,14 @@ KeeICE::KFlib::KPFormField::operator<(const KPFormField& __rhs) const
     {
         return false;
     }
+    if(id < __rhs.id)
+    {
+        return true;
+    }
+    else if(__rhs.id < id)
+    {
+        return false;
+    }
     return false;
 }
 
@@ -209,6 +221,7 @@ KeeICE::KFlib::KPFormField::__write(::IceInternal::BasicStream* __os) const
     __os->write(displayName);
     __os->write(value);
     ::KeeICE::KFlib::__write(__os, type);
+    __os->write(id);
 }
 
 void
@@ -218,6 +231,7 @@ KeeICE::KFlib::KPFormField::__read(::IceInternal::BasicStream* __is)
     __is->read(displayName);
     __is->read(value);
     ::KeeICE::KFlib::__read(__is, type);
+    __is->read(id);
 }
 
 void
@@ -236,7 +250,7 @@ KeeICE::KFlib::__readKPFormFieldList(::IceInternal::BasicStream* __is, ::KeeICE:
 {
     ::Ice::Int sz;
     __is->readSize(sz);
-    __is->startSeq(sz, 4);
+    __is->startSeq(sz, 5);
     v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {

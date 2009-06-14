@@ -60,11 +60,6 @@ KFToolbar.prototype = {
             this._logService.logStringMessage(message);
     },
     
-    // Internal function for logging error messages to the Error Console window
-    error : function (message) {
-        Components.utils.reportError(message);
-    },
-    
     removeLogins: function() {
 
         // Get the toolbaritem "container" that we added to our XUL markup
@@ -113,35 +108,31 @@ this.log("setLogins");
 
         for (var i = 0; i < logins.length; i++) {
             var login = logins[i];
+            var usernameValue = "";
+            var usernameName = "";
+            var usernameId = "";
             
-            var userNameID = null;
-            var passwordID = null;
-            var custFields = login.customFields;
-            //this.log(custFields);
-            if (custFields != undefined)
+            if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
-                this.log("found some custom fields");
-                var enumerator = custFields.enumerate();
-                var s = "";
-                while (enumerator.hasMoreElements())
-                {
-                  var customField = enumerator.getNext().QueryInterface(Components.interfaces.kfILoginField);
-                  
-                  // for now we're only using custom fields to increase form selection accuracy
-                  if (customField.name == 'Form field special_form_username_ID value')
-                    userNameID = customField.value;
-                   else if (customField.name == 'Form field special_form_password_ID value')
-                    passwordID = customField.value;
-                }
-                //this.log(s);
+                this.log("otherfields length: "+login.otherFields.length);
+                this.log("login.usernameIndex: "+login.usernameIndex);
+
+                // Unfortunately the container is decared to have elements
+                // that are generic nsIMutableArray. So, we must QI...
+                var field = 
+                login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+
+                usernameValue = field.value;
+                usernameName = field.name;
+                usernameId = field.fieldId;
             }
-            
+                        
             if (i==0)
             {
                 container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", login.username );
+                container.setAttribute("tooltiptext", usernameValue );
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "'); event.stopPropagation();"); // TODO: find the password ID from login.passwords...
                   //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
             
             }
@@ -150,9 +141,9 @@ this.log("setLogins");
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", login.username);
+            tempButton.setAttribute("tooltiptext", usernameValue);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "'); event.stopPropagation();"); // TODO: find the password ID from login.passwords...
             menupopup.appendChild(tempButton);
 
 
@@ -329,6 +320,24 @@ this.log("test2:"+container.getAttribute("oncommand"));
         
         for (var i = 0; i < foundLogins.length; i++) {
             var login = foundLogins[i];
+            var usernameValue = "";
+            var usernameName = "";
+            var usernameId = "";
+            
+            if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
+            {
+                this.log("otherfields length: "+login.otherFields.length);
+                this.log("login.usernameIndex: "+login.usernameIndex);
+
+                // Unfortunately the container is decared to have elements
+                // that are generic nsIMutableArray. So, we must QI...
+                var field = 
+                login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+
+                usernameValue = field.value;
+                usernameName = field.name;
+                usernameId = field.fieldId;
+            }
             
             /*
             
@@ -348,7 +357,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonLogin.tip"));
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
-                login.usernameField + "','" + login.username + "','" + login.URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
@@ -542,18 +551,19 @@ this.log("test2:"+container.getAttribute("oncommand"));
     
     KeeFox_RunSelfTests: function(event, KFtester) {
         this._alert("Please load KeePass and create a new empty database (no sample data). Then click OK and wait for the tests to complete. Follow the test progress in the Firefox error console. WARNING: While running these tests do not load any KeePass database which contains data you want to keep.");
+        var outMsg = "";
         try {
             KFtester._KeeFoxTestErrorOccurred = false;
-            KFtester.do_tests();
+            outMsg = KFtester.do_tests();
         }
         catch (err) {
-            this.error(err);
-            this._alert("Tests failed. View the Firefox error console for further details. Summary follows:" + err);
+            this.log("Error: "+err);
+            this._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
             return;
         }
 
-        this.log("Tests finished - everything worked!");
-        this._alert("Tests finished - everything worked!");
+        this.log(outMsg);
+        this._alert(outMsg);
     },
     
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
