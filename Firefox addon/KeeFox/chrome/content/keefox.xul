@@ -18,11 +18,14 @@
         <menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
                    class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />
 
-        <menuseparator />
+        <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
+                   class="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
+        <menupopup id="KeeFox_ChangeDB-Popup">
+          
+        </menupopup>
+        </menu>
 
-        
-        <!--<menuitem id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
-                   class="" label="&KeeFox_Menu-Button.changeDB.label;" oncommand="keeFoxToolbar.setAllLogins();" accesskey="&KeeFox_Menu-Button.changeDB.key;" />-->
+        <menuseparator />
 
         <menuitem id="KeeFox_Options-Button" tooltiptext="&KeeFox_Menu-Button.options.tip;"
                    class="" label="&KeeFox_Menu-Button.options.label;" oncommand='openDialog(
@@ -30,7 +33,7 @@
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );' accesskey="&KeeFox_Menu-Button.options.key;" />
-        
+
       </menupopup>
     </toolbarbutton>
 
@@ -55,6 +58,8 @@
     </toolbar>
 
 	</toolbox>
+
+  
 
   <popupset>
     <menupopup id="KeeFox-login-context" position="after_start">

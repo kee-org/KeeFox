@@ -208,7 +208,9 @@ namespace KeeICE
                 MessageBox.Show("Welcome to KeeFox! KeeFox stores your passwords securely using KeePass. Please setup a new KeePass database if required or load an existing one.");
 
             }
-
+            //host.MainWindow.
+            //host.CustomConfig.
+            //host.Database.CustomData.
 			return true; // Initialization successful
 		}
 

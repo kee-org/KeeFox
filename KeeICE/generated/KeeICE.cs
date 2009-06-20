@@ -759,188 +759,13 @@ namespace KeeICE
             #endregion
         }
 
-        public interface KP : Ice.Object, KPOperations_, KPOperationsNC_
-        {
-        }
-
-        public class KPDatabase : _System.ICloneable
-        {
-            #region Slice data members
-
-            public string DBname;
-
-            public string fileName;
-
-            public bool @default;
-
-            public string rootGroupUID;
-
-            public bool useILM;
-
-            #endregion
-
-            #region Constructors
-
-            public KPDatabase()
-            {
-            }
-
-            public KPDatabase(string DBname, string fileName, bool @default, string rootGroupUID, bool useILM)
-            {
-                this.DBname = DBname;
-                this.fileName = fileName;
-                this.@default = @default;
-                this.rootGroupUID = rootGroupUID;
-                this.useILM = useILM;
-            }
-
-            #endregion
-
-            #region ICloneable members
-
-            public object Clone()
-            {
-                return MemberwiseClone();
-            }
-
-            #endregion
-
-            #region Object members
-
-            public override int GetHashCode()
-            {
-                int h__ = 0;
-                if(DBname != null)
-                {
-                    h__ = 5 * h__ + DBname.GetHashCode();
-                }
-                if(fileName != null)
-                {
-                    h__ = 5 * h__ + fileName.GetHashCode();
-                }
-                h__ = 5 * h__ + @default.GetHashCode();
-                if(rootGroupUID != null)
-                {
-                    h__ = 5 * h__ + rootGroupUID.GetHashCode();
-                }
-                h__ = 5 * h__ + useILM.GetHashCode();
-                return h__;
-            }
-
-            public override bool Equals(object other__)
-            {
-                if(object.ReferenceEquals(this, other__))
-                {
-                    return true;
-                }
-                if(other__ == null)
-                {
-                    return false;
-                }
-                if(GetType() != other__.GetType())
-                {
-                    return false;
-                }
-                KPDatabase o__ = (KPDatabase)other__;
-                if(DBname == null)
-                {
-                    if(o__.DBname != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if(!DBname.Equals(o__.DBname))
-                    {
-                        return false;
-                    }
-                }
-                if(fileName == null)
-                {
-                    if(o__.fileName != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if(!fileName.Equals(o__.fileName))
-                    {
-                        return false;
-                    }
-                }
-                if(!@default.Equals(o__.@default))
-                {
-                    return false;
-                }
-                if(rootGroupUID == null)
-                {
-                    if(o__.rootGroupUID != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if(!rootGroupUID.Equals(o__.rootGroupUID))
-                    {
-                        return false;
-                    }
-                }
-                if(!useILM.Equals(o__.useILM))
-                {
-                    return false;
-                }
-                return true;
-            }
-
-            #endregion
-
-            #region Comparison members
-
-            public static bool operator==(KPDatabase lhs__, KPDatabase rhs__)
-            {
-                return Equals(lhs__, rhs__);
-            }
-
-            public static bool operator!=(KPDatabase lhs__, KPDatabase rhs__)
-            {
-                return !Equals(lhs__, rhs__);
-            }
-
-            #endregion
-
-            #region Marshalling support
-
-            public void write__(IceInternal.BasicStream os__)
-            {
-                os__.writeString(DBname);
-                os__.writeString(fileName);
-                os__.writeBool(@default);
-                os__.writeString(rootGroupUID);
-                os__.writeBool(useILM);
-            }
-
-            public void read__(IceInternal.BasicStream is__)
-            {
-                DBname = is__.readString();
-                fileName = is__.readString();
-                @default = is__.readBool();
-                rootGroupUID = is__.readString();
-                useILM = is__.readBool();
-            }
-
-            #endregion
-        }
-
         public class KFConfiguration : _System.ICloneable
         {
             #region Slice data members
 
-            public bool allowUnencryptedMetaData;
+            public string[] knownDatabases;
 
-            public KeeICE.KFlib.KPDatabase[] knownDatabases;
+            public bool autoCommit;
 
             #endregion
 
@@ -950,10 +775,10 @@ namespace KeeICE
             {
             }
 
-            public KFConfiguration(bool allowUnencryptedMetaData, KeeICE.KFlib.KPDatabase[] knownDatabases)
+            public KFConfiguration(string[] knownDatabases, bool autoCommit)
             {
-                this.allowUnencryptedMetaData = allowUnencryptedMetaData;
                 this.knownDatabases = knownDatabases;
+                this.autoCommit = autoCommit;
             }
 
             #endregion
@@ -972,11 +797,11 @@ namespace KeeICE
             public override int GetHashCode()
             {
                 int h__ = 0;
-                h__ = 5 * h__ + allowUnencryptedMetaData.GetHashCode();
                 if(knownDatabases != null)
                 {
                     h__ = 5 * h__ + IceUtilInternal.Arrays.GetHashCode(knownDatabases);
                 }
+                h__ = 5 * h__ + autoCommit.GetHashCode();
                 return h__;
             }
 
@@ -995,10 +820,6 @@ namespace KeeICE
                     return false;
                 }
                 KFConfiguration o__ = (KFConfiguration)other__;
-                if(!allowUnencryptedMetaData.Equals(o__.allowUnencryptedMetaData))
-                {
-                    return false;
-                }
                 if(knownDatabases == null)
                 {
                     if(o__.knownDatabases != null)
@@ -1012,6 +833,10 @@ namespace KeeICE
                     {
                         return false;
                     }
+                }
+                if(!autoCommit.Equals(o__.autoCommit))
+                {
+                    return false;
                 }
                 return true;
             }
@@ -1036,40 +861,21 @@ namespace KeeICE
 
             public void write__(IceInternal.BasicStream os__)
             {
-                os__.writeBool(allowUnencryptedMetaData);
-                if(knownDatabases == null)
-                {
-                    os__.writeSize(0);
-                }
-                else
-                {
-                    os__.writeSize(knownDatabases.Length);
-                    for(int ix__ = 0; ix__ < knownDatabases.Length; ++ix__)
-                    {
-                        (knownDatabases == null ? new KeeICE.KFlib.KPDatabase() : knownDatabases[ix__]).write__(os__);
-                    }
-                }
+                os__.writeStringSeq(knownDatabases);
+                os__.writeBool(autoCommit);
             }
 
             public void read__(IceInternal.BasicStream is__)
             {
-                allowUnencryptedMetaData = is__.readBool();
-                {
-                    int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 5);
-                    knownDatabases = new KeeICE.KFlib.KPDatabase[szx__];
-                    for(int ix__ = 0; ix__ < szx__; ++ix__)
-                    {
-                        knownDatabases[ix__] = new KeeICE.KFlib.KPDatabase();
-                        knownDatabases[ix__].read__(is__);
-                        is__.checkSeq();
-                        is__.endElement();
-                    }
-                    is__.endSeq(szx__);
-                }
+                knownDatabases = is__.readStringSeq();
+                autoCommit = is__.readBool();
             }
 
             #endregion
+        }
+
+        public interface KP : Ice.Object, KPOperations_, KPOperationsNC_
+        {
         }
 
         public interface CallbackReceiver : Ice.Object, CallbackReceiverOperations_, CallbackReceiverOperationsNC_
@@ -1143,6 +949,15 @@ namespace KeeICE
 
             void LaunchLoginEditor(string uuid);
             void LaunchLoginEditor(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+
+            KeeICE.KFlib.KFConfiguration getCurrentKFConfig();
+            KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__);
+
+            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config);
+            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__);
+
+            bool setCurrentDBRootGroup(string uuid);
+            bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
         }
 
         public interface CallbackReceiverPrx : Ice.ObjectPrx
@@ -1198,6 +1013,12 @@ namespace KeeICE
             void LaunchGroupEditor(string uuid, Ice.Current current__);
 
             void LaunchLoginEditor(string uuid, Ice.Current current__);
+
+            KeeICE.KFlib.KFConfiguration getCurrentKFConfig(Ice.Current current__);
+
+            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, Ice.Current current__);
+
+            bool setCurrentDBRootGroup(string uuid, Ice.Current current__);
         }
 
         public interface KPOperationsNC_
@@ -1241,6 +1062,12 @@ namespace KeeICE
             void LaunchGroupEditor(string uuid);
 
             void LaunchLoginEditor(string uuid);
+
+            KeeICE.KFlib.KFConfiguration getCurrentKFConfig();
+
+            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config);
+
+            bool setCurrentDBRootGroup(string uuid);
         }
 
         public interface CallbackReceiverOperations_
@@ -1369,6 +1196,21 @@ namespace KeeICE
                     }
                     is__.endSeq(szx__);
                 }
+                return v__;
+            }
+        }
+
+        public sealed class KPDatabaseFileNameListHelper
+        {
+            public static void write(IceInternal.BasicStream os__, string[] v__)
+            {
+                os__.writeStringSeq(v__);
+            }
+
+            public static string[] read(IceInternal.BasicStream is__)
+            {
+                string[] v__;
+                v__ = is__.readStringSeq();
                 return v__;
             }
         }
@@ -1910,6 +1752,44 @@ namespace KeeICE
                 }
             }
 
+            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig()
+            {
+                return getCurrentKFConfig(null, false);
+            }
+
+            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                return getCurrentKFConfig(context__, true);
+            }
+
+            private KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            {
+                if(explicitContext__ && context__ == null)
+                {
+                    context__ = emptyContext_;
+                }
+                int cnt__ = 0;
+                while(true)
+                {
+                    Ice.ObjectDel_ delBase__ = null;
+                    try
+                    {
+                        checkTwowayOnly__("getCurrentKFConfig");
+                        delBase__ = getDelegate__(false);
+                        KPDel_ del__ = (KPDel_)delBase__;
+                        return del__.getCurrentKFConfig(context__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapper__(delBase__, ex__, null);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        handleException__(delBase__, ex__, null, ref cnt__);
+                    }
+                }
+            }
+
             public string getDatabaseFileName()
             {
                 return getDatabaseFileName(null, false);
@@ -2138,6 +2018,82 @@ namespace KeeICE
                 }
             }
 
+            public bool setCurrentDBRootGroup(string uuid)
+            {
+                return setCurrentDBRootGroup(uuid, null, false);
+            }
+
+            public bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                return setCurrentDBRootGroup(uuid, context__, true);
+            }
+
+            private bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            {
+                if(explicitContext__ && context__ == null)
+                {
+                    context__ = emptyContext_;
+                }
+                int cnt__ = 0;
+                while(true)
+                {
+                    Ice.ObjectDel_ delBase__ = null;
+                    try
+                    {
+                        checkTwowayOnly__("setCurrentDBRootGroup");
+                        delBase__ = getDelegate__(false);
+                        KPDel_ del__ = (KPDel_)delBase__;
+                        return del__.setCurrentDBRootGroup(uuid, context__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapper__(delBase__, ex__, null);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        handleException__(delBase__, ex__, null, ref cnt__);
+                    }
+                }
+            }
+
+            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config)
+            {
+                return setCurrentKFConfig(config, null, false);
+            }
+
+            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                return setCurrentKFConfig(config, context__, true);
+            }
+
+            private bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            {
+                if(explicitContext__ && context__ == null)
+                {
+                    context__ = emptyContext_;
+                }
+                int cnt__ = 0;
+                while(true)
+                {
+                    Ice.ObjectDel_ delBase__ = null;
+                    try
+                    {
+                        checkTwowayOnly__("setCurrentKFConfig");
+                        delBase__ = getDelegate__(false);
+                        KPDel_ del__ = (KPDel_)delBase__;
+                        return del__.setCurrentKFConfig(config, context__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapper__(delBase__, ex__, null);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        handleException__(delBase__, ex__, null, ref cnt__);
+                    }
+                }
+            }
+
             #endregion
 
             #region Checked and unchecked cast operations
@@ -2278,44 +2234,6 @@ namespace KeeICE
             }
 
             #endregion
-        }
-
-        public sealed class KPDatabaseListHelper
-        {
-            public static void write(IceInternal.BasicStream os__, KeeICE.KFlib.KPDatabase[] v__)
-            {
-                if(v__ == null)
-                {
-                    os__.writeSize(0);
-                }
-                else
-                {
-                    os__.writeSize(v__.Length);
-                    for(int ix__ = 0; ix__ < v__.Length; ++ix__)
-                    {
-                        (v__ == null ? new KeeICE.KFlib.KPDatabase() : v__[ix__]).write__(os__);
-                    }
-                }
-            }
-
-            public static KeeICE.KFlib.KPDatabase[] read(IceInternal.BasicStream is__)
-            {
-                KeeICE.KFlib.KPDatabase[] v__;
-                {
-                    int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 5);
-                    v__ = new KeeICE.KFlib.KPDatabase[szx__];
-                    for(int ix__ = 0; ix__ < szx__; ++ix__)
-                    {
-                        v__[ix__] = new KeeICE.KFlib.KPDatabase();
-                        v__[ix__].read__(is__);
-                        is__.checkSeq();
-                        is__.endElement();
-                    }
-                    is__.endSeq(szx__);
-                }
-                return v__;
-            }
         }
 
         public sealed class CallbackReceiverPrxHelper : Ice.ObjectPrxHelperBase, CallbackReceiverPrx
@@ -2549,6 +2467,12 @@ namespace KeeICE
             void LaunchGroupEditor(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
             void LaunchLoginEditor(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+
+            KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__);
+
+            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__);
+
+            bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
         }
 
         public interface CallbackReceiverDel_ : Ice.ObjectDel_
@@ -3329,6 +3253,48 @@ namespace KeeICE
                 }
             }
 
+            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                IceInternal.Outgoing og__ = handler__.getOutgoing("getCurrentKFConfig", Ice.OperationMode.Normal, context__);
+                try
+                {
+                    bool ok__ = og__.invoke();
+                    try
+                    {
+                        if(!ok__)
+                        {
+                            try
+                            {
+                                og__.throwUserException();
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                            }
+                        }
+                        IceInternal.BasicStream is__ = og__.istr();
+                        is__.startReadEncaps();
+                        KeeICE.KFlib.KFConfiguration ret__;
+                        ret__ = null;
+                        if(ret__ == null)
+                        {
+                            ret__ = new KeeICE.KFlib.KFConfiguration();
+                        }
+                        ret__.read__(is__);
+                        is__.endReadEncaps();
+                        return ret__;
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                    }
+                }
+                finally
+                {
+                    handler__.reclaimOutgoing(og__);
+                }
+            }
+
             public string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getDatabaseFileName", Ice.OperationMode.Normal, context__);
@@ -3551,6 +3517,106 @@ namespace KeeICE
                     {
                         IceInternal.BasicStream os__ = og__.ostr();
                         os__.writeString(uuid);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        og__.abort(ex__);
+                    }
+                    bool ok__ = og__.invoke();
+                    try
+                    {
+                        if(!ok__)
+                        {
+                            try
+                            {
+                                og__.throwUserException();
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                            }
+                        }
+                        IceInternal.BasicStream is__ = og__.istr();
+                        is__.startReadEncaps();
+                        bool ret__;
+                        ret__ = is__.readBool();
+                        is__.endReadEncaps();
+                        return ret__;
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                    }
+                }
+                finally
+                {
+                    handler__.reclaimOutgoing(og__);
+                }
+            }
+
+            public bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                IceInternal.Outgoing og__ = handler__.getOutgoing("setCurrentDBRootGroup", Ice.OperationMode.Normal, context__);
+                try
+                {
+                    try
+                    {
+                        IceInternal.BasicStream os__ = og__.ostr();
+                        os__.writeString(uuid);
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        og__.abort(ex__);
+                    }
+                    bool ok__ = og__.invoke();
+                    try
+                    {
+                        if(!ok__)
+                        {
+                            try
+                            {
+                                og__.throwUserException();
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                            }
+                        }
+                        IceInternal.BasicStream is__ = og__.istr();
+                        is__.startReadEncaps();
+                        bool ret__;
+                        ret__ = is__.readBool();
+                        is__.endReadEncaps();
+                        return ret__;
+                    }
+                    catch(Ice.LocalException ex__)
+                    {
+                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
+                    }
+                }
+                finally
+                {
+                    handler__.reclaimOutgoing(og__);
+                }
+            }
+
+            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                IceInternal.Outgoing og__ = handler__.getOutgoing("setCurrentKFConfig", Ice.OperationMode.Normal, context__);
+                try
+                {
+                    try
+                    {
+                        IceInternal.BasicStream os__ = og__.ostr();
+                        if(config == null)
+                        {
+                            KeeICE.KFlib.KFConfiguration tmp__ = new KeeICE.KFlib.KFConfiguration();
+                            tmp__.write__(os__);
+                        }
+                        else
+                        {
+                            config.write__(os__);
+                        }
                     }
                     catch(Ice.LocalException ex__)
                     {
@@ -4343,6 +4409,50 @@ namespace KeeICE
                 return result__;
             }
 
+            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                Ice.Current current__ = new Ice.Current();
+                initCurrent__(ref current__, "getCurrentKFConfig", Ice.OperationMode.Normal, context__);
+                KeeICE.KFlib.KFConfiguration result__ = new KeeICE.KFlib.KFConfiguration();
+                IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
+                {
+                    KP servant__ = null;
+                    try
+                    {
+                        servant__ = (KP)obj__;
+                    }
+                    catch(_System.InvalidCastException)
+                    {
+                        throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);
+                    }
+                    result__ = servant__.getCurrentKFConfig(current__);
+                    return Ice.DispatchStatus.DispatchOK;
+                };
+                IceInternal.Direct direct__ = null;
+                try
+                {
+                    direct__ = new IceInternal.Direct(current__, run__);
+                    try
+                    {
+                        Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                        _System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);
+                    }
+                    finally
+                    {
+                        direct__.destroy();
+                    }
+                }
+                catch(Ice.SystemException)
+                {
+                    throw;
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
+                }
+                return result__;
+            }
+
             public string getDatabaseFileName(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
@@ -4606,6 +4716,94 @@ namespace KeeICE
                 }
                 return result__;
             }
+
+            public bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                Ice.Current current__ = new Ice.Current();
+                initCurrent__(ref current__, "setCurrentDBRootGroup", Ice.OperationMode.Normal, context__);
+                bool result__ = false;
+                IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
+                {
+                    KP servant__ = null;
+                    try
+                    {
+                        servant__ = (KP)obj__;
+                    }
+                    catch(_System.InvalidCastException)
+                    {
+                        throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);
+                    }
+                    result__ = servant__.setCurrentDBRootGroup(uuid, current__);
+                    return Ice.DispatchStatus.DispatchOK;
+                };
+                IceInternal.Direct direct__ = null;
+                try
+                {
+                    direct__ = new IceInternal.Direct(current__, run__);
+                    try
+                    {
+                        Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                        _System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);
+                    }
+                    finally
+                    {
+                        direct__.destroy();
+                    }
+                }
+                catch(Ice.SystemException)
+                {
+                    throw;
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
+                }
+                return result__;
+            }
+
+            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
+            {
+                Ice.Current current__ = new Ice.Current();
+                initCurrent__(ref current__, "setCurrentKFConfig", Ice.OperationMode.Normal, context__);
+                bool result__ = false;
+                IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
+                {
+                    KP servant__ = null;
+                    try
+                    {
+                        servant__ = (KP)obj__;
+                    }
+                    catch(_System.InvalidCastException)
+                    {
+                        throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);
+                    }
+                    result__ = servant__.setCurrentKFConfig(config, current__);
+                    return Ice.DispatchStatus.DispatchOK;
+                };
+                IceInternal.Direct direct__ = null;
+                try
+                {
+                    direct__ = new IceInternal.Direct(current__, run__);
+                    try
+                    {
+                        Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                        _System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);
+                    }
+                    finally
+                    {
+                        direct__.destroy();
+                    }
+                }
+                catch(Ice.SystemException)
+                {
+                    throw;
+                }
+                catch(System.Exception ex__)
+                {
+                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
+                }
+                return result__;
+            }
         }
 
         public sealed class CallbackReceiverDelD_ : Ice.ObjectDelD_, CallbackReceiverDel_
@@ -4802,6 +5000,27 @@ namespace KeeICE
             }
 
             public abstract void LaunchLoginEditor(string uuid, Ice.Current current__);
+
+            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig()
+            {
+                return getCurrentKFConfig(Ice.ObjectImpl.defaultCurrent);
+            }
+
+            public abstract KeeICE.KFlib.KFConfiguration getCurrentKFConfig(Ice.Current current__);
+
+            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config)
+            {
+                return setCurrentKFConfig(config, Ice.ObjectImpl.defaultCurrent);
+            }
+
+            public abstract bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, Ice.Current current__);
+
+            public bool setCurrentDBRootGroup(string uuid)
+            {
+                return setCurrentDBRootGroup(uuid, Ice.ObjectImpl.defaultCurrent);
+            }
+
+            public abstract bool setCurrentDBRootGroup(string uuid, Ice.Current current__);
 
             #endregion
 
@@ -5292,6 +5511,57 @@ namespace KeeICE
                 return Ice.DispatchStatus.DispatchOK;
             }
 
+            public static Ice.DispatchStatus getCurrentKFConfig___(KP obj__, IceInternal.Incoming inS__, Ice.Current current__)
+            {
+                checkMode__(Ice.OperationMode.Normal, current__.mode);
+                inS__.istr().skipEmptyEncaps();
+                IceInternal.BasicStream os__ = inS__.ostr();
+                KeeICE.KFlib.KFConfiguration ret__ = obj__.getCurrentKFConfig(current__);
+                if(ret__ == null)
+                {
+                    KeeICE.KFlib.KFConfiguration tmp__ = new KeeICE.KFlib.KFConfiguration();
+                    tmp__.write__(os__);
+                }
+                else
+                {
+                    ret__.write__(os__);
+                }
+                return Ice.DispatchStatus.DispatchOK;
+            }
+
+            public static Ice.DispatchStatus setCurrentKFConfig___(KP obj__, IceInternal.Incoming inS__, Ice.Current current__)
+            {
+                checkMode__(Ice.OperationMode.Normal, current__.mode);
+                IceInternal.BasicStream is__ = inS__.istr();
+                is__.startReadEncaps();
+                KeeICE.KFlib.KFConfiguration config;
+                config = null;
+                if(config == null)
+                {
+                    config = new KeeICE.KFlib.KFConfiguration();
+                }
+                config.read__(is__);
+                is__.endReadEncaps();
+                IceInternal.BasicStream os__ = inS__.ostr();
+                bool ret__ = obj__.setCurrentKFConfig(config, current__);
+                os__.writeBool(ret__);
+                return Ice.DispatchStatus.DispatchOK;
+            }
+
+            public static Ice.DispatchStatus setCurrentDBRootGroup___(KP obj__, IceInternal.Incoming inS__, Ice.Current current__)
+            {
+                checkMode__(Ice.OperationMode.Normal, current__.mode);
+                IceInternal.BasicStream is__ = inS__.istr();
+                is__.startReadEncaps();
+                string uuid;
+                uuid = is__.readString();
+                is__.endReadEncaps();
+                IceInternal.BasicStream os__ = inS__.ostr();
+                bool ret__ = obj__.setCurrentDBRootGroup(uuid, current__);
+                os__.writeBool(ret__);
+                return Ice.DispatchStatus.DispatchOK;
+            }
+
             private static string[] all__ =
             {
                 "AddLogin",
@@ -5308,6 +5578,7 @@ namespace KeeICE
                 "getAllLogins",
                 "getChildEntries",
                 "getChildGroups",
+                "getCurrentKFConfig",
                 "getDatabaseFileName",
                 "getDatabaseName",
                 "getParent",
@@ -5317,7 +5588,9 @@ namespace KeeICE
                 "ice_isA",
                 "ice_ping",
                 "removeEntry",
-                "removeGroup"
+                "removeGroup",
+                "setCurrentDBRootGroup",
+                "setCurrentKFConfig"
             };
 
             public override Ice.DispatchStatus dispatch__(IceInternal.Incoming inS__, Ice.Current current__)
@@ -5388,43 +5661,55 @@ namespace KeeICE
                     }
                     case 14:
                     {
-                        return getDatabaseFileName___(this, inS__, current__);
+                        return getCurrentKFConfig___(this, inS__, current__);
                     }
                     case 15:
                     {
-                        return getDatabaseName___(this, inS__, current__);
+                        return getDatabaseFileName___(this, inS__, current__);
                     }
                     case 16:
                     {
-                        return getParent___(this, inS__, current__);
+                        return getDatabaseName___(this, inS__, current__);
                     }
                     case 17:
                     {
-                        return getRoot___(this, inS__, current__);
+                        return getParent___(this, inS__, current__);
                     }
                     case 18:
                     {
-                        return ice_id___(this, inS__, current__);
+                        return getRoot___(this, inS__, current__);
                     }
                     case 19:
                     {
-                        return ice_ids___(this, inS__, current__);
+                        return ice_id___(this, inS__, current__);
                     }
                     case 20:
                     {
-                        return ice_isA___(this, inS__, current__);
+                        return ice_ids___(this, inS__, current__);
                     }
                     case 21:
                     {
-                        return ice_ping___(this, inS__, current__);
+                        return ice_isA___(this, inS__, current__);
                     }
                     case 22:
                     {
-                        return removeEntry___(this, inS__, current__);
+                        return ice_ping___(this, inS__, current__);
                     }
                     case 23:
                     {
+                        return removeEntry___(this, inS__, current__);
+                    }
+                    case 24:
+                    {
                         return removeGroup___(this, inS__, current__);
+                    }
+                    case 25:
+                    {
+                        return setCurrentDBRootGroup___(this, inS__, current__);
+                    }
+                    case 26:
+                    {
+                        return setCurrentKFConfig___(this, inS__, current__);
                     }
                 }
 

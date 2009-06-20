@@ -38,6 +38,7 @@ using KeePass.Resources;
 
 using KeePassLib;
 using KeePassLib.Security;
+using KeePassLib.Serialization;
 
 namespace KeeICE
 {
@@ -243,11 +244,14 @@ namespace KeeICE
 
         void saveDB()
         {
-            //KeePassLib.Interfaces.IStatusLogger logger = new Log();
-            //host.Database.Save(logger);
-            //host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
-            if (host.MainWindow.UIFileSave(true))
-                host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+            if (host.CustomConfig.GetBool("KeeICE.KeeFox.autoCommit", true))
+            {
+                //KeePassLib.Interfaces.IStatusLogger logger = new Log();
+                //host.Database.Save(logger);
+                //host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+                if (host.MainWindow.UIFileSave(true))
+                    host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+            }
         }
 
         void openGroupEditorWindow(PwGroup pg)
@@ -332,6 +336,9 @@ namespace KeeICE
 
 #region Utility functions to convert between KeeICE object schema and KeePass schema
 
+        //TODO: extend this so that PwEntries which lack any username and password can still be used.
+        // e.g. if no username custom entry but there is a username in the entry, cerate
+        // the custom string field and return the username as normal. similar for password
         private KFlib.KPEntry getKPEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
@@ -457,8 +464,43 @@ namespace KeeICE
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.title));
         }
+
 #endregion
 
+#region Implementation of KeeICE.ice functions relating to configuration of KeePass/KeeFox and databases
+
+        public override KFlib.KFConfiguration getCurrentKFConfig(Ice.Current current__)
+        {
+            bool autoCommit = host.CustomConfig.GetBool("KeeICE.KeeFox.autoCommit",true);
+            string[] MRUList = new string[host.MainWindow.FileMruList.ItemCount];
+            for (uint i = 0; i < host.MainWindow.FileMruList.ItemCount; i++)
+                MRUList[i] = ((IOConnectionInfo)host.MainWindow.FileMruList.GetItem(i).Value).Path;
+
+            var currentConfig = new KFlib.KFConfiguration(MRUList, autoCommit);
+            return currentConfig;
+        }
+
+        public override bool setCurrentKFConfig(KFlib.KFConfiguration config, Ice.Current current__)
+        {
+            host.CustomConfig.SetBool("KeeICE.KeeFox.autoCommit", config.autoCommit);
+            host.MainWindow.SaveConfig();
+            
+            return true;
+        }
+
+        public override bool setCurrentDBRootGroup(string uuid, Ice.Current current__)
+        {
+            if (!host.Database.IsOpen)
+                return false;
+
+            host.Database.CustomData.Set("KeeICE.KeeFox.rootUUID",uuid);
+            saveDB();
+
+            return true;
+        }
+
+
+#endregion
 
 #region Implementation of KeeICE.ice functions relating to retrival and manipulation of databases and the KeePass app
 
@@ -735,7 +777,23 @@ namespace KeeICE
             // Make sure there is an active database
             if (!ensureDBisOpen()) { return null; }
 
-            return getKPGroupFromPwGroup(host.Database.RootGroup, true);
+            if (host.Database.CustomData.Exists("KeeICE.KeeFox.rootUUID") && host.Database.CustomData.Get("KeeICE.KeeFox.rootUUID").Length >= 30) //TODO: tighten
+            {
+                var uuid = host.Database.CustomData.Get("KeeICE.KeeFox.rootUUID");
+
+                PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+
+                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                if (matchedGroup == null)
+                    throw new Exception("Could not find requested group.");
+
+                return getKPGroupFromPwGroup(matchedGroup, true);
+            }
+            else
+            {
+                return getKPGroupFromPwGroup(host.Database.RootGroup, true);
+            }
         }
 
         /// <summary>

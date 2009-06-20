@@ -156,23 +156,27 @@ this.log("test2:"+container.getAttribute("oncommand"));
     setAllLogins: function() {
         this.log("setAllLogins");
         
+        var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
+        
+
+        
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
             var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
             
             if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                 this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
+            loginButton.setAttribute("disabled","false");
             return;
-        }// else
-        //{
-            // get the popup menu for this list of logins and subgroups
-            var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
+        }
+        loginButton.setAttribute("disabled","true");
+        var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
 
-            // Remove all of the existing buttons
-            for (i = container.childNodes.length; i > 0; i--) {
-                container.removeChild(container.childNodes[0]);
-            }
-        //}
+        // Remove all of the existing buttons
+        for (i = container.childNodes.length; i > 0; i--) {
+            container.removeChild(container.childNodes[0]);
+        }
+      
         
        /*
         var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, rootGroup.uniqueID);
@@ -490,6 +494,8 @@ this.log("test2:"+container.getAttribute("oncommand"));
         //mainButton.setAttribute("type", "");
         mainButton.removeAttribute("type");
         
+        var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
+        
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
             this.log("setupButton_ready1");
@@ -523,7 +529,23 @@ this.log("test2:"+container.getAttribute("oncommand"));
         }
 
             
-        
+        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+        {    
+            changeDBButton.setAttribute("label", keeFoxInst.strbundle.getString("changeDBButton.label"));
+            changeDBButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButton.tip") );
+            changeDBButton.setAttribute("onpopupshowing", "keeFoxToolbar.setMRUdatabases(); event.stopPropagation();");
+            changeDBButton.setAttribute("disabled", "false");
+            //changeDBButton.setAttribute("onpopuphiding", "keeFoxToolbar.detachMRUpopup(); event.stopPropagation();");
+            
+            
+        } else
+        {
+            changeDBButton.setAttribute("label", keeFoxInst.strbundle.getString("changeDBButtonDisabled.label"));
+            changeDBButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButtonDisabled.tip") );
+            changeDBButton.setAttribute("onpopupshowing", "");
+            //changeDBButton.setAttribute("onpopuphiding", "");
+            changeDBButton.setAttribute("disabled", "true");
+        }
     },
 
     setupButton_loadKeePass: function(targetWindow) {
@@ -550,6 +572,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
     },
     
     KeeFox_RunSelfTests: function(event, KFtester) {
+ 
         this._alert("Please load KeePass and create a new empty database (no sample data). Then click OK and wait for the tests to complete. Follow the test progress in the Firefox error console. WARNING: While running these tests do not load any KeePass database which contains data you want to keep.");
         var outMsg = "";
         try {
@@ -577,6 +600,96 @@ this.log("test2:"+container.getAttribute("oncommand"));
             flashyItem.setAttribute("class", "highlight");
         
         theWindow.setTimeout(arguments.callee, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes-1, theWindow);
+    },
+    
+    detachMRUpopup: function () {
+    alert("detach");
+        var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
+
+        //var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+                // Remove all of the existing popup containers
+        for (i = container.childNodes.length; i > 0; i--) {
+            container.removeChild(container.childNodes[0]);
+        }
+        
+        
+    },
+    
+    setMRUdatabases: function() {
+    //return;
+   //     alert("set");
+        // get the popup menu for this list of logins and subgroups
+   //     var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
+
+        var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+
+        // Remove all of the existing buttons
+        for (i = popupContainer.childNodes.length; i > 0; i--) {
+            popupContainer.removeChild(popupContainer.childNodes[0]);
+        }
+        
+        var mruArray = this._currentWindow.keeFoxInst.getAllDatabaseFileNames();
+        
+        
+           
+        if (mruArray == null || mruArray.length == 0)
+        {
+            var noItemsButton = null;
+            noItemsButton = this._currentWindow.document.createElement("menuitem");
+            noItemsButton.setAttribute("label", keeFoxInst.strbundle.getString("changeDBButtonEmpty.label"));
+            noItemsButton.setAttribute("disabled", "true");
+            noItemsButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButtonEmpty.tip"));
+            popupContainer.appendChild(noItemsButton);
+            return;
+        } else
+        {
+        
+            for (i = 0; i < mruArray.length; i++)
+            {
+                //this._alert("Found an MRU file name: " + mruArray[i]);
+            //}
+            
+           /*
+            container.setAttribute("class", "login-found");
+            container.setAttribute("type", "menu-button");
+            container.setAttribute("disabled", "false");
+                    
+            menupopup = this._currentWindow.document.createElement("menupopup");
+
+            this.log("setting " + logins.length + " toolbar logins");
+    */
+            
+                
+                /*
+                
+                if (i==0)
+                {
+                    container.setAttribute("label", login.title);
+                    container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
+                    container.setAttribute("oncommand", "keeFoxILM.fill('" +
+                        login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
+                      //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+                
+                }
+    */
+
+                var tempButton = null;
+                tempButton = this._currentWindow.document.createElement("menuitem");
+                tempButton.setAttribute("label", mruArray[i]);
+                tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButtonListItem.tip"));
+                tempButton.setAttribute("oncommand", "keeFoxInst.changeDatabase('" +
+                    mruArray[i].replace(/[\\]/g,'\\\\') + "',false);  event.stopPropagation();");
+                tempButton.setAttribute("class", "menuitem-iconic");
+                //tempButton.setAttribute("context", "KeeFox-login-context"); in future this could enable "set to default for this location..." etc. ?
+                tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png"); //TODO: use KeePass database icon
+
+                popupContainer.appendChild(tempButton);
+
+
+            }
+        }
+        //container.appendChild(popupContainer);
+        
     }
 
 

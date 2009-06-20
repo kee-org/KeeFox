@@ -279,8 +279,9 @@ interface IKeeFox : nsISupports
 	void launchLoginEditor(in AString uniqueID);
 	void launchGroupEditor(in AString uniqueID);
 
-
+	void getMRUdatabases(out unsigned long count, 
+		[retval, array, size_is(count)] out string databases);
+	boolean getAutoCommit();
+	boolean setAutoCommit(in boolean autoCommit);
+	boolean setCurrentDBRootGroup(in AString uniqueID);
 };
-
-//interface IKeeFox : nsILoginManagerStorage
-

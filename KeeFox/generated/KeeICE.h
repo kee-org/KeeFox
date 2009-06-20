@@ -263,45 +263,12 @@ public:
 
 static KeeICEException __KeeICEException_init;
 
-struct KPDatabase
-{
-    ::std::string DBname;
-    ::std::string fileName;
-    bool _cpp_default;
-    ::std::string rootGroupUID;
-    bool useILM;
-
-    bool operator==(const KPDatabase&) const;
-    bool operator<(const KPDatabase&) const;
-    bool operator!=(const KPDatabase& __rhs) const
-    {
-        return !operator==(__rhs);
-    }
-    bool operator<=(const KPDatabase& __rhs) const
-    {
-        return operator<(__rhs) || operator==(__rhs);
-    }
-    bool operator>(const KPDatabase& __rhs) const
-    {
-        return !operator<(__rhs) && !operator==(__rhs);
-    }
-    bool operator>=(const KPDatabase& __rhs) const
-    {
-        return !operator<(__rhs);
-    }
-
-    void __write(::IceInternal::BasicStream*) const;
-    void __read(::IceInternal::BasicStream*);
-};
-
-typedef ::std::vector< ::KeeICE::KFlib::KPDatabase> KPDatabaseList;
-void __writeKPDatabaseList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPDatabase*, const ::KeeICE::KFlib::KPDatabase*);
-void __readKPDatabaseList(::IceInternal::BasicStream*, KPDatabaseList&);
+typedef ::std::vector< ::std::string> KPDatabaseFileNameList;
 
 struct KFConfiguration
 {
-    bool allowUnencryptedMetaData;
-    ::KeeICE::KFlib::KPDatabaseList knownDatabases;
+    ::KeeICE::KFlib::KPDatabaseFileNameList knownDatabases;
+    bool autoCommit;
 
     bool operator==(const KFConfiguration&) const;
     bool operator<(const KFConfiguration&) const;
@@ -447,6 +414,21 @@ public:
     virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___LaunchLoginEditor(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KFlib::KFConfiguration getCurrentKFConfig(const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getCurrentKFConfig(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual bool setCurrentKFConfig(const ::KeeICE::KFlib::KFConfiguration&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___setCurrentKFConfig(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual bool setCurrentDBRootGroup(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___setCurrentDBRootGroup(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
 #ifndef ICEE_PURE_CLIENT
@@ -797,6 +779,51 @@ public:
 private:
 
     void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    ::KeeICE::KFlib::KFConfiguration getCurrentKFConfig()
+    {
+        return getCurrentKFConfig(0);
+    }
+    ::KeeICE::KFlib::KFConfiguration getCurrentKFConfig(const ::Ice::Context& __ctx)
+    {
+        return getCurrentKFConfig(&__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KFlib::KFConfiguration getCurrentKFConfig(const ::Ice::Context*);
+    
+public:
+
+    bool setCurrentKFConfig(const ::KeeICE::KFlib::KFConfiguration& config)
+    {
+        return setCurrentKFConfig(config, 0);
+    }
+    bool setCurrentKFConfig(const ::KeeICE::KFlib::KFConfiguration& config, const ::Ice::Context& __ctx)
+    {
+        return setCurrentKFConfig(config, &__ctx);
+    }
+    
+private:
+
+    bool setCurrentKFConfig(const ::KeeICE::KFlib::KFConfiguration&, const ::Ice::Context*);
+    
+public:
+
+    bool setCurrentDBRootGroup(const ::std::string& uuid)
+    {
+        return setCurrentDBRootGroup(uuid, 0);
+    }
+    bool setCurrentDBRootGroup(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return setCurrentDBRootGroup(uuid, &__ctx);
+    }
+    
+private:
+
+    bool setCurrentDBRootGroup(const ::std::string&, const ::Ice::Context*);
     
 public:
     

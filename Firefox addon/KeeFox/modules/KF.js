@@ -676,6 +676,25 @@ this._test = numb;
         return "";
     },
     
+    getAllDatabaseFileNames: function () {
+        try {
+            return this._KeeFoxXPCOMobj.getMRUdatabases({});
+          
+        } catch (e)
+        {
+             switch (e.result) {
+             case 0x80040111:
+                this.log("Connection to KeeICE has been lost. We will now try to reconnect at regular intervals.");
+                this._pauseKeeFox();
+                break;
+             default:
+                this.log("Unexpected exception while connecting to KeeICE. Please inform the KeeFox team that they should consider handling an exception with this code: " + e.result);
+                throw e;
+            }
+        }
+        return "";
+    },
+    
     changeDatabase: function (fileName, closeCurrent) {
         try {
             this._KeeFoxXPCOMobj.ChangeDB(fileName, closeCurrent);

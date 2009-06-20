@@ -66,6 +66,12 @@ static const ::std::string __KeeICE__KFlib__KP__LaunchGroupEditor_name = "Launch
 
 static const ::std::string __KeeICE__KFlib__KP__LaunchLoginEditor_name = "LaunchLoginEditor";
 
+static const ::std::string __KeeICE__KFlib__KP__getCurrentKFConfig_name = "getCurrentKFConfig";
+
+static const ::std::string __KeeICE__KFlib__KP__setCurrentKFConfig_name = "setCurrentKFConfig";
+
+static const ::std::string __KeeICE__KFlib__KP__setCurrentDBRootGroup_name = "setCurrentDBRootGroup";
+
 static const ::std::string __KeeICE__KFlib__CallbackReceiver__callback_name = "callback";
 
 ::Ice::Object* IceInternal::upCast(::KeeICE::KFlib::KP* p) { return p; }
@@ -613,144 +619,17 @@ extern "C" { void __F__KeeICE__KFlib__KeeICEException__initializer() {} }
 #endif
 
 bool
-KeeICE::KFlib::KPDatabase::operator==(const KPDatabase& __rhs) const
-{
-    if(this == &__rhs)
-    {
-        return true;
-    }
-    if(DBname != __rhs.DBname)
-    {
-        return false;
-    }
-    if(fileName != __rhs.fileName)
-    {
-        return false;
-    }
-    if(_cpp_default != __rhs._cpp_default)
-    {
-        return false;
-    }
-    if(rootGroupUID != __rhs.rootGroupUID)
-    {
-        return false;
-    }
-    if(useILM != __rhs.useILM)
-    {
-        return false;
-    }
-    return true;
-}
-
-bool
-KeeICE::KFlib::KPDatabase::operator<(const KPDatabase& __rhs) const
-{
-    if(this == &__rhs)
-    {
-        return false;
-    }
-    if(DBname < __rhs.DBname)
-    {
-        return true;
-    }
-    else if(__rhs.DBname < DBname)
-    {
-        return false;
-    }
-    if(fileName < __rhs.fileName)
-    {
-        return true;
-    }
-    else if(__rhs.fileName < fileName)
-    {
-        return false;
-    }
-    if(_cpp_default < __rhs._cpp_default)
-    {
-        return true;
-    }
-    else if(__rhs._cpp_default < _cpp_default)
-    {
-        return false;
-    }
-    if(rootGroupUID < __rhs.rootGroupUID)
-    {
-        return true;
-    }
-    else if(__rhs.rootGroupUID < rootGroupUID)
-    {
-        return false;
-    }
-    if(useILM < __rhs.useILM)
-    {
-        return true;
-    }
-    else if(__rhs.useILM < useILM)
-    {
-        return false;
-    }
-    return false;
-}
-
-void
-KeeICE::KFlib::KPDatabase::__write(::IceInternal::BasicStream* __os) const
-{
-    __os->write(DBname);
-    __os->write(fileName);
-    __os->write(_cpp_default);
-    __os->write(rootGroupUID);
-    __os->write(useILM);
-}
-
-void
-KeeICE::KFlib::KPDatabase::__read(::IceInternal::BasicStream* __is)
-{
-    __is->read(DBname);
-    __is->read(fileName);
-    __is->read(_cpp_default);
-    __is->read(rootGroupUID);
-    __is->read(useILM);
-}
-
-void
-KeeICE::KFlib::__writeKPDatabaseList(::IceInternal::BasicStream* __os, const ::KeeICE::KFlib::KPDatabase* begin, const ::KeeICE::KFlib::KPDatabase* end)
-{
-    ::Ice::Int size = static_cast< ::Ice::Int>(end - begin);
-    __os->writeSize(size);
-    for(int i = 0; i < size; ++i)
-    {
-        begin[i].__write(__os);
-    }
-}
-
-void
-KeeICE::KFlib::__readKPDatabaseList(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::KPDatabaseList& v)
-{
-    ::Ice::Int sz;
-    __is->readSize(sz);
-    __is->startSeq(sz, 5);
-    v.resize(sz);
-    for(int i = 0; i < sz; ++i)
-    {
-        v[i].__read(__is);
-        __is->checkSeq();
-        __is->endElement();
-    }
-    __is->endSeq(sz);
-}
-
-bool
 KeeICE::KFlib::KFConfiguration::operator==(const KFConfiguration& __rhs) const
 {
     if(this == &__rhs)
     {
         return true;
     }
-    if(allowUnencryptedMetaData != __rhs.allowUnencryptedMetaData)
+    if(knownDatabases != __rhs.knownDatabases)
     {
         return false;
     }
-    if(knownDatabases != __rhs.knownDatabases)
+    if(autoCommit != __rhs.autoCommit)
     {
         return false;
     }
@@ -764,19 +643,19 @@ KeeICE::KFlib::KFConfiguration::operator<(const KFConfiguration& __rhs) const
     {
         return false;
     }
-    if(allowUnencryptedMetaData < __rhs.allowUnencryptedMetaData)
-    {
-        return true;
-    }
-    else if(__rhs.allowUnencryptedMetaData < allowUnencryptedMetaData)
-    {
-        return false;
-    }
     if(knownDatabases < __rhs.knownDatabases)
     {
         return true;
     }
     else if(__rhs.knownDatabases < knownDatabases)
+    {
+        return false;
+    }
+    if(autoCommit < __rhs.autoCommit)
+    {
+        return true;
+    }
+    else if(__rhs.autoCommit < autoCommit)
     {
         return false;
     }
@@ -786,22 +665,22 @@ KeeICE::KFlib::KFConfiguration::operator<(const KFConfiguration& __rhs) const
 void
 KeeICE::KFlib::KFConfiguration::__write(::IceInternal::BasicStream* __os) const
 {
-    __os->write(allowUnencryptedMetaData);
     if(knownDatabases.size() == 0)
     {
         __os->writeSize(0);
     }
     else
     {
-        ::KeeICE::KFlib::__writeKPDatabaseList(__os, &knownDatabases[0], &knownDatabases[0] + knownDatabases.size());
+        __os->write(&knownDatabases[0], &knownDatabases[0] + knownDatabases.size());
     }
+    __os->write(autoCommit);
 }
 
 void
 KeeICE::KFlib::KFConfiguration::__read(::IceInternal::BasicStream* __is)
 {
-    __is->read(allowUnencryptedMetaData);
-    ::KeeICE::KFlib::__readKPDatabaseList(__is, knownDatabases);
+    __is->read(knownDatabases);
+    __is->read(autoCommit);
 }
 
 static const ::std::string __KeeICE__KFlib__KP_ids[2] =
@@ -1227,6 +1106,48 @@ KeeICE::KFlib::KP::___LaunchLoginEditor(::IceInternal::Incoming& __inS, const ::
 #endif // ICEE_PURE_CLIENT
 
 #ifndef ICEE_PURE_CLIENT
+::Ice::DispatchStatus
+KeeICE::KFlib::KP::___getCurrentKFConfig(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __os = __inS.os();
+    ::KeeICE::KFlib::KFConfiguration __ret = getCurrentKFConfig(__current);
+    __ret.__write(__os);
+    return ::Ice::DispatchOK;
+}
+#endif // ICEE_PURE_CLIENT
+
+#ifndef ICEE_PURE_CLIENT
+::Ice::DispatchStatus
+KeeICE::KFlib::KP::___setCurrentKFConfig(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __is = __inS.is();
+    ::KeeICE::KFlib::KFConfiguration config;
+    config.__read(__is);
+    ::IceInternal::BasicStream* __os = __inS.os();
+    bool __ret = setCurrentKFConfig(config, __current);
+    __os->write(__ret);
+    return ::Ice::DispatchOK;
+}
+#endif // ICEE_PURE_CLIENT
+
+#ifndef ICEE_PURE_CLIENT
+::Ice::DispatchStatus
+KeeICE::KFlib::KP::___setCurrentDBRootGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __is = __inS.is();
+    ::std::string uuid;
+    __is->read(uuid);
+    ::IceInternal::BasicStream* __os = __inS.os();
+    bool __ret = setCurrentDBRootGroup(uuid, __current);
+    __os->write(__ret);
+    return ::Ice::DispatchOK;
+}
+#endif // ICEE_PURE_CLIENT
+
+#ifndef ICEE_PURE_CLIENT
 static ::std::string __KeeICE__KFlib__KP_all[] =
 {
     "AddLogin",
@@ -1243,6 +1164,7 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
     "getAllLogins",
     "getChildEntries",
     "getChildGroups",
+    "getCurrentKFConfig",
     "getDatabaseFileName",
     "getDatabaseName",
     "getParent",
@@ -1252,13 +1174,15 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
     "ice_isA",
     "ice_ping",
     "removeEntry",
-    "removeGroup"
+    "removeGroup",
+    "setCurrentDBRootGroup",
+    "setCurrentKFConfig"
 };
 
 ::Ice::DispatchStatus
 KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 24, current.operation);
+    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 27, current.operation);
     if(r.first == r.second)
     {
         throw Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -1324,43 +1248,55 @@ KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current&
         }
         case 14:
         {
-            return ___getDatabaseFileName(in, current);
+            return ___getCurrentKFConfig(in, current);
         }
         case 15:
         {
-            return ___getDatabaseName(in, current);
+            return ___getDatabaseFileName(in, current);
         }
         case 16:
         {
-            return ___getParent(in, current);
+            return ___getDatabaseName(in, current);
         }
         case 17:
         {
-            return ___getRoot(in, current);
+            return ___getParent(in, current);
         }
         case 18:
         {
-            return ___ice_id(in, current);
+            return ___getRoot(in, current);
         }
         case 19:
         {
-            return ___ice_ids(in, current);
+            return ___ice_id(in, current);
         }
         case 20:
         {
-            return ___ice_isA(in, current);
+            return ___ice_ids(in, current);
         }
         case 21:
         {
-            return ___ice_ping(in, current);
+            return ___ice_isA(in, current);
         }
         case 22:
         {
-            return ___removeEntry(in, current);
+            return ___ice_ping(in, current);
         }
         case 23:
         {
+            return ___removeEntry(in, current);
+        }
+        case 24:
+        {
             return ___removeGroup(in, current);
+        }
+        case 25:
+        {
+            return ___setCurrentDBRootGroup(in, current);
+        }
+        case 26:
+        {
+            return ___setCurrentKFConfig(in, current);
         }
     }
 
@@ -2785,6 +2721,180 @@ IceProxy::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const 
             }
 #endif
             return;
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__handler, __ex);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__handler, __ex, __cnt);
+        }
+#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
+        catch(...)
+        {
+            throw;
+        }
+#endif
+    }
+}
+
+::KeeICE::KFlib::KFConfiguration
+IceProxy::KeeICE::KFlib::KP::getCurrentKFConfig(const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::RequestHandlerPtr __handler;
+        try
+        {
+            __checkTwowayOnly(__KeeICE__KFlib__KP__getCurrentKFConfig_name);
+            __handler = __getRequestHandler();
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getCurrentKFConfig_name, ::Ice::Normal, __ctx);
+            bool __ok = __outS.invoke();
+            try
+            {
+                if(!__ok)
+                {
+                    __outS.is()->throwUnknownUserException();
+                }
+                ::KeeICE::KFlib::KFConfiguration __ret;
+                ::IceInternal::BasicStream* __is = __outS.is();
+                __ret.__read(__is);
+                return __ret;
+            }
+            catch(const ::Ice::LocalException& __ex)
+            {
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+            }
+#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
+            catch(...)
+            {
+                throw;
+            }
+#endif
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__handler, __ex);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__handler, __ex, __cnt);
+        }
+#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
+        catch(...)
+        {
+            throw;
+        }
+#endif
+    }
+}
+
+bool
+IceProxy::KeeICE::KFlib::KP::setCurrentKFConfig(const ::KeeICE::KFlib::KFConfiguration& config, const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::RequestHandlerPtr __handler;
+        try
+        {
+            __checkTwowayOnly(__KeeICE__KFlib__KP__setCurrentKFConfig_name);
+            __handler = __getRequestHandler();
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__setCurrentKFConfig_name, ::Ice::Normal, __ctx);
+            try
+            {
+                ::IceInternal::BasicStream* __os = __outS.os();
+                config.__write(__os);
+            }
+            catch(const ::Ice::LocalException& __ex)
+            {
+                __outS.abort(__ex);
+            }
+            bool __ok = __outS.invoke();
+            try
+            {
+                if(!__ok)
+                {
+                    __outS.is()->throwUnknownUserException();
+                }
+                bool __ret;
+                ::IceInternal::BasicStream* __is = __outS.is();
+                __is->read(__ret);
+                return __ret;
+            }
+            catch(const ::Ice::LocalException& __ex)
+            {
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+            }
+#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
+            catch(...)
+            {
+                throw;
+            }
+#endif
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__handler, __ex);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__handler, __ex, __cnt);
+        }
+#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
+        catch(...)
+        {
+            throw;
+        }
+#endif
+    }
+}
+
+bool
+IceProxy::KeeICE::KFlib::KP::setCurrentDBRootGroup(const ::std::string& uuid, const ::Ice::Context* __ctx)
+{
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::RequestHandlerPtr __handler;
+        try
+        {
+            __checkTwowayOnly(__KeeICE__KFlib__KP__setCurrentDBRootGroup_name);
+            __handler = __getRequestHandler();
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__setCurrentDBRootGroup_name, ::Ice::Normal, __ctx);
+            try
+            {
+                ::IceInternal::BasicStream* __os = __outS.os();
+                __os->write(uuid);
+            }
+            catch(const ::Ice::LocalException& __ex)
+            {
+                __outS.abort(__ex);
+            }
+            bool __ok = __outS.invoke();
+            try
+            {
+                if(!__ok)
+                {
+                    __outS.is()->throwUnknownUserException();
+                }
+                bool __ret;
+                ::IceInternal::BasicStream* __is = __outS.is();
+                __is->read(__ret);
+                return __ret;
+            }
+            catch(const ::Ice::LocalException& __ex)
+            {
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+            }
+#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
+            catch(...)
+            {
+                throw;
+            }
+#endif
         }
         catch(const ::IceInternal::LocalExceptionWrapper& __ex)
         {

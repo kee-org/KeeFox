@@ -52,6 +52,8 @@ var keeFoxInitStartupListener = {
             
             currentWindow = event.target.defaultView;
             
+            this._kf.log(currentWindow.navigator.buildID);
+            
             //this._kf.log("current:" + currentWindow);
             //this._kf.log("_assignedWindow:" + this._assignedWindow);
             //this._kf.log("currentName:" + currentWindow.name);

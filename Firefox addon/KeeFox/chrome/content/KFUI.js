@@ -318,6 +318,7 @@ this.log("titleC:"+title);
             this.log("(...and removing old " + aName + " notification bar)");
             aNotifyBox.removeNotification(oldBar);
         }
+        return newBar;
     },
 
 
@@ -331,6 +332,9 @@ this.log("titleC:"+title);
      */
     _showSaveLoginNotification : function (aNotifyBox, aLogin) {
 
+        var DBname = keefoxInst.getDatabaseName();
+        var notificationText = "";
+        
         // Ugh. We can't use the strings from the popup window, because they
         // have the access key marked in the string (eg "Mo&zilla"), along
         // with some weird rules for handling access keys that do not occur
@@ -348,10 +352,12 @@ this.log("titleC:"+title);
         var notNowButtonAccessKey =
               this._getLocalizedString("notifyBarNotNowButton.key");
 
-        //var brandShortName =
-        //      this._brandBundle.GetStringFromName("brandShortName");
-        var notificationText  = this._getLocalizedString(
-                                        "savePasswordText", ["KeeFox"]);
+        if (DBname != nudefined && DBname != null) 
+            notificationText = this._getLocalizedString(
+                                        "savePasswordText", [DBname]);
+        else
+            notificationText = this._getLocalizedString(
+                                        "savePasswordText", ["un-named"]);
 
         // The callbacks in |buttons| have a closure to access the variables
         // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
@@ -364,7 +370,7 @@ this.log("titleC:"+title);
             {
                 label:     rememberButtonText,
                 accessKey: rememberButtonAccessKey,
-                popup:     null,
+                popup:     "randomPopUpTest", //TODO: test this by making this id on main notification XUL... which is what? use XULinspector?
                 callback: function(aNotificationBar, aButton) {
                     kfilm.addLogin(aLogin, null);
                 }
@@ -391,6 +397,62 @@ this.log("titleC:"+title);
 
         this._showLoginNotification(aNotifyBox, "password-save",
              notificationText, buttons);
+             
+             
+             /* 
+             
+             
+ 
+    _showLoginNotification : function (aNotifyBox, aName, aText, aButtons) {
+        var oldBar = aNotifyBox.getNotificationWithValue(aName);
+        const priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
+
+        this.log("Adding new " + aName + " notification bar");
+        var newBar = aNotifyBox.appendNotification(
+                                aText, aName,
+                                "chrome://mozapps/skin/passwordmgr/key.png",
+                                priority, aButtons);
+
+        // The page we're going to hasn't loaded yet, so we want to persist
+        // across the first location change.
+        newBar.persistence++;
+
+        // Sites like Gmail perform a funky redirect dance before you end up
+        // at the post-authentication page. I don't see a good way to
+        // heuristically determine when to ignore such location changes, so
+        // we'll try ignoring location changes based on a time interval.
+        newBar.timeout = Date.now() + 20000; // 20 seconds
+
+        if (oldBar) {
+            this.log("(...and removing old " + aName + " notification bar)");
+            aNotifyBox.removeNotification(oldBar);
+        }
+    },
+    
+    
+             var notification = notificationBox.appendNotification(
+"this is the notification text",
+"notificationID",
+"notification.png",
+notificationBox.PRIORITY_WARNING_LOW,
+null);
+
+var messageText = document.getAnonymousElementByAttribute(notification, "anonid", "messageText");
+
+var fragment = document.createDocumentFragment();
+fragment.appendChild(document.createTextNode("new "));
+var italic = document.createElementNS("http://www.w3.org/1999/xhtml", "i");
+italic.appendChild(document.createTextNode("replacement"));
+fragment.appendChild(italic);
+fragment.appendChild(document.createTextNode(" text element."));
+
+messageText.removeChild(messageText.firstChild);
+messageText.appendChild(fragment);
+
+(http://forums.mozillazine.org/viewtopic.php?f=19&t=525703)
+*/
+
+
     },
 
 

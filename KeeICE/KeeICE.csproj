@@ -81,9 +81,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Ice-3.3.0-VC90\bin\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.0.7.35762, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
+    <Reference Include="KeePass, Version=2.0.7.35498, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files\KeePass Password Safe 2\KeePass.exe</HintPath>
+      <HintPath>..\..\KeePass_090617\Build\KeePass\Debug\KeePass.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />

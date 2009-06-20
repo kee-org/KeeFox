@@ -91,13 +91,38 @@ module KFlib {
         //bool getDirty();
     //};
     
+    sequence<string> KPDatabaseFileNameList;
+    
+    // this whole struct is proably useless becuase we'll never be able to find out most of this info
+    // without the user first providing the composite key for every database in their MRU
+    //struct KPDatabase
+    //{
+	//	string DBname;
+	//	string fileName;
+	//	bool default; // default database? (not used yet)
+	//	string rootGroupUID; // we only integrate entries in this group and below
+	//	bool useILM; // use improved login manager (not used yet)
+	//	
+	//};
+	
+    //sequence<KPDatabase> KPDatabaseList;
+    
+    struct KFConfiguration
+    {
+		//bool allowUnencryptedMetaData; // doesn't affect encryption of passwords themselves
+		//KPDatabaseList knownDatabases; // the MRU list (to expand this in v1+, maybe Firefox preferences can be used?)
+		KPDatabaseFileNameList knownDatabases; // not used yet - need KeePass plugin help
+		bool autoCommit; // whether KeePass should save the active database after every change
+    
+    };
+    
     interface KP
     {
         //KPDatabase getDatabase();
         bool checkVersion(float keeFoxVersion, float keeICEVersion, out int result); 
-        string getDatabaseName();
-        string getDatabaseFileName();
-        void changeDatabase(string fileName, bool closeCurrent);
+        string getDatabaseName(); // name of current active DB
+        string getDatabaseFileName(); // filename of current active DB
+        void changeDatabase(string fileName, bool closeCurrent); // change current active DB using filename as unique key
         KPEntry AddLogin(KPEntry login, string parentUUID) throws KeeICEException;
         void ModifyLogin(KPEntry oldLogin, KPEntry newLogin) throws KeeICEException;
         int getAllLogins(out KPEntryList logins) throws KeeICEException;
@@ -126,27 +151,12 @@ module KFlib {
 		//KPGroup addGroup(string name, KPGroup parentGroup); 
 		
 		//KPGroup getParentOfEntry(KPEntry entry);
+		
+		KFConfiguration getCurrentKFConfig();
+		bool setCurrentKFConfig(KFConfiguration config);
+		bool setCurrentDBRootGroup(string uuid);
     };
     
-    struct KPDatabase
-    {
-		string DBname;
-		string fileName;
-		bool default; // default database?
-		string rootGroupUID; // we only integrate entries in this group and below
-		bool useILM; // use improved login manager
-		
-	};
-	
-    sequence<KPDatabase> KPDatabaseList;
-    
-    struct KFConfiguration
-    {
-		bool allowUnencryptedMetaData; // doesn't affect encryption of passwords themselves
-		KPDatabaseList knownDatabases;
-		
-    
-    };
     
     interface CallbackReceiver
 	{

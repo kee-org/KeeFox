@@ -880,6 +880,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   /* void launchGroupEditor (in AString uniqueID); */
   NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) = 0;
 
+  /* void getMRUdatabases (out unsigned long count, [array, size_is (count), retval] out string databases); */
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases) = 0;
+
+  /* boolean getAutoCommit (); */
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval) = 0;
+
+  /* boolean setAutoCommit (in boolean autoCommit); */
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval) = 0;
+
+  /* boolean setCurrentDBRootGroup (in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(IKeeFox, IKEEFOX_IID)
@@ -911,7 +923,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins); \
   NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup); \
   NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID); \
-  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID); 
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases); \
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_IKEEFOX(_to) \
@@ -940,7 +956,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) { return _to GetChildEntries(count, uniqueID, logins); } \
   NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) { return _to GetRootGroup(rootGroup); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) { return _to LaunchLoginEditor(uniqueID); } \
-  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return _to LaunchGroupEditor(uniqueID); } 
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return _to LaunchGroupEditor(uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases) { return _to GetMRUdatabases(count, databases); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval) { return _to GetAutoCommit(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval) { return _to SetAutoCommit(autoCommit, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval) { return _to SetCurrentDBRootGroup(uniqueID, _retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_IKEEFOX(_to) \
@@ -969,7 +989,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetChildEntries(count, uniqueID, logins); } \
   NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRootGroup(rootGroup); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchLoginEditor(uniqueID); } \
-  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchGroupEditor(uniqueID); } 
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchGroupEditor(uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetMRUdatabases(count, databases); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAutoCommit(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetAutoCommit(autoCommit, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCurrentDBRootGroup(uniqueID, _retval); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -1153,6 +1177,30 @@ NS_IMETHODIMP _MYCLASS_::LaunchLoginEditor(const nsAString & uniqueID)
 
 /* void launchGroupEditor (in AString uniqueID); */
 NS_IMETHODIMP _MYCLASS_::LaunchGroupEditor(const nsAString & uniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void getMRUdatabases (out unsigned long count, [array, size_is (count), retval] out string databases); */
+NS_IMETHODIMP _MYCLASS_::GetMRUdatabases(PRUint32 *count, char ***databases)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean getAutoCommit (); */
+NS_IMETHODIMP _MYCLASS_::GetAutoCommit(PRBool *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean setAutoCommit (in boolean autoCommit); */
+NS_IMETHODIMP _MYCLASS_::SetAutoCommit(PRBool autoCommit, PRBool *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean setCurrentDBRootGroup (in AString uniqueID); */
+NS_IMETHODIMP _MYCLASS_::SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
