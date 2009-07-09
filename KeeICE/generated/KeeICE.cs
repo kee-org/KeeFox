@@ -22,7 +22,7 @@ using _Microsoft = global::Microsoft;
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public enum loginSearchType
         {
@@ -51,9 +51,11 @@ namespace KeeICE
 
             public string value;
 
-            public KeeICE.KFlib.formFieldType type;
+            public KeeICE.KPlib.formFieldType type;
 
             public string id;
+
+            public int page;
 
             #endregion
 
@@ -63,13 +65,14 @@ namespace KeeICE
             {
             }
 
-            public KPFormField(string name, string displayName, string value, KeeICE.KFlib.formFieldType type, string id)
+            public KPFormField(string name, string displayName, string value, KeeICE.KPlib.formFieldType type, string id, int page)
             {
                 this.name = name;
                 this.displayName = displayName;
                 this.value = value;
                 this.type = type;
                 this.id = id;
+                this.page = page;
             }
 
             #endregion
@@ -105,6 +108,7 @@ namespace KeeICE
                 {
                     h__ = 5 * h__ + id.GetHashCode();
                 }
+                h__ = 5 * h__ + page.GetHashCode();
                 return h__;
             }
 
@@ -183,6 +187,10 @@ namespace KeeICE
                         return false;
                     }
                 }
+                if(!page.Equals(o__.page))
+                {
+                    return false;
+                }
                 return true;
             }
 
@@ -211,6 +219,7 @@ namespace KeeICE
                 os__.writeString(value);
                 os__.writeByte((byte)type, 6);
                 os__.writeString(id);
+                os__.writeInt(page);
             }
 
             public void read__(IceInternal.BasicStream is__)
@@ -218,8 +227,9 @@ namespace KeeICE
                 name = is__.readString();
                 displayName = is__.readString();
                 value = is__.readString();
-                type = (KeeICE.KFlib.formFieldType)is__.readByte(6);
+                type = (KeeICE.KPlib.formFieldType)is__.readByte(6);
                 id = is__.readString();
+                page = is__.readInt();
             }
 
             #endregion
@@ -357,7 +367,7 @@ namespace KeeICE
         {
             #region Slice data members
 
-            public string URL;
+            public string[] URLs;
 
             public string formActionURL;
 
@@ -365,7 +375,7 @@ namespace KeeICE
 
             public string title;
 
-            public KeeICE.KFlib.KPFormField[] formFieldList;
+            public KeeICE.KPlib.KPFormField[] formFieldList;
 
             public bool @default;
 
@@ -381,9 +391,9 @@ namespace KeeICE
             {
             }
 
-            public KPEntry(string URL, string formActionURL, string HTTPRealm, string title, KeeICE.KFlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID)
+            public KPEntry(string[] URLs, string formActionURL, string HTTPRealm, string title, KeeICE.KPlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID)
             {
-                this.URL = URL;
+                this.URLs = URLs;
                 this.formActionURL = formActionURL;
                 this.HTTPRealm = HTTPRealm;
                 this.title = title;
@@ -409,9 +419,9 @@ namespace KeeICE
             public override int GetHashCode()
             {
                 int h__ = 0;
-                if(URL != null)
+                if(URLs != null)
                 {
-                    h__ = 5 * h__ + URL.GetHashCode();
+                    h__ = 5 * h__ + IceUtilInternal.Arrays.GetHashCode(URLs);
                 }
                 if(formActionURL != null)
                 {
@@ -453,16 +463,16 @@ namespace KeeICE
                     return false;
                 }
                 KPEntry o__ = (KPEntry)other__;
-                if(URL == null)
+                if(URLs == null)
                 {
-                    if(o__.URL != null)
+                    if(o__.URLs != null)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if(!URL.Equals(o__.URL))
+                    if(!IceUtilInternal.Arrays.Equals(URLs, o__.URLs))
                     {
                         return false;
                     }
@@ -568,7 +578,7 @@ namespace KeeICE
 
             public void write__(IceInternal.BasicStream os__)
             {
-                os__.writeString(URL);
+                os__.writeStringSeq(URLs);
                 os__.writeString(formActionURL);
                 os__.writeString(HTTPRealm);
                 os__.writeString(title);
@@ -581,7 +591,7 @@ namespace KeeICE
                     os__.writeSize(formFieldList.Length);
                     for(int ix__ = 0; ix__ < formFieldList.Length; ++ix__)
                     {
-                        (formFieldList == null ? new KeeICE.KFlib.KPFormField() : formFieldList[ix__]).write__(os__);
+                        (formFieldList == null ? new KeeICE.KPlib.KPFormField() : formFieldList[ix__]).write__(os__);
                     }
                 }
                 os__.writeBool(@default);
@@ -591,17 +601,17 @@ namespace KeeICE
 
             public void read__(IceInternal.BasicStream is__)
             {
-                URL = is__.readString();
+                URLs = is__.readStringSeq();
                 formActionURL = is__.readString();
                 HTTPRealm = is__.readString();
                 title = is__.readString();
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 5);
-                    formFieldList = new KeeICE.KFlib.KPFormField[szx__];
+                    is__.startSeq(szx__, 9);
+                    formFieldList = new KeeICE.KPlib.KPFormField[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
-                        formFieldList[ix__] = new KeeICE.KFlib.KPFormField();
+                        formFieldList[ix__] = new KeeICE.KPlib.KPFormField();
                         formFieldList[ix__].read__(is__);
                         is__.checkSeq();
                         is__.endElement();
@@ -653,7 +663,7 @@ namespace KeeICE
 
             public override string ice_name()
             {
-                return "KeeICE::KFlib::KeeICEException";
+                return "KeeICE::KPlib::KeeICEException";
             }
 
             #region Object members
@@ -720,7 +730,7 @@ namespace KeeICE
 
             public override void write__(IceInternal.BasicStream os__)
             {
-                os__.writeString("::KeeICE::KFlib::KeeICEException");
+                os__.writeString("::KeeICE::KPlib::KeeICEException");
                 os__.startWriteSlice();
                 os__.writeString(reason);
                 os__.endWriteSlice();
@@ -740,14 +750,14 @@ namespace KeeICE
             public override void write__(Ice.OutputStream outS__)
             {
                 Ice.MarshalException ex = new Ice.MarshalException();
-                ex.reason = "exception KeeICE::KFlib::KeeICEException was not generated with stream support";
+                ex.reason = "exception KeeICE::KPlib::KeeICEException was not generated with stream support";
                 throw ex;
             }
 
             public override void read__(Ice.InputStream inS__, bool rid__)
             {
                 Ice.MarshalException ex = new Ice.MarshalException();
-                ex.reason = "exception KeeICE::KFlib::KeeICEException was not generated with stream support";
+                ex.reason = "exception KeeICE::KPlib::KeeICEException was not generated with stream support";
                 throw ex;
             }
 
@@ -886,7 +896,7 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public interface KPPrx : Ice.ObjectPrx
         {
@@ -902,41 +912,41 @@ namespace KeeICE
             void changeDatabase(string fileName, bool closeCurrent);
             void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID);
-            KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID);
+            KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin);
-            void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__);
+            void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin);
+            void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int getAllLogins(out KeeICE.KFlib.KPEntry[] logins);
-            int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
+            int getAllLogins(out KeeICE.KPlib.KPEntry[] logins);
+            int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins);
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches);
-            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__);
+            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches);
+            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__);
 
             void addClient(Ice.Identity ident);
             void addClient(Ice.Identity ident, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups);
-            int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__);
+            int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups);
+            int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup getRoot();
-            KeeICE.KFlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup getRoot();
+            KeeICE.KPlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup getParent(string uuid);
-            KeeICE.KFlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup getParent(string uuid);
+            KeeICE.KPlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup[] getChildGroups(string uuid);
-            KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup[] getChildGroups(string uuid);
+            KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPEntry[] getChildEntries(string uuid);
-            KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPEntry[] getChildEntries(string uuid);
+            KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid);
-            KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid);
+            KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
             bool removeGroup(string uuid);
             bool removeGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
@@ -950,11 +960,11 @@ namespace KeeICE
             void LaunchLoginEditor(string uuid);
             void LaunchLoginEditor(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KFConfiguration getCurrentKFConfig();
-            KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KFConfiguration getCurrentKFConfig();
+            KeeICE.KPlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__);
 
-            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config);
-            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__);
+            bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config);
+            bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__);
 
             bool setCurrentDBRootGroup(string uuid);
             bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
@@ -970,7 +980,7 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public interface KPOperations_
         {
@@ -982,29 +992,29 @@ namespace KeeICE
 
             void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__);
 
-            KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, Ice.Current current__);
+            KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, Ice.Current current__);
 
-            void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, Ice.Current current__);
+            void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, Ice.Current current__);
 
-            int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
+            int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, Ice.Current current__);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, Ice.Current current__);
 
-            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__);
+            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__);
 
             void addClient(Ice.Identity ident, Ice.Current current__);
 
-            int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, Ice.Current current__);
+            int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, Ice.Current current__);
 
-            KeeICE.KFlib.KPGroup getRoot(Ice.Current current__);
+            KeeICE.KPlib.KPGroup getRoot(Ice.Current current__);
 
-            KeeICE.KFlib.KPGroup getParent(string uuid, Ice.Current current__);
+            KeeICE.KPlib.KPGroup getParent(string uuid, Ice.Current current__);
 
-            KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__);
+            KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__);
 
-            KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__);
+            KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__);
 
-            KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, Ice.Current current__);
+            KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, Ice.Current current__);
 
             bool removeGroup(string uuid, Ice.Current current__);
 
@@ -1014,9 +1024,9 @@ namespace KeeICE
 
             void LaunchLoginEditor(string uuid, Ice.Current current__);
 
-            KeeICE.KFlib.KFConfiguration getCurrentKFConfig(Ice.Current current__);
+            KeeICE.KPlib.KFConfiguration getCurrentKFConfig(Ice.Current current__);
 
-            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, Ice.Current current__);
+            bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, Ice.Current current__);
 
             bool setCurrentDBRootGroup(string uuid, Ice.Current current__);
         }
@@ -1031,29 +1041,29 @@ namespace KeeICE
 
             void changeDatabase(string fileName, bool closeCurrent);
 
-            KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID);
+            KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID);
 
-            void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin);
+            void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin);
 
-            int getAllLogins(out KeeICE.KFlib.KPEntry[] logins);
+            int getAllLogins(out KeeICE.KPlib.KPEntry[] logins);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins);
 
-            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches);
+            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches);
 
             void addClient(Ice.Identity ident);
 
-            int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups);
+            int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups);
 
-            KeeICE.KFlib.KPGroup getRoot();
+            KeeICE.KPlib.KPGroup getRoot();
 
-            KeeICE.KFlib.KPGroup getParent(string uuid);
+            KeeICE.KPlib.KPGroup getParent(string uuid);
 
-            KeeICE.KFlib.KPGroup[] getChildGroups(string uuid);
+            KeeICE.KPlib.KPGroup[] getChildGroups(string uuid);
 
-            KeeICE.KFlib.KPEntry[] getChildEntries(string uuid);
+            KeeICE.KPlib.KPEntry[] getChildEntries(string uuid);
 
-            KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid);
+            KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid);
 
             bool removeGroup(string uuid);
 
@@ -1063,9 +1073,9 @@ namespace KeeICE
 
             void LaunchLoginEditor(string uuid);
 
-            KeeICE.KFlib.KFConfiguration getCurrentKFConfig();
+            KeeICE.KPlib.KFConfiguration getCurrentKFConfig();
 
-            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config);
+            bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config);
 
             bool setCurrentDBRootGroup(string uuid);
         }
@@ -1084,11 +1094,11 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public sealed class KPFormFieldListHelper
         {
-            public static void write(IceInternal.BasicStream os__, KeeICE.KFlib.KPFormField[] v__)
+            public static void write(IceInternal.BasicStream os__, KeeICE.KPlib.KPFormField[] v__)
             {
                 if(v__ == null)
                 {
@@ -1099,21 +1109,21 @@ namespace KeeICE
                     os__.writeSize(v__.Length);
                     for(int ix__ = 0; ix__ < v__.Length; ++ix__)
                     {
-                        (v__ == null ? new KeeICE.KFlib.KPFormField() : v__[ix__]).write__(os__);
+                        (v__ == null ? new KeeICE.KPlib.KPFormField() : v__[ix__]).write__(os__);
                     }
                 }
             }
 
-            public static KeeICE.KFlib.KPFormField[] read(IceInternal.BasicStream is__)
+            public static KeeICE.KPlib.KPFormField[] read(IceInternal.BasicStream is__)
             {
-                KeeICE.KFlib.KPFormField[] v__;
+                KeeICE.KPlib.KPFormField[] v__;
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 5);
-                    v__ = new KeeICE.KFlib.KPFormField[szx__];
+                    is__.startSeq(szx__, 9);
+                    v__ = new KeeICE.KPlib.KPFormField[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
-                        v__[ix__] = new KeeICE.KFlib.KPFormField();
+                        v__[ix__] = new KeeICE.KPlib.KPFormField();
                         v__[ix__].read__(is__);
                         is__.checkSeq();
                         is__.endElement();
@@ -1126,7 +1136,7 @@ namespace KeeICE
 
         public sealed class KPGroupListHelper
         {
-            public static void write(IceInternal.BasicStream os__, KeeICE.KFlib.KPGroup[] v__)
+            public static void write(IceInternal.BasicStream os__, KeeICE.KPlib.KPGroup[] v__)
             {
                 if(v__ == null)
                 {
@@ -1137,21 +1147,21 @@ namespace KeeICE
                     os__.writeSize(v__.Length);
                     for(int ix__ = 0; ix__ < v__.Length; ++ix__)
                     {
-                        (v__ == null ? new KeeICE.KFlib.KPGroup() : v__[ix__]).write__(os__);
+                        (v__ == null ? new KeeICE.KPlib.KPGroup() : v__[ix__]).write__(os__);
                     }
                 }
             }
 
-            public static KeeICE.KFlib.KPGroup[] read(IceInternal.BasicStream is__)
+            public static KeeICE.KPlib.KPGroup[] read(IceInternal.BasicStream is__)
             {
-                KeeICE.KFlib.KPGroup[] v__;
+                KeeICE.KPlib.KPGroup[] v__;
                 {
                     int szx__ = is__.readSize();
                     is__.startSeq(szx__, 2);
-                    v__ = new KeeICE.KFlib.KPGroup[szx__];
+                    v__ = new KeeICE.KPlib.KPGroup[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
-                        v__[ix__] = new KeeICE.KFlib.KPGroup();
+                        v__[ix__] = new KeeICE.KPlib.KPGroup();
                         v__[ix__].read__(is__);
                         is__.checkSeq();
                         is__.endElement();
@@ -1162,9 +1172,24 @@ namespace KeeICE
             }
         }
 
+        public sealed class KPURLsHelper
+        {
+            public static void write(IceInternal.BasicStream os__, string[] v__)
+            {
+                os__.writeStringSeq(v__);
+            }
+
+            public static string[] read(IceInternal.BasicStream is__)
+            {
+                string[] v__;
+                v__ = is__.readStringSeq();
+                return v__;
+            }
+        }
+
         public sealed class KPEntryListHelper
         {
-            public static void write(IceInternal.BasicStream os__, KeeICE.KFlib.KPEntry[] v__)
+            public static void write(IceInternal.BasicStream os__, KeeICE.KPlib.KPEntry[] v__)
             {
                 if(v__ == null)
                 {
@@ -1175,21 +1200,21 @@ namespace KeeICE
                     os__.writeSize(v__.Length);
                     for(int ix__ = 0; ix__ < v__.Length; ++ix__)
                     {
-                        (v__ == null ? new KeeICE.KFlib.KPEntry() : v__[ix__]).write__(os__);
+                        (v__ == null ? new KeeICE.KPlib.KPEntry() : v__[ix__]).write__(os__);
                     }
                 }
             }
 
-            public static KeeICE.KFlib.KPEntry[] read(IceInternal.BasicStream is__)
+            public static KeeICE.KPlib.KPEntry[] read(IceInternal.BasicStream is__)
             {
-                KeeICE.KFlib.KPEntry[] v__;
+                KeeICE.KPlib.KPEntry[] v__;
                 {
                     int szx__ = is__.readSize();
                     is__.startSeq(szx__, 8);
-                    v__ = new KeeICE.KFlib.KPEntry[szx__];
+                    v__ = new KeeICE.KPlib.KPEntry[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
-                        v__[ix__] = new KeeICE.KFlib.KPEntry();
+                        v__[ix__] = new KeeICE.KPlib.KPEntry();
                         v__[ix__].read__(is__);
                         is__.checkSeq();
                         is__.endElement();
@@ -1219,17 +1244,17 @@ namespace KeeICE
         {
             #region Synchronous operations
 
-            public KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID)
+            public KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID)
             {
                 return AddLogin(login, parentUUID, null, false);
             }
 
-            public KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return AddLogin(login, parentUUID, context__, true);
             }
 
-            private KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1333,17 +1358,17 @@ namespace KeeICE
                 }
             }
 
-            public void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin)
+            public void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin)
             {
                 ModifyLogin(oldLogin, newLogin, null, false);
             }
 
-            public void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__)
+            public void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 ModifyLogin(oldLogin, newLogin, context__, true);
             }
 
-            private void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1410,17 +1435,17 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid)
+            public KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid)
             {
                 return addGroup(name, parentUuid, null, false);
             }
 
-            public KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return addGroup(name, parentUuid, context__, true);
             }
 
-            private KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1524,17 +1549,17 @@ namespace KeeICE
                 }
             }
 
-            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches)
+            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches)
             {
                 return countLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, null, false);
             }
 
-            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return countLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, context__, true);
             }
 
-            private int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1562,17 +1587,17 @@ namespace KeeICE
                 }
             }
 
-            public int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups)
+            public int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups)
             {
                 return findGroups(name, uuid, out groups, null, false);
             }
 
-            public int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return findGroups(name, uuid, out groups, context__, true);
             }
 
-            private int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1600,17 +1625,17 @@ namespace KeeICE
                 }
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins)
             {
                 return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, null, false);
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, context__, true);
             }
 
-            private int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1638,17 +1663,17 @@ namespace KeeICE
                 }
             }
 
-            public int getAllLogins(out KeeICE.KFlib.KPEntry[] logins)
+            public int getAllLogins(out KeeICE.KPlib.KPEntry[] logins)
             {
                 return getAllLogins(out logins, null, false);
             }
 
-            public int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return getAllLogins(out logins, context__, true);
             }
 
-            private int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1676,17 +1701,17 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPEntry[] getChildEntries(string uuid)
+            public KeeICE.KPlib.KPEntry[] getChildEntries(string uuid)
             {
                 return getChildEntries(uuid, null, false);
             }
 
-            public KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return getChildEntries(uuid, context__, true);
             }
 
-            private KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1714,17 +1739,17 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup[] getChildGroups(string uuid)
+            public KeeICE.KPlib.KPGroup[] getChildGroups(string uuid)
             {
                 return getChildGroups(uuid, null, false);
             }
 
-            public KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return getChildGroups(uuid, context__, true);
             }
 
-            private KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1752,17 +1777,17 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig()
+            public KeeICE.KPlib.KFConfiguration getCurrentKFConfig()
             {
                 return getCurrentKFConfig(null, false);
             }
 
-            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return getCurrentKFConfig(context__, true);
             }
 
-            private KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1866,17 +1891,17 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup getParent(string uuid)
+            public KeeICE.KPlib.KPGroup getParent(string uuid)
             {
                 return getParent(uuid, null, false);
             }
 
-            public KeeICE.KFlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return getParent(uuid, context__, true);
             }
 
-            private KeeICE.KFlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -1904,17 +1929,17 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup getRoot()
+            public KeeICE.KPlib.KPGroup getRoot()
             {
                 return getRoot(null, false);
             }
 
-            public KeeICE.KFlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return getRoot(context__, true);
             }
 
-            private KeeICE.KFlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private KeeICE.KPlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -2056,17 +2081,17 @@ namespace KeeICE
                 }
             }
 
-            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config)
+            public bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config)
             {
                 return setCurrentKFConfig(config, null, false);
             }
 
-            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
+            public bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 return setCurrentKFConfig(config, context__, true);
             }
 
-            private bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
+            private bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__, bool explicitContext__)
             {
                 if(explicitContext__ && context__ == null)
                 {
@@ -2105,7 +2130,7 @@ namespace KeeICE
                     return null;
                 }
                 KPPrx r = b as KPPrx;
-                if((r == null) && b.ice_isA("::KeeICE::KFlib::KP"))
+                if((r == null) && b.ice_isA("::KeeICE::KPlib::KP"))
                 {
                     KPPrxHelper h = new KPPrxHelper();
                     h.copyFrom__(b);
@@ -2121,7 +2146,7 @@ namespace KeeICE
                     return null;
                 }
                 KPPrx r = b as KPPrx;
-                if((r == null) && b.ice_isA("::KeeICE::KFlib::KP", ctx))
+                if((r == null) && b.ice_isA("::KeeICE::KPlib::KP", ctx))
                 {
                     KPPrxHelper h = new KPPrxHelper();
                     h.copyFrom__(b);
@@ -2139,7 +2164,7 @@ namespace KeeICE
                 Ice.ObjectPrx bb = b.ice_facet(f);
                 try
                 {
-                    if(bb.ice_isA("::KeeICE::KFlib::KP"))
+                    if(bb.ice_isA("::KeeICE::KPlib::KP"))
                     {
                         KPPrxHelper h = new KPPrxHelper();
                         h.copyFrom__(bb);
@@ -2161,7 +2186,7 @@ namespace KeeICE
                 Ice.ObjectPrx bb = b.ice_facet(f);
                 try
                 {
-                    if(bb.ice_isA("::KeeICE::KFlib::KP", ctx))
+                    if(bb.ice_isA("::KeeICE::KPlib::KP", ctx))
                     {
                         KPPrxHelper h = new KPPrxHelper();
                         h.copyFrom__(bb);
@@ -2289,7 +2314,7 @@ namespace KeeICE
                     return null;
                 }
                 CallbackReceiverPrx r = b as CallbackReceiverPrx;
-                if((r == null) && b.ice_isA("::KeeICE::KFlib::CallbackReceiver"))
+                if((r == null) && b.ice_isA("::KeeICE::KPlib::CallbackReceiver"))
                 {
                     CallbackReceiverPrxHelper h = new CallbackReceiverPrxHelper();
                     h.copyFrom__(b);
@@ -2305,7 +2330,7 @@ namespace KeeICE
                     return null;
                 }
                 CallbackReceiverPrx r = b as CallbackReceiverPrx;
-                if((r == null) && b.ice_isA("::KeeICE::KFlib::CallbackReceiver", ctx))
+                if((r == null) && b.ice_isA("::KeeICE::KPlib::CallbackReceiver", ctx))
                 {
                     CallbackReceiverPrxHelper h = new CallbackReceiverPrxHelper();
                     h.copyFrom__(b);
@@ -2323,7 +2348,7 @@ namespace KeeICE
                 Ice.ObjectPrx bb = b.ice_facet(f);
                 try
                 {
-                    if(bb.ice_isA("::KeeICE::KFlib::CallbackReceiver"))
+                    if(bb.ice_isA("::KeeICE::KPlib::CallbackReceiver"))
                     {
                         CallbackReceiverPrxHelper h = new CallbackReceiverPrxHelper();
                         h.copyFrom__(bb);
@@ -2345,7 +2370,7 @@ namespace KeeICE
                 Ice.ObjectPrx bb = b.ice_facet(f);
                 try
                 {
-                    if(bb.ice_isA("::KeeICE::KFlib::CallbackReceiver", ctx))
+                    if(bb.ice_isA("::KeeICE::KPlib::CallbackReceiver", ctx))
                     {
                         CallbackReceiverPrxHelper h = new CallbackReceiverPrxHelper();
                         h.copyFrom__(bb);
@@ -2424,7 +2449,7 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public interface KPDel_ : Ice.ObjectDel_
         {
@@ -2436,29 +2461,29 @@ namespace KeeICE
 
             void changeDatabase(string fileName, bool closeCurrent, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__);
+            void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
+            int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
+            int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__);
+            int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__);
 
             void addClient(Ice.Identity ident, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__);
+            int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
             bool removeGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
@@ -2468,9 +2493,9 @@ namespace KeeICE
 
             void LaunchLoginEditor(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
 
-            KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__);
+            KeeICE.KPlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__);
 
-            bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__);
+            bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__);
 
             bool setCurrentDBRootGroup(string uuid, _System.Collections.Generic.Dictionary<string, string> context__);
         }
@@ -2484,11 +2509,11 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public sealed class KPDelM_ : Ice.ObjectDelM_, KPDel_
         {
-            public KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("AddLogin", Ice.OperationMode.Normal, context__);
                 try
@@ -2498,7 +2523,7 @@ namespace KeeICE
                         IceInternal.BasicStream os__ = og__.ostr();
                         if(login == null)
                         {
-                            KeeICE.KFlib.KPEntry tmp__ = new KeeICE.KFlib.KPEntry();
+                            KeeICE.KPlib.KPEntry tmp__ = new KeeICE.KPlib.KPEntry();
                             tmp__.write__(os__);
                         }
                         else
@@ -2520,7 +2545,7 @@ namespace KeeICE
                             {
                                 og__.throwUserException();
                             }
-                            catch(KeeICE.KFlib.KeeICEException)
+                            catch(KeeICE.KPlib.KeeICEException)
                             {
                                 throw;
                             }
@@ -2531,11 +2556,11 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KPEntry ret__;
+                        KeeICE.KPlib.KPEntry ret__;
                         ret__ = null;
                         if(ret__ == null)
                         {
-                            ret__ = new KeeICE.KFlib.KPEntry();
+                            ret__ = new KeeICE.KPlib.KPEntry();
                         }
                         ret__.read__(is__);
                         is__.endReadEncaps();
@@ -2640,7 +2665,7 @@ namespace KeeICE
                 }
             }
 
-            public void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__)
+            public void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("ModifyLogin", Ice.OperationMode.Normal, context__);
                 try
@@ -2650,7 +2675,7 @@ namespace KeeICE
                         IceInternal.BasicStream os__ = og__.ostr();
                         if(oldLogin == null)
                         {
-                            KeeICE.KFlib.KPEntry tmp__ = new KeeICE.KFlib.KPEntry();
+                            KeeICE.KPlib.KPEntry tmp__ = new KeeICE.KPlib.KPEntry();
                             tmp__.write__(os__);
                         }
                         else
@@ -2659,7 +2684,7 @@ namespace KeeICE
                         }
                         if(newLogin == null)
                         {
-                            KeeICE.KFlib.KPEntry tmp__ = new KeeICE.KFlib.KPEntry();
+                            KeeICE.KPlib.KPEntry tmp__ = new KeeICE.KPlib.KPEntry();
                             tmp__.write__(os__);
                         }
                         else
@@ -2680,7 +2705,7 @@ namespace KeeICE
                             {
                                 og__.throwUserException();
                             }
-                            catch(KeeICE.KFlib.KeeICEException)
+                            catch(KeeICE.KPlib.KeeICEException)
                             {
                                 throw;
                             }
@@ -2756,7 +2781,7 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("addGroup", Ice.OperationMode.Normal, context__);
                 try
@@ -2787,11 +2812,11 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KPGroup ret__;
+                        KeeICE.KPlib.KPGroup ret__;
                         ret__ = null;
                         if(ret__ == null)
                         {
-                            ret__ = new KeeICE.KFlib.KPGroup();
+                            ret__ = new KeeICE.KPlib.KPGroup();
                         }
                         ret__.read__(is__);
                         is__.endReadEncaps();
@@ -2901,7 +2926,7 @@ namespace KeeICE
                 }
             }
 
-            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("countLogins", Ice.OperationMode.Normal, context__);
                 try
@@ -2928,7 +2953,7 @@ namespace KeeICE
                             {
                                 og__.throwUserException();
                             }
-                            catch(KeeICE.KFlib.KeeICEException)
+                            catch(KeeICE.KPlib.KeeICEException)
                             {
                                 throw;
                             }
@@ -2955,7 +2980,7 @@ namespace KeeICE
                 }
             }
 
-            public int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("findGroups", Ice.OperationMode.Normal, context__);
                 try
@@ -2989,10 +3014,10 @@ namespace KeeICE
                         {
                             int szx__ = is__.readSize();
                             is__.startSeq(szx__, 2);
-                            groups = new KeeICE.KFlib.KPGroup[szx__];
+                            groups = new KeeICE.KPlib.KPGroup[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
-                                groups[ix__] = new KeeICE.KFlib.KPGroup();
+                                groups[ix__] = new KeeICE.KPlib.KPGroup();
                                 groups[ix__].read__(is__);
                                 is__.checkSeq();
                                 is__.endElement();
@@ -3015,7 +3040,7 @@ namespace KeeICE
                 }
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("findLogins", Ice.OperationMode.Normal, context__);
                 try
@@ -3043,7 +3068,7 @@ namespace KeeICE
                             {
                                 og__.throwUserException();
                             }
-                            catch(KeeICE.KFlib.KeeICEException)
+                            catch(KeeICE.KPlib.KeeICEException)
                             {
                                 throw;
                             }
@@ -3057,10 +3082,10 @@ namespace KeeICE
                         {
                             int szx__ = is__.readSize();
                             is__.startSeq(szx__, 8);
-                            logins = new KeeICE.KFlib.KPEntry[szx__];
+                            logins = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
-                                logins[ix__] = new KeeICE.KFlib.KPEntry();
+                                logins[ix__] = new KeeICE.KPlib.KPEntry();
                                 logins[ix__].read__(is__);
                                 is__.checkSeq();
                                 is__.endElement();
@@ -3083,7 +3108,7 @@ namespace KeeICE
                 }
             }
 
-            public int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getAllLogins", Ice.OperationMode.Normal, context__);
                 try
@@ -3097,7 +3122,7 @@ namespace KeeICE
                             {
                                 og__.throwUserException();
                             }
-                            catch(KeeICE.KFlib.KeeICEException)
+                            catch(KeeICE.KPlib.KeeICEException)
                             {
                                 throw;
                             }
@@ -3111,10 +3136,10 @@ namespace KeeICE
                         {
                             int szx__ = is__.readSize();
                             is__.startSeq(szx__, 8);
-                            logins = new KeeICE.KFlib.KPEntry[szx__];
+                            logins = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
-                                logins[ix__] = new KeeICE.KFlib.KPEntry();
+                                logins[ix__] = new KeeICE.KPlib.KPEntry();
                                 logins[ix__].read__(is__);
                                 is__.checkSeq();
                                 is__.endElement();
@@ -3137,7 +3162,7 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getChildEntries", Ice.OperationMode.Normal, context__);
                 try
@@ -3167,14 +3192,14 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KPEntry[] ret__;
+                        KeeICE.KPlib.KPEntry[] ret__;
                         {
                             int szx__ = is__.readSize();
                             is__.startSeq(szx__, 8);
-                            ret__ = new KeeICE.KFlib.KPEntry[szx__];
+                            ret__ = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
-                                ret__[ix__] = new KeeICE.KFlib.KPEntry();
+                                ret__[ix__] = new KeeICE.KPlib.KPEntry();
                                 ret__[ix__].read__(is__);
                                 is__.checkSeq();
                                 is__.endElement();
@@ -3195,7 +3220,7 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getChildGroups", Ice.OperationMode.Normal, context__);
                 try
@@ -3225,14 +3250,14 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KPGroup[] ret__;
+                        KeeICE.KPlib.KPGroup[] ret__;
                         {
                             int szx__ = is__.readSize();
                             is__.startSeq(szx__, 2);
-                            ret__ = new KeeICE.KFlib.KPGroup[szx__];
+                            ret__ = new KeeICE.KPlib.KPGroup[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
-                                ret__[ix__] = new KeeICE.KFlib.KPGroup();
+                                ret__[ix__] = new KeeICE.KPlib.KPGroup();
                                 ret__[ix__].read__(is__);
                                 is__.checkSeq();
                                 is__.endElement();
@@ -3253,7 +3278,7 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getCurrentKFConfig", Ice.OperationMode.Normal, context__);
                 try
@@ -3274,11 +3299,11 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KFConfiguration ret__;
+                        KeeICE.KPlib.KFConfiguration ret__;
                         ret__ = null;
                         if(ret__ == null)
                         {
-                            ret__ = new KeeICE.KFlib.KFConfiguration();
+                            ret__ = new KeeICE.KPlib.KFConfiguration();
                         }
                         ret__.read__(is__);
                         is__.endReadEncaps();
@@ -3369,7 +3394,7 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getParent", Ice.OperationMode.Normal, context__);
                 try
@@ -3399,11 +3424,11 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KPGroup ret__;
+                        KeeICE.KPlib.KPGroup ret__;
                         ret__ = null;
                         if(ret__ == null)
                         {
-                            ret__ = new KeeICE.KFlib.KPGroup();
+                            ret__ = new KeeICE.KPlib.KPGroup();
                         }
                         ret__.read__(is__);
                         is__.endReadEncaps();
@@ -3420,7 +3445,7 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("getRoot", Ice.OperationMode.Normal, context__);
                 try
@@ -3441,11 +3466,11 @@ namespace KeeICE
                         }
                         IceInternal.BasicStream is__ = og__.istr();
                         is__.startReadEncaps();
-                        KeeICE.KFlib.KPGroup ret__;
+                        KeeICE.KPlib.KPGroup ret__;
                         ret__ = null;
                         if(ret__ == null)
                         {
-                            ret__ = new KeeICE.KFlib.KPGroup();
+                            ret__ = new KeeICE.KPlib.KPGroup();
                         }
                         ret__.read__(is__);
                         is__.endReadEncaps();
@@ -3600,7 +3625,7 @@ namespace KeeICE
                 }
             }
 
-            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
+            public bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 IceInternal.Outgoing og__ = handler__.getOutgoing("setCurrentKFConfig", Ice.OperationMode.Normal, context__);
                 try
@@ -3610,7 +3635,7 @@ namespace KeeICE
                         IceInternal.BasicStream os__ = og__.ostr();
                         if(config == null)
                         {
-                            KeeICE.KFlib.KFConfiguration tmp__ = new KeeICE.KFlib.KFConfiguration();
+                            KeeICE.KPlib.KFConfiguration tmp__ = new KeeICE.KPlib.KFConfiguration();
                             tmp__.write__(os__);
                         }
                         else
@@ -3706,15 +3731,15 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public sealed class KPDelD_ : Ice.ObjectDelD_, KPDel_
         {
-            public KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "AddLogin", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPEntry result__ = new KeeICE.KFlib.KPEntry();
+                KeeICE.KPlib.KPEntry result__ = new KeeICE.KPlib.KPEntry();
                 Ice.UserException userException__ = null;
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
@@ -3756,7 +3781,7 @@ namespace KeeICE
                         direct__.destroy();
                     }
                 }
-                catch(KeeICE.KFlib.KeeICEException)
+                catch(KeeICE.KPlib.KeeICEException)
                 {
                     throw;
                 }
@@ -3855,7 +3880,7 @@ namespace KeeICE
                 }
             }
 
-            public void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__)
+            public void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "ModifyLogin", Ice.OperationMode.Normal, context__);
@@ -3900,7 +3925,7 @@ namespace KeeICE
                         direct__.destroy();
                     }
                 }
-                catch(KeeICE.KFlib.KeeICEException)
+                catch(KeeICE.KPlib.KeeICEException)
                 {
                     throw;
                 }
@@ -3956,11 +3981,11 @@ namespace KeeICE
                 }
             }
 
-            public KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "addGroup", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPGroup result__ = new KeeICE.KFlib.KPGroup();
+                KeeICE.KPlib.KPGroup result__ = new KeeICE.KPlib.KPGroup();
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
                     KP servant__ = null;
@@ -4088,7 +4113,7 @@ namespace KeeICE
                 return result__;
             }
 
-            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "countLogins", Ice.OperationMode.Normal, context__);
@@ -4134,7 +4159,7 @@ namespace KeeICE
                         direct__.destroy();
                     }
                 }
-                catch(KeeICE.KFlib.KeeICEException)
+                catch(KeeICE.KPlib.KeeICEException)
                 {
                     throw;
                 }
@@ -4149,11 +4174,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "findGroups", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPGroup[] groupsHolder__ = null;
+                KeeICE.KPlib.KPGroup[] groupsHolder__ = null;
                 int result__ = 0;
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
@@ -4195,11 +4220,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "findLogins", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPEntry[] loginsHolder__ = null;
+                KeeICE.KPlib.KPEntry[] loginsHolder__ = null;
                 int result__ = 0;
                 Ice.UserException userException__ = null;
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
@@ -4242,7 +4267,7 @@ namespace KeeICE
                         direct__.destroy();
                     }
                 }
-                catch(KeeICE.KFlib.KeeICEException)
+                catch(KeeICE.KPlib.KeeICEException)
                 {
                     throw;
                 }
@@ -4258,11 +4283,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
+            public int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "getAllLogins", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPEntry[] loginsHolder__ = null;
+                KeeICE.KPlib.KPEntry[] loginsHolder__ = null;
                 int result__ = 0;
                 Ice.UserException userException__ = null;
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
@@ -4305,7 +4330,7 @@ namespace KeeICE
                         direct__.destroy();
                     }
                 }
-                catch(KeeICE.KFlib.KeeICEException)
+                catch(KeeICE.KPlib.KeeICEException)
                 {
                     throw;
                 }
@@ -4321,11 +4346,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "getChildEntries", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPEntry[] result__ = null;
+                KeeICE.KPlib.KPEntry[] result__ = null;
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
                     KP servant__ = null;
@@ -4365,11 +4390,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "getChildGroups", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPGroup[] result__ = null;
+                KeeICE.KPlib.KPGroup[] result__ = null;
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
                     KP servant__ = null;
@@ -4409,11 +4434,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KFConfiguration getCurrentKFConfig(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "getCurrentKFConfig", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KFConfiguration result__ = new KeeICE.KFlib.KFConfiguration();
+                KeeICE.KPlib.KFConfiguration result__ = new KeeICE.KPlib.KFConfiguration();
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
                     KP servant__ = null;
@@ -4541,11 +4566,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public KeeICE.KFlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup getParent(string uuid, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "getParent", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPGroup result__ = new KeeICE.KFlib.KPGroup();
+                KeeICE.KPlib.KPGroup result__ = new KeeICE.KPlib.KPGroup();
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
                     KP servant__ = null;
@@ -4585,11 +4610,11 @@ namespace KeeICE
                 return result__;
             }
 
-            public KeeICE.KFlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__)
+            public KeeICE.KPlib.KPGroup getRoot(_System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "getRoot", Ice.OperationMode.Normal, context__);
-                KeeICE.KFlib.KPGroup result__ = new KeeICE.KFlib.KPGroup();
+                KeeICE.KPlib.KPGroup result__ = new KeeICE.KPlib.KPGroup();
                 IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)
                 {
                     KP servant__ = null;
@@ -4761,7 +4786,7 @@ namespace KeeICE
                 return result__;
             }
 
-            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
+            public bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, _System.Collections.Generic.Dictionary<string, string> context__)
             {
                 Ice.Current current__ = new Ice.Current();
                 initCurrent__(ref current__, "setCurrentKFConfig", Ice.OperationMode.Normal, context__);
@@ -4855,7 +4880,7 @@ namespace KeeICE
 
 namespace KeeICE
 {
-    namespace KFlib
+    namespace KPlib
     {
         public abstract class KPDisp_ : Ice.ObjectImpl, KP
         {
@@ -4889,40 +4914,40 @@ namespace KeeICE
 
             public abstract void changeDatabase(string fileName, bool closeCurrent, Ice.Current current__);
 
-            public KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID)
+            public KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID)
             {
                 return AddLogin(login, parentUUID, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KPEntry AddLogin(KeeICE.KFlib.KPEntry login, string parentUUID, Ice.Current current__);
+            public abstract KeeICE.KPlib.KPEntry AddLogin(KeeICE.KPlib.KPEntry login, string parentUUID, Ice.Current current__);
 
-            public void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin)
+            public void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin)
             {
                 ModifyLogin(oldLogin, newLogin, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract void ModifyLogin(KeeICE.KFlib.KPEntry oldLogin, KeeICE.KFlib.KPEntry newLogin, Ice.Current current__);
+            public abstract void ModifyLogin(KeeICE.KPlib.KPEntry oldLogin, KeeICE.KPlib.KPEntry newLogin, Ice.Current current__);
 
-            public int getAllLogins(out KeeICE.KFlib.KPEntry[] logins)
+            public int getAllLogins(out KeeICE.KPlib.KPEntry[] logins)
             {
                 return getAllLogins(out logins, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract int getAllLogins(out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
+            public abstract int getAllLogins(out KeeICE.KPlib.KPEntry[] logins, Ice.Current current__);
 
-            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins)
+            public int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins)
             {
                 return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, out logins, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KFlib.KPEntry[] logins, Ice.Current current__);
+            public abstract int findLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KeeICE.KPlib.KPEntry[] logins, Ice.Current current__);
 
-            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches)
+            public int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches)
             {
                 return countLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KFlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__);
+            public abstract int countLogins(string hostname, string actionURL, string httpRealm, KeeICE.KPlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__);
 
             public void addClient(Ice.Identity ident)
             {
@@ -4931,47 +4956,47 @@ namespace KeeICE
 
             public abstract void addClient(Ice.Identity ident, Ice.Current current__);
 
-            public int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups)
+            public int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups)
             {
                 return findGroups(name, uuid, out groups, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract int findGroups(string name, string uuid, out KeeICE.KFlib.KPGroup[] groups, Ice.Current current__);
+            public abstract int findGroups(string name, string uuid, out KeeICE.KPlib.KPGroup[] groups, Ice.Current current__);
 
-            public KeeICE.KFlib.KPGroup getRoot()
+            public KeeICE.KPlib.KPGroup getRoot()
             {
                 return getRoot(Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KPGroup getRoot(Ice.Current current__);
+            public abstract KeeICE.KPlib.KPGroup getRoot(Ice.Current current__);
 
-            public KeeICE.KFlib.KPGroup getParent(string uuid)
+            public KeeICE.KPlib.KPGroup getParent(string uuid)
             {
                 return getParent(uuid, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KPGroup getParent(string uuid, Ice.Current current__);
+            public abstract KeeICE.KPlib.KPGroup getParent(string uuid, Ice.Current current__);
 
-            public KeeICE.KFlib.KPGroup[] getChildGroups(string uuid)
+            public KeeICE.KPlib.KPGroup[] getChildGroups(string uuid)
             {
                 return getChildGroups(uuid, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__);
+            public abstract KeeICE.KPlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__);
 
-            public KeeICE.KFlib.KPEntry[] getChildEntries(string uuid)
+            public KeeICE.KPlib.KPEntry[] getChildEntries(string uuid)
             {
                 return getChildEntries(uuid, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__);
+            public abstract KeeICE.KPlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__);
 
-            public KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid)
+            public KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid)
             {
                 return addGroup(name, parentUuid, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KPGroup addGroup(string name, string parentUuid, Ice.Current current__);
+            public abstract KeeICE.KPlib.KPGroup addGroup(string name, string parentUuid, Ice.Current current__);
 
             public bool removeGroup(string uuid)
             {
@@ -5001,19 +5026,19 @@ namespace KeeICE
 
             public abstract void LaunchLoginEditor(string uuid, Ice.Current current__);
 
-            public KeeICE.KFlib.KFConfiguration getCurrentKFConfig()
+            public KeeICE.KPlib.KFConfiguration getCurrentKFConfig()
             {
                 return getCurrentKFConfig(Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract KeeICE.KFlib.KFConfiguration getCurrentKFConfig(Ice.Current current__);
+            public abstract KeeICE.KPlib.KFConfiguration getCurrentKFConfig(Ice.Current current__);
 
-            public bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config)
+            public bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config)
             {
                 return setCurrentKFConfig(config, Ice.ObjectImpl.defaultCurrent);
             }
 
-            public abstract bool setCurrentKFConfig(KeeICE.KFlib.KFConfiguration config, Ice.Current current__);
+            public abstract bool setCurrentKFConfig(KeeICE.KPlib.KFConfiguration config, Ice.Current current__);
 
             public bool setCurrentDBRootGroup(string uuid)
             {
@@ -5029,7 +5054,7 @@ namespace KeeICE
             public static new string[] ids__ = 
             {
                 "::Ice::Object",
-                "::KeeICE::KFlib::KP"
+                "::KeeICE::KPlib::KP"
             };
 
             public override bool ice_isA(string s)
@@ -5128,11 +5153,11 @@ namespace KeeICE
                 checkMode__(Ice.OperationMode.Normal, current__.mode);
                 IceInternal.BasicStream is__ = inS__.istr();
                 is__.startReadEncaps();
-                KeeICE.KFlib.KPEntry login;
+                KeeICE.KPlib.KPEntry login;
                 login = null;
                 if(login == null)
                 {
-                    login = new KeeICE.KFlib.KPEntry();
+                    login = new KeeICE.KPlib.KPEntry();
                 }
                 login.read__(is__);
                 string parentUUID;
@@ -5141,10 +5166,10 @@ namespace KeeICE
                 IceInternal.BasicStream os__ = inS__.ostr();
                 try
                 {
-                    KeeICE.KFlib.KPEntry ret__ = obj__.AddLogin(login, parentUUID, current__);
+                    KeeICE.KPlib.KPEntry ret__ = obj__.AddLogin(login, parentUUID, current__);
                     if(ret__ == null)
                     {
-                        KeeICE.KFlib.KPEntry tmp__ = new KeeICE.KFlib.KPEntry();
+                        KeeICE.KPlib.KPEntry tmp__ = new KeeICE.KPlib.KPEntry();
                         tmp__.write__(os__);
                     }
                     else
@@ -5153,7 +5178,7 @@ namespace KeeICE
                     }
                     return Ice.DispatchStatus.DispatchOK;
                 }
-                catch(KeeICE.KFlib.KeeICEException ex)
+                catch(KeeICE.KPlib.KeeICEException ex)
                 {
                     os__.writeUserException(ex);
                     return Ice.DispatchStatus.DispatchUserException;
@@ -5165,18 +5190,18 @@ namespace KeeICE
                 checkMode__(Ice.OperationMode.Normal, current__.mode);
                 IceInternal.BasicStream is__ = inS__.istr();
                 is__.startReadEncaps();
-                KeeICE.KFlib.KPEntry oldLogin;
+                KeeICE.KPlib.KPEntry oldLogin;
                 oldLogin = null;
                 if(oldLogin == null)
                 {
-                    oldLogin = new KeeICE.KFlib.KPEntry();
+                    oldLogin = new KeeICE.KPlib.KPEntry();
                 }
                 oldLogin.read__(is__);
-                KeeICE.KFlib.KPEntry newLogin;
+                KeeICE.KPlib.KPEntry newLogin;
                 newLogin = null;
                 if(newLogin == null)
                 {
-                    newLogin = new KeeICE.KFlib.KPEntry();
+                    newLogin = new KeeICE.KPlib.KPEntry();
                 }
                 newLogin.read__(is__);
                 is__.endReadEncaps();
@@ -5186,7 +5211,7 @@ namespace KeeICE
                     obj__.ModifyLogin(oldLogin, newLogin, current__);
                     return Ice.DispatchStatus.DispatchOK;
                 }
-                catch(KeeICE.KFlib.KeeICEException ex)
+                catch(KeeICE.KPlib.KeeICEException ex)
                 {
                     os__.writeUserException(ex);
                     return Ice.DispatchStatus.DispatchUserException;
@@ -5197,7 +5222,7 @@ namespace KeeICE
             {
                 checkMode__(Ice.OperationMode.Normal, current__.mode);
                 inS__.istr().skipEmptyEncaps();
-                KeeICE.KFlib.KPEntry[] logins;
+                KeeICE.KPlib.KPEntry[] logins;
                 IceInternal.BasicStream os__ = inS__.ostr();
                 try
                 {
@@ -5211,13 +5236,13 @@ namespace KeeICE
                         os__.writeSize(logins.Length);
                         for(int ix__ = 0; ix__ < logins.Length; ++ix__)
                         {
-                            (logins == null ? new KeeICE.KFlib.KPEntry() : logins[ix__]).write__(os__);
+                            (logins == null ? new KeeICE.KPlib.KPEntry() : logins[ix__]).write__(os__);
                         }
                     }
                     os__.writeInt(ret__);
                     return Ice.DispatchStatus.DispatchOK;
                 }
-                catch(KeeICE.KFlib.KeeICEException ex)
+                catch(KeeICE.KPlib.KeeICEException ex)
                 {
                     os__.writeUserException(ex);
                     return Ice.DispatchStatus.DispatchUserException;
@@ -5235,14 +5260,14 @@ namespace KeeICE
                 actionURL = is__.readString();
                 string httpRealm;
                 httpRealm = is__.readString();
-                KeeICE.KFlib.loginSearchType lst;
-                lst = (KeeICE.KFlib.loginSearchType)is__.readByte(3);
+                KeeICE.KPlib.loginSearchType lst;
+                lst = (KeeICE.KPlib.loginSearchType)is__.readByte(3);
                 bool requireFullURLMatches;
                 requireFullURLMatches = is__.readBool();
                 string uniqueID;
                 uniqueID = is__.readString();
                 is__.endReadEncaps();
-                KeeICE.KFlib.KPEntry[] logins;
+                KeeICE.KPlib.KPEntry[] logins;
                 IceInternal.BasicStream os__ = inS__.ostr();
                 try
                 {
@@ -5256,13 +5281,13 @@ namespace KeeICE
                         os__.writeSize(logins.Length);
                         for(int ix__ = 0; ix__ < logins.Length; ++ix__)
                         {
-                            (logins == null ? new KeeICE.KFlib.KPEntry() : logins[ix__]).write__(os__);
+                            (logins == null ? new KeeICE.KPlib.KPEntry() : logins[ix__]).write__(os__);
                         }
                     }
                     os__.writeInt(ret__);
                     return Ice.DispatchStatus.DispatchOK;
                 }
-                catch(KeeICE.KFlib.KeeICEException ex)
+                catch(KeeICE.KPlib.KeeICEException ex)
                 {
                     os__.writeUserException(ex);
                     return Ice.DispatchStatus.DispatchUserException;
@@ -5280,8 +5305,8 @@ namespace KeeICE
                 actionURL = is__.readString();
                 string httpRealm;
                 httpRealm = is__.readString();
-                KeeICE.KFlib.loginSearchType lst;
-                lst = (KeeICE.KFlib.loginSearchType)is__.readByte(3);
+                KeeICE.KPlib.loginSearchType lst;
+                lst = (KeeICE.KPlib.loginSearchType)is__.readByte(3);
                 bool requireFullURLMatches;
                 requireFullURLMatches = is__.readBool();
                 is__.endReadEncaps();
@@ -5292,7 +5317,7 @@ namespace KeeICE
                     os__.writeInt(ret__);
                     return Ice.DispatchStatus.DispatchOK;
                 }
-                catch(KeeICE.KFlib.KeeICEException ex)
+                catch(KeeICE.KPlib.KeeICEException ex)
                 {
                     os__.writeUserException(ex);
                     return Ice.DispatchStatus.DispatchUserException;
@@ -5326,7 +5351,7 @@ namespace KeeICE
                 string uuid;
                 uuid = is__.readString();
                 is__.endReadEncaps();
-                KeeICE.KFlib.KPGroup[] groups;
+                KeeICE.KPlib.KPGroup[] groups;
                 IceInternal.BasicStream os__ = inS__.ostr();
                 int ret__ = obj__.findGroups(name, uuid, out groups, current__);
                 if(groups == null)
@@ -5338,7 +5363,7 @@ namespace KeeICE
                     os__.writeSize(groups.Length);
                     for(int ix__ = 0; ix__ < groups.Length; ++ix__)
                     {
-                        (groups == null ? new KeeICE.KFlib.KPGroup() : groups[ix__]).write__(os__);
+                        (groups == null ? new KeeICE.KPlib.KPGroup() : groups[ix__]).write__(os__);
                     }
                 }
                 os__.writeInt(ret__);
@@ -5350,10 +5375,10 @@ namespace KeeICE
                 checkMode__(Ice.OperationMode.Normal, current__.mode);
                 inS__.istr().skipEmptyEncaps();
                 IceInternal.BasicStream os__ = inS__.ostr();
-                KeeICE.KFlib.KPGroup ret__ = obj__.getRoot(current__);
+                KeeICE.KPlib.KPGroup ret__ = obj__.getRoot(current__);
                 if(ret__ == null)
                 {
-                    KeeICE.KFlib.KPGroup tmp__ = new KeeICE.KFlib.KPGroup();
+                    KeeICE.KPlib.KPGroup tmp__ = new KeeICE.KPlib.KPGroup();
                     tmp__.write__(os__);
                 }
                 else
@@ -5372,10 +5397,10 @@ namespace KeeICE
                 uuid = is__.readString();
                 is__.endReadEncaps();
                 IceInternal.BasicStream os__ = inS__.ostr();
-                KeeICE.KFlib.KPGroup ret__ = obj__.getParent(uuid, current__);
+                KeeICE.KPlib.KPGroup ret__ = obj__.getParent(uuid, current__);
                 if(ret__ == null)
                 {
-                    KeeICE.KFlib.KPGroup tmp__ = new KeeICE.KFlib.KPGroup();
+                    KeeICE.KPlib.KPGroup tmp__ = new KeeICE.KPlib.KPGroup();
                     tmp__.write__(os__);
                 }
                 else
@@ -5394,7 +5419,7 @@ namespace KeeICE
                 uuid = is__.readString();
                 is__.endReadEncaps();
                 IceInternal.BasicStream os__ = inS__.ostr();
-                KeeICE.KFlib.KPGroup[] ret__ = obj__.getChildGroups(uuid, current__);
+                KeeICE.KPlib.KPGroup[] ret__ = obj__.getChildGroups(uuid, current__);
                 if(ret__ == null)
                 {
                     os__.writeSize(0);
@@ -5404,7 +5429,7 @@ namespace KeeICE
                     os__.writeSize(ret__.Length);
                     for(int ix__ = 0; ix__ < ret__.Length; ++ix__)
                     {
-                        (ret__ == null ? new KeeICE.KFlib.KPGroup() : ret__[ix__]).write__(os__);
+                        (ret__ == null ? new KeeICE.KPlib.KPGroup() : ret__[ix__]).write__(os__);
                     }
                 }
                 return Ice.DispatchStatus.DispatchOK;
@@ -5419,7 +5444,7 @@ namespace KeeICE
                 uuid = is__.readString();
                 is__.endReadEncaps();
                 IceInternal.BasicStream os__ = inS__.ostr();
-                KeeICE.KFlib.KPEntry[] ret__ = obj__.getChildEntries(uuid, current__);
+                KeeICE.KPlib.KPEntry[] ret__ = obj__.getChildEntries(uuid, current__);
                 if(ret__ == null)
                 {
                     os__.writeSize(0);
@@ -5429,7 +5454,7 @@ namespace KeeICE
                     os__.writeSize(ret__.Length);
                     for(int ix__ = 0; ix__ < ret__.Length; ++ix__)
                     {
-                        (ret__ == null ? new KeeICE.KFlib.KPEntry() : ret__[ix__]).write__(os__);
+                        (ret__ == null ? new KeeICE.KPlib.KPEntry() : ret__[ix__]).write__(os__);
                     }
                 }
                 return Ice.DispatchStatus.DispatchOK;
@@ -5446,10 +5471,10 @@ namespace KeeICE
                 parentUuid = is__.readString();
                 is__.endReadEncaps();
                 IceInternal.BasicStream os__ = inS__.ostr();
-                KeeICE.KFlib.KPGroup ret__ = obj__.addGroup(name, parentUuid, current__);
+                KeeICE.KPlib.KPGroup ret__ = obj__.addGroup(name, parentUuid, current__);
                 if(ret__ == null)
                 {
-                    KeeICE.KFlib.KPGroup tmp__ = new KeeICE.KFlib.KPGroup();
+                    KeeICE.KPlib.KPGroup tmp__ = new KeeICE.KPlib.KPGroup();
                     tmp__.write__(os__);
                 }
                 else
@@ -5516,10 +5541,10 @@ namespace KeeICE
                 checkMode__(Ice.OperationMode.Normal, current__.mode);
                 inS__.istr().skipEmptyEncaps();
                 IceInternal.BasicStream os__ = inS__.ostr();
-                KeeICE.KFlib.KFConfiguration ret__ = obj__.getCurrentKFConfig(current__);
+                KeeICE.KPlib.KFConfiguration ret__ = obj__.getCurrentKFConfig(current__);
                 if(ret__ == null)
                 {
-                    KeeICE.KFlib.KFConfiguration tmp__ = new KeeICE.KFlib.KFConfiguration();
+                    KeeICE.KPlib.KFConfiguration tmp__ = new KeeICE.KPlib.KFConfiguration();
                     tmp__.write__(os__);
                 }
                 else
@@ -5534,11 +5559,11 @@ namespace KeeICE
                 checkMode__(Ice.OperationMode.Normal, current__.mode);
                 IceInternal.BasicStream is__ = inS__.istr();
                 is__.startReadEncaps();
-                KeeICE.KFlib.KFConfiguration config;
+                KeeICE.KPlib.KFConfiguration config;
                 config = null;
                 if(config == null)
                 {
-                    config = new KeeICE.KFlib.KFConfiguration();
+                    config = new KeeICE.KPlib.KFConfiguration();
                 }
                 config.read__(is__);
                 is__.endReadEncaps();
@@ -5743,14 +5768,14 @@ namespace KeeICE
             public override void write__(Ice.OutputStream outS__)
             {
                 Ice.MarshalException ex = new Ice.MarshalException();
-                ex.reason = "type KeeICE::KFlib::KP was not generated with stream support";
+                ex.reason = "type KeeICE::KPlib::KP was not generated with stream support";
                 throw ex;
             }
 
             public override void read__(Ice.InputStream inS__, bool rid__)
             {
                 Ice.MarshalException ex = new Ice.MarshalException();
-                ex.reason = "type KeeICE::KFlib::KP was not generated with stream support";
+                ex.reason = "type KeeICE::KPlib::KP was not generated with stream support";
                 throw ex;
             }
 
@@ -5775,7 +5800,7 @@ namespace KeeICE
             public static new string[] ids__ = 
             {
                 "::Ice::Object",
-                "::KeeICE::KFlib::CallbackReceiver"
+                "::KeeICE::KPlib::CallbackReceiver"
             };
 
             public override bool ice_isA(string s)
@@ -5900,14 +5925,14 @@ namespace KeeICE
             public override void write__(Ice.OutputStream outS__)
             {
                 Ice.MarshalException ex = new Ice.MarshalException();
-                ex.reason = "type KeeICE::KFlib::CallbackReceiver was not generated with stream support";
+                ex.reason = "type KeeICE::KPlib::CallbackReceiver was not generated with stream support";
                 throw ex;
             }
 
             public override void read__(Ice.InputStream inS__, bool rid__)
             {
                 Ice.MarshalException ex = new Ice.MarshalException();
-                ex.reason = "type KeeICE::KFlib::CallbackReceiver was not generated with stream support";
+                ex.reason = "type KeeICE::KPlib::CallbackReceiver was not generated with stream support";
                 throw ex;
             }
 

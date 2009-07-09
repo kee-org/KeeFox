@@ -1,0 +1,23 @@
+This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
+
+0.7
+---
+
+- Improved testing system, including a variety of test HTML pages to aid manual quality control before official releases.
+- Reduced number of threads required by the ICE connection routine and squashed some concurrency / deadlock bugs
+- Multiple page logins
+- Multiple other fields per form (text, radio, checkbox, select)
+- Multiple passwords per form
+- Minimum Firefox version raised to 3.06 due to bug in <= 3.05 (KeeFox should still work in those browsers but it won't install as easily)
+- Now requires KeePass 2.08
+- Active database can be changed from within Firefox (choose from any of KeePass' most recently used databases)
+- Delete from Firefox now puts the entry into the recycle bin (if configured by user in KeePass)
+- Started tidying some code - e.g. lots of documentation comments and removing commented code secions I now know will be of no use.
+- Added support for multiple URL matches with one login (a pre-requesite of multi-page login pages but may also be useful for sites such as live.com / hotmail.com). There is no Firefox interface to configure manual URL equivelances - just edit the custom space-seperated string in KeePass. (spaces in URLs must be correctly encoded to + or %20)
+- Changed the preliminary website domain to keefox.org becuase that is now available and it will help users spot that it is not the same as keepass.info. There shouldn't be anyone using keefox.info but I'll redirect any relevant requests for a while just in case.
+
+
+0.1 to 0.6
+----------
+
+See the historic posts on http://keefox.org or http://christomlinson.name for earlier change logs.

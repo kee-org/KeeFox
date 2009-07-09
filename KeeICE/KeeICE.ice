@@ -29,7 +29,7 @@
 #endif
 
 module KeeICE {
-module KFlib {
+module KPlib {
     
     enum loginSearchType { LSTall, LSTnoForms, LSTnoRealms };
     enum formFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox }; // ..., HTML 5, etc.
@@ -41,7 +41,8 @@ module KFlib {
 		string displayName;
 		string value;
 		formFieldType type;
-		string id; // this is missing!!!
+		string id;
+		int page;
 		//compulsory, multiple selections,useful javascript functions?
     };
     
@@ -55,9 +56,11 @@ module KFlib {
     
     sequence<KPGroup> KPGroupList;
     
+    sequence<string> KPURLs;
+    
     struct KPEntry
     {
-		string URL;
+		KPURLs URLs;
 		string formActionURL;
 		string HTTPRealm;
 		string title;
@@ -65,6 +68,8 @@ module KFlib {
 		bool default; // for this hostname
 		bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between KeeICE clients or vary based on specific use cases in the client)
 		string uniqueID;
+		//KPAlternativeURLs alternativeURLs;
+		
 		// long priority (remove "default") "KeeFox config: priority = 1" (1 = 30000 relevancy score, 2 = 29999 relevancy score)
 		// bool ignore "KeeFox config: ignore"
 		// long autoTypeWhen "KeeFox config: autoType after page 2" (after/before or > / <) (page # or # seconds or #ms)

@@ -52,13 +52,57 @@ this.log(form);
         this.log(URL);
         var formActionURL = this._getActionOrigin(form);
         var title = doc.title;
+        
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                    .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(doc)];
 
         //if (!this.getLoginSavingEnabled(hostname)) {
         //    this.log("(form submission ignored -- saving is " +
         //             "disabled for: " + hostname + ")");
         //    return;
         //}
-
+        
+        // This variable is set originally by user via menu "start recording" or notification bar "make multi-page"
+        var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
+        var savePageCountToTab = true;
+        
+        // If this tab has not already recorded the page count, we continue ignoring it.
+        // User can start the count by selecting "multi-page login" on the notification bar
+        // User cancels (removes TabValue) by cancelling or saving from the notification bar
+        // Also cancelled automatically if form count goes beyond 10 (in case user
+        // ignores notification bar and starts filling in search forms or something)
+        if (currentPage == undefined || currentPage == null || currentPage.length <= 0 || currentPage <= 0)
+        {
+            currentPage = 1;
+            //savePageCountToTab = false;
+        } else if (currentPage >= 10)
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+            currentPage = 1;
+            savePageCountToTab = false;
+        }
+        
+        // if this tab has an uniqueID associated with it, we know that the only
+        // way we could be dealing with a new password / login is if the user selected
+        // a matched login and edited the form before submitting the change (e.g. using it
+        // as a template to create a similar login). I can't see an easy way to produce
+        // a fool-proof decision in this area so this rare situation will have to
+        // remain an unsupported behaviour for the time being at least.
+        // Previously we have compared the submitted data with that already stored in the
+        // database but this is more dificult now that users may be submitting only part of the form
+        
+        var currentTabUniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
+        var existingLogin = false;
+        
+        
+        if (currentTabUniqueID != undefined && currentTabUniqueID != null && currentTabUniqueID.length > 0)
+            existingLogin = true;
+        
         // Get the appropriate fields from the form.
         
         var newPasswordField, oldPasswordField;
@@ -68,24 +112,18 @@ this.log(form);
         
         // there must be at least one password or otherField
         var [usernameIndex, passwords, otherFields] =
-            this._getFormFields(form, true);
+            this._getFormFields(form, true, currentPage);
         this.log(URL);
-        if (false) //TODO: implement test for "is a multi-page login"
-        {
-            this.log("This form submission is part of a multi-page login process.");
-            //TODO: store current formfield data
-            
-            // ask the user if they want to save currently stored data (or discard it all)
-            
-            return;
-        }
         
-        // Need at least 1 valid password field to handle a single page submision.
+        // Need at least 1 valid password field to handle a submision unless the user has
+        // stated that the form should be captured. Otherwise we will end up prompting
+        // the user to create entries every time they search google, etc.
         if (passwords == null || passwords[0] == null || passwords[0] == undefined)
         {
             this.log("No password field found in form submission.");
             return;
         }
+        
         this.log(URL);
         
         if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
@@ -97,7 +135,7 @@ this.log(form);
                 for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
                     if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
             
-            if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup
+            if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
             {
                 
                 this.log("multiple passwords found (with no identical values)");
@@ -144,25 +182,49 @@ this.log(form);
                       Components.interfaces.kfILoginInfo);
                       
         var formLogin = new kfLoginInfo;
-    
-      /*  if (otherFields != null && otherFields != undefined)
-        {
-            formLogin.initOther(URL, formActionURL, null,
-                usernameIndex,
-                passwordFields, null, title, otherFields);
-            this.log("login object initialised with custom data");
-        } else
-        {*/
         
         var otherFieldsNSMutableArray = Components.classes["@mozilla.org/array;1"]
                         .createInstance(Components.interfaces.nsIMutableArray);
         for (i=0; i < otherFields.length; i++)
             otherFieldsNSMutableArray.appendElement(otherFields[i],false);
+            
+        var loginURLs = Components.classes["@mozilla.org/array;1"]
+                    .createInstance(Components.interfaces.nsIMutableArray);
+        var loginURL = Components.classes["@christomlinson.name/kfURL;1"]
+                    .createInstance(Components.interfaces.kfIURL);
+        loginURL.URL = URL;
+        loginURLs.appendElement(loginURL,false);
         
-            formLogin.init(URL, formActionURL, null,
-                usernameIndex,
-                passwordFields, null, title, otherFieldsNSMutableArray);
-                
+        formLogin.init(loginURLs, formActionURL, null,
+            usernameIndex,
+            passwordFields, null, title, otherFieldsNSMutableArray, currentPage);
+        
+        // if we still don't think this is an existing loging and the user is logged in,
+        // we might as well check to see if the form they have filled in 
+        // matches any existing password and not bother showing the notification bar if that's the case.
+        // This will still be tripped up by multi-page logins becuase no single page can match the entire
+        // stored login but hopefully people will use KeeFox to fill out multi-page logins generally
+        // so the uniqueID will be set
+        if (!existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+        {
+            var logins = this.findLogins({}, URL, formActionURL, null, null);
+   
+            if (logins != undefined && logins != null)
+            {
+            this.log("mathing test: "+logins.length);
+            
+                for (var i = 0; i < logins.length; i++)
+                {
+                    if (formLogin.matches(logins[i],false,false,false,false))
+                        existingLogin = true;
+                }
+            }
+        }
+        
+        /*
+        Don't think we need any of this while we are basing decision regarding new
+        or existing password on existance of tab variables rather than KeePass database contents...        
+        
         this.log(URL);
         // Look for an existing login that matches the form login.
         var existingLogin = null;
@@ -170,7 +232,7 @@ this.log(form);
         this.log(URL);
         // if user was not logged in and cancelled the login process, we can't
         // proceed (becuase all passwords will appear to be new)
-        // rather than use the normal storage variable, I'm going to the source (KeICE)
+        // rather than use the normal storage variable, I'm going to the source (KeeICE)
         // just to cover situations where this thread reaches this point before the usual
         // variable has been updated.
         var dbName = this._kf.getDatabaseName();
@@ -180,6 +242,7 @@ this.log(form);
             this.log("User did not successfully open a KeePass database. Aborting password save procedure.");
             return;
         }
+        */
         
         // discover the usernames for the submitted form
         var formLoginUsername = null;
@@ -189,7 +252,10 @@ this.log(form);
             formLoginUsername = temp.value;
             this.log("formLoginUsername: " + formLoginUsername);
         }
-                    
+        
+        /*
+        This for loop could be ressurrected if we ever enable some way to reliably compare logins for multi-page forms...
+        
         for (var i = 0; i < logins.length; i++)
         {
             var same, login = logins[i];
@@ -209,7 +275,7 @@ this.log(form);
             
             if (oldPasswordField != null)
                  same = formLogin.matches(login, true, true, true, true);
-            /*if (!login.usernameIndex && formLogin.username) {
+            \*if (!login.usernameIndex && formLogin.username) {
                 var restoreMe = formLogin.username;
                 formLogin.username = ""; 
                 same = formLogin.matches(login, true, true, true);
@@ -218,7 +284,7 @@ this.log(form);
                 formLogin.username = login.username;
                 same = formLogin.matches(login, true, true, true);
                 formLogin.username = null; // we know it's always null.
-            } else {*/
+            } else {*\
             else if (loginUsername == null || formLoginUsername == null)
                  same = formLogin.matches(login, false, true, true, true);
             else
@@ -230,7 +296,7 @@ this.log(form);
                 existingLogin = login;
                 break;
             }
-        }
+        }*/
 
         if (oldPasswordField != null) // we are changing the password
         {
@@ -268,14 +334,149 @@ this.log(form);
         
         // if we get to this stage, we are faced with a new login or signup submission so prompt user to save details
         this.log("password is not recognised so prompting user to save it");
+        
+        // set the tab value ready for the next time the page loads
+        //TODO: how do we "cancel" this so that the page count is reset when the next login/signup process begins?
+        // maybe when user clicks on the notify bar to save password or "not now"?
+        var nextPage = currentPage + 1;
+       
+        // If this is the 2nd (or later) part of a multi-page login form, we need to combine the new field items with the previous login data
+        if (nextPage > 2)
+        {
+            this.log("This form submission is part of a multi-page login process.");
+            
+            
+            var previousStageLoginMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
+            var previousStageLoginURLs = ss.getTabValue(currentTab, "KF_recordFormCurrentStateURLs");
+            var previousStageLoginPasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+            var previousStageLoginOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+            
+            var kfLoginField = new Components.Constructor(
+                      "@christomlinson.name/kfLoginField;1",
+                      Components.interfaces.kfILoginField);
+                      
+            var kfURL = new Components.Constructor(
+                      "@christomlinson.name/kfURL;1",
+                      Components.interfaces.kfIURL);
+                 
+                 var deserialisedOutputOtherFields = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+                     
+            if (previousStageLoginOtherFields != undefined && previousStageLoginOtherFields != null)
+            { 
+                
+                this.log("ev1: "+previousStageLoginOtherFields);
+                eval (previousStageLoginOtherFields);
+            }
+                
+                var deserialisedOutputPasswords = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
 
+            if (previousStageLoginPasswords != undefined && previousStageLoginPasswords != null)
+            { 
+                
+                this.log("ev2: "+previousStageLoginPasswords);
+                eval (previousStageLoginPasswords);
+            }
+            
+            var deserialisedOutputURLs = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+            
+            if (previousStageLoginURLs != undefined && previousStageLoginURLs != null)
+            { 
+                
+
+                this.log("ev3: "+previousStageLoginURLs);
+                eval (previousStageLoginURLs);
+            }
+ 
+ var previousStageLogin = new kfLoginInfo;
+               
+            if (previousStageLoginMain != undefined && previousStageLoginMain != null)
+            { 
+                
+ 
+                this.log("ev4: "+previousStageLoginMain);
+                eval ("previousStageLogin.init"+previousStageLoginMain);
+            }
+
+            
+            //var previousStageLogin = ss.getTabValue(currentTab, "KF_recordFormCurrentState");
+        
+            // set the tab value ready for the next time the page loads
+            //TODO: how do we "cancel" this so that the page count is reset when the next login/signup process begins?
+            if (previousStageLogin != undefined && previousStageLogin != null)
+            {   
+                previousStageLogin.mergeWith(formLogin);
+                formLogin = previousStageLogin;
+            }
+        }
+        this.log("t1");
         // Prompt user to save login (via dialog or notification bar)
         //this.log("orig window has name:" + win.name);
         keeFoxUI.setWindow(win);
         keeFoxUI.setDocument(doc);
+        this.log("t2");
         // why is forLogin.password broken here? look at dos console? original input? form field identification?
         //this.log("details1:" + formLogin.username + ":" + formLogin.password + ":" );
-        keeFoxUI.promptToSavePassword(formLogin);
+        
+        //this.log(formLogin.toSource());
+        
+        
+        var otherFieldsSerialsed = "";            
+        for (j = 0; j < formLogin.otherFields.length; j++)
+        {
+            var matchedField = 
+            formLogin.otherFields.queryElementAt(j,Components.interfaces.kfILoginField);
+            otherFieldsSerialsed += "var tempOutputOtherField"+ j + " = new kfLoginField; tempOutputOtherField"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputOtherFields.appendElement(tempOutputOtherField"+ j + ",false); ";
+        }
+                
+        this.log("ev1: "+otherFieldsSerialsed);
+                      
+        var passwordsSerialsed = "";            
+        for (j = 0; j < formLogin.passwords.length; j++)
+        {
+            var matchedField = 
+            formLogin.passwords.queryElementAt(j,Components.interfaces.kfILoginField);
+            passwordsSerialsed += "var tempOutputPassword"+ j + " = new kfLoginField; tempOutputPassword"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputPasswords.appendElement(tempOutputPassword"+ j + ",false); ";
+        }
+        
+        this.log("ev2: "+passwordsSerialsed);
+
+        var URLsSerialsed = "";            
+        for (j = 0; j < formLogin.URLs.length; j++)
+        {
+            var matchedURL = 
+            formLogin.URLs.queryElementAt(j,Components.interfaces.kfIURL);
+            URLsSerialsed += "var tempOutputURL"+ j + " = new kfURL; tempOutputURL"+ j + ".URL='" + matchedURL.URL + "'; deserialisedOutputURLs.appendElement(tempOutputURL"+ j + ",false); ";
+        }
+        
+        this.log("ev3: "+URLsSerialsed);
+       
+       finalEval = formLogin.toSource()
+       this.log("ev4: "+finalEval);
+
+        // we save the current state no matter what, just in case user
+        // does decide to convert this into a multi-page login
+        ss.setTabValue(currentTab, "KF_recordFormCurrentStateURLs", URLsSerialsed);
+        ss.setTabValue(currentTab, "KF_recordFormCurrentStatePasswords", passwordsSerialsed);
+        ss.setTabValue(currentTab, "KF_recordFormCurrentStateOtherFields", otherFieldsSerialsed);
+        ss.setTabValue(currentTab, "KF_recordFormCurrentStateMain", finalEval);
+        
+        if (savePageCountToTab)
+        {
+            ss.setTabValue(currentTab, "KF_recordFormCurrentPage", nextPage);
+        } 
+        
+        if (nextPage > 2)
+        {
+            keeFoxUI.promptToSavePassword(formLogin, true);
+        } else
+        {
+            keeFoxUI.promptToSavePassword(formLogin, false);
+        }
+        
+        
         //this.log("details2:" + formLogin.username + ":" + formLogin.password + ":" );
         
         

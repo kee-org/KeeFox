@@ -42,7 +42,7 @@ using KeePassLib.Serialization;
 
 namespace KeeICE
 {
-    public class KPI : KFlib.KPDisp_
+    public class KPI : KPlib.KPDisp_
     {
 
 #region Class variables, constructor and destructor
@@ -155,7 +155,7 @@ namespace KeeICE
 
                     if (clients.Count > 0)
                     {
-                        foreach (KeeICE.KFlib.CallbackReceiverPrx c in clients)
+                        foreach (KeeICE.KPlib.CallbackReceiverPrx c in clients)
                         {
                             try
                             {
@@ -186,7 +186,7 @@ namespace KeeICE
                 System.Console.Out.WriteLine("adding client `" + _communicator.identityToString(ident) + "'");
 
                 Ice.ObjectPrx @base = current.con.createProxy(ident);
-                KeeICE.KFlib.CallbackReceiverPrx client = KeeICE.KFlib.CallbackReceiverPrxHelper.uncheckedCast(@base);
+                KeeICE.KPlib.CallbackReceiverPrx client = KeeICE.KPlib.CallbackReceiverPrxHelper.uncheckedCast(@base);
                 _clients.Add(client);
             }
         }
@@ -212,13 +212,6 @@ namespace KeeICE
 
                 if (!host.Database.IsOpen)
                     return false;
-
-                // double check above runs before Invoked method finishes...
-
-                //TODO: messy when firefox makes request during keepass startup - UI not created yet but this thread locks it so it will never appear until user creates DB - catch 22 in most cases
-                // really? this TODO may be outdated... (I think it was due to KeePass 2.06 bug where open dialog didn't appear on task bar?) maybe.
-
-            
             }
             return true;
         }
@@ -339,9 +332,11 @@ namespace KeeICE
         //TODO: extend this so that PwEntries which lack any username and password can still be used.
         // e.g. if no username custom entry but there is a username in the entry, cerate
         // the custom string field and return the username as normal. similar for password
-        private KFlib.KPEntry getKPEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
+        private KPlib.KPEntry getKPEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
+            ArrayList URLs = new ArrayList();
+            URLs.Add(pwe.Strings.ReadSafe("URL"));
 
             foreach (System.Collections.Generic.KeyValuePair
                 <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
@@ -353,6 +348,18 @@ namespace KeeICE
                 {
                     string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
                     string fieldId = "";
+                    int fieldPage = 1;
+
+                    if (pwe.Strings.Exists("Form field " + fieldName + " page"))
+                    {
+                        try {
+                            fieldPage = int.Parse(pwe.Strings.ReadSafe("Form field " + fieldName + " page"));
+                        } catch (Exception)
+                        {
+                            fieldPage = 1;
+                        }
+                    }
+
 
                     if (pwe.Strings.Exists("Form field " + fieldName + " id"))
                         fieldId = pwe.Strings.ReadSafe("Form field " + fieldName + " id");
@@ -362,102 +369,128 @@ namespace KeeICE
                         // If there is a matching custom string for this password, use that but if not
                         // we can just use the standard entry password.
                         if (pwe.Strings.Exists("Form field " + fieldName + " value"))
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Password", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTpassword,fieldId));
+                            formFieldList.Add(new KPlib.KPFormField(fieldName,
+                "Password", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KPlib.formFieldType.FFTpassword, fieldId, fieldPage));
                         else
-                            formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "Password", pwe.Strings.ReadSafe("Password"), KFlib.formFieldType.FFTpassword, fieldId));
+                            formFieldList.Add(new KPlib.KPFormField(fieldName,
+                "Password", pwe.Strings.ReadSafe("Password"), KPlib.formFieldType.FFTpassword, fieldId, fieldPage));
                     }
                     else if (pweValue == "username")
                     {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                "User name", pwe.Strings.ReadSafe("UserName"), KFlib.formFieldType.FFTusername, fieldId));
+                        formFieldList.Add(new KPlib.KPFormField(fieldName,
+                "User name", pwe.Strings.ReadSafe("UserName"), KPlib.formFieldType.FFTusername, fieldId, fieldPage));
                     }
                     else if (pweValue == "text")
                     {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTtext, fieldId));
+                        formFieldList.Add(new KPlib.KPFormField(fieldName,
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KPlib.formFieldType.FFTtext, fieldId, fieldPage));
                     }
                     else if (pweValue == "radio")
                     {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTradio, fieldId));
+                        formFieldList.Add(new KPlib.KPFormField(fieldName,
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KPlib.formFieldType.FFTradio, fieldId, fieldPage));
                     }
                     else if (pweValue == "select")
                     {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTselect, fieldId));
+                        formFieldList.Add(new KPlib.KPFormField(fieldName,
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KPlib.formFieldType.FFTselect, fieldId, fieldPage));
                     }
                     else if (pweValue == "checkbox")
                     {
-                        formFieldList.Add(new KFlib.KPFormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KFlib.formFieldType.FFTcheckbox, fieldId));
+                        formFieldList.Add(new KPlib.KPFormField(fieldName,
+                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), KPlib.formFieldType.FFTcheckbox, fieldId, fieldPage));
                     }
+                } else if (pweKey == "Alternative URLs")
+                {
+                    string[] urlsArray = pweValue.Split( new char[' ']);
+                    foreach (string altURL in urlsArray)
+                        URLs.Add(altURL);
+
+                    //pwe.Strings.ReadSafe("Alternative URLs")
+
+//                    KPAlternativeURLs 
+
                 }
 
             }
 
-            KFlib.KPFormField[] temp = (KFlib.KPFormField[])formFieldList.ToArray(typeof(KFlib.KPFormField));
-            KFlib.KPEntry kpe = new KFlib.KPEntry(pwe.Strings.ReadSafe("URL"), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes));
+            KPlib.KPFormField[] temp = (KPlib.KPFormField[])formFieldList.ToArray(typeof(KPlib.KPFormField));
+            KPlib.KPEntry kpe = new KPlib.KPEntry((string[])URLs.ToArray(typeof(string)), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes));
             return kpe;
         }
 
-        private KFlib.KPGroup getKPGroupFromPwGroup(PwGroup pwg, bool isExactMatch)
+        private KPlib.KPGroup getKPGroupFromPwGroup(PwGroup pwg, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
           
-            KFlib.KPGroup kpg = new KFlib.KPGroup(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes));
+            KPlib.KPGroup kpg = new KPlib.KPGroup(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes));
             return kpg;
         }
 
-        private void setPwEntryFromKPEntry(PwEntry pwe, KFlib.KPEntry login)
+        private void setPwEntryFromKPEntry(PwEntry pwe, KPlib.KPEntry login)
         {
             bool firstPasswordFound = false;
 
-            foreach (KFlib.KPFormField kpff in login.formFieldList)
+            foreach (KPlib.KPFormField kpff in login.formFieldList)
             {
-                if (kpff.type == KeeICE.KFlib.formFieldType.FFTpassword && !firstPasswordFound)
+                if (kpff.type == KeeICE.KPlib.formFieldType.FFTpassword && !firstPasswordFound)
                 {
                     pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "password"));
                     firstPasswordFound = true;
                 }
-                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTpassword)
+                else if (kpff.type == KeeICE.KPlib.formFieldType.FFTpassword)
                 {
                     pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.value)); // we protect this string if user has asked to protect passwords
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "password"));
                 }
-                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTusername)
+                else if (kpff.type == KeeICE.KPlib.formFieldType.FFTusername)
                 {
                     pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "username"));
                 }
-                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTtext)
+                else if (kpff.type == KeeICE.KPlib.formFieldType.FFTtext)
                 {
                     pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "text"));
                 }
-                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTcheckbox)
+                else if (kpff.type == KeeICE.KPlib.formFieldType.FFTcheckbox)
                 {
                     pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "checkbox"));
                 }
-                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTradio)
+                else if (kpff.type == KeeICE.KPlib.formFieldType.FFTradio)
                 {
                     pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "radio"));
                 }
-                else if (kpff.type == KeeICE.KFlib.formFieldType.FFTselect)
+                else if (kpff.type == KeeICE.KPlib.formFieldType.FFTselect)
                 {
                     pwe.Strings.Set("Form field " + kpff.name + " value", new ProtectedString(false, kpff.value));
                     pwe.Strings.Set("Form field " + kpff.name + " type", new ProtectedString(false, "select"));
                 }
 
+                pwe.Strings.Set("Form field " + kpff.name + " page", new ProtectedString(false, kpff.page.ToString()));
+
                 if (kpff.id != null && kpff.id.Length > 0)
                     pwe.Strings.Set("Form field " + kpff.name + " id", new ProtectedString(false, kpff.id));
             }
 
-            pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.URL));
+            string altURLs = "";
+
+            for (int i=0; i < login.URLs.Length; i++)
+            {
+                string url = login.URLs[i];
+                if (i == 0)
+                    pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl,url));
+                else if (i == 1)
+                    altURLs += url;
+                else
+                    altURLs += " " + url;
+            }
+            if (altURLs.Length > 0)
+                pwe.Strings.Set("Alternative URLs", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, altURLs));
+
             pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.formActionURL));
             pwe.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm));
 
@@ -469,18 +502,18 @@ namespace KeeICE
 
 #region Implementation of KeeICE.ice functions relating to configuration of KeePass/KeeFox and databases
 
-        public override KFlib.KFConfiguration getCurrentKFConfig(Ice.Current current__)
+        public override KPlib.KFConfiguration getCurrentKFConfig(Ice.Current current__)
         {
             bool autoCommit = host.CustomConfig.GetBool("KeeICE.KeeFox.autoCommit",true);
             string[] MRUList = new string[host.MainWindow.FileMruList.ItemCount];
             for (uint i = 0; i < host.MainWindow.FileMruList.ItemCount; i++)
                 MRUList[i] = ((IOConnectionInfo)host.MainWindow.FileMruList.GetItem(i).Value).Path;
 
-            var currentConfig = new KFlib.KFConfiguration(MRUList, autoCommit);
+            var currentConfig = new KPlib.KFConfiguration(MRUList, autoCommit);
             return currentConfig;
         }
 
-        public override bool setCurrentKFConfig(KFlib.KFConfiguration config, Ice.Current current__)
+        public override bool setCurrentKFConfig(KPlib.KFConfiguration config, Ice.Current current__)
         {
             host.CustomConfig.SetBool("KeeICE.KeeFox.autoCommit", config.autoCommit);
             host.MainWindow.SaveConfig();
@@ -586,10 +619,37 @@ namespace KeeICE
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
+                    
+			    PwGroup recycleBin = host.Database.RootGroup.FindGroup(host.Database.RecycleBinUuid, true);
+    			
+			    if(host.Database.RecycleBinEnabled == false) 
+                { 
+                    //TODO: enable a warning
+                    //if(!host.MainWindow.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle, KPRes.DeleteEntriesTitleSingle))
+					//    return false;
 
-                //TODO: recycle if option is set, warn if not.
-                matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
+                    PwDeletedObject pdo = new PwDeletedObject();
+				    pdo.Uuid = matchedLogin.Uuid;
+				    pdo.DeletionTime = DateTime.Now;
+				    host.Database.DeletedObjects.Add(pdo);
+                }
+			    else
+			    {
+                    if(recycleBin == null)
+			        {
+				        recycleBin = new PwGroup(true, true, KPRes.RecycleBin, PwIcon.TrashBin);
+				        recycleBin.EnableAutoType = false;
+				        recycleBin.EnableSearching = false;
+				        host.Database.RootGroup.AddGroup(recycleBin, true);
 
+				        host.Database.RecycleBinUuid = recycleBin.Uuid;
+			        }
+
+				    recycleBin.AddEntry(matchedLogin, true);
+				    matchedLogin.Touch(false);
+			    }
+
+                    //matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
                 host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
                 return true;
@@ -618,7 +678,35 @@ namespace KeeICE
 
                 matchedGroup.ParentGroup.Groups.Remove(matchedGroup);
 
-                //TODO: recycle if option is set, warn if not.
+                PwGroup recycleBin = host.Database.RootGroup.FindGroup(host.Database.RecycleBinUuid, true);
+
+                if (host.Database.RecycleBinEnabled == false)
+                {
+                    //TODO: enable a warning
+                    //if(!host.MainWindow.MessageService.AskYesNo(KPRes.DeleteGroupsQuestionSingle, KPRes.DeleteGroupsTitleSingle))
+                    //    return false;
+
+                    PwDeletedObject pdo = new PwDeletedObject();
+                    pdo.Uuid = matchedGroup.Uuid;
+                    pdo.DeletionTime = DateTime.Now;
+                    host.Database.DeletedObjects.Add(pdo);
+                }
+                else
+                {
+                    if (recycleBin == null)
+                    {
+                        recycleBin = new PwGroup(true, true, KPRes.RecycleBin, PwIcon.TrashBin);
+                        recycleBin.EnableAutoType = false;
+                        recycleBin.EnableSearching = false;
+                        host.Database.RootGroup.AddGroup(recycleBin, true);
+
+                        host.Database.RecycleBinUuid = recycleBin.Uuid;
+                    }
+
+                    recycleBin.AddGroup(matchedGroup, true);
+                    matchedGroup.Touch(false);
+                }
+
                 host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
                 return true;
@@ -632,7 +720,7 @@ namespace KeeICE
         /// <param name="login">The KeeICE representation of the login to be added</param>
         /// <param name="parentUUID">The UUID of the parent group for the new login. If null, the root group will be used.</param>
         /// <param name="current__"></param>
-        public override KFlib.KPEntry AddLogin(KFlib.KPEntry login, string parentUUID, Ice.Current current__)
+        public override KPlib.KPEntry AddLogin(KPlib.KPEntry login, string parentUUID, Ice.Current current__)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
@@ -657,7 +745,7 @@ namespace KeeICE
 
             host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
-            KFlib.KPEntry output = getKPEntryFromPwEntry(newLogin, true);
+            KPlib.KPEntry output = getKPEntryFromPwEntry(newLogin, true);
 
             return output;
         }
@@ -668,7 +756,7 @@ namespace KeeICE
         /// <param name="name">The name of the group to be added</param>
         /// <param name="parentUUID">The UUID of the parent group for the new group. If null, the root group will be used.</param>
         /// <param name="current__"></param>
-        public override KFlib.KPGroup addGroup(string name, string parentUUID, Ice.Current current__)
+        public override KPlib.KPGroup addGroup(string name, string parentUUID, Ice.Current current__)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
@@ -692,7 +780,7 @@ namespace KeeICE
 
             host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
-            KFlib.KPGroup output = getKPGroupFromPwGroup(newGroup, true);
+            KPlib.KPGroup output = getKPGroupFromPwGroup(newGroup, true);
 
             return output;
         }
@@ -703,7 +791,7 @@ namespace KeeICE
         /// <param name="oldLogin">The old login that will be replaced. In fact only the UUID contained within it will be used for now.</param>
         /// <param name="newLogin">The login object that will replace the old one.</param>
         /// <param name="current__"></param>
-        public override void ModifyLogin(KFlib.KPEntry oldLogin, KFlib.KPEntry newLogin, Ice.Current current__)
+        public override void ModifyLogin(KPlib.KPEntry oldLogin, KPlib.KPEntry newLogin, Ice.Current current__)
         {
             if (oldLogin == null)
                 throw new Exception("old login must be passed to the ModifyLogin function. It wasn't");
@@ -733,9 +821,9 @@ namespace KeeICE
         /// <param name="uuid">the UUID of the object we want to find the parent of</param>
         /// <param name="current__"></param>
         /// <returns>the parent group</returns>
-        public override KFlib.KPGroup getParent(string uuid, Ice.Current current__)
+        public override KPlib.KPGroup getParent(string uuid, Ice.Current current__)
         {
-            KFlib.KPGroup output;
+            KPlib.KPGroup output;
 
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
@@ -772,7 +860,7 @@ namespace KeeICE
         /// </summary>
         /// <param name="current__"></param>
         /// <returns>the root group</returns>
-        public override KFlib.KPGroup getRoot(Ice.Current current__)
+        public override KPlib.KPGroup getRoot(Ice.Current current__)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) { return null; }
@@ -802,7 +890,7 @@ namespace KeeICE
         /// <param name="logins">the list of all logins</param>
         /// <param name="current__"></param>
         /// <returns>the number of logins in the list</returns>
-        public override int getAllLogins(out KFlib.KPEntry[] logins, Ice.Current current__)
+        public override int getAllLogins(out KPlib.KPEntry[] logins, Ice.Current current__)
         {
             int count = 0;
             ArrayList allEntries = new ArrayList();
@@ -815,13 +903,13 @@ namespace KeeICE
             //host.Database.RootGroup.
             foreach (PwEntry pwe in output)
             {
-                KFlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
+                KPlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
                 allEntries.Add(kpe);
                 count++;
 
             }
 
-            logins = (KFlib.KPEntry[])allEntries.ToArray(typeof(KFlib.KPEntry));
+            logins = (KPlib.KPEntry[])allEntries.ToArray(typeof(KPlib.KPEntry));
 
             return count;
         }
@@ -832,9 +920,9 @@ namespace KeeICE
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
         /// <param name="current__"></param>
         /// <returns>the list of every entry directly inside the group.</returns>
-        public override KFlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__)
+        public override KPlib.KPEntry[] getChildEntries(string uuid, Ice.Current current__)
         {
-            KFlib.KPEntry[] entries = null;
+            KPlib.KPEntry[] entries = null;
             ArrayList allEntries = new ArrayList();
 
             if (uuid != null && uuid.Length > 0)
@@ -854,11 +942,11 @@ namespace KeeICE
 
                 foreach (PwEntry pwe in output)
                 {
-                    KFlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
+                    KPlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
                     allEntries.Add(kpe);
                 }
 
-                entries = (KFlib.KPEntry[])allEntries.ToArray(typeof(KFlib.KPEntry));
+                entries = (KPlib.KPEntry[])allEntries.ToArray(typeof(KPlib.KPEntry));
             }
 
             return entries;
@@ -870,9 +958,9 @@ namespace KeeICE
         /// <param name="uuid">the unique ID of the group we're interested in.</param>
         /// <param name="current__"></param>
         /// <returns>the list of every group directly inside the group.</returns>
-        public override KFlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__)
+        public override KPlib.KPGroup[] getChildGroups(string uuid, Ice.Current current__)
         {
-            KFlib.KPGroup[] entries = null;
+            KPlib.KPGroup[] entries = null;
             ArrayList allGroups = new ArrayList();
 
             PwGroup matchedGroup;
@@ -898,11 +986,11 @@ namespace KeeICE
 
             foreach (PwGroup pwg in output)
             {
-                KFlib.KPGroup kpg = getKPGroupFromPwGroup(pwg, false);
+                KPlib.KPGroup kpg = getKPGroupFromPwGroup(pwg, false);
                 allGroups.Add(kpg);
             }
 
-            entries = (KFlib.KPGroup[])allGroups.ToArray(typeof(KFlib.KPGroup));
+            entries = (KPlib.KPGroup[])allGroups.ToArray(typeof(KPlib.KPGroup));
             return entries;
         }
 
@@ -914,7 +1002,7 @@ namespace KeeICE
         /// <param name="groups">The output result (a list of KPGroups)</param>
         /// <param name="current__"></param>
         /// <returns>The number of items in the list of groups.</returns>
-        public override int findGroups(string name, string uuid, out KFlib.KPGroup[] groups, Ice.Current current__)
+        public override int findGroups(string name, string uuid, out KPlib.KPGroup[] groups, Ice.Current current__)
         {
             // if uniqueID is supplied, match just that one group. if not found, move on to search the content of the logins...
             if (uuid != null && uuid.Length > 0)
@@ -929,7 +1017,7 @@ namespace KeeICE
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group.");
 
-                groups = new KFlib.KPGroup[1];
+                groups = new KPlib.KPGroup[1];
                 groups[0] = getKPGroupFromPwGroup(matchedGroup, true);
                 if (groups[0] != null)
                     return 1;
@@ -941,7 +1029,24 @@ namespace KeeICE
             return 0;
         }
 
-        public override int findLogins(string URL, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KFlib.KPEntry[] logins, Ice.Current current__)
+        private bool matchesAnyURL (PwEntry pwe, string url)
+        {
+            if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
+                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url))
+               )
+                return true;
+
+            string urls = pwe.Strings.ReadSafe("Alternative URLs");
+            string[] urlsArray = urls.Split( new char[' ']);
+            foreach (string altURL in urlsArray)
+                if (altURL.Contains(url))
+                    return true;
+            
+            return false;
+
+        }
+
+        public override int findLogins(string URL, string actionURL, string httpRealm, KPlib.loginSearchType lst, bool requireFullURLMatches, string uniqueID, out KPlib.KPEntry[] logins, Ice.Current current__)
         {
             //string fullURL = URL;
             string hostname = URL;
@@ -961,7 +1066,7 @@ namespace KeeICE
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
 
-                logins = new KFlib.KPEntry[1];
+                logins = new KPlib.KPEntry[1];
                 logins[0] = getKPEntryFromPwEntry(matchedLogin, true);
                 if (logins[0] != null)
                     return 1;
@@ -974,7 +1079,17 @@ namespace KeeICE
             // - the ICE client (e.g. KeeFox) can decide to penalise protocol mismatches, 
             // potentially dependant on user configuration options in the client.
             int protocolIndex = URL.IndexOf("://");
-            if (protocolIndex > -1)
+            if (URL.IndexOf("file://") > -1)
+            {
+                // the "host and port" of a file is the actual file name (i.e. just not the query string)
+
+                int qsIndex = URL.IndexOf("?");
+                if (qsIndex > -1)
+                    hostname = URL.Substring(8, qsIndex - 8);
+                else
+                    hostname = URL.Substring(8);
+            }
+            else if (protocolIndex > -1)
             {
                 string hostAndPort = URL.Substring(protocolIndex + 3);
                 int pathStart = hostAndPort.IndexOf("/", 0);
@@ -983,6 +1098,15 @@ namespace KeeICE
                     hostname = URL.Substring(0, pathStart + protocolIndex + 3);
                 }
             }
+            else
+            {
+                // we havn't received a protocol but may still have a query string 
+                // we'd like to remove from the URL (e.g. especially if we're dealing with an unknown file:///)
+                int qsIndex = URL.IndexOf("?");
+                if (qsIndex > -1)
+                    hostname = URL.Substring(1, qsIndex-1);
+            }
+
 
             protocolIndex = actionURL.IndexOf("://");
             if (protocolIndex > -1)
@@ -1000,9 +1124,11 @@ namespace KeeICE
             ArrayList allEntries = new ArrayList();
 
             
-
+            // Narrow down the possible matches by doing a KeePass search
+            // (We could match on an irrelevant string field but chances are that any matches are suitable)
             SearchParameters sp = new SearchParameters();
             sp.SearchInUrls = true;
+            sp.SearchInOther = true;
             sp.RegularExpression = true;
             if (hostname.Length == 0)
                 sp.SearchString = ".*";
@@ -1019,9 +1145,7 @@ namespace KeeICE
                 bool entryIsAMatch = false;
                 bool entryIsAnExactMatch = false;
 
-                if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                        && lst != KFlib.loginSearchType.LSTnoForms
-                        && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
+                if ( lst != KPlib.loginSearchType.LSTnoForms && matchesAnyURL(pwe,hostname))
                 {
                     if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                     {
@@ -1032,9 +1156,7 @@ namespace KeeICE
                         entryIsAMatch = true;
                 }
 
-                if (lst != KFlib.loginSearchType.LSTnoRealms
-                    && pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                    && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
+                if (lst != KPlib.loginSearchType.LSTnoRealms && matchesAnyURL(pwe,hostname))
                 {
                     if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
                     && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm) 
@@ -1049,20 +1171,20 @@ namespace KeeICE
 
                 if (entryIsAMatch)
                 {
-                    KFlib.KPEntry kpe = getKPEntryFromPwEntry(pwe,entryIsAnExactMatch);
+                    KPlib.KPEntry kpe = getKPEntryFromPwEntry(pwe,entryIsAnExactMatch);
                     allEntries.Add(kpe);
                     count++;
                 }
 
             }
 
-            logins = (KFlib.KPEntry[])allEntries.ToArray(typeof(KFlib.KPEntry));
+            logins = (KPlib.KPEntry[])allEntries.ToArray(typeof(KPlib.KPEntry));
 
             return count;
         }
 
 
-        public override int countLogins(string URL, string actionURL, string httpRealm, KFlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__)
+        public override int countLogins(string URL, string actionURL, string httpRealm, KPlib.loginSearchType lst, bool requireFullURLMatches, Ice.Current current__)
         {
             //string fullURL = hostname;
             //string fullActionURL = actionURL;
@@ -1073,7 +1195,17 @@ namespace KeeICE
             // of the URL
 
             int protocolIndex = URL.IndexOf("://");
-            if (protocolIndex > -1)
+            if (URL.IndexOf("file://") > -1)
+            {
+                // the "host and port" of a file is the actual file name (i.e. just not the query string)
+
+                int qsIndex = URL.IndexOf("?");
+                if (qsIndex > -1)
+                    hostname = URL.Substring(8, qsIndex - 8);
+                else
+                    hostname = URL.Substring(8);
+            }
+            else if (protocolIndex > -1)
             {
                 string hostAndPort = URL.Substring(protocolIndex + 3);
                 int pathStart = hostAndPort.IndexOf("/", 0);
@@ -1081,6 +1213,14 @@ namespace KeeICE
                 {
                     hostname = URL.Substring(0, pathStart + protocolIndex + 3);
                 }
+            }
+            else
+            {
+                // we havn't received a protocol but may still have a query string 
+                // we'd like to remove from the URL (e.g. especially if we're dealing with a file:///
+                int qsIndex = URL.IndexOf("?");
+                if (qsIndex > -1)
+                    hostname = URL.Substring(1, qsIndex-1);
             }
 
             protocolIndex = actionURL.IndexOf("://");
@@ -1135,7 +1275,7 @@ namespace KeeICE
 
                     if (entry[0].Contains(hostname)) //TODO: regex for accuracy
                     {
-                        if (entry[1] != null && entry[1].Length > 0 && lst == KFlib.loginSearchType.LSTnoForms)
+                        if (entry[1] != null && entry[1].Length > 0 && lst == KPlib.loginSearchType.LSTnoForms)
                         {	// ignoring all form logins
                         }
                         else if (entry[1] != null && entry[1].Length > 0 && actionURL == "")
@@ -1150,7 +1290,7 @@ namespace KeeICE
                             continue;
                         }
 
-                        if (entry[2] != null && entry[2].Length > 0 && lst == KFlib.loginSearchType.LSTnoRealms)
+                        if (entry[2] != null && entry[2].Length > 0 && lst == KPlib.loginSearchType.LSTnoRealms)
                         {	// ignoring all http realm logins
                         }
                         else if (entry[2] != null && entry[2].Length > 0 && httpRealm == "")
@@ -1173,8 +1313,13 @@ namespace KeeICE
                 // Make sure there is an active database
                 if (!ensureDBisOpen()) return -1;
 
+
+
+                // Narrow down the possible matches by doing a KeePass search
+                // (We could match on an irrelevant string field but chances are that any matches are suitable)
                 SearchParameters sp = new SearchParameters();
                 sp.SearchInUrls = true;
+                sp.SearchInOther = true;
                 sp.RegularExpression = true;
                 if (URL.Length == 0)
                     sp.SearchString = ".*";
@@ -1191,9 +1336,7 @@ namespace KeeICE
                     bool entryIsAMatch = false;
                     bool entryIsAnExactMatch = false;
 
-                    if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                        && lst != KFlib.loginSearchType.LSTnoForms
-                        && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
+                    if ( lst != KPlib.loginSearchType.LSTnoForms && matchesAnyURL(pwe,hostname))
                     {
                         if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                         {
@@ -1204,12 +1347,10 @@ namespace KeeICE
                             entryIsAMatch = true;
                     }
 
-                    if (lst != KFlib.loginSearchType.LSTnoRealms
-                        && pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                        && (hostname == "" || pwe.Strings.ReadSafe("URL").Contains(hostname)))
+                    if (lst != KPlib.loginSearchType.LSTnoRealms && matchesAnyURL(pwe,hostname))
                     {
                         if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
-                        && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
+                        && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm) 
                         && pwe.Strings.ReadSafe("URL") == URL)
                         {
                             entryIsAnExactMatch = true;

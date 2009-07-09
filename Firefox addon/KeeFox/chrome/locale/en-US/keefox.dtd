@@ -15,3 +15,9 @@
 <!ENTITY KeeFox_Logins-Button.tip "Explore all your logins and quickly log in to your websites.">
 <!ENTITY KeeFox_Logins-Button.label "Logins">
 <!ENTITY KeeFox_Logins-Button.key "L">
+<!ENTITY KeeFox_Logins-Context-Edit-Login.label "Edit login">
+<!ENTITY KeeFox_Logins-Context-Delete-Login.label "Delete login">
+<!ENTITY KeeFox_Logins-Context-Delete-Group.label "Delete group">
+<!ENTITY KeeFox_Logins-Context-Edit-Group.label "Edit group">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "Save to a group...">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Multi-Page.label "This is part of a multi-page login form">

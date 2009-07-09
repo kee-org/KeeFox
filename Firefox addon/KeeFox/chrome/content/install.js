@@ -21,12 +21,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 const KF_KPZIP_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.07-Beta.zip";
+const KF_KPZIP_FILE_NAME = "KeePass-2.08.zip";
 const KF_KPZIP_FILE_CHECKSUM = "";
 const KF_KP_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_KP_FILE_NAME = "KeePass-2.07-Beta-Setup.exe";
+const KF_KP_FILE_NAME = "KeePass-2.08-Setup.exe";
 const KF_KP_FILE_CHECKSUM = "";
 const KF_NET_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
@@ -77,7 +76,13 @@ var mainWindow = mainWin.keeFoxILM._currentWindow;
 
 function prepareInstallPage() {
 
-    var installCase; // one of 6 options. although it could probaly be inferred from use of install state flags, I want to know where we are starting from becuase user only needs to see info relevant to starting state rather than experiencing a walk through the entire state machine
+    // One of 6 installation options. Although it could probably be inferred
+    // from the use of installation state flags, I want to know where we are
+    // starting from because the user only needs to see information relevant
+    // to their starting state rather than experiencing a walk through the
+    // entire state machine.
+    var installCase; 
+    
     var keePassLocation = "not installed";
 
 //TODO: prevent reinstallation if KeeFox is already working
@@ -752,7 +757,9 @@ function launchAndConnectToKeePass()
     // launch KeePass and then try to connect to KeeICE (after 5 seconds although it should work sooner than that)
     //TODO: set up regular connection attempts if first one fails (e.g. if plugins slow KeePass start, KeePass crashes first time, etc.)
     mainWindow.keeFoxInst.launchKeePass("-welcomeToKeeFox");
-    var event = { notify: function(timer) { mainWindow.keeFoxInst._keeFoxBrowserStartup(mainWindow.keeFoxToolbar,mainWindow); } }
+    //var event = { notify: function(timer) { mainWindow.keeFoxInst._keeFoxBrowserStartup(mainWindow.keeFoxToolbar,mainWindow); } }
+    var event = { notify: function(timer) { mainWindow.keeFoxInst.startICEcallbackConnector(); } }
+    
     var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
     timer.initWithCallback(event, 5000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     

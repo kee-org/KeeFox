@@ -82,19 +82,20 @@ KFILM.prototype = {
     
     // Internal function for logging debug messages to the Error Console window
     log : function (message) {
-        dump(message+"\n");
-        if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
-            this._logService.logStringMessage(message);
+        this._kf.log(message+"\n");
+        //if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
+        //    this._logService.logStringMessage(message);
     },
     
     
     //TODO: improve weighting of matches to reflect real world tests
-    _calculateRelevanceScore : function (login, form, usernameIndex, passwordFields) {
+    _calculateRelevanceScore : function (login, form, usernameIndex, passwordFields, currentTabPage) {
 
         var score = 0;
         var actionURL = this._getActionOrigin(form);
         var URL = form.baseURI;
         
+        // NB: action url on 2nd page will not match. This is probably OK but will review if required.
         if (actionURL == login.formActionURL)
             score += 20;
             
@@ -106,18 +107,32 @@ KFILM.prototype = {
             
         if (this._getURIHostAndPort(actionURL) == this._getURIHostAndPort(login.formActionURL))
             score += 8;
+            
+        var maxURLscore = 0;
+        
+        for (i = 0; i < login.URLs.length; i++)
+        {
+            var URLscore=0;
+            // Unfortunately the container is declared to have elements
+            // that are generic nsIMutableArray. So, we must QI...
+            var loginURL = login.URLs.queryElementAt(i,Components.interfaces.kfIURL);
+            
+            this.log(loginURL.URL);
 
-        if (URL == login.URL)
-            score += 7;
+            if (URL == loginURL.URL)
+                URLscore = 22;
+            else if (this._getURIExcludingQS(URL) == this._getURIExcludingQS(loginURL.URL))
+                URLscore = 15;
+            else if (this._getURISchemeHostAndPort(URL) == this._getURISchemeHostAndPort(loginURL.URL))
+                URLscore = 9;
+            else if (this._getURIHostAndPort(URL) == this._getURIHostAndPort(loginURL.URL))
+                URLscore = 4;
             
-        if (this._getURIExcludingQS(URL) == this._getURIExcludingQS(login.URL))
-            score += 6;
-            
-        if (this._getURISchemeHostAndPort(URL) == this._getURISchemeHostAndPort(login.URL))
-            score += 5;
-            
-        if (this._getURIHostAndPort(URL) == this._getURIHostAndPort(login.URL))
-            score += 4;
+            if (URLscore > maxURLscore)
+                maxURLscore = URLscore;
+        }
+        
+        score += maxURLscore;
 
         // TODO: username and password field test unlikely to help much but shouldn't harm either so will leave it in for testing for a bit
         //TODO: disabled until see need to modify for new index based username data
@@ -274,6 +289,25 @@ KFILM.prototype = {
                             (aRequest ?  aRequest.name : "(null)") +
                             ", flags = 0x" + aStateFlags.toString(16));
 
+            var b = getBrowser();
+            var currentTab = b.selectedTab; //TODO: are we sure this always the tab that this event refers to?
+
+            if (currentTab.hasAttribute("KF_uniqueID")) {
+
+                this._pwmgr.log("has uid");
+                
+                // see if this tab has our special attributes and promote them to session data
+                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                    .getService(Components.interfaces.nsISessionStore);
+
+                ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                currentTab.removeAttribute("KF_uniqueID")
+            } else
+            {
+                this._pwmgr.log("nouid");
+            }
+            
             // remove all the old logins from the toolbar
             keeFoxToolbar.removeLogins();
             
@@ -453,7 +487,7 @@ KFILM.prototype = {
      * all arrays are standard javascript arrays - you may need to convert them to ns arrays...
      * usernameField may be null.
      */
-    _getFormFields : function (form, isSubmission) {
+    _getFormFields : function (form, isSubmission, currentTabPage) {
         var DOMusernameField = null;
          var pwFields = [];
          var otherFields = [];
@@ -492,8 +526,8 @@ this.log("proccessing...");
                 type    : DOMtype
             };
             allFields[allFields.length-1].element.init(
-                form.elements[i].name, form.elements[i].value, form.elements[i].id, DOMtype);
-            allFields[allFields.length-1].element.DOMelement = form.elements[i];
+                form.elements[i].name, form.elements[i].value, form.elements[i].id, DOMtype, currentTabPage);
+            allFields[allFields.length-1].element.DOMInputElement = form.elements[i];
             
             if (DOMtype == "password" && firstPasswordIndex == -1) firstPasswordIndex = i;
             if (DOMtype == "text" && firstPossibleUsernameIndex == -1 && this._isAKnownUsernameString(form.elements[i].name)) firstPossibleUsernameIndex = i;
@@ -517,49 +551,6 @@ this.log("proccessing...");
 
         return [usernameIndex, pwFields, otherFields];
 
-/*
-        // Try to figure out WTF is in the form based on the password values.
-        var oldPasswordField, newPasswordField;
-        var pw1 = pwFields[0].element.value;
-        var pw2 = pwFields[1].element.value;
-        var pw3 = (pwFields[2] ? pwFields[2].element.value : null);
-
-        if (pwFields.length == 3) {
-            // Look for two identical passwords, that's the new password
-
-            if (pw1 == pw2 && pw2 == pw3) {
-                // All 3 passwords the same? Weird! Treat as if 1 pw field.
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = null;
-            } else if (pw1 == pw2) {
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = pwFields[2].element;
-            } else if (pw2 == pw3) {
-                oldPasswordField = pwFields[0].element;
-                newPasswordField = pwFields[2].element;
-            } else  if (pw1 == pw3) {
-                // A bit odd, but could make sense with the right page layout.
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = pwFields[1].element;
-            } else {
-                // We can't tell which of the 3 passwords should be saved.
-                this.log("(form ignored -- all 3 pw fields differ)");
-                return [null, null, null];
-            }
-        } else { // pwFields.length == 2
-            if (pw1 == pw2) {
-                // Treat as if 1 pw field
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = null;
-            } else {
-                // Just assume that the 2nd password is the new password
-                oldPasswordField = pwFields[0].element;
-                newPasswordField = pwFields[1].element;
-            }
-        }
-
-        return [usernameField, newPasswordField, oldPasswordField];
-        */
     },
  
     /*
@@ -569,8 +560,8 @@ this.log("proccessing...");
      */
     addLogin : function (login, parentUUID) {
         // Sanity check the login
-        if (login.URL == null || login.URL.length == 0)
-            throw "Can't add a login with a null or empty hostname.";
+        if (login.URLs == null || login.URLs.length == 0)
+            throw "Can't add a login with a null or empty list of hostnames / URLs.";
 
         // For logins w/o a username, set to "", not null.
         //if (login.username == null)
@@ -594,11 +585,25 @@ this.log("proccessing...");
 
 
         // Look for an existing entry.
-        var logins = this.findLogins({}, login.URL, login.formActionURL,
+        // NB: maybe not ideal - would be nice to search for all URLs in
+        // one go but in practice this will affect performance only rarely
+        for (i = 0; i < login.URLs.length; i++)
+        {
+            // Unfortunately the container is declared to have elements
+            // that are generic nsIMutableArray. So, we must QI...
+            var loginURL = login.URLs.queryElementAt(i,Components.interfaces.kfIURL);
+          
+            var logins = this.findLogins({}, loginURL.URL, login.formActionURL,
                                      login.httpRealm);
 
-        if (logins.some(function(l) login.matches(l, false, false, false, false)))
-            throw "This login already exists.";
+            if (logins.some(function(l) login.matches(l, false, false, false, false)))
+            {
+                this.log("This login already exists.");
+                return "This login already exists.";
+            }
+        }
+        
+        
 
         this.log("Adding login: " + login + " to group: " + parentUUID);
         return this._kf.addLogin(login, parentUUID);
@@ -879,17 +884,22 @@ this.log("realm:"+realm);
         var newWindow = wm.getMostRecentWindow("navigator:browser");
         var b = newWindow.getBrowser();
         var newTab = b.loadOneTab( actionURL, null, null, null, false, null );
-        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                .getService(Components.interfaces.nsISessionStore);
+        newTab.setAttribute("KF_uniqueID", uniqueID);
+        newTab.setAttribute("KF_autoSubmit", "yes");
 
-        ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
-        ss.setTabValue(newTab, "KF_autoSubmit", "yes");
-    },
+        
+        //TODO: this is not allowed becuase the tab has most likely not loaded yet! need to register a callback function!
+        //var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+        //        .getService(Components.interfaces.nsISessionStore);
+
+       // ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
+       // ss.setTabValue(newTab, "KF_autoSubmit", "yes");
+    }//,
     
     
-    _generateFormLogin : function (URL, formActionURL, title, usernameIndex, passwordFields, otherFields)
-    {
-        var formLogin = new this._kfLoginInfo();
+    //_generateFormLogin : function (URL, formActionURL, title, usernameIndex, passwordFields, otherFields, maxPageCount)
+    //{
+    //    var formLogin = new this._kfLoginInfo();
     
       /*  if (otherFields != null && otherFields != undefined)
         {
@@ -899,14 +909,14 @@ this.log("realm:"+realm);
             this.log("login object initialised with custom data");
         } else
         {*/
-            formLogin.init(URL, formActionURL, null,
-                usernameIndex,
-                passwordFields, null, title, otherFields);
+     //       formLogin.init(URL, formActionURL, null,
+     //           usernameIndex,
+     //           passwordFields, null, title, otherFields, maxPageCount);
        /*     this.log("login object initialised without custom data");
         }*/
         
-        return formLogin;
-    }
+     //   return formLogin;
+    //}
     
     
     
@@ -918,50 +928,3 @@ var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 loader.loadSubScript("resource://kfscripts/KFILM_Fill.js");   
 loader.loadSubScript("resource://kfscripts/KFILM_Submit.js");   
    
-   
-   /*
-   
-   
-        // Try to figure out WTF is in the form based on the password values.
-        var oldPasswordField, newPasswordField;
-        var pw1 = pwFields[0].element.value;
-        var pw2 = pwFields[1].element.value;
-        var pw3 = (pwFields[2] ? pwFields[2].element.value : null);
-
-        if (pwFields.length == 3) {
-            // Look for two identical passwords, that's the new password
-
-            if (pw1 == pw2 && pw2 == pw3) {
-                // All 3 passwords the same? Weird! Treat as if 1 pw field.
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = null;
-            } else if (pw1 == pw2) {
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = pwFields[2].element;
-            } else if (pw2 == pw3) {
-                oldPasswordField = pwFields[0].element;
-                newPasswordField = pwFields[2].element;
-            } else  if (pw1 == pw3) {
-                // A bit odd, but could make sense with the right page layout.
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = pwFields[1].element;
-            } else {
-                // We can't tell which of the 3 passwords should be saved.
-                this.log("(form ignored -- all 3 pw fields differ)");
-                return [null, null, null];
-            }
-        } else { // pwFields.length == 2
-            if (pw1 == pw2) {
-                // Treat as if 1 pw field
-                newPasswordField = pwFields[0].element;
-                oldPasswordField = null;
-            } else {
-                // Just assume that the 2nd password is the new password
-                oldPasswordField = pwFields[0].element;
-                newPasswordField = pwFields[1].element;
-            }
-        }
-
-        return [usernameField, newPasswordField, oldPasswordField];
-        
-        */

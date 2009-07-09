@@ -25,8 +25,8 @@
 */
 
 
-
-    KFILM.prototype._fillManyFormFields = function (pageFields, matchFields)
+//pagefields is array, matchFields is nsImutableArray
+    KFILM.prototype._fillManyFormFields = function (pageFields, matchFields, currentTabPage)
     {
         this.log("_fillManyFormFields started");
         
@@ -35,20 +35,45 @@
         
         this.log("We've received the data we need");
         
+        var validTabPage = true;
+        
+        if (currentTabPage <= 0)
+            validTabPage = false;
+            
+        this.log("Filling form fields for page "+currentTabPage);
+        
+        // we try to fill every form field. We try to match by id first and then name before just guessing.
+        // Generally we'll only fill if the matched field is of the same type as the form field but
+        // we are flexible RE text and username fields because that's an artificial difference
+        // for the sake of the password management software
         for (i = 0; i < pageFields.length; i++)
         {
             matchedValue = "";
             
-            this.log("Trying to find suitable data field match based on form field "+i+"'s id");
+            this.log("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
             
             for (j = 0; j < matchFields.length; j++)
             {
-                // Unfortunately the container is decared to have elements
+                // Unfortunately the container is declared to have elements
                 // that are generic nsIMutableArray. So, we must QI...
                 var matchedField = 
                 matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                 
-                if (pageFields[i].id != null && pageFields[i].id != undefined && pageFields[i].id == matchedField.fieldId && (pageFields[i].value.length == 0 || this._kf._keeFoxExtension.prefs.getValue("overWriteUsernameAutomatically",true)))
+                this.log(matchedField);
+                this.log(matchedField.fieldId);
+                this.log(matchedField.formFieldPage);
+                
+                if (pageFields[i].fieldId != null && pageFields[i].fieldId != undefined 
+                    && pageFields[i].fieldId == matchedField.fieldId && 
+                    (pageFields[i].value.length == 0 
+                     || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
+                    )
+                    && (!validTabPage || matchedField.formFieldPage == currentTabPage)
+                    && (pageFields[i].type == matchedField.type
+                        || (pageFields[i].type == "text" && matchedField.type == "username")
+                        || (pageFields[i].type == "username" && matchedField.type == "text")
+                       )
+                   )
                 {
                     matchedValue = matchedField.value;
                     this.log("Data field "+j+" is a match for this form field");
@@ -56,15 +81,26 @@
                 }
             }
             
-            if (matchedValue == "")
+            // find by name instead (except for radio buttons which we know have multiple fields per name)
+            if (matchedValue == "" && pageFields[i].type != "radio")
             {
-                this.log("We didn't find a match so trying to match by form field name");
+                this.log("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
                 for (j = 0; j < matchFields.length; j++)
                 {
                     var matchedField = 
                     matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                     
-                    if (pageFields[i].name != null && pageFields[i].name != undefined && pageFields[i].name == matchedField.name && (pageFields[i].value.length == 0 || this._kf._keeFoxExtension.prefs.getValue("overWriteUsernameAutomatically",true)))
+                    if (pageFields[i].name != null && pageFields[i].name != undefined 
+                        && pageFields[i].name == matchedField.name && 
+                        (pageFields[i].value.length == 0 
+                         || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
+                        )
+                        && (!validTabPage || matchedField.formFieldPage == currentTabPage)
+                        && (pageFields[i].type == matchedField.type
+                            || (pageFields[i].type == "text" && matchedField.type == "username")
+                            || (pageFields[i].type == "username" && matchedField.type == "text")
+                           )
+                       )
                     {
                         matchedValue = matchedField.value;
                         this.log("Data field "+j+" is a match for this form field");
@@ -73,17 +109,43 @@
                 }
             }
             
+            if (matchedValue == "" && pageFields[i].type != "radio")
+            {
+                this.log("We could not find a good field match so just filling in this field with the first value of this type: "+pageFields[i].type);
+                
+                for (j = 0; j < matchFields.length; j++)
+                {
+                    var matchedField = 
+                    matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
+                    
+                    if (pageFields[i].type == matchedField.type)
+                    {
+                        matchedValue = matchedField.value;
+                        this.log("Data field "+j+" is a match for this form field");
+                        break;
+                    }
+                }
+            }
+                
             if (matchedValue == "")
             {
-                var matchedField = 
-                    matchFields.queryElementAt(0,Components.interfaces.kfILoginField);
-                this.log("We could not find a good field match so just filling in this field with the first value we find: "+matchedValue);
-                    
-                pageFields[i].DOMelement.value = matchedField.value;   
+                this.log("We could not find a suitable match so not filling this field");
             } else
             {
                 this.log("We will populate this field with: "+matchedValue);
-                pageFields[i].DOMelement.value = matchedValue; 
+                
+                if (pageFields[i].type == "select")
+                {
+                    //TODO: select relevant form option
+                    //pageFields[i].DOMSelectElement.value = matchedValue; 
+                } else if (pageFields[i].type == "checkbox" || pageFields[i].type == "radio")
+                {
+                    pageFields[i].DOMInputElement.checked = true;
+                } else
+                {    
+                    pageFields[i].DOMInputElement.value = matchedValue; 
+                }
+                
             }
         }
     };
@@ -97,11 +159,15 @@
      */
     KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     {
+    
+        this.log("filling document: "+ doc);
+        
         // We'll do things differently if this is a fill operation some time after the page has alread loaded (e.g. don't auto-fill or auto-submit in case we overwrite user's data)
         if ( initialPageLoad === undefined )
             initialPageLoad = false;
 
-
+        this.log("filling document: "+ doc);
+        
         var passwords;
         var mainWindow = doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
@@ -132,16 +198,32 @@
             autoSubmitForm = false;
         
         // overwrite existing username by default unless a preference or tab variable tells us otherwise
-        var overWriteUsernameAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteUsernameAutomatically",true);
+        var overWriteFieldsAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
         if (!initialPageLoad)
-            overWriteUsernameAutomatically = false;
+            overWriteFieldsAutomatically = false;
         
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
         var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
         var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(doc)];
-        var retrievedData = ss.getTabValue(currentTab, "KF_uniqueID");
+        var currentTabUniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
         var numberOfTabFillsRemaining = ss.getTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+        var numberOfTabFillsTarget = ss.getTabValue(currentTab, "KF_numberOfTabFillsTarget");
+        var currentTabPage = null;
+        
+        // If we haven't been told whether this is a multi-page login yet, we'll set relevant variables to -1
+        // so that future stages of the login choosing process know we are on the first page and they need
+        // to find out whether the best matching form is a multi-page login or not
+        
+        if ((numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining.length > 0 && numberOfTabFillsRemaining > -1) || (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null && numberOfTabFillsTarget.length > 0 && numberOfTabFillsTarget > 0))
+        {
+            currentTabPage = numberOfTabFillsTarget - numberOfTabFillsRemaining + 1;
+        } else
+        {
+            numberOfTabFillsRemaining = -1;
+            numberOfTabFillsTarget = -1;
+            currentTabPage = -1;
+        }
         
         // If we have exceeded the maximum number of expected pages during this form filling session, we reset the record of those fills
         // and ensure that we don't auto-fill or auto-submit the form (chances are high that password or server fault occured)
@@ -156,15 +238,16 @@
             }
         }
         
-        if (retrievedData != undefined && retrievedData != null && retrievedData != "")
+        if (currentTabUniqueID != undefined && currentTabUniqueID != null && currentTabUniqueID != "")
         {
-            this.log("Found this KeePass uniqueID in the tab: " + retrievedData);
-            ss.deleteTabValue(currentTab, "KF_uniqueID"); //TODO: for multi-page logins, will need to do this selectively based on number of fills remaining
-            uniqueID = retrievedData;
+            this.log("Found this KeePass uniqueID in the tab: " + currentTabUniqueID);
+            
+                
+            uniqueID = currentTabUniqueID;
             
             // we definitely want to fill the form with this data
             autoFillForm = true;
-            overWriteUsernameAutomatically = true;
+            overWriteFieldsAutomatically = true;
             
             // but need to check whether we want to autosubmit it too
             var localAutoSubmitPref = ss.getTabValue(currentTab, "KF_autoSubmit");
@@ -174,6 +257,15 @@
                 this.log("We want to auto-submit this form.");
                 autoSubmitForm = true;
             }
+            
+            //if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining.length > 0 && numberOfTabFillsRemaining <= 1)
+            //{
+            // Deleting these bits of info no matter what, so future uses of this tab are unaffected by previous uses.
+            // (if we actually go ahead with the form fill we will add them back in then)
+                ss.deleteTabValue(currentTab, "KF_uniqueID");
+                ss.deleteTabValue(currentTab, "KF_autoSubmit"); // problem if this has not been set previously?
+            //}
+            this.log("supposedly deleted");
         }
     
         var forms = doc.forms;
@@ -252,6 +344,8 @@
                 
             //var passwordField = null;
             
+            //TODO: remove this restriction as long as we don't get problems with search fields, etc.
+            // maybe only if we are doing a multi-page login?
             if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
             {
             //    this.log("pwfound");
@@ -319,7 +413,7 @@
             // we could skip this when autofilling based on uniqueID but we would have to check for
             // matches first or else we risk no match and no alternative matching logins on the toolbar
            for (var v = 0; v < logins[i].length; v++)
-            logins[i][v].relevanceScore = this._calculateRelevanceScore (logins[i][v],form,usernameIndex,passwordFields);
+            logins[i][v].relevanceScore = this._calculateRelevanceScore (logins[i][v],form,usernameIndex,passwordFields, currentTabPage);
             
             // the overall relevance of this form is the maximum of it's matching entries (so we fill the most relevant form)
             formRelevanceScores[i] = 0;
@@ -327,7 +421,6 @@
                                             formRelevanceScores[i] = c.relevanceScore; } );
              
             // only remember the logins which are not already in our list of matching logins
-            // (not sure yet if this will happen in a completely bug free final version - it depends on how I design the comparison of form action URL - but it's handy in my currently buggy version anyway!)
             var newUniqueLogins = logins[i].filter(function(d) {
                                                 //matchingLogin = l;
                                                 return (allMatchingLogins.every(function(e) {
@@ -349,6 +442,9 @@
         var passwordFields = passwordFieldsArray[mostRelevantFormIndex];
         var usernameIndex = usernameIndexArray[mostRelevantFormIndex];
         var otherFields = otherFieldsArray[mostRelevantFormIndex];
+        
+        // this records the login that we eventually choose as the one to fill the chosen form from
+        var matchingLogin;
 
         if (autoFillForm) {
 
@@ -356,7 +452,7 @@
             //TODO: this may not work if requested login can't be exactly matched to a form but another login can
             if (uniqueID.length > 0)
             {
-                var matchingLogin;
+                
                 var found = logins[mostRelevantFormIndex].some(function(l) {
                                             matchingLogin = l;
                                             return (l.uniqueID == uniqueID);
@@ -365,8 +461,8 @@
                 {
                     //if (usernameField && matchingLogin.username != null)
                     //    usernameField.DOMelement.value = matchingLogin.username.value;
-                    this._fillManyFormFields(passwordFields, matchingLogin.passwords);
-                    this._fillManyFormFields(otherFields, matchingLogin.otherFields);
+                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage);
+                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage);
                     formsReadyForSubmit++;
                 }
                 else
@@ -375,7 +471,10 @@
                              "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
                 }
             
-            } else if (!overWriteUsernameAutomatically && logins[mostRelevantFormIndex][usernameIndex] && logins[mostRelevantFormIndex][usernameIndex].value) {
+            //TODO: I don't think this works correctly... 
+            } /* TODO: This is utter rubbish. Needs completely re-writing but in the mean-time only down side is the do not overwrite logins option does not work.
+            
+            else if (!overWriteFieldsAutomatically && logins[mostRelevantFormIndex][usernameIndex] && logins[mostRelevantFormIndex][usernameIndex].value) {
                 // If username was specified in the form, only fill in the
                 // password if we find a matching login.
 
@@ -383,15 +482,18 @@
                 
                 this.log("username found: " + logins[mostRelevantFormIndex][usernameIndex].value);
 
-                var matchingLogin;
+                //var matchingLogin;
                 //var found = logins[mostRelevantFormIndex].some(function(l) {
                 //                            matchingLogin = l;
                 //                            return (l.username != null && l.username.value == username);
-                //                        });
+                // 
+                //});
+                
+                //TODO: this can't be working correctly...                       
                 if (logins[mostRelevantFormIndex][usernameIndex] == username)
                 {
-                    this._fillManyFormFields(passwordFields, matchingLogin.passwords);
-                    this._fillManyFormFields(otherFields, matchingLogin.otherFields);
+                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage);
+                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage);
                     formsReadyForSubmit++;
                 }
                 else
@@ -399,16 +501,17 @@
                     this.log("Password not filled. None of the stored " +
                              "logins match the username already present.");
                 }
-             }
+             }*/
             
             //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
             
             else if (logins[mostRelevantFormIndex].length == 1) {
                 //if (usernameField && logins[mostRelevantFormIndex][0].username!= null)
                 //    usernameField.DOMelement.value = logins[mostRelevantFormIndex][0].username.value;
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][0].passwords);
-                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][0].otherFields);
+                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][0].passwords, currentTabPage);
+                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][0].otherFields, currentTabPage);
                 formsReadyForSubmit++;
+                matchingLogin = logins[mostRelevantFormIndex][0];
             } else {
                 this.log("Multiple logins for form, so estimating most relevant.");
                 var mostRelevantLoginIndex = 0;
@@ -421,19 +524,105 @@
                     
                 //if (usernameField && logins[mostRelevantFormIndex][mostRelevantLoginIndex].username != null)
                 //    usernameField.DOMelement.value = logins[mostRelevantFormIndex][mostRelevantLoginIndex].username.value;
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords);
-                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].otherFields);
+                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords, currentTabPage);
+                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].otherFields, currentTabPage);
                 formsReadyForSubmit++;
-                    
+                matchingLogin = logins[mostRelevantFormIndex][mostRelevantLoginIndex];
             }
             
         }
        
         //alert(passwordField.value);
-       
-        // if any forms were auto-filled successfully, consume one of our permitted form fills
+        
+        // record / update the info attached to this tab regarding the number of pages of forms we want to fill in
+        // NB: we do this even if we know this is a single form submission becauase then if the user gets dumped
+        // back to the form (password error?) then we know not to auto-submit again and get stuck in a loop
+        
+        // We only do this if any forms were auto-filled successfully (filling via the "matched logins" toolbar button
+        // could result in these values being recalculated anyway so no point in wasting time here)
         if (formsReadyForSubmit >= 1)
-            ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", "0"); //TODO: number of pages expected for this login - 1
+        {
+            // first we make sure we have some valid values to start with - i.e. if this was a stnadard page load
+            // then we need to assign the page details from the best login match
+            if (currentTabPage < 0)
+            {
+                var maximumPageCount = 1;
+                for (var i = 0; i < matchingLogin.passwords.length; i++)
+                {
+                    var passField = 
+                        matchingLogin.passwords.queryElementAt(i,Components.interfaces.kfILoginField);
+                    if (passField.formFieldPage > maximumPageCount)
+                        maximumPageCount = passField.formFieldPage;
+                }
+                for (var i = 0; i < matchingLogin.otherFields.length; i++)
+                {
+                    var otherField = 
+                        matchingLogin.otherFields.queryElementAt(i,Components.interfaces.kfILoginField);
+                    if (otherField.formFieldPage > maximumPageCount)
+                        maximumPageCount = otherField.formFieldPage;
+                }
+                numberOfTabFillsRemaining = maximumPageCount;
+                numberOfTabFillsTarget = maximumPageCount;
+            }
+           
+            //consume one of our permitted form fills (because next time we read
+            // this value it will be as the next page is loading)
+            numberOfTabFillsRemaining -= 1;
+            if (numberOfTabFillsRemaining < 0)
+                numberOfTabFillsRemaining = 0;
+            
+            // next we update (or set for the first time) the values attached to this tab
+            ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", numberOfTabFillsRemaining);
+            ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
+            
+            // if we didn't already define a uniqueID, we set it up now
+            if (uniqueID == undefined || uniqueID == null || uniqueID == "")
+            {
+                uniqueID = matchingLogin.uniqueID;
+            }
+            
+            this.log("testtttttyyyy1.");
+            
+            // we register listeners so that if the user modifies the form contents,
+            // we break the spell (i.e. we no longer link this form to a specific login.
+            // In most cases this won't make a difference but for multi-page logins it
+            // will result in problems - not much we can do about that though.) One 
+            // possible enhancement in future is to track the original values of just
+            // these form fields and compare against them when submitted - can't 
+            // just compare against enitre login objects becuase we can't be certain
+            // if we are just on one particular page in a multi-page login sequence)
+            for (var i = 0; i < passwordFields.length; i++)
+            {
+            this.log("testtttttyyyy2.");
+                var passField = passwordFields[i];
+                if (passField.DOMInputElement != null)
+                {
+                    passField.DOMInputElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+                }
+            }
+            
+            for (var i = 0; i < otherFields.length; i++)
+            {
+            this.log("testtttttyyyy3.");
+                var otherField = otherFields[i];
+                if (otherField.DOMInputElement != null)
+                {
+                    otherField.DOMInputElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+                } else if (otherField.DOMSelectElement != null)
+                {
+                    otherField.DOMSelectElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+                }
+            }
+        }
+        
+        // if we know we are only interested in filling one specific uniqueID or that
+        // we have knowledge of whether we want to autofill when the next page is
+        // loaded then we can (re)populate these values now
+        if (uniqueID != undefined && uniqueID != null && uniqueID != "")
+        {
+            ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+            ss.setTabValue(currentTab, "KF_uniqueID", uniqueID);
+        }
         
         if (autoSubmitForm && formsReadyForSubmit == 1)
         {
@@ -452,9 +641,15 @@
     };
     
     // login to be used is indentified via KeePass uniqueID (GUID)
-    // TODO: handle situations where either forms fields or logins have dissapeared in the mean time.
+    // actionURL and other fields help identify which form we should submit to
+    // TODO: we previously calculated the preferred form when the page loaded so maybe we
+    // should pass along that information and use it to decide which form to submit to?
+    // OTOH this would perclude the user from over-riding the automatic form choice in 
+    // situations where it makes an incorrect decision.
+    // TODO: handle situations where forms fields have dissapeared in the mean time.
     // TODO: formID innacurate (so not used yet)
-    // TODO: extend so more than one form can be filled, with option to automatically submit form that matches most accuratly
+    // TODO: extend so more than one form can be filled, with option to automatically submit
+    // form that matches most accuratly (currently we just pick the first match - this may not be ideal)
 KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
         this.log("fill login details from username field: " + usernameName + ":" + usernameValue);
         
@@ -475,8 +670,9 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
             if (usernameField != null)
             {
                 form = usernameField.form;
-                [usernameIndex, passwords, otherFields] = this._getFormFields(form, false);
+                [usernameIndex, passwords, otherFields] = this._getFormFields(form, false, 1);
             }
+            
         }
         
         if (form == undefined || form == null)
@@ -489,7 +685,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
                 // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
                 if (this._getURISchemeHostAndPort(this._getActionOrigin(formi)) == this._getURISchemeHostAndPort(actionURL))                {
                     form = formi;
-                    [usernameIndex, passwords, otherFields] = this._getFormFields(form, false);
+                    [usernameIndex, passwords, otherFields] = this._getFormFields(form, false, 1);
                     
                     if (passwords == null || passwords.length == 0)
                         continue;
@@ -512,40 +708,17 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
         
         var title = doc.title;
         
-        // NB: lots of commented bits below are hangover from before uniqueIDs were used
-        // shouldn't need to keep them for very long...
-        
-        /*
-        // Temporary LoginInfo with the info we know.
-        var currentLogin = new this._kfLoginInfo();
-        this.log("titleA:"+title);
-        currentLogin.init(URL, actionURL, null,
-                          usernameValue, null,
-                          (usernameField ? usernameField.name  : ""),
-                          passwordField.name, uniqueID, title);
-        */
-        
         // Look for a existing login and use its password.
         var match = null;
         var logins = this.findLogins({}, URL, actionURL, null, uniqueID);
         this.log(logins.length);
         this.log(logins[0]);
         
+        // Ensure the entry has not been deleted between page load and fill request
         if (uniqueID && logins.length == 1)
         {
             match = logins[0];
-        }/* else
-        {
-            for (var i=0; i < logins.length; i++)
-            {
-                if (currentLogin.matches(logins[i], true, false, false))
-                {
-                    match = logins[i];
-                    this.log(logins[i]);
-                    break;
-                }
-            }
-        }*/
+        }
         
         if (match == null)
         {
@@ -555,14 +728,43 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
 
         this.log("Found a matching login, filling in passwords, etc.");
             
-        // for both passwords and all other fields, go through every element on the page form
-        // and match against the database contents in this order:
-        // id
-        // name
-        // if neither matches, just choose the first database result
-        this._fillManyFormFields(passwords, match.passwords);
-        this._fillManyFormFields(otherFields, match.otherFields);
-            
+        this._fillManyFormFields(passwords, match.passwords, 1);
+        this._fillManyFormFields(otherFields, match.otherFields, 1);
+
+        // Attach information to this tab which describes what we know about the number of pages this form covers
+        // this allows us to automatically submit multiple page forms with one click and helps avoid repeating
+        // loops of form submission in case the password is rejected.
+        var maximumPageCount = 1;
+        
+        for (var i = 0; i < match.passwords.length; i++)
+        {
+            var passField = 
+                match.passwords.queryElementAt(i,Components.interfaces.kfILoginField);
+            if (passField.formFieldPage > maximumPageCount)
+                maximumPageCount = passField.formFieldPage;
+        }
+        for (var i = 0; i < match.otherFields.length; i++)
+        {
+            var otherField = 
+                match.otherFields.queryElementAt(i,Components.interfaces.kfILoginField);
+            if (otherField.formFieldPage > maximumPageCount)
+                maximumPageCount = otherField.formFieldPage;
+        }
+        
+        var numberOfTabFillsRemaining = maximumPageCount - 1;
+        var numberOfTabFillsTarget = maximumPageCount;
+        
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                    .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(doc)];
+        
+        ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", numberOfTabFillsRemaining);
+        ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
+        ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+        ss.setTabValue(currentTab, "KF_uniqueID", uniqueID);
+        
+        // now we can submit the form (or just leave it up to the user if that is their preference)    
         if (autoSubmitForm)
             form.submit();
     };

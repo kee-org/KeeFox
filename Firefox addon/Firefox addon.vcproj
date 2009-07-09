@@ -178,6 +178,16 @@
 			Filter="Test Pages"
 			>
 			<File
+				RelativePath=".\Test Pages\MultiPage1Other1PasswordPage2.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\MultiPage1Username1PasswordPage1.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
 				RelativePath=".\Test Pages\StandardUsernamePassword.htm"
 				DeploymentContent="true"
 				>
@@ -188,7 +198,17 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Test Pages\testResults.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
 				RelativePath=".\Test Pages\Username2Passwords1Checkbox1Radio.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username2Passwords1Checkbox1Radio1Select.htm"
 				DeploymentContent="true"
 				>
 			</File>
@@ -204,11 +224,19 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\CHANGELOG.txt"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome.manifest"
 			>
 		</File>
 		<File
 			RelativePath=".\debugXPIPackageExclusions.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\groupChooser.xul"
 			>
 		</File>
 		<File
@@ -247,7 +275,7 @@
 			RelativePath=".\KeeFox\chrome\content\keefox.xul"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Release|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -258,6 +286,14 @@
 		<File
 			RelativePath=".\KeeFox\modules\KF.js"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\components\kfGroupInfo.js"
@@ -300,6 +336,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\KFUI_protocol.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\components\kfURL.js"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\content\KFUtils.js"
 			>
 		</File>
@@ -310,6 +354,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\content\options.xul"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\defaults\preferences\prefs.js"

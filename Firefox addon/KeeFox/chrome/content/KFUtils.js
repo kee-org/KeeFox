@@ -1,4 +1,24 @@
+/*
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is a file with utility functions to aid with a variety of tasks such as
+  downloading files from the internet and running executable installers on the local system.
 
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 
 function KFexecutableInstallerRunner(path, params, reason, mainWindow, browserWindow) {
@@ -343,55 +363,5 @@ function KFMD5checksumVerification(path, testMD5) {
     return false;
 }
 
-
-//var KF_mainThread;
-/* this is probably useless...
-
-function KeeFoxFileDownloader(source, URL, destinationFile, mainWindow, browserWindow) {
-this.source = source;
-this.URL = URL;
-this.destinationFile = destinationFile;
-this.mainWindow = mainWindow;
-this.browserWindow = browserWindow;
-}
-KeeFoxFileDownloader.prototype = {
-QueryInterface: function(iid) {
-if (iid.equals(Components.interfaces.nsIRunnable) ||
-iid.equals(Components.interfaces.nsISupports))
-return this;
-throw Components.results.NS_ERROR_NO_INTERFACE;
-},
-
-run: function() {
-{
-var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-.createInstance(Components.interfaces.nsIWebBrowserPersist);
-var file = Components.classes["@mozilla.org/file/local;1"]
-.createInstance(Components.interfaces.nsILocalFile);
-file.initWithPath("C:\\temp\\" + this.destinationFile); // download destination
-var obj_URI = Components.classes["@mozilla.org/network/io-service;1"]
-.getService(Components.interfaces.nsIIOService)
-.newURI(this.URL, null, null);
-persist.progressListener = new KeeFoxFileDownloaderListener(this.source, this.URL, this.destinationFile, this.mainWindow, this.browserWindow);
-persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_BYPASS_CACHE;
-
-var KF_mainThread = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-KF_mainThread.dispatch(new KFmainThread(this.source, "progress", persist.persistFlags, this.mainWindow, this.browserWindow), KF_mainThread.DISPATCH_NORMAL);
-
-persist.saveURI(obj_URI, null, null, null, "", file);
-
-var thread = Components.classes["@mozilla.org/thread-manager;1"]
-.getService(Components.interfaces.nsIThreadManager)
-.currentThread;
-while (persist.currentState != persist.PERSIST_STATE_FINISHED)
-thread.processNextEvent(true);
-
-KF_mainThread.dispatch(new KFmainThread(this.source, "progress", 10000, this.mainWindow, this.browserWindow), KF_mainThread.DISPATCH_NORMAL);
-}
-}
-};
-
-
-*/
 
 

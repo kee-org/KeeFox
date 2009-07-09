@@ -13,7 +13,7 @@
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Enable detection of advanced forms">
 <!ENTITY KeeFox-pref-autoFillForms.label "Fill in forms automatically when a matching password is found">
 <!ENTITY KeeFox-pref-autoSubmitForms.label "Submit forms automatically when a matching password is found">
-<!ENTITY KeeFox-pref-overWriteUsernameAutomatically.label "Overwrite the contents of any matching non-empty forms">
+<!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Overwrite the contents of any matching non-empty forms">
 <!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Submit forms when you choose a matching password">
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Remember the most recently used KeePass database">
 

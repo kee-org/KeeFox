@@ -3,7 +3,10 @@
   Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This KFToolBar.js file contains functions and data related to the visible
-  toolbar buttons that kefox.xul defines.
+  toolbar buttons that kefox.xul defines. It also contains some other related
+  functions such as displaying popup menus and serves as a known access
+  point for a given window's KeeFox features. (I'll probably split some 
+  of these into different files in the future)
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -60,6 +63,7 @@ KFToolbar.prototype = {
             this._logService.logStringMessage(message);
     },
     
+    // remove matched logins from the menu
     removeLogins: function() {
 
         // Get the toolbaritem "container" that we added to our XUL markup
@@ -73,8 +77,9 @@ KFToolbar.prototype = {
         this.setupButton_ready(null,this._currentWindow);
     },
     
+    // add all matched logins to the menu
     setLogins: function(logins) {
-this.log("setLogins");
+        this.log("setLogins");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         
@@ -95,17 +100,20 @@ this.log("setLogins");
             this.setupButton_ready(null,this._currentWindow);
             return;
         }
-       
+        
+        // set up the main button
         container.setAttribute("class", "login-found");
         container.setAttribute("type", "menu-button");
         container.setAttribute("disabled", "false");
         container.setAttribute("onpopupshowing", "this.setAttribute('KFLock','enabled');");
         container.setAttribute("onpopuphiding", "this.setAttribute('KFLock','disabled');");
-                
+        
+        // create a popup menu to hold the logins        
         menupopup = this._currentWindow.document.createElement("menupopup");
 
         this.log("setting " + logins.length + " toolbar logins");
-
+        
+        // add every matched login to the popup menu
         for (var i = 0; i < logins.length; i++) {
             var login = logins[i];
             var usernameValue = "";
@@ -132,122 +140,52 @@ this.log("setLogins");
                 container.setAttribute("label", login.title);
                 container.setAttribute("tooltiptext", usernameValue );
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "'); event.stopPropagation();"); // TODO: find the password ID from login.passwords...
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "'); event.stopPropagation();");
             
             }
-
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", usernameValue);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "'); event.stopPropagation();"); // TODO: find the password ID from login.passwords...
+                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "'); event.stopPropagation();");
             menupopup.appendChild(tempButton);
-
 
         }
         
         container.appendChild(menupopup);
-this.log("test2:"+container.getAttribute("oncommand"));
+        this.log("test2:"+container.getAttribute("oncommand"));
     },
     
+    // populate the "all logins" menu with every login in this database
     setAllLogins: function() {
         this.log("setAllLogins");
         
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
-        
 
-        
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
+            // start with the current root group uniqueID
             var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
             
             if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                 this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
             loginButton.setAttribute("disabled","false");
             return;
-        }
-        loginButton.setAttribute("disabled","true");
-        var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
-
-        // Remove all of the existing buttons
-        for (i = container.childNodes.length; i > 0; i--) {
-            container.removeChild(container.childNodes[0]);
-        }
-      
-        
-       /*
-        var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, rootGroup.uniqueID);
-        var foundLogins = this._currentWindow.keeFoxILM.getChildEntries({}, rootGroup.uniqueID);
-
-        if (logins == null || logins.length == 0)
+        } else
         {
-            this.setupButton_ready(null,this._currentWindow);
-            return;
-        }
-       
-        container.setAttribute("class", "login-found");
-        container.setAttribute("type", "menu-button");
-        container.setAttribute("disabled", "false");
-                
-        menupopup = this._currentWindow.document.createElement("menupopup");
+            loginButton.setAttribute("disabled","true");
+            var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
 
-        this.log("setting " + logins.length + " toolbar logins");
-
-        for (var i = 0; i < logins.length; i++) {
-            var login = logins[i];
-            
-            var userNameID = null;
-            var passwordID = null;
-            var custFields = login.customFields;
-            //this.log(custFields);
-            if (custFields != undefined)
-            {
-                this.log("found some custom fields");
-                var enumerator = custFields.enumerate();
-                var s = "";
-                while (enumerator.hasMoreElements())
-                {
-                  var customField = enumerator.getNext().QueryInterface(Components.interfaces.kfILoginField);
-                  
-                  // for now we're only using custom fields to increase form selection accuracy
-                  if (customField.name == 'Form field special_form_username_ID value')
-                    userNameID = customField.value;
-                   else if (customField.name == 'Form field special_form_password_ID value')
-                    passwordID = customField.value;
-                }
-                //this.log(s);
+            // Remove all of the existing buttons
+            for (i = container.childNodes.length; i > 0; i--) {
+                container.removeChild(container.childNodes[0]);
             }
-            
-            if (i==0)
-            {
-                container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-            
-            }
-
-
-            var tempButton = null;
-            tempButton = this._currentWindow.document.createElement("menuitem");
-            tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
-            tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
-            menupopup.appendChild(tempButton);
-
-
         }
-        
-        container.appendChild(menupopup);
-this.log("test2:"+container.getAttribute("oncommand"));
-*/
     },
     
+    // add all the logins and subgroups for one KeePass group
     setOneLoginsMenu: function(containerID, groupUniqueID) {
         this.log("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
 
@@ -272,31 +210,10 @@ this.log("test2:"+container.getAttribute("oncommand"));
             container.appendChild(noItemsButton);
             return;
         }
-       /*
-        container.setAttribute("class", "login-found");
-        container.setAttribute("type", "menu-button");
-        container.setAttribute("disabled", "false");
-                
-        menupopup = this._currentWindow.document.createElement("menupopup");
 
-        this.log("setting " + logins.length + " toolbar logins");
-*/
         for (var i = 0; i < foundGroups.length; i++) {
             var group = foundGroups[i];
             
-            /*
-            
-            if (i==0)
-            {
-                container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-            
-            }
-*/
-
             // maybe this duplicated oncommand, etc. is un-needed?
             var newMenu = null;
             newMenu = this._currentWindow.document.createElement("menu");
@@ -313,12 +230,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
             var newMenuPopup = null;
             newMenuPopup = this._currentWindow.document.createElement("menupopup");
             newMenuPopup.setAttribute("id", "KeeFox_Group-" + group.uniqueID);
-            //newMenuPopup.setAttribute("label", group.title);
-            //newMenuPopup.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonGroup.tip"));
-            //newMenuPopup.setAttribute("oncommand", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
-            //    group.uniqueID + "','" + group.uniqueID + "');");
             newMenu.appendChild(newMenuPopup);
-
 
         }
         
@@ -342,34 +254,19 @@ this.log("test2:"+container.getAttribute("oncommand"));
                 usernameName = field.name;
                 usernameId = field.fieldId;
             }
-            
-            /*
-            
-            if (i==0)
-            {
-                container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-            
-            }
-*/
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonLogin.tip"));
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
-                usernameName + "','" + usernameValue + "','" + login.URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.URLs.queryElementAt(0,Components.interfaces.kfIURL).URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
             tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
 
             container.appendChild(tempButton);
-
-
         }
         
     },
@@ -646,32 +543,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
         
             for (i = 0; i < mruArray.length; i++)
             {
-                //this._alert("Found an MRU file name: " + mruArray[i]);
-            //}
-            
-           /*
-            container.setAttribute("class", "login-found");
-            container.setAttribute("type", "menu-button");
-            container.setAttribute("disabled", "false");
-                    
-            menupopup = this._currentWindow.document.createElement("menupopup");
-
-            this.log("setting " + logins.length + " toolbar logins");
-    */
-            
-                
-                /*
-                
-                if (i==0)
-                {
-                    container.setAttribute("label", login.title);
-                    container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                    container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                        login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                      //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-                
-                }
-    */
+               
 
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
@@ -688,9 +560,113 @@ this.log("test2:"+container.getAttribute("oncommand"));
 
             }
         }
-        //container.appendChild(popupContainer);
         
+    },
+    
+    // wipe any session data relating to saving login forms that we
+    // have associated with the most recent tab.
+    clearTabFormRecordingData : function ()
+    {
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+            .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = this._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+
+        var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
+
+        if (currentPage != undefined && currentPage != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
+        }
+        
+        var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
+
+        if (currentStateMain != undefined && currentStateMain != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+        }
+        
+        var currentStatePasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+
+        if (currentStatePasswords != undefined && currentStatePasswords != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+        }
+        
+        var currentStateOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+
+        if (currentStateOtherFields != undefined && currentStateOtherFields != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+        }
+        
+        
+            
+    },
+    
+    // prepare the most recent tab for recording a login procedure
+    setTabFormRecordingData : function ()
+    {
+    
+    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+            .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = this._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+
+//this.log(currentGBrowser.mTabs.selectedIndex);
+        var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
+        
+        if (currentPage == undefined || currentPage == null)
+        {
+            currentPage = 0; // or 1?
+        }
+        
+        ss.setTabValue(currentTab, "KF_recordFormCurrentPage", currentPage+1);
+
+    },
+    
+    // wipe any session data relating to filling login forms that we
+    // have associated with the most recent tab.
+    clearTabFormFillData : function ()
+    {
+        this.log("clearTabFormFillData");
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+            .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = this._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+
+        var autoSubmit = ss.getTabValue(currentTab, "KF_autoSubmit");
+
+        if (autoSubmit != undefined && autoSubmit != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_autoSubmit");
+        }
+        
+        var uniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
+
+        if (uniqueID != undefined && uniqueID != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_uniqueID");
+        }
+        
+        var numberOfTabFillsTarget = ss.getTabValue(currentTab, "KF_numberOfTabFillsTarget");
+
+        if (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_numberOfTabFillsTarget");
+        }
+        
+        var numberOfTabFillsRemaining = ss.getTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+
+        if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null)
+        {
+            ss.deleteTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+        }
+        
+        
+            
     }
 
-
 };
+
+

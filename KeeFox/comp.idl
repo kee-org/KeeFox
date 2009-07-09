@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,21 +18,20 @@
 */
 
 #include "nsISupports.idl"
-//#include "nsILoginInfo.idl"
 #include "nsIMutableArray.idl"
-//#include "nsILoginManagerStorage.idl"
 #include "nsIDOMHTMLInputElement.idl"
 
-// TODO: more attributes needed? would be nice if not, maybe automatically detect form field type at fill-in
-// stage rather than store in KeePass?
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa873)]
 interface kfILoginField : nsISupports {
   attribute AString name;
   attribute AString value;
   attribute AString fieldId;
-  attribute nsIDOMHTMLInputElement DOMelement; //TODO: find the correct type - it could be XPCNativeWrapper
+  attribute nsIDOMHTMLInputElement DOMInputElement;
+  attribute nsIDOMHTMLInputElement DOMSelectElement;
   attribute AString type;
-  void init(in AString aName, in AString aValue, in AString aID, in AString aType);
+  attribute short formFieldPage;
+  void init(in AString aName, in AString aValue, in AString aID, in AString aType, in short aFormFieldPage);
+  AString toSource();
 };
 
 // based on Mozilla's nsILoginInfo
@@ -44,7 +43,8 @@ interface kfILoginInfo : nsISupports {
      * The hostname should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
-    attribute AString URL;
+    //attribute AString URL;
+	attribute nsIMutableArray URLs;
 
     /**
      * The URL a form-based login was submitted to.
@@ -90,6 +90,8 @@ interface kfILoginInfo : nsISupports {
 
 	attribute long relevanceScore;
 
+	attribute long maximumPage;
+
 
 
     /**
@@ -114,20 +116,27 @@ interface kfILoginInfo : nsISupports {
      */
     boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes);
 
+	kfILoginInfo mergeWith(in kfILoginInfo aLoginInfo);
+
 	
     /**
      * Initialize a newly created nsLoginInfo object.
      *
      * The arguments are the fields for the new object.
      */
-	void init(in AString aHostname,
+	void init(in nsIMutableArray URLs,
               in AString aFormSubmitURL, in AString aHttpRealm,
               in long aUsernameIndex,      in nsIMutableArray aPasswords,
-			  in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray);
+			  in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray,
+			  in long aMaximumPage);
 
+	AString toSource();
 };
 
-
+[scriptable, function, uuid(21e35ab1-d964-476f-ba73-c318cc1a1183)]
+interface kfIURL : nsISupports {
+	attribute AString URL;
+};
 
 
 [scriptable, function, uuid(21e05ab1-d964-476f-ba73-c318c51a118e)]

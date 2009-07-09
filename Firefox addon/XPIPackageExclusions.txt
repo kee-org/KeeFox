@@ -1,5 +1,6 @@
 \_svn
 .pdb
+.pgd
 .dll.manifest
 .lib
 .exp

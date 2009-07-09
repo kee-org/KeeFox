@@ -26,62 +26,62 @@
 #   endif
 #endif
 
-static const ::std::string __KeeICE__KFlib__KP__checkVersion_name = "checkVersion";
+static const ::std::string __KeeICE__KPlib__KP__checkVersion_name = "checkVersion";
 
-static const ::std::string __KeeICE__KFlib__KP__getDatabaseName_name = "getDatabaseName";
+static const ::std::string __KeeICE__KPlib__KP__getDatabaseName_name = "getDatabaseName";
 
-static const ::std::string __KeeICE__KFlib__KP__getDatabaseFileName_name = "getDatabaseFileName";
+static const ::std::string __KeeICE__KPlib__KP__getDatabaseFileName_name = "getDatabaseFileName";
 
-static const ::std::string __KeeICE__KFlib__KP__changeDatabase_name = "changeDatabase";
+static const ::std::string __KeeICE__KPlib__KP__changeDatabase_name = "changeDatabase";
 
-static const ::std::string __KeeICE__KFlib__KP__AddLogin_name = "AddLogin";
+static const ::std::string __KeeICE__KPlib__KP__AddLogin_name = "AddLogin";
 
-static const ::std::string __KeeICE__KFlib__KP__ModifyLogin_name = "ModifyLogin";
+static const ::std::string __KeeICE__KPlib__KP__ModifyLogin_name = "ModifyLogin";
 
-static const ::std::string __KeeICE__KFlib__KP__getAllLogins_name = "getAllLogins";
+static const ::std::string __KeeICE__KPlib__KP__getAllLogins_name = "getAllLogins";
 
-static const ::std::string __KeeICE__KFlib__KP__findLogins_name = "findLogins";
+static const ::std::string __KeeICE__KPlib__KP__findLogins_name = "findLogins";
 
-static const ::std::string __KeeICE__KFlib__KP__countLogins_name = "countLogins";
+static const ::std::string __KeeICE__KPlib__KP__countLogins_name = "countLogins";
 
-static const ::std::string __KeeICE__KFlib__KP__addClient_name = "addClient";
+static const ::std::string __KeeICE__KPlib__KP__addClient_name = "addClient";
 
-static const ::std::string __KeeICE__KFlib__KP__findGroups_name = "findGroups";
+static const ::std::string __KeeICE__KPlib__KP__findGroups_name = "findGroups";
 
-static const ::std::string __KeeICE__KFlib__KP__getRoot_name = "getRoot";
+static const ::std::string __KeeICE__KPlib__KP__getRoot_name = "getRoot";
 
-static const ::std::string __KeeICE__KFlib__KP__getParent_name = "getParent";
+static const ::std::string __KeeICE__KPlib__KP__getParent_name = "getParent";
 
-static const ::std::string __KeeICE__KFlib__KP__getChildGroups_name = "getChildGroups";
+static const ::std::string __KeeICE__KPlib__KP__getChildGroups_name = "getChildGroups";
 
-static const ::std::string __KeeICE__KFlib__KP__getChildEntries_name = "getChildEntries";
+static const ::std::string __KeeICE__KPlib__KP__getChildEntries_name = "getChildEntries";
 
-static const ::std::string __KeeICE__KFlib__KP__addGroup_name = "addGroup";
+static const ::std::string __KeeICE__KPlib__KP__addGroup_name = "addGroup";
 
-static const ::std::string __KeeICE__KFlib__KP__removeGroup_name = "removeGroup";
+static const ::std::string __KeeICE__KPlib__KP__removeGroup_name = "removeGroup";
 
-static const ::std::string __KeeICE__KFlib__KP__removeEntry_name = "removeEntry";
+static const ::std::string __KeeICE__KPlib__KP__removeEntry_name = "removeEntry";
 
-static const ::std::string __KeeICE__KFlib__KP__LaunchGroupEditor_name = "LaunchGroupEditor";
+static const ::std::string __KeeICE__KPlib__KP__LaunchGroupEditor_name = "LaunchGroupEditor";
 
-static const ::std::string __KeeICE__KFlib__KP__LaunchLoginEditor_name = "LaunchLoginEditor";
+static const ::std::string __KeeICE__KPlib__KP__LaunchLoginEditor_name = "LaunchLoginEditor";
 
-static const ::std::string __KeeICE__KFlib__KP__getCurrentKFConfig_name = "getCurrentKFConfig";
+static const ::std::string __KeeICE__KPlib__KP__getCurrentKFConfig_name = "getCurrentKFConfig";
 
-static const ::std::string __KeeICE__KFlib__KP__setCurrentKFConfig_name = "setCurrentKFConfig";
+static const ::std::string __KeeICE__KPlib__KP__setCurrentKFConfig_name = "setCurrentKFConfig";
 
-static const ::std::string __KeeICE__KFlib__KP__setCurrentDBRootGroup_name = "setCurrentDBRootGroup";
+static const ::std::string __KeeICE__KPlib__KP__setCurrentDBRootGroup_name = "setCurrentDBRootGroup";
 
-static const ::std::string __KeeICE__KFlib__CallbackReceiver__callback_name = "callback";
+static const ::std::string __KeeICE__KPlib__CallbackReceiver__callback_name = "callback";
 
-::Ice::Object* IceInternal::upCast(::KeeICE::KFlib::KP* p) { return p; }
-::IceProxy::Ice::Object* IceInternal::upCast(::IceProxy::KeeICE::KFlib::KP* p) { return p; }
+::Ice::Object* IceInternal::upCast(::KeeICE::KPlib::KP* p) { return p; }
+::IceProxy::Ice::Object* IceInternal::upCast(::IceProxy::KeeICE::KPlib::KP* p) { return p; }
 
-::Ice::Object* IceInternal::upCast(::KeeICE::KFlib::CallbackReceiver* p) { return p; }
-::IceProxy::Ice::Object* IceInternal::upCast(::IceProxy::KeeICE::KFlib::CallbackReceiver* p) { return p; }
+::Ice::Object* IceInternal::upCast(::KeeICE::KPlib::CallbackReceiver* p) { return p; }
+::IceProxy::Ice::Object* IceInternal::upCast(::IceProxy::KeeICE::KPlib::CallbackReceiver* p) { return p; }
 
 void
-KeeICE::KFlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::KPPrx& v)
+KeeICE::KPlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::KPPrx& v)
 {
     ::Ice::ObjectPrx proxy;
     __is->read(proxy);
@@ -91,13 +91,13 @@ KeeICE::KFlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::KPPrx& 
     }
     else
     {
-        v = new ::IceProxy::KeeICE::KFlib::KP;
+        v = new ::IceProxy::KeeICE::KPlib::KP;
         v->__copyFrom(proxy);
     }
 }
 
 void
-KeeICE::KFlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::CallbackReceiverPrx& v)
+KeeICE::KPlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::CallbackReceiverPrx& v)
 {
     ::Ice::ObjectPrx proxy;
     __is->read(proxy);
@@ -107,41 +107,41 @@ KeeICE::KFlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::Callbac
     }
     else
     {
-        v = new ::IceProxy::KeeICE::KFlib::CallbackReceiver;
+        v = new ::IceProxy::KeeICE::KPlib::CallbackReceiver;
         v->__copyFrom(proxy);
     }
 }
 
 void
-KeeICE::KFlib::__write(::IceInternal::BasicStream* __os, ::KeeICE::KFlib::loginSearchType v)
+KeeICE::KPlib::__write(::IceInternal::BasicStream* __os, ::KeeICE::KPlib::loginSearchType v)
 {
     __os->write(static_cast< ::Ice::Byte>(v), 3);
 }
 
 void
-KeeICE::KFlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::loginSearchType& v)
+KeeICE::KPlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::loginSearchType& v)
 {
     ::Ice::Byte val;
     __is->read(val, 3);
-    v = static_cast< ::KeeICE::KFlib::loginSearchType>(val);
+    v = static_cast< ::KeeICE::KPlib::loginSearchType>(val);
 }
 
 void
-KeeICE::KFlib::__write(::IceInternal::BasicStream* __os, ::KeeICE::KFlib::formFieldType v)
+KeeICE::KPlib::__write(::IceInternal::BasicStream* __os, ::KeeICE::KPlib::formFieldType v)
 {
     __os->write(static_cast< ::Ice::Byte>(v), 6);
 }
 
 void
-KeeICE::KFlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::formFieldType& v)
+KeeICE::KPlib::__read(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::formFieldType& v)
 {
     ::Ice::Byte val;
     __is->read(val, 6);
-    v = static_cast< ::KeeICE::KFlib::formFieldType>(val);
+    v = static_cast< ::KeeICE::KPlib::formFieldType>(val);
 }
 
 bool
-KeeICE::KFlib::KPFormField::operator==(const KPFormField& __rhs) const
+KeeICE::KPlib::KPFormField::operator==(const KPFormField& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -167,11 +167,15 @@ KeeICE::KFlib::KPFormField::operator==(const KPFormField& __rhs) const
     {
         return false;
     }
+    if(page != __rhs.page)
+    {
+        return false;
+    }
     return true;
 }
 
 bool
-KeeICE::KFlib::KPFormField::operator<(const KPFormField& __rhs) const
+KeeICE::KPlib::KPFormField::operator<(const KPFormField& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -217,31 +221,41 @@ KeeICE::KFlib::KPFormField::operator<(const KPFormField& __rhs) const
     {
         return false;
     }
+    if(page < __rhs.page)
+    {
+        return true;
+    }
+    else if(__rhs.page < page)
+    {
+        return false;
+    }
     return false;
 }
 
 void
-KeeICE::KFlib::KPFormField::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::KPFormField::__write(::IceInternal::BasicStream* __os) const
 {
     __os->write(name);
     __os->write(displayName);
     __os->write(value);
-    ::KeeICE::KFlib::__write(__os, type);
+    ::KeeICE::KPlib::__write(__os, type);
     __os->write(id);
+    __os->write(page);
 }
 
 void
-KeeICE::KFlib::KPFormField::__read(::IceInternal::BasicStream* __is)
+KeeICE::KPlib::KPFormField::__read(::IceInternal::BasicStream* __is)
 {
     __is->read(name);
     __is->read(displayName);
     __is->read(value);
-    ::KeeICE::KFlib::__read(__is, type);
+    ::KeeICE::KPlib::__read(__is, type);
     __is->read(id);
+    __is->read(page);
 }
 
 void
-KeeICE::KFlib::__writeKPFormFieldList(::IceInternal::BasicStream* __os, const ::KeeICE::KFlib::KPFormField* begin, const ::KeeICE::KFlib::KPFormField* end)
+KeeICE::KPlib::__writeKPFormFieldList(::IceInternal::BasicStream* __os, const ::KeeICE::KPlib::KPFormField* begin, const ::KeeICE::KPlib::KPFormField* end)
 {
     ::Ice::Int size = static_cast< ::Ice::Int>(end - begin);
     __os->writeSize(size);
@@ -252,11 +266,11 @@ KeeICE::KFlib::__writeKPFormFieldList(::IceInternal::BasicStream* __os, const ::
 }
 
 void
-KeeICE::KFlib::__readKPFormFieldList(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::KPFormFieldList& v)
+KeeICE::KPlib::__readKPFormFieldList(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::KPFormFieldList& v)
 {
     ::Ice::Int sz;
     __is->readSize(sz);
-    __is->startSeq(sz, 5);
+    __is->startSeq(sz, 9);
     v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {
@@ -268,7 +282,7 @@ KeeICE::KFlib::__readKPFormFieldList(::IceInternal::BasicStream* __is, ::KeeICE:
 }
 
 bool
-KeeICE::KFlib::KPGroup::operator==(const KPGroup& __rhs) const
+KeeICE::KPlib::KPGroup::operator==(const KPGroup& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -286,7 +300,7 @@ KeeICE::KFlib::KPGroup::operator==(const KPGroup& __rhs) const
 }
 
 bool
-KeeICE::KFlib::KPGroup::operator<(const KPGroup& __rhs) const
+KeeICE::KPlib::KPGroup::operator<(const KPGroup& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -312,21 +326,21 @@ KeeICE::KFlib::KPGroup::operator<(const KPGroup& __rhs) const
 }
 
 void
-KeeICE::KFlib::KPGroup::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::KPGroup::__write(::IceInternal::BasicStream* __os) const
 {
     __os->write(title);
     __os->write(uniqueID);
 }
 
 void
-KeeICE::KFlib::KPGroup::__read(::IceInternal::BasicStream* __is)
+KeeICE::KPlib::KPGroup::__read(::IceInternal::BasicStream* __is)
 {
     __is->read(title);
     __is->read(uniqueID);
 }
 
 void
-KeeICE::KFlib::__writeKPGroupList(::IceInternal::BasicStream* __os, const ::KeeICE::KFlib::KPGroup* begin, const ::KeeICE::KFlib::KPGroup* end)
+KeeICE::KPlib::__writeKPGroupList(::IceInternal::BasicStream* __os, const ::KeeICE::KPlib::KPGroup* begin, const ::KeeICE::KPlib::KPGroup* end)
 {
     ::Ice::Int size = static_cast< ::Ice::Int>(end - begin);
     __os->writeSize(size);
@@ -337,7 +351,7 @@ KeeICE::KFlib::__writeKPGroupList(::IceInternal::BasicStream* __os, const ::KeeI
 }
 
 void
-KeeICE::KFlib::__readKPGroupList(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::KPGroupList& v)
+KeeICE::KPlib::__readKPGroupList(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::KPGroupList& v)
 {
     ::Ice::Int sz;
     __is->readSize(sz);
@@ -353,13 +367,13 @@ KeeICE::KFlib::__readKPGroupList(::IceInternal::BasicStream* __is, ::KeeICE::KFl
 }
 
 bool
-KeeICE::KFlib::KPEntry::operator==(const KPEntry& __rhs) const
+KeeICE::KPlib::KPEntry::operator==(const KPEntry& __rhs) const
 {
     if(this == &__rhs)
     {
         return true;
     }
-    if(URL != __rhs.URL)
+    if(URLs != __rhs.URLs)
     {
         return false;
     }
@@ -395,17 +409,17 @@ KeeICE::KFlib::KPEntry::operator==(const KPEntry& __rhs) const
 }
 
 bool
-KeeICE::KFlib::KPEntry::operator<(const KPEntry& __rhs) const
+KeeICE::KPlib::KPEntry::operator<(const KPEntry& __rhs) const
 {
     if(this == &__rhs)
     {
         return false;
     }
-    if(URL < __rhs.URL)
+    if(URLs < __rhs.URLs)
     {
         return true;
     }
-    else if(__rhs.URL < URL)
+    else if(__rhs.URLs < URLs)
     {
         return false;
     }
@@ -469,9 +483,16 @@ KeeICE::KFlib::KPEntry::operator<(const KPEntry& __rhs) const
 }
 
 void
-KeeICE::KFlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
 {
-    __os->write(URL);
+    if(URLs.size() == 0)
+    {
+        __os->writeSize(0);
+    }
+    else
+    {
+        __os->write(&URLs[0], &URLs[0] + URLs.size());
+    }
     __os->write(formActionURL);
     __os->write(HTTPRealm);
     __os->write(title);
@@ -481,7 +502,7 @@ KeeICE::KFlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
     }
     else
     {
-        ::KeeICE::KFlib::__writeKPFormFieldList(__os, &formFieldList[0], &formFieldList[0] + formFieldList.size());
+        ::KeeICE::KPlib::__writeKPFormFieldList(__os, &formFieldList[0], &formFieldList[0] + formFieldList.size());
     }
     __os->write(_cpp_default);
     __os->write(exactMatch);
@@ -489,20 +510,20 @@ KeeICE::KFlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
 }
 
 void
-KeeICE::KFlib::KPEntry::__read(::IceInternal::BasicStream* __is)
+KeeICE::KPlib::KPEntry::__read(::IceInternal::BasicStream* __is)
 {
-    __is->read(URL);
+    __is->read(URLs);
     __is->read(formActionURL);
     __is->read(HTTPRealm);
     __is->read(title);
-    ::KeeICE::KFlib::__readKPFormFieldList(__is, formFieldList);
+    ::KeeICE::KPlib::__readKPFormFieldList(__is, formFieldList);
     __is->read(_cpp_default);
     __is->read(exactMatch);
     __is->read(uniqueID);
 }
 
 void
-KeeICE::KFlib::__writeKPEntryList(::IceInternal::BasicStream* __os, const ::KeeICE::KFlib::KPEntry* begin, const ::KeeICE::KFlib::KPEntry* end)
+KeeICE::KPlib::__writeKPEntryList(::IceInternal::BasicStream* __os, const ::KeeICE::KPlib::KPEntry* begin, const ::KeeICE::KPlib::KPEntry* end)
 {
     ::Ice::Int size = static_cast< ::Ice::Int>(end - begin);
     __os->writeSize(size);
@@ -513,7 +534,7 @@ KeeICE::KFlib::__writeKPEntryList(::IceInternal::BasicStream* __os, const ::KeeI
 }
 
 void
-KeeICE::KFlib::__readKPEntryList(::IceInternal::BasicStream* __is, ::KeeICE::KFlib::KPEntryList& v)
+KeeICE::KPlib::__readKPEntryList(::IceInternal::BasicStream* __is, ::KeeICE::KPlib::KPEntryList& v)
 {
     ::Ice::Int sz;
     __is->readSize(sz);
@@ -528,47 +549,47 @@ KeeICE::KFlib::__readKPEntryList(::IceInternal::BasicStream* __is, ::KeeICE::KFl
     __is->endSeq(sz);
 }
 
-KeeICE::KFlib::KeeICEException::KeeICEException(const ::std::string& __ice_reason) :
+KeeICE::KPlib::KeeICEException::KeeICEException(const ::std::string& __ice_reason) :
     ::Ice::UserException(),
     reason(__ice_reason)
 {
 }
 
-KeeICE::KFlib::KeeICEException::~KeeICEException() throw()
+KeeICE::KPlib::KeeICEException::~KeeICEException() throw()
 {
 }
 
-static const char* __KeeICE__KFlib__KeeICEException_name = "KeeICE::KFlib::KeeICEException";
+static const char* __KeeICE__KPlib__KeeICEException_name = "KeeICE::KPlib::KeeICEException";
 
 ::std::string
-KeeICE::KFlib::KeeICEException::ice_name() const
+KeeICE::KPlib::KeeICEException::ice_name() const
 {
-    return __KeeICE__KFlib__KeeICEException_name;
+    return __KeeICE__KPlib__KeeICEException_name;
 }
 
 ::Ice::Exception*
-KeeICE::KFlib::KeeICEException::ice_clone() const
+KeeICE::KPlib::KeeICEException::ice_clone() const
 {
     return new KeeICEException(*this);
 }
 
 void
-KeeICE::KFlib::KeeICEException::ice_throw() const
+KeeICE::KPlib::KeeICEException::ice_throw() const
 {
     throw *this;
 }
 
 void
-KeeICE::KFlib::KeeICEException::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::KeeICEException::__write(::IceInternal::BasicStream* __os) const
 {
-    __os->write(::std::string("::KeeICE::KFlib::KeeICEException"), false);
+    __os->write(::std::string("::KeeICE::KPlib::KeeICEException"), false);
     __os->startWriteSlice();
     __os->write(reason);
     __os->endWriteSlice();
 }
 
 void
-KeeICE::KFlib::KeeICEException::__read(::IceInternal::BasicStream* __is, bool __rid)
+KeeICE::KPlib::KeeICEException::__read(::IceInternal::BasicStream* __is, bool __rid)
 {
     if(__rid)
     {
@@ -580,46 +601,46 @@ KeeICE::KFlib::KeeICEException::__read(::IceInternal::BasicStream* __is, bool __
     __is->endReadSlice();
 }
 
-struct __F__KeeICE__KFlib__KeeICEException : public ::IceInternal::UserExceptionFactory
+struct __F__KeeICE__KPlib__KeeICEException : public ::IceInternal::UserExceptionFactory
 {
     virtual void
     createAndThrow()
     {
-        throw ::KeeICE::KFlib::KeeICEException();
+        throw ::KeeICE::KPlib::KeeICEException();
     }
 };
 
-static ::IceInternal::UserExceptionFactoryPtr __F__KeeICE__KFlib__KeeICEException__Ptr = new __F__KeeICE__KFlib__KeeICEException;
+static ::IceInternal::UserExceptionFactoryPtr __F__KeeICE__KPlib__KeeICEException__Ptr = new __F__KeeICE__KPlib__KeeICEException;
 
 const ::IceInternal::UserExceptionFactoryPtr&
-KeeICE::KFlib::KeeICEException::ice_factory()
+KeeICE::KPlib::KeeICEException::ice_factory()
 {
-    return __F__KeeICE__KFlib__KeeICEException__Ptr;
+    return __F__KeeICE__KPlib__KeeICEException__Ptr;
 }
 
-class __F__KeeICE__KFlib__KeeICEException__Init
+class __F__KeeICE__KPlib__KeeICEException__Init
 {
 public:
 
-    __F__KeeICE__KFlib__KeeICEException__Init()
+    __F__KeeICE__KPlib__KeeICEException__Init()
     {
-        ::IceInternal::factoryTable->addExceptionFactory("::KeeICE::KFlib::KeeICEException", ::KeeICE::KFlib::KeeICEException::ice_factory());
+        ::IceInternal::factoryTable->addExceptionFactory("::KeeICE::KPlib::KeeICEException", ::KeeICE::KPlib::KeeICEException::ice_factory());
     }
 
-    ~__F__KeeICE__KFlib__KeeICEException__Init()
+    ~__F__KeeICE__KPlib__KeeICEException__Init()
     {
-        ::IceInternal::factoryTable->removeExceptionFactory("::KeeICE::KFlib::KeeICEException");
+        ::IceInternal::factoryTable->removeExceptionFactory("::KeeICE::KPlib::KeeICEException");
     }
 };
 
-static __F__KeeICE__KFlib__KeeICEException__Init __F__KeeICE__KFlib__KeeICEException__i;
+static __F__KeeICE__KPlib__KeeICEException__Init __F__KeeICE__KPlib__KeeICEException__i;
 
 #ifdef __APPLE__
-extern "C" { void __F__KeeICE__KFlib__KeeICEException__initializer() {} }
+extern "C" { void __F__KeeICE__KPlib__KeeICEException__initializer() {} }
 #endif
 
 bool
-KeeICE::KFlib::KFConfiguration::operator==(const KFConfiguration& __rhs) const
+KeeICE::KPlib::KFConfiguration::operator==(const KFConfiguration& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -637,7 +658,7 @@ KeeICE::KFlib::KFConfiguration::operator==(const KFConfiguration& __rhs) const
 }
 
 bool
-KeeICE::KFlib::KFConfiguration::operator<(const KFConfiguration& __rhs) const
+KeeICE::KPlib::KFConfiguration::operator<(const KFConfiguration& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -663,7 +684,7 @@ KeeICE::KFlib::KFConfiguration::operator<(const KFConfiguration& __rhs) const
 }
 
 void
-KeeICE::KFlib::KFConfiguration::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::KFConfiguration::__write(::IceInternal::BasicStream* __os) const
 {
     if(knownDatabases.size() == 0)
     {
@@ -677,45 +698,45 @@ KeeICE::KFlib::KFConfiguration::__write(::IceInternal::BasicStream* __os) const
 }
 
 void
-KeeICE::KFlib::KFConfiguration::__read(::IceInternal::BasicStream* __is)
+KeeICE::KPlib::KFConfiguration::__read(::IceInternal::BasicStream* __is)
 {
     __is->read(knownDatabases);
     __is->read(autoCommit);
 }
 
-static const ::std::string __KeeICE__KFlib__KP_ids[2] =
+static const ::std::string __KeeICE__KPlib__KP_ids[2] =
 {
     "::Ice::Object",
-    "::KeeICE::KFlib::KP"
+    "::KeeICE::KPlib::KP"
 };
 
 bool
-KeeICE::KFlib::KP::ice_isA(const ::std::string& _s, const ::Ice::Current&) const
+KeeICE::KPlib::KP::ice_isA(const ::std::string& _s, const ::Ice::Current&) const
 {
-    return ::std::binary_search(__KeeICE__KFlib__KP_ids, __KeeICE__KFlib__KP_ids + 2, _s);
+    return ::std::binary_search(__KeeICE__KPlib__KP_ids, __KeeICE__KPlib__KP_ids + 2, _s);
 }
 
 ::std::vector< ::std::string>
-KeeICE::KFlib::KP::ice_ids(const ::Ice::Current&) const
+KeeICE::KPlib::KP::ice_ids(const ::Ice::Current&) const
 {
-    return ::std::vector< ::std::string>(&__KeeICE__KFlib__KP_ids[0], &__KeeICE__KFlib__KP_ids[2]);
+    return ::std::vector< ::std::string>(&__KeeICE__KPlib__KP_ids[0], &__KeeICE__KPlib__KP_ids[2]);
 }
 
 const ::std::string&
-KeeICE::KFlib::KP::ice_id(const ::Ice::Current&) const
+KeeICE::KPlib::KP::ice_id(const ::Ice::Current&) const
 {
-    return __KeeICE__KFlib__KP_ids[1];
+    return __KeeICE__KPlib__KP_ids[1];
 }
 
 const ::std::string&
-KeeICE::KFlib::KP::ice_staticId()
+KeeICE::KPlib::KP::ice_staticId()
 {
-    return __KeeICE__KFlib__KP_ids[1];
+    return __KeeICE__KPlib__KP_ids[1];
 }
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___checkVersion(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___checkVersion(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -734,7 +755,7 @@ KeeICE::KFlib::KP::___checkVersion(::IceInternal::Incoming& __inS, const ::Ice::
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getDatabaseName(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getDatabaseName(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __os = __inS.os();
@@ -746,7 +767,7 @@ KeeICE::KFlib::KP::___getDatabaseName(::IceInternal::Incoming& __inS, const ::Ic
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getDatabaseFileName(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getDatabaseFileName(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __os = __inS.os();
@@ -758,7 +779,7 @@ KeeICE::KFlib::KP::___getDatabaseFileName(::IceInternal::Incoming& __inS, const 
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___changeDatabase(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___changeDatabase(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -773,21 +794,21 @@ KeeICE::KFlib::KP::___changeDatabase(::IceInternal::Incoming& __inS, const ::Ice
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___AddLogin(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___AddLogin(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
-    ::KeeICE::KFlib::KPEntry login;
+    ::KeeICE::KPlib::KPEntry login;
     ::std::string parentUUID;
     login.__read(__is);
     __is->read(parentUUID);
     ::IceInternal::BasicStream* __os = __inS.os();
     try
     {
-        ::KeeICE::KFlib::KPEntry __ret = AddLogin(login, parentUUID, __current);
+        ::KeeICE::KPlib::KPEntry __ret = AddLogin(login, parentUUID, __current);
         __ret.__write(__os);
     }
-    catch(const ::KeeICE::KFlib::KeeICEException& __ex)
+    catch(const ::KeeICE::KPlib::KeeICEException& __ex)
     {
         __os->write(__ex);
         return ::Ice::DispatchUserException;
@@ -798,12 +819,12 @@ KeeICE::KFlib::KP::___AddLogin(::IceInternal::Incoming& __inS, const ::Ice::Curr
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___ModifyLogin(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___ModifyLogin(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
-    ::KeeICE::KFlib::KPEntry oldLogin;
-    ::KeeICE::KFlib::KPEntry newLogin;
+    ::KeeICE::KPlib::KPEntry oldLogin;
+    ::KeeICE::KPlib::KPEntry newLogin;
     oldLogin.__read(__is);
     newLogin.__read(__is);
     ::IceInternal::BasicStream* __os = __inS.os();
@@ -811,7 +832,7 @@ KeeICE::KFlib::KP::___ModifyLogin(::IceInternal::Incoming& __inS, const ::Ice::C
     {
         ModifyLogin(oldLogin, newLogin, __current);
     }
-    catch(const ::KeeICE::KFlib::KeeICEException& __ex)
+    catch(const ::KeeICE::KPlib::KeeICEException& __ex)
     {
         __os->write(__ex);
         return ::Ice::DispatchUserException;
@@ -822,11 +843,11 @@ KeeICE::KFlib::KP::___ModifyLogin(::IceInternal::Incoming& __inS, const ::Ice::C
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getAllLogins(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getAllLogins(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPEntryList logins;
+    ::KeeICE::KPlib::KPEntryList logins;
     try
     {
         ::Ice::Int __ret = getAllLogins(logins, __current);
@@ -836,11 +857,11 @@ KeeICE::KFlib::KP::___getAllLogins(::IceInternal::Incoming& __inS, const ::Ice::
         }
         else
         {
-            ::KeeICE::KFlib::__writeKPEntryList(__os, &logins[0], &logins[0] + logins.size());
+            ::KeeICE::KPlib::__writeKPEntryList(__os, &logins[0], &logins[0] + logins.size());
         }
         __os->write(__ret);
     }
-    catch(const ::KeeICE::KFlib::KeeICEException& __ex)
+    catch(const ::KeeICE::KPlib::KeeICEException& __ex)
     {
         __os->write(__ex);
         return ::Ice::DispatchUserException;
@@ -851,24 +872,24 @@ KeeICE::KFlib::KP::___getAllLogins(::IceInternal::Incoming& __inS, const ::Ice::
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___findLogins(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___findLogins(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
     ::std::string hostname;
     ::std::string actionURL;
     ::std::string httpRealm;
-    ::KeeICE::KFlib::loginSearchType lst;
+    ::KeeICE::KPlib::loginSearchType lst;
     bool requireFullURLMatches;
     ::std::string uniqueID;
     __is->read(hostname);
     __is->read(actionURL);
     __is->read(httpRealm);
-    ::KeeICE::KFlib::__read(__is, lst);
+    ::KeeICE::KPlib::__read(__is, lst);
     __is->read(requireFullURLMatches);
     __is->read(uniqueID);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPEntryList logins;
+    ::KeeICE::KPlib::KPEntryList logins;
     try
     {
         ::Ice::Int __ret = findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, __current);
@@ -878,11 +899,11 @@ KeeICE::KFlib::KP::___findLogins(::IceInternal::Incoming& __inS, const ::Ice::Cu
         }
         else
         {
-            ::KeeICE::KFlib::__writeKPEntryList(__os, &logins[0], &logins[0] + logins.size());
+            ::KeeICE::KPlib::__writeKPEntryList(__os, &logins[0], &logins[0] + logins.size());
         }
         __os->write(__ret);
     }
-    catch(const ::KeeICE::KFlib::KeeICEException& __ex)
+    catch(const ::KeeICE::KPlib::KeeICEException& __ex)
     {
         __os->write(__ex);
         return ::Ice::DispatchUserException;
@@ -893,19 +914,19 @@ KeeICE::KFlib::KP::___findLogins(::IceInternal::Incoming& __inS, const ::Ice::Cu
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___countLogins(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___countLogins(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
     ::std::string hostname;
     ::std::string actionURL;
     ::std::string httpRealm;
-    ::KeeICE::KFlib::loginSearchType lst;
+    ::KeeICE::KPlib::loginSearchType lst;
     bool requireFullURLMatches;
     __is->read(hostname);
     __is->read(actionURL);
     __is->read(httpRealm);
-    ::KeeICE::KFlib::__read(__is, lst);
+    ::KeeICE::KPlib::__read(__is, lst);
     __is->read(requireFullURLMatches);
     ::IceInternal::BasicStream* __os = __inS.os();
     try
@@ -913,7 +934,7 @@ KeeICE::KFlib::KP::___countLogins(::IceInternal::Incoming& __inS, const ::Ice::C
         ::Ice::Int __ret = countLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, __current);
         __os->write(__ret);
     }
-    catch(const ::KeeICE::KFlib::KeeICEException& __ex)
+    catch(const ::KeeICE::KPlib::KeeICEException& __ex)
     {
         __os->write(__ex);
         return ::Ice::DispatchUserException;
@@ -924,7 +945,7 @@ KeeICE::KFlib::KP::___countLogins(::IceInternal::Incoming& __inS, const ::Ice::C
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___addClient(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___addClient(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -937,7 +958,7 @@ KeeICE::KFlib::KP::___addClient(::IceInternal::Incoming& __inS, const ::Ice::Cur
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___findGroups(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___findGroups(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -946,7 +967,7 @@ KeeICE::KFlib::KP::___findGroups(::IceInternal::Incoming& __inS, const ::Ice::Cu
     __is->read(name);
     __is->read(uuid);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPGroupList groups;
+    ::KeeICE::KPlib::KPGroupList groups;
     ::Ice::Int __ret = findGroups(name, uuid, groups, __current);
     if(groups.size() == 0)
     {
@@ -954,7 +975,7 @@ KeeICE::KFlib::KP::___findGroups(::IceInternal::Incoming& __inS, const ::Ice::Cu
     }
     else
     {
-        ::KeeICE::KFlib::__writeKPGroupList(__os, &groups[0], &groups[0] + groups.size());
+        ::KeeICE::KPlib::__writeKPGroupList(__os, &groups[0], &groups[0] + groups.size());
     }
     __os->write(__ret);
     return ::Ice::DispatchOK;
@@ -963,11 +984,11 @@ KeeICE::KFlib::KP::___findGroups(::IceInternal::Incoming& __inS, const ::Ice::Cu
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getRoot(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getRoot(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPGroup __ret = getRoot(__current);
+    ::KeeICE::KPlib::KPGroup __ret = getRoot(__current);
     __ret.__write(__os);
     return ::Ice::DispatchOK;
 }
@@ -975,14 +996,14 @@ KeeICE::KFlib::KP::___getRoot(::IceInternal::Incoming& __inS, const ::Ice::Curre
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getParent(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getParent(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
     ::std::string uuid;
     __is->read(uuid);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPGroup __ret = getParent(uuid, __current);
+    ::KeeICE::KPlib::KPGroup __ret = getParent(uuid, __current);
     __ret.__write(__os);
     return ::Ice::DispatchOK;
 }
@@ -990,21 +1011,21 @@ KeeICE::KFlib::KP::___getParent(::IceInternal::Incoming& __inS, const ::Ice::Cur
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getChildGroups(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getChildGroups(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
     ::std::string uuid;
     __is->read(uuid);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPGroupList __ret = getChildGroups(uuid, __current);
+    ::KeeICE::KPlib::KPGroupList __ret = getChildGroups(uuid, __current);
     if(__ret.size() == 0)
     {
         __os->writeSize(0);
     }
     else
     {
-        ::KeeICE::KFlib::__writeKPGroupList(__os, &__ret[0], &__ret[0] + __ret.size());
+        ::KeeICE::KPlib::__writeKPGroupList(__os, &__ret[0], &__ret[0] + __ret.size());
     }
     return ::Ice::DispatchOK;
 }
@@ -1012,21 +1033,21 @@ KeeICE::KFlib::KP::___getChildGroups(::IceInternal::Incoming& __inS, const ::Ice
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getChildEntries(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getChildEntries(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
     ::std::string uuid;
     __is->read(uuid);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPEntryList __ret = getChildEntries(uuid, __current);
+    ::KeeICE::KPlib::KPEntryList __ret = getChildEntries(uuid, __current);
     if(__ret.size() == 0)
     {
         __os->writeSize(0);
     }
     else
     {
-        ::KeeICE::KFlib::__writeKPEntryList(__os, &__ret[0], &__ret[0] + __ret.size());
+        ::KeeICE::KPlib::__writeKPEntryList(__os, &__ret[0], &__ret[0] + __ret.size());
     }
     return ::Ice::DispatchOK;
 }
@@ -1034,7 +1055,7 @@ KeeICE::KFlib::KP::___getChildEntries(::IceInternal::Incoming& __inS, const ::Ic
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___addGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___addGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1043,7 +1064,7 @@ KeeICE::KFlib::KP::___addGroup(::IceInternal::Incoming& __inS, const ::Ice::Curr
     __is->read(name);
     __is->read(parentUuid);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KPGroup __ret = addGroup(name, parentUuid, __current);
+    ::KeeICE::KPlib::KPGroup __ret = addGroup(name, parentUuid, __current);
     __ret.__write(__os);
     return ::Ice::DispatchOK;
 }
@@ -1051,7 +1072,7 @@ KeeICE::KFlib::KP::___addGroup(::IceInternal::Incoming& __inS, const ::Ice::Curr
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___removeGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___removeGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1066,7 +1087,7 @@ KeeICE::KFlib::KP::___removeGroup(::IceInternal::Incoming& __inS, const ::Ice::C
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___removeEntry(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___removeEntry(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1081,7 +1102,7 @@ KeeICE::KFlib::KP::___removeEntry(::IceInternal::Incoming& __inS, const ::Ice::C
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___LaunchGroupEditor(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___LaunchGroupEditor(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1094,7 +1115,7 @@ KeeICE::KFlib::KP::___LaunchGroupEditor(::IceInternal::Incoming& __inS, const ::
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___LaunchLoginEditor(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___LaunchLoginEditor(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1107,11 +1128,11 @@ KeeICE::KFlib::KP::___LaunchLoginEditor(::IceInternal::Incoming& __inS, const ::
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___getCurrentKFConfig(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___getCurrentKFConfig(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __os = __inS.os();
-    ::KeeICE::KFlib::KFConfiguration __ret = getCurrentKFConfig(__current);
+    ::KeeICE::KPlib::KFConfiguration __ret = getCurrentKFConfig(__current);
     __ret.__write(__os);
     return ::Ice::DispatchOK;
 }
@@ -1119,11 +1140,11 @@ KeeICE::KFlib::KP::___getCurrentKFConfig(::IceInternal::Incoming& __inS, const :
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___setCurrentKFConfig(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___setCurrentKFConfig(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
-    ::KeeICE::KFlib::KFConfiguration config;
+    ::KeeICE::KPlib::KFConfiguration config;
     config.__read(__is);
     ::IceInternal::BasicStream* __os = __inS.os();
     bool __ret = setCurrentKFConfig(config, __current);
@@ -1134,7 +1155,7 @@ KeeICE::KFlib::KP::___setCurrentKFConfig(::IceInternal::Incoming& __inS, const :
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::___setCurrentDBRootGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::KP::___setCurrentDBRootGroup(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1148,7 +1169,7 @@ KeeICE::KFlib::KP::___setCurrentDBRootGroup(::IceInternal::Incoming& __inS, cons
 #endif // ICEE_PURE_CLIENT
 
 #ifndef ICEE_PURE_CLIENT
-static ::std::string __KeeICE__KFlib__KP_all[] =
+static ::std::string __KeeICE__KPlib__KP_all[] =
 {
     "AddLogin",
     "LaunchGroupEditor",
@@ -1180,15 +1201,15 @@ static ::std::string __KeeICE__KFlib__KP_all[] =
 };
 
 ::Ice::DispatchStatus
-KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
+KeeICE::KPlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__KP_all, __KeeICE__KFlib__KP_all + 27, current.operation);
+    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KPlib__KP_all, __KeeICE__KPlib__KP_all + 27, current.operation);
     if(r.first == r.second)
     {
         throw Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 
-    switch(r.first - __KeeICE__KFlib__KP_all)
+    switch(r.first - __KeeICE__KPlib__KP_all)
     {
         case 0:
         {
@@ -1306,7 +1327,7 @@ KeeICE::KFlib::KP::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current&
 #endif // ICEE_PURE_CLIENT
 
 void
-KeeICE::KFlib::KP::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::KP::__write(::IceInternal::BasicStream* __os) const
 {
     __os->writeTypeId(ice_staticId());
     __os->startWriteSlice();
@@ -1315,7 +1336,7 @@ KeeICE::KFlib::KP::__write(::IceInternal::BasicStream* __os) const
 }
 
 void
-KeeICE::KFlib::KP::__read(::IceInternal::BasicStream* __is, bool __rid)
+KeeICE::KPlib::KP::__read(::IceInternal::BasicStream* __is, bool __rid)
 {
     if(__rid)
     {
@@ -1329,62 +1350,62 @@ KeeICE::KFlib::KP::__read(::IceInternal::BasicStream* __is, bool __rid)
 
 
 bool
-KeeICE::KFlib::operator==(const ::KeeICE::KFlib::KP& l, const ::KeeICE::KFlib::KP& r)
+KeeICE::KPlib::operator==(const ::KeeICE::KPlib::KP& l, const ::KeeICE::KPlib::KP& r)
 {
     return static_cast<const ::Ice::Object&>(l) == static_cast<const ::Ice::Object&>(r);
 }
 
 bool
-KeeICE::KFlib::operator<(const ::KeeICE::KFlib::KP& l, const ::KeeICE::KFlib::KP& r)
+KeeICE::KPlib::operator<(const ::KeeICE::KPlib::KP& l, const ::KeeICE::KPlib::KP& r)
 {
     return static_cast<const ::Ice::Object&>(l) < static_cast<const ::Ice::Object&>(r);
 }
 
 void 
-KeeICE::KFlib::__patch__KPPtr(void* __addr, ::Ice::ObjectPtr& v)
+KeeICE::KPlib::__patch__KPPtr(void* __addr, ::Ice::ObjectPtr& v)
 {
-    ::KeeICE::KFlib::KPPtr* p = static_cast< ::KeeICE::KFlib::KPPtr*>(__addr);
+    ::KeeICE::KPlib::KPPtr* p = static_cast< ::KeeICE::KPlib::KPPtr*>(__addr);
     assert(p);
-    *p = ::KeeICE::KFlib::KPPtr::dynamicCast(v);
+    *p = ::KeeICE::KPlib::KPPtr::dynamicCast(v);
     if(v && !*p)
     {
-        IceInternal::Ex::throwUOE(::KeeICE::KFlib::KP::ice_staticId(), v->ice_id());
+        IceInternal::Ex::throwUOE(::KeeICE::KPlib::KP::ice_staticId(), v->ice_id());
     }
 }
 
-static const ::std::string __KeeICE__KFlib__CallbackReceiver_ids[2] =
+static const ::std::string __KeeICE__KPlib__CallbackReceiver_ids[2] =
 {
     "::Ice::Object",
-    "::KeeICE::KFlib::CallbackReceiver"
+    "::KeeICE::KPlib::CallbackReceiver"
 };
 
 bool
-KeeICE::KFlib::CallbackReceiver::ice_isA(const ::std::string& _s, const ::Ice::Current&) const
+KeeICE::KPlib::CallbackReceiver::ice_isA(const ::std::string& _s, const ::Ice::Current&) const
 {
-    return ::std::binary_search(__KeeICE__KFlib__CallbackReceiver_ids, __KeeICE__KFlib__CallbackReceiver_ids + 2, _s);
+    return ::std::binary_search(__KeeICE__KPlib__CallbackReceiver_ids, __KeeICE__KPlib__CallbackReceiver_ids + 2, _s);
 }
 
 ::std::vector< ::std::string>
-KeeICE::KFlib::CallbackReceiver::ice_ids(const ::Ice::Current&) const
+KeeICE::KPlib::CallbackReceiver::ice_ids(const ::Ice::Current&) const
 {
-    return ::std::vector< ::std::string>(&__KeeICE__KFlib__CallbackReceiver_ids[0], &__KeeICE__KFlib__CallbackReceiver_ids[2]);
+    return ::std::vector< ::std::string>(&__KeeICE__KPlib__CallbackReceiver_ids[0], &__KeeICE__KPlib__CallbackReceiver_ids[2]);
 }
 
 const ::std::string&
-KeeICE::KFlib::CallbackReceiver::ice_id(const ::Ice::Current&) const
+KeeICE::KPlib::CallbackReceiver::ice_id(const ::Ice::Current&) const
 {
-    return __KeeICE__KFlib__CallbackReceiver_ids[1];
+    return __KeeICE__KPlib__CallbackReceiver_ids[1];
 }
 
 const ::std::string&
-KeeICE::KFlib::CallbackReceiver::ice_staticId()
+KeeICE::KPlib::CallbackReceiver::ice_staticId()
 {
-    return __KeeICE__KFlib__CallbackReceiver_ids[1];
+    return __KeeICE__KPlib__CallbackReceiver_ids[1];
 }
 
 #ifndef ICEE_PURE_CLIENT
 ::Ice::DispatchStatus
-KeeICE::KFlib::CallbackReceiver::___callback(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+KeeICE::KPlib::CallbackReceiver::___callback(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
 {
     __checkMode(::Ice::Normal, __current.mode);
     ::IceInternal::BasicStream* __is = __inS.is();
@@ -1396,7 +1417,7 @@ KeeICE::KFlib::CallbackReceiver::___callback(::IceInternal::Incoming& __inS, con
 #endif // ICEE_PURE_CLIENT
 
 #ifndef ICEE_PURE_CLIENT
-static ::std::string __KeeICE__KFlib__CallbackReceiver_all[] =
+static ::std::string __KeeICE__KPlib__CallbackReceiver_all[] =
 {
     "callback",
     "ice_id",
@@ -1406,15 +1427,15 @@ static ::std::string __KeeICE__KFlib__CallbackReceiver_all[] =
 };
 
 ::Ice::DispatchStatus
-KeeICE::KFlib::CallbackReceiver::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
+KeeICE::KPlib::CallbackReceiver::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KFlib__CallbackReceiver_all, __KeeICE__KFlib__CallbackReceiver_all + 5, current.operation);
+    ::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(__KeeICE__KPlib__CallbackReceiver_all, __KeeICE__KPlib__CallbackReceiver_all + 5, current.operation);
     if(r.first == r.second)
     {
         throw Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 
-    switch(r.first - __KeeICE__KFlib__CallbackReceiver_all)
+    switch(r.first - __KeeICE__KPlib__CallbackReceiver_all)
     {
         case 0:
         {
@@ -1444,7 +1465,7 @@ KeeICE::KFlib::CallbackReceiver::__dispatch(::IceInternal::Incoming& in, const :
 #endif // ICEE_PURE_CLIENT
 
 void
-KeeICE::KFlib::CallbackReceiver::__write(::IceInternal::BasicStream* __os) const
+KeeICE::KPlib::CallbackReceiver::__write(::IceInternal::BasicStream* __os) const
 {
     __os->writeTypeId(ice_staticId());
     __os->startWriteSlice();
@@ -1453,7 +1474,7 @@ KeeICE::KFlib::CallbackReceiver::__write(::IceInternal::BasicStream* __os) const
 }
 
 void
-KeeICE::KFlib::CallbackReceiver::__read(::IceInternal::BasicStream* __is, bool __rid)
+KeeICE::KPlib::CallbackReceiver::__read(::IceInternal::BasicStream* __is, bool __rid)
 {
     if(__rid)
     {
@@ -1467,31 +1488,31 @@ KeeICE::KFlib::CallbackReceiver::__read(::IceInternal::BasicStream* __is, bool _
 
 
 bool
-KeeICE::KFlib::operator==(const ::KeeICE::KFlib::CallbackReceiver& l, const ::KeeICE::KFlib::CallbackReceiver& r)
+KeeICE::KPlib::operator==(const ::KeeICE::KPlib::CallbackReceiver& l, const ::KeeICE::KPlib::CallbackReceiver& r)
 {
     return static_cast<const ::Ice::Object&>(l) == static_cast<const ::Ice::Object&>(r);
 }
 
 bool
-KeeICE::KFlib::operator<(const ::KeeICE::KFlib::CallbackReceiver& l, const ::KeeICE::KFlib::CallbackReceiver& r)
+KeeICE::KPlib::operator<(const ::KeeICE::KPlib::CallbackReceiver& l, const ::KeeICE::KPlib::CallbackReceiver& r)
 {
     return static_cast<const ::Ice::Object&>(l) < static_cast<const ::Ice::Object&>(r);
 }
 
 void 
-KeeICE::KFlib::__patch__CallbackReceiverPtr(void* __addr, ::Ice::ObjectPtr& v)
+KeeICE::KPlib::__patch__CallbackReceiverPtr(void* __addr, ::Ice::ObjectPtr& v)
 {
-    ::KeeICE::KFlib::CallbackReceiverPtr* p = static_cast< ::KeeICE::KFlib::CallbackReceiverPtr*>(__addr);
+    ::KeeICE::KPlib::CallbackReceiverPtr* p = static_cast< ::KeeICE::KPlib::CallbackReceiverPtr*>(__addr);
     assert(p);
-    *p = ::KeeICE::KFlib::CallbackReceiverPtr::dynamicCast(v);
+    *p = ::KeeICE::KPlib::CallbackReceiverPtr::dynamicCast(v);
     if(v && !*p)
     {
-        IceInternal::Ex::throwUOE(::KeeICE::KFlib::CallbackReceiver::ice_staticId(), v->ice_id());
+        IceInternal::Ex::throwUOE(::KeeICE::KPlib::CallbackReceiver::ice_staticId(), v->ice_id());
     }
 }
 
 bool
-IceProxy::KeeICE::KFlib::KP::checkVersion(::Ice::Float keeFoxVersion, ::Ice::Float keeICEVersion, ::Ice::Int& result, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::checkVersion(::Ice::Float keeFoxVersion, ::Ice::Float keeICEVersion, ::Ice::Int& result, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1499,9 +1520,9 @@ IceProxy::KeeICE::KFlib::KP::checkVersion(::Ice::Float keeFoxVersion, ::Ice::Flo
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__checkVersion_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__checkVersion_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__checkVersion_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__checkVersion_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -1554,7 +1575,7 @@ IceProxy::KeeICE::KFlib::KP::checkVersion(::Ice::Float keeFoxVersion, ::Ice::Flo
 }
 
 ::std::string
-IceProxy::KeeICE::KFlib::KP::getDatabaseName(const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::getDatabaseName(const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1562,9 +1583,9 @@ IceProxy::KeeICE::KFlib::KP::getDatabaseName(const ::Ice::Context* __ctx)
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getDatabaseName_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getDatabaseName_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getDatabaseName_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getDatabaseName_name, ::Ice::Normal, __ctx);
             bool __ok = __outS.invoke();
             try
             {
@@ -1606,7 +1627,7 @@ IceProxy::KeeICE::KFlib::KP::getDatabaseName(const ::Ice::Context* __ctx)
 }
 
 ::std::string
-IceProxy::KeeICE::KFlib::KP::getDatabaseFileName(const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::getDatabaseFileName(const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1614,9 +1635,9 @@ IceProxy::KeeICE::KFlib::KP::getDatabaseFileName(const ::Ice::Context* __ctx)
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getDatabaseFileName_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getDatabaseFileName_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getDatabaseFileName_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getDatabaseFileName_name, ::Ice::Normal, __ctx);
             bool __ok = __outS.invoke();
             try
             {
@@ -1658,7 +1679,7 @@ IceProxy::KeeICE::KFlib::KP::getDatabaseFileName(const ::Ice::Context* __ctx)
 }
 
 void
-IceProxy::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool closeCurrent, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::changeDatabase(const ::std::string& fileName, bool closeCurrent, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1667,7 +1688,7 @@ IceProxy::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool 
         try
         {
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__changeDatabase_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__changeDatabase_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -1715,8 +1736,8 @@ IceProxy::KeeICE::KFlib::KP::changeDatabase(const ::std::string& fileName, bool 
     }
 }
 
-::KeeICE::KFlib::KPEntry
-IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KPEntry
+IceProxy::KeeICE::KPlib::KP::AddLogin(const ::KeeICE::KPlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1724,9 +1745,9 @@ IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, con
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__AddLogin_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__AddLogin_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__AddLogin_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__AddLogin_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -1746,7 +1767,7 @@ IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, con
                     {
                         __outS.is()->throwException();
                     }
-                    catch(const ::KeeICE::KFlib::KeeICEException&)
+                    catch(const ::KeeICE::KPlib::KeeICEException&)
                     {
                         throw;
                     }
@@ -1757,7 +1778,7 @@ IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, con
                         throw __uex;
                     }
                 }
-                ::KeeICE::KFlib::KPEntry __ret;
+                ::KeeICE::KPlib::KPEntry __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
                 __ret.__read(__is);
                 return __ret;
@@ -1791,7 +1812,7 @@ IceProxy::KeeICE::KFlib::KP::AddLogin(const ::KeeICE::KFlib::KPEntry& login, con
 }
 
 void
-IceProxy::KeeICE::KFlib::KP::ModifyLogin(const ::KeeICE::KFlib::KPEntry& oldLogin, const ::KeeICE::KFlib::KPEntry& newLogin, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::ModifyLogin(const ::KeeICE::KPlib::KPEntry& oldLogin, const ::KeeICE::KPlib::KPEntry& newLogin, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1799,9 +1820,9 @@ IceProxy::KeeICE::KFlib::KP::ModifyLogin(const ::KeeICE::KFlib::KPEntry& oldLogi
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__ModifyLogin_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__ModifyLogin_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__ModifyLogin_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__ModifyLogin_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -1821,7 +1842,7 @@ IceProxy::KeeICE::KFlib::KP::ModifyLogin(const ::KeeICE::KFlib::KPEntry& oldLogi
                     {
                         __outS.is()->throwException();
                     }
-                    catch(const ::KeeICE::KFlib::KeeICEException&)
+                    catch(const ::KeeICE::KPlib::KeeICEException&)
                     {
                         throw;
                     }
@@ -1863,7 +1884,7 @@ IceProxy::KeeICE::KFlib::KP::ModifyLogin(const ::KeeICE::KFlib::KPEntry& oldLogi
 }
 
 ::Ice::Int
-IceProxy::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::getAllLogins(::KeeICE::KPlib::KPEntryList& logins, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1871,9 +1892,9 @@ IceProxy::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logins, 
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getAllLogins_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getAllLogins_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getAllLogins_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getAllLogins_name, ::Ice::Normal, __ctx);
             bool __ok = __outS.invoke();
             try
             {
@@ -1883,7 +1904,7 @@ IceProxy::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logins, 
                     {
                         __outS.is()->throwException();
                     }
-                    catch(const ::KeeICE::KFlib::KeeICEException&)
+                    catch(const ::KeeICE::KPlib::KeeICEException&)
                     {
                         throw;
                     }
@@ -1896,7 +1917,7 @@ IceProxy::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logins, 
                 }
                 ::Ice::Int __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
-                ::KeeICE::KFlib::__readKPEntryList(__is, logins);
+                ::KeeICE::KPlib::__readKPEntryList(__is, logins);
                 __is->read(__ret);
                 return __ret;
             }
@@ -1929,7 +1950,7 @@ IceProxy::KeeICE::KFlib::KP::getAllLogins(::KeeICE::KFlib::KPEntryList& logins, 
 }
 
 ::Ice::Int
-IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KPlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KPlib::KPEntryList& logins, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -1937,16 +1958,16 @@ IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::s
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__findLogins_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__findLogins_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__findLogins_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__findLogins_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
                 __os->write(hostname);
                 __os->write(actionURL);
                 __os->write(httpRealm);
-                ::KeeICE::KFlib::__write(__os, lst);
+                ::KeeICE::KPlib::__write(__os, lst);
                 __os->write(requireFullURLMatches);
                 __os->write(uniqueID);
             }
@@ -1963,7 +1984,7 @@ IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::s
                     {
                         __outS.is()->throwException();
                     }
-                    catch(const ::KeeICE::KFlib::KeeICEException&)
+                    catch(const ::KeeICE::KPlib::KeeICEException&)
                     {
                         throw;
                     }
@@ -1976,7 +1997,7 @@ IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::s
                 }
                 ::Ice::Int __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
-                ::KeeICE::KFlib::__readKPEntryList(__is, logins);
+                ::KeeICE::KPlib::__readKPEntryList(__is, logins);
                 __is->read(__ret);
                 return __ret;
             }
@@ -2009,7 +2030,7 @@ IceProxy::KeeICE::KFlib::KP::findLogins(const ::std::string& hostname, const ::s
 }
 
 ::Ice::Int
-IceProxy::KeeICE::KFlib::KP::countLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::countLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KPlib::loginSearchType lst, bool requireFullURLMatches, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2017,16 +2038,16 @@ IceProxy::KeeICE::KFlib::KP::countLogins(const ::std::string& hostname, const ::
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__countLogins_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__countLogins_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__countLogins_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__countLogins_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
                 __os->write(hostname);
                 __os->write(actionURL);
                 __os->write(httpRealm);
-                ::KeeICE::KFlib::__write(__os, lst);
+                ::KeeICE::KPlib::__write(__os, lst);
                 __os->write(requireFullURLMatches);
             }
             catch(const ::Ice::LocalException& __ex)
@@ -2042,7 +2063,7 @@ IceProxy::KeeICE::KFlib::KP::countLogins(const ::std::string& hostname, const ::
                     {
                         __outS.is()->throwException();
                     }
-                    catch(const ::KeeICE::KFlib::KeeICEException&)
+                    catch(const ::KeeICE::KPlib::KeeICEException&)
                     {
                         throw;
                     }
@@ -2087,7 +2108,7 @@ IceProxy::KeeICE::KFlib::KP::countLogins(const ::std::string& hostname, const ::
 }
 
 void
-IceProxy::KeeICE::KFlib::KP::addClient(const ::Ice::Identity& ident, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::addClient(const ::Ice::Identity& ident, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2096,7 +2117,7 @@ IceProxy::KeeICE::KFlib::KP::addClient(const ::Ice::Identity& ident, const ::Ice
         try
         {
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__addClient_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__addClient_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2144,7 +2165,7 @@ IceProxy::KeeICE::KFlib::KP::addClient(const ::Ice::Identity& ident, const ::Ice
 }
 
 ::Ice::Int
-IceProxy::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KFlib::KPGroupList& groups, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KPlib::KPGroupList& groups, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2152,9 +2173,9 @@ IceProxy::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::std::
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__findGroups_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__findGroups_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__findGroups_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__findGroups_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2174,7 +2195,7 @@ IceProxy::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::std::
                 }
                 ::Ice::Int __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
-                ::KeeICE::KFlib::__readKPGroupList(__is, groups);
+                ::KeeICE::KPlib::__readKPGroupList(__is, groups);
                 __is->read(__ret);
                 return __ret;
             }
@@ -2206,8 +2227,8 @@ IceProxy::KeeICE::KFlib::KP::findGroups(const ::std::string& name, const ::std::
     }
 }
 
-::KeeICE::KFlib::KPGroup
-IceProxy::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KPGroup
+IceProxy::KeeICE::KPlib::KP::getRoot(const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2215,9 +2236,9 @@ IceProxy::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __ctx)
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getRoot_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getRoot_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getRoot_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getRoot_name, ::Ice::Normal, __ctx);
             bool __ok = __outS.invoke();
             try
             {
@@ -2225,7 +2246,7 @@ IceProxy::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __ctx)
                 {
                     __outS.is()->throwUnknownUserException();
                 }
-                ::KeeICE::KFlib::KPGroup __ret;
+                ::KeeICE::KPlib::KPGroup __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
                 __ret.__read(__is);
                 return __ret;
@@ -2258,8 +2279,8 @@ IceProxy::KeeICE::KFlib::KP::getRoot(const ::Ice::Context* __ctx)
     }
 }
 
-::KeeICE::KFlib::KPGroup
-IceProxy::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KPGroup
+IceProxy::KeeICE::KPlib::KP::getParent(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2267,9 +2288,9 @@ IceProxy::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::C
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getParent_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getParent_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getParent_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getParent_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2286,7 +2307,7 @@ IceProxy::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::C
                 {
                     __outS.is()->throwUnknownUserException();
                 }
-                ::KeeICE::KFlib::KPGroup __ret;
+                ::KeeICE::KPlib::KPGroup __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
                 __ret.__read(__is);
                 return __ret;
@@ -2319,8 +2340,8 @@ IceProxy::KeeICE::KFlib::KP::getParent(const ::std::string& uuid, const ::Ice::C
     }
 }
 
-::KeeICE::KFlib::KPGroupList
-IceProxy::KeeICE::KFlib::KP::getChildGroups(const ::std::string& uuid, const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KPGroupList
+IceProxy::KeeICE::KPlib::KP::getChildGroups(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2328,9 +2349,9 @@ IceProxy::KeeICE::KFlib::KP::getChildGroups(const ::std::string& uuid, const ::I
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getChildGroups_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getChildGroups_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getChildGroups_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getChildGroups_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2347,9 +2368,9 @@ IceProxy::KeeICE::KFlib::KP::getChildGroups(const ::std::string& uuid, const ::I
                 {
                     __outS.is()->throwUnknownUserException();
                 }
-                ::KeeICE::KFlib::KPGroupList __ret;
+                ::KeeICE::KPlib::KPGroupList __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
-                ::KeeICE::KFlib::__readKPGroupList(__is, __ret);
+                ::KeeICE::KPlib::__readKPGroupList(__is, __ret);
                 return __ret;
             }
             catch(const ::Ice::LocalException& __ex)
@@ -2380,8 +2401,8 @@ IceProxy::KeeICE::KFlib::KP::getChildGroups(const ::std::string& uuid, const ::I
     }
 }
 
-::KeeICE::KFlib::KPEntryList
-IceProxy::KeeICE::KFlib::KP::getChildEntries(const ::std::string& uuid, const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KPEntryList
+IceProxy::KeeICE::KPlib::KP::getChildEntries(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2389,9 +2410,9 @@ IceProxy::KeeICE::KFlib::KP::getChildEntries(const ::std::string& uuid, const ::
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getChildEntries_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getChildEntries_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getChildEntries_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getChildEntries_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2408,9 +2429,9 @@ IceProxy::KeeICE::KFlib::KP::getChildEntries(const ::std::string& uuid, const ::
                 {
                     __outS.is()->throwUnknownUserException();
                 }
-                ::KeeICE::KFlib::KPEntryList __ret;
+                ::KeeICE::KPlib::KPEntryList __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
-                ::KeeICE::KFlib::__readKPEntryList(__is, __ret);
+                ::KeeICE::KPlib::__readKPEntryList(__is, __ret);
                 return __ret;
             }
             catch(const ::Ice::LocalException& __ex)
@@ -2441,8 +2462,8 @@ IceProxy::KeeICE::KFlib::KP::getChildEntries(const ::std::string& uuid, const ::
     }
 }
 
-::KeeICE::KFlib::KPGroup
-IceProxy::KeeICE::KFlib::KP::addGroup(const ::std::string& name, const ::std::string& parentUuid, const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KPGroup
+IceProxy::KeeICE::KPlib::KP::addGroup(const ::std::string& name, const ::std::string& parentUuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2450,9 +2471,9 @@ IceProxy::KeeICE::KFlib::KP::addGroup(const ::std::string& name, const ::std::st
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__addGroup_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__addGroup_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__addGroup_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__addGroup_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2470,7 +2491,7 @@ IceProxy::KeeICE::KFlib::KP::addGroup(const ::std::string& name, const ::std::st
                 {
                     __outS.is()->throwUnknownUserException();
                 }
-                ::KeeICE::KFlib::KPGroup __ret;
+                ::KeeICE::KPlib::KPGroup __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
                 __ret.__read(__is);
                 return __ret;
@@ -2504,7 +2525,7 @@ IceProxy::KeeICE::KFlib::KP::addGroup(const ::std::string& name, const ::std::st
 }
 
 bool
-IceProxy::KeeICE::KFlib::KP::removeGroup(const ::std::string& uuid, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::removeGroup(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2512,9 +2533,9 @@ IceProxy::KeeICE::KFlib::KP::removeGroup(const ::std::string& uuid, const ::Ice:
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__removeGroup_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__removeGroup_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__removeGroup_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__removeGroup_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2565,7 +2586,7 @@ IceProxy::KeeICE::KFlib::KP::removeGroup(const ::std::string& uuid, const ::Ice:
 }
 
 bool
-IceProxy::KeeICE::KFlib::KP::removeEntry(const ::std::string& uuid, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::removeEntry(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2573,9 +2594,9 @@ IceProxy::KeeICE::KFlib::KP::removeEntry(const ::std::string& uuid, const ::Ice:
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__removeEntry_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__removeEntry_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__removeEntry_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__removeEntry_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2626,7 +2647,7 @@ IceProxy::KeeICE::KFlib::KP::removeEntry(const ::std::string& uuid, const ::Ice:
 }
 
 void
-IceProxy::KeeICE::KFlib::KP::LaunchGroupEditor(const ::std::string& uuid, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::LaunchGroupEditor(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2635,7 +2656,7 @@ IceProxy::KeeICE::KFlib::KP::LaunchGroupEditor(const ::std::string& uuid, const 
         try
         {
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__LaunchGroupEditor_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__LaunchGroupEditor_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2683,7 +2704,7 @@ IceProxy::KeeICE::KFlib::KP::LaunchGroupEditor(const ::std::string& uuid, const 
 }
 
 void
-IceProxy::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::LaunchLoginEditor(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2692,7 +2713,7 @@ IceProxy::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const 
         try
         {
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__LaunchLoginEditor_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__LaunchLoginEditor_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2739,8 +2760,8 @@ IceProxy::KeeICE::KFlib::KP::LaunchLoginEditor(const ::std::string& uuid, const 
     }
 }
 
-::KeeICE::KFlib::KFConfiguration
-IceProxy::KeeICE::KFlib::KP::getCurrentKFConfig(const ::Ice::Context* __ctx)
+::KeeICE::KPlib::KFConfiguration
+IceProxy::KeeICE::KPlib::KP::getCurrentKFConfig(const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2748,9 +2769,9 @@ IceProxy::KeeICE::KFlib::KP::getCurrentKFConfig(const ::Ice::Context* __ctx)
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__getCurrentKFConfig_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__getCurrentKFConfig_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__getCurrentKFConfig_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__getCurrentKFConfig_name, ::Ice::Normal, __ctx);
             bool __ok = __outS.invoke();
             try
             {
@@ -2758,7 +2779,7 @@ IceProxy::KeeICE::KFlib::KP::getCurrentKFConfig(const ::Ice::Context* __ctx)
                 {
                     __outS.is()->throwUnknownUserException();
                 }
-                ::KeeICE::KFlib::KFConfiguration __ret;
+                ::KeeICE::KPlib::KFConfiguration __ret;
                 ::IceInternal::BasicStream* __is = __outS.is();
                 __ret.__read(__is);
                 return __ret;
@@ -2792,7 +2813,7 @@ IceProxy::KeeICE::KFlib::KP::getCurrentKFConfig(const ::Ice::Context* __ctx)
 }
 
 bool
-IceProxy::KeeICE::KFlib::KP::setCurrentKFConfig(const ::KeeICE::KFlib::KFConfiguration& config, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::setCurrentKFConfig(const ::KeeICE::KPlib::KFConfiguration& config, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2800,9 +2821,9 @@ IceProxy::KeeICE::KFlib::KP::setCurrentKFConfig(const ::KeeICE::KFlib::KFConfigu
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__setCurrentKFConfig_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__setCurrentKFConfig_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__setCurrentKFConfig_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__setCurrentKFConfig_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2853,7 +2874,7 @@ IceProxy::KeeICE::KFlib::KP::setCurrentKFConfig(const ::KeeICE::KFlib::KFConfigu
 }
 
 bool
-IceProxy::KeeICE::KFlib::KP::setCurrentDBRootGroup(const ::std::string& uuid, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::KP::setCurrentDBRootGroup(const ::std::string& uuid, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2861,9 +2882,9 @@ IceProxy::KeeICE::KFlib::KP::setCurrentDBRootGroup(const ::std::string& uuid, co
         ::IceInternal::RequestHandlerPtr __handler;
         try
         {
-            __checkTwowayOnly(__KeeICE__KFlib__KP__setCurrentDBRootGroup_name);
+            __checkTwowayOnly(__KeeICE__KPlib__KP__setCurrentDBRootGroup_name);
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__KP__setCurrentDBRootGroup_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__KP__setCurrentDBRootGroup_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2914,19 +2935,19 @@ IceProxy::KeeICE::KFlib::KP::setCurrentDBRootGroup(const ::std::string& uuid, co
 }
 
 const ::std::string&
-IceProxy::KeeICE::KFlib::KP::ice_staticId()
+IceProxy::KeeICE::KPlib::KP::ice_staticId()
 {
-    return __KeeICE__KFlib__KP_ids[1];
+    return __KeeICE__KPlib__KP_ids[1];
 }
 
 ::IceProxy::Ice::Object*
-IceProxy::KeeICE::KFlib::KP::__newInstance() const
+IceProxy::KeeICE::KPlib::KP::__newInstance() const
 {
     return new KP;
 }
 
 void
-IceProxy::KeeICE::KFlib::CallbackReceiver::callback(::Ice::Int num, const ::Ice::Context* __ctx)
+IceProxy::KeeICE::KPlib::CallbackReceiver::callback(::Ice::Int num, const ::Ice::Context* __ctx)
 {
     int __cnt = 0;
     while(true)
@@ -2935,7 +2956,7 @@ IceProxy::KeeICE::KFlib::CallbackReceiver::callback(::Ice::Int num, const ::Ice:
         try
         {
             __handler = __getRequestHandler();
-            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KFlib__CallbackReceiver__callback_name, ::Ice::Normal, __ctx);
+            ::IceInternal::Outgoing __outS(__handler.get(), _reference.get(), __KeeICE__KPlib__CallbackReceiver__callback_name, ::Ice::Normal, __ctx);
             try
             {
                 ::IceInternal::BasicStream* __os = __outS.os();
@@ -2983,13 +3004,13 @@ IceProxy::KeeICE::KFlib::CallbackReceiver::callback(::Ice::Int num, const ::Ice:
 }
 
 const ::std::string&
-IceProxy::KeeICE::KFlib::CallbackReceiver::ice_staticId()
+IceProxy::KeeICE::KPlib::CallbackReceiver::ice_staticId()
 {
-    return __KeeICE__KFlib__CallbackReceiver_ids[1];
+    return __KeeICE__KPlib__CallbackReceiver_ids[1];
 }
 
 ::IceProxy::Ice::Object*
-IceProxy::KeeICE::KFlib::CallbackReceiver::__newInstance() const
+IceProxy::KeeICE::KPlib::CallbackReceiver::__newInstance() const
 {
     return new CallbackReceiver;
 }

@@ -204,11 +204,11 @@ function attachDatabaseEmptyingBatch(testbatch, defaultKeePassGroupCount) {
     // (Removal of all logins and groups from KeePass)
     // This should always be the last test batch so that the database
     // is empty at the end of the test run
+    // (but note that there is no error recovery or guarantees that this
+    // will be the case - it's just for convenience)
     // You may also want to make a copy of this to insert between batches so you
     // know where you are starting from (but it's possible to build up a string
     // of dependant test batches if you prefer)
-    // (although note that there is no error recovery or guarantees that this
-    // will be the case - it's just for convenience)
     testbatch[testbatch.length] = {
         tests: null,
         expectedFinalCount: 0,
@@ -246,20 +246,3 @@ function attachDatabaseEmptyingBatch(testbatch, defaultKeePassGroupCount) {
 
     return testbatch;
 }
-
-// temp for debugging modification
-//this._kfilm.modifyLogin(testuser5,testuser6);
-//this._alert("test");
-//this._kfilm.modifyLogin(testuser6,testuser7);
-//this._alert("test");
-//this._kfilm.modifyLogin(testuser5,testuser7);
-
-// temp for debugging database change
-//       var originalDBFileName = keeFoxInst.getDatabaseFileName();
-//       keeFoxInst.changeDatabase("C:\\Documents and Settings\\Chris Tomlinson\\My Documents\\NewDatabase.kdbx", true);
-//        this._alert("swapped");
-//      keeFoxInst.changeDatabase(originalDBFileName, false);
-//        this._alert("added");
-
-// temp for when we don't want to overwrite DB content
-//return;

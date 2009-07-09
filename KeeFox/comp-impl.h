@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@
 #include <IceE/IceE.h>
 //#include <IceUtil/IceUtil.h>
 #include "generated/KeeICE.h"
-//#include "nsILoginInfo.h"
 #include "nsCOMPtr.h"
 
 #if _MSC_VER
@@ -46,12 +45,14 @@
 
 using std::string;
 using std::vector;
-using namespace KeeICE::KFlib;
+using namespace KeeICE::KPlib;
 
 #define KEEFOX_CONTRACTID "@christomlinson.name/keefox;1"
 #define KEEFOX_CLASSNAME "KeeFox"
 #define KEEFOX_CID { 0x245626, 0x5cc1, 0x11db, { 0x96, 0x73, 0x0, 0xe0, 0x81, 0x61, 0x16, 0x5f } }
 
+// sets up a callback mechanism from KeeICE to KeeFox and then passes
+// incoming callbacks to the KF.js javascript module
 class KeeFoxCallBackHelper {
 public:
 
@@ -86,10 +87,10 @@ private:
 	bool IsLocationInCache(string url);
 	int CountLocationsInCache(string url);
 	void DeleteLocationFromCache(string url);
-	KeeICE::KFlib::KPEntry ConvertLoginInfoToKPEntry (kfILoginInfo *aLogin);
-	nsCOMPtr<kfILoginInfo> ConvertKPEntryToLoginInfo (KeeICE::KFlib::KPEntry aLogin);
-	KeeICE::KFlib::KPGroup ConvertGroupInfoToKPGroup (kfIGroupInfo *aGroup);
-	nsCOMPtr<kfIGroupInfo> ConvertKPGroupToGroupInfo (KeeICE::KFlib::KPGroup group);
+	KeeICE::KPlib::KPEntry ConvertLoginInfoToKPEntry (kfILoginInfo *aLogin);
+	nsCOMPtr<kfILoginInfo> ConvertKPEntryToLoginInfo (KeeICE::KPlib::KPEntry aLogin);
+	KeeICE::KPlib::KPGroup ConvertGroupInfoToKPGroup (kfIGroupInfo *aGroup);
+	nsCOMPtr<kfIGroupInfo> ConvertKPGroupToGroupInfo (KeeICE::KPlib::KPGroup group);
 
 protected:
 	/* additional members */

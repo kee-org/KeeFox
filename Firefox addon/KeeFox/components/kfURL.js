@@ -2,8 +2,8 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
   Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
-  This is the XPCOM/Firefox view of a basic group object, with little more than the
-  uniqueRef required to link this object to the appropriate group in the KeePass DB.
+  This is the XPCOM/Firefox view of a URL. It's just a wrapper for a string
+  but sadly required due to the limitations of XPIDL
   
   Defined in the KeeFox project / comp.idl
   
@@ -27,28 +27,21 @@ const Ci = Components.interfaces;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function kfGroupInfo() {}
+function kfURL() {}
 
-kfGroupInfo.prototype = {
+kfURL.prototype = {
 
-    classDescription  : "KFGroupInfo",
-    contractID : "@christomlinson.name/kfGroupInfo;1",
-    classID : Components.ID("{21e05ab1-d964-476f-ba73-c318c51a118e}"),
-    QueryInterface: XPCOMUtils.generateQI([Ci.kfIGroupInfo]), 
+    classDescription  : "KFURL",
+    contractID : "@christomlinson.name/kfURL;1",
+    classID : Components.ID("{21e35ab1-d964-476f-ba73-c318cc1a1183}"),
+    QueryInterface: XPCOMUtils.generateQI([Ci.kfIURL]), 
     
-    
-    title      : null,
-    uniqueID : null,
-
-    init : function (title, aUniqueID) {
-
-        this.title      = title;
-        this.uniqueID = aUniqueID;
-    }
-    
+    // if you can't guess what this is used for, you're in the wrong place ;-)
+    URL      : null
+  
 };
 
-var component = [kfGroupInfo];
+var component = [kfURL];
 function NSGetModule(compMgr, fileSpec) {
     return XPCOMUtils.generateModule(component);
 }
