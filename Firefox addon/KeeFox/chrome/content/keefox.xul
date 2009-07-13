@@ -94,12 +94,12 @@
     <menupopup id="KeeFox-login-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
       <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.value);"/>
-      <menuitem label="&KeeFox_Logins-Context-Delete-Login.label;" oncommand="keeFoxInst.removeLogin(document.popupNode.value);"/>
+      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Login.label;" oncommand="keeFoxInst.removeLogin(document.popupNode.value);"/>-->
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
       <!--<menuitem label="Login all in tabs"/>-->
       <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.value);"/>
-      <menuitem label="&KeeFox_Logins-Context-Delete-Group.label;" oncommand="keeFoxInst.removeGroup(document.popupNode.value);"/>
+      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Group.label;" oncommand="keeFoxInst.removeGroup(document.popupNode.value);"/>-->
     </menupopup>
     <menupopup id="rememberAdvancedButtonPopup">
       <menuitem label="&KeeFox_Remember-Advanced-Popup-Group.label;"

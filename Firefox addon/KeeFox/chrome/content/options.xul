@@ -40,7 +40,9 @@
       <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.chris.tomlinson@keefox.dynamicFormScanning" type="bool"/>
       <preference id="KeeFox-pref-autoFillForms" name="extensions.chris.tomlinson@keefox.autoFillForms" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitForms" name="extensions.chris.tomlinson@keefox.autoSubmitForms" type="bool"/>
-      <preference id="KeeFox-pref-overWriteUsernameAutomatically" name="extensions.chris.tomlinson@keefox.overWriteUsernameAutomatically" type="bool"/>
+      <preference id="KeeFox-pref-autoFillDialogs" name="extensions.chris.tomlinson@keefox.autoFillDialogs" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.chris.tomlinson@keefox.autoSubmitDialogs" type="bool"/>
+      <preference id="KeeFox-pref-overWriteFieldsAutomatically" name="extensions.chris.tomlinson@keefox.overWriteFieldsAutomatically" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.chris.tomlinson@keefox.autoSubmitMatchedForms" type="bool"/>
       <preference id="KeeFox-pref-rememberMRUDB" name="extensions.chris.tomlinson@keefox.rememberMRUDB" type="bool"/>
 
@@ -71,13 +73,16 @@
                           label="&KeeFox-pref-autoFillForms.label;" />
                 <checkbox id="autoSubmitForms" preference="KeeFox-pref-autoSubmitForms"
                           label="&KeeFox-pref-autoSubmitForms.label;" />
+                <checkbox id="autoFillDialogs" preference="KeeFox-pref-autoFillDialogs"
+                          label="&KeeFox-pref-autoFillDialogs.label;" />
+                <checkbox id="autoSubmitDialogs" preference="KeeFox-pref-autoSubmitDialogs"
+                          label="&KeeFox-pref-autoSubmitDialogs.label;" />
                 <checkbox id="overWriteFieldsAutomatically" preference="KeeFox-pref-overWriteFieldsAutomatically"
                           label="&KeeFox-pref-overWriteFieldsAutomatically.label;" />
                 <checkbox id="autoSubmitMatchedForms" preference="KeeFox-pref-autoSubmitMatchedForms"
                           label="&KeeFox-pref-autoSubmitMatchedForms.label;" />
                 <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                           label="&KeeFox-pref-rememberMRUDB.label;" />
-
               </vbox>
             </tabpanel>
 

@@ -336,8 +336,6 @@ this.log(form);
         this.log("password is not recognised so prompting user to save it");
         
         // set the tab value ready for the next time the page loads
-        //TODO: how do we "cancel" this so that the page count is reset when the next login/signup process begins?
-        // maybe when user clicks on the notify bar to save password or "not now"?
         var nextPage = currentPage + 1;
        
         // If this is the 2nd (or later) part of a multi-page login form, we need to combine the new field items with the previous login data

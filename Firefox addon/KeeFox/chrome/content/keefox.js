@@ -43,7 +43,7 @@ var keeFoxToolbar, keeFoxILM, keeFoxUI, KFtester;
 // Firefox finishes loading a window
 var keeFoxInitStartupListener = {
 
-        // a reference to this scope's KFILM object
+        // a reference to this scope's KF object
         _kf: null,
         
         // the window we are interested in (see below for performance improvement option)

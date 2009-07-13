@@ -65,7 +65,10 @@
                 
                 if (pageFields[i].fieldId != null && pageFields[i].fieldId != undefined 
                     && pageFields[i].fieldId == matchedField.fieldId && 
-                    (pageFields[i].value.length == 0 
+                    (pageFields[i].type == "select" 
+                     || pageFields[i].type == "radio" 
+                     || pageFields[i].type == "checkbox" 
+                     || pageFields[i].value.length == 0 
                      || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
                     )
                     && (!validTabPage || matchedField.formFieldPage == currentTabPage)
@@ -92,7 +95,10 @@
                     
                     if (pageFields[i].name != null && pageFields[i].name != undefined 
                         && pageFields[i].name == matchedField.name && 
-                        (pageFields[i].value.length == 0 
+                        (pageFields[i].type == "select" 
+                         || pageFields[i].type == "radio" 
+                         || pageFields[i].type == "checkbox" 
+                         || pageFields[i].value.length == 0 
                          || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
                         )
                         && (!validTabPage || matchedField.formFieldPage == currentTabPage)
@@ -109,7 +115,11 @@
                 }
             }
             
-            if (matchedValue == "" && pageFields[i].type != "radio")
+            if (matchedValue == "" && pageFields[i].type != "radio" && (pageFields[i].type == "select" 
+                 || pageFields[i].type == "checkbox" 
+                 || pageFields[i].value.length == 0 
+                 || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
+               ))
             {
                 this.log("We could not find a good field match so just filling in this field with the first value of this type: "+pageFields[i].type);
                 

@@ -329,14 +329,13 @@ namespace KeeICE
 
 #region Utility functions to convert between KeeICE object schema and KeePass schema
 
-        //TODO: extend this so that PwEntries which lack any username and password can still be used.
-        // e.g. if no username custom entry but there is a username in the entry, cerate
-        // the custom string field and return the username as normal. similar for password
         private KPlib.KPEntry getKPEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
             URLs.Add(pwe.Strings.ReadSafe("URL"));
+            bool usernameFound = false;
+            bool passwordFound = false;
 
             foreach (System.Collections.Generic.KeyValuePair
                 <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
@@ -374,11 +373,13 @@ namespace KeeICE
                         else
                             formFieldList.Add(new KPlib.KPFormField(fieldName,
                 "Password", pwe.Strings.ReadSafe("Password"), KPlib.formFieldType.FFTpassword, fieldId, fieldPage));
+                        passwordFound = true;
                     }
                     else if (pweValue == "username")
                     {
                         formFieldList.Add(new KPlib.KPFormField(fieldName,
                 "User name", pwe.Strings.ReadSafe("UserName"), KPlib.formFieldType.FFTusername, fieldId, fieldPage));
+                        usernameFound = true;
                     }
                     else if (pweValue == "text")
                     {
@@ -406,12 +407,24 @@ namespace KeeICE
                     foreach (string altURL in urlsArray)
                         URLs.Add(altURL);
 
-                    //pwe.Strings.ReadSafe("Alternative URLs")
-
-//                    KPAlternativeURLs 
-
                 }
 
+            }
+
+            // If we didn't find an explicit password field, we assume any value
+            // in the KeePass "password" box is what we are looking for
+            if (!passwordFound)
+            {
+                formFieldList.Add(new KPlib.KPFormField("password",
+                    "Password", pwe.Strings.ReadSafe("Password"), KPlib.formFieldType.FFTpassword, "password", 1));
+            }
+
+            // If we didn't find an explicit username field, we assume any value
+            // in the KeePass "username" box is what we are looking for
+            if (!usernameFound)
+            {
+                formFieldList.Add(new KPlib.KPFormField("username",
+                    "Username", pwe.Strings.ReadSafe("UserName"), KPlib.formFieldType.FFTusername, "username", 1));
             }
 
             KPlib.KPFormField[] temp = (KPlib.KPFormField[])formFieldList.ToArray(typeof(KPlib.KPFormField));
@@ -619,14 +632,18 @@ namespace KeeICE
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
-                    
+
+                PwGroup matchedLoginParent = matchedLogin.ParentGroup;
+                if (matchedLoginParent == null) return false; // Can't remove
+
+                matchedLoginParent.Entries.Remove(matchedLogin);
+
 			    PwGroup recycleBin = host.Database.RootGroup.FindGroup(host.Database.RecycleBinUuid, true);
     			
 			    if(host.Database.RecycleBinEnabled == false) 
                 { 
-                    //TODO: enable a warning
-                    //if(!host.MainWindow.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle, KPRes.DeleteEntriesTitleSingle))
-					//    return false;
+                    if(!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteEntriesQuestionSingle, KPRes.DeleteEntriesTitleSingle))
+					    return false;
 
                     PwDeletedObject pdo = new PwDeletedObject();
 				    pdo.Uuid = matchedLogin.Uuid;
@@ -676,15 +693,17 @@ namespace KeeICE
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
 
-                matchedGroup.ParentGroup.Groups.Remove(matchedGroup);
+                PwGroup matchedGroupParent = matchedGroup.ParentGroup;
+                if (matchedGroupParent == null) return false; // Can't remove
+
+                matchedGroupParent.Groups.Remove(matchedGroup);
 
                 PwGroup recycleBin = host.Database.RootGroup.FindGroup(host.Database.RecycleBinUuid, true);
 
                 if (host.Database.RecycleBinEnabled == false)
                 {
-                    //TODO: enable a warning
-                    //if(!host.MainWindow.MessageService.AskYesNo(KPRes.DeleteGroupsQuestionSingle, KPRes.DeleteGroupsTitleSingle))
-                    //    return false;
+                    if(!KeePassLib.Utility.MessageService.AskYesNo(KPRes.DeleteGroupQuestion, KPRes.DeleteGroupTitle))
+                        return false;
 
                     PwDeletedObject pdo = new PwDeletedObject();
                     pdo.Uuid = matchedGroup.Uuid;

@@ -1,5 +1,6 @@
 content keefox chrome/content/
 overlay chrome://browser/content/browser.xul chrome://keefox/content/keefox.xul
+overlay	chrome://global/content/commonDialog.xul chrome://keefox/content/protocolAuth.xul
 skin keefox classic/1.0 chrome/skin/
 resource kfmod modules/
 resource kfscripts chrome/content/

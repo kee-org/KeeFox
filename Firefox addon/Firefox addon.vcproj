@@ -232,6 +232,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\commonDialog.js"
+			>
+		</File>
+		<File
 			RelativePath=".\debugXPIPackageExclusions.txt"
 			>
 		</File>
@@ -365,6 +369,10 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\defaults\preferences\prefs.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\protocolAuth.xul"
 			>
 		</File>
 		<File

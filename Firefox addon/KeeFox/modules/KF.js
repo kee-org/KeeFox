@@ -74,8 +74,12 @@ function KeeFox()
         prefs.get("autoFillForms").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("autoSubmitForms"))
         prefs.get("autoSubmitForms").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("overWriteUsernameAutomatically"))
-        prefs.get("overWriteUsernameAutomatically").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("autoFillDialogs"))
+        prefs.get("autoFillDialogs").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("autoSubmitDialogs"))
+        prefs.get("autoSubmitDialogs").events.addListener("change", this.preferenceChangeHandler);
+    if (prefs.has("overWriteFieldsAutomatically"))
+        prefs.get("overWriteFieldsAutomatically").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("autoSubmitMatchedForms"))
         prefs.get("autoSubmitMatchedForms").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("keeICEInstalledLocation"))
@@ -89,7 +93,11 @@ function KeeFox()
     this._registerUninstallListeners();
     this._registerPlacesListeners();
     
-    //TODO: set browser.sessionstore.enabled = true
+    // make sure that Firefox preferences won't interfere with successful add-on operation.
+    Application.prefs.setValue("signon.rememberSignons", false);
+    Application.prefs.setValue("browser.sessionstore.enabled", true);
+ 
+    
     //TODO: set some/all of my tab session state to be persistent so it survives crashes/restores?
 }
 
