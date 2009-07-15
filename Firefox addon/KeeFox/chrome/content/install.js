@@ -754,15 +754,24 @@ utility functions
 ********************/
 function launchAndConnectToKeePass()
 {
-    // launch KeePass and then try to connect to KeeICE (after 5 seconds although it should work sooner than that)
-    //TODO: set up regular connection attempts if first one fails (e.g. if plugins slow KeePass start, KeePass crashes first time, etc.)
+    // Tell KeeFox that KeeICE has been installed so it will reguarly
+    // attempt to connect to KeePass when the timer goes off.
+    var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
+    var keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
+    var keeFoxStorage = keeFoxExtension.storage;
+
+    keeFoxStorage.set("KeeICEInstalled", true)
+    
+    // launch KeePass and then try to connect to KeeICE
+    // (after 7.5 seconds although it might work sooner than that)
+    // If it's still not ready by then, a 10 second repeat timer
+    // in the main KF.js file will be activated
     mainWindow.keeFoxInst.launchKeePass("-welcomeToKeeFox");
-    //var event = { notify: function(timer) { mainWindow.keeFoxInst._keeFoxBrowserStartup(mainWindow.keeFoxToolbar,mainWindow); } }
     var event = { notify: function(timer) { mainWindow.keeFoxInst.startICEcallbackConnector(); } }
     
     var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-    timer.initWithCallback(event, 5000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-    
+    timer.initWithCallback(event, 7500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+    mainWindow.keeFoxInst.log("Installation timer started");
 }
 
 function userHasAdminRights(mainWindow) {

@@ -374,8 +374,11 @@ KeeFox.prototype = {
                 // update toolbar etc to say "launch KeePass"
                 currentKFToolbar.setupButton_ready(currentWindow);
                 currentKFToolbar.setAllLogins();
-                this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
-                // not needed cos above function will run it if needed: this.startICEcallbackConnector();
+                //this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
+                // not needed cos above function will run it if needed (expect it won't!)...
+                // and probably shouldn't run anyway if ICE is not established?
+                // what use is it to know we can communicate with our XPCOM DLL?
+                this.startICEcallbackConnector();
               
             }
         } // end if "keefox has loaded its binary components correctly"
@@ -525,10 +528,13 @@ KeeFox.prototype = {
     // I am assuming that a completed thread will result in null values for these two variables but I am doubtful.
     // at least this way the worse that could happen is that KeePass startup is not correctly detected which
     // is a vast improvement on the alternative of random application crashes
-    
-        if (this.activeICEconnector != undefined && this.activeICEconnectorThread != undefined
-            && this.activeICEconnector != null && this.activeICEconnectorThread != null)
+        this.log("Considering whether to start the KeeICEconnector thread...");
+        if (((this.activeICEconnector == undefined || this.activeICEconnector == null)
+            && (this.activeICEconnectorThread == undefined || this.activeICEconnectorThread == null)
+            ) || this.activeICEconnector.timerStillUseful == null //TODO: is this really thread safe? if not, HOW do we fix it? Do we need to clean up the old vars or does JS GC do that for us?
+           )
         {
+            this.log("Starting the KeeICEconnector thread.");
             this.activeICEconnector = new KeeFoxICEconnector();
             this.activeICEconnectorThread = 
               Components.classes["@mozilla.org/thread-manager;1"].
