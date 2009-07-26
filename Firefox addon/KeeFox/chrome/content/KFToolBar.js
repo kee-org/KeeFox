@@ -32,37 +32,7 @@ function KFToolbar(currentWindow) {
 KFToolbar.prototype = {
 
     _currentWindow : null,
-    
-    _alert : function (msg) {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                           .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-
-        // get a reference to the prompt service component.
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-
-        // show an alert. For the first argument, supply the parent window. The second
-        // argument is the dialog title and the third argument is the message
-        // to display.
-        promptService.alert(window,"Alert",msg);
-    },
-    
-    __logService : null, // Console logging service, used for debugging.
-    get _logService() {
-        if (!this.__logService)
-            this.__logService = Cc["@mozilla.org/consoleservice;1"].
-                                getService(Ci.nsIConsoleService);
-        return this.__logService;
-    },
-    
-    // Internal function for logging debug messages to the Error Console window
-    log : function (message) {
-        dump(message+"\n");
-        if (this._currentWindow.keeFoxInst._keeFoxExtension.prefs.getValue("debugToConsole",false))
-            this._logService.logStringMessage(message);
-    },
-    
+ 
     // remove matched logins from the menu
     removeLogins: function() {
 
@@ -78,8 +48,8 @@ KFToolbar.prototype = {
     },
     
     // add all matched logins to the menu
-    setLogins: function(logins) {
-        this.log("setLogins");
+    setLogins: function(logins, doc) {
+        KFLog.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         
@@ -90,10 +60,16 @@ KFToolbar.prototype = {
         if (container.getAttribute('KFLock') == "enabled")
             return;
 
-        // Remove all of the existing buttons
-        for (i = container.childNodes.length; i > 0; i--) {
-            container.removeChild(container.childNodes[0]);
-        }
+        // TODO: more work needed on removal of old login buttons so that it keeps things
+        // tidy but doesn't risk removing valid logins when just one subframe has loaded.
+        // need to deal with when main container button is removed but subitems are not - rearrange
+        // Remove all of the existing buttons related to this URI
+        // NB: possible risk of outdated information if one sub-frame removes
+        // forms dynamically (this function won't be called cos there will be no matches)
+        //for (i = container.childNodes.length; i > 0; i--) {
+        //    if (container.childNodes[i].getAttribute("value", "") == doc.documentURI)
+        //        container.removeChild(container.childNodes[i]);
+        //}
 
         if (logins == null || logins.length == 0)
         {
@@ -111,7 +87,7 @@ KFToolbar.prototype = {
         // create a popup menu to hold the logins        
         menupopup = this._currentWindow.document.createElement("menupopup");
 
-        this.log("setting " + logins.length + " toolbar logins");
+        KFLog.debug("setting " + logins.length + " toolbar logins");
         
         // add every matched login to the popup menu
         for (var i = 0; i < logins.length; i++) {
@@ -122,9 +98,6 @@ KFToolbar.prototype = {
             
             if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
-                this.log("otherfields length: "+login.otherFields.length);
-                this.log("login.usernameIndex: "+login.usernameIndex);
-
                 // Unfortunately the container is decared to have elements
                 // that are generic nsIMutableArray. So, we must QI...
                 var field = 
@@ -138,29 +111,30 @@ KFToolbar.prototype = {
             if (i==0)
             {
                 container.setAttribute("label", login.title);
+                container.setAttribute("value", doc.documentURI);
                 container.setAttribute("tooltiptext", usernameValue );
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "'); event.stopPropagation();");
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             
             }
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
+            tempButton.setAttribute("value", doc.documentURI);
             tempButton.setAttribute("tooltiptext", usernameValue);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "'); event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             menupopup.appendChild(tempButton);
 
         }
         
         container.appendChild(menupopup);
-        this.log("test2:"+container.getAttribute("oncommand"));
     },
     
     // populate the "all logins" menu with every login in this database
     setAllLogins: function() {
-        this.log("setAllLogins");
+        KFLog.debug("setAllLogins start");
         
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
 
@@ -187,7 +161,7 @@ KFToolbar.prototype = {
     
     // add all the logins and subgroups for one KeePass group
     setOneLoginsMenu: function(containerID, groupUniqueID) {
-        this.log("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
+        KFLog.debug("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
 
         // get the popup menu for this list of logins and subgroups
         var container = this._currentWindow.document.getElementById(containerID);
@@ -242,8 +216,8 @@ KFToolbar.prototype = {
             
             if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
-                this.log("otherfields length: "+login.otherFields.length);
-                this.log("login.usernameIndex: "+login.usernameIndex);
+                KFLog.debug("otherfields length: "+login.otherFields.length);
+                KFLog.debug("login.usernameIndex: "+login.usernameIndex);
 
                 // Unfortunately the container is decared to have elements
                 // that are generic nsIMutableArray. So, we must QI...
@@ -276,7 +250,7 @@ KFToolbar.prototype = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this.log("setupButton_installListener: got event " + event.type);
+            KFLog.debug("setupButton_installListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -286,7 +260,7 @@ KFToolbar.prototype = {
                     return;
 
                 default:
-                    this.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }
@@ -298,7 +272,7 @@ KFToolbar.prototype = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this.log("setupButton_readyListener: got event " + event.type);
+            KFLog.debug("setupButton_readyListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -308,7 +282,7 @@ KFToolbar.prototype = {
                     return;
 
                 default:
-                    this.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }
@@ -320,7 +294,7 @@ KFToolbar.prototype = {
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this.log("setupButton_loadKeePassListener: got event " + event.type);
+            KFLog.debug("setupButton_loadKeePassListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -330,7 +304,7 @@ KFToolbar.prototype = {
                     return;
 
                 default:
-                    this.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }
@@ -338,7 +312,7 @@ KFToolbar.prototype = {
     },
 
     setupButton_install: function(targetWindow) {
-        this.log("setupButton_install");
+        KFLog.debug("setupButton_install start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -365,7 +339,7 @@ KFToolbar.prototype = {
 // decide what state the toolbar needs to show when this function is executing rather than calling
 // one of many different ones from other locations
     setupButton_ready: function(targetWindow, mainWindowIN) {
-        this.log("setupButton_ready");
+        KFLog.debug("setupButton_ready start");
         var mainButton;
         var mainWindow;
         
@@ -395,7 +369,6 @@ KFToolbar.prototype = {
         
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-            this.log("setupButton_ready1");
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
             if (DBname == null || DBname == "")
                 return; // KeeICE suddenly dissapeared - toolbar will have been updated from deeper in the stack
@@ -404,7 +377,6 @@ KFToolbar.prototype = {
            // mainButton.setAttribute("oncommand", "alert('blah')");
             mainButton.setAttribute("disabled", "true");
             mainButton.removeAttribute("oncommand");
-        this.log("setupButton_ready1end");
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false))
         {
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
@@ -413,13 +385,11 @@ KFToolbar.prototype = {
         
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
         {
-        this.log("setupButton_ready2");
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
             mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
             mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
         } else
         {
-        this.log("setupButton_ready3");
             mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedOut.label"));
             mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loggedOut.tip") );
             mainButton.setAttribute("oncommand", "keeFoxInst.loginToKeePass()");
@@ -446,7 +416,7 @@ KFToolbar.prototype = {
     },
 
     setupButton_loadKeePass: function(targetWindow) {
-        this.log("setupButton_loadKeePass");
+        KFLog.debug("setupButton_loadKeePass start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -477,13 +447,13 @@ KFToolbar.prototype = {
             outMsg = KFtester.do_tests();
         }
         catch (err) {
-            this.log("Error: "+err);
-            this._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
+            KFLog.error(err);
+            KFLog._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
             return;
         }
 
-        this.log(outMsg);
-        this._alert(outMsg);
+        KFLog.info(outMsg);
+        KFLog._alert(outMsg);
     },
     
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
@@ -577,6 +547,10 @@ KFToolbar.prototype = {
         if (currentPage != undefined && currentPage != null)
         {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
+            /*
+            TODO:
+            Error: uncaught exception: [Exception... "'Illegal value' when calling method: [nsISessionStore::deleteTabValue]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: chrome://keefox/content/keefox.js -> resource://kfscripts/KFToolBar.js :: anonymous :: line 587"  data: no]
+            */
         }
         
         var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
@@ -629,7 +603,7 @@ KFToolbar.prototype = {
     // have associated with the most recent tab.
     clearTabFormFillData : function ()
     {
-        this.log("clearTabFormFillData");
+        KFLog.debug("clearTabFormFillData start");
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
             .getService(Components.interfaces.nsISessionStore);
         var currentGBrowser = this._currentWindow.gBrowser;

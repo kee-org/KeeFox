@@ -6,6 +6,10 @@ This information will often be disseminated onto the official KeeFox website in 
 - KeePass entries without username and password form meta-data "advanced" strings can now be read by KeeFox
 - HTTP(S) protocol authentication dialog boxes can be filled (no password saving yet - manually add a "Form HTTP realm" advanced string to an existing KeePass login to make it work, and make sure the URL field is correct too)
 - Built-in Firefox password saving disabled
+- Refactored logging statements into a seperate library and added related options (no GUI yet)
+- Fixed several stability bugs
+- Fixed several types of form / situation that behaved incorrectly
+- Added hidden option to configure local TCP port used for ICE link between Firefox and KeePass
 
 
 - Improved testing system, including a variety of test HTML pages to aid manual quality control before official releases.

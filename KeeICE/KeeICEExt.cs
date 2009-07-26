@@ -76,7 +76,7 @@ namespace KeeICE
                 ic = Ice.Util.initialize(id);
                 Ice.ObjectAdapter adapter
                     = ic.createObjectAdapterWithEndpoints(
-                        "KeeICEAdapter", "tcp -h localhost -p 12535");
+                        "KeeICEAdapter", "tcp -h localhost -p " + args[0]);
                 kp = new KPI(m_host,ic);
                 adapter.add(
                         kp,
@@ -103,9 +103,9 @@ namespace KeeICE
             return 0;
         }
 
-        public void ICEthread()
+        public void ICEthread(object state)
         {
-            main(new string[0]);
+            main(new string[1] { ((int)state).ToString()});
             return;
         }
     }
@@ -125,15 +125,15 @@ namespace KeeICE
 
 
 
-        private void setupKeeICEServer()
+        private void setupKeeICEServer(int ICEport)
         {
 
             try
             {
-                oThread = new Thread(new ThreadStart(keeICEServer.ICEthread));
+                oThread = new Thread(new ParameterizedThreadStart(keeICEServer.ICEthread));
 
                 // Start the thread
-                oThread.Start();
+                oThread.Start(ICEport);
 
                 // wait for the started thread to become alive
                 while (!oThread.IsAlive) ;
@@ -152,14 +152,14 @@ namespace KeeICE
 
         private void setupKeeICEServerListener(object sender, FileCreatedEventArgs e)
         {
-            setupKeeICEServer();
+            //setupKeeICEServer();
             keeICEServer.m_host.MainWindow.FileOpened -= setupKeeICEServerListener;
             keeICEServer.m_host.MainWindow.FileCreated -= setupKeeICEServerListener;
         }
 
         private void setupKeeICEServerListener(object sender, FileOpenedEventArgs e)
         {
-            setupKeeICEServer();
+            //setupKeeICEServer();
             keeICEServer.m_host.MainWindow.FileOpened -= setupKeeICEServerListener;
             keeICEServer.m_host.MainWindow.FileCreated -= setupKeeICEServerListener;
         }
@@ -174,6 +174,21 @@ namespace KeeICE
 		/// <returns>true if channel registered correctly, otherwise false</returns>
 		public override bool Initialize(IPluginHost host)
 		{
+            string ICEportStr = host.CommandLineArgs["KeeICEPort"];
+            int ICEport = 12535;
+            
+            
+            if (ICEportStr != null)
+            {
+                try
+                {
+                    ICEport = int.Parse(ICEportStr);
+                }
+                catch
+                {
+                    ICEport = 12535;
+                }
+            }
 
             keeICEServer = new KeeICEServer();
             Debug.Assert(host != null);
@@ -181,7 +196,7 @@ namespace KeeICE
             keeICEServer.m_host = host;
 
            // if (host.Database.IsOpen) // unlikely!
-                setupKeeICEServer();
+            setupKeeICEServer(ICEport);
           /*  else
             {
                 keeICEServer.m_host.MainWindow.FileOpened += setupKeeICEServerListener;

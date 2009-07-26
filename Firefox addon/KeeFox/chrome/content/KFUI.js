@@ -120,16 +120,6 @@ KFUI.prototype = {
         return this.__ioService;
     },
 
-
-    // Internal function for logging debug messages to the Error Console window
-    log : function (message) {
-        this._kf.log(message+"\n");
-        //if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
-        //    this._logService.logStringMessage(message);
-
-    },
-
-
     /* ---------- nsILoginManagerPrompter prompts ---------- */
 
 
@@ -145,11 +135,6 @@ KFUI.prototype = {
         this._kf = kf;
         this._kfilm = kfilm;
         this._window = this._kfilm._currentWindow;
-
-        //var prefBranch = Cc["@mozilla.org/preferences-service;1"].
-        //                 getService(Ci.nsIPrefService).getBranch("signon.");
-        //this._debug = prefBranch.getBoolPref("debug");
-        this.log("===== initialized =====");
     },
 
 
@@ -177,7 +162,7 @@ KFUI.prototype = {
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
         const priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
 
-        this.log("Adding new " + aName + " notification bar");
+        KFLog.debug("Adding new " + aName + " notification bar");
         var newBar = aNotifyBox.appendNotification(
                                 aText, aName,
                                 "chrome://mozapps/skin/passwordmgr/key.png",
@@ -194,7 +179,7 @@ KFUI.prototype = {
         newBar.timeout = Date.now() + 20000; // 20 seconds
 
         if (oldBar) {
-            this.log("(...and removing old " + aName + " notification bar)");
+            KFLog.debug("(...and removing old " + aName + " notification bar)");
             aNotifyBox.removeNotification(oldBar);
         }
         return newBar;
@@ -443,7 +428,7 @@ messageText.appendChild(fragment);
         var oldBar = aNotifyBox.getNotificationWithValue("password-save");
 
         if (oldBar) {
-            this.log("Removing save-password notification bar.");
+            KFLog.debug("Removing save-password notification bar.");
             aNotifyBox.removeNotification(oldBar);
         }
     },
@@ -629,21 +614,21 @@ messageText.appendChild(fragment);
             var oldBar = notifyBox.getNotificationWithValue("password-save");
 
             if (oldBar) {
-                this.log("Removing save-password notification bar.");
+                KFLog.debug("Removing save-password notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
             
             oldBar = notifyBox.getNotificationWithValue("keefox-login");
 
             if (oldBar) {
-                this.log("Removing keefox-login notification bar.");
+                KFLog.debug("Removing keefox-login notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
             
             oldBar = notifyBox.getNotificationWithValue("keefox-launch");
 
             if (oldBar) {
-                this.log("Removing keefox-launch notification bar.");
+                KFLog.debug("Removing keefox-launch notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
         }
@@ -694,7 +679,7 @@ messageText.appendChild(fragment);
                 // assume it'll stick around and *don't* use the opener.
                 if (chromeDoc.getAttribute("chromehidden") &&
                     webnav.sessionHistory.count == 1) {
-                    this.log("Using opener window for notification bar.");
+                    KFLog.debug("Using opener window for notification bar.");
                     notifyWindow = notifyWindow.opener; //not convinced this will work - maybe change this._document
                 }
             }
@@ -710,7 +695,7 @@ messageText.appendChild(fragment);
 //this.log("window has name:" + notifyWindow.name);
             while (!foundBrowser && enumerator.hasMoreElements()) {
                 var win = enumerator.getNext();
-                this.log("found window with name:" + win.name);
+                KFLog.debug("found window with name:" + win.name);
                 tabbrowser = win.getBrowser(); 
                 foundBrowser = tabbrowser.getBrowserForDocument(
                                                   this._document);
@@ -719,13 +704,13 @@ messageText.appendChild(fragment);
             // Return the notificationBox associated with the browser.
             if (foundBrowser)
             {
-                this.log("found a browser for this window.");
+                KFLog.debug("found a browser for this window.");
                 return tabbrowser.getNotificationBox(foundBrowser)
             }
 
         } catch (e) {
             // If any errors happen, just assume no notification box.
-            this.log("No notification box available: " + e)
+            KFLog.error("No notification box available: " + e)
         }
 
         return null;

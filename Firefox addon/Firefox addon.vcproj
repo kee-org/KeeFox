@@ -316,6 +316,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\modules\KFLogger.js"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\components\kfLoginField.js"
 			>
 		</File>

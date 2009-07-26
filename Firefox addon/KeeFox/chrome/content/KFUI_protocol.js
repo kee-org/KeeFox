@@ -64,8 +64,6 @@
 
         try {
 
-            this.log("===== promptAuth called =====");
-
             // If the user submits a login but it fails, we need to remove the
             // notification bar that was displayed. Conveniently, the user will
             // be prompted for authentication again, which brings us here.
@@ -79,7 +77,7 @@
             // Looks for existing logins to prefill the prompt with.
             var foundLogins = this._pwmgr.findLogins({},
                                         hostname, null, httpRealm);
-            this.log("found " + foundLogins.length + " matching logins.");
+            KFLog.info("found " + foundLogins.length + " matching logins.");
 
             // XXX Can't select from multiple accounts yet. (bug 227632)
             if (foundLogins.length > 0) {
@@ -115,7 +113,6 @@
         try {
             var [username, password] = this._GetAuthInfo(aAuthInfo);
             var title = doc.title;
-this.log("titleC:"+title);
             var loginURLs = Components.classes["@mozilla.org/array;1"]
                         .createInstance(Components.interfaces.nsIMutableArray);
             var loginURL = Components.classes["@christomlinson.name/kfURL;1"]
@@ -136,22 +133,27 @@ this.log("titleC:"+title);
             // changed, save as a new login.
             if (!selectedLogin) {
                 // add as new
-                this.log("New login seen for " + username +
+                if (KFLog.logSensitiveData)
+                    KFLog.info("New login seen for " + username +
                          " @ " + hostname + " (" + httpRealm + ")");
+                else
+                    KFLog.info("New login seen for a HTTP protocol auth request");
                 if (notifyBox)
                     this._showSaveLoginNotification(notifyBox, newLogin, isMultiPage);
                 else
                     this._pwmgr.addLogin(newLogin, null);
 
             } else if (password != selectedLogin.password) {
-
-                this.log("Updating password for " + username +
+                if (KFLog.logSensitiveData)
+                    KFLog.info("Updating password for " + username +
                          " @ " + hostname + " (" + httpRealm + ")");
+                else
+                    KFLog.info("Updating password for a HTTP protocol auth request");
                 // update password
                 this._pwmgr.modifyLogin(selectedLogin, newLogin);
 
             } else {
-                this.log("Login unchanged, no further action needed.");
+                KFLog.info("Login unchanged, no further action needed.");
             }
         } catch (e) {
             Components.utils.reportError("LoginManagerPrompter: " +
@@ -183,7 +185,7 @@ this.log("titleC:"+title);
         // If our proxy is demanding authentication, don't use the
         // channel's actual destination.
         if (aAuthInfo.flags & Ci.nsIAuthInformation.AUTH_PROXY) {
-            this.log("getAuthTarget is for proxy auth");
+            KFLog.debug("getAuthTarget is for proxy auth");
             if (!(aChannel instanceof Ci.nsIProxiedChannel))
                 throw "proxy auth needs nsIProxiedChannel";
 

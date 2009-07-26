@@ -41,8 +41,8 @@ function KFILM(kf,keeFoxToolbar,currentWindow) {
     this._refillTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
 
     this.init();
-    this.log("currentWindowName:" + currentWindow.name);
-    this.log ("KFILM constructor finished");
+    KFLog.debug("currentWindowName:" + currentWindow.name);
+    KFLog.debug ("KFILM constructor finished");
 }
 
 KFILM.prototype = {
@@ -53,14 +53,6 @@ KFILM.prototype = {
     _toolbar : null, // the keefox toolbar in this scope
     _kfLoginInfo : null, // Constructor for kfILoginInfo implementation
     _refillTimer : null,
-
-    __logService : null, // Console logging service, used for debugging.
-    get _logService() {
-        if (!this.__logService)
-            this.__logService = Cc["@mozilla.org/consoleservice;1"].
-                                getService(Ci.nsIConsoleService);
-        return this.__logService;
-    },
     
     __ioService: null, // IO service for string -> nsIURI conversion
     get _ioService() {
@@ -79,14 +71,6 @@ KFILM.prototype = {
                             getService(Ci.nsIFormFillController);
         return this.__formFillService;
     },
-    
-    // Internal function for logging debug messages to the Error Console window
-    log : function (message) {
-        this._kf.log(message+"\n");
-        //if (this._kf._keeFoxExtension.prefs.getValue("debugToConsole",false))
-        //    this._logService.logStringMessage(message);
-    },
-    
     
     //TODO: improve weighting of matches to reflect real world tests
     _calculateRelevanceScore : function (login, form, usernameIndex, passwordFields, currentTabPage) {
@@ -117,7 +101,7 @@ KFILM.prototype = {
             // that are generic nsIMutableArray. So, we must QI...
             var loginURL = login.URLs.queryElementAt(i,Components.interfaces.kfIURL);
             
-            this.log(loginURL.URL);
+            if (KFLog.logSensitiveData) KFLog.debug(loginURL.URL);
 
             if (URL == loginURL.URL)
                 URLscore = 22;
@@ -143,13 +127,13 @@ KFILM.prototype = {
         //if (passwordField == login.passwordField)
         //    score += 2;
         
-        this.log("Relevance for " + login.uniqueID + " is: "+score);
+        KFLog.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
     },
     
 
     init : function () {
-        this.log("ILM init start");
+        KFLog.debug("ILM init start");
         
         // Cache references to current |this| in utility objects
         this._webProgressListener._domEventListener = this._domEventListener;
@@ -177,10 +161,10 @@ KFILM.prototype = {
                      Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
         
         } catch (e) {
-            this.log("couldn't add nsIWebProgress listener: " + e);
+            KFLog.error("couldn't add nsIWebProgress listener: " + e);
         }
         
-        this.log("ILM init complete");
+        KFLog.debug("ILM init complete");
     },
     
     /*
@@ -198,12 +182,12 @@ KFILM.prototype = {
 
         // nsFormSubmitObserver
         notify : function (formElement, aWindow, actionURI) {
-            this._pwmgr.log("observer notified for form submission.");
+            KFLog.debug("observer notified for form submission.");
 
             try {
                 this._pwmgr._onFormSubmit(formElement);
             } catch (e) {
-                this._pwmgr.log("Caught error in onFormSubmit: " + e);
+                KFLog.error("Caught error in onFormSubmit: " + e);
             }
 
             return true; // Always return true, or form submit will be canceled.
@@ -233,7 +217,7 @@ KFILM.prototype = {
                 }
                 this._pwmgr = null;
             } else {
-                this._pwmgr.log("Oops! Unexpected notification: " + topic);
+                KFLog.warn("Unexpected notification: " + topic);
             }
         }
     },
@@ -285,7 +269,7 @@ KFILM.prototype = {
             if (!(domDoc instanceof Ci.nsIDOMHTMLDocument))
                 return;
 
-            this._pwmgr.log("onStateChange accepted: req = " +
+            if (KFLog.logSensitiveData) KFLog.debug("onStateChange accepted: req = " +
                             (aRequest ?  aRequest.name : "(null)") +
                             ", flags = 0x" + aStateFlags.toString(16));
 
@@ -294,7 +278,7 @@ KFILM.prototype = {
 
             if (currentTab.hasAttribute("KF_uniqueID")) {
 
-                this._pwmgr.log("has uid");
+                KFLog.debug("has uid");
                 
                 // see if this tab has our special attributes and promote them to session data
                 var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
@@ -305,7 +289,7 @@ KFILM.prototype = {
                 currentTab.removeAttribute("KF_uniqueID")
             } else
             {
-                this._pwmgr.log("nouid");
+                KFLog.debug("nouid");
             }
             
             // remove all the old logins from the toolbar
@@ -313,7 +297,7 @@ KFILM.prototype = {
             
             // Fastback doesn't fire DOMContentLoaded, so process forms now.
             if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING) {
-                this._pwmgr.log("onStateChange: restoring document");
+                KFLog.debug("onStateChange: restoring document");
                 return this._pwmgr._fillDocument(domDoc,true);
             }
 
@@ -374,7 +358,7 @@ KFILM.prototype = {
         },
 
         handleEvent : function (event) {
-            this._pwmgr.log("domEventListener: got event " + event.type);
+            KFLog.debug("domEventListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -422,7 +406,7 @@ KFILM.prototype = {
                  //   return;
 
                 default:
-                    this._pwmgr.log("Oops! This event unexpected.");
+                    KFLog.warn("This event unexpected.");
                     return;
             }
         }
@@ -504,7 +488,7 @@ KFILM.prototype = {
         for (var i = 0; i < form.elements.length; i++) {
             var DOMtype = form.elements[i].type.toLowerCase();
             
-            this.log("domtype: "+ DOMtype );
+            KFLog.debug("domtype: "+ DOMtype );
             
             //TODO: support select drop downs
             // && DOMtype != "select-one"
@@ -518,7 +502,7 @@ KFILM.prototype = {
             if (DOMtype == "password" && isSubmission && !form.elements[i].value) continue;
             //if (DOMtype == "select-one" && isSubmission && !form.elements[i].value) continue;
             
-this.log("proccessing...");
+KFLog.debug("proccessing...");
             allFields[allFields.length] =
             {
                 index   : i,
@@ -529,27 +513,40 @@ this.log("proccessing...");
                 form.elements[i].name, form.elements[i].value, form.elements[i].id, DOMtype, currentTabPage);
             allFields[allFields.length-1].element.DOMInputElement = form.elements[i];
             
-            if (DOMtype == "password" && firstPasswordIndex == -1) firstPasswordIndex = i;
-            if (DOMtype == "text" && firstPossibleUsernameIndex == -1 && this._isAKnownUsernameString(form.elements[i].name)) firstPossibleUsernameIndex = i;
+            if (DOMtype == "password" && firstPasswordIndex == -1) firstPasswordIndex = allFields.length-1;
+            if (DOMtype == "text" && firstPossibleUsernameIndex == -1 && this._isAKnownUsernameString(form.elements[i].name)) firstPossibleUsernameIndex = allFields.length-1;
         }
-        
+        KFLog.debug("firstPossibleUsernameIndex: "+ firstPossibleUsernameIndex );
         // work out which DOM form element is most likely to be the username field
         if (firstPossibleUsernameIndex != -1)
             usernameIndex = firstPossibleUsernameIndex;
         else if (firstPasswordIndex > 0)
             usernameIndex = firstPasswordIndex - 1;
+        KFLog.debug("usernameIndex: "+ usernameIndex );
+
+        var otherCount = 0;
+        var actualUsernameIndex = 0;
         
         // seperate the field data into appropriate variables
         for (var i = 0; i < allFields.length; i++) {
             
             if (allFields[i].type == "password")
                 pwFields[pwFields.length] = allFields[i].element;
-            else
+            else if (allFields[i].type == "text" || allFields[i].type == "checkbox" || allFields[i].type == "radio")
+            {
                 otherFields[otherFields.length] = allFields[i].element;
+                if (i == usernameIndex) 
+                    actualUsernameIndex = otherCount;
+                else
+                    otherCount++;
+            }
                 
         }
+        
+        KFLog.debug("actualUsernameIndex: "+ actualUsernameIndex );
+        KFLog.debug("otherFields.length:" + otherFields.length);
 
-        return [usernameIndex, pwFields, otherFields];
+        return [actualUsernameIndex, pwFields, otherFields];
 
     },
  
@@ -598,14 +595,14 @@ this.log("proccessing...");
 
             if (logins.some(function(l) login.matches(l, false, false, false, false)))
             {
-                this.log("This login already exists.");
+                KFLog.info("This login already exists.");
                 return "This login already exists.";
             }
         }
         
         
 
-        this.log("Adding login: " + login + " to group: " + parentUUID);
+        KFLog.info("Adding login to group: " + parentUUID);
         return this._kf.addLogin(login, parentUUID);
     },
     
@@ -620,27 +617,27 @@ this.log("proccessing...");
             throw "Can't add a group with no title.";
 
 
-        this.log("Adding group: " + title + " to group: " + parentUUID);
+        KFLog.info("Adding group: " + title + " to group: " + parentUUID);
         return this._kf.addGroup(title, parentUUID);
     },
     
     getParentGroup : function (uniqueID) {
-        this.log("Getting parent group of: " + uniqueID);
+        KFLog.debug("Getting parent group of: " + uniqueID);
         return this._kf.getParentGroup(uniqueID);
     },
     
     getRootGroup : function () {
-        this.log("Getting root group");
+        KFLog.debug("Getting root group");
         return this._kf.getRootGroup();
     },
     
     getChildGroups : function (count, uniqueID) {
-        this.log("Getting all child groups of: " + uniqueID);
+        KFLog.debug("Getting all child groups of: " + uniqueID);
         return this._kf.getChildGroups(count, uniqueID);
     },
     
     getChildEntries : function (count, uniqueID) {
-        this.log("Getting all child entries of: " + uniqueID);
+        KFLog.debug("Getting all child entries of: " + uniqueID);
         return this._kf.getChildEntries(count, uniqueID);
     },
     
@@ -652,7 +649,7 @@ this.log("proccessing...");
      * Remove the specified login from the stored logins.
      */
     removeLogin : function (uniqueID) {
-        this.log("Removing login: " + uniqueID);
+        KFLog.info("Removing login: " + uniqueID);
         return this._kf.removeLogin(uniqueID);
     },
     
@@ -662,7 +659,7 @@ this.log("proccessing...");
      * Remove the specified group and its contents from the KeePass DB.
      */
     removeGroup : function (uniqueID) {
-        this.log("Removing group: " + uniqueID);
+        KFLog.info("Removing group: " + uniqueID);
         return this._kf.removeGroup(uniqueID);
     },
 
@@ -673,7 +670,7 @@ this.log("proccessing...");
      * Change the specified login to match the new login.
      */
     modifyLogin : function (oldLogin, newLogin) {
-        this.log("Modifying oldLogin: " + oldLogin + " newLogin: " + newLogin);
+        KFLog.info("Modifying a login");
         return this._kf.modifyLogin(oldLogin, newLogin);
     },
 
@@ -688,7 +685,7 @@ this.log("proccessing...");
      * Returns an array of logins. If there are no logins, the array is empty.
      */
     getAllLogins : function (count) {
-        this.log("Getting a list of all logins");
+        KFLog.debug("Getting a list of all logins");
         return this._kf.getAllLogins(count);
     },
         
@@ -698,9 +695,12 @@ this.log("proccessing...");
      * Search for the known logins for entries matching the specified criteria.
      */
     findLogins : function (count, url, formSubmitURL, httpRealm, uniqueID) {
-        this.log("Searching for logins matching URL: " + url +
+        if (KFLog.logSensitiveData)
+            KFLog.info("Searching for logins matching URL: " + url +
             ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm
              + ", uniqueID: " + uniqueID);
+        else
+            KFLog.info("Searching for logins");
 
         return this._kf.findLogins(count, url, formSubmitURL, httpRealm, uniqueID);
     },
@@ -747,7 +747,10 @@ this.log("proccessing...");
             
 
         } catch (e) {
-            this.log("Couldn't parse origin for " + uriString);
+            if (KFLog.logSensitiveData)
+                KFLog.error("Couldn't parse origin for " + uriString);
+            else
+                KFLog.error("Couldn't parse origin");
             realm = null;
         }
         return realm;
@@ -782,7 +785,10 @@ this.log("proccessing...");
             }
 
         } catch (e) {
-            this.log("Couldn't parse origin for " + uriString);
+            if (KFLog.logSensitiveData)
+                KFLog.error("Couldn't parse origin for " + uriString);
+            else
+                KFLog.error("Couldn't parse origin");
             realm = null;
         }
         return realm;
@@ -817,10 +823,13 @@ this.log("proccessing...");
             }
 
         } catch (e) {
-            this.log("Couldn't parse origin for " + uriString);
+            if (KFLog.logSensitiveData)
+                KFLog.error("Couldn't parse origin for " + uriString);
+            else
+                KFLog.error("Couldn't parse origin");
             realm = null;
         }
-        this.log("_getURISchemeHostAndPort:"+realm);
+        if (KFLog.logSensitiveData) KFLog.debug("_getURISchemeHostAndPort:"+realm);
         return realm;
     },
     
@@ -856,10 +865,12 @@ this.log("proccessing...");
         } catch (e) {
             // bug 159484 - disallow url types that don't support a hostPort.
             // (although we handle "javascript:..." as a special case above.)
-            this.log("Couldn't parse origin for " + uriString);
+            if (KFLog.logSensitiveData)
+                KFLog.error("Couldn't parse origin for " + uriString);
+            else
+                KFLog.error("Couldn't parse origin");
             realm = null;
         }
-this.log("realm:"+realm);
         return realm;
     },
     
@@ -870,14 +881,13 @@ this.log("realm:"+realm);
         // A blank or mission action submits to where it came from.
         if (uriString == "")
             uriString = form.baseURI;
-//this.log("uri:"+uriString);
         return this._getPasswordOrigin(uriString, true);
     },
     
     
     
     loadAndAutoSubmit : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
-        this.log("loadAndAutoSubmit");
+        KFLog.debug("loadAndAutoSubmit");
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                         .getService(Components.interfaces.nsIWindowMediator);

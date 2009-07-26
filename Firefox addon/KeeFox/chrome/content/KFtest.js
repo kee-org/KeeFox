@@ -61,36 +61,14 @@ KFtests.prototype = {
         promptService.alert(window,"Alert",msg);
     },
     
-    __logService : null, // Console logging service, used for debugging.
-    get _logService() {
-        if (!this.__logService)
-            this.__logService = Cc["@mozilla.org/consoleservice;1"].
-                                getService(Ci.nsIConsoleService);
-        return this.__logService;
-    },
-    
-    // Internal function for logging debug messages to the Error Console window
-    log : function (message) {
-        this._logService.logStringMessage(message);
-    },
-    
-    /*
-     * error
-     *
-     * Internal function for logging error messages to the Error Console window
-     */
-    error : function (message) {
-        Components.utils.reportError(message);
-    },
-    
     
     _KeeFoxAssert: function(testResult, successMsg, failMsg, abortOnFail) {
         if (testResult) {
-            this.log(successMsg);
+            KFLog.info(successMsg);
             return;
         } else {
             this._KeeFoxTestErrorOccurred = true;
-            this.error(failMsg);
+            KFLog.error(failMsg);
         }
 
         if (abortOnFail)
@@ -278,7 +256,7 @@ KFtests.prototype = {
                 
         }
 
-        this.log("Advanced diagnostic summary of the successful test run: " + resultText);
+        KFLog.info("Advanced diagnostic summary of the successful test run: " + resultText);
         resultText = "The tests appear to have worked as expected. If you still have trouble, please use the support centre on the KeeFox website (http://keefox.info) Summary diagnostic messages can be found in the Firefox errors log (if you have enabled logging in the advanced KeeFox options panel)";
         return resultText;
     }

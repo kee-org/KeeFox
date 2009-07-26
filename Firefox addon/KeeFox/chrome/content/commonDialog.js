@@ -36,7 +36,7 @@ var keeFoxDialogManager = {
         try {
             keeFoxDialogManager.autoFill();
         } catch (exception) {
-            keeFoxInst.log(exception);
+            KFLog.error(exception);
         }
     },
     
@@ -73,13 +73,7 @@ var keeFoxDialogManager = {
 			    autoFill = false;
                 autoSubmit = false;
 			}
-			//keeFoxInst.log(document.getElementsByTagName("description")[0].firstChild.nodeValue);
-			keeFoxInst.log(document.getElementById("info.body").firstChild.nodeValue);
-			//return;
-			//var matches = document.getElementById("info.body").firstChild.nodeValue.match(/(https?):\/\/([a-z0-9\.-]+)(:([0-9]+))?$/i);
-			//var protocol = matches[1];
-			//var host = matches[2];
-			//var port = matches[4];
+
 			var host;
 			var realm;
 			
@@ -110,7 +104,10 @@ var keeFoxDialogManager = {
 			// find all the logins
 			var foundLogins = keeFoxInst.findLogins({}, host, null, realm);
 
-            keeFoxInst.log("dialog: found " + foundLogins.length + " matching logins for '"+ realm + "' realm.");
+            if (KFLog.logSensitiveData)
+                KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ realm + "' realm.");
+            else
+                KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
 			
 			if (foundLogins.length <= 0)
 			    return;
@@ -126,25 +123,12 @@ var keeFoxDialogManager = {
                         foundLogins[i].otherFields.queryElementAt(0,Components.interfaces.kfILoginField);
                     var password = 
                         foundLogins[i].passwords.queryElementAt(0,Components.interfaces.kfILoginField);
-                    
-                //    this.log(matchedField);
-                    
-                    
-                    
-			       // nextPassword = enumerator.getNext().QueryInterface(Components.interfaces.nsIPassword);
+                   
+			        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : host });
+			        showList = true;
 
-			        //if (nextPassword.host.indexOf("://") == -1){
-				    //    for (var i = 0; i < hostREs.length; i++){
-					//        if (nextPassword.host.match(hostREs[i])){
-					//	        var host = nextPassword.host;//.split('//')[1];
-						        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : host });
-						        showList = true;
-					//	        continue passwordEntries;
-					 //       }
-				     //   }
-			        //}	
 		        } catch (e) {
-		        keeFoxInst.log(e);
+		            KFLog.error(e);
 		        }
 			}
 				

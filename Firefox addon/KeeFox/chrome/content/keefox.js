@@ -25,6 +25,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// Load our logging subsystem
+Components.utils.import("resource://kfmod/KFLogger.js");
+
 // Load our other javascript
 var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                        .getService(Components.interfaces.mozIJSSubScriptLoader); 
@@ -53,7 +56,7 @@ var keeFoxInitStartupListener = {
                             Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this._kf.log("keeFoxInitStartupListener: got event " + event.type);
+            KFLog.debug("keeFoxInitStartupListener: got event " + event.type);
 
             var currentWindow, inputElement;
             currentWindow = event.target.defaultView;
@@ -62,10 +65,10 @@ var keeFoxInitStartupListener = {
             
             if (currentWindow != this._assignedWindow)
             {
-                this._kf.log("not the right window");
+                KFLog.debug("not the right window");
                 return;
             }
-            this._kf.log("it's the right window");
+            KFLog.debug("it's the right window");
             
             // we only care about "load" events for the moment at least
             switch (event.type) {
@@ -99,7 +102,7 @@ var keeFoxInitStartupListener = {
 
                     return;
                 default:
-                    this._kf.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }

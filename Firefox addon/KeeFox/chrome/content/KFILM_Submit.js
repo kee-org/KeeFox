@@ -34,29 +34,27 @@
      */
     KFILM.prototype._onFormSubmit = function (form) {
 
-        this.log("Form submit handler started");
-this.log(form);
+        KFLog.info("Form submit handler started");
 
         var doc = form.ownerDocument;
         var win = doc.defaultView;
-        //this.log(doc);
-        //this.log(win);
-        this.log(doc.documentURI);
-        //var formLogin = new this._kfLoginInfo();
-
-        // If password saving is disabled (globally or for host), bail out now.
-        //if (!this._remember)
-        //    return;
 
         var URL      = this._getPasswordOrigin(doc.documentURI);
-        this.log(URL);
+        if (KFLog.logSensitiveData) KFLog.info("URL: " + URL);
         var formActionURL = this._getActionOrigin(form);
         var title = doc.title;
         
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
         var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
-        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(doc)];
+        var topDoc = doc;
+        if (doc.defaultView.frameElement) {
+            while (topDoc.defaultView.frameElement) {
+                topDoc=topDoc.defaultView.frameElement.ownerDocument;
+            }
+        }
+        //var win = topDoc.defaultView;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(topDoc)];
 
         //if (!this.getLoginSavingEnabled(hostname)) {
         //    this.log("(form submission ignored -- saving is " +
@@ -113,18 +111,15 @@ this.log(form);
         // there must be at least one password or otherField
         var [usernameIndex, passwords, otherFields] =
             this._getFormFields(form, true, currentPage);
-        this.log(URL);
         
         // Need at least 1 valid password field to handle a submision unless the user has
         // stated that the form should be captured. Otherwise we will end up prompting
         // the user to create entries every time they search google, etc.
         if (passwords == null || passwords[0] == null || passwords[0] == undefined)
         {
-            this.log("No password field found in form submission.");
+            KFLog.info("No password field found in form submission.");
             return;
         }
-        
-        this.log(URL);
         
         if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
         {
@@ -138,7 +133,7 @@ this.log(form);
             if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
             {
                 
-                this.log("multiple passwords found (with no identical values)");
+                KFLog.debug("multiple passwords found (with no identical values)");
                 
                 for (i=0; i < passwords.length; i++)
                     passwordFields.appendElement(passwords[i],false);
@@ -150,7 +145,7 @@ this.log(form);
                 // we need to ignore any fields that were presented to the
                 // user as either "old password" or "retype new password"
                 
-                this.log("Looks like a password change form has been submitted");
+                KFLog.debug("Looks like a password change form has been submitted");
                 // there may be more than one pair of matches - though, we're plucking for the first one
                 // we know the index of one matching password
                 
@@ -170,7 +165,6 @@ this.log(form);
         {
             passwordFields.appendElement(passwords[0],false);
         }
-        this.log(URL);
         // at this point, at least one passwordField has been chosen and an
         // oldPasswordField has been chosen if applicable
 
@@ -211,7 +205,7 @@ this.log(form);
    
             if (logins != undefined && logins != null)
             {
-            this.log("mathing test: "+logins.length);
+            KFLog.debug("matching test: "+logins.length);
             
                 for (var i = 0; i < logins.length; i++)
                 {
@@ -250,7 +244,7 @@ this.log(form);
         {
             var temp = formLogin.otherFields.queryElementAt(formLogin.usernameIndex,Components.interfaces.kfILoginField);
             formLoginUsername = temp.value;
-            this.log("formLoginUsername: " + formLoginUsername);
+            if (KFLog.logSensitiveData) KFLog.debug("formLoginUsername: " + formLoginUsername);
         }
         
         /*
@@ -303,7 +297,7 @@ this.log(form);
             
             if (existingLogin) // as long as we have previously stored a login for this site...
             {
-                this.log("we are changing the password");
+                KFLog.info("we are changing the password");
                 keeFoxUI.setWindow(win);
                 keeFoxUI.setDocument(doc);
 
@@ -323,7 +317,7 @@ this.log(form);
         {
             if (existingLogin) // no, it's already in the database so ignore
             {
-                this.log("we are logging in with a known password so doing nothing.");
+                KFLog.info("we are logging in with a known password so doing nothing.");
                 // this could miss some cases. e.g.
                 // password previously changed outside of this password management system (maybe matching algorithm above needs to compare passwords too in cases like this?)
                 return;
@@ -333,7 +327,7 @@ this.log(form);
         }
         
         // if we get to this stage, we are faced with a new login or signup submission so prompt user to save details
-        this.log("password is not recognised so prompting user to save it");
+        KFLog.info("password is not recognised so prompting user to save it");
         
         // set the tab value ready for the next time the page loads
         var nextPage = currentPage + 1;
@@ -341,7 +335,7 @@ this.log(form);
         // If this is the 2nd (or later) part of a multi-page login form, we need to combine the new field items with the previous login data
         if (nextPage > 2)
         {
-            this.log("This form submission is part of a multi-page login process.");
+            KFLog.info("This form submission is part of a multi-page login process.");
             
             
             var previousStageLoginMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
@@ -362,8 +356,6 @@ this.log(form);
                      
             if (previousStageLoginOtherFields != undefined && previousStageLoginOtherFields != null)
             { 
-                
-                this.log("ev1: "+previousStageLoginOtherFields);
                 eval (previousStageLoginOtherFields);
             }
                 
@@ -372,8 +364,6 @@ this.log(form);
 
             if (previousStageLoginPasswords != undefined && previousStageLoginPasswords != null)
             { 
-                
-                this.log("ev2: "+previousStageLoginPasswords);
                 eval (previousStageLoginPasswords);
             }
             
@@ -382,9 +372,6 @@ this.log(form);
             
             if (previousStageLoginURLs != undefined && previousStageLoginURLs != null)
             { 
-                
-
-                this.log("ev3: "+previousStageLoginURLs);
                 eval (previousStageLoginURLs);
             }
  
@@ -392,9 +379,6 @@ this.log(form);
                
             if (previousStageLoginMain != undefined && previousStageLoginMain != null)
             { 
-                
- 
-                this.log("ev4: "+previousStageLoginMain);
                 eval ("previousStageLogin.init"+previousStageLoginMain);
             }
 
@@ -409,17 +393,16 @@ this.log(form);
                 formLogin = previousStageLogin;
             }
         }
-        this.log("t1");
         // Prompt user to save login (via dialog or notification bar)
         //this.log("orig window has name:" + win.name);
         keeFoxUI.setWindow(win);
-        keeFoxUI.setDocument(doc);
-        this.log("t2");
+        keeFoxUI.setDocument(topDoc);
         // why is forLogin.password broken here? look at dos console? original input? form field identification?
         //this.log("details1:" + formLogin.username + ":" + formLogin.password + ":" );
         
         //this.log(formLogin.toSource());
         
+        KFLog.debug("formLogin.otherFields.length:" + formLogin.otherFields.length);
         
         var otherFieldsSerialsed = "";            
         for (j = 0; j < formLogin.otherFields.length; j++)
@@ -428,8 +411,6 @@ this.log(form);
             formLogin.otherFields.queryElementAt(j,Components.interfaces.kfILoginField);
             otherFieldsSerialsed += "var tempOutputOtherField"+ j + " = new kfLoginField; tempOutputOtherField"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputOtherFields.appendElement(tempOutputOtherField"+ j + ",false); ";
         }
-                
-        this.log("ev1: "+otherFieldsSerialsed);
                       
         var passwordsSerialsed = "";            
         for (j = 0; j < formLogin.passwords.length; j++)
@@ -438,8 +419,6 @@ this.log(form);
             formLogin.passwords.queryElementAt(j,Components.interfaces.kfILoginField);
             passwordsSerialsed += "var tempOutputPassword"+ j + " = new kfLoginField; tempOutputPassword"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputPasswords.appendElement(tempOutputPassword"+ j + ",false); ";
         }
-        
-        this.log("ev2: "+passwordsSerialsed);
 
         var URLsSerialsed = "";            
         for (j = 0; j < formLogin.URLs.length; j++)
@@ -448,11 +427,8 @@ this.log(form);
             formLogin.URLs.queryElementAt(j,Components.interfaces.kfIURL);
             URLsSerialsed += "var tempOutputURL"+ j + " = new kfURL; tempOutputURL"+ j + ".URL='" + matchedURL.URL + "'; deserialisedOutputURLs.appendElement(tempOutputURL"+ j + ",false); ";
         }
-        
-        this.log("ev3: "+URLsSerialsed);
        
        finalEval = formLogin.toSource()
-       this.log("ev4: "+finalEval);
 
         // we save the current state no matter what, just in case user
         // does decide to convert this into a multi-page login

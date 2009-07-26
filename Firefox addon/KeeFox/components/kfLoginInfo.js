@@ -113,8 +113,6 @@ kfLoginInfo.prototype = {
         {
             var url1 = URLs.queryElementAt(i,Components.interfaces.kfIURL).URL;
             var url2 = this.URLs.queryElementAt(i,Components.interfaces.kfIURL).URL;
-            keeFoxILM.log("url1:"+url1);
-            keeFoxILM.log("url2"+url2);
         
             if (ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
                 return false;
@@ -150,13 +148,10 @@ kfLoginInfo.prototype = {
         
         if (this.otherFields.length != login.otherFields.length)
             return false;
-            
-        window.keeFoxILM.log("Other fields length: "+this.otherFields.length);
-            
+         
         var loginUsername = null;
         if (login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > login.usernameIndex)
         {
-            window.keeFoxILM.log("Other username found.");
             var temp = login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
             loginUsername = temp.value;
         }
@@ -164,12 +159,9 @@ kfLoginInfo.prototype = {
         var thisUsername = null;
         if (this.usernameIndex >= 0 && this.otherFields != null && this.otherFields.length > this.usernameIndex)
         {
-            window.keeFoxILM.log("This username found.");
             var temp = this.otherFields.queryElementAt(this.usernameIndex,Components.interfaces.kfILoginField);
             thisUsername = temp.value;
         }
-        
-        window.keeFoxILM.log("u1: "+thisUsername+": u2: "+loginUsername);
         
         if (thisUsername != loginUsername)
             return false;

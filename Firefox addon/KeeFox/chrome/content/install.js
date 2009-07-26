@@ -103,28 +103,22 @@ mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
         if (keePassLocation == "")
             keePassLocation = "not installed";
     }
-   // runKeeICEExecutableInstaller(keePassLocation);
-    
-    //mainWindow.keeFoxInst.log(checkDotNetFramework(mainWindow));
-// deleted: else - no idea why it was there!
-    {
-        if (userHasAdminRights(mainWindow))
-            if (keePassLocation != "not installed")
-                installCase = 3;
-            else if (checkDotNetFramework(mainWindow))
-                installCase = 2;
-            else
-                installCase = 1;
+    if (userHasAdminRights(mainWindow))
+        if (keePassLocation != "not installed")
+            installCase = 3;
+        else if (checkDotNetFramework(mainWindow))
+            installCase = 2;
         else
-            if (keePassLocation != "not installed")
-                installCase = 6;
-            else if (checkDotNetFramework(mainWindow))
-                installCase = 5;
-            else
-                installCase = 4;
-    }
+            installCase = 1;
+    else
+        if (keePassLocation != "not installed")
+            installCase = 6;
+        else if (checkDotNetFramework(mainWindow))
+            installCase = 5;
+        else
+            installCase = 4;
 
-    mainWindow.keeFoxInst.log("applying installation case " + installCase);
+    mainWindow.KFLog.info("applying installation case " + installCase);
  
     // comment this out to enable normal operation or uncomment to specify a test case
     //installCase = 5;
@@ -250,9 +244,9 @@ try {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_FILE_NAME,KF_KP_FILE_CHECKSUM);
         
         if (checkTest)
-            mainWindow.keeFoxInst.log("File checksum succeeded.");
+            mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.keeFoxInst.log("File checksum failed. Download corrupted?");
+            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
         // TODO: kick user back to start if it fails
         
         hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
@@ -290,9 +284,9 @@ try {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_NET_FILE_NAME,KF_NET_FILE_CHECKSUM);
         
         if (checkTest)
-            mainWindow.keeFoxInst.log("File checksum succeeded.");
+            mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.keeFoxInst.log("File checksum failed. Download corrupted?");
+            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
         // TODO: kick user back to start if it fails
         
         hideSection('IC1setupNETdownloading');
@@ -329,9 +323,9 @@ try {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_NET35_FILE_NAME,KF_NET35_FILE_CHECKSUM);
         
         if (checkTest)
-            mainWindow.keeFoxInst.log("File checksum succeeded.");
+            mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.keeFoxInst.log("File checksum failed. Download corrupted?");
+            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
         // TODO: kick user back to start if it fails
         
         hideSection('IC1setupNET35downloading');
@@ -426,9 +420,9 @@ try {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_FILE_NAME,KF_KP_FILE_CHECKSUM);
         
         if (checkTest)
-            mainWindow.keeFoxInst.log("File checksum succeeded.");
+            mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.keeFoxInst.log("File checksum failed. Download corrupted?");
+            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
         // TODO: kick user back to start if it fails
         
         hideSection('IC2setupKPdownloading'); // if applicable
@@ -466,9 +460,9 @@ try {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_FILE_NAME,KF_KP_FILE_CHECKSUM);
         
         if (checkTest)
-            mainWindow.keeFoxInst.log("File checksum succeeded.");
+            mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.keeFoxInst.log("File checksum failed. Download corrupted?");
+            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
         // TODO: kick user back to start if it fails
         
         hideSection('IC2setupKPdownloading'); // if applicable (probably this was never shown)
@@ -522,9 +516,9 @@ function IC5zipKP() {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_CHECKSUM);
         
         if (checkTest)
-            mainWindow.keeFoxInst.log("File checksum succeeded.");
+            mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.keeFoxInst.log("File checksum failed. Download corrupted?");
+            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
         // TODO: kick user back to start if it fails
         
         hideSection('IC5zipKPdownloading');
@@ -555,7 +549,7 @@ function IC5zipKP() {
             
             mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation",path+"\\"); //TODO: probably should store the file object itself rather than string version (X-Plat)
             KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(path+"\\");
-            mainWindow.keeFoxInst.log("KeePass install location set to: " + path+"\\");
+            mainWindow.KFLog.info("KeePass install location set to: " + path+"\\");
             if (!KeePassEXEfound)
             {
                 mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation","");
@@ -771,7 +765,7 @@ function launchAndConnectToKeePass()
     
     var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
     timer.initWithCallback(event, 7500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-    mainWindow.keeFoxInst.log("Installation timer started");
+    mainWindow.KFLog.info("Installation timer started");
 }
 
 function userHasAdminRights(mainWindow) {
@@ -782,11 +776,11 @@ function userHasAdminRights(mainWindow) {
     isAdmin = mainWindow.keeFoxInst.IsUserAdministrator();
     if (isAdmin)
     {
-        mainWindow.keeFoxInst.log("User has administrative rights");
+        mainWindow.KFLog.info("User has administrative rights");
         return true;
     } else
     {
-        mainWindow.keeFoxInst.log("User does not have administrative rights");
+        mainWindow.KFLog.info("User does not have administrative rights");
         return false;
     }
 }
@@ -810,7 +804,7 @@ function checkDotNetFramework(mainWindow) {
                     if (subkey3.hasValue("50727")) {
                         if (subkey3.readStringValue("50727") == "50727-50727") {
                             dotNetFrameworkFound = true;
-                            mainWindow.keeFoxInst.log(".NET framework has been found");
+                            mainWindow.KFLog.info(".NET framework has been found");
                         }
                     }
                     subkey3.close();
@@ -827,13 +821,10 @@ function checkDotNetFramework(mainWindow) {
 //TODO: doesn't work on Windows 7
 function copyKeeICEFilesTo(keePassLocation)
 {
-//dump(keePassLocation);
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);
     destFolder.append("plugins");
-
-//dump("test1");
 
     try {
         if (!destFolder.exists())
@@ -886,7 +877,6 @@ function copyKeeICEFilesTo(keePassLocation)
 
 function runKeeICEExecutableInstaller(keePassLocation)
 {
-dump(keePassLocation);
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);
