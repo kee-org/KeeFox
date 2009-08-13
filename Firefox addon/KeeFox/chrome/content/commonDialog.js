@@ -137,7 +137,8 @@ var keeFoxDialogManager = {
 				var box = document.createElement("hbox");
 
 				var button = document.createElement("button");
-				button.setAttribute("label", keeFoxInst.strbundle.getString("autoFillWith.label"));
+				//TODO: find a way to get string bundles into here without referencing document specific vars that go out of scope when windows are closed...button.setAttribute("label", keeFoxInst.strbundle.getString("autoFillWith
+				button.setAttribute("label", "Auto Fill With");
 				button.setAttribute("onclick",'keeFoxDialogManager.fill(document.getElementById("autoauth-list").selectedItem.username, document.getElementById("autoauth-list").selectedItem.password);');
 
 				var list = document.createElement("menulist");

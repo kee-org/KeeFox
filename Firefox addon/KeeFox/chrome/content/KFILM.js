@@ -182,6 +182,11 @@ KFILM.prototype = {
 
         // nsFormSubmitObserver
         notify : function (formElement, aWindow, actionURI) {
+        
+        //TODO: HACK ALERT: Obviously i should remove the form observer from closed windows but this should get us up and running quickly and i'll work out how to do that later.
+        if (typeof Components == "undefined")
+            return true;
+        
             KFLog.debug("observer notified for form submission.");
 
             try {
@@ -315,7 +320,8 @@ KFILM.prototype = {
             // (i.e. after initial DOM load)
             if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                 this._pwmgr._refillTimer.init(this._domEventListener, 500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                                    
+            
+            KFLog.debug("onStateChange: end");                
             return;
         },
 
@@ -384,7 +390,7 @@ KFILM.prototype = {
 
         ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
         ss.setTabValue(newTab, "KF_autoSubmit", "yes");*/
-        
+                    KFLog.debug("domEventListener: trying to load form filler");
                     this._pwmgr._fillDocument(doc,true);
                     /*for (var i = 0; i < doc.forms.length; i++) {
                         var form = doc.forms[i];
@@ -392,6 +398,7 @@ KFILM.prototype = {
                             alert(form.elements[j].value);
                         }
                     }*/
+                    KFLog.debug("domEventListener: form filler finished");
                     return;
                     
                 //case "load":
@@ -412,50 +419,16 @@ KFILM.prototype = {
         }
     },
     
-    
-    /*
-     * _getPasswordFields
-     *
-     * Returns an array of password field elements for the specified form.
-     * If no pw fields are found, or if more than 10 are found, then null
-     * is returned.
-     *
-     * skipEmptyFields can be set to ignore password fields with no value.
-     */
-    /*_getPasswordFields : function (form, skipEmptyFields) {
-        // Locate the password fields in the form.
-        var pwFields = [];
-        for (var i = 0; i < form.elements.length; i++) {
-            if (form.elements[i].type.toLowerCase() != "password")
-                continue;
-
-            if (skipEmptyFields && !form.elements[i].value)
-                continue;
-
-            pwFields[pwFields.length] = {
-                                            index   : i,
-                                            element : form.elements[i]
-                                        };
-        }
-
-        // If too few or too many fields, bail out.
-        if (pwFields.length == 0) {
-            this.log("(form ignored -- no password fields.)");
-            return null;
-        } else if (pwFields.length > 10) {
-            this.log("(form ignored -- too many password fields. [got " +
-                        pwFields.length + "])");
-            return null;
-        }
-
-        return pwFields;
-    },*/
-    
     _isAKnownUsernameString : function (fieldNameIn)
     {
         var fieldName = fieldNameIn.toLowerCase();
         if (fieldName == "username" || fieldName == "j_username" || fieldName == "user_name"
-         || fieldName == "user" || fieldName == "user-name" || fieldName == "login") // etc. etc.
+         || fieldName == "user" || fieldName == "user-name" || fieldName == "login"
+         || fieldName == "vb_login_username" || fieldName == "name" || fieldName == "user name"
+         || fieldName == "user id" || fieldName == "user-id" || fieldName == "userid"
+         || fieldName == "email" || fieldName == "e-mail" || fieldName == "id"
+         || fieldName == "form_loginname" || fieldName == "wpname" || fieldName == "mail"
+         || fieldName == "loginid" || fieldName == "login id") // etc. etc.
             return true;
         return false;
     },
@@ -486,6 +459,10 @@ KFILM.prototype = {
 
         // search the DOM for any form fields we might be interested in
         for (var i = 0; i < form.elements.length; i++) {
+        
+            if (form.elements[i].type == undefined || form.elements[i].type == null)
+                continue; // maybe it's a fieldset or something else un-interesting
+                
             var DOMtype = form.elements[i].type.toLowerCase();
             
             KFLog.debug("domtype: "+ DOMtype );

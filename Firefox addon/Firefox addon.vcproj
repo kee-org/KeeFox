@@ -178,12 +178,47 @@
 			Filter="Test Pages"
 			>
 			<File
+				RelativePath=".\Test Pages\LeftFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
 				RelativePath=".\Test Pages\MultiPage1Other1PasswordPage2.htm"
 				DeploymentContent="true"
 				>
 			</File>
 			<File
 				RelativePath=".\Test Pages\MultiPage1Username1PasswordPage1.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInFrame.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInIFrame.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInIFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInRightFrame.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInRightFrameContents.htm"
 				DeploymentContent="true"
 				>
 			</File>

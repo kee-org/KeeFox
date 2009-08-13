@@ -60,6 +60,8 @@ const KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
 const KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;
 const KF_INSTALL_STATE_KPZIP_EXECUTED = 4194304;  // KeePass zip has been extracted
 
+var KFupgradeMode = false;
+
 var installState = 0;
 
 var setupKPThread;
@@ -76,6 +78,27 @@ var mainWindow = mainWin.keeFoxILM._currentWindow;
 
 function prepareInstallPage() {
 
+    var qs = "";
+var args = new Object();
+var query = location.search.substring(1);
+var pairs = query.split("&");
+for(var i = 0; i < pairs.length; i++) {
+var pos = pairs[i].indexOf('=');
+if (pos == -1) continue;
+var argname = pairs[i].substring(0,pos);
+var value = pairs[i].substring(pos+1);
+args[argname] = unescape(value); 
+}
+    if (args.upgrade == "1")
+    {
+        KFupgradeMode = true;
+        mainWindow.keeFoxInst._KFLog.debug("Install system starting in upgrade mode");
+    }
+    else
+    {
+        mainWindow.keeFoxInst._KFLog.debug("Install system starting in install mode");
+    }
+        
     // One of 6 installation options. Although it could probably be inferred
     // from the use of installation state flags, I want to know where we are
     // starting from because the user only needs to see information relevant
@@ -85,18 +108,17 @@ function prepareInstallPage() {
     
     var keePassLocation = "not installed";
 
-//TODO: prevent reinstallation if KeeFox is already working
-//TODO: (0.7) support upgrades of KP and KI
+    //TODO: prevent reinstallation if KeeFox is already working
 
-// only let this install script run once per firefox session
-//TODO: try to find out why this is needed so frequently (session restore / loadOnceInTab should keep it to one instance)
-//TODO: reset the flag in some cases (e.g. setup.exe cancelled) so user can begin again without FF restart
-if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
-{
-    document.getElementById('KFInstallAlreadyInProgress').setAttribute('hidden', false);
-    return;
-}
-mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
+    // only let this install script run once per firefox session
+    //TODO: try to find out why this is needed so frequently (session restore / loadOnceInTab should keep it to one instance)
+    //TODO: reset the flag in some cases (e.g. setup.exe cancelled) so user can begin again without FF restart
+    if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
+    {
+        document.getElementById('KFInstallAlreadyInProgress').setAttribute('hidden', false);
+        return;
+    }
+    mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
 
     if (mainWindow.keeFoxInst._keeFoxExtension.prefs.has("keePassInstalledLocation")) {
         keePassLocation = mainWindow.keeFoxInst._keeFoxExtension.prefs.getValue("keePassInstalledLocation", "not installed");
@@ -104,14 +126,18 @@ mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
             keePassLocation = "not installed";
     }
     if (userHasAdminRights(mainWindow))
-        if (keePassLocation != "not installed")
+        if (KFupgradeMode)
+            installCase = 7;
+        else if (keePassLocation != "not installed")
             installCase = 3;
         else if (checkDotNetFramework(mainWindow))
             installCase = 2;
         else
             installCase = 1;
     else
-        if (keePassLocation != "not installed")
+        if (KFupgradeMode)
+            installCase = 8;
+        else if (keePassLocation != "not installed")
             installCase = 6;
         else if (checkDotNetFramework(mainWindow))
             installCase = 5;
@@ -121,7 +147,7 @@ mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
     mainWindow.KFLog.info("applying installation case " + installCase);
  
     // comment this out to enable normal operation or uncomment to specify a test case
-    //installCase = 5;
+    //installCase = 7;
 
 // configure the current installation state and trigger any relevant pre-emptive file downloads to give the impression of speed to end user
 //TODO: support cancellation of pre-emptive downloading in case advanced user chooses unusual option
@@ -158,10 +184,99 @@ mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
             showSection('copyKIToKnownKPLocationInstallButtonMain');
             showSection('nonAdmincopyKIToKnownKPLocationInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
-            break;            
+            break;  
+        case 7: 
+            showSection('KPsetupExeSilentUpgradeButtonMain');
+            showSection('adminSetupKPUpgradeExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
+            mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
+            break; 
+        case 8: 
+            showSection('copyKPToSpecificLocationUpgradeButtonMain');
+            showSection('nonAdminSetupKPUpgradeExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
+            mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_NAME, mainWindow, window);
+            break;           
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
 }
+
+
+/*
+
+should an upgrade tell this script what things to install? or should the script work it out? in which case, is there any need for seperate functions or can we just use the standard installation routines?
+
+the install script currently only investigates the installation state of the components, not their version.
+KF.js inspects the version so it should call the relevant function in this script to initiaites the upgrade process.
+
+maybe seperate functions for each situation?
+
+maybe entirely different script / page? any ned for different text displayed to user? probably yes. any crossover between the standard install states? yes - e.g. all the stuff about downloading the right thing and executing it in the right order.
+
+maybe pass an "upgrade" flag to the functinos so they can display different text?
+
+does user get options? e.g. upgrade keepass to latest version?
+
+what about when keefox requires the latest version of KeePass? tough shit? just have to install it.
+
+
+upgrade situations:
+
+New KeeFox add-on version which:
+1 does not require new KeeICE nor new KeePass
+2 does require new KeeICE but not new KeePass
+3 requires both new KeeICE and new KeePass
+
+(future) requires new .NET framework (unlikely?) - deal with it nearer the time.
+
+how do we know if a new KeePass version is required?
+
+when KeePass is upgraded but KeeICE does not need to be, how do we support users following that upgrade path?
+
+some need to understand which KeePass they are running?
+
+Or just leave it up to them? if they understand how to find a new version of KeePass, they shjould be able to find a new build of KeeICE too and drop the DLL into the right place. I just have to create soemwhere on the website which has those latest versions. maybe a sourceforge release?
+
+what about a first time KeeFox install where they have an old version of KeePass installed? should/can we detect this? or ask the user to choose from a drop down and send them to the correct build of KeeICE?
+
+
+maybe ask user for all upgrades? and if KP was already installed? if first install with fresh KP then don't ask.
+
+
+if 2 or 3, default button downloads latest setup / zip from website. optiosn button lets you specifiy your version of KeePass so that if you have the latest, the download and install can be skipped.
+
+any difference between 2 and 3 if we can't tell what version is already installed? not sure how there can be!
+
+do all upgrade processes follow the same path as main install processes? if so then we can just use a flag and looks at theat to decide if we should display an "upgrade finished" message, etc.
+
+UC0: No action required (KeeFox works happilly with reported KeeICE version) - won't even reach this script
+UC1: Requires new KeeICE but not new KeePass. Equivelant to UC2 becuase we can't know which version of KeePass is already installed and user may have not upgraded KeeFox for some time.
+UC2: Requires new KeeICE and new KeePass. Equivelant to UC1 becuase we can't know which version of KeePass is already installed and user may have already upgraded.
+
+So we essentially have just one upgrade path, with an advanced user option where they can select the current version of their KeePass installation so that we can decide to download the correct version of KeeICE and potentially skip the KeePass download / install.
+
+Default upgrade is therefore most equivelant to IC2 or IC5
+Secondary upgrade is either IC2 secondary or IC3 (depending on user's KeePass version declaration)
+
+TODO: 
+1) modify the stuff in Utils so that it hides and shows the correct boxes when in upgrade mode.
+2) set up installed snapshot in virtualbox and then run lots of test and debugs on IC7 and IC8
+
+
+
+intro to upgrade process:
+KeeFox needs to upgrade KeePass / KeeICE. Please ensure all your KeePass databases are saved and closed and close KeePass. NB: KeePass must be completely closed for the upgrade to succeeed so please ensure that it is not even in your sytem tray. Advanced users could do this upgrade manually if preferred (you may need to restart Firefox afterwards).
+
+
+so we then know/assume that KeePass is not running and upgrades to that or KeeICE will work correctly. Then we do the upgrade and try to reconnect (test to see if we ever have the auto-connect timers running too).
+
+
+
+
+*/
+
+
+
 
 function hideInstallView() {
     document.getElementById('installationStartView').setAttribute('hidden', true);
@@ -187,7 +302,7 @@ function IC1finished(mainWindow) {
 
     hideSection('IC1KIdownloaded');
     showSection('InstallFinished');
-    
+    mainWindow.keeFoxInst._KFLog.debug("AAA");
     launchAndConnectToKeePass();
 }
 
@@ -227,7 +342,7 @@ try {
         }
     }
     } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }
 }
 
@@ -273,7 +388,7 @@ try {
         showSection('IC1setupKPdownloading');
     }
 } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }    
 }
 
@@ -311,7 +426,7 @@ try {
         
     }
 } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }
 }
 
@@ -350,7 +465,7 @@ try {
         
     }
 } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }
 }
 /********************
@@ -363,12 +478,22 @@ functions to support the execution of Install Case 1
 /********************
 START:
 functions to support the execution of Install Case 2
+(including administrative upgrade)
 ********************/
 function IC2finished(mainWindow) {
 
+//TODO: customise this for upgrades?)
+
+/*
+if upgrade:
+keeFoxInst._keeFoxVariableInit(window.keeFoxToolbar,
+                             window, this.result);
+                             keeFoxInst._configureKeeICECallbacks();
+                             keeFoxInst._refreshKPDB();
+                             */
     hideSection('IC2KIdownloaded');
     showSection('InstallFinished');
-    
+    mainWindow.keeFoxInst._KFLog.debug("AAA");
     launchAndConnectToKeePass();
 }
 
@@ -408,7 +533,7 @@ try {
         }
     }
     } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }
 }
 
@@ -448,7 +573,7 @@ try {
         showSection('IC2setupKPdownloading');
     }
 } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }    
 }
 
@@ -488,7 +613,7 @@ try {
         showSection('IC2setupKPdownloading');
     }
 } catch (err) {
-            Components.utils.reportError(err);
+            mainWindow.keeFoxInst._KFLog.error(err);
         }    
 }
 /********************
@@ -541,6 +666,8 @@ function IC5zipKP() {
             var path = fp.file.path;
           
             //TODO: is KeePass already there?
+            // but be careful RE upgrades - it SHOULD be there but
+            // doesn't mean we don't put the latest version in!
             
             //TODO: permissions, failures, missing directories, etc. etc.
             extractKPZip (KF_KPZIP_FILE_NAME, folder);
@@ -560,7 +687,7 @@ function IC5zipKP() {
                 
             hideSection('IC5installing');
             showSection('InstallFinished');
-            
+            mainWindow.keeFoxInst._KFLog.debug("AAA");
             launchAndConnectToKeePass();
 
         } else
@@ -644,7 +771,7 @@ function copyKIToKnownKPLocationInstall() {
 
     if (keePassLocation == "not installed")
     {
-        Components.utils.reportError("We seem to have forgetton where KeePass is installed!");
+        mainWindow.keeFoxInst._KFLog.error("We seem to have forgetton where KeePass is installed!");
         showSection('ERRORInstallButtonMain');
     } else
     {
@@ -655,7 +782,7 @@ function copyKIToKnownKPLocationInstall() {
   
         hideSection('IC3installing');
         showSection('InstallFinished');
-        
+        mainWindow.keeFoxInst._KFLog.debug("AAA");
         launchAndConnectToKeePass();
 
     }
@@ -765,7 +892,7 @@ function launchAndConnectToKeePass()
     
     var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
     timer.initWithCallback(event, 7500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-    mainWindow.KFLog.info("Installation timer started");
+    mainWindow.keeFoxInst._KFLog.info("Installation timer started");
 }
 
 function userHasAdminRights(mainWindow) {
@@ -825,6 +952,20 @@ function copyKeeICEFilesTo(keePassLocation)
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);
     destFolder.append("plugins");
+    
+    var destFileKeeICE = Components.classes["@mozilla.org/file/local;1"]
+    .createInstance(Components.interfaces.nsILocalFile);
+    destFileKeeICE.initWithPath(keePassLocation);
+    destFileKeeICE.append("plugins");
+    destFileKeeICE.append("KeeICE.dll");
+    
+    var destFileICE = Components.classes["@mozilla.org/file/local;1"]
+    .createInstance(Components.interfaces.nsILocalFile);
+    destFileICE.initWithPath(keePassLocation);
+    destFileICE.append("plugins");
+    destFileICE.append("Ice.dll");
+    
+    var noExceptions = false;
 
     try {
         if (!destFolder.exists())
@@ -833,42 +974,56 @@ function copyKeeICEFilesTo(keePassLocation)
         .createInstance(Components.interfaces.nsILocalFile);
         KeeICEfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
         KeeICEfile.append("KeeICE.dll");
+        if (destFileKeeICE.exists())
+            destFileKeeICE.remove(false);
         KeeICEfile.copyTo(destFolder,"");
 
         var ICEfile = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         ICEfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
         ICEfile.append("Ice.dll");
+        if (destFileICE.exists())
+            destFileICE.remove(false);
         ICEfile.copyTo(destFolder,"");
+        noExceptions = true;
     } catch (ex)
     {
-        Components.utils.reportError(ex);
+        mainWindow.keeFoxInst._KFLog.error(ex);
         //TODO: check it really was the assumed 0x80520008 (NS_ERROR_FILE_ALREADY_EXISTS) exception
     }
 
     var KeeICEDLLfound;
     
     var keeICELocation;
-    keeICELocation = "not installed";
-
-    keeICELocation = mainWindow.keeFoxInst._discoverKeeICEInstallLocation(); // this also stores the preference
-    KeeICEDLLfound = mainWindow.keeFoxInst._confirmKeeICEInstallLocation(keeICELocation);
-    
+    try {
+        keeICELocation = "not installed";
+        mainWindow.keeFoxInst._KFLog.debug("1");
+        keeICELocation = mainWindow.keeFoxInst._discoverKeeICEInstallLocation(); // this also stores the preference
+        mainWindow.keeFoxInst._KFLog.debug("2");
+        KeeICEDLLfound = mainWindow.keeFoxInst._confirmKeeICEInstallLocation(keeICELocation);
+        mainWindow.keeFoxInst._KFLog.debug("3");
+    } catch (ex)
+    {
+        mainWindow.keeFoxInst._KFLog.error(ex);
+    }
     // if we can't find the DLLs, they were probably not copied because of a permissions fault so lets try
     // a fully escalated executable to get them put into place
-    if (!KeeICEDLLfound)
+    if (!noExceptions || !KeeICEDLLfound)
     {
+        mainWindow.keeFoxInst._KFLog.debug("4");
         mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keeICEInstalledLocation","");
         runKeeICEExecutableInstaller(keePassLocation);
-        
+        mainWindow.keeFoxInst._KFLog.debug("5");
         keeICELocation = "not installed";
 
         keeICELocation = mainWindow.keeFoxInst._discoverKeeICEInstallLocation(); // this also stores the preference
+        mainWindow.keeFoxInst._KFLog.debug("6");
         KeeICEDLLfound = mainWindow.keeFoxInst._confirmKeeICEInstallLocation(keeICELocation);
-        
+        mainWindow.keeFoxInst._KFLog.debug("7");
         // still not found!
         if (!KeeICEDLLfound)
         {
+        mainWindow.keeFoxInst._KFLog.debug("8");
             mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keeICEInstalledLocation","");
             //TODO: better handle this unusual situation (e.g. Vista user cancelling UAC request)
         }
@@ -913,7 +1068,7 @@ function extractKPZip (zipFilePath, storeLocation) {
     // create directories first
     var entries = zipReader.findEntries("*/");
     while (entries.hasMore()) {
-        thread.processNextEvent(true);
+        thread.processNextEvent(true); // should this be false instead?
         var entryName = entries.getNext();
         var target = getItemFile(entryName);
         if (!target.exists()) {
@@ -934,7 +1089,7 @@ function extractKPZip (zipFilePath, storeLocation) {
         if (target.exists())
             continue;
 
-        thread.processNextEvent(true);
+        thread.processNextEvent(true); // should this be false instead?
 
         try {
             target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 0744); //TODO: different permissions for special files on linux. e.g. 755 for main executable? not sure how it works with Mono though so needs much more reading...

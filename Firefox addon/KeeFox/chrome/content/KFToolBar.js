@@ -27,11 +27,13 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function KFToolbar(currentWindow) {
     this._currentWindow = currentWindow;
+    this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
 }
 
 KFToolbar.prototype = {
 
     _currentWindow : null,
+    strbundle : null,
  
     // remove matched logins from the menu
     removeLogins: function() {
@@ -178,9 +180,9 @@ KFToolbar.prototype = {
         {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
-            noItemsButton.setAttribute("label", keeFoxInst.strbundle.getString("loginsButtonEmpty.label"));
+            noItemsButton.setAttribute("label", this.strbundle.getString("loginsButtonEmpty.label"));
             noItemsButton.setAttribute("disabled", "true");
-            noItemsButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonEmpty.tip"));
+            noItemsButton.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonEmpty.tip"));
             container.appendChild(noItemsButton);
             return;
         }
@@ -192,7 +194,7 @@ KFToolbar.prototype = {
             var newMenu = null;
             newMenu = this._currentWindow.document.createElement("menu");
             newMenu.setAttribute("label", group.title);
-            newMenu.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonGroup.tip"));
+            newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
             newMenu.setAttribute("onpopupshowing", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
                 group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
             newMenu.setAttribute("class", "menuitem-iconic");
@@ -232,7 +234,7 @@ KFToolbar.prototype = {
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonLogin.tip"));
+            tempButton.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonLogin.tip"));
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
                 usernameName + "','" + usernameValue + "','" + login.URLs.queryElementAt(0,Components.interfaces.kfIURL).URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
@@ -329,9 +331,9 @@ KFToolbar.prototype = {
         mainButton.setAttribute("class", "");
         //mainButton.setAttribute("type", "");
         mainButton.removeAttribute("type");
-        mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
+        mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
-        mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
+        mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
     },
 
@@ -358,7 +360,7 @@ KFToolbar.prototype = {
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
         mainButton.setAttribute("disabled", "false");
         // Remove all of the existing buttons
-        for (i = mainButton.childNodes.length; i > 0; i--) {
+        for (var i = mainButton.childNodes.length; i > 0; i--) {
             mainButton.removeChild(mainButton.childNodes[0]);
         }
         mainButton.setAttribute("class", "");
@@ -372,34 +374,34 @@ KFToolbar.prototype = {
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
             if (DBname == null || DBname == "")
                 return; // KeeICE suddenly dissapeared - toolbar will have been updated from deeper in the stack
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedIn.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
+            mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
            // mainButton.setAttribute("oncommand", "alert('blah')");
             mainButton.setAttribute("disabled", "true");
             mainButton.removeAttribute("oncommand");
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false))
         {
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
+            mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
             mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
         
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
         {
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
+            mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
             mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
         } else
         {
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedOut.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loggedOut.tip") );
+            mainButton.setAttribute("label", this.strbundle.getString("loggedOut.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getString("loggedOut.tip") );
             mainButton.setAttribute("oncommand", "keeFoxInst.loginToKeePass()");
         }
 
             
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
         {    
-            changeDBButton.setAttribute("label", keeFoxInst.strbundle.getString("changeDBButton.label"));
-            changeDBButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButton.tip") );
+            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
+            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
             changeDBButton.setAttribute("onpopupshowing", "keeFoxToolbar.setMRUdatabases(); event.stopPropagation();");
             changeDBButton.setAttribute("disabled", "false");
             //changeDBButton.setAttribute("onpopuphiding", "keeFoxToolbar.detachMRUpopup(); event.stopPropagation();");
@@ -407,12 +409,13 @@ KFToolbar.prototype = {
             
         } else
         {
-            changeDBButton.setAttribute("label", keeFoxInst.strbundle.getString("changeDBButtonDisabled.label"));
-            changeDBButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButtonDisabled.tip") );
+            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
+            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
             changeDBButton.setAttribute("onpopupshowing", "");
             //changeDBButton.setAttribute("onpopuphiding", "");
             changeDBButton.setAttribute("disabled", "true");
         }
+        KFLog.debug("setupButton_ready end");
     },
 
     setupButton_loadKeePass: function(targetWindow) {
@@ -425,7 +428,7 @@ KFToolbar.prototype = {
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-        mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
+        mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
         mainButton.setAttribute("disabled", "false");
         // Remove all of the existing buttons
         for (i = mainButton.childNodes.length; i > 0; i--) {
@@ -434,7 +437,7 @@ KFToolbar.prototype = {
         mainButton.setAttribute("class", "");
        // mainButton.setAttribute("type", "");
        mainButton.removeAttribute("type");
-        mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
+        mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
     },
     
@@ -503,9 +506,9 @@ KFToolbar.prototype = {
         {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
-            noItemsButton.setAttribute("label", keeFoxInst.strbundle.getString("changeDBButtonEmpty.label"));
+            noItemsButton.setAttribute("label", this.strbundle.getString("changeDBButtonEmpty.label"));
             noItemsButton.setAttribute("disabled", "true");
-            noItemsButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButtonEmpty.tip"));
+            noItemsButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonEmpty.tip"));
             popupContainer.appendChild(noItemsButton);
             return;
         } else
@@ -518,7 +521,7 @@ KFToolbar.prototype = {
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
                 tempButton.setAttribute("label", mruArray[i]);
-                tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("changeDBButtonListItem.tip"));
+                tempButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonListItem.tip"));
                 tempButton.setAttribute("oncommand", "keeFoxInst.changeDatabase('" +
                     mruArray[i].replace(/[\\]/g,'\\\\') + "',false);  event.stopPropagation();");
                 tempButton.setAttribute("class", "menuitem-iconic");

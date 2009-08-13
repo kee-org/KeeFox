@@ -51,8 +51,8 @@ function KeeFox()
 {
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
-    this._KeeICEminVersion = 0.6;
-    this._KeeFoxVersion = 0.6;
+    this._KeeICEminVersion = 0.65;
+    this._KeeFoxVersion = 0.65;
     var prefs = this._keeFoxExtension.prefs;
     
     // register preference change handlers so we can react to altered
@@ -150,7 +150,7 @@ KeeFox.prototype = {
         }
         return false;
     },
-
+/*
     // executed when a firefox window has loaded (chrome)
     _keeFoxBrowserStartupListener: {
         _kf: null,
@@ -174,7 +174,7 @@ KeeFox.prototype = {
             }
         }
     },
-
+*/
     // notify all interested objects and functions of changes in preference settings
     // (lots of references to preferences will not be cached so there's not lots to do here)
     preferenceChangeHandler: function(event) {
@@ -238,138 +238,161 @@ KeeFox.prototype = {
         KeeFoxInitSuccess = this._initKeeFox(currentKFToolbar,currentWindow);
 
         if (KeeFoxInitSuccess) {
+        
             this._KFLog.info("KeeFox initialised OK");
             this._KFLog.info("Running a quick check to see if we can contact KeeICE through the KeeICE IPC channel");
 
-            var KeeICEComOpen = false;
-
-            if (this._KeeFoxXPCOMobj != null) {
+            if (this._KeeFoxXPCOMobj != null)
+            {
                 // check version of KeeICE
                 this._KFLog.info("Verifying KeeICE version is valid for this KeeFox extension version");
                 var versionCheckResult = {};
+                var version = null;
 
                 // false only if ICE connection fault or KeeICE internal error
-                if (this._KeeFoxXPCOMobj.checkVersion(this._KeeFoxVersion, this._KeeICEminVersion, versionCheckResult)) {
-                    this._keeFoxStorage.set("KeeVersionCheckResult", versionCheckResult.value);
-                    if (versionCheckResult.value == 1) {
-                        this._KFLog.error("This version of KeeFox is too old to work with the installed version of KeeICE. You need to upgrade KeeFox (or downgrade KeeICE)");
-                        //TODO: trigger an auto-update of the KeeFox extension?
-                        //return;
-                    } else if (versionCheckResult.value == -1) {
-                        this._KFLog.error("The installed version of KeeICE is too old to work with this version of KeeFox. You need to upgrade to the new version of KeeICE. Please follow the instructions on the next page...");
-                        this._launchInstaller(currentKFToolbar,currentWindow);
-                        //return;
-                    } else {
-                        this._KFLog.debug("KeeICE and KeeFox version match OK.");
-                        KeeICEComOpen = true;
-                    }
-                } else {
-                    this._KFLog.info("Couldn't test version becuase KeeICE not available");
-                }
-                
-            }
-            
-            var KeePassEXEfound;
-            var KeeICEDLLfound;
-            
-            var keePassLocation;
-            keePassLocation = "not installed";
-            var keeICELocation;
-            keeICELocation = "not installed";
-            
-            keePassLocation = this._discoverKeePassInstallLocation();
-            if (keePassLocation != "not installed")
-            {
-                KeePassEXEfound = this._confirmKeePassInstallLocation(keePassLocation);
-                if (KeePassEXEfound)
+                if (!this._KeeFoxXPCOMobj.checkVersion(this._KeeFoxVersion, this._KeeICEminVersion, versionCheckResult))
                 {
-                    keeICELocation = this._discoverKeeICEInstallLocation();
-                    KeeICEDLLfound = this._confirmKeeICEInstallLocation(keeICELocation);
-                    if (!KeeICEDLLfound)
-                        this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",""); //TODO: set this to "not installed"?
-                    
+                    this._KFLog.info("Couldn't test version becuase KeeICE not available");
                 } else
                 {
-                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO: set this to "not installed"?
+                    version = versionCheckResult.value
                 }
+                this._keeFoxVariableInit(currentKFToolbar, currentWindow, version);
+                
+                this._keeFoxInitialToolBarSetup(currentKFToolbar, currentWindow);
             }
-
-            if (KeeICEComOpen && this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // version check succeeded
-            //if (2==1)
+        
+        } // end if "keefox has loaded its binary components correctly"
+    },
+    
+    _keeFoxInitialToolBarSetup : function (currentKFToolbar, currentWindow)
+    {
+    
+        // set toolbar
+        if (this._keeFoxStorage.get("KeeICEActive", false))
+        {
+            var dbName = this.getDatabaseName();
+            
+            if (dbName == "")
             {
-                this._KFLog.info("Successfully established connection with KeeICE");
-                // remember this across all windows
-                this._keeFoxStorage.set("KeeICEActive", true);
-                this._keeFoxStorage.set("KeeICEInstalled", true);
+                this._KFLog.info("Everything has started correctly but no database has been opened yet.");
+                this._keeFoxStorage.set("KeePassDatabaseOpen", false);
+            } else
+            {
+            if (this._KFLog.logSensitiveData)
+                this._KFLog.info("Everything has started correctly and the '" + dbName + "' database has been opened.");
+            else
+                this._KFLog.info("Everything has started correctly and a database has been opened.");
+                this._keeFoxStorage.set("KeePassDatabaseOpen", true);
+            }
+                
+            
+            currentKFToolbar.setupButton_ready(currentWindow);
+            currentKFToolbar.setAllLogins();
+            this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
+            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
 
-            } else { 
-                this._KFLog.info("Couldn't communicate with KeeICE");
-                // if it fails KeeICE is either not running or not installed - let's find out which...
-                // (we've already set up the information we need to construct the installation wizzard if required)
+        } else if (this._keeFoxStorage.get("KeeICEInstalled", false))
+        {
+            // update toolbar etc to say "launch KeePass"
+            currentKFToolbar.setupButton_ready(currentWindow);
+            currentKFToolbar.setAllLogins();
+            //this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
+            // not needed cos above function will run it if needed (expect it won't!)...
+            // and probably shouldn't run anyway if ICE is not established?
+            // what use is it to know we can communicate with our XPCOM DLL?
+            this.startICEcallbackConnector();
+          
+        }
+    },
+    
+    _keeFoxVariableInit : function(currentKFToolbar, currentWindow, versionCheckResult)
+    {
+    
+        //var KeeICEComOpen = false;
+        if (versionCheckResult != undefined && versionCheckResult != null)
+        {
+            this._keeFoxStorage.set("KeeVersionCheckResult", versionCheckResult);
+            
+            if (versionCheckResult == 1) {
+                this._KFLog.error("This version of KeeFox is too old to work with the installed version of KeeICE. You need to upgrade KeeFox (or downgrade KeeICE)");
+                //TODO: trigger an auto-update of the KeeFox extension?
+                this._launchInstaller(currentKFToolbar,currentWindow);
+                //return;
+            } else if (versionCheckResult == -1) {
+                this._KFLog.error("The installed version of KeeICE is too old to work with this version of KeeFox. You need to upgrade to the new version of KeeICE. Please follow the instructions on the next page...");
+                this._launchInstaller(currentKFToolbar,currentWindow, true);
+                //return;
+            } else {
+                this._KFLog.debug("KeeICE and KeeFox version match OK.");
+                //KeeICEComOpen = true;
+            }
+        }
+        
+        var KeePassEXEfound;
+        var KeeICEDLLfound;
+        
+        var keePassLocation;
+        keePassLocation = "not installed";
+        var keeICELocation;
+        keeICELocation = "not installed";
+        
+        keePassLocation = this._discoverKeePassInstallLocation();
+        if (keePassLocation != "not installed")
+        {
+            KeePassEXEfound = this._confirmKeePassInstallLocation(keePassLocation);
+            if (KeePassEXEfound)
+            {
+                keeICELocation = this._discoverKeeICEInstallLocation();
+                KeeICEDLLfound = this._confirmKeeICEInstallLocation(keeICELocation);
+                if (!KeeICEDLLfound)
+                    this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",""); //TODO: set this to "not installed"?
+                
+            } else
+            {
+                this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO: set this to "not installed"?
+            }
+        }
 
-                if (keeICELocation == "not installed")
+        if (this._keeFoxStorage.get("KeeVersionCheckResult", -1) == 0) // KeeICEComOpen && // version check succeeded
+        //if (2==1)
+        {
+            this._KFLog.info("Successfully established connection with KeeICE");
+            // remember this across all windows
+            this._keeFoxStorage.set("KeeICEActive", true);
+            this._keeFoxStorage.set("KeeICEInstalled", true);
+
+        } else { 
+            this._KFLog.info("Couldn't communicate with KeeICE");
+            // if it fails KeeICE is either not running or not installed - let's find out which...
+            // (we've already set up the information we need to construct the installation wizzard if required)
+
+            if (keeICELocation == "not installed")
+            {
+                this._KFLog.info("KeeICE location was not found");
+                this._launchInstaller(currentKFToolbar,currentWindow);
+            } else
+            {
+                
+                if (!KeePassEXEfound)
                 {
-                    this._KFLog.info("KeeICE location was not found");
+                    this._KFLog.info("KeePass EXE not present in expected location");
                     this._launchInstaller(currentKFToolbar,currentWindow);
                 } else
                 {
-                    
-                    if (!KeePassEXEfound)
-                    {
-                        this._KFLog.info("KeePass EXE not present in expected location");
+                    if (!KeeICEDLLfound) {
+                        this._KFLog.info("KeeICE plugin DLL not present in KeePass plugins directory so needs to be installed");
                         this._launchInstaller(currentKFToolbar,currentWindow);
-                    } else
-                    {
-                        if (!KeeICEDLLfound) {
-                            this._KFLog.info("KeeICE plugin DLL not present in KeePass plugins directory so needs to be installed");
-                            this._launchInstaller(currentKFToolbar,currentWindow);
-                        } else {
-                            this._KFLog.info("KeePass is not running or plugin is disabled.");
-                            this._keeFoxStorage.set("KeeICEInstalled", true);
-                        }
+                    } else {
+                        this._KFLog.info("KeePass is not running or plugin is disabled.");
+                        this._keeFoxStorage.set("KeeICEInstalled", true);
                     }
                 }
-                this._KFLog.info("KeeICE is inactive. We'll remember that so we don't have to do this again when another window is opened.");
-                this._keeFoxStorage.set("KeeICEActive", false);
             }
+            this._KFLog.info("KeeICE is inactive. We'll remember that so we don't have to do this again when another window is opened.");
+            this._keeFoxStorage.set("KeeICEActive", false);
+        }
 
-            // set toolbar
-            if (this._keeFoxStorage.get("KeeICEActive", false))
-            {
-                var dbName = this.getDatabaseName();
-                
-                if (dbName == "")
-                {
-                    this._KFLog.info("Everything has started correctly but no database has been opened yet.");
-                    this._keeFoxStorage.set("KeePassDatabaseOpen", false);
-                } else
-                {
-                if (this._KFLog.logSensitiveData)
-                    this._KFLog.info("Everything has started correctly and the '" + dbName + "' database has been opened.");
-                else
-                    this._KFLog.info("Everything has started correctly and a database has been opened.");
-                    this._keeFoxStorage.set("KeePassDatabaseOpen", true);
-                }
-                    
-                
-                currentKFToolbar.setupButton_ready(currentWindow);
-                currentKFToolbar.setAllLogins();
-                this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
-                currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
-
-            } else if (this._keeFoxStorage.get("KeeICEInstalled", false))
-            {
-                // update toolbar etc to say "launch KeePass"
-                currentKFToolbar.setupButton_ready(currentWindow);
-                currentKFToolbar.setAllLogins();
-                //this._configureKeeICECallbacks(); // seems to work but should it be delayed via an event listener?
-                // not needed cos above function will run it if needed (expect it won't!)...
-                // and probably shouldn't run anyway if ICE is not established?
-                // what use is it to know we can communicate with our XPCOM DLL?
-                this.startICEcallbackConnector();
-              
-            }
-        } // end if "keefox has loaded its binary components correctly"
     },
     
     // works out where KeePass is installed and records it in a Firefox preference
@@ -454,9 +477,9 @@ KeeFox.prototype = {
             keeICELocation = keePassLocation + "plugins\\";
             this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",keeICELocation);
             if (this._KFLog.logSensitiveData)
-                KFLog("KeeICE install location inferred: " + keeICELocation);
+                this._KFLog.debug("KeeICE install location inferred: " + keeICELocation);
             else
-                KFLog("KeeICE install location inferred.");
+                this._KFLog.debug("KeeICE install location inferred.");
         }
         
         return keeICELocation;
@@ -549,7 +572,7 @@ KeeFox.prototype = {
          }   else
          {
          this._KFLog.debug("Poking the KeeICEconnector thread.");
-         this.activeICEconnector.ICEneedsChecking = true;
+         this.activeICEconnector.KeeFoxICEconnectorTimer.ICEneedsChecking = true;
          
          }
     },
@@ -1008,7 +1031,6 @@ KeeFox.prototype = {
                     // TODO: Focus *this* browser-window?
 
                     found = true;
-                    this._installerTabLoaded = true;
                     return t;
                 }
             });
@@ -1023,7 +1045,6 @@ KeeFox.prototype = {
             var b = newWindow.getBrowser();
             var newTab = b.loadOneTab( url, null, null, null, false, null );
 
-            this._installerTabLoaded = true;
             return newTab;
         }
     },
@@ -1054,19 +1075,32 @@ KeeFox.prototype = {
 
     KeeFox_MainButtonClick_install: function(event, temp) {
         this._KFLog.debug("install button clicked. Loading (and focusing) install page.");
+        // always run it if user requests
         installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
+        // remember the installation state (until it might have changed...)
+        this._keeFoxStorage.set("KeeICEInstalled", false);
     },
 
-    _launchInstaller: function(currentKFToolbar,currentWindow) {
+    _launchInstaller: function(currentKFToolbar,currentWindow, upgrade) {
         if (this._installerTabLoaded)
             return; // only want to do this once per session to avoid irritation!
-            
-        this._KFLog.info("KeeFox not installed correctly. Going to try to launch the install page.");
+        
+        this._installerTabLoaded = true;
+        
+        if (upgrade)
+        {
+            this._KFLog.info("KeeFox not installed correctly. Going to try to launch the upgrade page.");
+            installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul?upgrade=1");
+        } else
+        {
+            this._KFLog.info("KeeFox not installed correctly. Going to try to launch the install page.");
+            installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
+        }
         
         //NB: FF < 3.0.5 may fail to open the tab due to bug where "session loaded" event fires too soon.
         
         // load page in new tab called KeeFox installer with install button (linked to same action as toolbar button) (and screenshot of button? - maybe not needed - just have a massive "install" graphic?)
-        installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
+        //installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
 
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeeICEInstalled", false);
@@ -1089,7 +1123,6 @@ KeeFox.prototype = {
     // longer term, we need to be registering the startup events only on objects that understand different window scopes
     init: function(currentKFToolbar, currentWindow) {
         this._KFLog = currentWindow.KFLog;
-        this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
 
         this._KFLog.info("Testing to see if we've already established whether KeeICE is running.");
 
@@ -1138,6 +1171,7 @@ KeeFox.prototype = {
             {
                 this._KFLog.debug("setting up the toolbar");
                 currentKFToolbar.setupButton_ready(currentWindow);
+                currentKFToolbar.setAllLogins();
             } else
             {
                 this._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
@@ -1270,13 +1304,11 @@ var keeFoxInst = new KeeFox;
 // so there's probably not a great alternative option at the moment. Will probably just remove the dumps before 1.0
 // since no-one will be able to see them or report them so they're only useful in the development environment.
 function KeeFoxICEconnector() {
-    this.ICEneedsChecking = true;
 }
 
 KeeFoxICEconnector.prototype = {
-    main: null,
     ICEconnectorTimer: null,
-    ICEneedsChecking: null,
+    KeeFoxICEconnectorTimer: null,
   QueryInterface: function(iid) {
     if (iid.equals(Components.interfaces.nsIRunnable) ||
         iid.equals(Components.interfaces.nsISupports))
@@ -1284,12 +1316,47 @@ KeeFoxICEconnector.prototype = {
     throw Components.results.NS_ERROR_NO_INTERFACE;
   },
   
+        
+        
+  run: function() {
+    dump("start running");
+    this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+    dump("w]");
+    this.KeeFoxICEconnectorTimer = new KeeFoxICEconnectorTimer();
+    dump("x]"+this.ICEconnectorTimer+"]");
+    // crash here sometimes. Can only replicate when loading debug symbols and only when FF first starts.
+    this.ICEconnectorTimer.initWithCallback(this.KeeFoxICEconnectorTimer, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    dump("y]");
+    var thread = Components.classes["@mozilla.org/thread-manager;1"]
+                        .getService(Components.interfaces.nsIThreadManager)
+                        .currentThread;
+    dump("z]");
+
+    while (true) // this thread never ends
+        thread.processNextEvent(true);
+       
+    dump("end running");
+  }
+};
+
+
+function KeeFoxICEconnectorTimer() {
+    this.ICEneedsChecking = true;
+}
+
+KeeFoxICEconnectorTimer.prototype = {
+    main: null,
+    ICEneedsChecking: null,
+  QueryInterface: function(iid) {
+    if (iid.equals(Components.interfaces.nsISupports))
+      return this;
+    throw Components.results.NS_ERROR_NO_INTERFACE;
+  },
+  
   notify: function(timer) { 
-  
-  
+
         dump("started");
  
-
 /* temp note: removing the whole storage check thing...
 1) keeice should always be installed if this is running becuase it's always called from parts of code that
 require it to be installed. if it is uninstalled at some later point then whatever - we'll just keep trying to connect
@@ -1306,7 +1373,7 @@ but that's just wasteful rather than a big disaster.
         
             // false only if ICE connection fault or KeeICE internal error
             //TODO: is it even safe to call my own XPCOM obejcts from this different thread? one option is to get the xpcom service seperately here and in other worker thread locations.
-            if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult) && versionCheckResult.value == 0) {
+            if (keeFoxInst._KeeFoxXPCOMobj.checkVersion(keeFoxInst._KeeFoxVersion, keeFoxInst._KeeICEminVersion, versionCheckResult)) {
                 dump("result");
                 this.main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
 
@@ -1317,32 +1384,8 @@ but that's just wasteful rather than a big disaster.
             dump("finished");
         }
         dump("alldone");
-        },
-        
-        
-  run: function() {
-    dump("start running");
-    this.ICEconnectorTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-            this.ICEconnectorTimer.initWithCallback(this, 10000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-    
-    var thread = Components.classes["@mozilla.org/thread-manager;1"]
-                        .getService(Components.interfaces.nsIThreadManager)
-                        .currentThread;
-    dump("a]");
-
-    while (true) // this thread never ends
-        thread.processNextEvent(true);
-        
-    dump("b]");       
-    this.ICEconnectorTimer.cancel();
-    dump("c]");
-    this.ICEconnectorTimer = null;
-       
-    dump("end running");
-  }
+        }
 };
-
-
 
 var KFmoduleMainThreadHandler = function(source, reason, result, mainWindow, browserWindow, otherThread) {
   this.source = source;
@@ -1356,18 +1399,36 @@ var KFmoduleMainThreadHandler = function(source, reason, result, mainWindow, bro
 KFmoduleMainThreadHandler.prototype = {
     run: function() {
         try {
-            this._KFLog.debug(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
+            keeFoxInst._KFLog.debug(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
+        
             switch (this.source) {
                 case "ICEversionCheck":
 
                     dump("inswitch");
+                    
                     if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false) && this.reason == "finished") {
-                    dump("e]");
+                    //dump("e]");
+                    //if ( && this.result.value != 0)
+                    //{
+                    
+                    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                       .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
+    
+                        keeFoxInst._keeFoxVariableInit(window.keeFoxToolbar,
+                             window, this.result);
+                             keeFoxInst._configureKeeICECallbacks();
+                             keeFoxInst._refreshKPDB();
+                             
+                    /*
+                        return;
+                        }
+                        
                         keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
                         
                         //TODO: set up variables, etc. as per if it were an initial startup
  
-                        this._KFLog.info("Successfully established connection with KeeICE");
+                        keeFoxInst._KFLog.info("Successfully established connection with KeeICE");
                         // remember this across all windows
                         keeFoxInst._keeFoxStorage.set("KeeICEActive", true);
                         keeFoxInst._keeFoxStorage.set("KeeICEInstalled", true);
@@ -1376,13 +1437,14 @@ KFmoduleMainThreadHandler.prototype = {
                         keeFoxInst._configureKeeICECallbacks();
                         dump("g]");
                         keeFoxInst._refreshKPDB();
-                        dump("h]");                    }
+                        dump("h]");                    */
+                    }
                     break;
 
             }
 
         } catch (err) {
-            Components.utils.reportError(err);
+            keeFoxInst._KFLog.error(err);
         }
         dump("m]");  
         this.otherThread.ICEneedsChecking = false; //TODO: this could crash if it's not thread safe? maybe ignore it if causes problem? or set from the global var for the ICE thread?
@@ -1409,7 +1471,7 @@ launchGroupEditorThread.prototype = {
       keeFoxInst._KeeFoxXPCOMobj.launchGroupEditor(this.uniqueID);
    
     } catch(err) {
-      Components.utils.reportError(err);
+      dump(err);
     }
   },
   
@@ -1434,7 +1496,7 @@ launchLoginEditorThread.prototype = {
       keeFoxInst._KeeFoxXPCOMobj.launchLoginEditor(this.uniqueID);
   
     } catch(err) {
-      Components.utils.reportError(err);
+      dump(err);
     }
   },
   

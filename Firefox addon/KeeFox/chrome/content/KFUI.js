@@ -81,7 +81,9 @@ KFUI.prototype = {
         return this.__promptService;
     },
 
+    strbundle: null,
 
+/*
     __strBundle : null, // String bundle for L10N
     get _strBundle() {
         if (!this.__strBundle) {
@@ -95,7 +97,7 @@ KFUI.prototype = {
 
         return this.__strBundle;
     },
-
+*/
 
     __brandBundle : null, // String bundle for L10N
     get _brandBundle() {
@@ -135,6 +137,7 @@ KFUI.prototype = {
         this._kf = kf;
         this._kfilm = kfilm;
         this._window = this._kfilm._currentWindow;
+        this.strbundle = this._kfilm._currentWindow.document.getElementById("KeeFox-strings");
     },
 
 
@@ -732,9 +735,9 @@ messageText.appendChild(fragment);
      */ 
     _getLocalizedString : function (key, formatArgs) {
         if (formatArgs)
-            return this._kf.strbundle.getFormattedString(key, formatArgs);
+            return this.strbundle.getFormattedString(key, formatArgs);
         else
-            return this._kf.strbundle.getString(key);
+            return this.strbundle.getString(key);
     },
 
 

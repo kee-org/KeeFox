@@ -54,7 +54,14 @@
             }
         }
         //var win = topDoc.defaultView;
-        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(topDoc)];
+        var tabIndex = currentGBrowser.getBrowserIndexForDocument(topDoc);
+        if (tabIndex == undefined || tabIndex == null || tabIndex < 0)
+        {
+            KFLog.error("Invalid tab index for current document.");
+            return;
+        }
+        
+        var currentTab = currentGBrowser.mTabs[tabIndex];
 
         //if (!this.getLoginSavingEnabled(hostname)) {
         //    this.log("(form submission ignored -- saving is " +
@@ -73,16 +80,16 @@
         // ignores notification bar and starts filling in search forms or something)
         if (currentPage == undefined || currentPage == null || currentPage.length <= 0 || currentPage <= 0)
         {
-            currentPage = 1;
-            //savePageCountToTab = false;
+        currentPage = 1;
+        //savePageCountToTab = false;
         } else if (currentPage >= 10)
         {
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
-            currentPage = 1;
-            savePageCountToTab = false;
+        ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
+        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+        currentPage = 1;
+        savePageCountToTab = false;
         }
         
         // if this tab has an uniqueID associated with it, we know that the only
@@ -99,71 +106,71 @@
         
         
         if (currentTabUniqueID != undefined && currentTabUniqueID != null && currentTabUniqueID.length > 0)
-            existingLogin = true;
+        existingLogin = true;
         
         // Get the appropriate fields from the form.
         
         var newPasswordField, oldPasswordField;
         var passwordFields = Components.classes["@mozilla.org/array;1"]
-                        .createInstance(Components.interfaces.nsIMutableArray);
+        .createInstance(Components.interfaces.nsIMutableArray);
 
         
         // there must be at least one password or otherField
         var [usernameIndex, passwords, otherFields] =
-            this._getFormFields(form, true, currentPage);
+        this._getFormFields(form, true, currentPage);
         
         // Need at least 1 valid password field to handle a submision unless the user has
         // stated that the form should be captured. Otherwise we will end up prompting
         // the user to create entries every time they search google, etc.
         if (passwords == null || passwords[0] == null || passwords[0] == undefined)
         {
-            KFLog.info("No password field found in form submission.");
-            return;
+        KFLog.info("No password field found in form submission.");
+        return;
         }
         
         if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
         {
             
-            // naive duplicate finder - more than sufficient for the number of passwords per domain
-            twoPasswordsMatchIndex=-1;
-            for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
-                for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
-                    if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
+        // naive duplicate finder - more than sufficient for the number of passwords per domain
+        twoPasswordsMatchIndex=-1;
+        for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
+        for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
+        if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
             
-            if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
-            {
+        if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
+        {
                 
-                KFLog.debug("multiple passwords found (with no identical values)");
+        KFLog.debug("multiple passwords found (with no identical values)");
                 
-                for (i=0; i < passwords.length; i++)
-                    passwordFields.appendElement(passwords[i],false);
+        for (i=0; i < passwords.length; i++)
+        passwordFields.appendElement(passwords[i],false);
                 
-                //TODO: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
-                //return;
-            } else // it's probably a password change form
-            {
-                // we need to ignore any fields that were presented to the
-                // user as either "old password" or "retype new password"
+        //TODO: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
+        //return;
+        } else // it's probably a password change form
+        {
+        // we need to ignore any fields that were presented to the
+        // user as either "old password" or "retype new password"
                 
-                KFLog.debug("Looks like a password change form has been submitted");
-                // there may be more than one pair of matches - though, we're plucking for the first one
-                // we know the index of one matching password
+        KFLog.debug("Looks like a password change form has been submitted");
+        // there may be more than one pair of matches - though, we're plucking for the first one
+        // we know the index of one matching password
                 
-                // if there are only two passwords
-                if (passwords.length == 2)
-                {
-                    passwordFields.appendElement(passwords[0],false);
-                } else
-                {
-                    passwordFields.appendElement(passwords[twoPasswordsMatchIndex],false);
-                    for(i=0;i<passwords.length;i++)
-                        if(passwordFields[0].value != passwords[i].value)
-                            oldPasswordField = passwords[i];
-                }
-            }
+        // if there are only two passwords
+        if (passwords.length == 2)
+        {
+        passwordFields.appendElement(passwords[0],false);
         } else
         {
-            passwordFields.appendElement(passwords[0],false);
+        passwordFields.appendElement(passwords[twoPasswordsMatchIndex],false);
+        for(i=0;i<passwords.length;i++)
+        if(passwordFields[0].value != passwords[i].value)
+        oldPasswordField = passwords[i];
+        }
+        }
+        } else
+        {
+        passwordFields.appendElement(passwords[0],false);
         }
         // at this point, at least one passwordField has been chosen and an
         // oldPasswordField has been chosen if applicable
@@ -172,26 +179,26 @@
         //formLogin = this._generateFormLogin(URL, formActionURL, title, usernameField, passwordFields, otherFields);
         
         var kfLoginInfo = new Components.Constructor(
-                      "@christomlinson.name/kfLoginInfo;1",
-                      Components.interfaces.kfILoginInfo);
+        "@christomlinson.name/kfLoginInfo;1",
+        Components.interfaces.kfILoginInfo);
                       
         var formLogin = new kfLoginInfo;
         
         var otherFieldsNSMutableArray = Components.classes["@mozilla.org/array;1"]
-                        .createInstance(Components.interfaces.nsIMutableArray);
+        .createInstance(Components.interfaces.nsIMutableArray);
         for (i=0; i < otherFields.length; i++)
-            otherFieldsNSMutableArray.appendElement(otherFields[i],false);
+        otherFieldsNSMutableArray.appendElement(otherFields[i],false);
             
         var loginURLs = Components.classes["@mozilla.org/array;1"]
-                    .createInstance(Components.interfaces.nsIMutableArray);
+        .createInstance(Components.interfaces.nsIMutableArray);
         var loginURL = Components.classes["@christomlinson.name/kfURL;1"]
-                    .createInstance(Components.interfaces.kfIURL);
+        .createInstance(Components.interfaces.kfIURL);
         loginURL.URL = URL;
         loginURLs.appendElement(loginURL,false);
         
         formLogin.init(loginURLs, formActionURL, null,
-            usernameIndex,
-            passwordFields, null, title, otherFieldsNSMutableArray, currentPage);
+        usernameIndex,
+        passwordFields, null, title, otherFieldsNSMutableArray, currentPage);
         
         // if we still don't think this is an existing loging and the user is logged in,
         // we might as well check to see if the form they have filled in 
@@ -201,18 +208,18 @@
         // so the uniqueID will be set
         if (!existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-            var logins = this.findLogins({}, URL, formActionURL, null, null);
+        var logins = this.findLogins({}, URL, formActionURL, null, null);
    
             if (logins != undefined && logins != null)
-            {
-            KFLog.debug("matching test: "+logins.length);
+        {
+        KFLog.debug("matching test: "+logins.length);
             
-                for (var i = 0; i < logins.length; i++)
-                {
-                    if (formLogin.matches(logins[i],false,false,false,false))
-                        existingLogin = true;
-                }
-            }
+        for (var i = 0; i < logins.length; i++)
+        {
+        if (formLogin.matches(logins[i],false,false,false,false))
+        existingLogin = true;
+        }
+        }
         }
         
         /*
@@ -233,8 +240,8 @@
                 
         if (dbName == "")
         {
-            this.log("User did not successfully open a KeePass database. Aborting password save procedure.");
-            return;
+        this.log("User did not successfully open a KeePass database. Aborting password save procedure.");
+        return;
         }
         */
         

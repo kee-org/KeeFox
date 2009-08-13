@@ -376,9 +376,12 @@
 
         for (var i = 0; i < forms.length; i++) {
             var form = forms[i];
-            var loginRelevanceScores = [];
             logins[i] = [];
 
+            // the overall relevance of this form is the maximum of it's
+            // matching entries (so we fill the most relevant form)
+            formRelevanceScores[i] = 0;
+            
             var [usernameIndex, passwordFields, otherFields] =
                 this._getFormFields(form, false);
                 
@@ -455,11 +458,9 @@
            for (var v = 0; v < logins[i].length; v++)
             logins[i][v].relevanceScore = this._calculateRelevanceScore (logins[i][v],form,usernameIndex,passwordFields, currentTabPage);
             
-            // the overall relevance of this form is the maximum of it's matching entries (so we fill the most relevant form)
-            formRelevanceScores[i] = 0;
             logins[i].forEach(function(c) { if (c.relevanceScore > formRelevanceScores[i])
                                             formRelevanceScores[i] = c.relevanceScore; } );
-             
+             KFLog.debug("RRRRelevance of form is " + formRelevanceScores[i]);
             // only remember the logins which are not already in our list of matching logins
             var newUniqueLogins = logins[i].filter(function(d) {
                                                 //matchingLogin = l;
@@ -474,8 +475,10 @@
         }  // end of form for loop
         
         var mostRelevantFormIndex = 0;
-        formRelevanceScores.forEach(function(c) { if (c.relevanceScore > formRelevanceScores[mostRelevantFormIndex])
+        formRelevanceScores.forEach(function(c, index) { KFLog.debug("Relevance of form is " + c); if (c > formRelevanceScores[mostRelevantFormIndex])
                                             mostRelevantFormIndex = index; } );
+        
+        KFLog.debug("The most relevant form is #" + mostRelevantFormIndex);
         
         // from now on we concentrate on just the most relevant form and the fields we found earlier
         form = forms[mostRelevantFormIndex];
@@ -571,7 +574,7 @@
                     
                 KFLog.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
                     
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords, currentTabPage);
+                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords, currentTabPage); //TODO: sometimes undefined: logins[mostRelevantFormIndex][mostRelevantLoginIndex]
                 this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].otherFields, currentTabPage);
                 formsReadyForSubmit++;
                 matchingLogin = logins[mostRelevantFormIndex][mostRelevantLoginIndex];
