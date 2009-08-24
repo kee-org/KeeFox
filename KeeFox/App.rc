@@ -65,8 +65,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,6,5,0
- PRODUCTVERSION 0,6,5,0
+ FILEVERSION 0,6,6,0
+ PRODUCTVERSION 0,6,6,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -81,15 +81,15 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "Firefox extension component which is required to permit communication between firefox and KeePass password safe"
+            VALUE "Comments", "Firefox extension component which is required to permit communication between Firefox and KeePass password safe"
             VALUE "CompanyName", "Chris Tomlinson"
             VALUE "FileDescription", "KeeFox Firefox extension"
-            VALUE "FileVersion", "0.6.5.0"
+            VALUE "FileVersion", "0.6.6.0"
             VALUE "InternalName", "KeeFox"
             VALUE "LegalCopyright", "Copyright © 2009 Chris Tomlinson"
             VALUE "OriginalFilename", "KeeFox.dll"
             VALUE "ProductName", "KeeFox"
-            VALUE "ProductVersion", "0.6.5.0"
+            VALUE "ProductVersion", "0.6.6.0"
         END
     END
     BLOCK "VarFileInfo"

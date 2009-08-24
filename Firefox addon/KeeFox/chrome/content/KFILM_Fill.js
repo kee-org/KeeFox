@@ -45,10 +45,12 @@
         // we try to fill every form field. We try to match by id first and then name before just guessing.
         // Generally we'll only fill if the matched field is of the same type as the form field but
         // we are flexible RE text and username fields because that's an artificial difference
-        // for the sake of the password management software
+        // for the sake of the password management software. However, usernames will be chosen above
+        // text fields if all else is equal
         for (i = 0; i < pageFields.length; i++)
         {
             matchedValue = "";
+            backupMatchedValue = ""; // used to keep track of a less preferred option just in case we don't find any suitable matches.
             
             KFLog.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
             
@@ -60,7 +62,7 @@
                 matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                 
                 if (pageFields[i].fieldId != null && pageFields[i].fieldId != undefined 
-                    && pageFields[i].fieldId == matchedField.fieldId && 
+                    && pageFields[i].fieldId != "" && pageFields[i].fieldId == matchedField.fieldId && 
                     (pageFields[i].type == "select" 
                      || pageFields[i].type == "radio" 
                      || pageFields[i].type == "checkbox" 
@@ -90,7 +92,7 @@
                     matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                     
                     if (pageFields[i].name != null && pageFields[i].name != undefined 
-                        && pageFields[i].name == matchedField.name && 
+                        && pageFields[i].name != "" && pageFields[i].name == matchedField.name && 
                         (pageFields[i].type == "select" 
                          || pageFields[i].type == "radio" 
                          || pageFields[i].type == "checkbox" 
@@ -124,17 +126,27 @@
                     var matchedField = 
                     matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                     
-                    if (pageFields[i].type == matchedField.type
-                        || (pageFields[i].type == "text" && matchedField.type == "username")
-                        || (pageFields[i].type == "username" && matchedField.type == "text")
-                       )
+                    if ((pageFields[i].type == matchedField.type && pageFields[i].type != "text")
+                        || (pageFields[i].type == "text" && matchedField.type == "username"))
                     {
                         matchedValue = matchedField.value;
                         KFLog.debug("Data field "+j+" is a match for this form field");
                         break;
                     }
+                    
+                    if (backupMatchedValue != "" && (pageFields[i].type == matchedField.type
+                        || (pageFields[i].type == "text" && matchedField.type == "username")
+                        || (pageFields[i].type == "username" && matchedField.type == "text")
+                       ))
+                    {
+                        backupMatchedValue = matchedField.value;
+                        KFLog.debug("Data field "+j+" is almost a match for this form field - we'll use it if we find no better option.");
+                    }
                 }
             }
+            
+            if (matchedValue == "")
+                matchedValue = backupMatchedValue;
                 
             if (matchedValue == "")
             {
@@ -666,10 +678,19 @@
         // loaded then we can (re)populate these values now
         if (uniqueID != undefined && uniqueID != null && uniqueID != "")
         {
-            ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
             ss.setTabValue(currentTab, "KF_uniqueID", uniqueID);
-            KFLog.debug("Set KF_autoSubmit to: yes");
             KFLog.debug("Set KF_uniqueID to: " + uniqueID);
+            
+            // only auto fill / submit if we expect another page for this login.
+            // This may fail in some cases, not sure yet but it should reduce
+            // the chances of auto-submit loops occuring, especially confusing
+            // on pages where multiple forms are present regardless of login state
+            // (and get displayed to user when appropriate).
+            if (numberOfTabFillsRemaining > 0)
+            {
+                ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                KFLog.debug("Set KF_autoSubmit to: yes");
+            }
         }
         
         if (autoSubmitForm && formsReadyForSubmit == 1)

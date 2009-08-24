@@ -290,14 +290,14 @@ KFUI.prototype = {
                     //aNotificationBar.parentNode.removeCurrentNotification();
                 }
             },
-            
+            /*
             {
                 label:     rememberAdvancedButtonText,
                 accessKey: rememberAdvancedButtonAccessKey,
                 popup:     popupName,
                 callback: null
             },
-
+*/
             // "Never for this site" button
             /*{
                 label:     neverButtonText,

@@ -547,7 +547,7 @@ KFToolbar.prototype = {
 
         var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
 
-        if (currentPage != undefined && currentPage != null)
+        if (currentPage != undefined && currentPage != null && currentPage != "")
         {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
             /*
@@ -558,21 +558,21 @@ KFToolbar.prototype = {
         
         var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
 
-        if (currentStateMain != undefined && currentStateMain != null)
+        if (currentStateMain != undefined && currentStateMain != null && currentStateMain != "")
         {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
         }
         
         var currentStatePasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
 
-        if (currentStatePasswords != undefined && currentStatePasswords != null)
+        if (currentStatePasswords != undefined && currentStatePasswords != null && currentStatePasswords != "")
         {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
         }
         
         var currentStateOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
 
-        if (currentStateOtherFields != undefined && currentStateOtherFields != null)
+        if (currentStateOtherFields != undefined && currentStateOtherFields != null && currentStateOtherFields != "")
         {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
         }
@@ -614,28 +614,28 @@ KFToolbar.prototype = {
 
         var autoSubmit = ss.getTabValue(currentTab, "KF_autoSubmit");
 
-        if (autoSubmit != undefined && autoSubmit != null)
+        if (autoSubmit != undefined && autoSubmit != null && autoSubmit != "")
         {
             ss.deleteTabValue(currentTab, "KF_autoSubmit");
         }
         
         var uniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
 
-        if (uniqueID != undefined && uniqueID != null)
+        if (uniqueID != undefined && uniqueID != null && uniqueID != "")
         {
             ss.deleteTabValue(currentTab, "KF_uniqueID");
         }
         
         var numberOfTabFillsTarget = ss.getTabValue(currentTab, "KF_numberOfTabFillsTarget");
 
-        if (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null)
+        if (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null && numberOfTabFillsTarget != "")
         {
             ss.deleteTabValue(currentTab, "KF_numberOfTabFillsTarget");
         }
         
         var numberOfTabFillsRemaining = ss.getTabValue(currentTab, "KF_numberOfTabFillsRemaining");
 
-        if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null)
+        if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining != "")
         {
             ss.deleteTabValue(currentTab, "KF_numberOfTabFillsRemaining");
         }

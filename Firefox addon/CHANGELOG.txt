@@ -3,12 +3,14 @@ This information will often be disseminated onto the official KeeFox website in 
 0.7
 ---
 
+- Session tab variables that track multi-page logins are now reset when user is viewing any page that is not at the top of the Firefox history stack. Ditto when the tab's domain is changed.
+- "not now" button works again
+- removed the "(with options)" button on password save. It's only use so far is chosing a group to save the password in and that won't quite be ready for the 0.7 release.
+
 - Created new pages to test forms within frames
 - A few bug fixes to improve login and form matching
 - Initial work on upgrade walkthrough process
 - Worked around a multiple-window bug. Every window registers a form submission listener and should unregister when the window closes. I haven't worked out how to do that yet so in the meantime I have put a quick test in place to at least keep everything working correctly, albeit with a probable memory leak.
-
-
 - KeePass entries without username and password form meta-data "advanced" strings can now be read by KeeFox
 - HTTP(S) protocol authentication dialog boxes can be filled (no password saving yet - manually add a "Form HTTP realm" advanced string to an existing KeePass login to make it work, and make sure the URL field is correct too)
 - Built-in Firefox password saving disabled

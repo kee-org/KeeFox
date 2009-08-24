@@ -48,14 +48,14 @@
         </menu>
 
         <menuseparator />
-
+<!--
         <menuitem label="Save to a folder..."
                 oncommand='openDialog(
                "chrome://keefox/content/groupChooser.xul",
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );' />
-
+-->
         <menuitem id="KeeFox_Options-Button" tooltiptext="&KeeFox_Menu-Button.options.tip;"
                    class="" label="&KeeFox_Menu-Button.options.label;" oncommand='openDialog(
                "chrome://keefox/content/options.xul",

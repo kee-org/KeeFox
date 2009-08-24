@@ -31,8 +31,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
 
-//TODO: disable built-in login manager
-
 function KFILM(kf,keeFoxToolbar,currentWindow) {
 
     this._kf = kf;
@@ -281,11 +279,11 @@ KFILM.prototype = {
             var b = getBrowser();
             var currentTab = b.selectedTab; //TODO: are we sure this always the tab that this event refers to?
 
+            // see if this tab has our special attributes and promote them to session data
             if (currentTab.hasAttribute("KF_uniqueID")) {
 
                 KFLog.debug("has uid");
                 
-                // see if this tab has our special attributes and promote them to session data
                 var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
 
@@ -297,6 +295,51 @@ KFILM.prototype = {
                 KFLog.debug("nouid");
             }
             
+            // If this tab location has changed domain then we assume user wants to cancel any outstanding form filling or saving procedures. Same applies if this is a refresh of the existing page. Also, if we are not at the top of the history stack, we can safely assume that we do not need to keep any information about preferred login uniqueIDs (although maybe one day this could complicate options with respect to one-click logins? probably will be fine but look here if problems occur)
+            
+            removeTabSessionStoreData = false;
+            
+            //TODO: How do we reliably detect a page refresh?
+            
+            try {
+                if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
+                     && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
+                     && (
+                        this._pwmgr._getURIScheme(domWin.history.current) == "file"
+                        || this._pwmgr._getURIScheme(domWin.history.previous) == "file"
+                        ||
+                        (domWin.history.current != domWin.history.previous                         
+                            && this._pwmgr._getURISchemeHostAndPort(domWin.history.current)
+                            != this._pwmgr._getURISchemeHostAndPort(domWin.history.previous) 
+                        )
+                        )
+                   )
+                {
+                    removeTabSessionStoreData = true;
+                }
+            } catch (ex) {
+                
+            }
+            
+            try {
+                if (domWin.history.next != undefined 
+                    && domWin.history.next != null 
+                    && domWin.history.next != "")
+                {
+                    removeTabSessionStoreData = true;
+                }
+            } catch (ex) {
+               
+            }
+            
+            if (removeTabSessionStoreData)
+            {
+                // remove the data that helps us track multi-page logins, etc.
+                KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                keeFoxToolbar.clearTabFormRecordingData();
+                keeFoxToolbar.clearTabFormFillData();                
+            }
+                
             // remove all the old logins from the toolbar
             keeFoxToolbar.removeLogins();
             
@@ -319,7 +362,7 @@ KFILM.prototype = {
             // This is to enable manual form filling of sites which generate forms dynamically
             // (i.e. after initial DOM load)
             if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-                this._pwmgr._refillTimer.init(this._domEventListener, 500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                this._pwmgr._refillTimer.init(this._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
             
             KFLog.debug("onStateChange: end");                
             return;
@@ -808,6 +851,27 @@ KFLog.debug("proccessing...");
         }
         if (KFLog.logSensitiveData) KFLog.debug("_getURISchemeHostAndPort:"+realm);
         return realm;
+    },
+    
+    /*
+     * _getURIScheme
+     *
+     * Get a string that includes only a URI's scheme
+     */
+    _getURIScheme : function (uriString) {
+
+        try {
+            var uri = this._ioService.newURI(uriString, null, null);
+            
+            return uri.scheme;
+
+        } catch (e) {
+            if (KFLog.logSensitiveData)
+                KFLog.error("Couldn't parse scheme for " + uriString);
+            else
+                KFLog.error("Couldn't parse scheme");
+            return "unknown";
+        }
     },
     
     /*
