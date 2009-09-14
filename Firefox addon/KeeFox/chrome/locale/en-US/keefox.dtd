@@ -9,6 +9,9 @@
 <!ENTITY KeeFox_Menu-Button.changeDB.label "Change database">
 <!ENTITY KeeFox_Menu-Button.changeDB.tip "Choose a different KeePass password database.">
 <!ENTITY KeeFox_Menu-Button.changeDB.key "C">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.label "Detect forms">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.tip "Force KeeFox to re-detect forms on this page. This is necessary on a small minority of web sites.">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.key "D">
 <!ENTITY KeeFox_Menu-Button.options.label "Options">
 <!ENTITY KeeFox_Menu-Button.options.tip "View and change your preferred KeeFox options.">
 <!ENTITY KeeFox_Menu-Button.options.key "O">

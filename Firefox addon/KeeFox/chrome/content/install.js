@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 const KF_KPZIP_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.08.zip";
+const KF_KPZIP_FILE_NAME = "KeePass-2.09.zip";
 const KF_KPZIP_FILE_CHECKSUM = "";
 const KF_KP_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_KP_FILE_NAME = "KeePass-2.08-Setup.exe";
+const KF_KP_FILE_NAME = "KeePass-2.09-Setup.exe";
 const KF_KP_FILE_CHECKSUM = "";
 const KF_NET_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"

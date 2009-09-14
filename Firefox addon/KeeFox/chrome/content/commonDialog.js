@@ -36,7 +36,7 @@ var keeFoxDialogManager = {
         try {
             keeFoxDialogManager.autoFill();
         } catch (exception) {
-            KFLog.error(exception);
+            keeFoxInst._KFLog.error(exception);
         }
     },
     
@@ -104,10 +104,10 @@ var keeFoxDialogManager = {
 			// find all the logins
 			var foundLogins = keeFoxInst.findLogins({}, host, null, realm);
 
-            if (KFLog.logSensitiveData)
-                KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ realm + "' realm.");
+            if (keeFoxInst._KFLog.logSensitiveData)
+                keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ realm + "' realm.");
             else
-                KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
+                keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
 			
 			if (foundLogins.length <= 0)
 			    return;
@@ -128,7 +128,7 @@ var keeFoxDialogManager = {
 			        showList = true;
 
 		        } catch (e) {
-		            KFLog.error(e);
+		            keeFoxInst._KFLog.error(e);
 		        }
 			}
 				
@@ -209,4 +209,3 @@ var keeFoxDialogManager = {
 };
 
 window.addEventListener("load", keeFoxDialogManager.dialogInit, false);
-

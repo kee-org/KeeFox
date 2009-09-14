@@ -642,6 +642,15 @@ KFToolbar.prototype = {
         
         
             
+    },
+    
+    
+    fillCurrentDocument : function ()
+    {
+        var currentGBrowser = this._currentWindow.gBrowser;
+        //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+        this._currentWindow.keeFoxILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
+        
     }
 
 };

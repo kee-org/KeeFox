@@ -2,11 +2,13 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.7
 ---
-
+- Now requires KeePass 2.09
+- Tidied the layout of the toolbar
+- Added button to manually detect forms on the current page (useful on pages such as live.com)
+- Form filling now only fills each field in the entry into one form field on the page (it's still impossible to predict the correct field in every situation but this at least reduces annoyance if KeeFox guesses incorrectly)
 - Session tab variables that track multi-page logins are now reset when user is viewing any page that is not at the top of the Firefox history stack. Ditto when the tab's domain is changed.
 - "not now" button works again
 - removed the "(with options)" button on password save. It's only use so far is chosing a group to save the password in and that won't quite be ready for the 0.7 release.
-
 - Created new pages to test forms within frames
 - A few bug fixes to improve login and form matching
 - Initial work on upgrade walkthrough process

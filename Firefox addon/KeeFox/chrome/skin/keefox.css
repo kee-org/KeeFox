@@ -1,8 +1,13 @@
-#KeeFox_Menu-Button {
-    list-style-image: url("chrome://keefox/skin/main.png");
+#KeeFox_Menu-Button
+{
+    list-style-image: url("chrome://keefox/skin/main.png");  
 }
 
-/*toolbarbutton{-moz-appearance: none !important;}*/
+#KeeFox_Menu-Button .toolbarbutton-menu-dropmarker,
+#KeeFox_Logins-Button .toolbarbutton-menu-dropmarker
+{
+ 	padding: 0px 0px 0px 3px;
+}
 
 toolbarbutton#KeeFox_Main-Button 
 {
@@ -16,7 +21,8 @@ toolbarbutton.highlight, toolbarbutton.login-found
 
 .toolbarbutton-menubutton-button
 {
--moz-box-orient: horizontal !important;
+	-moz-box-orient: horizontal !important;
+	padding: 0px 3px !important;
 }
 
 /* .toolbarbuttonmenu-text */

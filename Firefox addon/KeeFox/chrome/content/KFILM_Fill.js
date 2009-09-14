@@ -26,7 +26,7 @@
 
 
 //pagefields is array, matchFields is nsImutableArray
-    KFILM.prototype._fillManyFormFields = function (pageFields, matchFields, currentTabPage)
+    KFILM.prototype._fillManyFormFields = function (pageFields, matchFields, currentTabPage, overWriteFieldsAutomatically)
     {
         KFLog.debug("_fillManyFormFields started");
         
@@ -42,6 +42,19 @@
             
         KFLog.info("Filling form fields for page "+currentTabPage);
         
+        if (overWriteFieldsAutomatically)
+            KFLog.info("Auto-overwriting fields");
+        else
+            KFLog.info("Not auto-overwriting fields");
+        
+        var matchedValues = []; // value of the matched field (so we don't have to go through XPCOM again)
+        var backupMatchedValues = []; // used to keep track of a less preferred option just in case we don't find any suitable matches.
+        
+        var matchedIds = []; // index = corresponding matchField index and value = pageFieldId that the matchField would like to fill in
+        var backupMatchedIds = [];
+        
+        var fieldFilled = []; // tracks whether a certain form field has already had a value put into it (so we don't over-write it with a less-ideal value)
+        
         // we try to fill every form field. We try to match by id first and then name before just guessing.
         // Generally we'll only fill if the matched field is of the same type as the form field but
         // we are flexible RE text and username fields because that's an artificial difference
@@ -49,13 +62,16 @@
         // text fields if all else is equal
         for (i = 0; i < pageFields.length; i++)
         {
-            matchedValue = "";
-            backupMatchedValue = ""; // used to keep track of a less preferred option just in case we don't find any suitable matches.
-            
+            var foundADefiniteMatch = false;
             KFLog.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
             
             for (j = 0; j < matchFields.length; j++)
             {
+                // if we have already identified a form field that we want
+                // to fill with the value in this field, skip on to the next possibility...
+                if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
+                    continue;
+                    
                 // Unfortunately the container is declared to have elements
                 // that are generic nsIMutableArray. So, we must QI...
                 var matchedField = 
@@ -67,7 +83,7 @@
                      || pageFields[i].type == "radio" 
                      || pageFields[i].type == "checkbox" 
                      || pageFields[i].value.length == 0 
-                     || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
+                     || overWriteFieldsAutomatically
                     )
                     && (!validTabPage || matchedField.formFieldPage == currentTabPage)
                     && (pageFields[i].type == matchedField.type
@@ -76,18 +92,25 @@
                        )
                    )
                 {
-                    matchedValue = matchedField.value;
-                    KFLog.debug("Data field "+j+" is a match for this form field");
+                    matchedValues[j] = matchedField.value;
+                    matchedIds[j] = i;
+                    foundADefiniteMatch = true;
+                    KFLog.debug("Data field "+j+" is a match for form field " + i);
                     break;
                 }
             }
             
             // find by name instead (except for radio buttons which we know have multiple fields per name)
-            if (matchedValue == "" && pageFields[i].type != "radio")
+            if (!foundADefiniteMatch && pageFields[i].type != "radio")
             {
                 KFLog.info("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
                 for (j = 0; j < matchFields.length; j++)
                 {
+                    // if we have already identified a form field that we want
+                    // to fill with the value in this field, skip on to the next possibility...
+                    if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
+                        continue;
+                        
                     var matchedField = 
                     matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                     
@@ -97,7 +120,7 @@
                          || pageFields[i].type == "radio" 
                          || pageFields[i].type == "checkbox" 
                          || pageFields[i].value.length == 0 
-                         || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
+                         || overWriteFieldsAutomatically
                         )
                         && (!validTabPage || matchedField.formFieldPage == currentTabPage)
                         && (pageFields[i].type == matchedField.type
@@ -106,72 +129,115 @@
                            )
                        )
                     {
-                        matchedValue = matchedField.value;
-                        KFLog.debug("Data field "+j+" is a match for this form field");
+                        matchedValues[j] = matchedField.value;
+                        matchedIds[j] = i;
+                        foundADefiniteMatch = true;
+                        KFLog.debug("Data field "+j+" is a match for form field " + i);
                         break;
                     }
                 }
             }
             
-            if (matchedValue == "" && pageFields[i].type != "radio" && (pageFields[i].type == "select" 
+            if (!foundADefiniteMatch && pageFields[i].type != "radio" && (pageFields[i].type == "select" 
                  || pageFields[i].type == "checkbox" 
                  || pageFields[i].value.length == 0 
-                 || this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true)
+                 || overWriteFieldsAutomatically
                ))
             {
-                KFLog.info("We could not find a good field match so just filling in this field with the first value of this type: "+pageFields[i].type);
+                KFLog.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
                 
                 for (j = 0; j < matchFields.length; j++)
                 {
+                    // if we have already identified a form field that we want
+                    // to fill with the value in this field, skip on to the next possibility...
+                    if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
+                        continue;
+                        
                     var matchedField = 
                     matchFields.queryElementAt(j,Components.interfaces.kfILoginField);
                     
                     if ((pageFields[i].type == matchedField.type && pageFields[i].type != "text")
                         || (pageFields[i].type == "text" && matchedField.type == "username"))
                     {
-                        matchedValue = matchedField.value;
-                        KFLog.debug("Data field "+j+" is a match for this form field");
+                        matchedValues[j] = matchedField.value;
+                        matchedIds[j] = i;
+                        KFLog.debug("Data field "+j+" is a match for form field " + i);
                         break;
                     }
                     
-                    if (backupMatchedValue != "" && (pageFields[i].type == matchedField.type
+                    if (backupMatchedValues[j] != undefined && backupMatchedValues[j] != null && backupMatchedValues[j] != "" && (pageFields[i].type == matchedField.type
                         || (pageFields[i].type == "text" && matchedField.type == "username")
                         || (pageFields[i].type == "username" && matchedField.type == "text")
                        ))
                     {
-                        backupMatchedValue = matchedField.value;
-                        KFLog.debug("Data field "+j+" is almost a match for this form field - we'll use it if we find no better option.");
+                        backupMatchedValues[j] = matchedField.value;
+                        backupMatchedIds[j] = i;
+                        KFLog.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
                     }
                 }
             }
-            
-            if (matchedValue == "")
-                matchedValue = backupMatchedValue;
-                
-            if (matchedValue == "")
-            {
-                KFLog.info("We could not find a suitable match so not filling this field");
-            } else
+        }
+         
+        // OK, now we know which values we want to fill so let's actually apply them to the form...
+        for (i = 0; i < matchedIds.length; i++)
+        {   
+            if (fieldFilled[matchedIds[i]] != undefined && fieldFilled[matchedIds[i]] != null && fieldFilled[matchedIds[i]] == true)
+                continue;
+
+            if (matchedValues[i] != undefined && matchedValues[i] != null && matchedValues[i] != "")
             {
                 if (KFLog.logSensitiveData)
-                    KFLog.info("We will populate this field with: "+matchedValue);
+                    KFLog.info("We will populate field "+matchedIds[i]+" with: "+matchedValues[i]);
                 else
-                    KFLog.info("We will populate this field.");
+                    KFLog.info("We will populate field "+matchedIds[i]+".");
                 
-                if (pageFields[i].type == "select")
+                if (pageFields[matchedIds[i]].type == "select")
                 {
                     //TODO: select relevant form option
                     //pageFields[i].DOMSelectElement.value = matchedValue; 
-                } else if (pageFields[i].type == "checkbox" || pageFields[i].type == "radio")
+                } else if (pageFields[matchedIds[i]].type == "checkbox" || pageFields[matchedIds[i]].type == "radio")
                 {
-                    pageFields[i].DOMInputElement.checked = true;
+                    pageFields[matchedIds[i]].DOMInputElement.checked = true;
                 } else
                 {    
-                    pageFields[i].DOMInputElement.value = matchedValue; 
+                    pageFields[matchedIds[i]].DOMInputElement.value = matchedValues[i]; 
                 }
-                
+                fieldFilled[matchedIds[i]] = true;
             }
         }
+        
+        for (i = 0; i < backupMatchedIds.length; i++)
+        {   
+            if (fieldFilled[backupMatchedIds[i]] != undefined && fieldFilled[backupMatchedIds[i]] != null && fieldFilled[backupMatchedIds[i]] == true)
+                continue;
+                
+            if (backupMatchedValues[i] == undefined || backupMatchedValues[i] == null || backupMatchedValues[i] == "")
+            {
+                KFLog.info("We could not find a suitable match so not filling any field with supplied login field id " + i);
+            } else
+            {
+                if (KFLog.logSensitiveData)
+                    KFLog.info("We will populate field "+backupMatchedIds[i]+" with our backup choice: "+backupMatchedValues[i]);
+                else
+                    KFLog.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
+                
+                if (pageFields[backupMatchedIds[i]].type == "select")
+                {
+                    //TODO: select relevant form option
+                    //pageFields[i].DOMSelectElement.value = matchedValue; 
+                } else if (pageFields[backupMatchedIds[i]].type == "checkbox" || pageFields[backupMatchedIds[i]].type == "radio")
+                {
+                    pageFields[backupMatchedIds[i]].DOMInputElement.checked = true;
+                } else
+                {    
+                    pageFields[backupMatchedIds[i]].DOMInputElement.value = backupMatchedValues[i]; 
+                }
+                fieldFilled[backupMatchedIds[i]] = true;
+            }
+        }
+        
+        
+        
     };
     
 //TODO: something in here may be the trigger for the deadlock bug when closing KeePass (when JS bug in this function stops it working, I've struggled to reproduce the intermittent deadlock). Top suspect is the getDatabaseName call in TB.setupButton_ready via TB.setLogins... also could have been the clipboard issue on UI update from KP? maybe that fixed it?
@@ -525,8 +591,8 @@
                 {
                     //if (usernameField && matchingLogin.username != null)
                     //    usernameField.DOMelement.value = matchingLogin.username.value;
-                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage);
-                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage);
+                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage, overWriteFieldsAutomatically);
+                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage, overWriteFieldsAutomatically);
                     formsReadyForSubmit++;
                 }
                 else
@@ -572,8 +638,8 @@
             else if (logins[mostRelevantFormIndex].length == 1) {
                 //if (usernameField && logins[mostRelevantFormIndex][0].username!= null)
                 //    usernameField.DOMelement.value = logins[mostRelevantFormIndex][0].username.value;
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][0].passwords, currentTabPage);
-                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][0].otherFields, currentTabPage);
+                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][0].passwords, currentTabPage, overWriteFieldsAutomatically);
+                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][0].otherFields, currentTabPage, overWriteFieldsAutomatically);
                 formsReadyForSubmit++;
                 matchingLogin = logins[mostRelevantFormIndex][0];
             } else {
@@ -586,8 +652,8 @@
                     
                 KFLog.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
                     
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords, currentTabPage); //TODO: sometimes undefined: logins[mostRelevantFormIndex][mostRelevantLoginIndex]
-                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].otherFields, currentTabPage);
+                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords, currentTabPage, overWriteFieldsAutomatically); //TODO: sometimes undefined: logins[mostRelevantFormIndex][mostRelevantLoginIndex]
+                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].otherFields, currentTabPage, overWriteFieldsAutomatically);
                 formsReadyForSubmit++;
                 matchingLogin = logins[mostRelevantFormIndex][mostRelevantLoginIndex];
             }
@@ -738,6 +804,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
         var otherFields;
         
         var autoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
+        var overWriteFields = true; // TODO: create a new preference for this
         
         if ((form == undefined || form == null) && usernameID != null && usernameID.length > 0)
         {
@@ -802,8 +869,8 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
 
         KFLog.debug("Found a matching login, filling in passwords, etc.");
             
-        this._fillManyFormFields(passwords, match.passwords, 1);
-        this._fillManyFormFields(otherFields, match.otherFields, 1);
+        this._fillManyFormFields(passwords, match.passwords, 1, overWriteFields);
+        this._fillManyFormFields(otherFields, match.otherFields, 1, overWriteFields);
 
         // Attach information to this tab which describes what we know about the number of pages this form covers
         // this allows us to automatically submit multiple page forms with one click and helps avoid repeating

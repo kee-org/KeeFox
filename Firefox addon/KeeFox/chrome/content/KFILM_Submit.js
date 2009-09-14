@@ -43,6 +43,8 @@
         if (KFLog.logSensitiveData) KFLog.info("URL: " + URL);
         var formActionURL = this._getActionOrigin(form);
         var title = doc.title;
+        var isPasswordChangeForm = false;
+        var isRegistrationForm = false;
         
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
@@ -124,56 +126,72 @@
         // the user to create entries every time they search google, etc.
         if (passwords == null || passwords[0] == null || passwords[0] == undefined)
         {
-        KFLog.info("No password field found in form submission.");
-        return;
+            KFLog.info("No password field found in form submission.");
+            return;
         }
         
         if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
         {
             
-        // naive duplicate finder - more than sufficient for the number of passwords per domain
-        twoPasswordsMatchIndex=-1;
-        for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
-        for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
-        if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
-            
-        if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
-        {
+            // naive duplicate finder - more than sufficient for the number of passwords per domain
+            twoPasswordsMatchIndex=-1;
+            for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
+                for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
+                    if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
                 
-        KFLog.debug("multiple passwords found (with no identical values)");
-                
-        for (i=0; i < passwords.length; i++)
-        passwordFields.appendElement(passwords[i],false);
-                
-        //TODO: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
-        //return;
-        } else // it's probably a password change form
-        {
-        // we need to ignore any fields that were presented to the
-        // user as either "old password" or "retype new password"
-                
-        KFLog.debug("Looks like a password change form has been submitted");
-        // there may be more than one pair of matches - though, we're plucking for the first one
-        // we know the index of one matching password
-                
-        // if there are only two passwords
-        if (passwords.length == 2)
-        {
-        passwordFields.appendElement(passwords[0],false);
+            if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
+            {
+                    
+                KFLog.debug("multiple passwords found (with no identical values)");
+                        
+                for (i=0; i < passwords.length; i++)
+                    passwordFields.appendElement(passwords[i],false);
+                    
+                //TODO: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
+                //return;
+            } else // it's probably a password change form, but may be a sign-up form
+            {
+                // we need to ignore any fields that were presented to the
+                // user as either "old password" or "retype new password"
+                        
+                KFLog.debug("Looks like a password change form or new registration form has been submitted");
+                // there may be more than one pair of matches - though, we're plucking for the first one
+                // we know the index of one matching password
+                        
+                // if there are only two passwords we already know that they match
+                if (passwords.length == 2)
+                {
+                    passwordFields.appendElement(passwords[0],false);
+                    //TODO: it is also reasonably likely that this indicates a sign-up form rather than a password change form. decide which here and flag which one it is
+                    // for now, we just assume it's a sign-up form becuase that is more useful for the user in many cases
+                    isPasswordChangeForm = false;
+                    isRegistrationForm = true;
+                } else
+                {
+                    // Here we assume that any form with 3 passwords on it
+                    // is much more likely to be a change password form than
+                    // a sign-up form (obviously there will be exceptions but
+                    // this is the best we can do for now)
+                    // BUT: have not yet implemented reliable password change feature...
+                    isPasswordChangeForm = false;
+                    isRegistrationForm = false;
+                    
+                    passwordFields.appendElement(passwords[twoPasswordsMatchIndex],false);
+                    
+                    // find the first password that is different from the one that has been typed twice
+                    for(i=0;i<passwords.length;i++)
+                        if(passwordFields[0].value != passwords[i].value)
+                            oldPasswordField = passwords[i];
+                }
+            }
         } else
         {
-        passwordFields.appendElement(passwords[twoPasswordsMatchIndex],false);
-        for(i=0;i<passwords.length;i++)
-        if(passwordFields[0].value != passwords[i].value)
-        oldPasswordField = passwords[i];
-        }
-        }
-        } else
-        {
-        passwordFields.appendElement(passwords[0],false);
+            passwordFields.appendElement(passwords[0],false);
         }
         // at this point, at least one passwordField has been chosen and an
-        // oldPasswordField has been chosen if applicable
+        // oldPasswordField has been chosen if applicable.
+        // we have also determined whether this form fill is likely to
+        // be a new registration form or password change form
 
         // create a kfLoginInfo object to represent all relevant form elements
         //formLogin = this._generateFormLogin(URL, formActionURL, title, usernameField, passwordFields, otherFields);
@@ -190,15 +208,15 @@
         otherFieldsNSMutableArray.appendElement(otherFields[i],false);
             
         var loginURLs = Components.classes["@mozilla.org/array;1"]
-        .createInstance(Components.interfaces.nsIMutableArray);
+            .createInstance(Components.interfaces.nsIMutableArray);
         var loginURL = Components.classes["@christomlinson.name/kfURL;1"]
-        .createInstance(Components.interfaces.kfIURL);
+            .createInstance(Components.interfaces.kfIURL);
         loginURL.URL = URL;
         loginURLs.appendElement(loginURL,false);
         
         formLogin.init(loginURLs, formActionURL, null,
-        usernameIndex,
-        passwordFields, null, title, otherFieldsNSMutableArray, currentPage);
+            usernameIndex,
+            passwordFields, null, title, otherFieldsNSMutableArray, currentPage);
         
         // if we still don't think this is an existing loging and the user is logged in,
         // we might as well check to see if the form they have filled in 
@@ -208,18 +226,18 @@
         // so the uniqueID will be set
         if (!existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-        var logins = this.findLogins({}, URL, formActionURL, null, null);
+            var logins = this.findLogins({}, URL, formActionURL, null, null);
    
             if (logins != undefined && logins != null)
-        {
-        KFLog.debug("matching test: "+logins.length);
-            
-        for (var i = 0; i < logins.length; i++)
-        {
-        if (formLogin.matches(logins[i],false,false,false,false))
-        existingLogin = true;
-        }
-        }
+            {
+                KFLog.debug("matching test: "+logins.length);
+                    
+                for (var i = 0; i < logins.length; i++)
+                {
+                    if (formLogin.matches(logins[i],false,false,false,false))
+                        existingLogin = true;
+                }
+            }
         }
         
         /*
@@ -299,7 +317,9 @@
             }
         }*/
 
-        if (oldPasswordField != null) // we are changing the password
+        //if (oldPasswordField != null) // we are changing the password
+        //TODO: implement password change support if it doesn't impact the more important log-in and registration features
+        if (isPasswordChangeForm)
         {
             
             if (existingLogin) // as long as we have previously stored a login for this site...
@@ -320,6 +340,10 @@
             }
             return;
         
+        } else if (isRegistrationForm)
+        {
+            KFLog.info("Looks like this is a registration form so doing nothing (not implemented yet).");
+            return;
         } else // maybe it is new...
         {
             if (existingLogin) // no, it's already in the database so ignore

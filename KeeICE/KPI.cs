@@ -47,8 +47,8 @@ namespace KeeICE
 
 #region Class variables, constructor and destructor
 
-        const float minClientVersion = 0.66F; // lowest version of client we're prepared to communicate with
-        const float keeICEVersion = 0.66F; // version of this build
+        const float minClientVersion = 0.67F; // lowest version of client we're prepared to communicate with
+        const float keeICEVersion = 0.67F; // version of this build
 
         IPluginHost host;
         bool isDirty = false;

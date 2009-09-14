@@ -37,8 +37,8 @@
     <toolbarbutton id="KeeFox_Menu-Button" tooltiptext="&KeeFox_Menu-Button.tip;"
            class="" type="menu" label="&KeeFox_Menu-Button.label;" >
       <menupopup>
-        <menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
-                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />
+        <!--<menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
+                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />-->
 
         <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
                    class="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
@@ -46,6 +46,10 @@
           
         </menupopup>
         </menu>
+
+        <menuitem id="KeeFox_FillCurrentDocument-Button" tooltiptext="&KeeFox_Menu-Button.fillCurrentDocument.tip;"
+                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keeFoxToolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
+        
 
         <menuseparator />
 <!--
