@@ -50,6 +50,8 @@ namespace KeeICE
 
         internal KPI kp;
 
+        internal string[] standardIconsBase64 = null;
+
         public override int run(string[] args)
         {
             //Thread t;
@@ -77,7 +79,7 @@ namespace KeeICE
                 Ice.ObjectAdapter adapter
                     = ic.createObjectAdapterWithEndpoints(
                         "KeeICEAdapter", "tcp -h localhost -p " + args[0]);
-                kp = new KPI(m_host,ic);
+                kp = new KPI(m_host, standardIconsBase64, ic);
                 adapter.add(
                         kp,
                         ic.stringToIdentity("KeeICE"));
@@ -194,6 +196,7 @@ namespace KeeICE
             Debug.Assert(host != null);
             if(host == null) return false;
             keeICEServer.m_host = host;
+            keeICEServer.standardIconsBase64 = getStandardIconsBase64(host.MainWindow.ClientIcons);
 
            // if (host.Database.IsOpen) // unlikely!
             setupKeeICEServer(ICEport);
@@ -228,6 +231,20 @@ namespace KeeICE
             //host.Database.CustomData.
 			return true; // Initialization successful
 		}
+
+        private string[] getStandardIconsBase64(ImageList il)
+        {
+            string[] icons = new string[il.Images.Count];
+
+            for (int i = 0; i < il.Images.Count; i++)
+			{
+			    Image image = il.Images[i];
+                MemoryStream ms = new MemoryStream();
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                icons[i] = Convert.ToBase64String(ms.ToArray());
+            }
+            return icons;
+        }
 
 		/// <summary>
 		/// Free channel resources

@@ -52,6 +52,7 @@ module KPlib {
     {
 		string title;
 		string uniqueID;
+		string iconImageData;
     };
     
     sequence<KPGroup> KPGroupList;
@@ -74,6 +75,12 @@ module KPlib {
 		// bool ignore "KeeFox config: ignore"
 		// long autoTypeWhen "KeeFox config: autoType after page 2" (after/before or > / <) (page # or # seconds or #ms)
 		// bool autoTypeOnly "KeeFox config: only autoType" 
+		
+		//TODO: would be nice to make these two a KPGroup object but that doesn't seem to work
+		string parentGroupName;
+		string parentGroupUUID;
+		string parentGroupPath;
+		string iconImageData;
     };
     
     sequence<KPEntry> KPEntryList;

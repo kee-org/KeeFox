@@ -131,6 +131,11 @@ interface kfILoginInfo : nsISupports {
 			  in long aMaximumPage);
 
 	AString toSource();
+
+	attribute AString parentGroupName;
+	attribute AString parentGroupUUID;
+	attribute AString parentGroupPath;
+	attribute ACString iconImageData;
 };
 
 [scriptable, function, uuid(21e35ab1-d964-476f-ba73-c318cc1a1183)]
@@ -144,6 +149,7 @@ interface kfIGroupInfo : nsISupports {
 
 	attribute AString title;
 	attribute AString uniqueID;
+	attribute ACString iconImageData;
 
     void init(in AString title, in AString uniqueID);
 };

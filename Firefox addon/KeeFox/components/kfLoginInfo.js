@@ -71,8 +71,21 @@ kfLoginInfo.prototype = {
     // the browser - transient (not stored in KeePass)
     relevanceScore : null,
     
-    // The total number of pages the login entry will fill (usually 1)
+    // The total number of pages the login entry will fill (usually 1; transient)
     maximumPage : null,
+    
+    // A base64 encoding of the icon for this entry. It will always be a 
+    // PNG when populated from eePass but could be other formats when first 
+    // loading a favicon from a website. (Hopefully this will be an easy exception 
+    // to deal with but if not we can add a mime type field to this object too)
+    iconImageData : null,
+    
+    // these fields record information about the parent group of this entry.
+    // It would be nicer to link to an object representing the group itself
+    // but I can't get that to work reliably across .NET, ICE, XPCOM and javascript boundaries
+    parentGroupName : null,
+    parentGroupUUID : null,
+    parentGroupPath : null,
     
     // assists with deserialisation of this object to a string
     // (for attachment to the current tab session)
@@ -100,6 +113,10 @@ kfLoginInfo.prototype = {
         this.uniqueID = aUniqueID;
         this.title = aTitle;
         this.maximumPage = aMaximumPage;
+        this.iconImageData = "";
+        this.parentGroupName = "";
+        this.parentGroupUUID = "";
+        this.parentGroupPath = "";
     },
         
     // the order of URLs must also match

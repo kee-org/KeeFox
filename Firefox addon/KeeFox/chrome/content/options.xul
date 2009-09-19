@@ -45,7 +45,8 @@
       <preference id="KeeFox-pref-overWriteFieldsAutomatically" name="extensions.chris.tomlinson@keefox.overWriteFieldsAutomatically" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.chris.tomlinson@keefox.autoSubmitMatchedForms" type="bool"/>
       <preference id="KeeFox-pref-rememberMRUDB" name="extensions.chris.tomlinson@keefox.rememberMRUDB" type="bool"/>
-
+      <preference id="KeeFox-pref-saveFavicons" name="extensions.chris.tomlinson@keefox.saveFavicons" type="bool"/>
+      
       <preference id="KeeFox-pref-notifyBarWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.notifyBarWhenKeeICEInactive" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.chris.tomlinson@keefox.notifyBarWhenLoggedOut" type="bool"/>
       <preference id="KeeFox-pref-flashIconWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.flashIconWhenKeeICEInactive" type="bool"/>
@@ -83,6 +84,8 @@
                           label="&KeeFox-pref-autoSubmitMatchedForms.label;" />
                 <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                           label="&KeeFox-pref-rememberMRUDB.label;" />
+                <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
+                          label="&KeeFox-pref-saveFavicons.label;" />
               </vbox>
             </tabpanel>
 

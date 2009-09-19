@@ -600,6 +600,7 @@ KFLog.debug("proccessing...");
             throw "Can't add a login without a httpRealm or formSubmitURL.";
         }
 
+        var primaryURL = "";
 
         // Look for an existing entry.
         // NB: maybe not ideal - would be nice to search for all URLs in
@@ -618,10 +619,41 @@ KFLog.debug("proccessing...");
                 KFLog.info("This login already exists.");
                 return "This login already exists.";
             }
+            
+            if (i == 0)
+                primaryURL = loginURL.URL;
         }
         
-        
+        if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
+        {
+            var faviconService = 
+                Components.classes["@mozilla.org/browser/favicon-service;1"]
+                    .getService(Components.interfaces.nsIFaviconService);
 
+            var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
+                .getService(Components.interfaces.nsIIOService);
+                
+            var pageURI = ioservice.newURI(primaryURL, null, null);
+            
+            try {
+            
+                var favIconURI = faviconService.getFaviconForPage(pageURI);
+                if (!faviconService.isFailedFavicon(favIconURI))
+                {
+                    var datalen = {};
+                    var mimeType = {};
+                    var data = faviconService.getFaviconData(favIconURI, mimeType, datalen);
+                    var faviconBytes = String.fromCharCode.apply(null, data);
+                    login.iconImageData = btoa(faviconBytes);
+                }
+            
+            } catch (ex) 
+            {
+                // something failed so we can't get the favicon. We don't really mind too much...
+                KFLog.info("favicon load failed: " + ex);
+            }
+        }
+        
         KFLog.info("Adding login to group: " + parentUUID);
         return this._kf.addLogin(login, parentUUID);
     },

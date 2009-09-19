@@ -296,6 +296,10 @@ KeeICE::KPlib::KPGroup::operator==(const KPGroup& __rhs) const
     {
         return false;
     }
+    if(iconImageData != __rhs.iconImageData)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -322,6 +326,14 @@ KeeICE::KPlib::KPGroup::operator<(const KPGroup& __rhs) const
     {
         return false;
     }
+    if(iconImageData < __rhs.iconImageData)
+    {
+        return true;
+    }
+    else if(__rhs.iconImageData < iconImageData)
+    {
+        return false;
+    }
     return false;
 }
 
@@ -330,6 +342,7 @@ KeeICE::KPlib::KPGroup::__write(::IceInternal::BasicStream* __os) const
 {
     __os->write(title);
     __os->write(uniqueID);
+    __os->write(iconImageData);
 }
 
 void
@@ -337,6 +350,7 @@ KeeICE::KPlib::KPGroup::__read(::IceInternal::BasicStream* __is)
 {
     __is->read(title);
     __is->read(uniqueID);
+    __is->read(iconImageData);
 }
 
 void
@@ -355,7 +369,7 @@ KeeICE::KPlib::__readKPGroupList(::IceInternal::BasicStream* __is, ::KeeICE::KPl
 {
     ::Ice::Int sz;
     __is->readSize(sz);
-    __is->startSeq(sz, 2);
+    __is->startSeq(sz, 3);
     v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {
@@ -402,6 +416,22 @@ KeeICE::KPlib::KPEntry::operator==(const KPEntry& __rhs) const
         return false;
     }
     if(uniqueID != __rhs.uniqueID)
+    {
+        return false;
+    }
+    if(parentGroupName != __rhs.parentGroupName)
+    {
+        return false;
+    }
+    if(parentGroupUUID != __rhs.parentGroupUUID)
+    {
+        return false;
+    }
+    if(parentGroupPath != __rhs.parentGroupPath)
+    {
+        return false;
+    }
+    if(iconImageData != __rhs.iconImageData)
     {
         return false;
     }
@@ -479,6 +509,38 @@ KeeICE::KPlib::KPEntry::operator<(const KPEntry& __rhs) const
     {
         return false;
     }
+    if(parentGroupName < __rhs.parentGroupName)
+    {
+        return true;
+    }
+    else if(__rhs.parentGroupName < parentGroupName)
+    {
+        return false;
+    }
+    if(parentGroupUUID < __rhs.parentGroupUUID)
+    {
+        return true;
+    }
+    else if(__rhs.parentGroupUUID < parentGroupUUID)
+    {
+        return false;
+    }
+    if(parentGroupPath < __rhs.parentGroupPath)
+    {
+        return true;
+    }
+    else if(__rhs.parentGroupPath < parentGroupPath)
+    {
+        return false;
+    }
+    if(iconImageData < __rhs.iconImageData)
+    {
+        return true;
+    }
+    else if(__rhs.iconImageData < iconImageData)
+    {
+        return false;
+    }
     return false;
 }
 
@@ -507,6 +569,10 @@ KeeICE::KPlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
     __os->write(_cpp_default);
     __os->write(exactMatch);
     __os->write(uniqueID);
+    __os->write(parentGroupName);
+    __os->write(parentGroupUUID);
+    __os->write(parentGroupPath);
+    __os->write(iconImageData);
 }
 
 void
@@ -520,6 +586,10 @@ KeeICE::KPlib::KPEntry::__read(::IceInternal::BasicStream* __is)
     __is->read(_cpp_default);
     __is->read(exactMatch);
     __is->read(uniqueID);
+    __is->read(parentGroupName);
+    __is->read(parentGroupUUID);
+    __is->read(parentGroupPath);
+    __is->read(iconImageData);
 }
 
 void
@@ -538,7 +608,7 @@ KeeICE::KPlib::__readKPEntryList(::IceInternal::BasicStream* __is, ::KeeICE::KPl
 {
     ::Ice::Int sz;
     __is->readSize(sz);
-    __is->startSeq(sz, 8);
+    __is->startSeq(sz, 12);
     v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {

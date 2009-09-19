@@ -58,18 +58,19 @@ namespace KeeICE
         private Ice.Communicator _communicator;
         private bool _destroy;
         private ArrayList _clients;
+        private string[] _standardIconsBase64;
 
         Queue q = new Queue();
         TimerCallback timerCallBack;
         System.Threading.Timer timer;
 
-        public KPI(IPluginHost host, Ice.Communicator communicator)
+        public KPI(IPluginHost host, string[] standardIconsBase64, Ice.Communicator communicator)
         {
             this.host = host;
             _communicator = communicator;
             _destroy = false;
             _clients = new ArrayList();
-
+            _standardIconsBase64 = standardIconsBase64;
 
             // TODO: can probably come up with something that doesn't need to poll
             // every second but it'll get the job done with relatively little cost
@@ -427,17 +428,103 @@ namespace KeeICE
                     "Username", pwe.Strings.ReadSafe("UserName"), KPlib.formFieldType.FFTusername, "username", 1));
             }
 
+            string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);
+
             KPlib.KPFormField[] temp = (KPlib.KPFormField[])formFieldList.ToArray(typeof(KPlib.KPFormField));
-            KPlib.KPEntry kpe = new KPlib.KPEntry((string[])URLs.ToArray(typeof(string)), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes));
+            KPlib.KPEntry kpe = new KPlib.KPEntry((string[])URLs.ToArray(typeof(string)), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes), pwe.ParentGroup.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.ParentGroup.Uuid.UuidBytes), pwe.ParentGroup.GetFullPath("/",false), imageData);
             return kpe;
         }
 
         private KPlib.KPGroup getKPGroupFromPwGroup(PwGroup pwg, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
+
+            string imageData = iconToBase64(pwg.CustomIconUuid, pwg.IconId);
           
-            KPlib.KPGroup kpg = new KPlib.KPGroup(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes));
+            KPlib.KPGroup kpg = new KPlib.KPGroup(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes), imageData);
             return kpg;
+        }
+
+        /// <summary>
+        /// extract the current icon information for this entry
+        /// </summary>
+        /// <param name="customIconUUID"></param>
+        /// <param name="iconId"></param>
+        /// <returns></returns>
+        private string iconToBase64(PwUuid customIconUUID, PwIcon iconId)
+        {
+            Image icon = null;
+            string imageData = "";
+            if (customIconUUID != PwUuid.Zero)
+            {
+                icon = host.Database.GetCustomIcon(customIconUUID);
+                if (icon == null)
+                    icon = host.MainWindow.ClientIcons.Images[(int)iconId];
+            }
+            else
+            {
+                icon = host.MainWindow.ClientIcons.Images[(int)iconId];
+            }
+
+            if (icon != null)
+            {
+                MemoryStream ms = new MemoryStream();
+                icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                //Encoding.UTF8.GetBytes
+                imageData = Convert.ToBase64String(ms.ToArray());
+            }
+
+            return imageData;
+        }
+
+        /// <summary>
+        /// converts a string to the relevant icon for this entry
+        /// </summary>
+        /// <param name="imageData">base64 representation of the image</param>
+        /// <param name="customIconUUID">UUID of the generated custom icon; may be Zero</param>
+        /// <param name="iconId">PwIcon of the matched standard icon; ignore if customIconUUID != Zero</param>
+        /// <returns>true if the supplied imageData was converted into a customIcon 
+        /// or matched with a standard icon.</returns>
+        private bool base64ToIcon(string imageData, ref PwUuid customIconUUID, ref PwIcon iconId)
+        {
+            iconId = PwIcon.Key;
+            customIconUUID = PwUuid.Zero;
+
+            for (int i = 0; i < _standardIconsBase64.Length; i++)
+			{
+                string item = _standardIconsBase64[i];
+                if (item == imageData)
+                {
+                    iconId = (PwIcon)i;
+                    return true;
+                }
+            }
+
+            try
+            {
+                //MemoryStream id = new MemoryStream();
+                //icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
+                Image img = KeePass.UI.UIUtil.LoadImage(Convert.FromBase64String(imageData));
+
+                Image imgNew = new Bitmap(img, new Size(16, 16));
+
+                MemoryStream ms = new MemoryStream();
+                imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+
+                PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true),
+                    ms.ToArray());
+                host.Database.CustomIcons.Add(pwci);
+
+                customIconUUID = pwci.Uuid;
+                host.Database.UINeedsIconUpdate = true;
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void setPwEntryFromKPEntry(PwEntry pwe, KPlib.KPEntry login)
@@ -509,6 +596,20 @@ namespace KeeICE
 
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.title));
+
+            // update the icon for this entry (in most cases we'll 
+            // just detect that it is the same standard icon as before)
+            PwUuid customIconUUID = PwUuid.Zero;
+            PwIcon iconId = PwIcon.Key;
+            if (login.iconImageData != null 
+                && login.iconImageData.Length > 0 
+                && base64ToIcon(login.iconImageData, ref customIconUUID, ref iconId))
+            {
+                if (customIconUUID == PwUuid.Zero)
+                    pwe.IconId = iconId;
+                else
+                    pwe.CustomIconUuid = customIconUUID;
+            }
         }
 
 #endregion
@@ -1161,6 +1262,9 @@ namespace KeeICE
             host.Database.RootGroup.SearchEntries(sp, output, false);
             foreach (PwEntry pwe in output)
             {
+                if (host.Database.RecycleBinUuid == pwe.ParentGroup.Uuid)
+                    continue; // ignore if it's in the recycle bin
+
                 bool entryIsAMatch = false;
                 bool entryIsAnExactMatch = false;
 
@@ -1352,6 +1456,9 @@ namespace KeeICE
                 host.Database.RootGroup.SearchEntries(sp, output, false);
                 foreach (PwEntry pwe in output)
                 {
+                    if (host.Database.RecycleBinUuid == pwe.ParentGroup.Uuid)
+                        continue; // ignore if it's in the recycle bin
+
                     bool entryIsAMatch = false;
                     bool entryIsAnExactMatch = false;
 

@@ -87,7 +87,10 @@ function KeeFox()
     if (prefs.has("keePassInstalledLocation"))
         prefs.get("keePassInstalledLocation").events.addListener("change", this.preferenceChangeHandler);
     if (prefs.has("keePassMRUDB"))
-        prefs.get("keePassMRUDB").events.addListener("change", this.preferenceChangeHandler);    
+        prefs.get("keePassMRUDB").events.addListener("change", this.preferenceChangeHandler);  
+    if (prefs.has("saveFavicons"))
+        prefs.get("saveFavicons").events.addListener("change", this.preferenceChangeHandler);      
+          
 
     this._checkForConflictingExtensions();
     this._registerUninstallListeners();

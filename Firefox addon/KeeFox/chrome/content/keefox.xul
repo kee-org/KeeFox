@@ -41,7 +41,7 @@
                    class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />-->
 
         <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
-                   class="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
+                   class="" image="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
         <menupopup id="KeeFox_ChangeDB-Popup">
           
         </menupopup>

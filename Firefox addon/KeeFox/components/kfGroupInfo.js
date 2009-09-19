@@ -39,11 +39,13 @@ kfGroupInfo.prototype = {
     
     title      : null,
     uniqueID : null,
+    iconImageData : null,
 
     init : function (title, aUniqueID) {
 
         this.title      = title;
         this.uniqueID = aUniqueID;
+        this.iconImageData = "";
     }
     
 };

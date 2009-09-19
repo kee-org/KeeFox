@@ -176,6 +176,7 @@ struct KPGroup
 {
     ::std::string title;
     ::std::string uniqueID;
+    ::std::string iconImageData;
 
     bool operator==(const KPGroup&) const;
     bool operator<(const KPGroup&) const;
@@ -216,6 +217,10 @@ struct KPEntry
     bool _cpp_default;
     bool exactMatch;
     ::std::string uniqueID;
+    ::std::string parentGroupName;
+    ::std::string parentGroupUUID;
+    ::std::string parentGroupPath;
+    ::std::string iconImageData;
 
     bool operator==(const KPEntry&) const;
     bool operator<(const KPEntry&) const;

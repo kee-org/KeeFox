@@ -371,6 +371,22 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   /* AString toSource (); */
   NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) = 0;
 
+  /* attribute AString parentGroupName; */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName) = 0;
+
+  /* attribute AString parentGroupUUID; */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID) = 0;
+
+  /* attribute AString parentGroupPath; */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) = 0;
+
+  /* attribute ACString iconImageData; */
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(kfILoginInfo, KFILOGININFO_IID)
@@ -401,7 +417,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval); \
   NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval); \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage); \
-  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval); 
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName); \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID); \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath); \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath); \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData); \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGININFO(_to) \
@@ -429,7 +453,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) { return _to Matches(aLoginInfo, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval) { return _to MergeWith(aLoginInfo, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage) { return _to Init(URLs, aFormSubmitURL, aHttpRealm, aUsernameIndex, aPasswords, uniqueID, aTitle, otherFieldsArray, aMaximumPage); } \
-  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return _to ToSource(_retval); } 
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return _to ToSource(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName) { return _to GetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName) { return _to SetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID) { return _to GetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID) { return _to SetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) { return _to GetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) { return _to SetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return _to GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return _to SetIconImageData(aIconImageData); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGININFO(_to) \
@@ -457,7 +489,15 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Matches(aLoginInfo, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->MergeWith(aLoginInfo, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(URLs, aFormSubmitURL, aHttpRealm, aUsernameIndex, aPasswords, uniqueID, aTitle, otherFieldsArray, aMaximumPage); } \
-  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->ToSource(_retval); } 
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->ToSource(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetIconImageData(aIconImageData); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -621,6 +661,46 @@ NS_IMETHODIMP kfLoginInfo::ToSource(nsAString & _retval)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+/* attribute AString parentGroupName; */
+NS_IMETHODIMP kfLoginInfo::GetParentGroupName(nsAString & aParentGroupName)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetParentGroupName(const nsAString & aParentGroupName)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString parentGroupUUID; */
+NS_IMETHODIMP kfLoginInfo::GetParentGroupUUID(nsAString & aParentGroupUUID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetParentGroupUUID(const nsAString & aParentGroupUUID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString parentGroupPath; */
+NS_IMETHODIMP kfLoginInfo::GetParentGroupPath(nsAString & aParentGroupPath)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetParentGroupPath(const nsAString & aParentGroupPath)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute ACString iconImageData; */
+NS_IMETHODIMP kfLoginInfo::GetIconImageData(nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetIconImageData(const nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 /* End of implementation class template. */
 #endif
 
@@ -726,6 +806,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) = 0;
 
+  /* attribute ACString iconImageData; */
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) = 0;
+
   /* void init (in AString title, in AString uniqueID); */
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) = 0;
 
@@ -739,6 +823,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID); \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData); \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData); \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
@@ -747,6 +833,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return _to SetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return _to GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return _to SetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return _to GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return _to SetIconImageData(aIconImageData); } \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) { return _to Init(title, uniqueID); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
@@ -755,6 +843,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetIconImageData(aIconImageData); } \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(title, uniqueID); } 
 
 #if 0
@@ -805,6 +895,16 @@ NS_IMETHODIMP kfGroupInfo::GetUniqueID(nsAString & aUniqueID)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP kfGroupInfo::SetUniqueID(const nsAString & aUniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute ACString iconImageData; */
+NS_IMETHODIMP kfGroupInfo::GetIconImageData(nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfGroupInfo::SetIconImageData(const nsACString & aIconImageData)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

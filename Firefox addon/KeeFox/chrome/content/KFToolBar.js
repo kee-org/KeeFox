@@ -95,8 +95,13 @@ KFToolbar.prototype = {
         for (var i = 0; i < logins.length; i++) {
             var login = logins[i];
             var usernameValue = "";
+            var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
             var usernameName = "";
             var usernameId = "";
+            var displayGroupPath = login.parentGroupPath;
+//            var groupDivider = this.strbundle.getString("groupDividerCharacter");
+//            if (groupDivider != ".")
+//                displayGroupPath = displayGroupPath.replace(/\./g,groupDivider);
             
             if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
@@ -106,6 +111,8 @@ KFToolbar.prototype = {
                 login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
 
                 usernameValue = field.value;
+                if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                    usernameDisplayValue = usernameValue;
                 usernameName = field.name;
                 usernameId = field.fieldId;
             }
@@ -114,7 +121,7 @@ KFToolbar.prototype = {
             {
                 container.setAttribute("label", login.title);
                 container.setAttribute("value", doc.documentURI);
-                container.setAttribute("tooltiptext", usernameValue );
+                container.setAttribute("tooltiptext", usernameDisplayValue + " in " +  displayGroupPath);
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
                     usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             
@@ -123,8 +130,10 @@ KFToolbar.prototype = {
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
+            tempButton.setAttribute("class", "menuitem-iconic");
+            tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
             tempButton.setAttribute("value", doc.documentURI);
-            tempButton.setAttribute("tooltiptext", usernameValue);
+            tempButton.setAttribute("tooltiptext", usernameDisplayValue + " in " + displayGroupPath);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
                 usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             menupopup.appendChild(tempButton);
@@ -147,8 +156,7 @@ KFToolbar.prototype = {
             
             if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                 this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
-            loginButton.setAttribute("disabled","false");
-            return;
+            loginButton.setAttribute("disabled","false"); //TODO: conditional
         } else
         {
             loginButton.setAttribute("disabled","true");
@@ -159,6 +167,8 @@ KFToolbar.prototype = {
                 container.removeChild(container.childNodes[0]);
             }
         }
+        KFLog.debug("setAllLogins end");
+        return;
     },
     
     // add all the logins and subgroups for one KeePass group
@@ -197,10 +207,12 @@ KFToolbar.prototype = {
             newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
             newMenu.setAttribute("onpopupshowing", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
                 group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
-            newMenu.setAttribute("class", "menuitem-iconic");
+            newMenu.setAttribute("class", "menu-iconic");
+            newMenu.setAttribute("style", "background-color:black;");
             newMenu.setAttribute("value", group.uniqueID);
             newMenu.setAttribute("context", "KeeFox-group-context");
-            newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            //newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            newMenu.setAttribute("image", "data:image/png;base64,"+group.iconImageData);
             container.appendChild(newMenu);
             
             var newMenuPopup = null;
@@ -240,7 +252,7 @@ KFToolbar.prototype = {
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
-            tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
 
             container.appendChild(tempButton);
         }

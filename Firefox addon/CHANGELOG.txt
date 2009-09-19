@@ -2,6 +2,10 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.7
 ---
+- favicons automatically added to KeePass entry when a new entry is saved
+- KeePass icons now displayed alongside login and group titles
+- Entry location displayed in matched login tooltip
+- "no username" placeholder added to tooltips of matched logins with no username
 - Now requires KeePass 2.09
 - Tidied the layout of the toolbar
 - Added button to manually detect forms on the current page (useful on pages such as live.com)

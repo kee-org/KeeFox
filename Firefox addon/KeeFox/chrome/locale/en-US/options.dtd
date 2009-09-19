@@ -18,6 +18,7 @@
 <!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Overwrite the contents of any matching non-empty forms and authentication dialogs">
 <!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Submit forms when you choose a matching password">
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Remember the most recently used KeePass database">
+<!ENTITY KeeFox-pref-saveFavicons.label "Save website logo/icon (favicon)">
 
 <!ENTITY KeeFox-pref-notifyBarWhenKeeICEInactive.label "Display a notification bar when KeePass needs to be opened">
 <!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Display a notification bar when you need to log in to a KeePass database">
