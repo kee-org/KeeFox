@@ -51,8 +51,8 @@ function KeeFox()
 {
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
-    this._KeeICEminVersion = 0.67;
-    this._KeeFoxVersion = 0.67;
+    this._KeeICEminVersion = 0.68; // minimum version of KeeICE server we will accept
+    this._KeeFoxVersion = 0.68; // This version of KeeFox
     var prefs = this._keeFoxExtension.prefs;
     
     // register preference change handlers so we can react to altered
@@ -518,21 +518,21 @@ KeeFox.prototype = {
         KeeICEDLLfound = false;
 
         if (this._KFLog.logSensitiveData)
-            this._KFLog.info("Looking for the KeeICE plugin DLL in " + keeICELocation);
+            this._KFLog.info("Looking for the KeeICE plugin plgx in " + keeICELocation);
         else
-            this._KFLog.info("Looking for the KeeICE plugin DLL in " + keeICELocation);
-        this._KFLog.info("Looking for the KeeICE plugin DLL in " + keeICELocation);
+            this._KFLog.info("Looking for the KeeICE plugin plgx in " + keeICELocation);
+        this._KFLog.info("Looking for the KeeICE plugin plgx in " + keeICELocation);
 
         var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
         try {
             file.initWithPath(keeICELocation);
             if (file.isDirectory())
             {
-                file.append("KeeICE.dll");
+                file.append("KeeICE.plgx");
                 if (file.isFile())
                 {
                     KeeICEDLLfound = true;
-                    this._KFLog.info("KeeICE DLL found in correct location.");
+                    this._KFLog.info("KeeICE plgx found in correct location.");
                 }
             }
         } catch (ex)

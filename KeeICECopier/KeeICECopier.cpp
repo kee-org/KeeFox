@@ -3,7 +3,7 @@ KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plug
 Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
 The KeeICECopier.exe creates the KeePass plugins folder (if required) and then
-copies the two DLLs that KeeICE needs into the plugins folder.
+copies KeeICE into the plugins folder.
 
 It should be run as an administrator (and with UAC elevated for Vista / Windows 7)
 
@@ -67,8 +67,8 @@ int main ()
 	TCHAR charBuf[BUFFERSIZE];
     LPTSTR KeeICESource;
 	LPTSTR KeeICEDest;
-	LPTSTR IceSource;
-	LPTSTR IceDest;
+	/*LPTSTR IceSource;
+	LPTSTR IceDest;*/
 
 	// extract the command line parameters and check there is the right quantity
 	LPTSTR *argv = ::CommandLineToArgvW(GetCommandLineW(),&argc);
@@ -81,45 +81,45 @@ int main ()
 	// define 1KB buffers for each file path (should be more than enough for any path length for forseeable future and is already longer than current MAX_PATH windows constant)
     KeeICESource = (LPTSTR) charBuf;
 	KeeICEDest = (LPTSTR) charBuf+(INDIVIDUALBUFFERSIZE);
-	IceSource = (LPTSTR) charBuf+(2*INDIVIDUALBUFFERSIZE);
-	IceDest = (LPTSTR) charBuf+(3*INDIVIDUALBUFFERSIZE);
+	/*IceSource = (LPTSTR) charBuf+(2*INDIVIDUALBUFFERSIZE);
+	IceDest = (LPTSTR) charBuf+(3*INDIVIDUALBUFFERSIZE);*/
 
 	// populate the string buffers with the directory path to each file we're interested in
     if (FAILED(StringCchCopy(
 		KeeICESource,
-		INDIVIDUALBUFFERSIZE-(sizeof(TCHAR)*lstrlen(L"\\KeeICE.dll")),
+		INDIVIDUALBUFFERSIZE-(sizeof(TCHAR)*lstrlen(L"\\KeeICE.plgx")),
 		argv[1])))
     {
         LocalFree(argv);
         return 1;
     }
 
-	if (FAILED(StringCchCopy(
+	/*if (FAILED(StringCchCopy(
 		IceDest,
 		INDIVIDUALBUFFERSIZE-(sizeof(TCHAR)*lstrlen(L"\\Ice.dll")),
 		argv[2])))
     {
 		LocalFree(argv);
         return 1;
-    }
+    }*/
 
 	if (FAILED(StringCchCopy(
 		KeeICEDest,
-		INDIVIDUALBUFFERSIZE-(sizeof(TCHAR)*lstrlen(L"\\KeeICE.dll")),
+		INDIVIDUALBUFFERSIZE-(sizeof(TCHAR)*lstrlen(L"\\KeeICE.plgx")),
 		argv[2])))
     {
         LocalFree(argv);
         return 1;
     }
 
-	if (FAILED(StringCchCopy(
+	/*if (FAILED(StringCchCopy(
 		IceSource,
 		INDIVIDUALBUFFERSIZE-(sizeof(TCHAR)*lstrlen(L"\\Ice.dll")),
 		argv[1])))
     {
         LocalFree(argv);
         return 1;
-    }
+    }*/
 
 	// create the plugins directory if required
 	if (!fileExists(argv[2]))
@@ -128,18 +128,18 @@ int main ()
 	LocalFree(argv);
 
 	// append the name of each file so we end up with full paths to the files we need
-	if (FAILED(StringCchCat(KeeICESource,INDIVIDUALBUFFERSIZE,L"\\KeeICE.dll")))
+	if (FAILED(StringCchCat(KeeICESource,INDIVIDUALBUFFERSIZE,L"\\KeeICE.plgx")))
 		return 1;
-	if (FAILED(StringCchCat(KeeICEDest,INDIVIDUALBUFFERSIZE,L"\\KeeICE.dll")))
+	if (FAILED(StringCchCat(KeeICEDest,INDIVIDUALBUFFERSIZE,L"\\KeeICE.plgx")))
 		return 1;
-	if (FAILED(StringCchCat(IceSource,INDIVIDUALBUFFERSIZE,L"\\Ice.dll")))
+	/*if (FAILED(StringCchCat(IceSource,INDIVIDUALBUFFERSIZE,L"\\Ice.dll")))
 		return 1;
 	if (FAILED(StringCchCat(IceDest,INDIVIDUALBUFFERSIZE,L"\\Ice.dll")))
-		return 1;
+		return 1;*/
 
 	// copy the two files to their new home
 	if (::CopyFileW (KeeICESource, KeeICEDest, false))
-		if (::CopyFileW (IceSource, IceDest, false))
+		//if (::CopyFileW (IceSource, IceDest, false))
 			return 0; // everything worked
 
     return 1; // files couldn't be copied (most likely = permission denied but we can't be certain about that)

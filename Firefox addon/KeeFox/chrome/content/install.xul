@@ -40,12 +40,12 @@
   IC4: non-administrator and .NET not installed
   IC5: non-administrator, .NET installed and KeePass not installed
   IC6: non-administrator, .NET installed and KeePass installed
-  IC7: administrator, upgrade of KeePass and/or KeeICE required
-  IC8: non-administrator, upgrade of KeePass and/or KeeICE required
+  IC7: administrator, upgrade of KeeICE required
+  IC8: non-administrator, upgrade of KeeICE required
   
-  TODO: In some cases (especially IC6), user may not have priveledges to write to an existing KeePass directory. If this happens, we will catch the access denied exception and give the user two choices:
+  TODO: In some cases (especially IC6/8), user may not have priveledges to write to an existing KeePass directory. If this happens, we will catch the access denied exception and give the user two choices:
   a) Get an administrator to install the KeeICE files in the plugins folder
-  b) Choose a new installation directory for a seperate install of KeICE (warn that this may not work and could be confusing)
+  b) Choose a new installation directory for a seperate install of KeICE (warn that this may not work and could be confusing and/or against organistation's policy)
   
   
 outline of default and optional installation processes for each of the main cases
@@ -83,14 +83,8 @@ secondary:  run KeePass installer;
             
 IC6:
 default:    copy the two KeeICE files to the discovered KP location.
-
-IC7:
-default:    quietly run latest KeePass installer;
-            copy the two KeeICE files to the existing installed KP location.
-secondary:  run latest KeePass installer;
-            copy the two KeeICE files to the existing installed KP location.
-tertiary:   install latest KeePass ZIP contents into selected folder;
-            copy the two KeeICE files to the existing installed KP location.
+       
+IC7 and 8: Currently same as IC3/6 but probably will change soon to display different text to user            
   
   -->
 
@@ -143,19 +137,6 @@ tertiary:   install latest KeePass ZIP contents into selected folder;
             oncommand="copyKPToSpecificLocationInstall();"/>
     </vbox>
 
-    <!-- IC7 -->
-    <vbox id="KPsetupExeSilentUpgradeButtonMain" hidden="true">
-      <button label="Upgrade KeeFox"
-            oncommand="KPsetupExeSilentInstall();"/>
-    </vbox>
-
-    <!-- IC8 -->
-    <vbox id="copyKPToSpecificLocationUpgradeButtonMain" hidden="true">
-      <!-- file chooser field needed -->
-      <button label="Upgrade KeePass in this specific location"
-            oncommand="copyKPToSpecificLocationInstall();"/>
-    </vbox>
-
     <vbox id="ERRORInstallButtonMain" hidden="true">
       <description>&KeeFox_Install_Unexpected_Error.label;</description>
     </vbox>
@@ -198,21 +179,6 @@ tertiary:   install latest KeePass ZIP contents into selected folder;
       <button label="&KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallExpander_More_Info_Button.label;"
             oncommand="showSection('nonAdmincopyKIToKnownKPLocationInstallExpandee');"/>
     </vbox>
-
-    <!-- IC7 -->
-    <vbox id="adminSetupKPUpgradeExpander" hidden="true">
-      <description>&KeeFox_Install_adminSetupKPUpgradeExpander.description;</description>
-      <button label="&KeeFox_Install_adminSetupKPUpgradeExpander_More_Info_Button.label;"
-            oncommand="showSection('adminSetupKPUpgradeExpandee');"/>
-    </vbox>
-
-    <!-- IC8 -->
-    <vbox id="nonAdminSetupKPUpgradeExpander" hidden="true">
-      <description>&KeeFox_Install_nonAdminSetupKPUpgradeExpander.description;</description>
-      <button label="&KeeFox_Install_nonAdminSetupKPUpgradeExpander_More_Info_Button.label;"
-            oncommand="showSection('nonAdminSetupKPUpgradeExpandee');"/>
-    </vbox>
-    
     
     <!-- these boxes contain buttons and text that helps guide the user through advanced install options -->
 
@@ -260,59 +226,6 @@ tertiary:   install latest KeePass ZIP contents into selected folder;
               oncommand="copyKPToSpecificLocationInstall();"/>
       </vbox>
     </vbox>
-
-
-    <vbox id="adminSetupKPUpgradeExpandee" hidden="true">
-      <description>&KeeFox_Install_adminSetupKPUpgradeExpandee.description;</description>
-      <vbox id="KPsetupExeUpgradeButton208" hidden="false">
-        <button label="&KeeFox_Install_KPsetupExeUpgradeButton.label; (2.08)"
-              oncommand="copyKIToKnownKPLocationInstall();"/>
-      </vbox>
-      <description>&KeeFox_Install_adminSetupKPUpgradeExpandeePortable.description;</description>
-      <vbox id="copyKPToSpecificLocationUpgradeButton208" hidden="false">
-        <!-- file chooser field needed -->
-        <button label="&KeeFox_Install_copyKPToSpecificLocationUpgradeButton.label; (2.08)"
-              oncommand="copyKIToKnownKPLocationInstall();"/>
-      </vbox>
-      <!--<vbox id="KPsetupExeUpgradeButton207" hidden="false">
-        <button label="&KeeFox_Install_KPsetupExeUpgradeButton.label; (2.07)"
-              oncommand="KPsetupExeInstall();"/>
-      </vbox>
-      <description>&KeeFox_Install_adminSetupKPUpgradeExpandeePortable.description;</description>
-      <vbox id="copyKPToSpecificLocationUpgradeButton207" hidden="false">
-      <button label="&KeeFox_Install_copyKPToSpecificLocationUpgradeButton.label; (2.07)"
-            oncommand="copyKPToSpecificLocationInstall();"/>
-    </vbox>-->
-  </vbox>
-
-    <vbox id="nonAdminSetupKPUpgradeExpandee" hidden="true">
-      <description>&KeeFox_Install_nonAdminSetupKPUpgradeExpandee.description;</description>
-      <vbox id="copyKPToSpecificLocationUpgradeButton208" hidden="false">
-        <!-- file chooser field needed -->
-        <button label="&KeeFox_Install_copyKPToSpecificLocationUpgradeButton.label; (2.08)"
-              oncommand="copyKIToKnownKPLocationInstall();"/>
-      </vbox>
-      <vbox id="KPsetupExeSilentUpgradeButton208" hidden="false">
-        <button label="&KeeFox_Install_KPsetupExeSilentUpgradeButton.label; (2.08)"
-              oncommand="copyKIToKnownKPLocationInstall();"/>
-      </vbox>
-      <vbox id="KPsetupExeUpgradeButton208" hidden="false">
-        <button label="&KeeFox_Install_KPsetupExeUpgradeButton.label; (2.08)"
-              oncommand="copyKIToKnownKPLocationInstall();"/>
-      </vbox>
-      <!--<vbox id="copyKPToSpecificLocationUpgradeButton207" hidden="false">
-      <button label="&KeeFox_Install_copyKPToSpecificLocationUpgradeButton.label; (2.07)"
-            oncommand="copyKPToSpecificLocationInstall();"/>
-    </vbox>
-    <vbox id="KPsetupExeSilentUpgradeButton207" hidden="false">
-      <button label="&KeeFox_Install_KPsetupExeSilentUpgradeButton.label; (2.07)"
-            oncommand="KPsetupExeSilentInstall();"/>
-    </vbox>
-    <vbox id="KPsetupExeUpgradeButton207" hidden="false">
-      <button label="&KeeFox_Install_KPsetupExeUpgradeButton.label; (2.07)"
-            oncommand="KPsetupExeInstall();"/>
-    </vbox>
-    -->
 
     </vbox>
     

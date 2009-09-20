@@ -2,6 +2,7 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.7
 ---
+- KeeICE now uses the .plgx plugin format, permitting simpler upgrade procedures
 - favicons automatically added to KeePass entry when a new entry is saved
 - KeePass icons now displayed alongside login and group titles
 - Entry location displayed in matched login tooltip

@@ -243,6 +243,8 @@ namespace KeeICE
 
             public string uniqueID;
 
+            public string iconImageData;
+
             #endregion
 
             #region Constructors
@@ -251,10 +253,11 @@ namespace KeeICE
             {
             }
 
-            public KPGroup(string title, string uniqueID)
+            public KPGroup(string title, string uniqueID, string iconImageData)
             {
                 this.title = title;
                 this.uniqueID = uniqueID;
+                this.iconImageData = iconImageData;
             }
 
             #endregion
@@ -280,6 +283,10 @@ namespace KeeICE
                 if(uniqueID != null)
                 {
                     h__ = 5 * h__ + uniqueID.GetHashCode();
+                }
+                if(iconImageData != null)
+                {
+                    h__ = 5 * h__ + iconImageData.GetHashCode();
                 }
                 return h__;
             }
@@ -327,6 +334,20 @@ namespace KeeICE
                         return false;
                     }
                 }
+                if(iconImageData == null)
+                {
+                    if(o__.iconImageData != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!iconImageData.Equals(o__.iconImageData))
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
 
@@ -352,12 +373,14 @@ namespace KeeICE
             {
                 os__.writeString(title);
                 os__.writeString(uniqueID);
+                os__.writeString(iconImageData);
             }
 
             public void read__(IceInternal.BasicStream is__)
             {
                 title = is__.readString();
                 uniqueID = is__.readString();
+                iconImageData = is__.readString();
             }
 
             #endregion
@@ -383,6 +406,14 @@ namespace KeeICE
 
             public string uniqueID;
 
+            public string parentGroupName;
+
+            public string parentGroupUUID;
+
+            public string parentGroupPath;
+
+            public string iconImageData;
+
             #endregion
 
             #region Constructors
@@ -391,7 +422,7 @@ namespace KeeICE
             {
             }
 
-            public KPEntry(string[] URLs, string formActionURL, string HTTPRealm, string title, KeeICE.KPlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID)
+            public KPEntry(string[] URLs, string formActionURL, string HTTPRealm, string title, KeeICE.KPlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID, string parentGroupName, string parentGroupUUID, string parentGroupPath, string iconImageData)
             {
                 this.URLs = URLs;
                 this.formActionURL = formActionURL;
@@ -401,6 +432,10 @@ namespace KeeICE
                 this.@default = @default;
                 this.exactMatch = exactMatch;
                 this.uniqueID = uniqueID;
+                this.parentGroupName = parentGroupName;
+                this.parentGroupUUID = parentGroupUUID;
+                this.parentGroupPath = parentGroupPath;
+                this.iconImageData = iconImageData;
             }
 
             #endregion
@@ -444,6 +479,22 @@ namespace KeeICE
                 if(uniqueID != null)
                 {
                     h__ = 5 * h__ + uniqueID.GetHashCode();
+                }
+                if(parentGroupName != null)
+                {
+                    h__ = 5 * h__ + parentGroupName.GetHashCode();
+                }
+                if(parentGroupUUID != null)
+                {
+                    h__ = 5 * h__ + parentGroupUUID.GetHashCode();
+                }
+                if(parentGroupPath != null)
+                {
+                    h__ = 5 * h__ + parentGroupPath.GetHashCode();
+                }
+                if(iconImageData != null)
+                {
+                    h__ = 5 * h__ + iconImageData.GetHashCode();
                 }
                 return h__;
             }
@@ -555,6 +606,62 @@ namespace KeeICE
                         return false;
                     }
                 }
+                if(parentGroupName == null)
+                {
+                    if(o__.parentGroupName != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!parentGroupName.Equals(o__.parentGroupName))
+                    {
+                        return false;
+                    }
+                }
+                if(parentGroupUUID == null)
+                {
+                    if(o__.parentGroupUUID != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!parentGroupUUID.Equals(o__.parentGroupUUID))
+                    {
+                        return false;
+                    }
+                }
+                if(parentGroupPath == null)
+                {
+                    if(o__.parentGroupPath != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!parentGroupPath.Equals(o__.parentGroupPath))
+                    {
+                        return false;
+                    }
+                }
+                if(iconImageData == null)
+                {
+                    if(o__.iconImageData != null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!iconImageData.Equals(o__.iconImageData))
+                    {
+                        return false;
+                    }
+                }
                 return true;
             }
 
@@ -597,6 +704,10 @@ namespace KeeICE
                 os__.writeBool(@default);
                 os__.writeBool(exactMatch);
                 os__.writeString(uniqueID);
+                os__.writeString(parentGroupName);
+                os__.writeString(parentGroupUUID);
+                os__.writeString(parentGroupPath);
+                os__.writeString(iconImageData);
             }
 
             public void read__(IceInternal.BasicStream is__)
@@ -621,6 +732,10 @@ namespace KeeICE
                 @default = is__.readBool();
                 exactMatch = is__.readBool();
                 uniqueID = is__.readString();
+                parentGroupName = is__.readString();
+                parentGroupUUID = is__.readString();
+                parentGroupPath = is__.readString();
+                iconImageData = is__.readString();
             }
 
             #endregion
@@ -1157,7 +1272,7 @@ namespace KeeICE
                 KeeICE.KPlib.KPGroup[] v__;
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 2);
+                    is__.startSeq(szx__, 3);
                     v__ = new KeeICE.KPlib.KPGroup[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
@@ -1210,7 +1325,7 @@ namespace KeeICE
                 KeeICE.KPlib.KPEntry[] v__;
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 8);
+                    is__.startSeq(szx__, 12);
                     v__ = new KeeICE.KPlib.KPEntry[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
@@ -3013,7 +3128,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 2);
+                            is__.startSeq(szx__, 3);
                             groups = new KeeICE.KPlib.KPGroup[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -3081,7 +3196,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 8);
+                            is__.startSeq(szx__, 12);
                             logins = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -3135,7 +3250,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 8);
+                            is__.startSeq(szx__, 12);
                             logins = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -3195,7 +3310,7 @@ namespace KeeICE
                         KeeICE.KPlib.KPEntry[] ret__;
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 8);
+                            is__.startSeq(szx__, 12);
                             ret__ = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -3253,7 +3368,7 @@ namespace KeeICE
                         KeeICE.KPlib.KPGroup[] ret__;
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 2);
+                            is__.startSeq(szx__, 3);
                             ret__ = new KeeICE.KPlib.KPGroup[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {

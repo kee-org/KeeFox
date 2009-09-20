@@ -184,19 +184,17 @@ args[argname] = unescape(value);
             showSection('copyKIToKnownKPLocationInstallButtonMain');
             showSection('nonAdmincopyKIToKnownKPLocationInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
-            break;  
+            break;
         case 7: 
-            showSection('KPsetupExeSilentUpgradeButtonMain');
-            showSection('adminSetupKPUpgradeExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
-            break; 
+            showSection('copyKIToKnownKPLocationInstallButtonMain');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
+            break;
         case 8: 
-            showSection('copyKPToSpecificLocationUpgradeButtonMain');
-            showSection('nonAdminSetupKPUpgradeExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_NAME, mainWindow, window);
-            break;           
+            showSection('copyKIToKnownKPLocationInstallButtonMain');
+            showSection('nonAdmincopyKIToKnownKPLocationInstallExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
+            break;   
+            //TODO: update 7 and 8 to show Upgrade text, etc.       
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
 }
@@ -215,48 +213,28 @@ maybe entirely different script / page? any ned for different text displayed to 
 
 maybe pass an "upgrade" flag to the functinos so they can display different text?
 
-does user get options? e.g. upgrade keepass to latest version?
-
-what about when keefox requires the latest version of KeePass? tough shit? just have to install it.
-
+Upgrade is now simpler because KeePass version can be ignored (KeeICE could inform user they will need to upgrade KeePass but at very least, KeePass will just say that it is not new enough after user restarts the App).
 
 upgrade situations:
 
 New KeeFox add-on version which:
-1 does not require new KeeICE nor new KeePass
-2 does require new KeeICE but not new KeePass
-3 requires both new KeeICE and new KeePass
+1 does not require new KeeICE
+2 does require new KeeICE
 
 (future) requires new .NET framework (unlikely?) - deal with it nearer the time.
 
-how do we know if a new KeePass version is required?
-
-when KeePass is upgraded but KeeICE does not need to be, how do we support users following that upgrade path?
-
-some need to understand which KeePass they are running?
-
-Or just leave it up to them? if they understand how to find a new version of KeePass, they shjould be able to find a new build of KeeICE too and drop the DLL into the right place. I just have to create soemwhere on the website which has those latest versions. maybe a sourceforge release?
-
-what about a first time KeeFox install where they have an old version of KeePass installed? should/can we detect this? or ask the user to choose from a drop down and send them to the correct build of KeeICE?
-
-
-maybe ask user for all upgrades? and if KP was already installed? if first install with fresh KP then don't ask.
-
-
-if 2 or 3, default button downloads latest setup / zip from website. optiosn button lets you specifiy your version of KeePass so that if you have the latest, the download and install can be skipped.
-
-any difference between 2 and 3 if we can't tell what version is already installed? not sure how there can be!
+KeePass installer is only invoked when no KeePass exists already
 
 do all upgrade processes follow the same path as main install processes? if so then we can just use a flag and looks at theat to decide if we should display an "upgrade finished" message, etc.
 
 UC0: No action required (KeeFox works happilly with reported KeeICE version) - won't even reach this script
-UC1: Requires new KeeICE but not new KeePass. Equivelant to UC2 becuase we can't know which version of KeePass is already installed and user may have not upgraded KeeFox for some time.
-UC2: Requires new KeeICE and new KeePass. Equivelant to UC1 becuase we can't know which version of KeePass is already installed and user may have already upgraded.
+UC1: Requires new KeeICE.
+UC2: Requires new KeeICE and KeePass has not been detected.
 
-So we essentially have just one upgrade path, with an advanced user option where they can select the current version of their KeePass installation so that we can decide to download the correct version of KeeICE and potentially skip the KeePass download / install.
+So we essentially have just two upgrade paths, and they appear to be identical to the equivelent install paths.
 
-Default upgrade is therefore most equivelant to IC2 or IC5
-Secondary upgrade is either IC2 secondary or IC3 (depending on user's KeePass version declaration)
+UC2 upgrade is therefore most equivelant to IC2 / IC5
+UC1 = IC3 / IC6
 
 TODO: 
 1) modify the stuff in Utils so that it hides and shows the correct boxes when in upgrade mode.
@@ -264,11 +242,11 @@ TODO:
 
 
 
-intro to upgrade process:
-KeeFox needs to upgrade KeePass / KeeICE. Please ensure all your KeePass databases are saved and closed and close KeePass. NB: KeePass must be completely closed for the upgrade to succeeed so please ensure that it is not even in your sytem tray. Advanced users could do this upgrade manually if preferred (you may need to restart Firefox afterwards).
+hidden IC3/6 message:
+KeeFox needs to upgrade KeeICE (a KeePass plugin). Press the button above to have KeeFox do this for you automatically and then restart KeePass. If you are prompted to upgrade KeePass (or you are using a version lower than 2.09), please upgrade. You may need to restart Firefox afterwards.
 
 
-so we then know/assume that KeePass is not running and upgrades to that or KeeICE will work correctly. Then we do the upgrade and try to reconnect (test to see if we ever have the auto-connect timers running too).
+Then we do the upgrade and try to reconnect (test to see if we ever have the auto-connect timers running too).
 
 
 
@@ -379,8 +357,6 @@ try {
         setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
                    
         setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"/silent","IC1KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
-      // var temp = new mainWindow.KFexecutableInstallerRunner("KeePass-2.06-Beta-Setup.exe","","IC1KPSetupFinished", mainWindow, window);
-      // temp.run();
         
     } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
     {
@@ -565,8 +541,6 @@ try {
         setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
                    
         setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"/silent","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
-      // var temp = new mainWindow.KFexecutableInstallerRunner("KeePass-2.06-Beta-Setup.exe","","IC1KPSetupFinished", mainWindow, window);
-      // temp.run();
         
     } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
     {
@@ -664,11 +638,7 @@ function IC5zipKP() {
             // Get the path as string. Note that you usually won't 
             // need to work with the string paths.
             var path = fp.file.path;
-          
-            //TODO: is KeePass already there?
-            // but be careful RE upgrades - it SHOULD be there but
-            // doesn't mean we don't put the latest version in!
-            
+                      
             //TODO: permissions, failures, missing directories, etc. etc.
             extractKPZip (KF_KPZIP_FILE_NAME, folder);
               
@@ -957,14 +927,8 @@ function copyKeeICEFilesTo(keePassLocation)
     .createInstance(Components.interfaces.nsILocalFile);
     destFileKeeICE.initWithPath(keePassLocation);
     destFileKeeICE.append("plugins");
-    destFileKeeICE.append("KeeICE.dll");
-    
-    var destFileICE = Components.classes["@mozilla.org/file/local;1"]
-    .createInstance(Components.interfaces.nsILocalFile);
-    destFileICE.initWithPath(keePassLocation);
-    destFileICE.append("plugins");
-    destFileICE.append("Ice.dll");
-    
+    destFileKeeICE.append("KeeICE.plgx");
+        
     var noExceptions = false;
 
     try {
@@ -973,18 +937,11 @@ function copyKeeICEFilesTo(keePassLocation)
         var KeeICEfile = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         KeeICEfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        KeeICEfile.append("KeeICE.dll");
+        KeeICEfile.append("KeeICE.plgx");
         if (destFileKeeICE.exists())
             destFileKeeICE.remove(false);
         KeeICEfile.copyTo(destFolder,"");
 
-        var ICEfile = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        ICEfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        ICEfile.append("Ice.dll");
-        if (destFileICE.exists())
-            destFileICE.remove(false);
-        ICEfile.copyTo(destFolder,"");
         noExceptions = true;
     } catch (ex)
     {

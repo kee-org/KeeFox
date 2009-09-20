@@ -2,7 +2,7 @@
   KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,8 +47,8 @@ namespace KeeICE
 
 #region Class variables, constructor and destructor
 
-        const float minClientVersion = 0.67F; // lowest version of client we're prepared to communicate with
-        const float keeICEVersion = 0.67F; // version of this build
+        const float minClientVersion = 0.68F; // lowest version of client we're prepared to communicate with
+        const float keeICEVersion = 0.68F; // version of this build
 
         IPluginHost host;
         bool isDirty = false;
