@@ -227,6 +227,7 @@ KFToolbar.prototype = {
             var usernameValue = "";
             var usernameName = "";
             var usernameId = "";
+            var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
             
             if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
@@ -239,6 +240,8 @@ KFToolbar.prototype = {
                 login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
 
                 usernameValue = field.value;
+                if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                    usernameDisplayValue = usernameValue;
                 usernameName = field.name;
                 usernameId = field.fieldId;
             }
@@ -246,7 +249,7 @@ KFToolbar.prototype = {
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonLogin.tip"));
+            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loginsButtonLogin.tip",[usernameDisplayValue]) );
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
                 usernameName + "','" + usernameValue + "','" + login.URLs.queryElementAt(0,Components.interfaces.kfIURL).URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");

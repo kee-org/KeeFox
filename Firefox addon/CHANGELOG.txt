@@ -2,6 +2,8 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.7
 ---
+- Form submissions now simulate a "click" on the form's submit button (if one can be found)
+- Username now displayed on tooltip of entries listed in the full list of Log-ins
 - KeeICE now uses the .plgx plugin format, permitting simpler upgrade procedures
 - favicons automatically added to KeePass entry when a new entry is saved
 - KeePass icons now displayed alongside login and group titles

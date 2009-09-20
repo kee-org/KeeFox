@@ -761,12 +761,8 @@
         
         if (autoSubmitForm && formsReadyForSubmit == 1)
         {
-        //  for (var j = 0; j < form.elements.length; j++) {
-        //      alert(formToAutoSubmit.elements[j].value);
-        //  }
-
             KFLog.info("Auto-submitting form...");
-            form.submit();
+            this.submitForm(form);
         } else if (allMatchingLogins.length > 0)
         {
             KFLog.info("Using toolbar password fill.");
@@ -918,7 +914,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
         
         // now we can submit the form (or just leave it up to the user if that is their preference)    
         if (autoSubmitForm)
-            form.submit();
+            this.submitForm(form);
     };
     
     
@@ -957,7 +953,30 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
             return null;
         
     };
+    
+    // Submit a form
+    KFILM.prototype.submitForm = function (form)
+    {
+        var inputElements = form.getElementsByTagName("input");
+        var submitElement = null;
         
-   
+        // Find the first submit button    
+        for(var i = 0; i < inputElements.length; i++)
+			if(inputElements[i].type != null && inputElements[i].type == "submit")
+				submitElement = inputElements[i];
+        
+        // if no submit button found, try to find an image button
+        if(submitElement != null) {
+            for(var i = 0; i < inputElements.length; i++)
+			    if(inputElements[i].type != null && inputElements[i].type == "image")
+				    submitElement = inputElements[i];
+        }    
+        
+        // If we've found a button to click, use that; if not, just submit the form.  
+        if(submitElement != null)
+			submitElement.click();
+	    else
+			form.submit();
+    };
    
    
