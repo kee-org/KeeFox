@@ -87,7 +87,7 @@
   <ItemGroup>
     <Reference Include="Ice, Version=3.3.0.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\development\Ice-3.3.0-VC90\bin\Ice.dll</HintPath>
+      <HintPath>Ice.dll</HintPath>
     </Reference>
     <Reference Include="KeePass, Version=2.0.8.21738, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

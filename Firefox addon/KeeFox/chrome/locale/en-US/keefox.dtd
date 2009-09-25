@@ -12,6 +12,9 @@
 <!ENTITY KeeFox_Menu-Button.fillCurrentDocument.label "Detect forms">
 <!ENTITY KeeFox_Menu-Button.fillCurrentDocument.tip "Force KeeFox to re-detect forms on this page. This is necessary on a small minority of web sites.">
 <!ENTITY KeeFox_Menu-Button.fillCurrentDocument.key "D">
+<!--<!ENTITY KeeFox_Menu-Button.updateAllFavicons.label "Update all logos/icons (favicons)">
+<!ENTITY KeeFox_Menu-Button.updateAllFavicons.tip "Update all the icons in your KeePass database to the favicon of the website of the entry.">
+<!ENTITY KeeFox_Menu-Button.updateAllFavicons.key "U">-->
 <!ENTITY KeeFox_Menu-Button.options.label "Options">
 <!ENTITY KeeFox_Menu-Button.options.tip "View and change your preferred KeeFox options.">
 <!ENTITY KeeFox_Menu-Button.options.key "O">

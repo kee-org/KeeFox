@@ -52,7 +52,14 @@
         
 
         <menuseparator />
-<!--
+
+        <!--<menuitem id="KeeFox_UpdateAllFavicons-Button" tooltiptext="&KeeFox_Menu-Button.updateAllFavicons.tip;"
+                                   class="" label="&KeeFox_Menu-Button.updateAllFavicons.label;" oncommand="keeFoxInst.updateAllFavicons()" accesskey="&KeeFox_Menu-Button.updateAllFavicons.key;" />
+
+        <menuseparator />-->
+        
+
+        <!--
         <menuitem label="Save to a folder..."
                 oncommand='openDialog(
                "chrome://keefox/content/groupChooser.xul",

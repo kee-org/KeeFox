@@ -168,7 +168,7 @@ KFUI.prototype = {
         KFLog.debug("Adding new " + aName + " notification bar");
         var newBar = aNotifyBox.appendNotification(
                                 aText, aName,
-                                "chrome://mozapps/skin/passwordmgr/key.png",
+                                "chrome://keefox/skin/KeeFox16.png",
                                 priority, aButtons);
 
         // The page we're going to hasn't loaded yet, so we want to persist

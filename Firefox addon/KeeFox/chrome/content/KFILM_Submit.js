@@ -64,6 +64,14 @@
         }
         
         var currentTab = currentGBrowser.mTabs[tabIndex];
+        
+        // under no circumstances will we cancel the form
+        // submit so we can set this value now to help us 
+        // track when pages are being navigated without form
+        // submissions and hence aid automatic cancellation
+        // of multi-page login forms 
+        ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 1);
+        ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);
 
         //if (!this.getLoginSavingEnabled(hostname)) {
         //    this.log("(form submission ignored -- saving is " +

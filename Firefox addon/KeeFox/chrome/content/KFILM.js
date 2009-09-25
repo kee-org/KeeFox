@@ -165,6 +165,22 @@ KFILM.prototype = {
         KFLog.debug("ILM init complete");
     },
     
+    _countAllDocuments : function (window)
+    {
+        var localDocCount = 1;
+        
+        if (window.frames.length > 0)
+        {
+            //KFLog.debug("Filling " + window.frames.length + " sub frames");
+            var frames = window.frames;
+            for (var i = 0; i < frames.length; i++) { 
+              localDocCount += this._countAllDocuments (frames[i]);
+            }
+        }
+        return localDocCount;
+        
+    },
+    
     /*
      * _observer object
      *
@@ -279,14 +295,14 @@ KFILM.prototype = {
             var b = getBrowser();
             var currentTab = b.selectedTab; //TODO: are we sure this always the tab that this event refers to?
 
+            var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                    .getService(Components.interfaces.nsISessionStore);
+
             // see if this tab has our special attributes and promote them to session data
             if (currentTab.hasAttribute("KF_uniqueID")) {
 
                 KFLog.debug("has uid");
                 
-                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                    .getService(Components.interfaces.nsISessionStore);
-
                 ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
                 ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
                 currentTab.removeAttribute("KF_uniqueID")
@@ -295,7 +311,14 @@ KFILM.prototype = {
                 KFLog.debug("nouid");
             }
             
-            // If this tab location has changed domain then we assume user wants to cancel any outstanding form filling or saving procedures. Same applies if this is a refresh of the existing page. Also, if we are not at the top of the history stack, we can safely assume that we do not need to keep any information about preferred login uniqueIDs (although maybe one day this could complicate options with respect to one-click logins? probably will be fine but look here if problems occur)
+            // If this tab location has changed domain then we assume user
+            // wants to cancel any outstanding form filling or saving
+            // procedures. Same applies if this is a refresh of the existing
+            // page. Also, if we are not at the top of the history stack, we
+            // can safely assume that we do not need to keep any information
+            // about preferred login uniqueIDs (although maybe one day this
+            // could complicate options with respect to one-click logins?
+            // probably will be fine but look here if problems occur)
             
             removeTabSessionStoreData = false;
             
@@ -332,6 +355,32 @@ KFILM.prototype = {
                
             }
             
+            
+            // When pages are being navigated without form
+            // submissions we want to cancel multi-page login forms 
+            var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
+            var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
+
+//if (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null && numberOfTabFillsTarget != "")
+//        {
+        
+            if (formSubmitTrackerCount > 0)
+            {
+                KFLog.debug("formSubmitTrackerCount > 0");
+                pageLoadSinceSubmitTrackerCount++;
+                
+                if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
+                {
+                    KFLog.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
+                    formSubmitTrackerCount = 0;
+                    pageLoadSinceSubmitTrackerCount = 0;
+                    removeTabSessionStoreData = true;
+                    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
+                }
+            
+                ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
+            }        
+        
             if (removeTabSessionStoreData)
             {
                 // remove the data that helps us track multi-page logins, etc.
@@ -374,6 +423,8 @@ KFILM.prototype = {
         onStatusChange   : function() { throw "Unexpected onStatusChange";   },
         onSecurityChange : function() { throw "Unexpected onSecurityChange"; }
     },
+    
+    
 
 
     /*
@@ -626,31 +677,11 @@ KFLog.debug("proccessing...");
         
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
         {
-            var faviconService = 
-                Components.classes["@mozilla.org/browser/favicon-service;1"]
-                    .getService(Components.interfaces.nsIFaviconService);
-
-            var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
-                .getService(Components.interfaces.nsIIOService);
-                
-            var pageURI = ioservice.newURI(primaryURL, null, null);
-            
             try {
-            
-                var favIconURI = faviconService.getFaviconForPage(pageURI);
-                if (!faviconService.isFailedFavicon(favIconURI))
-                {
-                    var datalen = {};
-                    var mimeType = {};
-                    var data = faviconService.getFaviconData(favIconURI, mimeType, datalen);
-                    var faviconBytes = String.fromCharCode.apply(null, data);
-                    login.iconImageData = btoa(faviconBytes);
-                }
-            
+                login.iconImageData = loadFavicon(primaryURL);
             } catch (ex) 
             {
                 // something failed so we can't get the favicon. We don't really mind too much...
-                KFLog.info("favicon load failed: " + ex);
             }
         }
         

@@ -535,6 +535,25 @@ KeeFox.prototype = {
                     this._KFLog.info("KeeICE plgx found in correct location.");
                 }
             }
+            
+            // if we don't find the PLGX, search for the old-style DLL
+            // just in case this is a development installation of KeeFox
+            // (where a DLL is used rather than PLGX)
+            if (!KeeICEDLLfound)
+            {
+                file = Components.classes["@mozilla.org/file/local;1"].
+                    createInstance(Components.interfaces.nsILocalFile)
+                file.initWithPath(keeICELocation);
+                if (file.isDirectory())
+                {
+                    file.append("KeeICE.dll");
+                    if (file.isFile())
+                    {
+                        KeeICEDLLfound = true;
+                        this._KFLog.info("KeeICE DLL found in correct location.");
+                    }
+                }
+            }
         } catch (ex)
         {
             /* no need to do anything */
@@ -1290,7 +1309,121 @@ KeeFox.prototype = {
         }
         
         return fieldsArray;
-    }
+    },
+    
+    loadFavicon: function(url) {
+    
+        try {
+            var faviconService = 
+                Components.classes["@mozilla.org/browser/favicon-service;1"]
+                    .getService(Components.interfaces.nsIFaviconService);
+
+            var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
+                .getService(Components.interfaces.nsIIOService);
+                
+            var pageURI = ioservice.newURI(url, null, null);
+        
+            var favIconURI = faviconService.getFaviconForPage(pageURI);
+            if (!faviconService.isFailedFavicon(favIconURI))
+            {
+                var datalen = {};
+                var mimeType = {};
+                var data = faviconService.getFaviconData(favIconURI, mimeType, datalen);
+                var faviconBytes = String.fromCharCode.apply(null, data);
+                return btoa(faviconBytes);
+            }
+            throw "We couldn't find a favicon for this URL: " + url;
+        } catch (ex) 
+        {
+            // something failed so we can't get the favicon. We don't really mind too much...
+            this._KFLog.info("favicon load failed for " + url + " : " + ex);
+            throw "We couldn't find a favicon for this URL: " + url + " BECAUSE: " + ex;
+        }
+    },
+    
+    /*
+    // populate the "all logins" menu with every login in this database
+    updateAllFavicons: function() {
+        this._KFLog.debug("updateAllFavicons start");
+        
+        if (this._keeFoxStorage.get("KeePassDatabaseOpen", false))
+        {
+            this._KFLog._alert("When you click OK, all entries in your password database with URLs that have been visited recently in Firefox will have their icons updated. Firefox may appear to hang (especially if you have many entries in your password database).");
+        
+            // start with the current root group uniqueID
+            var rootGroup = this.getRootGroup();
+            
+            if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
+                this.updateOneGroupOfFavicons(rootGroup.uniqueID);
+        }
+        else
+        {
+            this._KFLog._alert("Please log in to your password database before using this feature");
+        }
+        
+        this._KFLog.debug("updateAllFavicons end");
+        return;
+    },
+    
+    updateOneGroupOfFavicons: function(groupUniqueID) {
+        this._KFLog.debug("updateOneGroupOfFavicons called for uniqueRef: " + groupUniqueID);
+       
+        var foundGroups = this.getChildGroups({}, groupUniqueID);
+        var foundLogins = this.getChildEntries({}, groupUniqueID);
+
+        if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0))
+            return;
+
+        for (var i = 0; i < foundGroups.length; i++)
+            this.updateOneGroupOfFavicons(foundGroups[i].uniqueID);
+        
+        for (var i = 0; i < foundLogins.length; i++) {
+            var oldLogin = foundLogins[i];
+            var newLogin = foundLogins[i];
+            
+            var url;
+            
+            if (oldLogin.URLs != undefined && oldLogin.URLs != null && oldLogin.URLs.length > 0)
+                url = oldLogin.URLs.queryElementAt(0,Components.interfaces.kfIURL);
+            
+            if (url.URL != undefined && url.URL != null && url.URL != "" && url.URL.match("^http")=="http")
+            {
+                try
+                {
+                    newLogin.iconImageData = this.loadFavicon(url.URL);
+                    this._KFLog.debug("Found a favicon for this URL: " + url.URL + ". Data: " + newLogin.iconImageData);
+                    this._KFLog.debug("old Data: " + oldLogin.iconImageData);
+                    // TODO: update the login cloning code and clone instead of assign above...
+                    if (oldLogin.iconImageData != newLogin.iconImageData)
+                        this.modifyLogin(oldLogin, newLogin);
+                }
+                catch (ex)
+                {
+                    try {
+                        var faviconService = 
+                        Components.classes["@mozilla.org/browser/favicon-service;1"]
+                            .getService(Components.interfaces.nsIFaviconService);
+
+                        var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
+                            .getService(Components.interfaces.nsIIOService);
+                            
+                        var faviconURI = ioservice.newURI(url.prePath + "/favicon.ico", null, null);
+                        // try to load the favicon from the network ready for next time this function is run
+                        faviconService.setAndLoadFaviconForPage(url, faviconURI, false);
+                        //TODO: check this has actually worked. i see no sign of it yet...
+                    } catch (ex2)
+                    {
+                        //don't care
+                    }
+                }
+                
+                
+            } else
+                this._KFLog.debug("Invalid URL (so we can't search for a favicon): " + url.URL);
+        }
+        
+    },*/
+    
 
 };
 
