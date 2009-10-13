@@ -197,14 +197,19 @@ KFILM.prototype = {
         // nsFormSubmitObserver
         notify : function (formElement, aWindow, actionURI) {
         
-        //TODO: HACK ALERT: Obviously i should remove the form observer from closed windows but this should get us up and running quickly and i'll work out how to do that later.
-        if (typeof Components == "undefined")
-            return true;
+            //TODO: HACK ALERT: Obviously i should remove the form observer from closed windows but this should get us up and running quickly and i'll work out how to do that later.
+            if (typeof Components == "undefined")
+                return true;
         
             KFLog.debug("observer notified for form submission.");
 
             try {
-                this._pwmgr._onFormSubmit(formElement);
+                if (keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+                {
+                    // We don't do this unless we have a KeeICE connection
+                    //TODO: improve so it prompts user to load KeePass
+                    this._pwmgr._onFormSubmit(formElement);
+                }
             } catch (e) {
                 KFLog.error("Caught error in onFormSubmit: " + e);
             }
@@ -678,7 +683,7 @@ KFLog.debug("proccessing...");
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
         {
             try {
-                login.iconImageData = loadFavicon(primaryURL);
+                login.iconImageData = this._kf.loadFavicon(primaryURL);
             } catch (ex) 
             {
                 // something failed so we can't get the favicon. We don't really mind too much...

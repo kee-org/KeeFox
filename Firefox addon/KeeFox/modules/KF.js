@@ -520,8 +520,7 @@ KeeFox.prototype = {
         if (this._KFLog.logSensitiveData)
             this._KFLog.info("Looking for the KeeICE plugin plgx in " + keeICELocation);
         else
-            this._KFLog.info("Looking for the KeeICE plugin plgx in " + keeICELocation);
-        this._KFLog.info("Looking for the KeeICE plugin plgx in " + keeICELocation);
+            this._KFLog.info("Looking for the KeeICE plugin plgx");
 
         var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
         try {
@@ -535,6 +534,14 @@ KeeFox.prototype = {
                     this._KFLog.info("KeeICE plgx found in correct location.");
                 }
             }
+            
+        } catch (ex)
+        {
+            this._KFLog.debug("KeeICE PLGX search threw an exception: " + ex);
+        }
+        
+        try {
+            
             
             // if we don't find the PLGX, search for the old-style DLL
             // just in case this is a development installation of KeeFox
@@ -556,7 +563,7 @@ KeeFox.prototype = {
             }
         } catch (ex)
         {
-            /* no need to do anything */
+            this._KFLog.debug("KeeICE DLL search threw an exception: " + ex);
         }
         
         return KeeICEDLLfound;
