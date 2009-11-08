@@ -2,6 +2,7 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.7
 ---
+- Added support for NTLM proxy authentication password auto-fill / auto-submit
 - New icon
 - Refinements to multi-page login tracking and filling
 - Form submissions now simulate a "click" on the form's submit button (if one can be found)

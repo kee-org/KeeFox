@@ -32,6 +32,20 @@ Components.utils.import("resource://kfmod/KF.js");
 
 var keeFoxDialogManager = {
 
+    __promptBundle : null, // String bundle for L10N
+    get _promptBundle() {
+        if (!this.__promptBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                             getService(Components.interfaces.nsIStringBundleService);
+            this.__promptBundle = bunService.createBundle(
+                        "chrome://global/locale/prompts.properties");
+            if (!this.__promptBundle)
+                throw "Prompt string bundle not present!";
+        }
+
+        return this.__promptBundle;
+    },
+    
     dialogInit : function(e) {
         try {
             keeFoxDialogManager.autoFill();
@@ -42,10 +56,13 @@ var keeFoxDialogManager = {
     
     // fill in the dialog with the first matched login found and/or the list of all matched logins
     autoFill : function()
-    {    
-        if (document.getElementById("loginTextbox")
-		    && document.getElementById("password1Textbox")
-		    && !document.getElementById("loginContainer").hidden)
+    {
+        if (document.getElementById("loginTextbox") != null
+		    && document.getElementById("password1Textbox") != null
+		    && document.getElementById("loginContainer") != null
+		    && !document.getElementById("loginContainer").hidden
+		    && document.getElementById("password1Container") != null
+		    && !document.getElementById("password1Container").hidden)
 		{
 		    
 		    // auto fill the dialog by default unless a preference or tab variable tells us otherwise
@@ -73,20 +90,75 @@ var keeFoxDialogManager = {
 			    autoFill = false;
                 autoSubmit = false;
 			}
-
-			var host;
-			var realm;
 			
-			matches = document.getElementById("info.body").firstChild.nodeValue.match(/https?:\/\/([\-\.a-zA-Z0-9]*?)(\s|:|\.\s|$)/);
-            if (matches !== null && typeof matches[1] !== "undefined") {
-                host = matches[1];
+			var host = "";
+			var realm = "";
+			
+			// e.g. en-US:
+			// A username and password are being requested by %2$S. The site says: "%1$S"
+			var currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+
+            var realmFirst = false;
+            if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
+                realmFirst = true;
+
+            currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+            var regEx = new RegExp(currentRealmL10nPattern);
+
+            matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+            if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                if (realmFirst)
+                {
+                    host = matches[2];
+                    realm = matches[1];
+                } else
+                {
+                    host = matches[1];
+                    realm = matches[2];
+                }
             }
             
-            matches = document.getElementById("info.body").firstChild.nodeValue.match(/The\ssite\ssays:\s\"([^\"]*?)\"/);
-            if (matches !== null && typeof matches[1] !== "undefined") {
-                realm = matches[1];
+            if (host.length < 1)
+            {
+                // e.g. en-US:
+			    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
+			    var currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
+
+                realmFirst = false;
+                if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
+                    realmFirst = true;
+
+                currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                var regEx = new RegExp(currentProxyL10nPattern);
+
+                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                    if (realmFirst)
+                    {
+                        host = matches[2];
+                        realm = matches[1];
+                    } else
+                    {
+                        host = matches[1];
+                        realm = matches[2];
+                    }
+                }
             }
-								
+            
+            if (host.length < 1)
+                return;
+                
+                
+            // try to pick out the host from the full protocol, host and port
+            try
+            {
+                var ioService = Components.classes["@mozilla.org/network/io-service;1"].
+                               getService(Components.interfaces.nsIIOService);
+                var uri = ioService.newURI(host, null, null);
+                host = uri.host;            
+            } catch (exception) {
+                keeFoxInst._KFLog.warn("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
+            }    
 								
 		    // if we're not logged in to KeePass then we can't go on
             if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
@@ -147,18 +219,12 @@ var keeFoxDialogManager = {
 				var done = false;
 			
 				for (var i = 0; i < matchedLogins.length; i++){
-					//for (var j = 0; j < possibleMatches[i].length; j++){
-						var item = document.createElement("menuitem");
-						item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
-						item.username = matchedLogins[i].username;
-						item.password = matchedLogins[i].password;
+					var item = document.createElement("menuitem");
+					item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
+					item.username = matchedLogins[i].username;
+					item.password = matchedLogins[i].password;
 
-						popup.appendChild(item);
-					
-					//	done = true;
-					//}
-				
-					//if (done) break;
+					popup.appendChild(item);
 				}
 
 				list.appendChild(popup);
