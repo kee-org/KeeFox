@@ -87,7 +87,7 @@ kfLoginInfo.prototype = {
     parentGroupUUID : null,
     parentGroupPath : null,
     
-    // assists with deserialisation of this object to a string
+    // assists with serialisation of this object to a string
     // (for attachment to the current tab session)
     toSource : function ()
     {

@@ -82,7 +82,7 @@
                    KFLock="disabled" disabled="true" maxwidth="200"/>
       
     <toolbarbutton id="KeeFox_Logins-Button" tooltiptext="&KeeFox_Logins-Button.tip;"
-             label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu" image="chrome://mozapps/skin/passwordmgr/key.png">
+             label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu">
       <menupopup id="KeeFox_Logins-Button-root">
         
       </menupopup>
@@ -92,7 +92,7 @@
   
   <toolbox id="navigator-toolbox">
 		<toolbar id="KeeFox-Toolbar" toolbarname="KeeFox" accesskey="K"
-         class="chromeclass-toolbar" context="toolbar-context-menu" 
+         class="chromeclass-toolbar" context="toolbar-context-menu" iconsize="small" mode="full" defaulticonsize="small" defaultmode="full"
          hidden="false" persist="hidden" customizable="true" defaultset="KeeFox_Menu-Button,KeeFox_Main-Button,KeeFox_Logins-Button">
 
     </toolbar>

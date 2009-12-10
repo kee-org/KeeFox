@@ -571,42 +571,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\StdAfx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="teast|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Analyse|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\VistaTools.cxx"
 				>
 				<FileConfiguration
@@ -654,10 +618,6 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\StdAfx.h"
 				>
 			</File>
 		</Filter>

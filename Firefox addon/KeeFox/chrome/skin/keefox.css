@@ -1,5 +1,10 @@
 #KeeFox_Menu-Button
 {
+    list-style-image: url("chrome://keefox/skin/KeeFox24.png");  
+}
+
+toolbar[iconsize="small"] #KeeFox_Menu-Button
+{
     list-style-image: url("chrome://keefox/skin/KeeFox16.png");  
 }
 
@@ -9,14 +14,45 @@
  	padding: 0px 0px 0px 3px;
 }
 
+#KeeFox_Logins-Button
+{
+	list-style-image: url("chrome://keefox/skin/KeeLock24.png");  
+}
+
+#KeeFox_Logins-Button[disabled="true"]
+{
+	list-style-image: url("chrome://keefox/skin/KeeLockGrey24.png");  
+}
+
+toolbar[iconsize="small"] #KeeFox_Logins-Button
+{
+	list-style-image: url("chrome://keefox/skin/KeeLock.png");  
+}
+
+toolbar[iconsize="small"] #KeeFox_Logins-Button[disabled="true"]
+{
+	list-style-image: url("chrome://keefox/skin/KeeLockGrey.png");  
+}
+
 toolbarbutton#KeeFox_Main-Button 
 {
-	list-style-image: url("chrome://mozapps/skin/passwordmgr/key.png");
+	list-style-image: url("chrome://keefox/skin/KeeGrey24.png");
 }
 
 toolbarbutton.highlight, toolbarbutton.login-found  
 {
-	list-style-image: url("chrome://keefox/skin/key-highlighted.png") !important;
+	list-style-image: url("chrome://keefox/skin/KeeOrange24.png") !important;
+}
+
+toolbar[iconsize="small"] toolbarbutton#KeeFox_Main-Button 
+{
+	list-style-image: url("chrome://keefox/skin/KeeGrey.png");
+}
+
+toolbar[iconsize="small"] toolbarbutton.highlight,
+toolbar[iconsize="small"] toolbarbutton.login-found  
+{
+	list-style-image: url("chrome://keefox/skin/KeeOrange.png") !important;
 }
 
 .toolbarbutton-menubutton-button

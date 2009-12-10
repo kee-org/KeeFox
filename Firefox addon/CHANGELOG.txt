@@ -2,6 +2,10 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.7
 ---
+- "Welcome to KeeFox" now works properly with KeePass 2.09
+- Installer now looks pretty, some installation options still need a bit of work though
+- Toolbar buttons have new icons
+- Simplified and improved the text for some parts of the install process
 - Added support for NTLM proxy authentication password auto-fill / auto-submit
 - New icon
 - Refinements to multi-page login tracking and filling

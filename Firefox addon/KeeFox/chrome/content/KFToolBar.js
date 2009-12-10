@@ -157,9 +157,11 @@ KFToolbar.prototype = {
             if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                 this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
             loginButton.setAttribute("disabled","false"); //TODO: conditional
+            //loginButton.setAttribute("class","false");
         } else
         {
             loginButton.setAttribute("disabled","true");
+            //loginButton.setAttribute("disabled","false");
             var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
 
             // Remove all of the existing buttons

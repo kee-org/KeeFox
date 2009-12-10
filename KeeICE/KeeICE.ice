@@ -69,7 +69,6 @@ module KPlib {
 		bool default; // for this hostname
 		bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between KeeICE clients or vary based on specific use cases in the client)
 		string uniqueID;
-		//KPAlternativeURLs alternativeURLs;
 		
 		// long priority (remove "default") "KeeFox config: priority = 1" (1 = 30000 relevancy score, 2 = 29999 relevancy score)
 		// bool ignore "KeeFox config: ignore"

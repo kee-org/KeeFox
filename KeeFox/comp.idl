@@ -38,12 +38,11 @@ interface kfILoginField : nsISupports {
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa870)]
 interface kfILoginInfo : nsISupports {
 	/**
-     * The hostname the login applies to.
+     * The hostnames the login applies to.
      *
-     * The hostname should be formatted as an URL. For example,
+     * The hostnames should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
-    //attribute AString URL;
 	attribute nsIMutableArray URLs;
 
     /**
@@ -72,27 +71,39 @@ interface kfILoginInfo : nsISupports {
     attribute AString httpRealm;
 
     /**
-     * The index of the otherField which represents the "main" username.
+     * The index of the "otherField" which represents the "main" username.
      */
     attribute long usernameIndex;
 
     /**
-     * The password for the login.
+     * The password fields for the login.
      */
     attribute nsIMutableArray passwords;
 
-
+	/**
+     * The non-password fields for the login.
+     */
 	attribute nsIMutableArray otherFields;
 
+	/**
+     * The KeePass entry uniqueID (GUID).
+     */
 	attribute AString uniqueID;
 
+	/**
+     * The KeePass entry title.
+     */
 	attribute AString title;
 
+	/**
+     * The relevance of this login (transient / not stored in KeePass).
+     */
 	attribute long relevanceScore;
 
+	/**
+     * The number of pages of form fields this login contains (transient / not stored in KeePass).
+     */
 	attribute long maximumPage;
-
-
 
     /**
      * Test for strict equality with another nsILoginInfo object.
@@ -103,16 +114,9 @@ interface kfILoginInfo : nsISupports {
     boolean equals(in kfILoginInfo aLoginInfo);
 
     /**
-     * Test for loose equivalency with another nsILoginInfo object. The
-     * passwordField and usernameField values are ignored, and the password
-     * values may be optionally ignored. If one login's formSubmitURL is an
-     * empty string (but not null), it will be treated as a wildcard. [The
-     * blank value indicates the login was stored before bug 360493 was fixed.]
-     *
+     * Test for loose equivalency with another nsILoginInfo object.
      * @param aLoginInfo
      *        The other object to test.
-     * @param ignorePassword
-     *        If true, ignore the password when checking for match.
      */
     boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes);
 
@@ -130,6 +134,9 @@ interface kfILoginInfo : nsISupports {
 			  in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray,
 			  in long aMaximumPage);
 
+	/**
+	 * Serialises kfILoginInfo objects to a string
+	 */
 	AString toSource();
 
 	attribute AString parentGroupName;

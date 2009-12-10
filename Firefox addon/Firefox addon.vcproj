@@ -169,6 +169,58 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\KeeFox\chrome\skin\buttonGradient.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\buttonGradientHover.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\install\header.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\icon.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeFox16.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeGrey.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeGrey24.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeLock.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeLockGrey.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeOrange.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeOrange24.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\key-highlighted.png"
+				>
+			</File>
+			<File
 				RelativePath=".\KeeFox\chrome\skin\main.png"
 				>
 			</File>
@@ -258,6 +310,16 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="CSS"
+			Filter="css"
+			>
+		</Filter>
+		<Filter
+			Name="JS"
+			Filter="js"
+			>
+		</Filter>
 		<File
 			RelativePath=".\CHANGELOG.txt"
 			>
@@ -277,6 +339,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\content\groupChooser.xul"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\skin\install.css"
@@ -293,6 +363,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\content\install.xul"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\skin\keefox.css"
@@ -301,6 +379,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\keefox.js"
@@ -393,6 +479,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\options.dtd"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\options.xul"
@@ -413,6 +507,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\content\protocolAuth.xul"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\XPIPackageExclusions.txt"

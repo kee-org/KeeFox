@@ -261,9 +261,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_DECLARE_STATIC_IID_ACCESSOR(KFILOGININFO_IID)
 
   /**
-     * The hostname the login applies to.
+     * The hostnames the login applies to.
      *
-     * The hostname should be formatted as an URL. For example,
+     * The hostnames should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
   /* attribute nsIMutableArray URLs; */
@@ -300,35 +300,50 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm) = 0;
 
   /**
-     * The index of the otherField which represents the "main" username.
+     * The index of the "otherField" which represents the "main" username.
      */
   /* attribute long usernameIndex; */
   NS_SCRIPTABLE NS_IMETHOD GetUsernameIndex(PRInt32 *aUsernameIndex) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetUsernameIndex(PRInt32 aUsernameIndex) = 0;
 
   /**
-     * The password for the login.
+     * The password fields for the login.
      */
   /* attribute nsIMutableArray passwords; */
   NS_SCRIPTABLE NS_IMETHOD GetPasswords(nsIMutableArray * *aPasswords) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetPasswords(nsIMutableArray * aPasswords) = 0;
 
+  /**
+     * The non-password fields for the login.
+     */
   /* attribute nsIMutableArray otherFields; */
   NS_SCRIPTABLE NS_IMETHOD GetOtherFields(nsIMutableArray * *aOtherFields) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetOtherFields(nsIMutableArray * aOtherFields) = 0;
 
+  /**
+     * The KeePass entry uniqueID (GUID).
+     */
   /* attribute AString uniqueID; */
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) = 0;
 
+  /**
+     * The KeePass entry title.
+     */
   /* attribute AString title; */
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) = 0;
 
+  /**
+     * The relevance of this login (transient / not stored in KeePass).
+     */
   /* attribute long relevanceScore; */
   NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) = 0;
 
+  /**
+     * The number of pages of form fields this login contains (transient / not stored in KeePass).
+     */
   /* attribute long maximumPage; */
   NS_SCRIPTABLE NS_IMETHOD GetMaximumPage(PRInt32 *aMaximumPage) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetMaximumPage(PRInt32 aMaximumPage) = 0;
@@ -343,16 +358,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) = 0;
 
   /**
-     * Test for loose equivalency with another nsILoginInfo object. The
-     * passwordField and usernameField values are ignored, and the password
-     * values may be optionally ignored. If one login's formSubmitURL is an
-     * empty string (but not null), it will be treated as a wildcard. [The
-     * blank value indicates the login was stored before bug 360493 was fixed.]
-     *
+     * Test for loose equivalency with another nsILoginInfo object.
      * @param aLoginInfo
      *        The other object to test.
-     * @param ignorePassword
-     *        If true, ignore the password when checking for match.
      */
   /* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes); */
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) = 0;
@@ -368,6 +376,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   /* void init (in nsIMutableArray URLs, in AString aFormSubmitURL, in AString aHttpRealm, in long aUsernameIndex, in nsIMutableArray aPasswords, in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray, in long aMaximumPage); */
   NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage) = 0;
 
+  /**
+	 * Serialises kfILoginInfo objects to a string
+	 */
   /* AString toSource (); */
   NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) = 0;
 

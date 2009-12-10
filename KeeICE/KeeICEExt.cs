@@ -2,7 +2,7 @@
   KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,8 +67,8 @@ namespace KeeICE
 			    props.setProperty("Ice.ACM.Client", "0");
                 props.setProperty("Ice.ThreadPool.Client.Size", "2");
                 props.setProperty("Ice.ThreadPool.Server.Size", "2");
-                props.setProperty("Ice.ThreadPool.Client.SizeMax", "200");
-                props.setProperty("Ice.ThreadPool.Server.SizeMax", "200");
+                props.setProperty("Ice.ThreadPool.Client.SizeMax", "50");
+                props.setProperty("Ice.ThreadPool.Server.SizeMax", "50");
 
 			    // Initialize a communicator with these properties.
 			    //
@@ -222,15 +222,16 @@ namespace KeeICE
             keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
 
             if (keeICEServer.m_host.CommandLineArgs["welcomeToKeeFox"] != null)
-            {
-                MessageBox.Show("Welcome to KeeFox! KeeFox stores your passwords securely using KeePass. Please setup a new KeePass database if required or load an existing one.");
+                keeICEServer.m_host.MainWindow.Shown += new EventHandler(MainWindow_Shown);
 
-            }
-            //host.MainWindow.
-            //host.CustomConfig.
-            //host.Database.CustomData.
 			return true; // Initialization successful
 		}
+
+        void MainWindow_Shown(object sender, EventArgs e)
+        {
+            MessageBox.Show("Welcome to KeeFox! KeeFox stores your passwords securely using KeePass. Please setup a new KeePass database if required or load an existing one.");
+            keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown;
+        }
 
         private string[] getStandardIconsBase64(ImageList il)
         {

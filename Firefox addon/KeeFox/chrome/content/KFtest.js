@@ -257,7 +257,7 @@ KFtests.prototype = {
         }
 
         KFLog.info("Advanced diagnostic summary of the successful test run: " + resultText);
-        resultText = "The tests appear to have worked as expected. If you still have trouble, please use the support centre on the KeeFox website (http://keefox.info) Summary diagnostic messages can be found in the Firefox errors log (if you have enabled logging in the advanced KeeFox options panel)";
+        resultText = "The tests appear to have worked as expected. If you still have trouble, please use the support centre on the KeeFox website (http://keefox.org) Summary diagnostic messages can be found in the Firefox errors log (if you have enabled logging in the advanced KeeFox options panel)";
         return resultText;
     }
 }
