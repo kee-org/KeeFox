@@ -623,7 +623,7 @@ namespace KeeICE
             for (uint i = 0; i < host.MainWindow.FileMruList.ItemCount; i++)
                 MRUList[i] = ((IOConnectionInfo)host.MainWindow.FileMruList.GetItem(i).Value).Path;
 
-            var currentConfig = new KPlib.KFConfiguration(MRUList, autoCommit);
+            KPlib.KFConfiguration currentConfig = new KPlib.KFConfiguration(MRUList, autoCommit);
             return currentConfig;
         }
 
@@ -987,7 +987,7 @@ namespace KeeICE
 
             if (host.Database.CustomData.Exists("KeeICE.KeeFox.rootUUID") && host.Database.CustomData.Get("KeeICE.KeeFox.rootUUID").Length >= 30) //TODO: tighten
             {
-                var uuid = host.Database.CustomData.Get("KeeICE.KeeFox.rootUUID");
+                string uuid = host.Database.CustomData.Get("KeeICE.KeeFox.rootUUID");
 
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 

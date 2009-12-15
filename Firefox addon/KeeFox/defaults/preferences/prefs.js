@@ -17,4 +17,4 @@ pref("extensions.chris.tomlinson@keefox.logSensitiveData", false);
 pref("extensions.chris.tomlinson@keefox.logMethodAlert", false);
 pref("extensions.chris.tomlinson@keefox.logMethodConsole", false);
 pref("extensions.chris.tomlinson@keefox.logMethodStdOut", false);
-pref("extensions.chris.tomlinson@keefox.logMethodFile", true);
+pref("extensions.chris.tomlinson@keefox.logMethodFile", false);

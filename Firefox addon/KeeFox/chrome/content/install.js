@@ -156,13 +156,13 @@ args[argname] = unescape(value);
             showSection('setupExeInstallButtonMain');
             showSection('adminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            //mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window);
+            mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window);
             break;
         case 2: 
             showSection('KPsetupExeSilentInstallButtonMain');
             showSection('adminSetupKPInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            //mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
+            mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
             break;
         case 3: 
             showSection('copyKIToKnownKPLocationInstallButtonMain');            
@@ -173,13 +173,13 @@ args[argname] = unescape(value);
             showSection('setupExeInstallButtonMain');
             showSection('nonAdminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            //mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window); // using IC1 since same process is followed from now on...
+            mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window); // using IC1 since same process is followed from now on...
             break;
         case 5: 
             showSection('copyKPToSpecificLocationInstallButtonMain'); 
             showSection('nonAdminSetupKPInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            //mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_NAME, mainWindow, window);
+            mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_NAME, mainWindow, window);
             break;
         case 6: 
             showSection('copyKIToKnownKPLocationInstallButtonMain');
