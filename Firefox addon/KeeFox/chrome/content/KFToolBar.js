@@ -210,7 +210,6 @@ KFToolbar.prototype = {
             newMenu.setAttribute("onpopupshowing", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
                 group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
             newMenu.setAttribute("class", "menu-iconic");
-            newMenu.setAttribute("style", "background-color:black;");
             newMenu.setAttribute("value", group.uniqueID);
             newMenu.setAttribute("context", "KeeFox-group-context");
             //newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
