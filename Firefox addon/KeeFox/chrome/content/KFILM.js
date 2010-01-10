@@ -454,8 +454,10 @@ KFILM.prototype = {
                     break;
                 case "timer-callback":    
                     //this._pwmgr.log("timer fired");
-                    doc = this._pwmgr._currentWindow.content.document;
-                    this._pwmgr._fillDocument(doc,false); //TODO: find some ways of deciding that there is no need to call this function in some cases. E.g. DOMMutation events? but just having those events on a page drops all other DOM performance by > 50% so will be too slow for DOM heavy sites. maybe do one every 2 seconds regardless and some others more frequently only if # of forms has changed?
+                    //doc = this._pwmgr._currentWindow.content.document;
+                    this._pwmgr._toolbar.setLogins(null, null);
+                    this._pwmgr._fillAllFrames(this._pwmgr._currentWindow.content,false);
+                    //this._pwmgr._fillDocument(doc,false); //TODO: find some ways of deciding that there is no need to call this function in some cases. E.g. DOMMutation events? but just having those events on a page drops all other DOM performance by > 50% so will be too slow for DOM heavy sites. maybe do one every 2 seconds regardless and some others more frequently only if # of forms has changed?
                     break;
 
             }

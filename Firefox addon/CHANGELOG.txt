@@ -1,5 +1,11 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.7.1
+----
+- Removed black background on logins menu that is active in some currently unknown circumstances
+- Fixed #20
+- Manual and "advanced" form detection now scans for forms in all frames on a page
+
 0.7
 ---
 - "Welcome to KeeFox" now works properly with KeePass 2.09

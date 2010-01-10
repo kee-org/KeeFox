@@ -665,6 +665,7 @@ KFToolbar.prototype = {
     {
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+        this.setLogins(null, null);
         this._currentWindow.keeFoxILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
         
     }
