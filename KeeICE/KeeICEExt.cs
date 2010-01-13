@@ -65,10 +65,10 @@ namespace KeeICE
 			    // Make sure that network and protocol tracing are off.
 			    //
 			    props.setProperty("Ice.ACM.Client", "0");
-                props.setProperty("Ice.ThreadPool.Client.Size", "2");
-                props.setProperty("Ice.ThreadPool.Server.Size", "2");
-                props.setProperty("Ice.ThreadPool.Client.SizeMax", "50");
-                props.setProperty("Ice.ThreadPool.Server.SizeMax", "50");
+                props.setProperty("Ice.ThreadPool.Client.Size", "6");
+                props.setProperty("Ice.ThreadPool.Server.Size", "6");
+                props.setProperty("Ice.ThreadPool.Client.SizeMax", "10");
+                props.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
 
 			    // Initialize a communicator with these properties.
 			    //
@@ -78,7 +78,7 @@ namespace KeeICE
                 ic = Ice.Util.initialize(id);
                 Ice.ObjectAdapter adapter
                     = ic.createObjectAdapterWithEndpoints(
-                        "KeeICEAdapter", "tcp -h localhost -p " + args[0]);
+                        "KeeICEAdapter", "tcp -h localhost -p " + args[0] + " -t 30000");
                 kp = new KPI(m_host, standardIconsBase64, ic);
                 adapter.add(
                         kp,
