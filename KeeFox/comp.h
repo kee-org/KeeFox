@@ -398,6 +398,26 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) = 0;
 
+  /* attribute boolean alwaysAutoFill; */
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill) = 0;
+
+  /* attribute boolean neverAutoFill; */
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill) = 0;
+
+  /* attribute boolean alwaysAutoSubmit; */
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit) = 0;
+
+  /* attribute boolean neverAutoSubmit; */
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit) = 0;
+
+  /* attribute long priority; */
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(kfILoginInfo, KFILOGININFO_IID)
@@ -436,7 +456,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath); \
   NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath); \
   NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData); \
-  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData); 
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData); \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority); \
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGININFO(_to) \
@@ -472,7 +502,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) { return _to GetParentGroupPath(aParentGroupPath); } \
   NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) { return _to SetParentGroupPath(aParentGroupPath); } \
   NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return _to GetIconImageData(aIconImageData); } \
-  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return _to SetIconImageData(aIconImageData); } 
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return _to SetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill) { return _to GetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill) { return _to SetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill) { return _to GetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill) { return _to SetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit) { return _to GetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit) { return _to SetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit) { return _to GetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit) { return _to SetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority) { return _to GetPriority(aPriority); } \
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority) { return _to SetPriority(aPriority); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGININFO(_to) \
@@ -508,7 +548,17 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupPath(aParentGroupPath); } \
   NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupPath(aParentGroupPath); } \
   NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetIconImageData(aIconImageData); } \
-  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetIconImageData(aIconImageData); } 
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPriority(aPriority); } \
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetPriority(aPriority); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -708,6 +758,56 @@ NS_IMETHODIMP kfLoginInfo::GetIconImageData(nsACString & aIconImageData)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP kfLoginInfo::SetIconImageData(const nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean alwaysAutoFill; */
+NS_IMETHODIMP kfLoginInfo::GetAlwaysAutoFill(PRBool *aAlwaysAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetAlwaysAutoFill(PRBool aAlwaysAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean neverAutoFill; */
+NS_IMETHODIMP kfLoginInfo::GetNeverAutoFill(PRBool *aNeverAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetNeverAutoFill(PRBool aNeverAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean alwaysAutoSubmit; */
+NS_IMETHODIMP kfLoginInfo::GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean neverAutoSubmit; */
+NS_IMETHODIMP kfLoginInfo::GetNeverAutoSubmit(PRBool *aNeverAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetNeverAutoSubmit(PRBool aNeverAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute long priority; */
+NS_IMETHODIMP kfLoginInfo::GetPriority(PRInt32 *aPriority)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetPriority(PRInt32 aPriority)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

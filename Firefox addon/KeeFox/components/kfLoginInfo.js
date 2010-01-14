@@ -87,8 +87,15 @@ kfLoginInfo.prototype = {
     parentGroupUUID : null,
     parentGroupPath : null,
     
+    priority : 0,
+	alwaysAutoFill : false,
+	alwaysAutoSubmit : false,
+	neverAutoFill : false,
+	neverAutoSubmit : false,
+    
     // assists with serialisation of this object to a string
     // (for attachment to the current tab session)
+    // currently used only for recording potentially half-finished new entries after user has submitted a form, hence not all info. needs to be persisted
     toSource : function ()
     {
         var formActionURLParam = (this.formActionURL == null) ? "null" : ("'"+this.formActionURL+"'");
@@ -117,6 +124,11 @@ kfLoginInfo.prototype = {
         this.parentGroupName = "";
         this.parentGroupUUID = "";
         this.parentGroupPath = "";
+        this.priority = 0;
+	    this.alwaysAutoFill = false;
+	    this.alwaysAutoSubmit = false;
+	    this.neverAutoFill = false;
+	    this.neverAutoSubmit = false;
     },
         
     // the order of URLs must also match

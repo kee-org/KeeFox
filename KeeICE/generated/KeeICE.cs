@@ -400,11 +400,19 @@ namespace KeeICE
 
             public KeeICE.KPlib.KPFormField[] formFieldList;
 
-            public bool @default;
-
             public bool exactMatch;
 
             public string uniqueID;
+
+            public bool alwaysAutoFill;
+
+            public bool neverAutoFill;
+
+            public bool alwaysAutoSubmit;
+
+            public bool neverAutoSubmit;
+
+            public int priority;
 
             public string parentGroupName;
 
@@ -422,16 +430,20 @@ namespace KeeICE
             {
             }
 
-            public KPEntry(string[] URLs, string formActionURL, string HTTPRealm, string title, KeeICE.KPlib.KPFormField[] formFieldList, bool @default, bool exactMatch, string uniqueID, string parentGroupName, string parentGroupUUID, string parentGroupPath, string iconImageData)
+            public KPEntry(string[] URLs, string formActionURL, string HTTPRealm, string title, KeeICE.KPlib.KPFormField[] formFieldList, bool exactMatch, string uniqueID, bool alwaysAutoFill, bool neverAutoFill, bool alwaysAutoSubmit, bool neverAutoSubmit, int priority, string parentGroupName, string parentGroupUUID, string parentGroupPath, string iconImageData)
             {
                 this.URLs = URLs;
                 this.formActionURL = formActionURL;
                 this.HTTPRealm = HTTPRealm;
                 this.title = title;
                 this.formFieldList = formFieldList;
-                this.@default = @default;
                 this.exactMatch = exactMatch;
                 this.uniqueID = uniqueID;
+                this.alwaysAutoFill = alwaysAutoFill;
+                this.neverAutoFill = neverAutoFill;
+                this.alwaysAutoSubmit = alwaysAutoSubmit;
+                this.neverAutoSubmit = neverAutoSubmit;
+                this.priority = priority;
                 this.parentGroupName = parentGroupName;
                 this.parentGroupUUID = parentGroupUUID;
                 this.parentGroupPath = parentGroupPath;
@@ -474,12 +486,16 @@ namespace KeeICE
                 {
                     h__ = 5 * h__ + IceUtilInternal.Arrays.GetHashCode(formFieldList);
                 }
-                h__ = 5 * h__ + @default.GetHashCode();
                 h__ = 5 * h__ + exactMatch.GetHashCode();
                 if(uniqueID != null)
                 {
                     h__ = 5 * h__ + uniqueID.GetHashCode();
                 }
+                h__ = 5 * h__ + alwaysAutoFill.GetHashCode();
+                h__ = 5 * h__ + neverAutoFill.GetHashCode();
+                h__ = 5 * h__ + alwaysAutoSubmit.GetHashCode();
+                h__ = 5 * h__ + neverAutoSubmit.GetHashCode();
+                h__ = 5 * h__ + priority.GetHashCode();
                 if(parentGroupName != null)
                 {
                     h__ = 5 * h__ + parentGroupName.GetHashCode();
@@ -584,10 +600,6 @@ namespace KeeICE
                         return false;
                     }
                 }
-                if(!@default.Equals(o__.@default))
-                {
-                    return false;
-                }
                 if(!exactMatch.Equals(o__.exactMatch))
                 {
                     return false;
@@ -605,6 +617,26 @@ namespace KeeICE
                     {
                         return false;
                     }
+                }
+                if(!alwaysAutoFill.Equals(o__.alwaysAutoFill))
+                {
+                    return false;
+                }
+                if(!neverAutoFill.Equals(o__.neverAutoFill))
+                {
+                    return false;
+                }
+                if(!alwaysAutoSubmit.Equals(o__.alwaysAutoSubmit))
+                {
+                    return false;
+                }
+                if(!neverAutoSubmit.Equals(o__.neverAutoSubmit))
+                {
+                    return false;
+                }
+                if(!priority.Equals(o__.priority))
+                {
+                    return false;
                 }
                 if(parentGroupName == null)
                 {
@@ -701,9 +733,13 @@ namespace KeeICE
                         (formFieldList == null ? new KeeICE.KPlib.KPFormField() : formFieldList[ix__]).write__(os__);
                     }
                 }
-                os__.writeBool(@default);
                 os__.writeBool(exactMatch);
                 os__.writeString(uniqueID);
+                os__.writeBool(alwaysAutoFill);
+                os__.writeBool(neverAutoFill);
+                os__.writeBool(alwaysAutoSubmit);
+                os__.writeBool(neverAutoSubmit);
+                os__.writeInt(priority);
                 os__.writeString(parentGroupName);
                 os__.writeString(parentGroupUUID);
                 os__.writeString(parentGroupPath);
@@ -729,9 +765,13 @@ namespace KeeICE
                     }
                     is__.endSeq(szx__);
                 }
-                @default = is__.readBool();
                 exactMatch = is__.readBool();
                 uniqueID = is__.readString();
+                alwaysAutoFill = is__.readBool();
+                neverAutoFill = is__.readBool();
+                alwaysAutoSubmit = is__.readBool();
+                neverAutoSubmit = is__.readBool();
+                priority = is__.readInt();
                 parentGroupName = is__.readString();
                 parentGroupUUID = is__.readString();
                 parentGroupPath = is__.readString();
@@ -1325,7 +1365,7 @@ namespace KeeICE
                 KeeICE.KPlib.KPEntry[] v__;
                 {
                     int szx__ = is__.readSize();
-                    is__.startSeq(szx__, 12);
+                    is__.startSeq(szx__, 19);
                     v__ = new KeeICE.KPlib.KPEntry[szx__];
                     for(int ix__ = 0; ix__ < szx__; ++ix__)
                     {
@@ -3196,7 +3236,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 12);
+                            is__.startSeq(szx__, 19);
                             logins = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -3250,7 +3290,7 @@ namespace KeeICE
                         is__.startReadEncaps();
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 12);
+                            is__.startSeq(szx__, 19);
                             logins = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {
@@ -3310,7 +3350,7 @@ namespace KeeICE
                         KeeICE.KPlib.KPEntry[] ret__;
                         {
                             int szx__ = is__.readSize();
-                            is__.startSeq(szx__, 12);
+                            is__.startSeq(szx__, 19);
                             ret__ = new KeeICE.KPlib.KPEntry[szx__];
                             for(int ix__ = 0; ix__ < szx__; ++ix__)
                             {

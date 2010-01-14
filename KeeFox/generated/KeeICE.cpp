@@ -407,15 +407,31 @@ KeeICE::KPlib::KPEntry::operator==(const KPEntry& __rhs) const
     {
         return false;
     }
-    if(_cpp_default != __rhs._cpp_default)
-    {
-        return false;
-    }
     if(exactMatch != __rhs.exactMatch)
     {
         return false;
     }
     if(uniqueID != __rhs.uniqueID)
+    {
+        return false;
+    }
+    if(alwaysAutoFill != __rhs.alwaysAutoFill)
+    {
+        return false;
+    }
+    if(neverAutoFill != __rhs.neverAutoFill)
+    {
+        return false;
+    }
+    if(alwaysAutoSubmit != __rhs.alwaysAutoSubmit)
+    {
+        return false;
+    }
+    if(neverAutoSubmit != __rhs.neverAutoSubmit)
+    {
+        return false;
+    }
+    if(priority != __rhs.priority)
     {
         return false;
     }
@@ -485,14 +501,6 @@ KeeICE::KPlib::KPEntry::operator<(const KPEntry& __rhs) const
     {
         return false;
     }
-    if(_cpp_default < __rhs._cpp_default)
-    {
-        return true;
-    }
-    else if(__rhs._cpp_default < _cpp_default)
-    {
-        return false;
-    }
     if(exactMatch < __rhs.exactMatch)
     {
         return true;
@@ -506,6 +514,46 @@ KeeICE::KPlib::KPEntry::operator<(const KPEntry& __rhs) const
         return true;
     }
     else if(__rhs.uniqueID < uniqueID)
+    {
+        return false;
+    }
+    if(alwaysAutoFill < __rhs.alwaysAutoFill)
+    {
+        return true;
+    }
+    else if(__rhs.alwaysAutoFill < alwaysAutoFill)
+    {
+        return false;
+    }
+    if(neverAutoFill < __rhs.neverAutoFill)
+    {
+        return true;
+    }
+    else if(__rhs.neverAutoFill < neverAutoFill)
+    {
+        return false;
+    }
+    if(alwaysAutoSubmit < __rhs.alwaysAutoSubmit)
+    {
+        return true;
+    }
+    else if(__rhs.alwaysAutoSubmit < alwaysAutoSubmit)
+    {
+        return false;
+    }
+    if(neverAutoSubmit < __rhs.neverAutoSubmit)
+    {
+        return true;
+    }
+    else if(__rhs.neverAutoSubmit < neverAutoSubmit)
+    {
+        return false;
+    }
+    if(priority < __rhs.priority)
+    {
+        return true;
+    }
+    else if(__rhs.priority < priority)
     {
         return false;
     }
@@ -566,9 +614,13 @@ KeeICE::KPlib::KPEntry::__write(::IceInternal::BasicStream* __os) const
     {
         ::KeeICE::KPlib::__writeKPFormFieldList(__os, &formFieldList[0], &formFieldList[0] + formFieldList.size());
     }
-    __os->write(_cpp_default);
     __os->write(exactMatch);
     __os->write(uniqueID);
+    __os->write(alwaysAutoFill);
+    __os->write(neverAutoFill);
+    __os->write(alwaysAutoSubmit);
+    __os->write(neverAutoSubmit);
+    __os->write(priority);
     __os->write(parentGroupName);
     __os->write(parentGroupUUID);
     __os->write(parentGroupPath);
@@ -583,9 +635,13 @@ KeeICE::KPlib::KPEntry::__read(::IceInternal::BasicStream* __is)
     __is->read(HTTPRealm);
     __is->read(title);
     ::KeeICE::KPlib::__readKPFormFieldList(__is, formFieldList);
-    __is->read(_cpp_default);
     __is->read(exactMatch);
     __is->read(uniqueID);
+    __is->read(alwaysAutoFill);
+    __is->read(neverAutoFill);
+    __is->read(alwaysAutoSubmit);
+    __is->read(neverAutoSubmit);
+    __is->read(priority);
     __is->read(parentGroupName);
     __is->read(parentGroupUUID);
     __is->read(parentGroupPath);
@@ -608,7 +664,7 @@ KeeICE::KPlib::__readKPEntryList(::IceInternal::BasicStream* __is, ::KeeICE::KPl
 {
     ::Ice::Int sz;
     __is->readSize(sz);
-    __is->startSeq(sz, 12);
+    __is->startSeq(sz, 19);
     v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {

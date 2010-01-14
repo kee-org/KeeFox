@@ -143,6 +143,12 @@ interface kfILoginInfo : nsISupports {
 	attribute AString parentGroupUUID;
 	attribute AString parentGroupPath;
 	attribute ACString iconImageData;
+
+	attribute boolean alwaysAutoFill;
+	attribute boolean neverAutoFill;
+	attribute boolean alwaysAutoSubmit;
+	attribute boolean neverAutoSubmit;
+	attribute long priority;
 };
 
 [scriptable, function, uuid(21e35ab1-d964-476f-ba73-c318cc1a1183)]

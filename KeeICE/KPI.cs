@@ -336,7 +336,12 @@ namespace KeeICE
             ArrayList URLs = new ArrayList();
             URLs.Add(pwe.Strings.ReadSafe("URL"));
             bool usernameFound = false;
-            bool passwordFound = false;
+            bool passwordFound = false;            
+            bool alwaysAutoFill = false;
+            bool neverAutoFill = false;
+            bool alwaysAutoSubmit = false;
+            bool neverAutoSubmit = false;
+            int priority = 0;
 
             foreach (System.Collections.Generic.KeyValuePair
                 <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
@@ -430,8 +435,42 @@ namespace KeeICE
 
             string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);
 
+            if (pwe.Strings.Exists("KeeFox Always Auto Fill"))
+                alwaysAutoFill = true;
+            if (pwe.Strings.Exists("KeeFox Always Auto Submit"))
+                alwaysAutoSubmit = true;
+            if (pwe.Strings.Exists("KeeFox Never Auto Fill"))
+                neverAutoFill = true;
+            if (pwe.Strings.Exists("KeeFox Never Auto Submit"))
+                neverAutoSubmit = true;
+
+            if (pwe.Strings.Exists("KeeFox Priority"))
+            {
+                string priorityString = pwe.Strings.ReadSafe("KeeFox Priority");
+                if (!string.IsNullOrEmpty(priorityString))
+                {
+                    try
+                    {
+                        priority = int.Parse(priorityString);
+                    }
+                    catch
+                    { }
+
+                    if (priority < 0 || priority > 100000)
+                        priority = 0;
+                }
+            }
+
             KPlib.KPFormField[] temp = (KPlib.KPFormField[])formFieldList.ToArray(typeof(KPlib.KPFormField));
-            KPlib.KPEntry kpe = new KPlib.KPEntry((string[])URLs.ToArray(typeof(string)), pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"), pwe.Strings.ReadSafe(PwDefs.TitleField), temp, false, isExactMatch, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes), pwe.ParentGroup.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.ParentGroup.Uuid.UuidBytes), pwe.ParentGroup.GetFullPath("/",false), imageData);
+            KPlib.KPEntry kpe = new KPlib.KPEntry(
+                (string[])URLs.ToArray(typeof(string)), 
+                pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"),
+                pwe.Strings.ReadSafe(PwDefs.TitleField), temp, isExactMatch,
+                KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),  
+                alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
+                pwe.ParentGroup.Name,
+                KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.ParentGroup.Uuid.UuidBytes),
+                pwe.ParentGroup.GetFullPath("/",false), imageData);
             return kpe;
         }
 
@@ -1023,6 +1062,12 @@ namespace KeeICE
             //host.Database.RootGroup.
             foreach (PwEntry pwe in output)
             {
+                if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                    continue; // ignore if it's in the recycle bin
+
+                if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    continue;
+
                 KPlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
                 allEntries.Add(kpe);
                 count++;
@@ -1062,6 +1107,12 @@ namespace KeeICE
 
                 foreach (PwEntry pwe in output)
                 {
+                    if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                        continue; // ignore if it's in the recycle bin
+
+                    if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                        continue;
+
                     KPlib.KPEntry kpe = getKPEntryFromPwEntry(pwe, false);
                     allEntries.Add(kpe);
                 }
@@ -1106,6 +1157,9 @@ namespace KeeICE
 
             foreach (PwGroup pwg in output)
             {
+                if (host.Database.RecycleBinUuid.EqualsValue(pwg.Uuid))
+                    continue; // ignore if it's the recycle bin
+
                 KPlib.KPGroup kpg = getKPGroupFromPwGroup(pwg, false);
                 allGroups.Add(kpg);
             }
@@ -1115,9 +1169,9 @@ namespace KeeICE
         }
 
         /// <summary>
-        /// Return a list of groups. If uuid is supplied, the list will have a maximum of one entry. Otherwise it could have any number. If name and uuid are null, all groups will be returned. TODO: KeePass doesn't have an easy way to search groups by name so postponing that functionality until really needed (or implemented by KeePass API anyway) - for now, name IS COMPLETELY IGNORED
+        /// Return a list of groups. If uuid is supplied, the list will have a maximum of one entry. Otherwise it could have any number. TODO: KeePass doesn't have an easy way to search groups by name so postponing that functionality until really needed (or implemented by KeePass API anyway) - for now, name IS COMPLETELY IGNORED
         /// </summary>
-        /// <param name="name">The name of a groups we are looking for. Must be an exact match.</param>
+        /// <param name="name">IGNORED! The name of a groups we are looking for. Must be an exact match.</param>
         /// <param name="uuid">The UUID of the group we are looking for.</param>
         /// <param name="groups">The output result (a list of KPGroups)</param>
         /// <param name="current__"></param>
@@ -1262,8 +1316,11 @@ namespace KeeICE
             host.Database.RootGroup.SearchEntries(sp, output, false);
             foreach (PwEntry pwe in output)
             {
-                if (host.Database.RecycleBinUuid == pwe.ParentGroup.Uuid)
+                if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                     continue; // ignore if it's in the recycle bin
+
+                if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    continue;
 
                 bool entryIsAMatch = false;
                 bool entryIsAnExactMatch = false;
@@ -1456,8 +1513,11 @@ namespace KeeICE
                 host.Database.RootGroup.SearchEntries(sp, output, false);
                 foreach (PwEntry pwe in output)
                 {
-                    if (host.Database.RecycleBinUuid == pwe.ParentGroup.Uuid)
+                    if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                         continue; // ignore if it's in the recycle bin
+
+                    if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                        continue;
 
                     bool entryIsAMatch = false;
                     bool entryIsAnExactMatch = false;

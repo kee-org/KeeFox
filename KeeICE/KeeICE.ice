@@ -66,14 +66,16 @@ module KPlib {
 		string HTTPRealm;
 		string title;
 		KPFormFieldList formFieldList;
-		bool default; // for this hostname
 		bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between KeeICE clients or vary based on specific use cases in the client)
 		string uniqueID;
 		
-		// long priority (remove "default") "KeeFox config: priority = 1" (1 = 30000 relevancy score, 2 = 29999 relevancy score)
-		// bool ignore "KeeFox config: ignore"
+		bool alwaysAutoFill;
+		bool neverAutoFill;
+		bool alwaysAutoSubmit;
+		bool neverAutoSubmit;
+		int priority; // "KeeFox priority" = 1 (1 = 30000 relevancy score, 2 = 29999 relevancy score)
 		// long autoTypeWhen "KeeFox config: autoType after page 2" (after/before or > / <) (page # or # seconds or #ms)
-		// bool autoTypeOnly "KeeFox config: only autoType" 
+		// bool autoTypeOnly "KeeFox config: only autoType" This is probably redundant considering feature request #19?
 		
 		//TODO: would be nice to make these two a KPGroup object but that doesn't seem to work
 		string parentGroupName;

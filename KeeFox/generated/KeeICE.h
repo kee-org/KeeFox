@@ -214,9 +214,13 @@ struct KPEntry
     ::std::string HTTPRealm;
     ::std::string title;
     ::KeeICE::KPlib::KPFormFieldList formFieldList;
-    bool _cpp_default;
     bool exactMatch;
     ::std::string uniqueID;
+    bool alwaysAutoFill;
+    bool neverAutoFill;
+    bool alwaysAutoSubmit;
+    bool neverAutoSubmit;
+    ::Ice::Int priority;
     ::std::string parentGroupName;
     ::std::string parentGroupUUID;
     ::std::string parentGroupPath;
