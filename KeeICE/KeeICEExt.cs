@@ -78,7 +78,7 @@ namespace KeeICE
                 ic = Ice.Util.initialize(id);
                 Ice.ObjectAdapter adapter
                     = ic.createObjectAdapterWithEndpoints(
-                        "KeeICEAdapter", "tcp -h localhost -p " + args[0] + " -t 30000");
+                        "KeeICEAdapter", "tcp -h localhost -p " + args[0]);// + " -t 30000");
                 kp = new KPI(m_host, standardIconsBase64, ic);
                 adapter.add(
                         kp,

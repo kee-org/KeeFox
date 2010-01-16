@@ -1,6 +1,13 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
-0.7.1
+0.72
+----
+- Fixes #13 (Allow password entries to be given priority weightings)
+- Improved matched login toolbar button to work more reliably with sites that contain sub-frames on their log-in pages (e.g. facebook.com)
+- Fixes #3 (Hidden option to adjust ICE connection timeout) but beware, changes in this area can make things a bit unstable and it's not well tested yet. Please report all issues you encounter.
+
+
+0.71
 ----
 - Removed black background on logins menu that is active in some currently unknown circumstances
 - Fixed #20

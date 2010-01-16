@@ -633,8 +633,6 @@
                 }
              }*/
             
-            //TODO: more scope to improve here - control over default login to autofill rather than just pick the first?
-            
             else if (logins[mostRelevantFormIndex].length == 1) {
                 //if (usernameField && logins[mostRelevantFormIndex][0].username!= null)
                 //    usernameField.DOMelement.value = logins[mostRelevantFormIndex][0].username.value;

@@ -72,6 +72,10 @@ KFILM.prototype = {
     
     //TODO: improve weighting of matches to reflect real world tests
     _calculateRelevanceScore : function (login, form, usernameIndex, passwordFields, currentTabPage) {
+    
+        // entry priorities override any relevance based on URL, etc. (remember that we are already dealing only with those entries that KeeICE says are relevant for this domain).
+        if (login.priority > 0)
+            return (1000000 - login.priority);
 
         var score = 0;
         var actionURL = this._getActionOrigin(form);
@@ -156,8 +160,8 @@ KFILM.prototype = {
 
         try {
             progress.addProgressListener(this._webProgressListener,
-                     Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
-        
+              Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT 
+              | Ci.nsIWebProgress.NOTIFY_LOCATION);        
         } catch (e) {
             KFLog.error("couldn't add nsIWebProgress listener: " + e);
         }
@@ -394,9 +398,6 @@ KFILM.prototype = {
                 keeFoxToolbar.clearTabFormFillData();                
             }
                 
-            // remove all the old logins from the toolbar
-            keeFoxToolbar.removeLogins();
-            
             // Fastback doesn't fire DOMContentLoaded, so process forms now.
             if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING) {
                 KFLog.debug("onStateChange: restoring document");
@@ -407,11 +408,6 @@ KFILM.prototype = {
             domDoc.addEventListener("DOMContentLoaded",
                                     this._domEventListener, false);
             
-            // Add event listener to process page when DOM is complete.
-            //TODO: this doesn't work. Would be interesting to see what happens if we get it working but what we really want is an event that's guaranteed to run after all site onload code has finished - not sure if that's possible... plus we get support for fully dynamic websites with the workaround anyway.
-            // domDoc.addEventListener("load",
-            //                        this._domEventListener, false);
-            
             // attempt to refill the forms on the current tab in this window at a regular interval
             // This is to enable manual form filling of sites which generate forms dynamically
             // (i.e. after initial DOM load)
@@ -421,16 +417,21 @@ KFILM.prototype = {
             KFLog.debug("onStateChange: end");                
             return;
         },
+        
+        onLocationChange : function(aProgress, aRequest, aURI)
+        { 
+            KFLog.debug("Location changed: " + aURI.spec);
+            // remove all the old logins from the toolbar
+            keeFoxToolbar.removeLogins();
+         },
 
         // stubs for the nsIWebProgressListener interfaces which we don't use.
         onProgressChange : function() { throw "Unexpected onProgressChange"; },
-        onLocationChange : function() { throw "Unexpected onLocationChange"; },
         onStatusChange   : function() { throw "Unexpected onStatusChange";   },
         onSecurityChange : function() { throw "Unexpected onSecurityChange"; }
+        // onRefreshAttempted(aWebProgress, aURI, aDelay, aSameURI) (needs WebListener2 but could be useful?...)
     },
     
-    
-
 
     /*
      * _domEventListener object

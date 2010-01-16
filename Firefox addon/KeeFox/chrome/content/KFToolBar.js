@@ -49,6 +49,11 @@ KFToolbar.prototype = {
         this.setupButton_ready(null,this._currentWindow);
     },
     
+    compareRelevanceScores: function (a , b)
+    {
+        return b.relevanceScore - a.relevanceScore;
+    },
+    
     // add all matched logins to the menu
     setLogins: function(logins, doc) {
         KFLog.debug("setLogins started");
@@ -62,22 +67,16 @@ KFToolbar.prototype = {
         if (container.getAttribute('KFLock') == "enabled")
             return;
 
-        // TODO: more work needed on removal of old login buttons so that it keeps things
-        // tidy but doesn't risk removing valid logins when just one subframe has loaded.
-        // need to deal with when main container button is removed but subitems are not - rearrange
-        // Remove all of the existing buttons related to this URI
-        // NB: possible risk of outdated information if one sub-frame removes
-        // forms dynamically (this function won't be called cos there will be no matches)
-        //for (i = container.childNodes.length; i > 0; i--) {
-        //    if (container.childNodes[i].getAttribute("value", "") == doc.documentURI)
-        //        container.removeChild(container.childNodes[i]);
-        //}
+        // TODO: merge logins into existing ones to prevent duplicates if more than
+        // one frame has same matching login
 
         if (logins == null || logins.length == 0)
         {
             this.setupButton_ready(null,this._currentWindow);
             return;
         }
+        
+        logins.sort(this.compareRelevanceScores);
         
         // set up the main button
         container.setAttribute("class", "login-found");

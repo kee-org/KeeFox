@@ -52,7 +52,7 @@ function KeeFox()
     this._keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
     this._keeFoxStorage = this._keeFoxExtension.storage;
     this._KeeICEminVersion = 0.70; // minimum version of KeeICE server we will accept
-    this._KeeFoxVersion = 0.71; // This version of KeeFox
+    this._KeeFoxVersion = 0.72; // This version of KeeFox
     var prefs = this._keeFoxExtension.prefs;
     
     // register preference change handlers so we can react to altered
