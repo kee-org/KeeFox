@@ -290,23 +290,17 @@
         var logins = [];
         
         // auto fill the form by default unless a preference or tab variable tells us otherwise
-        var autoFillForm = this._kf._keeFoxExtension.prefs.getValue("autoFillForms",true);
+        var wantToAutoFillForm = this._kf._keeFoxExtension.prefs.getValue("autoFillForms",true);
+        var mustAutoFillForm = false;
+        var cannotAutoFillForm = false;
  
         // do not auto submit the form by default unless a preference or tab variable tells us otherwise
-        var autoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitForms",false);
+        var wantToAutoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitForms",false);
+        var mustAutoSubmitForm = false;
+        var cannotAutoSubmitForm = false;
         
         // overwrite existing username by default unless a preference or tab variable tells us otherwise
         var overWriteFieldsAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
-        
-        //TODO: maybe want to make this decision here rather than further down in some cases - risks auto-submit loop
-        /*
-        if (!initialPageLoad)
-        {
-            autoFillForm = false;
-            autoSubmitForm = false;
-            overWriteFieldsAutomatically = false;
-        }
-        */
         
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
@@ -333,7 +327,7 @@
             uniqueID = currentTabUniqueID;
             
             // we want to fill the form with this data
-            autoFillForm = true;
+            mustAutoFillForm = true;
             overWriteFieldsAutomatically = true;
             
             // but need to check whether we want to autosubmit it too
@@ -341,8 +335,8 @@
 
             if (localAutoSubmitPref != undefined && localAutoSubmitPref != null && localAutoSubmitPref == "yes")
             {
-                KFLog.debug("We want to auto-submit this form.");
-                autoSubmitForm = true;
+                KFLog.debug("We must auto-submit this form.");
+                mustAutoSubmitForm = true;
             }
             
             //if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining.length > 0 && numberOfTabFillsRemaining <= 1)
@@ -362,8 +356,8 @@
             KFLog.info("Found this numberOfTabFillsRemaining in the tab: " + numberOfTabFillsRemaining);
             if (numberOfTabFillsRemaining == "0")
             {
-                autoSubmitForm = false;
-                autoFillForm = false;
+                cannotAutoSubmitForm = true;
+                cannotAutoFillForm = true;
                 ss.deleteTabValue(currentTab, "KF_numberOfTabFillsRemaining");
                 KFLog.debug("Not auto-filling or auto-submiting this form.");
                 KFLog.debug("KF_numberOfTabFillsRemaining deleted");
@@ -565,80 +559,35 @@
         var otherFields = otherFieldsArray[mostRelevantFormIndex];
         
         // this records the login that we eventually choose as the one to fill the chosen form from
-        var matchingLogin;
+        var matchingLogin = null;
         
         // If this is a "refill" we won't auto-fill/complete/overwrite.
         if (!initialPageLoad)
         {
-            autoFillForm = false;
-            autoSubmitForm = false;
+            cannotAutoFillForm = true;
+            cannotAutoSubmitForm = true;
             overWriteFieldsAutomatically = false;
             KFLog.debug("Not auto-filling or auto-submiting this form. Not overwriting exsisting contents either.");
         }
 
-        if (autoFillForm) {
+        // No point looking at login specific preferences if we are not allowed to auto-fill
+        if (!cannotAutoFillForm)
+        {
 
             // first, if we have been instructed to load a specific login on this page, do that
             //TODO: this may not work if requested login can't be exactly matched to a form but another login can
             if (uniqueID.length > 0)
             {
-                
                 var found = logins[mostRelevantFormIndex].some(function(l) {
                                             matchingLogin = l;
                                             return (l.uniqueID == uniqueID);
                                         });
-                if (found)
-                {
-                    //if (usernameField && matchingLogin.username != null)
-                    //    usernameField.DOMelement.value = matchingLogin.username.value;
-                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage, overWriteFieldsAutomatically);
-                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage, overWriteFieldsAutomatically);
-                    formsReadyForSubmit++;
-                }
-                else
+                if (!found)
                 {
                     KFLog.info("Password not filled. None of the stored " +
                              "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
                 }
-            
-            //TODO: I don't think this works correctly... 
-            } /* TODO: This is utter rubbish. Needs completely re-writing but in the mean-time only down side is the do not overwrite logins option does not work.
-            
-            else if (!overWriteFieldsAutomatically && logins[mostRelevantFormIndex][usernameIndex] && logins[mostRelevantFormIndex][usernameIndex].value) {
-                // If username was specified in the form, only fill in the
-                // password if we find a matching login.
-
-                var username = logins[mostRelevantFormIndex][usernameIndex].value;
-                
-                this.log("username found: " + logins[mostRelevantFormIndex][usernameIndex].value);
-
-                //var matchingLogin;
-                //var found = logins[mostRelevantFormIndex].some(function(l) {
-                //                            matchingLogin = l;
-                //                            return (l.username != null && l.username.value == username);
-                // 
-                //});
-                
-                //TODO: this can't be working correctly...                       
-                if (logins[mostRelevantFormIndex][usernameIndex] == username)
-                {
-                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage);
-                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage);
-                    formsReadyForSubmit++;
-                }
-                else
-                {
-                    this.log("Password not filled. None of the stored " +
-                             "logins match the username already present.");
-                }
-             }*/
-            
-            else if (logins[mostRelevantFormIndex].length == 1) {
-                //if (usernameField && logins[mostRelevantFormIndex][0].username!= null)
-                //    usernameField.DOMelement.value = logins[mostRelevantFormIndex][0].username.value;
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][0].passwords, currentTabPage, overWriteFieldsAutomatically);
-                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][0].otherFields, currentTabPage, overWriteFieldsAutomatically);
-                formsReadyForSubmit++;
+            } else if (logins[mostRelevantFormIndex].length == 1) {
                 matchingLogin = logins[mostRelevantFormIndex][0];
             } else {
                 KFLog.debug("Multiple logins for form, so estimating most relevant.");
@@ -649,13 +598,28 @@
                         mostRelevantLoginIndex = count;
                     
                 KFLog.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
-                    
-                this._fillManyFormFields(passwordFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].passwords, currentTabPage, overWriteFieldsAutomatically); //TODO: sometimes undefined: logins[mostRelevantFormIndex][mostRelevantLoginIndex]
-                this._fillManyFormFields(otherFields, logins[mostRelevantFormIndex][mostRelevantLoginIndex].otherFields, currentTabPage, overWriteFieldsAutomatically);
-                formsReadyForSubmit++;
                 matchingLogin = logins[mostRelevantFormIndex][mostRelevantLoginIndex];
             }
-            
+
+            if (matchingLogin != null)
+            {
+                // update fill and submit preferences from per-entry configuration options
+                if (matchingLogin.alwaysAutoFill)
+                    wantToAutoFillForm = true;
+                if (matchingLogin.neverAutoFill)
+                    wantToAutoFillForm = false;
+                if (matchingLogin.alwaysAutoSubmit)
+                    wantToAutoSubmitForm = true;
+                if (matchingLogin.neverAutoSubmit)
+                    wantToAutoSubmitForm = false;
+
+                if (wantToAutoFillForm || mustAutoFillForm)
+                {
+                    this._fillManyFormFields(passwordFields, matchingLogin.passwords, currentTabPage, overWriteFieldsAutomatically);
+                    this._fillManyFormFields(otherFields, matchingLogin.otherFields, currentTabPage, overWriteFieldsAutomatically);
+                    formsReadyForSubmit++;
+                }            
+            }
         }
 
         // record / update the info attached to this tab regarding the number of pages of forms we want to fill in
@@ -757,7 +721,7 @@
             }
         }
         
-        if (autoSubmitForm && formsReadyForSubmit == 1)
+        if (!cannotAutoSubmitForm && (wantToAutoSubmitForm || mustAutoSubmitForm) && formsReadyForSubmit == 1)
         {
             KFLog.info("Auto-submitting form...");
             this.submitForm(form);

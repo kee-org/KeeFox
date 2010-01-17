@@ -1,5 +1,9 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.73
+----
+- Fixes #19 (Allow opt-in/opt-out on an entry-by-entry basis for auto-submittal)
+
 0.72
 ----
 - Fixes #13 (Allow password entries to be given priority weightings)
