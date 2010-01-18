@@ -1,3 +1,4 @@
+pref("extensions.chris.tomlinson@keefox.notifyBarRequestPasswordSave", true);
 pref("extensions.chris.tomlinson@keefox.notifyBarWhenKeeICEInactive", true);
 pref("extensions.chris.tomlinson@keefox.notifyBarWhenLoggedOut", true);
 pref("extensions.chris.tomlinson@keefox.flashIconWhenKeeICEInactive", true);
@@ -18,3 +19,4 @@ pref("extensions.chris.tomlinson@keefox.logMethodAlert", false);
 pref("extensions.chris.tomlinson@keefox.logMethodConsole", false);
 pref("extensions.chris.tomlinson@keefox.logMethodStdOut", false);
 pref("extensions.chris.tomlinson@keefox.logMethodFile", false);
+pref("extensions.chris.tomlinson@keefox.keePassRememberInstalledLocation", false);

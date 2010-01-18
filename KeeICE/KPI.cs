@@ -47,8 +47,8 @@ namespace KeeICE
 
 #region Class variables, constructor and destructor
 
-        const float minClientVersion = 0.70F; // lowest version of client we're prepared to communicate with
-        const float keeICEVersion = 0.70F; // version of this build
+        const float minClientVersion = 0.73F; // lowest version of client we're prepared to communicate with
+        const float keeICEVersion = 0.73F; // version of this build
 
         IPluginHost host;
         bool isDirty = false;
@@ -246,7 +246,20 @@ namespace KeeICE
                 if (host.MainWindow.UIFileSave(true))
                     host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
             }
+            else
+            {
+                host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+            }
         }
+
+        string getPassword()
+        {
+
+            //KeePass.Program.PwGeneratorPool
+            // KeePass.Util.PwGeneratorUtil.
+            return "password";
+        }
+
 
         void openGroupEditorWindow(PwGroup pg)
         {
@@ -276,7 +289,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = getRoot().FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
@@ -315,7 +328,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwEntry matchedLogin = host.Database.RootGroup.FindEntry(pwuuid, true);
+                PwEntry matchedLogin = getRoot().FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -669,8 +682,7 @@ namespace KeeICE
         public override bool setCurrentKFConfig(KPlib.KFConfiguration config, Ice.Current current__)
         {
             host.CustomConfig.SetBool("KeeICE.KeeFox.autoCommit", config.autoCommit);
-            host.MainWindow.SaveConfig();
-            
+            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
             return true;
         }
 
@@ -768,7 +780,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwEntry matchedLogin = host.Database.RootGroup.FindEntry(pwuuid, true);
+                PwEntry matchedLogin = getRoot().FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -828,7 +840,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = getRoot().FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
@@ -888,13 +900,13 @@ namespace KeeICE
 
             setPwEntryFromKPEntry(newLogin, login);
 
-            PwGroup parentGroup = host.Database.RootGroup; // if in doubt we'll stick it in the root folder
+            PwGroup parentGroup = getRoot(); // if in doubt we'll stick it in the root folder
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = getRoot().FindGroup(pwuuid, true);
 
                 if (matchedGroup != null)
                     parentGroup = matchedGroup;
@@ -923,7 +935,7 @@ namespace KeeICE
             PwGroup newGroup = new PwGroup(true, true);
             newGroup.Name = name;
 
-            PwGroup parentGroup = host.Database.RootGroup; // if in doubt we'll stick it in the root folder
+            PwGroup parentGroup = getRoot(); // if in doubt we'll stick it in the root folder
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
@@ -962,9 +974,9 @@ namespace KeeICE
             // Make sure there is an active database
             if (!ensureDBisOpen()) return;
 
-            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLogin.uniqueID)); 
-            
-            PwEntry modificationTarget = host.Database.RootGroup.FindEntry(pwuuid, true);
+            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLogin.uniqueID));
+
+            PwEntry modificationTarget = getRoot().FindEntry(pwuuid, true);
 
             if (modificationTarget == null)
                 throw new Exception("Could not find correct entry to modify. No changes made to KeePass database.");
@@ -988,18 +1000,19 @@ namespace KeeICE
             if (!ensureDBisOpen()) return null;
 
             PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
+            PwGroup rootGroup = getRoot();
 
             try
             {
 
-                PwEntry thisEntry = host.Database.RootGroup.FindEntry(pwuuid, true);
+                PwEntry thisEntry = rootGroup.FindEntry(pwuuid, true);
                 if (thisEntry != null && thisEntry.ParentGroup != null)
                 {
                     output = getKPGroupFromPwGroup(thisEntry.ParentGroup, true);
                     return output;
                 }
 
-                PwGroup thisGroup = host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup thisGroup = rootGroup.FindGroup(pwuuid, true);
                 if (thisGroup != null && thisGroup.ParentGroup != null)
                 {
                     output = getKPGroupFromPwGroup(thisGroup.ParentGroup, true);
@@ -1010,7 +1023,7 @@ namespace KeeICE
             {
                 return null;
             }
-            output = getKPGroupFromPwGroup(host.Database.RootGroup, true);
+            output = getKPGroupFromPwGroup(rootGroup, true);
             return output;
         }
 
@@ -1020,6 +1033,15 @@ namespace KeeICE
         /// <param name="current__"></param>
         /// <returns>the root group</returns>
         public override KPlib.KPGroup getRoot(Ice.Current current__)
+        {
+            return getKPGroupFromPwGroup(getRoot(),true);
+        }
+
+        /// <summary>
+        /// Return the root group of the active database
+        /// </summary>
+        /// <returns>the root group</returns>
+        public PwGroup getRoot()
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) { return null; }
@@ -1035,11 +1057,11 @@ namespace KeeICE
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group.");
 
-                return getKPGroupFromPwGroup(matchedGroup, true);
+                return matchedGroup;
             }
             else
             {
-                return getKPGroupFromPwGroup(host.Database.RootGroup, true);
+                return host.Database.RootGroup;
             }
         }
 
@@ -1058,7 +1080,7 @@ namespace KeeICE
             if (!ensureDBisOpen()) { logins = null; return -1; }
 
             KeePassLib.Collections.PwObjectList<PwEntry> output;
-            output = host.Database.RootGroup.GetEntries(true);
+            output = getRoot().GetEntries(true);
             //host.Database.RootGroup.
             foreach (PwEntry pwe in output)
             {
@@ -1146,7 +1168,7 @@ namespace KeeICE
                 matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
             } else
             {
-                matchedGroup = host.Database.RootGroup;
+                matchedGroup = getRoot();
             }
 
             if (matchedGroup == null)
@@ -1235,7 +1257,7 @@ namespace KeeICE
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uniqueID));
 
-                PwEntry matchedLogin = host.Database.RootGroup.FindEntry(pwuuid, true);
+                PwEntry matchedLogin = getRoot().FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -1313,7 +1335,9 @@ namespace KeeICE
 
             KeePassLib.Collections.PwObjectList<PwEntry> output;
             output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-            host.Database.RootGroup.SearchEntries(sp, output, false);
+            
+            PwGroup searchGroup = getRoot();
+            searchGroup.SearchEntries(sp, output, false);
             foreach (PwEntry pwe in output)
             {
                 if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
@@ -1510,7 +1534,9 @@ namespace KeeICE
 
                 KeePassLib.Collections.PwObjectList<PwEntry> output;
                 output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-                host.Database.RootGroup.SearchEntries(sp, output, false);
+
+                PwGroup searchGroup = getRoot();
+                searchGroup.SearchEntries(sp, output, false);
                 foreach (PwEntry pwe in output)
                 {
                     if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))

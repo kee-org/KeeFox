@@ -208,7 +208,7 @@ KFILM.prototype = {
             KFLog.debug("observer notified for form submission.");
 
             try {
-                if (keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+                if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("notifyBarRequestPasswordSave",true) &&  keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
                 {
                     // We don't do this unless we have a KeeICE connection
                     //TODO: improve so it prompts user to load KeePass

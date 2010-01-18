@@ -126,6 +126,9 @@ namespace KeeICE
         Thread oThread;
 
 
+        private ToolStripMenuItem m_ICEOptions = null;
+        private ToolStripSeparator m_tsSeparator1 = null;
+        private ToolStripMenuItem m_KeeFoxRootMenu = null;
 
         private void setupKeeICEServer(int ICEport)
         {
@@ -219,6 +222,27 @@ namespace KeeICE
             keeICEServer.m_host.MainWindow.FileSaving += OnKPDBSaving;
             keeICEServer.m_host.MainWindow.FileSaved += OnKPDBSaved;
 
+            // Get a reference to the 'Tools' menu item container
+            ToolStripItemCollection tsMenu = keeICEServer.m_host.MainWindow.ToolsMenu.DropDownItems;
+
+            // Add menu item for options
+            m_ICEOptions = new ToolStripMenuItem();
+            m_ICEOptions.Text = "KeeFox (KeeICE) Options";
+            m_ICEOptions.Click += OnToolsOptions;
+            m_ICEOptions.Enabled = true;
+            tsMenu.Add(m_ICEOptions);
+
+            // Add a seperator and menu item to the group context menu
+            ContextMenuStrip gcm = keeICEServer.m_host.MainWindow.GroupContextMenu;
+            m_tsSeparator1 = new ToolStripSeparator();
+            gcm.Items.Add(m_tsSeparator1);
+            m_KeeFoxRootMenu = new ToolStripMenuItem();
+            m_KeeFoxRootMenu.Text = "Set as KeeFox start group";
+            m_KeeFoxRootMenu.Click += OnMenuSetRootGroup;
+            gcm.Items.Add(m_KeeFoxRootMenu);
+            
+            
+
             keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
 
             if (keeICEServer.m_host.CommandLineArgs["welcomeToKeeFox"] != null)
@@ -226,6 +250,26 @@ namespace KeeICE
 
 			return true; // Initialization successful
 		}
+
+        void OnToolsOptions(object sender, EventArgs e)
+        {
+            KeeICE.OptionsForm ofDlg = new KeeICE.OptionsForm(keeICEServer.m_host);
+            ofDlg.ShowDialog();
+        }
+
+        void OnMenuSetRootGroup(object sender, EventArgs e)
+        {
+            PwGroup pg = keeICEServer.m_host.MainWindow.GetSelectedGroup();
+            Debug.Assert(pg != null);
+            if (pg == null || pg.Uuid == null || pg.Uuid == PwUuid.Zero)
+                return;
+
+            keeICEServer.m_host.Database.CustomData.Set("KeeICE.KeeFox.rootUUID", 
+                KeePassLib.Utility.MemUtil.ByteArrayToHexString(pg.Uuid.UuidBytes));
+
+            keeICEServer.m_host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+
+        }
 
         void MainWindow_Shown(object sender, EventArgs e)
         {
@@ -284,6 +328,15 @@ namespace KeeICE
             keeICEServer.m_host.MainWindow.FileCreated -= OnKPDBOpen; // or need a specific handler here?
             keeICEServer.m_host.MainWindow.FileSaving -= OnKPDBSaving;
             keeICEServer.m_host.MainWindow.FileSaved -= OnKPDBSaved;
+
+            // Remove 'Tools' menu items
+            ToolStripItemCollection tsMenu = keeICEServer.m_host.MainWindow.ToolsMenu.DropDownItems;
+            tsMenu.Remove(m_ICEOptions);
+
+            // Remove group context menu items
+            ContextMenuStrip gcm = keeICEServer.m_host.MainWindow.GroupContextMenu;
+            gcm.Items.Remove(m_tsSeparator1);
+            gcm.Items.Remove(m_KeeFoxRootMenu);
 		}
 
         private void OnKPDBSelected(object sender, EventArgs e)

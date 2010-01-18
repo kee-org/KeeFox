@@ -3,13 +3,17 @@ This information will often be disseminated onto the official KeeFox website in 
 0.73
 ----
 - Fixes #19 (Allow opt-in/opt-out on an entry-by-entry basis for auto-submittal)
+- Fixes #23 (KeeFox should have an option to turn password save prompts off entirely)
+- Fixes #11 (Add option to not save KeePass database automatically)
+- New KeeFox Options Menu added to KeePass
+- Fixes #2 (Choose a KeePass sub-group to treat as the root group for KeeFox integration)
+
 
 0.72
 ----
 - Fixes #13 (Allow password entries to be given priority weightings)
 - Improved matched login toolbar button to work more reliably with sites that contain sub-frames on their log-in pages (e.g. facebook.com)
 - Fixes #3 (Hidden option to adjust ICE connection timeout) but beware, changes in this area can make things a bit unstable and it's not well tested yet. Please report all issues you encounter.
-
 
 0.71
 ----

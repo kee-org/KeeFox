@@ -338,22 +338,27 @@ KeeFox.prototype = {
         var keePassLocation;
         keePassLocation = "not installed";
         var keeICELocation;
-        keeICELocation = "not installed";
+        keeICELocation = "not installed";        
         
-        keePassLocation = this._discoverKeePassInstallLocation();
-        if (keePassLocation != "not installed")
+        var keePassRememberInstalledLocation = 
+            this._keeFoxExtension.prefs.getValue("keePassRememberInstalledLocation",false);
+        if (!keePassRememberInstalledLocation)
         {
-            KeePassEXEfound = this._confirmKeePassInstallLocation(keePassLocation);
-            if (KeePassEXEfound)
+            keePassLocation = this._discoverKeePassInstallLocation();
+            if (keePassLocation != "not installed")
             {
-                keeICELocation = this._discoverKeeICEInstallLocation();
-                KeeICEDLLfound = this._confirmKeeICEInstallLocation(keeICELocation);
-                if (!KeeICEDLLfound)
-                    this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",""); //TODO: set this to "not installed"?
-                
-            } else
-            {
-                this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO: set this to "not installed"?
+                KeePassEXEfound = this._confirmKeePassInstallLocation(keePassLocation);
+                if (KeePassEXEfound)
+                {
+                    keeICELocation = this._discoverKeeICEInstallLocation();
+                    KeeICEDLLfound = this._confirmKeeICEInstallLocation(keeICELocation);
+                    if (!KeeICEDLLfound)
+                        this._keeFoxExtension.prefs.setValue("keeICEInstalledLocation",""); //TODO: set this to "not installed"?
+                    
+                } else
+                {
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO: set this to "not installed"?
+                }
             }
         }
 
@@ -364,7 +369,10 @@ KeeFox.prototype = {
             // remember this across all windows
             this._keeFoxStorage.set("KeeICEActive", true);
             this._keeFoxStorage.set("KeeICEInstalled", true);
-
+        } else if (keePassRememberInstalledLocation)
+        {
+            this._keeFoxStorage.set("KeeICEInstalled", true);
+            this._keeFoxStorage.set("KeeICEActive", false);
         } else { 
             this._KFLog.info("Couldn't communicate with KeeICE");
             // if it fails KeeICE is either not running or not installed - let's find out which...
