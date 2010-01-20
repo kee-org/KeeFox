@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
@@ -492,7 +492,31 @@
 			RelativePath=".\KeeFox\chrome\content\options.xul"
 			>
 			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
 				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="teast|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Analyse|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool

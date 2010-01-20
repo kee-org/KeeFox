@@ -38,6 +38,8 @@ using KeePass.Resources;
 
 using KeePassLib;
 using KeePassLib.Security;
+using KeePass.App;
+using KeePass.UI;
 
 namespace KeeICE
 {
@@ -240,8 +242,6 @@ namespace KeeICE
             m_KeeFoxRootMenu.Text = "Set as KeeFox start group";
             m_KeeFoxRootMenu.Click += OnMenuSetRootGroup;
             gcm.Items.Add(m_KeeFoxRootMenu);
-            
-            
 
             keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
 
@@ -273,8 +273,9 @@ namespace KeeICE
 
         void MainWindow_Shown(object sender, EventArgs e)
         {
-            MessageBox.Show("Welcome to KeeFox! KeeFox stores your passwords securely using KeePass. Please setup a new KeePass database if required or load an existing one.");
+            MessageBox.Show("Welcome to KeeFox! THE FOLLOWING DIALOGS ARE EXPERIMENTAL PROTOTYPES - hopefully functional, but FAR from pretty!");
             keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown;
+            WelcomeKeeFoxUser();
         }
 
         private string[] getStandardIconsBase64(ImageList il)
@@ -289,6 +290,138 @@ namespace KeeICE
                 icons[i] = Convert.ToBase64String(ms.ToArray());
             }
             return icons;
+        }
+
+        private void WelcomeKeeFoxUser()
+        {
+            WelcomeForm wf = new WelcomeForm();
+            DialogResult dr = wf.ShowDialog();
+            if (dr == DialogResult.Yes)
+                CreateNewDatabase();
+        }
+
+        /// <summary>
+        /// Called when [file new]. TODO: Review whenever private KeePass.MainForm.OnFileNew method changes.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        internal void CreateNewDatabase()
+        {
+            if (!AppPolicy.Try(AppPolicyId.SaveFile)) return;
+
+            SaveFileDialog sfd = UIUtil.CreateSaveFileDialog(KPRes.CreateNewDatabase,
+                KPRes.NewDatabaseFileName, UIUtil.CreateFileTypeFilter(
+                AppDefs.FileExtension.FileExt, KPRes.KdbxFiles, true), 1,
+                AppDefs.FileExtension.FileExt, false);
+
+            GlobalWindowManager.AddDialog(sfd);
+            DialogResult dr = sfd.ShowDialog();
+            GlobalWindowManager.RemoveDialog(sfd);
+
+            string strPath = sfd.FileName;
+
+            if (dr != DialogResult.OK) return;
+
+            KeePassLib.Keys.CompositeKey key;
+            KeyCreationSimpleForm kcsf = new KeyCreationSimpleForm();
+            kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+            dr = kcsf.ShowDialog();
+            if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+            if (dr == DialogResult.No)
+            {
+                KeyCreationForm kcf = new KeyCreationForm();
+                kcf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                dr = kcf.ShowDialog();
+                if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+                key = kcf.CompositeKey;
+            } else
+            {
+                key = kcsf.CompositeKey;
+            }
+
+            PwDocument dsPrevActive = keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocument;
+            PwDatabase pd = keeICEServer.m_host.MainWindow.DocumentManager.CreateNewDocument(true).Database;
+            pd.New(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), key);
+
+            if (!string.IsNullOrEmpty(kcsf.DatabaseName))
+            {
+                pd.Name = kcsf.DatabaseName;
+                pd.NameChanged = DateTime.Now;
+            }
+
+            PwGroup pg = new PwGroup(true, true, KPRes.General, PwIcon.Folder);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.WindowsOS, PwIcon.DriveWindows);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.Network, PwIcon.NetworkServer);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.Internet, PwIcon.World);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.EMail, PwIcon.EMail);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.Homebanking, PwIcon.Homebanking);
+            pd.RootGroup.AddGroup(pg, true);
+
+            // TODO: add KeeFox icon to Database cache and use it
+            PwGroup kfpg = new PwGroup(true, true, "KeeFox", PwIcon.Homebanking);
+            pd.RootGroup.AddGroup(kfpg, true);
+
+            //TODO: Set up a sample KeeFox friendly group and entry (maybe for http://practice.keefox.org and practice.keefox.org/advanced/etc/ inc. multi-page step throughs, etc.)
+            PwEntry pe = new PwEntry(true, true);
+            pe.Strings.Set(PwDefs.TitleField, new ProtectedString(pd.MemoryProtection.ProtectTitle,
+                "Quick Start (double click on the URL to learn how to use KeeFox)"));
+            pe.Strings.Set(PwDefs.UserNameField, new ProtectedString(pd.MemoryProtection.ProtectUserName,
+                KPRes.UserName));
+            pe.Strings.Set(PwDefs.UrlField, new ProtectedString(pd.MemoryProtection.ProtectUrl,
+                @"http://www.somesite.com/"));
+            pe.Strings.Set(PwDefs.PasswordField, new ProtectedString(pd.MemoryProtection.ProtectPassword,
+                KPRes.Password));
+            pe.Strings.Set(PwDefs.NotesField, new ProtectedString(pd.MemoryProtection.ProtectNotes,
+                KPRes.Notes));
+            pe.AutoType.Set(KPRes.TargetWindow, @"{USERNAME}{TAB}{PASSWORD}{TAB}{ENTER}");
+            kfpg.AddEntry(pe, true);
+
+#if DEBUG
+			Random r = Program.GlobalRandom;
+			for(uint iSamples = 0; iSamples < 1500; ++iSamples)
+			{
+				pg = pd.RootGroup.Groups.GetAt(iSamples % 5);
+
+				pe = new PwEntry(true, true);
+
+				pe.Strings.Set(PwDefs.TitleField, new ProtectedString(pd.MemoryProtection.ProtectTitle,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.UserNameField, new ProtectedString(pd.MemoryProtection.ProtectUserName,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.UrlField, new ProtectedString(pd.MemoryProtection.ProtectUrl,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.PasswordField, new ProtectedString(pd.MemoryProtection.ProtectPassword,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.NotesField, new ProtectedString(pd.MemoryProtection.ProtectNotes,
+					Guid.NewGuid().ToString()));
+
+				pe.IconId = (PwIcon)r.Next(0, (int)PwIcon.Count);
+
+				pg.AddEntry(pe, true);
+			}
+
+			pd.CustomData.Set("Sample Custom Data 1", "0123456789");
+			pd.CustomData.Set("Sample Custom Data 2", @"µy data");
+#endif
+
+            keeICEServer.m_host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
+
+            // TODO: Can't raise FileCreated event from a plugin?
+            //if (keeICEServer.m_host.MainWindow.FileCreated != null)
+            //{
+            //    FileCreatedEventArgs ea = new FileCreatedEventArgs(pd);
+            //    keeICEServer.m_host.MainWindow.FileCreated(this, ea);
+            //}
         }
 
 		/// <summary>
