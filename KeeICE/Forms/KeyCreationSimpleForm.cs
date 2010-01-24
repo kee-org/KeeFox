@@ -102,7 +102,7 @@ namespace KeeICE
 			//this.Icon = Properties.Resources.KeePass;
 			this.Text = KPRes.CreateMasterKey;
 
-			m_ttRect.SetToolTip(m_cbHidePassword, KPRes.TogglePasswordAsterisks);
+			//m_ttRect.SetToolTip(m_cbHidePassword, KPRes.TogglePasswordAsterisks);
 
 			if(!m_bCreatingNew)
 				m_lblIntro.Text = KPRes.ChangeMasterKeyIntroShort;

@@ -2,13 +2,13 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.73
 ----
+- KeeICE upgrades detectable on KeePass startup from version 0.7.3 onwards
 - New user welcome dialogs prototyped
 - Fixes #19 (Allow opt-in/opt-out on an entry-by-entry basis for auto-submittal)
 - Fixes #23 (KeeFox should have an option to turn password save prompts off entirely)
 - Fixes #11 (Add option to not save KeePass database automatically)
 - New KeeFox Options Menu added to KeePass
 - Fixes #2 (Choose a KeePass sub-group to treat as the root group for KeeFox integration)
-
 
 0.72
 ----

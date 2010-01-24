@@ -187,12 +187,12 @@ args[argname] = unescape(value);
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
             break;
         case 7: 
-            showSection('copyKIToKnownKPLocationInstallButtonMain');
+            showSection('copyKIToKnownKPLocationUpgradeButtonMain');
             showSection('admincopyKIToKnownKPLocationInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
             break;
         case 8: 
-            showSection('copyKIToKnownKPLocationInstallButtonMain');
+            showSection('copyKIToKnownKPLocationUpgradeButtonMain');
             showSection('nonAdmincopyKIToKnownKPLocationInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
             break;   

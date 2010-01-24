@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KeyCreationSimpleForm));
             this.m_lblIntro = new System.Windows.Forms.Label();
             this.m_lblMultiInfo = new System.Windows.Forms.Label();
@@ -38,7 +37,6 @@
             this.m_lblKeyFileInfo = new System.Windows.Forms.Label();
             this.m_btnCancel = new System.Windows.Forms.Button();
             this.m_btnCreate = new System.Windows.Forms.Button();
-            this.m_ttRect = new System.Windows.Forms.ToolTip(this.components);
             this.m_cbHidePassword = new System.Windows.Forms.CheckBox();
             this.m_lblSeparator = new System.Windows.Forms.Label();
             this.m_pbPasswordQuality = new KeePass.UI.QualityProgressBar();
@@ -100,7 +98,7 @@
             this.m_lblKeyFileInfo.Name = "m_lblKeyFileInfo";
             this.m_lblKeyFileInfo.Size = new System.Drawing.Size(479, 48);
             this.m_lblKeyFileInfo.TabIndex = 11;
-            this.m_lblKeyFileInfo.Text = resources.GetString("m_lblKeyFileInfo.Text");
+            this.m_lblKeyFileInfo.Text = "KeePass can use other sources to encrypt your database. If you would like to use a key file, windows user account (not recommended) or other third party key source provider sources, use the button below to switch to advanced mode.";
             // 
             // m_btnCancel
             // 
@@ -125,13 +123,6 @@
             this.m_btnCreate.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.m_btnCreate.UseVisualStyleBackColor = true;
             this.m_btnCreate.Click += new System.EventHandler(this.OnBtnOK);
-            // 
-            // m_ttRect
-            // 
-            this.m_ttRect.AutomaticDelay = 250;
-            this.m_ttRect.AutoPopDelay = 5000;
-            this.m_ttRect.InitialDelay = 250;
-            this.m_ttRect.ReshowDelay = 50;
             // 
             // m_cbHidePassword
             // 
@@ -279,8 +270,7 @@
 		private System.Windows.Forms.Button m_btnCancel;
 		private System.Windows.Forms.PictureBox m_bannerImage;
         private System.Windows.Forms.CheckBox m_cbHidePassword;
-		private System.Windows.Forms.Label m_lblKeyFileInfo;
-        private System.Windows.Forms.ToolTip m_ttRect;
+        private System.Windows.Forms.Label m_lblKeyFileInfo;
 		private System.Windows.Forms.Label m_lblSeparator;
 		private KeePass.UI.QualityProgressBar m_pbPasswordQuality;
 		private System.Windows.Forms.Label m_lblEstimatedQuality;

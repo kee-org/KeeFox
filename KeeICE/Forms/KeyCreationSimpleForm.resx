@@ -120,7 +120,4 @@
   <data name="m_lblKeyFileInfo.Text" xml:space="preserve">
     <value>KeePass can use other sources to encrypt your database. If you would like to use a key file, windows user account (not recommended) or other third party key source provider sources, use the button below to switch to advanced mode.</value>
   </data>
-  <metadata name="m_ttRect.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
 </root>

@@ -120,6 +120,9 @@ namespace KeeICE
 	/// </summary>
 	public sealed class KeeICEExt : Plugin
 	{
+        // version information
+        public static readonly Version PluginVersion = new Version(0,7,3);
+
  		// This will be used to run a seperate thread and listen for ICE requests from 
         // clients such as KeeFox
         KeeICEServer keeICEServer;
@@ -245,11 +248,40 @@ namespace KeeICE
 
             keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
 
+            bool upgrading = refreshVersionInfo(host);            
+
             if (keeICEServer.m_host.CommandLineArgs["welcomeToKeeFox"] != null)
-                keeICEServer.m_host.MainWindow.Shown += new EventHandler(MainWindow_Shown);
+            {
+                if (upgrading)
+                    keeICEServer.m_host.MainWindow.Shown += new EventHandler(MainWindow_Shown_ExistingUser);
+                else
+                    keeICEServer.m_host.MainWindow.Shown += new EventHandler(MainWindow_Shown_NewUser);
+            }
 
 			return true; // Initialization successful
 		}
+
+        bool refreshVersionInfo(IPluginHost host)
+        {
+            bool upgrading = false;
+            int majorOld = (int)host.CustomConfig.GetULong("KeeICE.KeeFox.version.major", 0);
+            int minorOld = (int)host.CustomConfig.GetULong("KeeICE.KeeFox.version.minor", 0);
+            int buildOld = (int)host.CustomConfig.GetULong("KeeICE.KeeFox.version.build", 0);
+            Version versionCurrent = PluginVersion;
+
+            if (majorOld != 0 || minorOld != 0 || buildOld != 0)
+            {
+                Version versionOld = new Version(majorOld, minorOld, buildOld);
+                if (versionCurrent.CompareTo(versionOld) > 0)
+                    upgrading = true;
+            }
+
+            host.CustomConfig.SetULong("KeeICE.KeeFox.version.major", (ulong)versionCurrent.Major);
+            host.CustomConfig.SetULong("KeeICE.KeeFox.version.minor", (ulong)versionCurrent.Minor);
+            host.CustomConfig.SetULong("KeeICE.KeeFox.version.build", (ulong)versionCurrent.Build);
+
+            return upgrading;
+        }
 
         void OnToolsOptions(object sender, EventArgs e)
         {
@@ -271,10 +303,17 @@ namespace KeeICE
 
         }
 
-        void MainWindow_Shown(object sender, EventArgs e)
+        void MainWindow_Shown_NewUser(object sender, EventArgs e)
         {
             MessageBox.Show("Welcome to KeeFox! THE FOLLOWING DIALOGS ARE EXPERIMENTAL PROTOTYPES - hopefully functional, but FAR from pretty!");
-            keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown;
+            keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown_NewUser;
+            WelcomeKeeFoxUser();
+        }
+
+        void MainWindow_Shown_ExistingUser(object sender, EventArgs e)
+        {
+            MessageBox.Show("UPGRADE DETECTED - Upgrade specific information is coming soon, in the meantime, please experiment with and report back on the following EXPERIMENTAL PROTOTYPE 'new user' dialogs - they are hopefully functional, but FAR from pretty!");
+            keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown_ExistingUser;
             WelcomeKeeFoxUser();
         }
 
