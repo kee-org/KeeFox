@@ -569,17 +569,14 @@ KFILM.prototype = {
             
             KFLog.debug("domtype: "+ DOMtype );
             
-            //TODO: support select drop downs
-            // && DOMtype != "select-one"
-            // (this is much more difficult than other form fields so pushing back to 0.8)
-            if (DOMtype != "password" && DOMtype != "text" && DOMtype != "checkbox" && DOMtype != "radio")
+            if (DOMtype != "password" && DOMtype != "text" && DOMtype != "checkbox" && DOMtype != "radio" && DOMtype != "select-one")
                 continue; // ignoring other form types at the moment
             
             if (DOMtype == "checkbox" && isSubmission && form.elements[i].checked == false) continue;
             if (DOMtype == "radio" && isSubmission && form.elements[i].checked == false) continue;
             
             if (DOMtype == "password" && isSubmission && !form.elements[i].value) continue;
-            //if (DOMtype == "select-one" && isSubmission && !form.elements[i].value) continue;
+            if (DOMtype == "select-one" && isSubmission && !form.elements[i].value) continue;
             
 KFLog.debug("proccessing...");
             allFields[allFields.length] =
@@ -590,7 +587,11 @@ KFLog.debug("proccessing...");
             };
             allFields[allFields.length-1].element.init(
                 form.elements[i].name, form.elements[i].value, form.elements[i].id, DOMtype, currentTabPage);
-            allFields[allFields.length-1].element.DOMInputElement = form.elements[i];
+            if (DOMtype == "select-one")
+                allFields[allFields.length-1].element.DOMSelectElement = form.elements[i];
+            else
+                allFields[allFields.length-1].element.DOMInputElement = form.elements[i];
+            
             
             if (DOMtype == "password" && firstPasswordIndex == -1) firstPasswordIndex = allFields.length-1;
             if (DOMtype == "text" && firstPossibleUsernameIndex == -1 && this._isAKnownUsernameString(form.elements[i].name)) firstPossibleUsernameIndex = allFields.length-1;
@@ -611,7 +612,7 @@ KFLog.debug("proccessing...");
             
             if (allFields[i].type == "password")
                 pwFields[pwFields.length] = allFields[i].element;
-            else if (allFields[i].type == "text" || allFields[i].type == "checkbox" || allFields[i].type == "radio")
+            else if (allFields[i].type == "text" || allFields[i].type == "checkbox" || allFields[i].type == "radio"  || allFields[i].type == "select-one")
             {
                 otherFields[otherFields.length] = allFields[i].element;
                 if (i == usernameIndex) 

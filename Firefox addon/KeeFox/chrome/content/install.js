@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
 This install.js file helps manage the installation of .NET, KeePass and KeeICE.
 
@@ -21,12 +21,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const KF_KPZIP_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.09.zip";
-const KF_KPZIP_FILE_CHECKSUM = "";
-const KF_KP_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_KP_FILE_NAME = "KeePass-2.09-Setup.exe";
-const KF_KP_FILE_CHECKSUM = "";
+const KF_KPZIP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.09/KeePass-2.09.zip/";
+const KF_KPZIP_FILE_NAME = "download";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.09.zip";
+const KF_KPZIP_FILE_CHECKSUM = "549B5107DDEE45418697A5114C27B5A8";
+const KF_KP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.09/KeePass-2.09-Setup.exe/";
+const KF_KP_FILE_NAME = "download";
+const KF_KP_SAVE_NAME = "KeePass-2.09-Setup.exe"
+const KF_KP_FILE_CHECKSUM = "9FC81681C521C14C0C982B17D93213B9";
 const KF_NET_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
 const KF_NET_FILE_CHECKSUM = "";
@@ -60,12 +62,19 @@ const KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
 const KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;
 const KF_INSTALL_STATE_KPZIP_EXECUTED = 4194304;  // KeePass zip has been extracted
 
-var KFupgradeMode = false;
-
+// tracks progress of the various installation stages, using KF_INSTALL_STATE_* constants
 var installState = 0;
 
+// whether we're upgrading from a previous version
+var KFupgradeMode = false;
+
+// threads to launch KeePass and .NET installers on (the installer execution
+// blocks the Firefox thread it's run from so this keeps the UI responsive)
 var setupKPThread;
 var setupNETThread;
+
+// The nsWebBrowserPersist object used to download installation content from the internet
+var persist;
 
 var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIWebNavigation)
@@ -79,16 +88,17 @@ var mainWindow = mainWin.keeFoxILM._currentWindow;
 function prepareInstallPage() {
 
     var qs = "";
-var args = new Object();
-var query = location.search.substring(1);
-var pairs = query.split("&");
-for(var i = 0; i < pairs.length; i++) {
-var pos = pairs[i].indexOf('=');
-if (pos == -1) continue;
-var argname = pairs[i].substring(0,pos);
-var value = pairs[i].substring(pos+1);
-args[argname] = unescape(value); 
-}
+    var args = new Object();
+    var query = location.search.substring(1);
+    var pairs = query.split("&");
+    for(var i = 0; i < pairs.length; i++)
+    {
+        var pos = pairs[i].indexOf('=');
+        if (pos == -1) continue;
+        var argname = pairs[i].substring(0,pos);
+        var value = pairs[i].substring(pos+1);
+        args[argname] = unescape(value); 
+    }
     if (args.upgrade == "1")
     {
         KFupgradeMode = true;
@@ -99,20 +109,15 @@ args[argname] = unescape(value);
         mainWindow.keeFoxInst._KFLog.debug("Install system starting in install mode");
     }
         
-    // One of 6 installation options. Although it could probably be inferred
-    // from the use of installation state flags, I want to know where we are
-    // starting from because the user only needs to see information relevant
-    // to their starting state rather than experiencing a walk through the
-    // entire state machine.
+    // One of 6 installation options. The user only needs to see information relevant
+    // to their starting state.
     var installCase; 
     
     var keePassLocation = "not installed";
 
     //TODO: prevent reinstallation if KeeFox is already working
 
-    // only let this install script run once per firefox session
-    //TODO: try to find out why this is needed so frequently (session restore / loadOnceInTab should keep it to one instance)
-    //TODO: reset the flag in some cases (e.g. setup.exe cancelled) so user can begin again without FF restart
+    // only let this install script run once per firefox session unless user cancels
     if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
     {
         document.getElementById('KFInstallAlreadyInProgress').setAttribute('hidden', false);
@@ -147,7 +152,7 @@ args[argname] = unescape(value);
     mainWindow.KFLog.info("applying installation case " + installCase);
  
     // comment this out to enable normal operation or uncomment to specify a test case
-    //installCase = 4;
+    //installCase = 4; mainWindow.KFLog.warn("Overriding with installation case " + installCase);
 
 // configure the current installation state and trigger any relevant pre-emptive file downloads to give the impression of speed to end user
 //TODO: support cancellation of pre-emptive downloading in case advanced user chooses unusual option
@@ -156,13 +161,13 @@ args[argname] = unescape(value);
             showSection('setupExeInstallButtonMain');
             showSection('adminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window);
+            persist = mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
             break;
         case 2: 
             showSection('KPsetupExeSilentInstallButtonMain');
             showSection('adminSetupKPInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
+            persist = mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 3: 
             showSection('copyKIToKnownKPLocationInstallButtonMain');            
@@ -173,13 +178,13 @@ args[argname] = unescape(value);
             showSection('setupExeInstallButtonMain');
             showSection('nonAdminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window); // using IC1 since same process is followed from now on...
+            persist = mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist); // using IC1 since same process is followed from now on...
             break;
         case 5: 
             showSection('copyKPToSpecificLocationInstallButtonMain'); 
             showSection('nonAdminSetupKPInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_NAME, mainWindow, window);
+            persist = mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 6: 
             showSection('copyKIToKnownKPLocationInstallButtonMain');
@@ -201,62 +206,22 @@ args[argname] = unescape(value);
     }
 }
 
+function installationError(error)
+{
+    if (error == "ERRORInstallDownloadFailed")
+    {
+        document.getElementById('').setAttribute('hidden', false);
+    } else
+    {
+        //TODO: refresh whole page
+    }
+}
 
-/*
-
-should an upgrade tell this script what things to install? or should the script work it out? in which case, is there any need for seperate functions or can we just use the standard installation routines?
-
-the install script currently only investigates the installation state of the components, not their version.
-KF.js inspects the version so it should call the relevant function in this script to initiaites the upgrade process.
-
-maybe seperate functions for each situation?
-
-maybe entirely different script / page? any ned for different text displayed to user? probably yes. any crossover between the standard install states? yes - e.g. all the stuff about downloading the right thing and executing it in the right order.
-
-maybe pass an "upgrade" flag to the functinos so they can display different text?
-
-Upgrade is now simpler because KeePass version can be ignored (KeeICE could inform user they will need to upgrade KeePass but at very least, KeePass will just say that it is not new enough after user restarts the App).
-
-upgrade situations:
-
-New KeeFox add-on version which:
-1 does not require new KeeICE
-2 does require new KeeICE
-
-(future) requires new .NET framework (unlikely?) - deal with it nearer the time.
-
-KeePass installer is only invoked when no KeePass exists already
-
-do all upgrade processes follow the same path as main install processes? if so then we can just use a flag and looks at theat to decide if we should display an "upgrade finished" message, etc.
-
-UC0: No action required (KeeFox works happilly with reported KeeICE version) - won't even reach this script
-UC1: Requires new KeeICE.
-UC2: Requires new KeeICE and KeePass has not been detected.
-
-So we essentially have just two upgrade paths, and they appear to be identical to the equivelent install paths.
-
-UC2 upgrade is therefore most equivelant to IC2 / IC5
-UC1 = IC3 / IC6
-
-TODO: 
-1) modify the stuff in Utils so that it hides and shows the correct boxes when in upgrade mode.
-2) set up installed snapshot in virtualbox and then run lots of test and debugs on IC7 and IC8
-
-
-
-hidden IC3/6 message:
-KeeFox needs to upgrade KeeICE (a KeePass plugin). Press the button above to have KeeFox do this for you automatically and then restart KeePass. If you are prompted to upgrade KeePass (or you are using a version lower than 2.09), please upgrade. You may need to restart Firefox afterwards.
-
-
-Then we do the upgrade and try to reconnect (test to see if we ever have the auto-connect timers running too).
-
-
-
-
-*/
-
-
-
+function restartInstallation()
+{
+    mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",false);
+    
+}
 
 function hideInstallView() {
     document.getElementById('installationStartView').setAttribute('hidden', true);
@@ -340,7 +305,7 @@ try {
         else if (installState & KF_INSTALL_STATE_NET35_EXECUTED)
             hideSection('IC1setupNET35downloaded');
             
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_FILE_NAME,KF_KP_FILE_CHECKSUM);
+        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
         
         if (checkTest)
             mainWindow.KFLog.info("File checksum succeeded.");
@@ -354,7 +319,7 @@ try {
         var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KP_FILE_NAME);
+        file.append(KF_KP_SAVE_NAME);
         
         threadFixer = file.path;
 
@@ -391,7 +356,7 @@ try {
         
         // start the pre-download of the KeePass setup file (while user installs .Net...)
         installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
-        mainWindow.KFdownloadFile("IC1PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
+        persist = mainWindow.KFdownloadFile("IC1PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
         
         installState |= KF_INSTALL_STATE_NET_EXECUTING;
 
@@ -430,7 +395,7 @@ try {
         
         // start the pre-download of the KeePass setup file (while user installs .Net...)
         installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
-        mainWindow.KFdownloadFile("IC1SecDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_FILE_NAME, mainWindow, window);
+        persist = mainWindow.KFdownloadFile("IC1SecDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
         
         installState |= KF_INSTALL_STATE_NET_EXECUTING;
 
@@ -524,7 +489,7 @@ try {
 
     if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_PRI))
     {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_FILE_NAME,KF_KP_FILE_CHECKSUM);
+        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
         
         if (checkTest)
             mainWindow.KFLog.info("File checksum succeeded.");
@@ -540,7 +505,7 @@ try {
         var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KP_FILE_NAME);
+        file.append(KF_KP_SAVE_NAME);
         
         threadFixer = file.path;
         
@@ -562,7 +527,7 @@ try {
 
     if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_SEC))
     {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_FILE_NAME,KF_KP_FILE_CHECKSUM);
+        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
         
         if (checkTest)
             mainWindow.KFLog.info("File checksum succeeded.");
@@ -578,7 +543,7 @@ try {
         var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KP_FILE_NAME);
+        file.append(KF_KP_SAVE_NAME);
         
         threadFixer = file.path;
         
@@ -618,7 +583,7 @@ function IC5zipKP() {
 
     if ((installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_TER))
     {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_CHECKSUM);
+        var checkTest = mainWindow.KFMD5checksumVerification(KF_KPZIP_SAVE_NAME, KF_KPZIP_FILE_CHECKSUM);
         
         if (checkTest)
             mainWindow.KFLog.info("File checksum succeeded.");
@@ -646,7 +611,7 @@ function IC5zipKP() {
             var path = fp.file.path;
                       
             //TODO: permissions, failures, missing directories, etc. etc.
-            extractKPZip (KF_KPZIP_FILE_NAME, folder);
+            extractKPZip (KF_KPZIP_SAVE_NAME, folder);
               
             var KeePassEXEfound;
             
@@ -778,7 +743,7 @@ function copyKPToSpecificLocationInstall() {
     if (!(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADING) && !(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED))
     {
         installState |= KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-        mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_FILE_NAME, mainWindow, window);
+        persist = mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
     }
     
     hideInstallView();
@@ -802,7 +767,7 @@ function setupNET35ExeInstall() {
 //TODO: cancel net2 download
 
 installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            mainWindow.KFdownloadFile("IC1SecDownload", KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME, KF_NET35_FILE_NAME, mainWindow, window);
+            persist = mainWindow.KFdownloadFile("IC1SecDownload", KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME, KF_NET35_FILE_NAME, mainWindow, window, persist);
     hideInstallView();
     showProgressView();
     

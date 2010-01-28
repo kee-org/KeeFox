@@ -20,6 +20,7 @@
 #include "nsISupports.idl"
 #include "nsIMutableArray.idl"
 #include "nsIDOMHTMLInputElement.idl"
+#include "nsIDOMHTMLSelectElement.idl"
 
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa873)]
 interface kfILoginField : nsISupports {
@@ -27,7 +28,7 @@ interface kfILoginField : nsISupports {
   attribute AString value;
   attribute AString fieldId;
   attribute nsIDOMHTMLInputElement DOMInputElement;
-  attribute nsIDOMHTMLInputElement DOMSelectElement;
+  attribute nsIDOMHTMLSelectElement DOMSelectElement;
   attribute AString type;
   attribute short formFieldPage;
   void init(in AString aName, in AString aValue, in AString aID, in AString aType, in short aFormFieldPage);

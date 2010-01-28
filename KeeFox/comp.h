@@ -18,6 +18,10 @@
 #include "nsIDOMHTMLInputElement.h"
 #endif
 
+#ifndef __gen_nsIDOMHTMLSelectElement_h__
+#include "nsIDOMHTMLSelectElement.h"
+#endif
+
 /* For IDL files that don't want to include root IDL files. */
 #ifndef NS_NO_VTABLE
 #define NS_NO_VTABLE
@@ -51,9 +55,9 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement) = 0;
 
-  /* attribute nsIDOMHTMLInputElement DOMSelectElement; */
-  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLInputElement * *aDOMSelectElement) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLInputElement * aDOMSelectElement) = 0;
+  /* attribute nsIDOMHTMLSelectElement DOMSelectElement; */
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement) = 0;
 
   /* attribute AString type; */
   NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType) = 0;
@@ -83,8 +87,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId); \
   NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement); \
   NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement); \
-  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLInputElement * *aDOMSelectElement); \
-  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLInputElement * aDOMSelectElement); \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement); \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement); \
   NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType); \
   NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType); \
   NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage); \
@@ -102,8 +106,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId) { return _to SetFieldId(aFieldId); } \
   NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement) { return _to GetDOMInputElement(aDOMInputElement); } \
   NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement) { return _to SetDOMInputElement(aDOMInputElement); } \
-  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLInputElement * *aDOMSelectElement) { return _to GetDOMSelectElement(aDOMSelectElement); } \
-  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLInputElement * aDOMSelectElement) { return _to SetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement) { return _to GetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement) { return _to SetDOMSelectElement(aDOMSelectElement); } \
   NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType) { return _to GetType(aType); } \
   NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType) { return _to SetType(aType); } \
   NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage) { return _to GetFormFieldPage(aFormFieldPage); } \
@@ -121,8 +125,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFieldId(aFieldId); } \
   NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDOMInputElement(aDOMInputElement); } \
   NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetDOMInputElement(aDOMInputElement); } \
-  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLInputElement * *aDOMSelectElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDOMSelectElement(aDOMSelectElement); } \
-  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLInputElement * aDOMSelectElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetDOMSelectElement(aDOMSelectElement); } \
   NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetType(aType); } \
   NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetType(aType); } \
   NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFormFieldPage(aFormFieldPage); } \
@@ -202,12 +206,12 @@ NS_IMETHODIMP kfLoginField::SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInpu
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* attribute nsIDOMHTMLInputElement DOMSelectElement; */
-NS_IMETHODIMP kfLoginField::GetDOMSelectElement(nsIDOMHTMLInputElement * *aDOMSelectElement)
+/* attribute nsIDOMHTMLSelectElement DOMSelectElement; */
+NS_IMETHODIMP kfLoginField::GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginField::SetDOMSelectElement(nsIDOMHTMLInputElement * aDOMSelectElement)
+NS_IMETHODIMP kfLoginField::SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   This is a file with utility functions to aid with a variety of tasks such as
   downloading files from the internet and running executable installers on the local system.
@@ -36,44 +36,11 @@ KFexecutableInstallerRunner.prototype = {
         throw Components.results.NS_ERROR_NO_INTERFACE;
     },
     run: function() {
-//try {
-
-  //      f.append("notepad.exe");
-  //var mozillaThreadSafteyBugFix = this.path;
-  
-  keeFoxInst._KeeFoxXPCOMobj.RunAnInstaller(this.path,this.params);//file.path, this.params);
-        
-// create an nsIProcess
-//var process = Components.classes["@mozilla.org/process/util;1"]
-//.createInstance(Components.interfaces.nsIProcess);
-//process.init(f);
-
-// Run the process.
-// If first param is true, calling thread will be blocked until
-// called process terminates.
-// Second and third params are used to pass command-line arguments
-// to the process.
-
-//var args = ["argument1", "argument2"];
-//process.run(true, args, args.length);
-
-
-    //keeFoxInst.runAnInstaller(f.path, this.params);
-
+        keeFoxInst._KeeFoxXPCOMobj.RunAnInstaller(this.path,this.params);//file.path, this.params);
         var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-        main.dispatch(new KFmainThreadHandler("executableInstallerRunner", this.reason, '', this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL);
-        //var temp = new KFmainThreadHandler("executableInstallerRunner", this.reason, this.params, this.mainWindow, this.browserWindow);
-        //temp.run();
-        
-        //this.mainWindow.KFtempComplete = true;
-//} catch (err) {
- //           Components.utils.reportError(err);
- //       }
- 
+        main.dispatch(new KFmainThreadHandler("executableInstallerRunner", this.reason, '', this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL); 
     }
 };
-
-
 
 
 
@@ -91,23 +58,7 @@ KFmainThreadHandler.prototype = {
         try {
             KFLog.debug(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
             switch (this.source) {
-                /*case "ICEversionCheck":
-                    if (this.reason == "finished") {
-                        keeFoxInst._keeFoxStorage.set("KeeVersionCheckResult", this.result);
-                        //TODO: set up variables, etc. as per if it were an initial startup
-                        keeFoxInst.ICEconnectorTimer.cancel();
-
-                        keeFoxInst.log("Successfully established connection with KeeICE");
-                        // remember this across all windows
-                        keeFoxInst._keeFoxStorage.set("KeeICEActive", true);
-                        keeFoxInst._keeFoxStorage.set("KeeICEInstalled", true);
-
-                        //keeFoxInst._refreshKPDB();
-                        keeFoxInst._configureKeeICECallbacks();
-                        keeFoxInst._refreshKPDB();
-                    }
-                    break;*/
-
+            
                 case "executableInstallerRunner":
                     if (this.reason == "IC1NETSetupFinished") {
                         this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_EXECUTING;
@@ -241,13 +192,14 @@ by calling the generic keefox main thread handler (maybe this listener is just c
 the main thread anyway but might as well play it safe and make sure we definitely only
  let the main thread touch the UI
 */
-function KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow) {
+function KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist) {
     this.source = source;
     this.URL = URL;
     this.destinationFile = destinationFile;
     this.mainWindow = mainWindow;
     this.browserWindow = browserWindow;
     this.lastPerCom = 0;
+    this.persist = persist;
 }
 KeeFoxFileDownloaderListener.prototype = {
     QueryInterface: function(aIID) {
@@ -260,6 +212,7 @@ KeeFoxFileDownloaderListener.prototype = {
 
     onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
 
+//TODO: check if user or script has cancelled download and call persist.cancelSave() if needed?
         var percentComplete = Math.floor((aCurTotalProgress / aMaxTotalProgress) * 100);
 
 //TODO: only send message to main thread once per second or if it = 100%
@@ -274,10 +227,15 @@ KeeFoxFileDownloaderListener.prototype = {
     },
     onStateChange: function(aWebProgress, aRequest, aStatus, aMessage) {
         if (aStatus & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
-            //var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-            //main.dispatch(new KFmainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL);
-            var kfMTH = new KFmainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow);
-            kfMTH.run();
+        
+            if (this.persist.result == NS_OK) {
+                var kfMTH = new KFmainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow);
+                kfMTH.run();
+            } else
+            {//TODO: different for cancelled?
+                var kfMTH = new KFmainThreadHandler(this.source, "failed", "", this.mainWindow, this.browserWindow);
+                kfMTH.run();
+            }
         }
     }
 }
@@ -286,38 +244,27 @@ KeeFoxFileDownloaderListener.prototype = {
 /*
 download a file - saveURI function is asyncronous so I don't think this needs to be called away from the main thread
 */
-function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow) {
+function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow, persist) {
 
-    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-    .createInstance(Components.interfaces.nsIWebBrowserPersist);
+    persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(Components.interfaces.nsIWebBrowserPersist);
     var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(keeFoxInst._myDepsDir());
+    file.initWithPath(keeFoxInst._myDepsDir());
 
     file.append(destinationFile);
-     //Components.classes["@mozilla.org/file/local;1"]
-    //.createInstance(Components.interfaces.nsILocalFile);
-    //file.initWithPath(keeFoxInst._myDepsDir() + destinationFile); // download destination
-    
-    
-    var obj_URI = Components.classes["@mozilla.org/network/io-service;1"]
-    .getService(Components.interfaces.nsIIOService)
-    .newURI(URL, null, null);
-    persist.progressListener = new KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow);
-    persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_BYPASS_CACHE;
 
-    //var KF_mainThread = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-    //KF_mainThread.dispatch(new KFmainThread(this.source, "progress", persist.persistFlags, this.mainWindow, this.browserWindow), KF_mainThread.DISPATCH_NORMAL);
+    var obj_URI = Components.classes["@mozilla.org/network/io-service;1"]
+        .getService(Components.interfaces.nsIIOService)
+        .newURI(URL, null, null);
+    persist.progressListener = new KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist);
+    persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
 
     persist.saveURI(obj_URI, null, null, null, "", file);
-
-    //var thread = Components.classes["@mozilla.org/thread-manager;1"]
-    //            .getService(Components.interfaces.nsIThreadManager)
-    //            .currentThread;
+    
+    return persist;
     //while (persist.currentState != persist.PERSIST_STATE_FINISHED)
-    //    thread.processNextEvent(true);
 
-    //KF_mainThread.dispatch(new KFmainThread(this.source, "progress", 10000, this.mainWindow, this.browserWindow), KF_mainThread.DISPATCH_NORMAL);
 }
 
 function KFMD5checksumVerification(path, testMD5) {

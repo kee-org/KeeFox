@@ -79,7 +79,7 @@
                 
                 if (pageFields[i].fieldId != null && pageFields[i].fieldId != undefined 
                     && pageFields[i].fieldId != "" && pageFields[i].fieldId == matchedField.fieldId && 
-                    (pageFields[i].type == "select" 
+                    (pageFields[i].type == "select-one" 
                      || pageFields[i].type == "radio" 
                      || pageFields[i].type == "checkbox" 
                      || pageFields[i].value.length == 0 
@@ -116,7 +116,7 @@
                     
                     if (pageFields[i].name != null && pageFields[i].name != undefined 
                         && pageFields[i].name != "" && pageFields[i].name == matchedField.name && 
-                        (pageFields[i].type == "select" 
+                        (pageFields[i].type == "select-one" 
                          || pageFields[i].type == "radio" 
                          || pageFields[i].type == "checkbox" 
                          || pageFields[i].value.length == 0 
@@ -138,7 +138,7 @@
                 }
             }
             
-            if (!foundADefiniteMatch && pageFields[i].type != "radio" && (pageFields[i].type == "select" 
+            if (!foundADefiniteMatch && pageFields[i].type != "radio" && (pageFields[i].type == "select-one" 
                  || pageFields[i].type == "checkbox" 
                  || pageFields[i].value.length == 0 
                  || overWriteFieldsAutomatically
@@ -191,10 +191,9 @@
                 else
                     KFLog.info("We will populate field "+matchedIds[i]+".");
                 
-                if (pageFields[matchedIds[i]].type == "select")
+                if (pageFields[matchedIds[i]].type == "select-one")
                 {
-                    //TODO: select relevant form option
-                    //pageFields[i].DOMSelectElement.value = matchedValue; 
+                    pageFields[matchedIds[i]].DOMSelectElement.value = matchedValues[i]; 
                 } else if (pageFields[matchedIds[i]].type == "checkbox" || pageFields[matchedIds[i]].type == "radio")
                 {
                     pageFields[matchedIds[i]].DOMInputElement.checked = true;
@@ -221,10 +220,9 @@
                 else
                     KFLog.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
                 
-                if (pageFields[backupMatchedIds[i]].type == "select")
+                if (pageFields[backupMatchedIds[i]].type == "select-one")
                 {
-                    //TODO: select relevant form option
-                    //pageFields[i].DOMSelectElement.value = matchedValue; 
+                    pageFields[backupMatchedIds[i]].DOMSelectElement.value = backupMatchedValues[i]; 
                 } else if (pageFields[backupMatchedIds[i]].type == "checkbox" || pageFields[backupMatchedIds[i]].type == "radio")
                 {
                     pageFields[backupMatchedIds[i]].DOMInputElement.checked = true;
