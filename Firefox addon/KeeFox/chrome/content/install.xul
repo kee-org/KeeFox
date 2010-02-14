@@ -116,6 +116,21 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <description>&KeeFox_Install_Process_Running_In_Other_Tab.label;</description>
             </vbox>
 
+            <vbox id="ERRORInstallButtonMain" hidden="true">
+              <description>&KeeFox_Install_Unexpected_Error.label;</description>
+            </vbox>
+            <vbox id="ERRORInstallDownloadFailed" hidden="true">
+              <description>&KeeFox_Install_Download_Failed.label;</description>
+            </vbox>
+            <vbox id="ERRORInstallDownloadChecksumFailed" hidden="true">
+              <description>&KeeFox_Install_Download_Checksum_Failed.label;</description>
+            </vbox>
+
+            <vbox id="restartInstallationOption" hidden="true">
+              <button label="&KeeFox_Install_Try_Again_Button.label;"
+                    oncommand="resetInstallation(); window.location.reload(true);"/>
+            </vbox>
+
 
             <!-- everything in this box is displayed on first page load and hidden after installation has started -->
             <vbox style="width:600px;" id="installationStartView" hidden="false">
@@ -154,17 +169,7 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
                       oncommand="copyKIToKnownKPLocationInstall();"/>
               </vbox>
 
-              <vbox id="ERRORInstallButtonMain" hidden="true">
-                <description>&KeeFox_Install_Unexpected_Error.label;</description>
-              </vbox>
-              <vbox id="ERRORInstallDownloadFailed" hidden="true">
-                <description>&KeeFox_Install_Download_Failed.label;</description>
-                <button label="Try again"
-                      oncommand="restartInstallation();"/>
-              </vbox>
-              <vbox id="ERRORInstallDownloadChecksumFailed" hidden="true">
-                <description>&KeeFox_Install_Download_Checksum_Failed.label;</description>
-              </vbox>
+              
               
               
               <!-- these boxes are used to provide a "click to see more options" interface to the user -->
@@ -271,7 +276,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <vbox id="IC1setupNETdownloading" hidden="true">
                 <description>&KeeFox_Install_IC1setupNETdownloading.description;</description>
                 <progressmeter id="IC1setupNETdownloadingProgressBar" mode="determined" value="0"/>
-
+                <button label="&KeeFox_Install_Cancel_Button.label;"
+                        oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC1setupNETdownloaded" hidden="true">
                 <description>&KeeFox_Install_IC1setupNETdownloaded.description;</description>
@@ -280,7 +286,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <vbox id="IC1setupNET35downloading" hidden="true">
                 <description>&KeeFox_Install_IC1setupNET35downloading.description;</description>
                 <progressmeter id="IC1setupNET35downloadingProgressBar" mode="determined" value="0"/>
-
+                <button label="&KeeFox_Install_Cancel_Button.label;"
+                        oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC1setupNET35downloaded" hidden="true">
                 <description>&KeeFox_Install_IC1setupNET35downloaded.description;</description>
@@ -289,7 +296,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <vbox id="IC1setupKPdownloading" hidden="true">
                 <description>&KeeFox_Install_IC1setupKPdownloading.description;</description>
                 <progressmeter id="IC1setupKPdownloadingProgressBar" mode="determined" value="0"/>
-
+                <button label="&KeeFox_Install_Cancel_Button.label;"
+                        oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC1setupKPdownloaded" hidden="true">
                 <description>&KeeFox_Install_IC1setupKPdownloaded.description;</description>
@@ -302,7 +310,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <vbox id="IC2setupKPdownloading" hidden="true">
                 <description>&KeeFox_Install_IC2setupKPdownloading.description;</description>
                 <progressmeter id="IC2setupKPdownloadingProgressBar" mode="determined" value="0"/>
-
+                <button label="&KeeFox_Install_Cancel_Button.label;"
+                        oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC2setupKPdownloaded" hidden="true">
                 <description>&KeeFox_Install_IC2setupKPdownloaded.description;</description>
@@ -319,7 +328,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <vbox id="IC5zipKPdownloading" hidden="true">
                 <description>&KeeFox_Install_IC5zipKPdownloading.description;</description>
                 <progressmeter id="IC5zipKPdownloadingProgressBar" mode="determined" value="0"/>
-
+                <button label="&KeeFox_Install_Cancel_Button.label;"
+                        oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC5zipKPdownloaded" hidden="true">
                 <description>&KeeFox_Install_IC5zipKPdownloaded.description;</description>

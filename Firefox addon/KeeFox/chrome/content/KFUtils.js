@@ -79,96 +79,10 @@ KFmainThreadHandler.prototype = {
                     }
                     break;
 
-                case "IC1PriDownload":
-                    // if we've just finished downloading NET
-                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
-                    
-                        KFLog.info("Finished downloading IC1setupNET");
-                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
-                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADED;
-                        this.browserWindow.IC1setupNET(this.mainWindow);
-                    }
-                    // if we've just finished downloading KP
-                    else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-                        KFLog.info("Finished downloading IC1setupKP");
-                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
-                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
-                        this.browserWindow.IC1setupKP(this.mainWindow);
-                    }
-                    // if we're still downloading NET
-                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
-                        KFLog.debug(this.result + "% of IC1setupNETdownloaded");
-                        this.browserWindow.document.getElementById('IC1setupNETdownloadingProgressBar').value = this.result;
-                    }
-                    // if we're still downloading KP
-                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-                        KFLog.debug(this.result + "% of IC1setupKPdownloaded");
-                        this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
-                    }
-                    break;
-                    
-                    case "IC1SecDownload":
-                    // if we've just finished downloading NET3.5
-                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
-                    
-                        KFLog.info("Finished downloading IC1setupNET35");
-                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING;
-                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADED;
-                        this.browserWindow.IC1setupNET35(this.mainWindow);
-                    }
-                    // if we've just finished downloading KP
-                    else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-                        KFLog.info("Finished downloading IC1setupKP");
-                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
-                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
-                        this.browserWindow.IC1setupKP(this.mainWindow);
-                    }
-                    // if we're still downloading NET35
-                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
-                        KFLog.debug(this.result + "% of IC1setupNET35downloaded");
-                        this.browserWindow.document.getElementById('IC1setupNET35downloadingProgressBar').value = this.result;
-                    }
-                    // if we're still downloading KP
-                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-                        KFLog.debug(this.result + "% of IC1setupKPdownloaded");
-                        this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
-                    }
-                    break;
-                    
-                    case "IC2PriDownload": // another naughty shortcut here (maybe I should re-write this whole install routine already!)
-                    // The IC2SecDownload just uses the same file as IC1Pri so we just check below whether we run silent or not
-                    // if we've just finished downloading KP
-                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-                        KFLog.info("Finished downloading IC2setupKP");
-                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
-                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
-                        if (this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_SELECTED_PRI)
-                            this.browserWindow.IC2setupKP(this.mainWindow);
-                        else
-                            this.browserWindow.IC2setupCustomKP(this.mainWindow);
-                    }
-                    // if we're still downloading KP
-                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-                        KFLog.debug(this.result + "% of IC2setupKPdownloaded");
-                        this.browserWindow.document.getElementById('IC2setupKPdownloadingProgressBar').value = this.result;
-                    }
-                    break;
-                    
-                    case "IC5PriDownload":
-                    // if we've just finished downloading KP ZIP file
-                    if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
-                        KFLog.info("Finished downloading IC5zipKP");
-                        this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
-                        this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADED;
-                        this.browserWindow.IC5zipKP(this.mainWindow);
-                    }
-                    // if we're still downloading KP ZIP file
-                    else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
-                        KFLog.debug(this.result + "% of IC5zipKPdownloaded");
-                        this.browserWindow.document.getElementById('IC5zipKPdownloadingProgressBar').value = this.result;
-                    }
-                    break;
-
+                case "IC1PriDownload": this.handleIC1PriDownload(); break;
+                case "IC1SecDownload": this.handleIC1SecDownload(); break;
+                case "IC2PriDownload": this.handleIC2PriDownload(); break;
+                case "IC5PriDownload": this.handleIC5PriDownload(); break;
             }
 
         } catch (err) {
@@ -182,6 +96,182 @@ KFmainThreadHandler.prototype = {
             return this;
         }
         throw Components.results.NS_ERROR_NO_INTERFACE;
+    },
+    
+    handleIC1PriDownload: function () {
+        // if we've just finished downloading NET
+        if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
+        
+            KFLog.info("Finished downloading IC1setupNET");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
+            this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADED;
+            this.browserWindow.IC1setupNET(this.mainWindow);
+        }
+        // if we've just finished downloading KP
+        else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("Finished downloading IC1setupKP");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
+            this.browserWindow.IC1setupKP(this.mainWindow);
+        }
+        
+        // if we're still downloading NET
+        else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
+            KFLog.debug(this.result + "% of IC1setupNETdownloaded");
+            this.browserWindow.document.getElementById('IC1setupNETdownloadingProgressBar').value = this.result;
+        }
+        // if we're still downloading KP
+        else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.debug(this.result + "% of IC1setupKPdownloaded");
+            this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
+        }
+        
+        // if NET download was cancelled
+        else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
+            KFLog.info("IC1setupNET download cancelled");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
+            // No need to take further action
+        }
+        // if KP download was cancelled
+        else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("IC1setupKP download cancelled");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            // No need to take further action
+        }
+        
+        // if NET download failed
+        else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
+            KFLog.info("IC1setupNET download failed");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
+            this.browserWindow.installationError("ERRORInstallDownloadFailed");
+        }
+        // if KP download failed
+        else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("IC1setupKP download failed");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            this.browserWindow.installationError("ERRORInstallDownloadFailed");
+        }
+    
+    },
+    
+    handleIC1SecDownload: function() {
+        // if we've just finished downloading NET3.5
+        if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
+        
+            KFLog.info("Finished downloading IC1setupNET35");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING;
+            this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADED;
+            this.browserWindow.IC1setupNET35(this.mainWindow);
+        }
+        // if we've just finished downloading KP
+        else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("Finished downloading IC1setupKP");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
+            this.browserWindow.IC1setupKP(this.mainWindow);
+        }
+        
+        // if we're still downloading NET35
+        else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
+            KFLog.debug(this.result + "% of IC1setupNET35downloaded");
+            this.browserWindow.document.getElementById('IC1setupNET35downloadingProgressBar').value = this.result;
+        }
+        // if we're still downloading KP
+        else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.debug(this.result + "% of IC1setupKPdownloaded");
+            this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
+        }
+        
+        // if NET35 download was cancelled
+        else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
+            KFLog.info("IC1setupNET35 download cancelled");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING;
+            // No need to take further action
+        }
+        // if KP download was cancelled
+        else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("IC1setupKP download cancelled");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            // No need to take further action
+        }
+        
+        // if NET35 download failed
+        else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
+            KFLog.info("IC1setupNET35 download failed");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING;
+            this.browserWindow.installationError("ERRORInstallDownloadFailed");
+        }
+        // if KP download failed
+        else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("IC1setupKP download failed");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            this.browserWindow.installationError("ERRORInstallDownloadFailed");
+        }
+    },
+    
+    handleIC2PriDownload: function() {
+        // The IC2SecDownload just uses the same file as IC1Pri so we just check below whether we run silent or not
+        
+        // if we've just finished downloading KP
+        if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("Finished downloading IC2setupKP");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
+            if (this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_SELECTED_PRI)
+                this.browserWindow.IC2setupKP(this.mainWindow);
+            else
+                this.browserWindow.IC2setupCustomKP(this.mainWindow);
+        }
+        
+        // if we're still downloading KP
+        else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.debug(this.result + "% of IC2setupKPdownloaded");
+            this.browserWindow.document.getElementById('IC2setupKPdownloadingProgressBar').value = this.result;
+        }
+        
+        // if KP download was cancelled
+        else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("IC2setupKP download cancelled");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            // No need to take further action
+        }
+        
+        // if KP download failed
+        else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
+            KFLog.info("IC2setupKP download failed");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
+            this.browserWindow.installationError("ERRORInstallDownloadFailed");
+        }
+    },
+    
+    handleIC5PriDownload: function() {
+        // if we've just finished downloading KP ZIP file
+        if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
+            KFLog.info("Finished downloading IC5zipKP");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
+            this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADED;
+            this.browserWindow.IC5zipKP(this.mainWindow);
+        }
+        
+        // if we're still downloading KP ZIP file
+        else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
+            KFLog.debug(this.result + "% of IC5zipKPdownloaded");
+            this.browserWindow.document.getElementById('IC5zipKPdownloadingProgressBar').value = this.result;
+        }
+        
+        // if KP ZIP download was cancelled
+        else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
+            KFLog.info("IC2setupKP download cancelled");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
+            // No need to take further action
+        }
+        
+        // if KP ZIP download failed
+        else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
+            KFLog.info("IC2setupKP download failed");
+            this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
+            this.browserWindow.installationError("ERRORInstallDownloadFailed");
+        }
     }
 };
 
@@ -228,11 +318,14 @@ KeeFoxFileDownloaderListener.prototype = {
     onStateChange: function(aWebProgress, aRequest, aStatus, aMessage) {
         if (aStatus & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
         
-            if (this.persist.result == NS_OK) {
+            if (this.persist.result == 0) { // NS_OK
                 var kfMTH = new KFmainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
-            } else
-            {//TODO: different for cancelled?
+            } else if (this.persist.result == 2152398850) { //NS_BINDING_ABORTED: 0x804b0002
+                var kfMTH = new KFmainThreadHandler(this.source, "cancelled", "", this.mainWindow, this.browserWindow);
+                kfMTH.run();
+            } else 
+            {
                 var kfMTH = new KFmainThreadHandler(this.source, "failed", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
             }

@@ -922,14 +922,25 @@ KFILM.prototype.fill = function (usernameName,usernameValue,actionURL,usernameID
         
         // Find the first submit button    
         for(var i = 0; i < inputElements.length; i++)
+		{
 			if(inputElements[i].type != null && inputElements[i].type == "submit")
+			{
 				submitElement = inputElements[i];
+				break;
+		    }
+		}
+        //TODO: more accurate searching of submit buttons, etc. to avoid password resets if possible
         
         // if no submit button found, try to find an image button
         if(submitElement != null) {
             for(var i = 0; i < inputElements.length; i++)
+			{
 			    if(inputElements[i].type != null && inputElements[i].type == "image")
+			    {
 				    submitElement = inputElements[i];
+				    break;
+			    }
+		    }
         }    
         
         // If we've found a button to click, use that; if not, just submit the form.  

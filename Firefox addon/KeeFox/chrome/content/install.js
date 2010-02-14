@@ -210,16 +210,30 @@ function installationError(error)
 {
     if (error == "ERRORInstallDownloadFailed")
     {
-        document.getElementById('').setAttribute('hidden', false);
+        showSection('ERRORInstallDownloadFailed');
+    } else if (error == "ERRORInstallDownloadChecksumFailed")
+    {
+        showSection('ERRORInstallDownloadFailed');
     } else
     {
-        //TODO: refresh whole page
+        showSection('ERRORInstallButtonMain');
     }
+    showSection('restartInstallationOption');
+    resetInstallation();
 }
 
-function restartInstallation()
+function resetInstallation()
 {
     mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",false);
+    
+}
+
+function cancelCurrentDownload()
+{
+    hideSection("installProgressView");
+    persist.cancelSave();
+    showSection('restartInstallationOption');
+    resetInstallation();
     
 }
 
@@ -307,13 +321,18 @@ try {
             
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
         
+        hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
+        
         if (checkTest)
             mainWindow.KFLog.info("File checksum succeeded.");
         else
+        {
             mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+            
+        }
         // TODO: kick user back to start if it fails
         
-        hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
+        
         showSection('IC1setupKPdownloaded');
         
         var file = Components.classes["@mozilla.org/file/local;1"]

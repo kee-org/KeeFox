@@ -40,6 +40,12 @@
 <!ENTITY KeeFox_Install_Window_Title.label "KeeFox setup">
 <!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "Install process already started in another tab. If you cannot find the tab, you may need to restart Firefox to proceed.">
 <!ENTITY KeeFox_Install_Unexpected_Error.label "An unexpected error occured during KeeFox installation.">
+<!ENTITY KeeFox_Install_Download_Failed.label "The download of a required component failed.">
+<!ENTITY KeeFox_Install_Download_Canceled.label "The download of a required component was cancelled.">
+<!ENTITY KeeFox_Install_Download_Checksum_Failed.label "A downloaded component is corrupt. Try again and if you continue to receive this message, ask in the support forum for help.">
+<!ENTITY KeeFox_Install_Try_Again_Button.label "Try again">
+<!ENTITY KeeFox_Install_Cancel_Button.label "Cancel">
+
 
 <!-- strings describing each possible default setup state -->
 <!ENTITY KeeFox_Install_adminNETInstallExpander.description "%KeeFox_Shared_Must_Install_Two_Components;.">
