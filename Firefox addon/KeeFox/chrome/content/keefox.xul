@@ -3,6 +3,28 @@
 
 <!DOCTYPE overlay SYSTEM "chrome://keefox/locale/keefox.dtd">
 
+<!--
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is the main KeeFox XUL file. It overlays the key parts of the KeeFox
+  interface such as the KeeFox toolbar and associated popup menus.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+
 <overlay id="KeeFox-Overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundleset id="stringbundleset">
     <stringbundle id="KeeFox-strings" src="chrome://keefox/locale/keefox.properties"/>
@@ -15,22 +37,43 @@
     <toolbarbutton id="KeeFox_Menu-Button" tooltiptext="&KeeFox_Menu-Button.tip;"
            class="" type="menu" label="&KeeFox_Menu-Button.label;" >
       <menupopup>
-        <menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
-                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />
+        <!--<menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
+                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />-->
+
+        <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
+                   class="" image="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
+        <menupopup id="KeeFox_ChangeDB-Popup">
+          
+        </menupopup>
+        </menu>
+
+        <menuitem id="KeeFox_FillCurrentDocument-Button" tooltiptext="&KeeFox_Menu-Button.fillCurrentDocument.tip;"
+                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keeFoxToolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
+        
 
         <menuseparator />
 
-        
-        <!--<menuitem id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
-                   class="" label="&KeeFox_Menu-Button.changeDB.label;" oncommand="keeFoxToolbar.setAllLogins();" accesskey="&KeeFox_Menu-Button.changeDB.key;" />-->
+        <!--<menuitem id="KeeFox_UpdateAllFavicons-Button" tooltiptext="&KeeFox_Menu-Button.updateAllFavicons.tip;"
+                                   class="" label="&KeeFox_Menu-Button.updateAllFavicons.label;" oncommand="keeFoxInst.updateAllFavicons()" accesskey="&KeeFox_Menu-Button.updateAllFavicons.key;" />
 
+        <menuseparator />-->
+        
+
+        <!--
+        <menuitem label="Save to a folder..."
+                oncommand='openDialog(
+               "chrome://keefox/content/groupChooser.xul",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              );' />
+-->
         <menuitem id="KeeFox_Options-Button" tooltiptext="&KeeFox_Menu-Button.options.tip;"
                    class="" label="&KeeFox_Menu-Button.options.label;" oncommand='openDialog(
                "chrome://keefox/content/options.xul",
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );' accesskey="&KeeFox_Menu-Button.options.key;" />
-        
+
       </menupopup>
     </toolbarbutton>
 
@@ -39,7 +82,7 @@
                    KFLock="disabled" disabled="true" maxwidth="200"/>
       
     <toolbarbutton id="KeeFox_Logins-Button" tooltiptext="&KeeFox_Logins-Button.tip;"
-             label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu" image="chrome://mozapps/skin/passwordmgr/key.png">
+             label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu">
       <menupopup id="KeeFox_Logins-Button-root">
         
       </menupopup>
@@ -49,28 +92,37 @@
   
   <toolbox id="navigator-toolbox">
 		<toolbar id="KeeFox-Toolbar" toolbarname="KeeFox" accesskey="K"
-         class="chromeclass-toolbar" context="toolbar-context-menu" 
+         class="chromeclass-toolbar" context="toolbar-context-menu" iconsize="small" mode="full" defaulticonsize="small" defaultmode="full"
          hidden="false" persist="hidden" customizable="true" defaultset="KeeFox_Menu-Button,KeeFox_Main-Button,KeeFox_Logins-Button">
 
     </toolbar>
 
 	</toolbox>
 
+  
+
   <popupset>
     <menupopup id="KeeFox-login-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="Edit login" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.value);"/>
-      <menuitem label="Delete login" oncommand="keeFoxInst.removeLogin(document.popupNode.value);"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.value);"/>
+      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Login.label;" oncommand="keeFoxInst.removeLogin(document.popupNode.value);"/>-->
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
       <!--<menuitem label="Login all in tabs"/>-->
-      <menuitem label="Edit folder" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.value);"/>
-      <menuitem label="Delete folder" oncommand="keeFoxInst.removeGroup(document.popupNode.value);"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.value);"/>
+      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Group.label;" oncommand="keeFoxInst.removeGroup(document.popupNode.value);"/>-->
+    </menupopup>
+    <menupopup id="rememberAdvancedButtonPopup">
+      <menuitem label="&KeeFox_Remember-Advanced-Popup-Group.label;"
+                oncommand='openDialog(
+               "chrome://keefox/content/groupChooser.xul",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              ); keeFoxToolbar.clearTabFormRecordingData();' />
+      <menuitem label="&KeeFox_Remember-Advanced-Popup-Multi-Page.label;"
+                oncommand='keeFoxToolbar.setTabFormRecordingData();' />
     </menupopup>
   </popupset>
-
-  <!--<button label="Pop Me Up" context="KeeFox-login-context"/>-->
-
 
   <menupopup id="menu_ToolsPopup">
     <menuitem label="KeeFox Options..."
@@ -81,8 +133,7 @@
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );' />
   </menupopup>
-  
-  
+
 
   <!-- e.g. of removal:
   <menupopup id="menu_ToolsPopup" removeelement="true">

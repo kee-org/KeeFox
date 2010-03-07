@@ -2,7 +2,7 @@
   KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ using KeePass.Resources;
 
 using KeePassLib;
 using KeePassLib.Security;
+using KeePass.App;
+using KeePass.UI;
 
 namespace KeeICE
 {
@@ -49,6 +51,8 @@ namespace KeeICE
         public Ice.Communicator ic = null;
 
         internal KPI kp;
+
+        internal string[] standardIconsBase64 = null;
 
         public override int run(string[] args)
         {
@@ -63,10 +67,10 @@ namespace KeeICE
 			    // Make sure that network and protocol tracing are off.
 			    //
 			    props.setProperty("Ice.ACM.Client", "0");
-                props.setProperty("Ice.ThreadPool.Client.Size", "2");
-                props.setProperty("Ice.ThreadPool.Server.Size", "2");
-                props.setProperty("Ice.ThreadPool.Client.SizeMax", "200");
-                props.setProperty("Ice.ThreadPool.Server.SizeMax", "200");
+                props.setProperty("Ice.ThreadPool.Client.Size", "6");
+                props.setProperty("Ice.ThreadPool.Server.Size", "6");
+                props.setProperty("Ice.ThreadPool.Client.SizeMax", "10");
+                props.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
 
 			    // Initialize a communicator with these properties.
 			    //
@@ -76,8 +80,8 @@ namespace KeeICE
                 ic = Ice.Util.initialize(id);
                 Ice.ObjectAdapter adapter
                     = ic.createObjectAdapterWithEndpoints(
-                        "KeeICEAdapter", "tcp -h localhost -p 12535");
-                kp = new KPI(m_host,ic);
+                        "KeeICEAdapter", "tcp -h localhost -p " + args[0]);// + " -t 30000");
+                kp = new KPI(m_host, standardIconsBase64, ic);
                 adapter.add(
                         kp,
                         ic.stringToIdentity("KeeICE"));
@@ -101,11 +105,29 @@ namespace KeeICE
                 //t.Join();
             }
             return 0;
+
+            //Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
+            //CallbackSenderI sender = new CallbackSenderI(communicator());
+            //adapter.add(sender, communicator().stringToIdentity("sender"));
+            //adapter.activate();
+
+            //Thread t = new Thread(new ThreadStart(sender.Run));
+            //t.Start();
+
+            //try
+            //{
+            //    communicator().waitForShutdown();
+            //}
+            //finally
+            //{
+            //    sender.destroy();
+            //    t.Join();
+            //}
         }
 
-        public void ICEthread()
+        public void ICEthread(object state)
         {
-            main(new string[0]);
+            main(new string[1] { ((int)state).ToString()});
             return;
         }
     }
@@ -116,6 +138,9 @@ namespace KeeICE
 	/// </summary>
 	public sealed class KeeICEExt : Plugin
 	{
+        // version information
+        public static readonly Version PluginVersion = new Version(0,7,3);
+
  		// This will be used to run a seperate thread and listen for ICE requests from 
         // clients such as KeeFox
         KeeICEServer keeICEServer;
@@ -124,16 +149,19 @@ namespace KeeICE
         Thread oThread;
 
 
+        private ToolStripMenuItem m_ICEOptions = null;
+        private ToolStripSeparator m_tsSeparator1 = null;
+        private ToolStripMenuItem m_KeeFoxRootMenu = null;
 
-        private void setupKeeICEServer()
+        private void setupKeeICEServer(int ICEport)
         {
 
             try
             {
-                oThread = new Thread(new ThreadStart(keeICEServer.ICEthread));
+                oThread = new Thread(new ParameterizedThreadStart(keeICEServer.ICEthread));
 
                 // Start the thread
-                oThread.Start();
+                oThread.Start(ICEport);
 
                 // wait for the started thread to become alive
                 while (!oThread.IsAlive) ;
@@ -152,14 +180,14 @@ namespace KeeICE
 
         private void setupKeeICEServerListener(object sender, FileCreatedEventArgs e)
         {
-            setupKeeICEServer();
+            //setupKeeICEServer();
             keeICEServer.m_host.MainWindow.FileOpened -= setupKeeICEServerListener;
             keeICEServer.m_host.MainWindow.FileCreated -= setupKeeICEServerListener;
         }
 
         private void setupKeeICEServerListener(object sender, FileOpenedEventArgs e)
         {
-            setupKeeICEServer();
+            //setupKeeICEServer();
             keeICEServer.m_host.MainWindow.FileOpened -= setupKeeICEServerListener;
             keeICEServer.m_host.MainWindow.FileCreated -= setupKeeICEServerListener;
         }
@@ -174,14 +202,30 @@ namespace KeeICE
 		/// <returns>true if channel registered correctly, otherwise false</returns>
 		public override bool Initialize(IPluginHost host)
 		{
+            string ICEportStr = host.CommandLineArgs["KeeICEPort"];
+            int ICEport = 12535;
+            
+            
+            if (ICEportStr != null)
+            {
+                try
+                {
+                    ICEport = int.Parse(ICEportStr);
+                }
+                catch
+                {
+                    ICEport = 12535;
+                }
+            }
 
             keeICEServer = new KeeICEServer();
             Debug.Assert(host != null);
             if(host == null) return false;
             keeICEServer.m_host = host;
+            keeICEServer.standardIconsBase64 = getStandardIconsBase64(host.MainWindow.ClientIcons);
 
            // if (host.Database.IsOpen) // unlikely!
-                setupKeeICEServer();
+            setupKeeICEServer(ICEport);
           /*  else
             {
                 keeICEServer.m_host.MainWindow.FileOpened += setupKeeICEServerListener;
@@ -201,16 +245,241 @@ namespace KeeICE
             keeICEServer.m_host.MainWindow.FileSaving += OnKPDBSaving;
             keeICEServer.m_host.MainWindow.FileSaved += OnKPDBSaved;
 
+            // Get a reference to the 'Tools' menu item container
+            ToolStripItemCollection tsMenu = keeICEServer.m_host.MainWindow.ToolsMenu.DropDownItems;
+
+            // Add menu item for options
+            m_ICEOptions = new ToolStripMenuItem();
+            m_ICEOptions.Text = "KeeFox (KeeICE) Options";
+            m_ICEOptions.Click += OnToolsOptions;
+            m_ICEOptions.Enabled = true;
+            tsMenu.Add(m_ICEOptions);
+
+            // Add a seperator and menu item to the group context menu
+            ContextMenuStrip gcm = keeICEServer.m_host.MainWindow.GroupContextMenu;
+            m_tsSeparator1 = new ToolStripSeparator();
+            gcm.Items.Add(m_tsSeparator1);
+            m_KeeFoxRootMenu = new ToolStripMenuItem();
+            m_KeeFoxRootMenu.Text = "Set as KeeFox start group";
+            m_KeeFoxRootMenu.Click += OnMenuSetRootGroup;
+            gcm.Items.Add(m_KeeFoxRootMenu);
+
             keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
+
+            bool upgrading = refreshVersionInfo(host);            
 
             if (keeICEServer.m_host.CommandLineArgs["welcomeToKeeFox"] != null)
             {
-                MessageBox.Show("Welcome to KeeFox! KeeFox stores your passwords securely using KeePass. Please setup a new KeePass database if required or load an existing one.");
-
+                if (upgrading)
+                    keeICEServer.m_host.MainWindow.Shown += new EventHandler(MainWindow_Shown_ExistingUser);
+                else
+                    keeICEServer.m_host.MainWindow.Shown += new EventHandler(MainWindow_Shown_NewUser);
             }
 
 			return true; // Initialization successful
 		}
+
+        bool refreshVersionInfo(IPluginHost host)
+        {
+            bool upgrading = false;
+            int majorOld = (int)host.CustomConfig.GetULong("KeeICE.KeeFox.version.major", 0);
+            int minorOld = (int)host.CustomConfig.GetULong("KeeICE.KeeFox.version.minor", 0);
+            int buildOld = (int)host.CustomConfig.GetULong("KeeICE.KeeFox.version.build", 0);
+            Version versionCurrent = PluginVersion;
+
+            if (majorOld != 0 || minorOld != 0 || buildOld != 0)
+            {
+                Version versionOld = new Version(majorOld, minorOld, buildOld);
+                if (versionCurrent.CompareTo(versionOld) > 0)
+                    upgrading = true;
+            }
+
+            host.CustomConfig.SetULong("KeeICE.KeeFox.version.major", (ulong)versionCurrent.Major);
+            host.CustomConfig.SetULong("KeeICE.KeeFox.version.minor", (ulong)versionCurrent.Minor);
+            host.CustomConfig.SetULong("KeeICE.KeeFox.version.build", (ulong)versionCurrent.Build);
+
+            return upgrading;
+        }
+
+        void OnToolsOptions(object sender, EventArgs e)
+        {
+            KeeICE.OptionsForm ofDlg = new KeeICE.OptionsForm(keeICEServer.m_host);
+            ofDlg.ShowDialog();
+        }
+
+        void OnMenuSetRootGroup(object sender, EventArgs e)
+        {
+            PwGroup pg = keeICEServer.m_host.MainWindow.GetSelectedGroup();
+            Debug.Assert(pg != null);
+            if (pg == null || pg.Uuid == null || pg.Uuid == PwUuid.Zero)
+                return;
+
+            keeICEServer.m_host.Database.CustomData.Set("KeeICE.KeeFox.rootUUID", 
+                KeePassLib.Utility.MemUtil.ByteArrayToHexString(pg.Uuid.UuidBytes));
+
+            keeICEServer.m_host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+
+        }
+
+        void MainWindow_Shown_NewUser(object sender, EventArgs e)
+        {
+            MessageBox.Show("Welcome to KeeFox! THE FOLLOWING DIALOGS ARE EXPERIMENTAL PROTOTYPES - hopefully functional, but FAR from pretty!");
+            keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown_NewUser;
+            WelcomeKeeFoxUser();
+        }
+
+        void MainWindow_Shown_ExistingUser(object sender, EventArgs e)
+        {
+            MessageBox.Show("UPGRADE DETECTED - Upgrade specific information is coming soon, in the meantime, please experiment with and report back on the following EXPERIMENTAL PROTOTYPE 'new user' dialogs - they are hopefully functional, but FAR from pretty!");
+            keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown_ExistingUser;
+            WelcomeKeeFoxUser();
+        }
+
+        private string[] getStandardIconsBase64(ImageList il)
+        {
+            string[] icons = new string[il.Images.Count];
+
+            for (int i = 0; i < il.Images.Count; i++)
+			{
+			    Image image = il.Images[i];
+                MemoryStream ms = new MemoryStream();
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                icons[i] = Convert.ToBase64String(ms.ToArray());
+            }
+            return icons;
+        }
+
+        private void WelcomeKeeFoxUser()
+        {
+            WelcomeForm wf = new WelcomeForm();
+            DialogResult dr = wf.ShowDialog();
+            if (dr == DialogResult.Yes)
+                CreateNewDatabase();
+        }
+
+        /// <summary>
+        /// Called when [file new]. TODO: Review whenever private KeePass.MainForm.OnFileNew method changes.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        internal void CreateNewDatabase()
+        {
+            if (!AppPolicy.Try(AppPolicyId.SaveFile)) return;
+
+            SaveFileDialog sfd = UIUtil.CreateSaveFileDialog(KPRes.CreateNewDatabase,
+                KPRes.NewDatabaseFileName, UIUtil.CreateFileTypeFilter(
+                AppDefs.FileExtension.FileExt, KPRes.KdbxFiles, true), 1,
+                AppDefs.FileExtension.FileExt, false);
+
+            GlobalWindowManager.AddDialog(sfd);
+            DialogResult dr = sfd.ShowDialog();
+            GlobalWindowManager.RemoveDialog(sfd);
+
+            string strPath = sfd.FileName;
+
+            if (dr != DialogResult.OK) return;
+
+            KeePassLib.Keys.CompositeKey key;
+            KeyCreationSimpleForm kcsf = new KeyCreationSimpleForm();
+            kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+            dr = kcsf.ShowDialog();
+            if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+            if (dr == DialogResult.No)
+            {
+                KeyCreationForm kcf = new KeyCreationForm();
+                kcf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                dr = kcf.ShowDialog();
+                if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+                key = kcf.CompositeKey;
+            } else
+            {
+                key = kcsf.CompositeKey;
+            }
+
+            PwDocument dsPrevActive = keeICEServer.m_host.MainWindow.DocumentManager.ActiveDocument;
+            PwDatabase pd = keeICEServer.m_host.MainWindow.DocumentManager.CreateNewDocument(true).Database;
+            pd.New(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), key);
+
+            if (!string.IsNullOrEmpty(kcsf.DatabaseName))
+            {
+                pd.Name = kcsf.DatabaseName;
+                pd.NameChanged = DateTime.Now;
+            }
+
+            PwGroup pg = new PwGroup(true, true, KPRes.General, PwIcon.Folder);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.WindowsOS, PwIcon.DriveWindows);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.Network, PwIcon.NetworkServer);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.Internet, PwIcon.World);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.EMail, PwIcon.EMail);
+            pd.RootGroup.AddGroup(pg, true);
+
+            pg = new PwGroup(true, true, KPRes.Homebanking, PwIcon.Homebanking);
+            pd.RootGroup.AddGroup(pg, true);
+
+            // TODO: add KeeFox icon to Database cache and use it
+            PwGroup kfpg = new PwGroup(true, true, "KeeFox", PwIcon.Homebanking);
+            pd.RootGroup.AddGroup(kfpg, true);
+
+            //TODO: Set up a sample KeeFox friendly group and entry (maybe for http://practice.keefox.org and practice.keefox.org/advanced/etc/ inc. multi-page step throughs, etc.)
+            PwEntry pe = new PwEntry(true, true);
+            pe.Strings.Set(PwDefs.TitleField, new ProtectedString(pd.MemoryProtection.ProtectTitle,
+                "Quick Start (double click on the URL to learn how to use KeeFox)"));
+            pe.Strings.Set(PwDefs.UserNameField, new ProtectedString(pd.MemoryProtection.ProtectUserName,
+                KPRes.UserName));
+            pe.Strings.Set(PwDefs.UrlField, new ProtectedString(pd.MemoryProtection.ProtectUrl,
+                @"http://www.somesite.com/"));
+            pe.Strings.Set(PwDefs.PasswordField, new ProtectedString(pd.MemoryProtection.ProtectPassword,
+                KPRes.Password));
+            pe.Strings.Set(PwDefs.NotesField, new ProtectedString(pd.MemoryProtection.ProtectNotes,
+                KPRes.Notes));
+            pe.AutoType.Set(KPRes.TargetWindow, @"{USERNAME}{TAB}{PASSWORD}{TAB}{ENTER}");
+            kfpg.AddEntry(pe, true);
+
+#if DEBUG
+			Random r = Program.GlobalRandom;
+			for(uint iSamples = 0; iSamples < 1500; ++iSamples)
+			{
+				pg = pd.RootGroup.Groups.GetAt(iSamples % 5);
+
+				pe = new PwEntry(true, true);
+
+				pe.Strings.Set(PwDefs.TitleField, new ProtectedString(pd.MemoryProtection.ProtectTitle,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.UserNameField, new ProtectedString(pd.MemoryProtection.ProtectUserName,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.UrlField, new ProtectedString(pd.MemoryProtection.ProtectUrl,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.PasswordField, new ProtectedString(pd.MemoryProtection.ProtectPassword,
+					Guid.NewGuid().ToString()));
+				pe.Strings.Set(PwDefs.NotesField, new ProtectedString(pd.MemoryProtection.ProtectNotes,
+					Guid.NewGuid().ToString()));
+
+				pe.IconId = (PwIcon)r.Next(0, (int)PwIcon.Count);
+
+				pg.AddEntry(pe, true);
+			}
+
+			pd.CustomData.Set("Sample Custom Data 1", "0123456789");
+			pd.CustomData.Set("Sample Custom Data 2", @"µy data");
+#endif
+
+            keeICEServer.m_host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
+
+            // TODO: Can't raise FileCreated event from a plugin?
+            //if (keeICEServer.m_host.MainWindow.FileCreated != null)
+            //{
+            //    FileCreatedEventArgs ea = new FileCreatedEventArgs(pd);
+            //    keeICEServer.m_host.MainWindow.FileCreated(this, ea);
+            //}
+        }
 
 		/// <summary>
 		/// Free channel resources
@@ -249,6 +518,15 @@ namespace KeeICE
             keeICEServer.m_host.MainWindow.FileCreated -= OnKPDBOpen; // or need a specific handler here?
             keeICEServer.m_host.MainWindow.FileSaving -= OnKPDBSaving;
             keeICEServer.m_host.MainWindow.FileSaved -= OnKPDBSaved;
+
+            // Remove 'Tools' menu items
+            ToolStripItemCollection tsMenu = keeICEServer.m_host.MainWindow.ToolsMenu.DropDownItems;
+            tsMenu.Remove(m_ICEOptions);
+
+            // Remove group context menu items
+            ContextMenuStrip gcm = keeICEServer.m_host.MainWindow.GroupContextMenu;
+            gcm.Items.Remove(m_tsSeparator1);
+            gcm.Items.Remove(m_KeeFoxRootMenu);
 		}
 
         private void OnKPDBSelected(object sender, EventArgs e)

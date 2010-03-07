@@ -36,38 +36,13 @@
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(CKeeFox)
 
-/*
-static NS_METHOD CKeeFoxRegisterSelf(nsIComponentManager *compMgr, nsIFile *path, const char *loaderStr, const char *type, const nsModuleComponentInfo *info)
-{
-  nsCOMPtr<nsICategoryManager> cat =
-      do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
-  NS_ENSURE_STATE(cat);
-
-  cat->AddCategoryEntry("login-manager-storage", "nsILoginManagerStorage",
-                        KEEFOX_CONTRACTID, PR_TRUE, PR_TRUE, nsnull);
-  return NS_OK;
-}
-
-static NS_METHOD CKeeFoxUnregisterSelf(nsIComponentManager *compMgr, nsIFile *path, const char *loaderStr, const nsModuleComponentInfo *info)
-{
-  nsCOMPtr<nsICategoryManager> cat =
-      do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
-  NS_ENSURE_STATE(cat);
-
-  cat->DeleteCategoryEntry("login-manager-storage", "nsILoginManagerStorage",
-                           PR_TRUE);
-  return NS_OK;
-}*/
-
 static nsModuleComponentInfo components[] =
 {
     {
        KEEFOX_CLASSNAME, 
        KEEFOX_CID,
        KEEFOX_CONTRACTID,
-       CKeeFoxConstructor//,
-	   //CKeeFoxRegisterSelf,
-       //CKeeFoxUnregisterSelf
+       CKeeFoxConstructor
     }
 };
 

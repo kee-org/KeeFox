@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4C1BB6F8-D2CD-49C2-9053-21705681356C}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -40,12 +40,15 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\Program Files\KeePass Password Safe 2\plugins\</OutputPath>
+    <OutputPath>C:\Program Files\KeePass Password Safe 2\plugins\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -54,22 +57,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\Program Files\KeePass Password Safe 2\plugins\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'teast|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\teast\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Analyse|AnyCPU' ">
-    <OutputPath>bin\Analyse\</OutputPath>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleasePLGX|AnyCPU' ">
+    <OutputPath>bin\ReleasePLGX\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -77,17 +72,20 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.3.0.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Ice-3.3.0-VC90\bin\Ice.dll</HintPath>
+      <HintPath>Ice.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.0.7.28344, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+    <Reference Include="KeePass, Version=2.0.8.21738, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files\KeePass Password Safe 2\KeePass.exe</HintPath>
+      <HintPath>C:\Program Files (x86)\KeePass Password Safe 2\KeePass.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
@@ -96,12 +94,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\KeyCreationSimpleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KeyCreationSimpleForm.designer.cs">
+      <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WelcomeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WelcomeForm.Designer.cs">
+      <DependentUpon>WelcomeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="generated\KeeICE.cs" />
     <Compile Include="KeeICEExt.cs" />
     <Compile Include="KPI.cs" />
+    <Compile Include="Forms\OptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="KeeICE.ice" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +138,20 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\KeyCreationSimpleForm.resx">
+      <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OptionsForm.resx">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WelcomeForm.resx">
+      <DependentUpon>WelcomeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -130,32 +161,102 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)..\Ice-3.3.0-VC90\bin\slice2cs" -IC:\development\Ice-3.3.0-VC90\slice\ --output-dir "$(ProjectDir)generated" "$(ProjectDir)KeeICE.ice"
-"$(SolutionDir)..\IceE-1.3.0\cpp\bin\slice2cppe" -IC:\development\IceE-1.3.0\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
-    <PostBuildEvent>echo POSTBUILDSTEP for $(ProjectName)
+    <PreBuildEvent>"$(SolutionDir)..\Ice-3.4b\bin\slice2cs" -Ie:\development\Ice-3.4b\slice\ --output-dir "$(ProjectDir)generated" "$(ProjectDir)KeeICE.ice"
+"$(SolutionDir)..\IceE-1.3.0\cpp\bin\slice2cppe" -DICEE -Ie:\development\IceE-1.3.0\slice\ --output-dir "$(SolutionDir)KeeFox\generated" "$(ProjectDir)KeeICE.ice"</PreBuildEvent>
+    <PostBuildEvent>
+      echo POSTBUILDSTEP for $(ProjectName)
 
-REM IF NOT "$(ConfigurationName)"=="Debug" Goto :NotDebug
-REM Here, do things only for debug
-REM :NotDebug
-REM IF NOT "$(ConfigurationName)"=="Release" Goto :NotRelease
-REM :NotRelease
+      set KPDir=C:\Program Files (x86)\KeePass Password Safe 2\
+      set KPPDir=%25KPDir%25plugins\
+      set KPPTempDir=%25KPPDir%25$(ProjectName)
 
-copy "$(OutDir)Ice.dll" "$(SolutionDir)Firefox addon\KeeFox\deps\Ice.dll"
-if errorlevel 1 goto BuildEventFailed
+      IF NOT "$(ConfigurationName)"=="Release" Goto :NotDebug
+      REM In debug mode we want to move the generated DLLs and PDBs to the plugins
+      REM directory so we can easily set breakpoints, etc.
+      REM In this case, we don't care if the Firefox add-on has missing or outdated
+      REM files (they are only used at install time so it won't affect debugging)
 
-copy "$(OutDir)KeeICE.dll" "$(SolutionDir)Firefox addon\KeeFox\deps\KeeICE.dll"
-if errorlevel 1 goto BuildEventFailed
+      REM delete the PLGX from any previous Release build
+      del /Q "%25KPPDir%25$(ProjectName).plgx"
+      if errorlevel 1 goto BuildEventFailed
+      echo Release plgx deleted
 
-REM Exit properly because the build will not fail 
-REM unless the final step exits with an error code
+      REM copy output DLLs to KeePass plugins directory
+      copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
+      if errorlevel 1 goto BuildEventFailed
+      copy "Ice.dll" "%25KPPDir%25\Ice.dll"
+      if errorlevel 1 goto BuildEventFailed
+      echo Debug DLLs copied to plugins directory
 
-goto BuildEventOK
+      goto BuildEventOK
 
-:BuildEventFailed
-echo POSTBUILDSTEP for $(ProjectName) FAILED
-exit 1
+      :NotDebug
+      IF NOT "$(ConfigurationName)"=="ReleasePLGX" Goto :NotRelease
+      REM In release mode we want to make sure that we are working with the PLGX version.
+      REM For the KeeFox project we will be in this mode quite a lot (whenever working
+      REM primarily on the Firefox add-on part of the project rather than KeeICE)
 
-:BuildEventOK
-echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
+      REM delete the DLLs from any previous Debug build
+      del /Q "%25KPPDir%25$(ProjectName).dll"
+      if errorlevel 1 goto BuildEventFailed
+      del /Q "%25KPPDir%25Ice.dll"
+      if errorlevel 1 goto BuildEventFailed
+      echo Debug DLLs deleted
+
+      REM create temporary directory
+      rmdir /S /Q "%25KPPTempDir%25"
+      mkdir "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo Temporary directory created
+
+      REM copy relevant project files to temporary directory
+      REM (for simple KeePass plugins you may need to
+      REM copy only *.cs files and .csproj file)
+      copy "Ice.dll" "%25KPPTempDir%25\Ice.dll"
+      if errorlevel 1 goto BuildEventFailed
+      copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      copy "$(ProjectDir)$(ProjectName).csproj" "%25KPPTempDir%25\$(ProjectName).csproj"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\Forms"
+      copy "$(ProjectDir)Forms\*.cs" "%25KPPTempDir%25\Forms"
+copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\Properties"
+      copy "$(ProjectDir)Properties\AssemblyInfo.cs" "%25KPPTempDir%25\Properties\AssemblyInfo.cs"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\generated"
+      copy "$(ProjectDir)generated\KeeICE.cs" "%25KPPTempDir%25\generated\KeeICE.cs"
+      if errorlevel 1 goto BuildEventFailed
+      echo Files copied to temporary directory
+
+      REM create the PLGX
+      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo PLGX created
+
+      REM copy PLGX to Firefox addon folder (for packaging in a .xpi later)
+      copy "%25KPPDir%25KeeICE.plgx" "$(SolutionDir)Firefox addon\KeeFox\deps\KeeICE.plgx"
+      if errorlevel 1 goto BuildEventFailed
+      echo PLGX copied to Firefox add-on
+
+      REM delete the temporary directory and its contents
+      rmdir /S /Q "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo Temporary directory deleted
+
+      goto BuildEventOK
+
+
+      :NotRelease
+      echo Invalid configuration selected. Please choose a different build configuration
+      echo or modify the post-build script to add support for this configuration.
+
+      :BuildEventFailed
+      echo POSTBUILDSTEP for $(ProjectName) FAILED
+      exit 1
+
+      :BuildEventOK
+      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
   </PropertyGroup>
 </Project>

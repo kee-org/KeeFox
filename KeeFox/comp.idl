@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,29 +18,33 @@
 */
 
 #include "nsISupports.idl"
-//#include "nsILoginInfo.idl"
 #include "nsIMutableArray.idl"
-//#include "nsILoginManagerStorage.idl"
+#include "nsIDOMHTMLInputElement.idl"
+#include "nsIDOMHTMLSelectElement.idl"
 
-// TODO: more attributes needed? would be nice if not, maybe automatically detect form field type at fill-in
-// stage rather than store in KeePass?
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa873)]
 interface kfILoginField : nsISupports {
   attribute AString name;
   attribute AString value;
-  void init(in AString aName, in AString aValue);
+  attribute AString fieldId;
+  attribute nsIDOMHTMLInputElement DOMInputElement;
+  attribute nsIDOMHTMLSelectElement DOMSelectElement;
+  attribute AString type;
+  attribute short formFieldPage;
+  void init(in AString aName, in AString aValue, in AString aID, in AString aType, in short aFormFieldPage);
+  AString toSource();
 };
 
 // based on Mozilla's nsILoginInfo
 [scriptable, function, uuid(7ed5ba34-1375-4887-86fd-0682ddfaa870)]
 interface kfILoginInfo : nsISupports {
 	/**
-     * The hostname the login applies to.
+     * The hostnames the login applies to.
      *
-     * The hostname should be formatted as an URL. For example,
+     * The hostnames should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
-    attribute AString URL;
+	attribute nsIMutableArray URLs;
 
     /**
      * The URL a form-based login was submitted to.
@@ -68,51 +72,39 @@ interface kfILoginInfo : nsISupports {
     attribute AString httpRealm;
 
     /**
-     * The username for the login.
+     * The index of the "otherField" which represents the "main" username.
      */
-    attribute AString username;
+    attribute long usernameIndex;
 
     /**
-     * The |name| attribute for the username input field.
-     *
-     * For logins obtained from a HTTP or FTP protocol authentication,
-     * this field is NULL.
+     * The password fields for the login.
      */
-    attribute AString usernameField;
+    attribute nsIMutableArray passwords;
 
-    /**
-     * The password for the login.
+	/**
+     * The non-password fields for the login.
      */
-    attribute AString password;
+	attribute nsIMutableArray otherFields;
 
-    /**
-     * The |name| attribute for the password input field.
-     *
-     * For logins obtained from a HTTP or FTP protocol authentication,
-     * this field is NULL.
+	/**
+     * The KeePass entry uniqueID (GUID).
      */
-    attribute AString passwordField;
-
-
-	attribute nsIMutableArray customFields;
-
 	attribute AString uniqueID;
 
+	/**
+     * The KeePass entry title.
+     */
 	attribute AString title;
 
+	/**
+     * The relevance of this login (transient / not stored in KeePass).
+     */
 	attribute long relevanceScore;
 
-
-    /**
-     * Initialize a newly created nsLoginInfo object.
-     *
-     * The arguments are the fields for the new object.
+	/**
+     * The number of pages of form fields this login contains (transient / not stored in KeePass).
      */
-    void init(in AString aHostname,
-              in AString aFormSubmitURL, in AString aHttpRealm,
-              in AString aUsername,      in AString aPassword,
-              in AString aUsernameField, in AString aPasswordField,
-			  in AString uniqueID, in AString aTitle);
+	attribute long maximumPage;
 
     /**
      * Test for strict equality with another nsILoginInfo object.
@@ -123,28 +115,47 @@ interface kfILoginInfo : nsISupports {
     boolean equals(in kfILoginInfo aLoginInfo);
 
     /**
-     * Test for loose equivalency with another nsILoginInfo object. The
-     * passwordField and usernameField values are ignored, and the password
-     * values may be optionally ignored. If one login's formSubmitURL is an
-     * empty string (but not null), it will be treated as a wildcard. [The
-     * blank value indicates the login was stored before bug 360493 was fixed.]
-     *
+     * Test for loose equivalency with another nsILoginInfo object.
      * @param aLoginInfo
      *        The other object to test.
-     * @param ignorePassword
-     *        If true, ignore the password when checking for match.
      */
     boolean matches(in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes);
 
-	void initCustom(in AString aHostname,
-              in AString aFormSubmitURL, in AString aHttpRealm,
-              in AString aUsername,      in AString aPassword,
-              in AString aUsernameField, in AString aPasswordField,
-			  in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields);
+	kfILoginInfo mergeWith(in kfILoginInfo aLoginInfo);
 
+	
+    /**
+     * Initialize a newly created nsLoginInfo object.
+     *
+     * The arguments are the fields for the new object.
+     */
+	void init(in nsIMutableArray URLs,
+              in AString aFormSubmitURL, in AString aHttpRealm,
+              in long aUsernameIndex,      in nsIMutableArray aPasswords,
+			  in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray,
+			  in long aMaximumPage);
+
+	/**
+	 * Serialises kfILoginInfo objects to a string
+	 */
+	AString toSource();
+
+	attribute AString parentGroupName;
+	attribute AString parentGroupUUID;
+	attribute AString parentGroupPath;
+	attribute ACString iconImageData;
+
+	attribute boolean alwaysAutoFill;
+	attribute boolean neverAutoFill;
+	attribute boolean alwaysAutoSubmit;
+	attribute boolean neverAutoSubmit;
+	attribute long priority;
 };
 
-
+[scriptable, function, uuid(21e35ab1-d964-476f-ba73-c318cc1a1183)]
+interface kfIURL : nsISupports {
+	attribute AString URL;
+};
 
 
 [scriptable, function, uuid(21e05ab1-d964-476f-ba73-c318c51a118e)]
@@ -152,6 +163,7 @@ interface kfIGroupInfo : nsISupports {
 
 	attribute AString title;
 	attribute AString uniqueID;
+	attribute ACString iconImageData;
 
     void init(in AString title, in AString uniqueID);
 };
@@ -296,8 +308,9 @@ interface IKeeFox : nsISupports
 	void launchLoginEditor(in AString uniqueID);
 	void launchGroupEditor(in AString uniqueID);
 
-
+	void getMRUdatabases(out unsigned long count, 
+		[retval, array, size_is(count)] out string databases);
+	boolean getAutoCommit();
+	boolean setAutoCommit(in boolean autoCommit);
+	boolean setCurrentDBRootGroup(in AString uniqueID);
 };
-
-//interface IKeeFox : nsILoginManagerStorage
-

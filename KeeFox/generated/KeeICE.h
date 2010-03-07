@@ -10,8 +10,8 @@
 // Ice-E version 1.3.0
 // Generated from file `KeeICE.ice'
 
-#ifndef __C__development_KeeFox_KeeFox_generated_KeeICE_h__
-#define __C__development_KeeFox_KeeFox_generated_KeeICE_h__
+#ifndef __E__development_KeeFox_KeeFox_generated_KeeICE_h__
+#define __E__development_KeeFox_KeeFox_generated_KeeICE_h__
 
 #include <IceE/ProxyF.h>
 #include <IceE/ObjectF.h>
@@ -43,7 +43,7 @@ namespace IceProxy
 namespace KeeICE
 {
 
-namespace KFlib
+namespace KPlib
 {
 
 class KP;
@@ -59,7 +59,7 @@ class CallbackReceiver;
 namespace KeeICE
 {
 
-namespace KFlib
+namespace KPlib
 {
 
 class KP;
@@ -77,28 +77,28 @@ bool operator<(const CallbackReceiver&, const CallbackReceiver&);
 namespace IceInternal
 {
 
-::Ice::Object* upCast(::KeeICE::KFlib::KP*);
-::IceProxy::Ice::Object* upCast(::IceProxy::KeeICE::KFlib::KP*);
+::Ice::Object* upCast(::KeeICE::KPlib::KP*);
+::IceProxy::Ice::Object* upCast(::IceProxy::KeeICE::KPlib::KP*);
 
-::Ice::Object* upCast(::KeeICE::KFlib::CallbackReceiver*);
-::IceProxy::Ice::Object* upCast(::IceProxy::KeeICE::KFlib::CallbackReceiver*);
+::Ice::Object* upCast(::KeeICE::KPlib::CallbackReceiver*);
+::IceProxy::Ice::Object* upCast(::IceProxy::KeeICE::KPlib::CallbackReceiver*);
 
 }
 
 namespace KeeICE
 {
 
-namespace KFlib
+namespace KPlib
 {
 
-typedef ::IceInternal::Handle< ::KeeICE::KFlib::KP> KPPtr;
-typedef ::IceInternal::ProxyHandle< ::IceProxy::KeeICE::KFlib::KP> KPPrx;
+typedef ::IceInternal::Handle< ::KeeICE::KPlib::KP> KPPtr;
+typedef ::IceInternal::ProxyHandle< ::IceProxy::KeeICE::KPlib::KP> KPPrx;
 
 void __read(::IceInternal::BasicStream*, KPPrx&);
 void __patch__KPPtr(void*, ::Ice::ObjectPtr&);
 
-typedef ::IceInternal::Handle< ::KeeICE::KFlib::CallbackReceiver> CallbackReceiverPtr;
-typedef ::IceInternal::ProxyHandle< ::IceProxy::KeeICE::KFlib::CallbackReceiver> CallbackReceiverPrx;
+typedef ::IceInternal::Handle< ::KeeICE::KPlib::CallbackReceiver> CallbackReceiverPtr;
+typedef ::IceInternal::ProxyHandle< ::IceProxy::KeeICE::KPlib::CallbackReceiver> CallbackReceiverPrx;
 
 void __read(::IceInternal::BasicStream*, CallbackReceiverPrx&);
 void __patch__CallbackReceiverPtr(void*, ::Ice::ObjectPtr&);
@@ -110,7 +110,7 @@ void __patch__CallbackReceiverPtr(void*, ::Ice::ObjectPtr&);
 namespace KeeICE
 {
 
-namespace KFlib
+namespace KPlib
 {
 
 enum loginSearchType
@@ -141,7 +141,9 @@ struct KPFormField
     ::std::string name;
     ::std::string displayName;
     ::std::string value;
-    ::KeeICE::KFlib::formFieldType type;
+    ::KeeICE::KPlib::formFieldType type;
+    ::std::string id;
+    ::Ice::Int page;
 
     bool operator==(const KPFormField&) const;
     bool operator<(const KPFormField&) const;
@@ -166,14 +168,15 @@ struct KPFormField
     void __read(::IceInternal::BasicStream*);
 };
 
-typedef ::std::vector< ::KeeICE::KFlib::KPFormField> KPFormFieldList;
-void __writeKPFormFieldList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPFormField*, const ::KeeICE::KFlib::KPFormField*);
+typedef ::std::vector< ::KeeICE::KPlib::KPFormField> KPFormFieldList;
+void __writeKPFormFieldList(::IceInternal::BasicStream*, const ::KeeICE::KPlib::KPFormField*, const ::KeeICE::KPlib::KPFormField*);
 void __readKPFormFieldList(::IceInternal::BasicStream*, KPFormFieldList&);
 
 struct KPGroup
 {
     ::std::string title;
     ::std::string uniqueID;
+    ::std::string iconImageData;
 
     bool operator==(const KPGroup&) const;
     bool operator<(const KPGroup&) const;
@@ -198,20 +201,30 @@ struct KPGroup
     void __read(::IceInternal::BasicStream*);
 };
 
-typedef ::std::vector< ::KeeICE::KFlib::KPGroup> KPGroupList;
-void __writeKPGroupList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPGroup*, const ::KeeICE::KFlib::KPGroup*);
+typedef ::std::vector< ::KeeICE::KPlib::KPGroup> KPGroupList;
+void __writeKPGroupList(::IceInternal::BasicStream*, const ::KeeICE::KPlib::KPGroup*, const ::KeeICE::KPlib::KPGroup*);
 void __readKPGroupList(::IceInternal::BasicStream*, KPGroupList&);
+
+typedef ::std::vector< ::std::string> KPURLs;
 
 struct KPEntry
 {
-    ::std::string URL;
+    ::KeeICE::KPlib::KPURLs URLs;
     ::std::string formActionURL;
     ::std::string HTTPRealm;
     ::std::string title;
-    ::KeeICE::KFlib::KPFormFieldList formFieldList;
-    bool _cpp_default;
+    ::KeeICE::KPlib::KPFormFieldList formFieldList;
     bool exactMatch;
     ::std::string uniqueID;
+    bool alwaysAutoFill;
+    bool neverAutoFill;
+    bool alwaysAutoSubmit;
+    bool neverAutoSubmit;
+    ::Ice::Int priority;
+    ::std::string parentGroupName;
+    ::std::string parentGroupUUID;
+    ::std::string parentGroupPath;
+    ::std::string iconImageData;
 
     bool operator==(const KPEntry&) const;
     bool operator<(const KPEntry&) const;
@@ -236,8 +249,8 @@ struct KPEntry
     void __read(::IceInternal::BasicStream*);
 };
 
-typedef ::std::vector< ::KeeICE::KFlib::KPEntry> KPEntryList;
-void __writeKPEntryList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPEntry*, const ::KeeICE::KFlib::KPEntry*);
+typedef ::std::vector< ::KeeICE::KPlib::KPEntry> KPEntryList;
+void __writeKPEntryList(::IceInternal::BasicStream*, const ::KeeICE::KPlib::KPEntry*, const ::KeeICE::KPlib::KPEntry*);
 void __readKPEntryList(::IceInternal::BasicStream*, KPEntryList&);
 
 class KeeICEException : public ::Ice::UserException
@@ -262,45 +275,12 @@ public:
 
 static KeeICEException __KeeICEException_init;
 
-struct KPDatabase
-{
-    ::std::string DBname;
-    ::std::string fileName;
-    bool _cpp_default;
-    ::std::string rootGroupUID;
-    bool useILM;
-
-    bool operator==(const KPDatabase&) const;
-    bool operator<(const KPDatabase&) const;
-    bool operator!=(const KPDatabase& __rhs) const
-    {
-        return !operator==(__rhs);
-    }
-    bool operator<=(const KPDatabase& __rhs) const
-    {
-        return operator<(__rhs) || operator==(__rhs);
-    }
-    bool operator>(const KPDatabase& __rhs) const
-    {
-        return !operator<(__rhs) && !operator==(__rhs);
-    }
-    bool operator>=(const KPDatabase& __rhs) const
-    {
-        return !operator<(__rhs);
-    }
-
-    void __write(::IceInternal::BasicStream*) const;
-    void __read(::IceInternal::BasicStream*);
-};
-
-typedef ::std::vector< ::KeeICE::KFlib::KPDatabase> KPDatabaseList;
-void __writeKPDatabaseList(::IceInternal::BasicStream*, const ::KeeICE::KFlib::KPDatabase*, const ::KeeICE::KFlib::KPDatabase*);
-void __readKPDatabaseList(::IceInternal::BasicStream*, KPDatabaseList&);
+typedef ::std::vector< ::std::string> KPDatabaseFileNameList;
 
 struct KFConfiguration
 {
-    bool allowUnencryptedMetaData;
-    ::KeeICE::KFlib::KPDatabaseList knownDatabases;
+    ::KeeICE::KPlib::KPDatabaseFileNameList knownDatabases;
+    bool autoCommit;
 
     bool operator==(const KFConfiguration&) const;
     bool operator<(const KFConfiguration&) const;
@@ -332,7 +312,7 @@ struct KFConfiguration
 namespace KeeICE
 {
 
-namespace KFlib
+namespace KPlib
 {
 
 class KP : virtual public ::Ice::Object
@@ -368,27 +348,27 @@ public:
     ::Ice::DispatchStatus ___changeDatabase(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KPlib::KPEntry AddLogin(const ::KeeICE::KPlib::KPEntry&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___AddLogin(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual void ModifyLogin(const ::KeeICE::KPlib::KPEntry&, const ::KeeICE::KPlib::KPEntry&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___ModifyLogin(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::Ice::Int getAllLogins(::KeeICE::KPlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___getAllLogins(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KPlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KPlib::KPEntryList&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___findLogins(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KPlib::loginSearchType, bool, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___countLogins(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
@@ -398,32 +378,32 @@ public:
     ::Ice::DispatchStatus ___addClient(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KPlib::KPGroupList&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___findGroups(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KPlib::KPGroup getRoot(const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___getRoot(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KPlib::KPGroup getParent(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___getParent(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KPlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___getChildGroups(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KPlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___getChildEntries(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
-    virtual ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+    virtual ::KeeICE::KPlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___addGroup(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
@@ -446,6 +426,21 @@ public:
     virtual void LaunchLoginEditor(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
 #ifndef ICEE_PURE_CLIENT
     ::Ice::DispatchStatus ___LaunchLoginEditor(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual ::KeeICE::KPlib::KFConfiguration getCurrentKFConfig(const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___getCurrentKFConfig(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual bool setCurrentKFConfig(const ::KeeICE::KPlib::KFConfiguration&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___setCurrentKFConfig(::IceInternal::Incoming&, const ::Ice::Current&);
+#endif // ICEE_PURE_CLIENT
+
+    virtual bool setCurrentDBRootGroup(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
+#ifndef ICEE_PURE_CLIENT
+    ::Ice::DispatchStatus ___setCurrentDBRootGroup(::IceInternal::Incoming&, const ::Ice::Current&);
 #endif // ICEE_PURE_CLIENT
 
 #ifndef ICEE_PURE_CLIENT
@@ -492,7 +487,7 @@ namespace IceProxy
 namespace KeeICE
 {
 
-namespace KFlib
+namespace KPlib
 {
 
 class KP : virtual public ::IceProxy::Ice::Object
@@ -559,78 +554,78 @@ private:
     
 public:
 
-    ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID)
+    ::KeeICE::KPlib::KPEntry AddLogin(const ::KeeICE::KPlib::KPEntry& login, const ::std::string& parentUUID)
     {
         return AddLogin(login, parentUUID, 0);
     }
-    ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context& __ctx)
+    ::KeeICE::KPlib::KPEntry AddLogin(const ::KeeICE::KPlib::KPEntry& login, const ::std::string& parentUUID, const ::Ice::Context& __ctx)
     {
         return AddLogin(login, parentUUID, &__ctx);
     }
     
 private:
 
-    ::KeeICE::KFlib::KPEntry AddLogin(const ::KeeICE::KFlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
+    ::KeeICE::KPlib::KPEntry AddLogin(const ::KeeICE::KPlib::KPEntry&, const ::std::string&, const ::Ice::Context*);
     
 public:
 
-    void ModifyLogin(const ::KeeICE::KFlib::KPEntry& oldLogin, const ::KeeICE::KFlib::KPEntry& newLogin)
+    void ModifyLogin(const ::KeeICE::KPlib::KPEntry& oldLogin, const ::KeeICE::KPlib::KPEntry& newLogin)
     {
         ModifyLogin(oldLogin, newLogin, 0);
     }
-    void ModifyLogin(const ::KeeICE::KFlib::KPEntry& oldLogin, const ::KeeICE::KFlib::KPEntry& newLogin, const ::Ice::Context& __ctx)
+    void ModifyLogin(const ::KeeICE::KPlib::KPEntry& oldLogin, const ::KeeICE::KPlib::KPEntry& newLogin, const ::Ice::Context& __ctx)
     {
         ModifyLogin(oldLogin, newLogin, &__ctx);
     }
     
 private:
 
-    void ModifyLogin(const ::KeeICE::KFlib::KPEntry&, const ::KeeICE::KFlib::KPEntry&, const ::Ice::Context*);
+    void ModifyLogin(const ::KeeICE::KPlib::KPEntry&, const ::KeeICE::KPlib::KPEntry&, const ::Ice::Context*);
     
 public:
 
-    ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList& logins)
+    ::Ice::Int getAllLogins(::KeeICE::KPlib::KPEntryList& logins)
     {
         return getAllLogins(logins, 0);
     }
-    ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context& __ctx)
+    ::Ice::Int getAllLogins(::KeeICE::KPlib::KPEntryList& logins, const ::Ice::Context& __ctx)
     {
         return getAllLogins(logins, &__ctx);
     }
     
 private:
 
-    ::Ice::Int getAllLogins(::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
+    ::Ice::Int getAllLogins(::KeeICE::KPlib::KPEntryList&, const ::Ice::Context*);
     
 public:
 
-    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins)
+    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KPlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KPlib::KPEntryList& logins)
     {
         return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, 0);
     }
-    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KFlib::KPEntryList& logins, const ::Ice::Context& __ctx)
+    ::Ice::Int findLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KPlib::loginSearchType lst, bool requireFullURLMatches, const ::std::string& uniqueID, ::KeeICE::KPlib::KPEntryList& logins, const ::Ice::Context& __ctx)
     {
         return findLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, uniqueID, logins, &__ctx);
     }
     
 private:
 
-    ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KFlib::KPEntryList&, const ::Ice::Context*);
+    ::Ice::Int findLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KPlib::loginSearchType, bool, const ::std::string&, ::KeeICE::KPlib::KPEntryList&, const ::Ice::Context*);
     
 public:
 
-    ::Ice::Int countLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches)
+    ::Ice::Int countLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KPlib::loginSearchType lst, bool requireFullURLMatches)
     {
         return countLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, 0);
     }
-    ::Ice::Int countLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KFlib::loginSearchType lst, bool requireFullURLMatches, const ::Ice::Context& __ctx)
+    ::Ice::Int countLogins(const ::std::string& hostname, const ::std::string& actionURL, const ::std::string& httpRealm, ::KeeICE::KPlib::loginSearchType lst, bool requireFullURLMatches, const ::Ice::Context& __ctx)
     {
         return countLogins(hostname, actionURL, httpRealm, lst, requireFullURLMatches, &__ctx);
     }
     
 private:
 
-    ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KFlib::loginSearchType, bool, const ::Ice::Context*);
+    ::Ice::Int countLogins(const ::std::string&, const ::std::string&, const ::std::string&, ::KeeICE::KPlib::loginSearchType, bool, const ::Ice::Context*);
     
 public:
 
@@ -649,93 +644,93 @@ private:
     
 public:
 
-    ::Ice::Int findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KFlib::KPGroupList& groups)
+    ::Ice::Int findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KPlib::KPGroupList& groups)
     {
         return findGroups(name, uuid, groups, 0);
     }
-    ::Ice::Int findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KFlib::KPGroupList& groups, const ::Ice::Context& __ctx)
+    ::Ice::Int findGroups(const ::std::string& name, const ::std::string& uuid, ::KeeICE::KPlib::KPGroupList& groups, const ::Ice::Context& __ctx)
     {
         return findGroups(name, uuid, groups, &__ctx);
     }
     
 private:
 
-    ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KFlib::KPGroupList&, const ::Ice::Context*);
+    ::Ice::Int findGroups(const ::std::string&, const ::std::string&, ::KeeICE::KPlib::KPGroupList&, const ::Ice::Context*);
     
 public:
 
-    ::KeeICE::KFlib::KPGroup getRoot()
+    ::KeeICE::KPlib::KPGroup getRoot()
     {
         return getRoot(0);
     }
-    ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context& __ctx)
+    ::KeeICE::KPlib::KPGroup getRoot(const ::Ice::Context& __ctx)
     {
         return getRoot(&__ctx);
     }
     
 private:
 
-    ::KeeICE::KFlib::KPGroup getRoot(const ::Ice::Context*);
+    ::KeeICE::KPlib::KPGroup getRoot(const ::Ice::Context*);
     
 public:
 
-    ::KeeICE::KFlib::KPGroup getParent(const ::std::string& uuid)
+    ::KeeICE::KPlib::KPGroup getParent(const ::std::string& uuid)
     {
         return getParent(uuid, 0);
     }
-    ::KeeICE::KFlib::KPGroup getParent(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    ::KeeICE::KPlib::KPGroup getParent(const ::std::string& uuid, const ::Ice::Context& __ctx)
     {
         return getParent(uuid, &__ctx);
     }
     
 private:
 
-    ::KeeICE::KFlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
+    ::KeeICE::KPlib::KPGroup getParent(const ::std::string&, const ::Ice::Context*);
     
 public:
 
-    ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string& uuid)
+    ::KeeICE::KPlib::KPGroupList getChildGroups(const ::std::string& uuid)
     {
         return getChildGroups(uuid, 0);
     }
-    ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    ::KeeICE::KPlib::KPGroupList getChildGroups(const ::std::string& uuid, const ::Ice::Context& __ctx)
     {
         return getChildGroups(uuid, &__ctx);
     }
     
 private:
 
-    ::KeeICE::KFlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
+    ::KeeICE::KPlib::KPGroupList getChildGroups(const ::std::string&, const ::Ice::Context*);
     
 public:
 
-    ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string& uuid)
+    ::KeeICE::KPlib::KPEntryList getChildEntries(const ::std::string& uuid)
     {
         return getChildEntries(uuid, 0);
     }
-    ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    ::KeeICE::KPlib::KPEntryList getChildEntries(const ::std::string& uuid, const ::Ice::Context& __ctx)
     {
         return getChildEntries(uuid, &__ctx);
     }
     
 private:
 
-    ::KeeICE::KFlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
+    ::KeeICE::KPlib::KPEntryList getChildEntries(const ::std::string&, const ::Ice::Context*);
     
 public:
 
-    ::KeeICE::KFlib::KPGroup addGroup(const ::std::string& name, const ::std::string& parentUuid)
+    ::KeeICE::KPlib::KPGroup addGroup(const ::std::string& name, const ::std::string& parentUuid)
     {
         return addGroup(name, parentUuid, 0);
     }
-    ::KeeICE::KFlib::KPGroup addGroup(const ::std::string& name, const ::std::string& parentUuid, const ::Ice::Context& __ctx)
+    ::KeeICE::KPlib::KPGroup addGroup(const ::std::string& name, const ::std::string& parentUuid, const ::Ice::Context& __ctx)
     {
         return addGroup(name, parentUuid, &__ctx);
     }
     
 private:
 
-    ::KeeICE::KFlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
+    ::KeeICE::KPlib::KPGroup addGroup(const ::std::string&, const ::std::string&, const ::Ice::Context*);
     
 public:
 
@@ -796,6 +791,51 @@ public:
 private:
 
     void LaunchLoginEditor(const ::std::string&, const ::Ice::Context*);
+    
+public:
+
+    ::KeeICE::KPlib::KFConfiguration getCurrentKFConfig()
+    {
+        return getCurrentKFConfig(0);
+    }
+    ::KeeICE::KPlib::KFConfiguration getCurrentKFConfig(const ::Ice::Context& __ctx)
+    {
+        return getCurrentKFConfig(&__ctx);
+    }
+    
+private:
+
+    ::KeeICE::KPlib::KFConfiguration getCurrentKFConfig(const ::Ice::Context*);
+    
+public:
+
+    bool setCurrentKFConfig(const ::KeeICE::KPlib::KFConfiguration& config)
+    {
+        return setCurrentKFConfig(config, 0);
+    }
+    bool setCurrentKFConfig(const ::KeeICE::KPlib::KFConfiguration& config, const ::Ice::Context& __ctx)
+    {
+        return setCurrentKFConfig(config, &__ctx);
+    }
+    
+private:
+
+    bool setCurrentKFConfig(const ::KeeICE::KPlib::KFConfiguration&, const ::Ice::Context*);
+    
+public:
+
+    bool setCurrentDBRootGroup(const ::std::string& uuid)
+    {
+        return setCurrentDBRootGroup(uuid, 0);
+    }
+    bool setCurrentDBRootGroup(const ::std::string& uuid, const ::Ice::Context& __ctx)
+    {
+        return setCurrentDBRootGroup(uuid, &__ctx);
+    }
+    
+private:
+
+    bool setCurrentDBRootGroup(const ::std::string&, const ::Ice::Context*);
     
 public:
     

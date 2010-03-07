@@ -3,7 +3,9 @@
   Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the XPCOM/Firefox view of a basic group object, with little more than the
-  uniqueRef required to link this object to the appropriate group in the KeePass DB
+  uniqueRef required to link this object to the appropriate group in the KeePass DB.
+  
+  Defined in the KeeFox project / comp.idl
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,11 +39,13 @@ kfGroupInfo.prototype = {
     
     title      : null,
     uniqueID : null,
+    iconImageData : null,
 
     init : function (title, aUniqueID) {
 
         this.title      = title;
         this.uniqueID = aUniqueID;
+        this.iconImageData = "";
     }
     
 };

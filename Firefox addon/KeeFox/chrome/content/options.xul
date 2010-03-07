@@ -3,6 +3,28 @@
 
 <!DOCTYPE prefwindow SYSTEM "chrome://keefox/locale/options.dtd">
 
+<!--
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is the KeeFox options XUL file which describes the interface for 
+  viewing and editing the various preferences which KeeFox understands.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+
 <prefwindow id="KeeFox-prefs"
      title="&KeeFox-Options.title;"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -18,10 +40,14 @@
       <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.chris.tomlinson@keefox.dynamicFormScanning" type="bool"/>
       <preference id="KeeFox-pref-autoFillForms" name="extensions.chris.tomlinson@keefox.autoFillForms" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitForms" name="extensions.chris.tomlinson@keefox.autoSubmitForms" type="bool"/>
-      <preference id="KeeFox-pref-overWriteUsernameAutomatically" name="extensions.chris.tomlinson@keefox.overWriteUsernameAutomatically" type="bool"/>
+      <preference id="KeeFox-pref-autoFillDialogs" name="extensions.chris.tomlinson@keefox.autoFillDialogs" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.chris.tomlinson@keefox.autoSubmitDialogs" type="bool"/>
+      <preference id="KeeFox-pref-overWriteFieldsAutomatically" name="extensions.chris.tomlinson@keefox.overWriteFieldsAutomatically" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.chris.tomlinson@keefox.autoSubmitMatchedForms" type="bool"/>
       <preference id="KeeFox-pref-rememberMRUDB" name="extensions.chris.tomlinson@keefox.rememberMRUDB" type="bool"/>
+      <preference id="KeeFox-pref-saveFavicons" name="extensions.chris.tomlinson@keefox.saveFavicons" type="bool"/>
 
+      <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.chris.tomlinson@keefox.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.notifyBarWhenKeeICEInactive" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.chris.tomlinson@keefox.notifyBarWhenLoggedOut" type="bool"/>
       <preference id="KeeFox-pref-flashIconWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.flashIconWhenKeeICEInactive" type="bool"/>
@@ -30,6 +56,7 @@
       <preference id="KeeFox-pref-keeICEInstalledLocation" name="extensions.chris.tomlinson@keefox.keeICEInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.chris.tomlinson@keefox.keePassInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassMRUDB" name="extensions.chris.tomlinson@keefox.keePassMRUDB" type="string"/>
+      <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.chris.tomlinson@keefox.keePassRemeberInstalledLocation" type="bool"/>
       <preference id="KeeFox-pref-debugToConsole" name="extensions.chris.tomlinson@keefox.debugToConsole" type="bool"/>
     </preferences>
 
@@ -49,18 +76,26 @@
                           label="&KeeFox-pref-autoFillForms.label;" />
                 <checkbox id="autoSubmitForms" preference="KeeFox-pref-autoSubmitForms"
                           label="&KeeFox-pref-autoSubmitForms.label;" />
-                <checkbox id="overWriteUsernameAutomatically" preference="KeeFox-pref-overWriteUsernameAutomatically"
-                          label="&KeeFox-pref-overWriteUsernameAutomatically.label;" />
+                <checkbox id="autoFillDialogs" preference="KeeFox-pref-autoFillDialogs"
+                          label="&KeeFox-pref-autoFillDialogs.label;" />
+                <checkbox id="autoSubmitDialogs" preference="KeeFox-pref-autoSubmitDialogs"
+                          label="&KeeFox-pref-autoSubmitDialogs.label;" />
+                <checkbox id="overWriteFieldsAutomatically" preference="KeeFox-pref-overWriteFieldsAutomatically"
+                          label="&KeeFox-pref-overWriteFieldsAutomatically.label;" />
                 <checkbox id="autoSubmitMatchedForms" preference="KeeFox-pref-autoSubmitMatchedForms"
                           label="&KeeFox-pref-autoSubmitMatchedForms.label;" />
                 <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                           label="&KeeFox-pref-rememberMRUDB.label;" />
-
+                <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
+                          label="&KeeFox-pref-saveFavicons.label;" />
               </vbox>
             </tabpanel>
 
             <tabpanel>
               <vbox align="center">
+                
+                <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
+                        label="&KeeFox-pref-notifyBarRequestPasswordSave.label;" />
                 <checkbox id="notifyBarWhenKeeICEInactive" preference="KeeFox-pref-notifyBarWhenKeeICEInactive"
                           label="&KeeFox-pref-notifyBarWhenKeeICEInactive.label;" />
                 <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
@@ -79,6 +114,7 @@
                 <textbox preference="KeeFox-pref-keeICEInstalledLocation" id="keeICEInstalledLocation" maxlength="255"/>
                 <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;"/>
                 <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255"/>
+                <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" />
                 <label control="keePassMRUDB" value="&KeeFox-pref-keePassMRUDB.label;"/>
                 <textbox preference="KeeFox-pref-keePassMRUDB" id="keePassMRUDB" maxlength="255"/>
 

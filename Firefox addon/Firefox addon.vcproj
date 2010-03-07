@@ -55,7 +55,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)KeeFox\*&quot; &quot;$(SolutionDir)XPIs\current\&quot; /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM compress the files into the complete XPI&#x0D;&#x0A;cd $(SolutionDir)XPIs\current&#x0D;&#x0A;del ..\current.xpi&#x0D;&#x0A;&quot;c:\Program Files\ZipGenius 6\zg.exe&quot; -add &quot;..\current.xpi&quot; R1 K0 C5 +&quot;*&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)$(OutDir)&quot; /i /d /y&#x0D;&#x0A;REM if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail&#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK&#x0D;&#x0A;"
+				CommandLine="echo POSTBUILDSTEP for $(ProjectName)&#x0D;&#x0A;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)KeeFox\*&quot; &quot;$(SolutionDir)XPIs\current\&quot; /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM compress the files into the complete XPI&#x0D;&#x0A;cd $(SolutionDir)XPIs\current&#x0D;&#x0A;del ..\current.xpi&#x0D;&#x0A;&quot;c:\Program Files (x86)\ZipGenius 6\zg.exe&quot; -add &quot;..\current.xpi&quot; R1 K0 C5 +&quot;*&quot;&#x0D;&#x0A;if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;REM xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(SolutionDir)$(OutDir)&quot; /i /d /y&#x0D;&#x0A;REM if errorlevel 1 goto BuildEventFailed&#x0D;&#x0A;&#x0D;&#x0A;&#x0D;&#x0A;REM Exit properly because the build will not fail&#x0D;&#x0A;REM unless the final step exits with an error code&#x0D;&#x0A;&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) FAILED&#x0D;&#x0A;exit 1&#x0D;&#x0A;&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -169,17 +169,184 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\KeeFox\chrome\skin\buttonGradient.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\buttonGradientHover.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\install\header.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\icon.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeFox16.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeGrey.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeGrey24.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeLock.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeLockGrey.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeOrange.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\KeeOrange24.png"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\key-highlighted.png"
+				>
+			</File>
+			<File
 				RelativePath=".\KeeFox\chrome\skin\main.png"
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Test Pages"
+			Filter="Test Pages"
+			>
+			<File
+				RelativePath=".\Test Pages\LeftFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\MultiPage1Other1PasswordPage2.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\MultiPage1Username1PasswordPage1.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInFrame.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInIFrame.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInIFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInRightFrame.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\SimpleFormInRightFrameContents.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\StandardUsernamePassword.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\StandardUsernamePasswordUnusualFields.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\testResults.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username2Passwords1Checkbox1Radio.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username2Passwords1Checkbox1Radio1Select.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username2Passwords1Text.htm"
+				DeploymentContent="true"
+				>
+			</File>
+			<File
+				RelativePath=".\Test Pages\Username3Passwords.htm"
+				DeploymentContent="true"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="CSS"
+			Filter="css"
+			>
+		</Filter>
+		<Filter
+			Name="JS"
+			Filter="js"
+			>
+		</Filter>
+		<File
+			RelativePath=".\CHANGELOG.txt"
+			>
+		</File>
 		<File
 			RelativePath=".\KeeFox\chrome.manifest"
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\commonDialog.js"
+			>
+		</File>
+		<File
 			RelativePath=".\debugXPIPackageExclusions.txt"
 			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\groupChooser.xul"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\skin\install.css"
@@ -196,6 +363,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\content\install.xul"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\skin\keefox.css"
@@ -204,6 +379,14 @@
 		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\keefox.js"
@@ -217,7 +400,7 @@
 			RelativePath=".\KeeFox\chrome\content\keefox.xul"
 			>
 			<FileConfiguration
-				Name="Debug|Win32"
+				Name="Release|Win32"
 				ExcludedFromBuild="true"
 				>
 				<Tool
@@ -228,6 +411,14 @@
 		<File
 			RelativePath=".\KeeFox\modules\KF.js"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\components\kfGroupInfo.js"
@@ -235,6 +426,18 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\KFILM.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\KFILM_Fill.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\KFILM_Submit.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\modules\KFLogger.js"
 			>
 		</File>
 		<File
@@ -246,7 +449,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\content\KFtests.js"
+			RelativePath=".\KeeFox\chrome\content\KFtest.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\KFtestDefinitions.js"
 			>
 		</File>
 		<File
@@ -258,20 +465,80 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\KFUI_protocol.js"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\components\kfURL.js"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\content\KFUtils.js"
 			>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\options.dtd"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\options.xul"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="teast|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Analyse|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\defaults\preferences\prefs.js"
 			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\content\protocolAuth.xul"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\XPIPackageExclusions.txt"

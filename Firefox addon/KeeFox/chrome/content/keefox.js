@@ -25,68 +25,84 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+// Load our logging subsystem
+Components.utils.import("resource://kfmod/KFLogger.js");
+
+// Load our other javascript
 var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                        .getService(Components.interfaces.mozIJSSubScriptLoader); 
 loader.loadSubScript("resource://kfscripts/KFToolBar.js"); 
 loader.loadSubScript("resource://kfscripts/KFILM.js"); 
 loader.loadSubScript("resource://kfscripts/KFUI.js"); 
-
 Components.utils.import("resource://kfmod/KF.js");
-
-
 loader.loadSubScript("resource://kfscripts/KFUtils.js"); 
-loader.loadSubScript("resource://kfscripts/KFtests.js"); 
+loader.loadSubScript("resource://kfscripts/KFtest.js"); 
 
+// These variables are accessible from (and specific to) the current
+// window scope. (although occasionally I can't get them to work...)
 var keeFoxToolbar, keeFoxILM, keeFoxUI, KFtester;
 
+// This object listens for the "window loaded" event, fired after
+// Firefox finishes loading a window
 var keeFoxInitStartupListener = {
+
+        // a reference to this scope's KF object
         _kf: null,
+        
+        // the window we are interested in (see below for performance improvement option)
         _assignedWindow : null,
 
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener,   Components.interfaces.nsISupportsWeakReference]),
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener,   
+                            Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this._kf.log("keeFoxInitStartupListener: got event " + event.type);
+            KFLog.debug("keeFoxInitStartupListener: got event " + event.type);
 
             var currentWindow, inputElement;
-            
             currentWindow = event.target.defaultView;
             
-            //this._kf.log("current:" + currentWindow);
-            //this._kf.log("_assignedWindow:" + this._assignedWindow);
-            //this._kf.log("currentName:" + currentWindow.name);
-            //this._kf.log("_assignedWindowName:" + this._assignedWindow.name);
-            //this._assignedWindow = "testAss";
-            //this._assignedWindow.alert("test1");
-            //currentWindow.alert("test2");
+            // proving we can get to the navigator for future use... this._kf.log(currentWindow.navigator.buildID);
             
             if (currentWindow != this._assignedWindow)
             {
-                this._kf.log("not the right window");
+                KFLog.debug("not the right window");
                 return;
             }
-            this._kf.log("it's the right window");
+            KFLog.debug("it's the right window");
             
-            //TODO: remove this. useful for debugging window stuff but bad to leave it in for too long...
-            currentWindow.name = "testwin" + this._kf.temp;
-            this._kf.temp++;
-            this._kf.log("currentName:" + currentWindow.name);
-            //this._kf.log("_assignedWindowName:" + this._assignedWindow.name);
-            
+            // we only care about "load" events for the moment at least
             switch (event.type) {
                 case "load":
+                
+                    // our toolbar (+ a bit more, maybe needs renaming
+                    // in future if I can think of something better)
                     keeFoxToolbar = new KFToolbar(currentWindow);
+                    
+                    // an event listener on the toolbar clears session data relating to
+                    // the form filling process. ATOW only called in response to user
+                    // editing form field contents.
+                    document.addEventListener("KeeFoxClearTabFormFillData", function(e)
+                        { keeFoxToolbar.clearTabFormFillData(e); }, false, true);
+                        
+                    // the improved login manager which acts (a bit) like a bridge
+                    // between the user visible code and the KeeFox module / XPCOM DLL    
                     keeFoxILM = new KFILM(keeFoxInst,keeFoxToolbar,currentWindow);
+                    
+                    // the main UI code including things like
+                    // the generation of notification boxes
                     keeFoxUI = new KFUI();
 
                     keeFoxUI.init(keeFoxInst, keeFoxILM);
                     keeFoxInst.init(keeFoxToolbar,currentWindow);
 
+                    // Used to aid testing of various KeeFox features
+                    // (arguably is not needed in version 1.0 but I may keep it
+                    // just in case unless performance is noticably worse with it)
                     KFtester = new KFtests(keeFoxILM);
 
                     return;
                 default:
-                    this._kf.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }

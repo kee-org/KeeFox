@@ -14,6 +14,14 @@
 #include "nsIMutableArray.h"
 #endif
 
+#ifndef __gen_nsIDOMHTMLInputElement_h__
+#include "nsIDOMHTMLInputElement.h"
+#endif
+
+#ifndef __gen_nsIDOMHTMLSelectElement_h__
+#include "nsIDOMHTMLSelectElement.h"
+#endif
+
 /* For IDL files that don't want to include root IDL files. */
 #ifndef NS_NO_VTABLE
 #define NS_NO_VTABLE
@@ -39,8 +47,31 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) = 0;
 
-  /* void init (in AString aName, in AString aValue); */
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue) = 0;
+  /* attribute AString fieldId; */
+  NS_SCRIPTABLE NS_IMETHOD GetFieldId(nsAString & aFieldId) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId) = 0;
+
+  /* attribute nsIDOMHTMLInputElement DOMInputElement; */
+  NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement) = 0;
+
+  /* attribute nsIDOMHTMLSelectElement DOMSelectElement; */
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement) = 0;
+
+  /* attribute AString type; */
+  NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType) = 0;
+
+  /* attribute short formFieldPage; */
+  NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetFormFieldPage(PRInt16 aFormFieldPage) = 0;
+
+  /* void init (in AString aName, in AString aValue, in AString aID, in AString aType, in short aFormFieldPage); */
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue, const nsAString & aID, const nsAString & aType, PRInt16 aFormFieldPage) = 0;
+
+  /* AString toSource (); */
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) = 0;
 
 };
 
@@ -52,7 +83,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName); \
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue); \
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue); \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue); 
+  NS_SCRIPTABLE NS_IMETHOD GetFieldId(nsAString & aFieldId); \
+  NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId); \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement); \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement); \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement); \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement); \
+  NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType); \
+  NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType); \
+  NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage); \
+  NS_SCRIPTABLE NS_IMETHOD SetFormFieldPage(PRInt16 aFormFieldPage); \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue, const nsAString & aID, const nsAString & aType, PRInt16 aFormFieldPage); \
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGINFIELD(_to) \
@@ -60,7 +102,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return _to SetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) { return _to GetValue(aValue); } \
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) { return _to SetValue(aValue); } \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue) { return _to Init(aName, aValue); } 
+  NS_SCRIPTABLE NS_IMETHOD GetFieldId(nsAString & aFieldId) { return _to GetFieldId(aFieldId); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId) { return _to SetFieldId(aFieldId); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement) { return _to GetDOMInputElement(aDOMInputElement); } \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement) { return _to SetDOMInputElement(aDOMInputElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement) { return _to GetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement) { return _to SetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType) { return _to GetType(aType); } \
+  NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType) { return _to SetType(aType); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage) { return _to GetFormFieldPage(aFormFieldPage); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFormFieldPage(PRInt16 aFormFieldPage) { return _to SetFormFieldPage(aFormFieldPage); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue, const nsAString & aID, const nsAString & aType, PRInt16 aFormFieldPage) { return _to Init(aName, aValue, aID, aType, aFormFieldPage); } \
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return _to ToSource(_retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGINFIELD(_to) \
@@ -68,7 +121,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginField : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetName(const nsAString & aName) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetName(aName); } \
   NS_SCRIPTABLE NS_IMETHOD GetValue(nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetValue(aValue); } \
   NS_SCRIPTABLE NS_IMETHOD SetValue(const nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetValue(aValue); } \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aName, aValue); } 
+  NS_SCRIPTABLE NS_IMETHOD GetFieldId(nsAString & aFieldId) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFieldId(aFieldId); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFieldId(const nsAString & aFieldId) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFieldId(aFieldId); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDOMInputElement(aDOMInputElement); } \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetDOMInputElement(aDOMInputElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetDOMSelectElement(aDOMSelectElement); } \
+  NS_SCRIPTABLE NS_IMETHOD GetType(nsAString & aType) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetType(aType); } \
+  NS_SCRIPTABLE NS_IMETHOD SetType(const nsAString & aType) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetType(aType); } \
+  NS_SCRIPTABLE NS_IMETHOD GetFormFieldPage(PRInt16 *aFormFieldPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFormFieldPage(aFormFieldPage); } \
+  NS_SCRIPTABLE NS_IMETHOD SetFormFieldPage(PRInt16 aFormFieldPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFormFieldPage(aFormFieldPage); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aName, const nsAString & aValue, const nsAString & aID, const nsAString & aType, PRInt16 aFormFieldPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aName, aValue, aID, aType, aFormFieldPage); } \
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->ToSource(_retval); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -122,8 +186,64 @@ NS_IMETHODIMP kfLoginField::SetValue(const nsAString & aValue)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void init (in AString aName, in AString aValue); */
-NS_IMETHODIMP kfLoginField::Init(const nsAString & aName, const nsAString & aValue)
+/* attribute AString fieldId; */
+NS_IMETHODIMP kfLoginField::GetFieldId(nsAString & aFieldId)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetFieldId(const nsAString & aFieldId)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute nsIDOMHTMLInputElement DOMInputElement; */
+NS_IMETHODIMP kfLoginField::GetDOMInputElement(nsIDOMHTMLInputElement * *aDOMInputElement)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetDOMInputElement(nsIDOMHTMLInputElement * aDOMInputElement)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute nsIDOMHTMLSelectElement DOMSelectElement; */
+NS_IMETHODIMP kfLoginField::GetDOMSelectElement(nsIDOMHTMLSelectElement * *aDOMSelectElement)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetDOMSelectElement(nsIDOMHTMLSelectElement * aDOMSelectElement)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString type; */
+NS_IMETHODIMP kfLoginField::GetType(nsAString & aType)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetType(const nsAString & aType)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute short formFieldPage; */
+NS_IMETHODIMP kfLoginField::GetFormFieldPage(PRInt16 *aFormFieldPage)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginField::SetFormFieldPage(PRInt16 aFormFieldPage)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void init (in AString aName, in AString aValue, in AString aID, in AString aType, in short aFormFieldPage); */
+NS_IMETHODIMP kfLoginField::Init(const nsAString & aName, const nsAString & aValue, const nsAString & aID, const nsAString & aType, PRInt16 aFormFieldPage)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* AString toSource (); */
+NS_IMETHODIMP kfLoginField::ToSource(nsAString & _retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -145,14 +265,14 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_DECLARE_STATIC_IID_ACCESSOR(KFILOGININFO_IID)
 
   /**
-     * The hostname the login applies to.
+     * The hostnames the login applies to.
      *
-     * The hostname should be formatted as an URL. For example,
+     * The hostnames should be formatted as an URL. For example,
      * "https://site.com", "http://site.com:1234", "ftp://ftp.site.com".
      */
-  /* attribute AString URL; */
-  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) = 0;
+  /* attribute nsIMutableArray URLs; */
+  NS_SCRIPTABLE NS_IMETHOD GetURLs(nsIMutableArray * *aURLs) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetURLs(nsIMutableArray * aURLs) = 0;
 
   /**
      * The URL a form-based login was submitted to.
@@ -184,62 +304,53 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm) = 0;
 
   /**
-     * The username for the login.
+     * The index of the "otherField" which represents the "main" username.
      */
-  /* attribute AString username; */
-  NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetUsername(const nsAString & aUsername) = 0;
+  /* attribute long usernameIndex; */
+  NS_SCRIPTABLE NS_IMETHOD GetUsernameIndex(PRInt32 *aUsernameIndex) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetUsernameIndex(PRInt32 aUsernameIndex) = 0;
 
   /**
-     * The |name| attribute for the username input field.
-     *
-     * For logins obtained from a HTTP or FTP protocol authentication,
-     * this field is NULL.
+     * The password fields for the login.
      */
-  /* attribute AString usernameField; */
-  NS_SCRIPTABLE NS_IMETHOD GetUsernameField(nsAString & aUsernameField) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetUsernameField(const nsAString & aUsernameField) = 0;
+  /* attribute nsIMutableArray passwords; */
+  NS_SCRIPTABLE NS_IMETHOD GetPasswords(nsIMutableArray * *aPasswords) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetPasswords(nsIMutableArray * aPasswords) = 0;
 
   /**
-     * The password for the login.
+     * The non-password fields for the login.
      */
-  /* attribute AString password; */
-  NS_SCRIPTABLE NS_IMETHOD GetPassword(nsAString & aPassword) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetPassword(const nsAString & aPassword) = 0;
+  /* attribute nsIMutableArray otherFields; */
+  NS_SCRIPTABLE NS_IMETHOD GetOtherFields(nsIMutableArray * *aOtherFields) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetOtherFields(nsIMutableArray * aOtherFields) = 0;
 
   /**
-     * The |name| attribute for the password input field.
-     *
-     * For logins obtained from a HTTP or FTP protocol authentication,
-     * this field is NULL.
+     * The KeePass entry uniqueID (GUID).
      */
-  /* attribute AString passwordField; */
-  NS_SCRIPTABLE NS_IMETHOD GetPasswordField(nsAString & aPasswordField) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetPasswordField(const nsAString & aPasswordField) = 0;
-
-  /* attribute nsIMutableArray customFields; */
-  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields) = 0;
-  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) = 0;
-
   /* attribute AString uniqueID; */
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) = 0;
 
+  /**
+     * The KeePass entry title.
+     */
   /* attribute AString title; */
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) = 0;
 
+  /**
+     * The relevance of this login (transient / not stored in KeePass).
+     */
   /* attribute long relevanceScore; */
   NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) = 0;
 
   /**
-     * Initialize a newly created nsLoginInfo object.
-     *
-     * The arguments are the fields for the new object.
+     * The number of pages of form fields this login contains (transient / not stored in KeePass).
      */
-  /* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle); */
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) = 0;
+  /* attribute long maximumPage; */
+  NS_SCRIPTABLE NS_IMETHOD GetMaximumPage(PRInt32 *aMaximumPage) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetMaximumPage(PRInt32 aMaximumPage) = 0;
 
   /**
      * Test for strict equality with another nsILoginInfo object.
@@ -251,22 +362,65 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) = 0;
 
   /**
-     * Test for loose equivalency with another nsILoginInfo object. The
-     * passwordField and usernameField values are ignored, and the password
-     * values may be optionally ignored. If one login's formSubmitURL is an
-     * empty string (but not null), it will be treated as a wildcard. [The
-     * blank value indicates the login was stored before bug 360493 was fixed.]
-     *
+     * Test for loose equivalency with another nsILoginInfo object.
      * @param aLoginInfo
      *        The other object to test.
-     * @param ignorePassword
-     *        If true, ignore the password when checking for match.
      */
   /* boolean matches (in kfILoginInfo aLoginInfo, in boolean ignorePassword, in boolean ignoreURIPaths, in boolean ignoreURIPathsAndSchemes); */
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) = 0;
 
-  /* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields); */
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) = 0;
+  /* kfILoginInfo mergeWith (in kfILoginInfo aLoginInfo); */
+  NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval) = 0;
+
+  /**
+     * Initialize a newly created nsLoginInfo object.
+     *
+     * The arguments are the fields for the new object.
+     */
+  /* void init (in nsIMutableArray URLs, in AString aFormSubmitURL, in AString aHttpRealm, in long aUsernameIndex, in nsIMutableArray aPasswords, in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray, in long aMaximumPage); */
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage) = 0;
+
+  /**
+	 * Serialises kfILoginInfo objects to a string
+	 */
+  /* AString toSource (); */
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) = 0;
+
+  /* attribute AString parentGroupName; */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName) = 0;
+
+  /* attribute AString parentGroupUUID; */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID) = 0;
+
+  /* attribute AString parentGroupPath; */
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) = 0;
+
+  /* attribute ACString iconImageData; */
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) = 0;
+
+  /* attribute boolean alwaysAutoFill; */
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill) = 0;
+
+  /* attribute boolean neverAutoFill; */
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill) = 0;
+
+  /* attribute boolean alwaysAutoSubmit; */
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit) = 0;
+
+  /* attribute boolean neverAutoSubmit; */
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit) = 0;
+
+  /* attribute long priority; */
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority) = 0;
 
 };
 
@@ -274,90 +428,141 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfILoginInfo : public nsISupports {
 
 /* Use this macro when declaring classes that implement this interface. */
 #define NS_DECL_KFILOGININFO \
-  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL); \
-  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL); \
+  NS_SCRIPTABLE NS_IMETHOD GetURLs(nsIMutableArray * *aURLs); \
+  NS_SCRIPTABLE NS_IMETHOD SetURLs(nsIMutableArray * aURLs); \
   NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL); \
   NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL); \
   NS_SCRIPTABLE NS_IMETHOD GetHttpRealm(nsAString & aHttpRealm); \
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm); \
-  NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername); \
-  NS_SCRIPTABLE NS_IMETHOD SetUsername(const nsAString & aUsername); \
-  NS_SCRIPTABLE NS_IMETHOD GetUsernameField(nsAString & aUsernameField); \
-  NS_SCRIPTABLE NS_IMETHOD SetUsernameField(const nsAString & aUsernameField); \
-  NS_SCRIPTABLE NS_IMETHOD GetPassword(nsAString & aPassword); \
-  NS_SCRIPTABLE NS_IMETHOD SetPassword(const nsAString & aPassword); \
-  NS_SCRIPTABLE NS_IMETHOD GetPasswordField(nsAString & aPasswordField); \
-  NS_SCRIPTABLE NS_IMETHOD SetPasswordField(const nsAString & aPasswordField); \
-  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields); \
-  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields); \
+  NS_SCRIPTABLE NS_IMETHOD GetUsernameIndex(PRInt32 *aUsernameIndex); \
+  NS_SCRIPTABLE NS_IMETHOD SetUsernameIndex(PRInt32 aUsernameIndex); \
+  NS_SCRIPTABLE NS_IMETHOD GetPasswords(nsIMutableArray * *aPasswords); \
+  NS_SCRIPTABLE NS_IMETHOD SetPasswords(nsIMutableArray * aPasswords); \
+  NS_SCRIPTABLE NS_IMETHOD GetOtherFields(nsIMutableArray * *aOtherFields); \
+  NS_SCRIPTABLE NS_IMETHOD SetOtherFields(nsIMutableArray * aOtherFields); \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID); \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID); \
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore); \
   NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore); \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle); \
+  NS_SCRIPTABLE NS_IMETHOD GetMaximumPage(PRInt32 *aMaximumPage); \
+  NS_SCRIPTABLE NS_IMETHOD SetMaximumPage(PRInt32 aMaximumPage); \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval); \
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval); \
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields); 
+  NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval); \
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage); \
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName); \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID); \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID); \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath); \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath); \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData); \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData); \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill); \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit); \
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority); \
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_KFILOGININFO(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return _to GetURL(aURL); } \
-  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) { return _to SetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD GetURLs(nsIMutableArray * *aURLs) { return _to GetURLs(aURLs); } \
+  NS_SCRIPTABLE NS_IMETHOD SetURLs(nsIMutableArray * aURLs) { return _to SetURLs(aURLs); } \
   NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL) { return _to GetFormActionURL(aFormActionURL); } \
   NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL) { return _to SetFormActionURL(aFormActionURL); } \
   NS_SCRIPTABLE NS_IMETHOD GetHttpRealm(nsAString & aHttpRealm) { return _to GetHttpRealm(aHttpRealm); } \
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm) { return _to SetHttpRealm(aHttpRealm); } \
-  NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername) { return _to GetUsername(aUsername); } \
-  NS_SCRIPTABLE NS_IMETHOD SetUsername(const nsAString & aUsername) { return _to SetUsername(aUsername); } \
-  NS_SCRIPTABLE NS_IMETHOD GetUsernameField(nsAString & aUsernameField) { return _to GetUsernameField(aUsernameField); } \
-  NS_SCRIPTABLE NS_IMETHOD SetUsernameField(const nsAString & aUsernameField) { return _to SetUsernameField(aUsernameField); } \
-  NS_SCRIPTABLE NS_IMETHOD GetPassword(nsAString & aPassword) { return _to GetPassword(aPassword); } \
-  NS_SCRIPTABLE NS_IMETHOD SetPassword(const nsAString & aPassword) { return _to SetPassword(aPassword); } \
-  NS_SCRIPTABLE NS_IMETHOD GetPasswordField(nsAString & aPasswordField) { return _to GetPasswordField(aPasswordField); } \
-  NS_SCRIPTABLE NS_IMETHOD SetPasswordField(const nsAString & aPasswordField) { return _to SetPasswordField(aPasswordField); } \
-  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields) { return _to GetCustomFields(aCustomFields); } \
-  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) { return _to SetCustomFields(aCustomFields); } \
+  NS_SCRIPTABLE NS_IMETHOD GetUsernameIndex(PRInt32 *aUsernameIndex) { return _to GetUsernameIndex(aUsernameIndex); } \
+  NS_SCRIPTABLE NS_IMETHOD SetUsernameIndex(PRInt32 aUsernameIndex) { return _to SetUsernameIndex(aUsernameIndex); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPasswords(nsIMutableArray * *aPasswords) { return _to GetPasswords(aPasswords); } \
+  NS_SCRIPTABLE NS_IMETHOD SetPasswords(nsIMutableArray * aPasswords) { return _to SetPasswords(aPasswords); } \
+  NS_SCRIPTABLE NS_IMETHOD GetOtherFields(nsIMutableArray * *aOtherFields) { return _to GetOtherFields(aOtherFields); } \
+  NS_SCRIPTABLE NS_IMETHOD SetOtherFields(nsIMutableArray * aOtherFields) { return _to SetOtherFields(aOtherFields); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return _to GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return _to SetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return _to GetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return _to SetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) { return _to GetRelevanceScore(aRelevanceScore); } \
   NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) { return _to SetRelevanceScore(aRelevanceScore); } \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) { return _to Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD GetMaximumPage(PRInt32 *aMaximumPage) { return _to GetMaximumPage(aMaximumPage); } \
+  NS_SCRIPTABLE NS_IMETHOD SetMaximumPage(PRInt32 aMaximumPage) { return _to SetMaximumPage(aMaximumPage); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) { return _to Equals(aLoginInfo, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) { return _to Matches(aLoginInfo, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) { return _to InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle, someCustomFields); } 
+  NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval) { return _to MergeWith(aLoginInfo, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage) { return _to Init(URLs, aFormSubmitURL, aHttpRealm, aUsernameIndex, aPasswords, uniqueID, aTitle, otherFieldsArray, aMaximumPage); } \
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return _to ToSource(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName) { return _to GetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName) { return _to SetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID) { return _to GetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID) { return _to SetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) { return _to GetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) { return _to SetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return _to GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return _to SetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill) { return _to GetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill) { return _to SetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill) { return _to GetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill) { return _to SetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit) { return _to GetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit) { return _to SetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit) { return _to GetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit) { return _to SetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority) { return _to GetPriority(aPriority); } \
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority) { return _to SetPriority(aPriority); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_KFILOGININFO(_to) \
-  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetURL(aURL); } \
-  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD GetURLs(nsIMutableArray * *aURLs) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetURLs(aURLs); } \
+  NS_SCRIPTABLE NS_IMETHOD SetURLs(nsIMutableArray * aURLs) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetURLs(aURLs); } \
   NS_SCRIPTABLE NS_IMETHOD GetFormActionURL(nsAString & aFormActionURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetFormActionURL(aFormActionURL); } \
   NS_SCRIPTABLE NS_IMETHOD SetFormActionURL(const nsAString & aFormActionURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetFormActionURL(aFormActionURL); } \
   NS_SCRIPTABLE NS_IMETHOD GetHttpRealm(nsAString & aHttpRealm) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetHttpRealm(aHttpRealm); } \
   NS_SCRIPTABLE NS_IMETHOD SetHttpRealm(const nsAString & aHttpRealm) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetHttpRealm(aHttpRealm); } \
-  NS_SCRIPTABLE NS_IMETHOD GetUsername(nsAString & aUsername) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUsername(aUsername); } \
-  NS_SCRIPTABLE NS_IMETHOD SetUsername(const nsAString & aUsername) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUsername(aUsername); } \
-  NS_SCRIPTABLE NS_IMETHOD GetUsernameField(nsAString & aUsernameField) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUsernameField(aUsernameField); } \
-  NS_SCRIPTABLE NS_IMETHOD SetUsernameField(const nsAString & aUsernameField) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUsernameField(aUsernameField); } \
-  NS_SCRIPTABLE NS_IMETHOD GetPassword(nsAString & aPassword) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPassword(aPassword); } \
-  NS_SCRIPTABLE NS_IMETHOD SetPassword(const nsAString & aPassword) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetPassword(aPassword); } \
-  NS_SCRIPTABLE NS_IMETHOD GetPasswordField(nsAString & aPasswordField) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPasswordField(aPasswordField); } \
-  NS_SCRIPTABLE NS_IMETHOD SetPasswordField(const nsAString & aPasswordField) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetPasswordField(aPasswordField); } \
-  NS_SCRIPTABLE NS_IMETHOD GetCustomFields(nsIMutableArray * *aCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetCustomFields(aCustomFields); } \
-  NS_SCRIPTABLE NS_IMETHOD SetCustomFields(nsIMutableArray * aCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCustomFields(aCustomFields); } \
+  NS_SCRIPTABLE NS_IMETHOD GetUsernameIndex(PRInt32 *aUsernameIndex) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUsernameIndex(aUsernameIndex); } \
+  NS_SCRIPTABLE NS_IMETHOD SetUsernameIndex(PRInt32 aUsernameIndex) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUsernameIndex(aUsernameIndex); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPasswords(nsIMutableArray * *aPasswords) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPasswords(aPasswords); } \
+  NS_SCRIPTABLE NS_IMETHOD SetPasswords(nsIMutableArray * aPasswords) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetPasswords(aPasswords); } \
+  NS_SCRIPTABLE NS_IMETHOD GetOtherFields(nsIMutableArray * *aOtherFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetOtherFields(aOtherFields); } \
+  NS_SCRIPTABLE NS_IMETHOD SetOtherFields(nsIMutableArray * aOtherFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetOtherFields(aOtherFields); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD GetTitle(nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD GetRelevanceScore(PRInt32 *aRelevanceScore) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRelevanceScore(aRelevanceScore); } \
   NS_SCRIPTABLE NS_IMETHOD SetRelevanceScore(PRInt32 aRelevanceScore) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetRelevanceScore(aRelevanceScore); } \
-  NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle); } \
+  NS_SCRIPTABLE NS_IMETHOD GetMaximumPage(PRInt32 *aMaximumPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetMaximumPage(aMaximumPage); } \
+  NS_SCRIPTABLE NS_IMETHOD SetMaximumPage(PRInt32 aMaximumPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetMaximumPage(aMaximumPage); } \
   NS_SCRIPTABLE NS_IMETHOD Equals(kfILoginInfo *aLoginInfo, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Equals(aLoginInfo, _retval); } \
   NS_SCRIPTABLE NS_IMETHOD Matches(kfILoginInfo *aLoginInfo, PRBool ignorePassword, PRBool ignoreURIPaths, PRBool ignoreURIPathsAndSchemes, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->Matches(aLoginInfo, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes, _retval); } \
-  NS_SCRIPTABLE NS_IMETHOD InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields) { return !_to ? NS_ERROR_NULL_POINTER : _to->InitCustom(aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField, uniqueID, aTitle, someCustomFields); } 
+  NS_SCRIPTABLE NS_IMETHOD MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->MergeWith(aLoginInfo, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(URLs, aFormSubmitURL, aHttpRealm, aUsernameIndex, aPasswords, uniqueID, aTitle, otherFieldsArray, aMaximumPage); } \
+  NS_SCRIPTABLE NS_IMETHOD ToSource(nsAString & _retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->ToSource(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupName(nsAString & aParentGroupName) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupName(const nsAString & aParentGroupName) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupName(aParentGroupName); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupUUID(nsAString & aParentGroupUUID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupUUID(const nsAString & aParentGroupUUID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupUUID(aParentGroupUUID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetParentGroupPath(nsAString & aParentGroupPath) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD SetParentGroupPath(const nsAString & aParentGroupPath) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetParentGroupPath(aParentGroupPath); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoFill(PRBool *aAlwaysAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoFill(PRBool aAlwaysAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetAlwaysAutoFill(aAlwaysAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoFill(PRBool *aNeverAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoFill(PRBool aNeverAutoFill) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetNeverAutoFill(aNeverAutoFill); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetAlwaysAutoSubmit(aAlwaysAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetNeverAutoSubmit(PRBool *aNeverAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD SetNeverAutoSubmit(PRBool aNeverAutoSubmit) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetNeverAutoSubmit(aNeverAutoSubmit); } \
+  NS_SCRIPTABLE NS_IMETHOD GetPriority(PRInt32 *aPriority) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetPriority(aPriority); } \
+  NS_SCRIPTABLE NS_IMETHOD SetPriority(PRInt32 aPriority) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetPriority(aPriority); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -391,12 +596,12 @@ kfLoginInfo::~kfLoginInfo()
   /* destructor code */
 }
 
-/* attribute AString URL; */
-NS_IMETHODIMP kfLoginInfo::GetURL(nsAString & aURL)
+/* attribute nsIMutableArray URLs; */
+NS_IMETHODIMP kfLoginInfo::GetURLs(nsIMutableArray * *aURLs)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginInfo::SetURL(const nsAString & aURL)
+NS_IMETHODIMP kfLoginInfo::SetURLs(nsIMutableArray * aURLs)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -421,52 +626,32 @@ NS_IMETHODIMP kfLoginInfo::SetHttpRealm(const nsAString & aHttpRealm)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* attribute AString username; */
-NS_IMETHODIMP kfLoginInfo::GetUsername(nsAString & aUsername)
+/* attribute long usernameIndex; */
+NS_IMETHODIMP kfLoginInfo::GetUsernameIndex(PRInt32 *aUsernameIndex)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginInfo::SetUsername(const nsAString & aUsername)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* attribute AString usernameField; */
-NS_IMETHODIMP kfLoginInfo::GetUsernameField(nsAString & aUsernameField)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP kfLoginInfo::SetUsernameField(const nsAString & aUsernameField)
+NS_IMETHODIMP kfLoginInfo::SetUsernameIndex(PRInt32 aUsernameIndex)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* attribute AString password; */
-NS_IMETHODIMP kfLoginInfo::GetPassword(nsAString & aPassword)
+/* attribute nsIMutableArray passwords; */
+NS_IMETHODIMP kfLoginInfo::GetPasswords(nsIMutableArray * *aPasswords)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginInfo::SetPassword(const nsAString & aPassword)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/* attribute AString passwordField; */
-NS_IMETHODIMP kfLoginInfo::GetPasswordField(nsAString & aPasswordField)
-{
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP kfLoginInfo::SetPasswordField(const nsAString & aPasswordField)
+NS_IMETHODIMP kfLoginInfo::SetPasswords(nsIMutableArray * aPasswords)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* attribute nsIMutableArray customFields; */
-NS_IMETHODIMP kfLoginInfo::GetCustomFields(nsIMutableArray * *aCustomFields)
+/* attribute nsIMutableArray otherFields; */
+NS_IMETHODIMP kfLoginInfo::GetOtherFields(nsIMutableArray * *aOtherFields)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP kfLoginInfo::SetCustomFields(nsIMutableArray * aCustomFields)
+NS_IMETHODIMP kfLoginInfo::SetOtherFields(nsIMutableArray * aOtherFields)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -501,8 +686,12 @@ NS_IMETHODIMP kfLoginInfo::SetRelevanceScore(PRInt32 aRelevanceScore)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void init (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle); */
-NS_IMETHODIMP kfLoginInfo::Init(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle)
+/* attribute long maximumPage; */
+NS_IMETHODIMP kfLoginInfo::GetMaximumPage(PRInt32 *aMaximumPage)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetMaximumPage(PRInt32 aMaximumPage)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -519,8 +708,191 @@ NS_IMETHODIMP kfLoginInfo::Matches(kfILoginInfo *aLoginInfo, PRBool ignorePasswo
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void initCustom (in AString aHostname, in AString aFormSubmitURL, in AString aHttpRealm, in AString aUsername, in AString aPassword, in AString aUsernameField, in AString aPasswordField, in AString uniqueID, in AString aTitle, in nsIMutableArray someCustomFields); */
-NS_IMETHODIMP kfLoginInfo::InitCustom(const nsAString & aHostname, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, const nsAString & aUsername, const nsAString & aPassword, const nsAString & aUsernameField, const nsAString & aPasswordField, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *someCustomFields)
+/* kfILoginInfo mergeWith (in kfILoginInfo aLoginInfo); */
+NS_IMETHODIMP kfLoginInfo::MergeWith(kfILoginInfo *aLoginInfo, kfILoginInfo **_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void init (in nsIMutableArray URLs, in AString aFormSubmitURL, in AString aHttpRealm, in long aUsernameIndex, in nsIMutableArray aPasswords, in AString uniqueID, in AString aTitle, in nsIMutableArray otherFieldsArray, in long aMaximumPage); */
+NS_IMETHODIMP kfLoginInfo::Init(nsIMutableArray *URLs, const nsAString & aFormSubmitURL, const nsAString & aHttpRealm, PRInt32 aUsernameIndex, nsIMutableArray *aPasswords, const nsAString & uniqueID, const nsAString & aTitle, nsIMutableArray *otherFieldsArray, PRInt32 aMaximumPage)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* AString toSource (); */
+NS_IMETHODIMP kfLoginInfo::ToSource(nsAString & _retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString parentGroupName; */
+NS_IMETHODIMP kfLoginInfo::GetParentGroupName(nsAString & aParentGroupName)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetParentGroupName(const nsAString & aParentGroupName)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString parentGroupUUID; */
+NS_IMETHODIMP kfLoginInfo::GetParentGroupUUID(nsAString & aParentGroupUUID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetParentGroupUUID(const nsAString & aParentGroupUUID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute AString parentGroupPath; */
+NS_IMETHODIMP kfLoginInfo::GetParentGroupPath(nsAString & aParentGroupPath)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetParentGroupPath(const nsAString & aParentGroupPath)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute ACString iconImageData; */
+NS_IMETHODIMP kfLoginInfo::GetIconImageData(nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetIconImageData(const nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean alwaysAutoFill; */
+NS_IMETHODIMP kfLoginInfo::GetAlwaysAutoFill(PRBool *aAlwaysAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetAlwaysAutoFill(PRBool aAlwaysAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean neverAutoFill; */
+NS_IMETHODIMP kfLoginInfo::GetNeverAutoFill(PRBool *aNeverAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetNeverAutoFill(PRBool aNeverAutoFill)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean alwaysAutoSubmit; */
+NS_IMETHODIMP kfLoginInfo::GetAlwaysAutoSubmit(PRBool *aAlwaysAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetAlwaysAutoSubmit(PRBool aAlwaysAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute boolean neverAutoSubmit; */
+NS_IMETHODIMP kfLoginInfo::GetNeverAutoSubmit(PRBool *aNeverAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetNeverAutoSubmit(PRBool aNeverAutoSubmit)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute long priority; */
+NS_IMETHODIMP kfLoginInfo::GetPriority(PRInt32 *aPriority)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfLoginInfo::SetPriority(PRInt32 aPriority)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* End of implementation class template. */
+#endif
+
+
+/* starting interface:    kfIURL */
+#define KFIURL_IID_STR "21e35ab1-d964-476f-ba73-c318cc1a1183"
+
+#define KFIURL_IID \
+  {0x21e35ab1, 0xd964, 0x476f, \
+    { 0xba, 0x73, 0xc3, 0x18, 0xcc, 0x1a, 0x11, 0x83 }}
+
+class NS_NO_VTABLE NS_SCRIPTABLE kfIURL : public nsISupports {
+ public: 
+
+  NS_DECLARE_STATIC_IID_ACCESSOR(KFIURL_IID)
+
+  /* attribute AString URL; */
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) = 0;
+
+};
+
+  NS_DEFINE_STATIC_IID_ACCESSOR(kfIURL, KFIURL_IID)
+
+/* Use this macro when declaring classes that implement this interface. */
+#define NS_DECL_KFIURL \
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL); \
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL); 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object. */
+#define NS_FORWARD_KFIURL(_to) \
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return _to GetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) { return _to SetURL(aURL); } 
+
+/* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
+#define NS_FORWARD_SAFE_KFIURL(_to) \
+  NS_SCRIPTABLE NS_IMETHOD GetURL(nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetURL(aURL); } \
+  NS_SCRIPTABLE NS_IMETHOD SetURL(const nsAString & aURL) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetURL(aURL); } 
+
+#if 0
+/* Use the code below as a template for the implementation class for this interface. */
+
+/* Header file */
+class kfURL : public kfIURL
+{
+public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_KFIURL
+
+  kfURL();
+
+private:
+  ~kfURL();
+
+protected:
+  /* additional members */
+};
+
+/* Implementation file */
+NS_IMPL_ISUPPORTS1(kfURL, kfIURL)
+
+kfURL::kfURL()
+{
+  /* member initializers and constructor code */
+}
+
+kfURL::~kfURL()
+{
+  /* destructor code */
+}
+
+/* attribute AString URL; */
+NS_IMETHODIMP kfURL::GetURL(nsAString & aURL)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfURL::SetURL(const nsAString & aURL)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -549,6 +921,10 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) = 0;
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) = 0;
 
+  /* attribute ACString iconImageData; */
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) = 0;
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) = 0;
+
   /* void init (in AString title, in AString uniqueID); */
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) = 0;
 
@@ -562,6 +938,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle); \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID); \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData); \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData); \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
@@ -570,6 +948,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return _to SetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return _to GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return _to SetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return _to GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return _to SetIconImageData(aIconImageData); } \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) { return _to Init(title, uniqueID); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
@@ -578,6 +958,8 @@ class NS_NO_VTABLE NS_SCRIPTABLE kfIGroupInfo : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD SetTitle(const nsAString & aTitle) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetTitle(aTitle); } \
   NS_SCRIPTABLE NS_IMETHOD GetUniqueID(nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetUniqueID(aUniqueID); } \
   NS_SCRIPTABLE NS_IMETHOD SetUniqueID(const nsAString & aUniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetUniqueID(aUniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetIconImageData(nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetIconImageData(aIconImageData); } \
+  NS_SCRIPTABLE NS_IMETHOD SetIconImageData(const nsACString & aIconImageData) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetIconImageData(aIconImageData); } \
   NS_SCRIPTABLE NS_IMETHOD Init(const nsAString & title, const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->Init(title, uniqueID); } 
 
 #if 0
@@ -628,6 +1010,16 @@ NS_IMETHODIMP kfGroupInfo::GetUniqueID(nsAString & aUniqueID)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP kfGroupInfo::SetUniqueID(const nsAString & aUniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* attribute ACString iconImageData; */
+NS_IMETHODIMP kfGroupInfo::GetIconImageData(nsACString & aIconImageData)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP kfGroupInfo::SetIconImageData(const nsACString & aIconImageData)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -880,6 +1272,18 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   /* void launchGroupEditor (in AString uniqueID); */
   NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) = 0;
 
+  /* void getMRUdatabases (out unsigned long count, [array, size_is (count), retval] out string databases); */
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases) = 0;
+
+  /* boolean getAutoCommit (); */
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval) = 0;
+
+  /* boolean setAutoCommit (in boolean autoCommit); */
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval) = 0;
+
+  /* boolean setCurrentDBRootGroup (in AString uniqueID); */
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval) = 0;
+
 };
 
   NS_DEFINE_STATIC_IID_ACCESSOR(IKeeFox, IKEEFOX_IID)
@@ -911,7 +1315,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins); \
   NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup); \
   NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID); \
-  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID); 
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID); \
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases); \
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval); \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval); 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object. */
 #define NS_FORWARD_IKEEFOX(_to) \
@@ -940,7 +1348,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) { return _to GetChildEntries(count, uniqueID, logins); } \
   NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) { return _to GetRootGroup(rootGroup); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) { return _to LaunchLoginEditor(uniqueID); } \
-  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return _to LaunchGroupEditor(uniqueID); } 
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return _to LaunchGroupEditor(uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases) { return _to GetMRUdatabases(count, databases); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval) { return _to GetAutoCommit(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval) { return _to SetAutoCommit(autoCommit, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval) { return _to SetCurrentDBRootGroup(uniqueID, _retval); } 
 
 /* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
 #define NS_FORWARD_SAFE_IKEEFOX(_to) \
@@ -969,7 +1381,11 @@ class NS_NO_VTABLE NS_SCRIPTABLE IKeeFox : public nsISupports {
   NS_SCRIPTABLE NS_IMETHOD GetChildEntries(PRUint32 *count, const nsAString & uniqueID, kfILoginInfo ***logins) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetChildEntries(count, uniqueID, logins); } \
   NS_SCRIPTABLE NS_IMETHOD GetRootGroup(kfIGroupInfo **rootGroup) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetRootGroup(rootGroup); } \
   NS_SCRIPTABLE NS_IMETHOD LaunchLoginEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchLoginEditor(uniqueID); } \
-  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchGroupEditor(uniqueID); } 
+  NS_SCRIPTABLE NS_IMETHOD LaunchGroupEditor(const nsAString & uniqueID) { return !_to ? NS_ERROR_NULL_POINTER : _to->LaunchGroupEditor(uniqueID); } \
+  NS_SCRIPTABLE NS_IMETHOD GetMRUdatabases(PRUint32 *count, char ***databases) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetMRUdatabases(count, databases); } \
+  NS_SCRIPTABLE NS_IMETHOD GetAutoCommit(PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->GetAutoCommit(_retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetAutoCommit(PRBool autoCommit, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetAutoCommit(autoCommit, _retval); } \
+  NS_SCRIPTABLE NS_IMETHOD SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval) { return !_to ? NS_ERROR_NULL_POINTER : _to->SetCurrentDBRootGroup(uniqueID, _retval); } 
 
 #if 0
 /* Use the code below as a template for the implementation class for this interface. */
@@ -1153,6 +1569,30 @@ NS_IMETHODIMP _MYCLASS_::LaunchLoginEditor(const nsAString & uniqueID)
 
 /* void launchGroupEditor (in AString uniqueID); */
 NS_IMETHODIMP _MYCLASS_::LaunchGroupEditor(const nsAString & uniqueID)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* void getMRUdatabases (out unsigned long count, [array, size_is (count), retval] out string databases); */
+NS_IMETHODIMP _MYCLASS_::GetMRUdatabases(PRUint32 *count, char ***databases)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean getAutoCommit (); */
+NS_IMETHODIMP _MYCLASS_::GetAutoCommit(PRBool *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean setAutoCommit (in boolean autoCommit); */
+NS_IMETHODIMP _MYCLASS_::SetAutoCommit(PRBool autoCommit, PRBool *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+/* boolean setCurrentDBRootGroup (in AString uniqueID); */
+NS_IMETHODIMP _MYCLASS_::SetCurrentDBRootGroup(const nsAString & uniqueID, PRBool *_retval)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }

@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="$this.TrayLargeIcon" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>False</value>
-  </metadata>
+  <data name="m_lblKeyFileInfo.Text" xml:space="preserve">
+    <value>KeePass can use other sources to encrypt your database. If you would like to use a key file, windows user account (not recommended) or other third party key source provider sources, use the button below to switch to advanced mode.</value>
+  </data>
 </root>

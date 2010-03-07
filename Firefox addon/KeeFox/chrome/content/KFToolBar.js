@@ -3,7 +3,10 @@
   Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
   This KFToolBar.js file contains functions and data related to the visible
-  toolbar buttons that kefox.xul defines.
+  toolbar buttons that kefox.xul defines. It also contains some other related
+  functions such as displaying popup menus and serves as a known access
+  point for a given window's KeeFox features. (I'll probably split some 
+  of these into different files in the future)
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,47 +27,15 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function KFToolbar(currentWindow) {
     this._currentWindow = currentWindow;
+    this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
 }
 
 KFToolbar.prototype = {
 
     _currentWindow : null,
-    
-    _alert : function (msg) {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                           .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-
-        // get a reference to the prompt service component.
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-
-        // show an alert. For the first argument, supply the parent window. The second
-        // argument is the dialog title and the third argument is the message
-        // to display.
-        promptService.alert(window,"Alert",msg);
-    },
-    
-    __logService : null, // Console logging service, used for debugging.
-    get _logService() {
-        if (!this.__logService)
-            this.__logService = Cc["@mozilla.org/consoleservice;1"].
-                                getService(Ci.nsIConsoleService);
-        return this.__logService;
-    },
-    
-    // Internal function for logging debug messages to the Error Console window
-    log : function (message) {
-        dump(message+"\n");
-        if (this._currentWindow.keeFoxInst._keeFoxExtension.prefs.getValue("debugToConsole",false))
-            this._logService.logStringMessage(message);
-    },
-    
-    // Internal function for logging error messages to the Error Console window
-    error : function (message) {
-        Components.utils.reportError(message);
-    },
-    
+    strbundle : null,
+ 
+    // remove matched logins from the menu
     removeLogins: function() {
 
         // Get the toolbaritem "container" that we added to our XUL markup
@@ -78,8 +49,14 @@ KFToolbar.prototype = {
         this.setupButton_ready(null,this._currentWindow);
     },
     
-    setLogins: function(logins) {
-this.log("setLogins");
+    compareRelevanceScores: function (a , b)
+    {
+        return b.relevanceScore - a.relevanceScore;
+    },
+    
+    // add all matched logins to the menu
+    setLogins: function(logins, doc) {
+        KFLog.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         
@@ -90,171 +67,114 @@ this.log("setLogins");
         if (container.getAttribute('KFLock') == "enabled")
             return;
 
-        // Remove all of the existing buttons
-        for (i = container.childNodes.length; i > 0; i--) {
-            container.removeChild(container.childNodes[0]);
-        }
+        // TODO: merge logins into existing ones to prevent duplicates if more than
+        // one frame has same matching login
 
         if (logins == null || logins.length == 0)
         {
             this.setupButton_ready(null,this._currentWindow);
             return;
         }
-       
+        
+        logins.sort(this.compareRelevanceScores);
+        
+        // set up the main button
         container.setAttribute("class", "login-found");
         container.setAttribute("type", "menu-button");
         container.setAttribute("disabled", "false");
         container.setAttribute("onpopupshowing", "this.setAttribute('KFLock','enabled');");
         container.setAttribute("onpopuphiding", "this.setAttribute('KFLock','disabled');");
-                
+        
+        // create a popup menu to hold the logins        
         menupopup = this._currentWindow.document.createElement("menupopup");
 
-        this.log("setting " + logins.length + " toolbar logins");
-
+        KFLog.debug("setting " + logins.length + " toolbar logins");
+        
+        // add every matched login to the popup menu
         for (var i = 0; i < logins.length; i++) {
             var login = logins[i];
+            var usernameValue = "";
+            var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
+            var usernameName = "";
+            var usernameId = "";
+            var displayGroupPath = login.parentGroupPath;
+//            var groupDivider = this.strbundle.getString("groupDividerCharacter");
+//            if (groupDivider != ".")
+//                displayGroupPath = displayGroupPath.replace(/\./g,groupDivider);
             
-            var userNameID = null;
-            var passwordID = null;
-            var custFields = login.customFields;
-            //this.log(custFields);
-            if (custFields != undefined)
+            if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
-                this.log("found some custom fields");
-                var enumerator = custFields.enumerate();
-                var s = "";
-                while (enumerator.hasMoreElements())
-                {
-                  var customField = enumerator.getNext().QueryInterface(Components.interfaces.kfILoginField);
-                  
-                  // for now we're only using custom fields to increase form selection accuracy
-                  if (customField.name == 'Form field special_form_username_ID value')
-                    userNameID = customField.value;
-                   else if (customField.name == 'Form field special_form_password_ID value')
-                    passwordID = customField.value;
-                }
-                //this.log(s);
+                // Unfortunately the container is decared to have elements
+                // that are generic nsIMutableArray. So, we must QI...
+                var field = 
+                login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+
+                usernameValue = field.value;
+                if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                    usernameDisplayValue = usernameValue;
+                usernameName = field.name;
+                usernameId = field.fieldId;
             }
-            
+                        
             if (i==0)
             {
                 container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", login.username );
+                container.setAttribute("value", doc.documentURI);
+                container.setAttribute("tooltiptext", usernameDisplayValue + " in " +  displayGroupPath);
                 container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             
             }
-
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", login.username);
+            tempButton.setAttribute("class", "menuitem-iconic");
+            tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
+            tempButton.setAttribute("value", doc.documentURI);
+            tempButton.setAttribute("tooltiptext", usernameDisplayValue + " in " + displayGroupPath);
             tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formActionURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             menupopup.appendChild(tempButton);
-
 
         }
         
         container.appendChild(menupopup);
-this.log("test2:"+container.getAttribute("oncommand"));
     },
     
+    // populate the "all logins" menu with every login in this database
     setAllLogins: function() {
-        this.log("setAllLogins");
+        KFLog.debug("setAllLogins start");
         
+        var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
+
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
+            // start with the current root group uniqueID
             var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
             
             if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                 this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
-            return;
-        }// else
-        //{
-            // get the popup menu for this list of logins and subgroups
+            loginButton.setAttribute("disabled","false"); //TODO: conditional
+            //loginButton.setAttribute("class","false");
+        } else
+        {
+            loginButton.setAttribute("disabled","true");
+            //loginButton.setAttribute("disabled","false");
             var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
 
             // Remove all of the existing buttons
             for (i = container.childNodes.length; i > 0; i--) {
                 container.removeChild(container.childNodes[0]);
             }
-        //}
-        
-       /*
-        var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, rootGroup.uniqueID);
-        var foundLogins = this._currentWindow.keeFoxILM.getChildEntries({}, rootGroup.uniqueID);
-
-        if (logins == null || logins.length == 0)
-        {
-            this.setupButton_ready(null,this._currentWindow);
-            return;
         }
-       
-        container.setAttribute("class", "login-found");
-        container.setAttribute("type", "menu-button");
-        container.setAttribute("disabled", "false");
-                
-        menupopup = this._currentWindow.document.createElement("menupopup");
-
-        this.log("setting " + logins.length + " toolbar logins");
-
-        for (var i = 0; i < logins.length; i++) {
-            var login = logins[i];
-            
-            var userNameID = null;
-            var passwordID = null;
-            var custFields = login.customFields;
-            //this.log(custFields);
-            if (custFields != undefined)
-            {
-                this.log("found some custom fields");
-                var enumerator = custFields.enumerate();
-                var s = "";
-                while (enumerator.hasMoreElements())
-                {
-                  var customField = enumerator.getNext().QueryInterface(Components.interfaces.kfILoginField);
-                  
-                  // for now we're only using custom fields to increase form selection accuracy
-                  if (customField.name == 'Form field special_form_username_ID value')
-                    userNameID = customField.value;
-                   else if (customField.name == 'Form field special_form_password_ID value')
-                    passwordID = customField.value;
-                }
-                //this.log(s);
-            }
-            
-            if (i==0)
-            {
-                container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-            
-            }
-
-
-            var tempButton = null;
-            tempButton = this._currentWindow.document.createElement("menuitem");
-            tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", "Button " + i + ": " + login.username);
-            tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
-                login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "');  event.stopPropagation();");
-            menupopup.appendChild(tempButton);
-
-
-        }
-        
-        container.appendChild(menupopup);
-this.log("test2:"+container.getAttribute("oncommand"));
-*/
+        KFLog.debug("setAllLogins end");
+        return;
     },
     
+    // add all the logins and subgroups for one KeePass group
     setOneLoginsMenu: function(containerID, groupUniqueID) {
-        this.log("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
+        KFLog.debug("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
 
         // get the popup menu for this list of logins and subgroups
         var container = this._currentWindow.document.getElementById(containerID);
@@ -271,92 +191,73 @@ this.log("test2:"+container.getAttribute("oncommand"));
         {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
-            noItemsButton.setAttribute("label", keeFoxInst.strbundle.getString("loginsButtonEmpty.label"));
+            noItemsButton.setAttribute("label", this.strbundle.getString("loginsButtonEmpty.label"));
             noItemsButton.setAttribute("disabled", "true");
-            noItemsButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonEmpty.tip"));
+            noItemsButton.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonEmpty.tip"));
             container.appendChild(noItemsButton);
             return;
         }
-       /*
-        container.setAttribute("class", "login-found");
-        container.setAttribute("type", "menu-button");
-        container.setAttribute("disabled", "false");
-                
-        menupopup = this._currentWindow.document.createElement("menupopup");
 
-        this.log("setting " + logins.length + " toolbar logins");
-*/
         for (var i = 0; i < foundGroups.length; i++) {
             var group = foundGroups[i];
             
-            /*
-            
-            if (i==0)
-            {
-                container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-            
-            }
-*/
-
             // maybe this duplicated oncommand, etc. is un-needed?
             var newMenu = null;
             newMenu = this._currentWindow.document.createElement("menu");
             newMenu.setAttribute("label", group.title);
-            newMenu.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonGroup.tip"));
+            newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
             newMenu.setAttribute("onpopupshowing", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
                 group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
-            newMenu.setAttribute("class", "menuitem-iconic");
+            newMenu.setAttribute("class", "menu-iconic");
             newMenu.setAttribute("value", group.uniqueID);
             newMenu.setAttribute("context", "KeeFox-group-context");
-            newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            //newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            newMenu.setAttribute("image", "data:image/png;base64,"+group.iconImageData);
             container.appendChild(newMenu);
             
             var newMenuPopup = null;
             newMenuPopup = this._currentWindow.document.createElement("menupopup");
             newMenuPopup.setAttribute("id", "KeeFox_Group-" + group.uniqueID);
-            //newMenuPopup.setAttribute("label", group.title);
-            //newMenuPopup.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonGroup.tip"));
-            //newMenuPopup.setAttribute("oncommand", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
-            //    group.uniqueID + "','" + group.uniqueID + "');");
             newMenu.appendChild(newMenuPopup);
-
 
         }
         
         for (var i = 0; i < foundLogins.length; i++) {
             var login = foundLogins[i];
+            var usernameValue = "";
+            var usernameName = "";
+            var usernameId = "";
+            var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
             
-            /*
-            
-            if (i==0)
+            if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
-                container.setAttribute("label", login.title);
-                container.setAttribute("tooltiptext", "Button " + i + ": " + login.username );
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
-                    login.usernameField + "','" + login.username + "','" + login.formSubmitURL + "','"+userNameID+"','"+passwordID+"','" + login.uniqueID + "'); event.stopPropagation();");
-                  //  container.oncommand = keeFoxILM.fill(login.usernameField ,login.username , login.formSubmitURL ,userNameID,passwordID,login.uniqueID );
-            
+                KFLog.debug("otherfields length: "+login.otherFields.length);
+                KFLog.debug("login.usernameIndex: "+login.usernameIndex);
+
+                // Unfortunately the container is decared to have elements
+                // that are generic nsIMutableArray. So, we must QI...
+                var field = 
+                login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+
+                usernameValue = field.value;
+                if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                    usernameDisplayValue = usernameValue;
+                usernameName = field.name;
+                usernameId = field.fieldId;
             }
-*/
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loginsButtonLogin.tip"));
+            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loginsButtonLogin.tip",[usernameDisplayValue]) );
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
-                login.usernameField + "','" + login.username + "','" + login.URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.URLs.queryElementAt(0,Components.interfaces.kfIURL).URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
-            tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
+            tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
 
             container.appendChild(tempButton);
-
-
         }
         
     },
@@ -366,7 +267,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this.log("setupButton_installListener: got event " + event.type);
+            KFLog.debug("setupButton_installListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -376,7 +277,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
                     return;
 
                 default:
-                    this.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }
@@ -388,7 +289,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this.log("setupButton_readyListener: got event " + event.type);
+            KFLog.debug("setupButton_readyListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -398,7 +299,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
                     return;
 
                 default:
-                    this.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }
@@ -410,7 +311,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
         QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
         handleEvent: function(event) {
-            this.log("setupButton_loadKeePassListener: got event " + event.type);
+            KFLog.debug("setupButton_loadKeePassListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type) {
@@ -420,7 +321,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
                     return;
 
                 default:
-                    this.log("This event was unexpected and has been ignored.");
+                    KFLog.warn("This event was unexpected and has been ignored.");
                     return;
             }
         }
@@ -428,7 +329,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
     },
 
     setupButton_install: function(targetWindow) {
-        this.log("setupButton_install");
+        KFLog.debug("setupButton_install start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -445,9 +346,9 @@ this.log("test2:"+container.getAttribute("oncommand"));
         mainButton.setAttribute("class", "");
         //mainButton.setAttribute("type", "");
         mainButton.removeAttribute("type");
-        mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
+        mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
-        mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
+        mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
     },
 
@@ -455,7 +356,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
 // decide what state the toolbar needs to show when this function is executing rather than calling
 // one of many different ones from other locations
     setupButton_ready: function(targetWindow, mainWindowIN) {
-        this.log("setupButton_ready");
+        KFLog.debug("setupButton_ready start");
         var mainButton;
         var mainWindow;
         
@@ -474,51 +375,66 @@ this.log("test2:"+container.getAttribute("oncommand"));
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
         mainButton.setAttribute("disabled", "false");
         // Remove all of the existing buttons
-        for (i = mainButton.childNodes.length; i > 0; i--) {
+        for (var i = mainButton.childNodes.length; i > 0; i--) {
             mainButton.removeChild(mainButton.childNodes[0]);
         }
         mainButton.setAttribute("class", "");
         //mainButton.setAttribute("type", "");
         mainButton.removeAttribute("type");
         
+        var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
+        
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-            this.log("setupButton_ready1");
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
             if (DBname == null || DBname == "")
                 return; // KeeICE suddenly dissapeared - toolbar will have been updated from deeper in the stack
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedIn.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
+            mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
            // mainButton.setAttribute("oncommand", "alert('blah')");
             mainButton.setAttribute("disabled", "true");
             mainButton.removeAttribute("oncommand");
-        this.log("setupButton_ready1end");
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false))
         {
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("installKeeFox.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("installKeeFox.tip"));
+            mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
             mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
         
         } else if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
         {
-        this.log("setupButton_ready2");
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
+            mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
             mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
         } else
         {
-        this.log("setupButton_ready3");
-            mainButton.setAttribute("label", keeFoxInst.strbundle.getString("loggedOut.label"));
-            mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("loggedOut.tip") );
+            mainButton.setAttribute("label", this.strbundle.getString("loggedOut.label"));
+            mainButton.setAttribute("tooltiptext", this.strbundle.getString("loggedOut.tip") );
             mainButton.setAttribute("oncommand", "keeFoxInst.loginToKeePass()");
         }
 
             
-        
+        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+        {    
+            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
+            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
+            changeDBButton.setAttribute("onpopupshowing", "keeFoxToolbar.setMRUdatabases(); event.stopPropagation();");
+            changeDBButton.setAttribute("disabled", "false");
+            //changeDBButton.setAttribute("onpopuphiding", "keeFoxToolbar.detachMRUpopup(); event.stopPropagation();");
+            
+            
+        } else
+        {
+            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
+            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
+            changeDBButton.setAttribute("onpopupshowing", "");
+            //changeDBButton.setAttribute("onpopuphiding", "");
+            changeDBButton.setAttribute("disabled", "true");
+        }
+        KFLog.debug("setupButton_ready end");
     },
 
     setupButton_loadKeePass: function(targetWindow) {
-        this.log("setupButton_loadKeePass");
+        KFLog.debug("setupButton_loadKeePass start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -527,7 +443,7 @@ this.log("test2:"+container.getAttribute("oncommand"));
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-        mainButton.setAttribute("label", keeFoxInst.strbundle.getString("launchKeePass.label"));
+        mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
         mainButton.setAttribute("disabled", "false");
         // Remove all of the existing buttons
         for (i = mainButton.childNodes.length; i > 0; i--) {
@@ -536,24 +452,26 @@ this.log("test2:"+container.getAttribute("oncommand"));
         mainButton.setAttribute("class", "");
        // mainButton.setAttribute("type", "");
        mainButton.removeAttribute("type");
-        mainButton.setAttribute("tooltiptext", keeFoxInst.strbundle.getString("launchKeePass.tip"));
+        mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
     },
     
     KeeFox_RunSelfTests: function(event, KFtester) {
+ 
         this._alert("Please load KeePass and create a new empty database (no sample data). Then click OK and wait for the tests to complete. Follow the test progress in the Firefox error console. WARNING: While running these tests do not load any KeePass database which contains data you want to keep.");
+        var outMsg = "";
         try {
             KFtester._KeeFoxTestErrorOccurred = false;
-            KFtester.do_tests();
+            outMsg = KFtester.do_tests();
         }
         catch (err) {
-            this.error(err);
-            this._alert("Tests failed. View the Firefox error console for further details. Summary follows:" + err);
+            KFLog.error(err);
+            KFLog._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
             return;
         }
 
-        this.log("Tests finished - everything worked!");
-        this._alert("Tests finished - everything worked!");
+        KFLog.info(outMsg);
+        KFLog._alert(outMsg);
     },
     
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
@@ -567,7 +485,190 @@ this.log("test2:"+container.getAttribute("oncommand"));
             flashyItem.setAttribute("class", "highlight");
         
         theWindow.setTimeout(arguments.callee, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes-1, theWindow);
+    },
+    
+    detachMRUpopup: function () {
+    alert("detach");
+        var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
+
+        //var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+                // Remove all of the existing popup containers
+        for (i = container.childNodes.length; i > 0; i--) {
+            container.removeChild(container.childNodes[0]);
+        }
+        
+        
+    },
+    
+    setMRUdatabases: function() {
+    //return;
+   //     alert("set");
+        // get the popup menu for this list of logins and subgroups
+   //     var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
+
+        var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+
+        // Remove all of the existing buttons
+        for (i = popupContainer.childNodes.length; i > 0; i--) {
+            popupContainer.removeChild(popupContainer.childNodes[0]);
+        }
+        
+        var mruArray = this._currentWindow.keeFoxInst.getAllDatabaseFileNames();
+        
+        
+           
+        if (mruArray == null || mruArray.length == 0)
+        {
+            var noItemsButton = null;
+            noItemsButton = this._currentWindow.document.createElement("menuitem");
+            noItemsButton.setAttribute("label", this.strbundle.getString("changeDBButtonEmpty.label"));
+            noItemsButton.setAttribute("disabled", "true");
+            noItemsButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonEmpty.tip"));
+            popupContainer.appendChild(noItemsButton);
+            return;
+        } else
+        {
+        
+            for (i = 0; i < mruArray.length; i++)
+            {
+               
+
+                var tempButton = null;
+                tempButton = this._currentWindow.document.createElement("menuitem");
+                tempButton.setAttribute("label", mruArray[i]);
+                tempButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonListItem.tip"));
+                tempButton.setAttribute("oncommand", "keeFoxInst.changeDatabase('" +
+                    mruArray[i].replace(/[\\]/g,'\\\\') + "',false);  event.stopPropagation();");
+                tempButton.setAttribute("class", "menuitem-iconic");
+                //tempButton.setAttribute("context", "KeeFox-login-context"); in future this could enable "set to default for this location..." etc. ?
+                tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png"); //TODO: use KeePass database icon
+
+                popupContainer.appendChild(tempButton);
+
+
+            }
+        }
+        
+    },
+    
+    // wipe any session data relating to saving login forms that we
+    // have associated with the most recent tab.
+    clearTabFormRecordingData : function ()
+    {
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+            .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = this._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+
+        var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
+
+        if (currentPage != undefined && currentPage != null && currentPage != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
+            /*
+            TODO:
+            Error: uncaught exception: [Exception... "'Illegal value' when calling method: [nsISessionStore::deleteTabValue]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: chrome://keefox/content/keefox.js -> resource://kfscripts/KFToolBar.js :: anonymous :: line 587"  data: no]
+            */
+        }
+        
+        var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
+
+        if (currentStateMain != undefined && currentStateMain != null && currentStateMain != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+        }
+        
+        var currentStatePasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+
+        if (currentStatePasswords != undefined && currentStatePasswords != null && currentStatePasswords != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+        }
+        
+        var currentStateOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+
+        if (currentStateOtherFields != undefined && currentStateOtherFields != null && currentStateOtherFields != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+        }
+        
+        
+            
+    },
+    
+    // prepare the most recent tab for recording a login procedure
+    setTabFormRecordingData : function ()
+    {
+    
+    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+            .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = this._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+
+//this.log(currentGBrowser.mTabs.selectedIndex);
+        var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
+        
+        if (currentPage == undefined || currentPage == null)
+        {
+            currentPage = 0; // or 1?
+        }
+        
+        ss.setTabValue(currentTab, "KF_recordFormCurrentPage", currentPage+1);
+
+    },
+    
+    // wipe any session data relating to filling login forms that we
+    // have associated with the most recent tab.
+    clearTabFormFillData : function ()
+    {
+        KFLog.debug("clearTabFormFillData start");
+        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+            .getService(Components.interfaces.nsISessionStore);
+        var currentGBrowser = this._currentWindow.gBrowser;
+        var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+
+        var autoSubmit = ss.getTabValue(currentTab, "KF_autoSubmit");
+
+        if (autoSubmit != undefined && autoSubmit != null && autoSubmit != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_autoSubmit");
+        }
+        
+        var uniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
+
+        if (uniqueID != undefined && uniqueID != null && uniqueID != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_uniqueID");
+        }
+        
+        var numberOfTabFillsTarget = ss.getTabValue(currentTab, "KF_numberOfTabFillsTarget");
+
+        if (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null && numberOfTabFillsTarget != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_numberOfTabFillsTarget");
+        }
+        
+        var numberOfTabFillsRemaining = ss.getTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+
+        if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+        }
+        
+        
+            
+    },
+    
+    
+    fillCurrentDocument : function ()
+    {
+        var currentGBrowser = this._currentWindow.gBrowser;
+        //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+        this.setLogins(null, null);
+        this._currentWindow.keeFoxILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
+        
     }
 
-
 };
+
+

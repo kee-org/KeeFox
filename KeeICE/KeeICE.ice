@@ -22,10 +22,14 @@
 #ifndef SIMPLE_ICE
 #define SIMPLE_ICE
 
+#ifdef ICEE
 #include <IceE/Identity.ice>
+#else
+#include <Ice/Identity.ice>
+#endif
 
 module KeeICE {
-module KFlib {
+module KPlib {
     
     enum loginSearchType { LSTall, LSTnoForms, LSTnoRealms };
     enum formFieldType { FFTradio, FFTusername, FFTtext, FFTpassword, FFTselect, FFTcheckbox }; // ..., HTML 5, etc.
@@ -37,6 +41,8 @@ module KFlib {
 		string displayName;
 		string value;
 		formFieldType type;
+		string id;
+		int page;
 		//compulsory, multiple selections,useful javascript functions?
     };
     
@@ -46,20 +52,36 @@ module KFlib {
     {
 		string title;
 		string uniqueID;
+		string iconImageData;
     };
     
     sequence<KPGroup> KPGroupList;
     
+    sequence<string> KPURLs;
+    
     struct KPEntry
     {
-		string URL;
+		KPURLs URLs;
 		string formActionURL;
 		string HTTPRealm;
 		string title;
 		KPFormFieldList formFieldList;
-		bool default; // for this hostname
 		bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between KeeICE clients or vary based on specific use cases in the client)
 		string uniqueID;
+		
+		bool alwaysAutoFill;
+		bool neverAutoFill;
+		bool alwaysAutoSubmit;
+		bool neverAutoSubmit;
+		int priority; // "KeeFox priority" = 1 (1 = 30000 relevancy score, 2 = 29999 relevancy score)
+		// long autoTypeWhen "KeeFox config: autoType after page 2" (after/before or > / <) (page # or # seconds or #ms)
+		// bool autoTypeOnly "KeeFox config: only autoType" This is probably redundant considering feature request #19?
+		
+		//TODO: would be nice to make these two a KPGroup object but that doesn't seem to work
+		string parentGroupName;
+		string parentGroupUUID;
+		string parentGroupPath;
+		string iconImageData;
     };
     
     sequence<KPEntry> KPEntryList;
@@ -82,13 +104,38 @@ module KFlib {
         //bool getDirty();
     //};
     
+    sequence<string> KPDatabaseFileNameList;
+    
+    // this whole struct is proably useless becuase we'll never be able to find out most of this info
+    // without the user first providing the composite key for every database in their MRU
+    //struct KPDatabase
+    //{
+	//	string DBname;
+	//	string fileName;
+	//	bool default; // default database? (not used yet)
+	//	string rootGroupUID; // we only integrate entries in this group and below
+	//	bool useILM; // use improved login manager (not used yet)
+	//	
+	//};
+	
+    //sequence<KPDatabase> KPDatabaseList;
+    
+    struct KFConfiguration
+    {
+		//bool allowUnencryptedMetaData; // doesn't affect encryption of passwords themselves
+		//KPDatabaseList knownDatabases; // the MRU list (to expand this in v1+, maybe Firefox preferences can be used?)
+		KPDatabaseFileNameList knownDatabases; // not used yet - need KeePass plugin help
+		bool autoCommit; // whether KeePass should save the active database after every change
+    
+    };
+    
     interface KP
     {
         //KPDatabase getDatabase();
         bool checkVersion(float keeFoxVersion, float keeICEVersion, out int result); 
-        string getDatabaseName();
-        string getDatabaseFileName();
-        void changeDatabase(string fileName, bool closeCurrent);
+        string getDatabaseName(); // name of current active DB
+        string getDatabaseFileName(); // filename of current active DB
+        void changeDatabase(string fileName, bool closeCurrent); // change current active DB using filename as unique key
         KPEntry AddLogin(KPEntry login, string parentUUID) throws KeeICEException;
         void ModifyLogin(KPEntry oldLogin, KPEntry newLogin) throws KeeICEException;
         int getAllLogins(out KPEntryList logins) throws KeeICEException;
@@ -117,37 +164,17 @@ module KFlib {
 		//KPGroup addGroup(string name, KPGroup parentGroup); 
 		
 		//KPGroup getParentOfEntry(KPEntry entry);
+		
+		KFConfiguration getCurrentKFConfig();
+		bool setCurrentKFConfig(KFConfiguration config);
+		bool setCurrentDBRootGroup(string uuid);
     };
     
-    struct KPDatabase
-    {
-		string DBname;
-		string fileName;
-		bool default; // default database?
-		string rootGroupUID; // we only integrate entries in this group and below
-		bool useILM; // use improved login manager
-		
-	};
-	
-    sequence<KPDatabase> KPDatabaseList;
-    
-    struct KFConfiguration
-    {
-		bool allowUnencryptedMetaData; // doesn't affect encryption of passwords themselves
-		KPDatabaseList knownDatabases;
-		
-    
-    };
     
     interface CallbackReceiver
 	{
 		void callback(int num);
 	};
-
-	//interface CallbackSender
-	//{
-	//	void addClient(Ice::Identity ident);
-	//};
 
 };
 };

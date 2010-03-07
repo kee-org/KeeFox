@@ -2,9 +2,11 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
   Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
   
-  This is pretty much just a copy of the LoginInfo object that Mozilla provide
-  but it has been modified to  support some of the extra features
-  that KeeFox can support above the built-in login manager.
+  This is based on the LoginInfo object that Mozilla provide
+  but it has been heavily modified to support some of the extra features
+  that KeeFox can support above the built-in Firefox login manager.
+  
+  Defined in the KeeFox project / comp.idl
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,84 +38,190 @@ kfLoginInfo.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Ci.kfILoginInfo]), 
     
     
-    URL      : null,
+    // nsIMutableArray of kfURL objects (normally just one is needed
+    // but a given login can be associated with more than one site
+    // or with multiple pages on that site)
+    URLs      : null,
+    
+    // The "action" parameter of the form (for multi-page
+    // logins, this is always the first page)
     formActionURL : null,
+    
+    // The realm of a HTTP athentication request
     httpRealm     : null,
-    username      : null,
-    password      : null,
-    usernameField : null,
-    passwordField : null,
+    
+    // The index of the otherField which we will treat as the username in KeePass
+    usernameIndex      : null,
+    
+    // nsIMutableArray of kfLoginField objects representing all passwords
+    // on this (potentially multi-page) form
+    passwords      : null,
+    
+    // The KeePass entry's uniqueID (if known)
     uniqueID : null,
+    
+    // The title of the KeePass entry (auto-generated from the page title by default)
     title : null,
-    customFields : null,
+    
+    // nsIMutableArray of kfLoginField objects representing all non-passwords
+    // on this (potentially multi-page) form
+    otherFields : null,
+    
+    // How relevant this login entry is to the current form in
+    // the browser - transient (not stored in KeePass)
     relevanceScore : null,
     
-    _alert : function (msg) {
+    // The total number of pages the login entry will fill (usually 1; transient)
+    maximumPage : null,
+    
+    // A base64 encoding of the icon for this entry. It will always be a 
+    // PNG when populated from eePass but could be other formats when first 
+    // loading a favicon from a website. (Hopefully this will be an easy exception 
+    // to deal with but if not we can add a mime type field to this object too)
+    iconImageData : null,
+    
+    // these fields record information about the parent group of this entry.
+    // It would be nicer to link to an object representing the group itself
+    // but I can't get that to work reliably across .NET, ICE, XPCOM and javascript boundaries
+    parentGroupName : null,
+    parentGroupUUID : null,
+    parentGroupPath : null,
+    
+    priority : 0,
+	alwaysAutoFill : false,
+	alwaysAutoSubmit : false,
+	neverAutoFill : false,
+	neverAutoSubmit : false,
+    
+    // assists with serialisation of this object to a string
+    // (for attachment to the current tab session)
+    // currently used only for recording potentially half-finished new entries after user has submitted a form, hence not all info. needs to be persisted
+    toSource : function ()
+    {
+        var formActionURLParam = (this.formActionURL == null) ? "null" : ("'"+this.formActionURL+"'");
+        var httpRealmParam = (this.httpRealm == null) ? "null" : ("'"+this.httpRealm+"'");
+        var uniqueIDParam = (this.uniqueID == null) ? "null" : ("'"+this.uniqueID+"'");
+        var titleParam = (this.title == null) ? "null" : ("'"+this.title+"'");
+    
+        return "( deserialisedOutputURLs , "+ formActionURLParam +", "+httpRealmParam+" , "+this.usernameIndex
+            +" , deserialisedOutputPasswords , "+uniqueIDParam+" , "+titleParam+" , deserialisedOutputOtherFields , "+this.maximumPage+" )";
+    },
+
+    init : function (aURLs, aFormActionURL, aHttpRealm,
+                     aUsernameIndex,      aPasswords,
+                     aUniqueID, aTitle, otherFieldsArray, aMaximumPage) {
+
+        this.otherFields = otherFieldsArray;   
+        this.URLs      = aURLs;
+        this.formActionURL = aFormActionURL;
+        this.httpRealm     = aHttpRealm;
+        this.usernameIndex      = aUsernameIndex;
+        this.passwords      = aPasswords;
+        this.uniqueID = aUniqueID;
+        this.title = aTitle;
+        this.maximumPage = aMaximumPage;
+        this.iconImageData = "";
+        this.parentGroupName = "";
+        this.parentGroupUUID = "";
+        this.parentGroupPath = "";
+        this.priority = 0;
+	    this.alwaysAutoFill = false;
+	    this.alwaysAutoSubmit = false;
+	    this.neverAutoFill = false;
+	    this.neverAutoSubmit = false;
+    },
+        
+    // the order of URLs must also match
+    // TODO: do we need to relax this test so order is irrelevant?
+    _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    {
+        if (this.URLs.length != URLs.length)
+            return false;
+            
+        for (i = 0; i < this.URLs.length; i++)
+        {
+            var url1 = URLs.queryElementAt(i,Components.interfaces.kfIURL).URL;
+            var url2 = this.URLs.queryElementAt(i,Components.interfaces.kfIURL).URL;
+        
+            if (ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                return false;
+            else if (!ignoreURIPathsAndSchemes && ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                return false;
+            else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && url1 != url2)
+                return false;
+        }
+        return true;
+    },
+    
+    // the order of password fields must also match
+    // TODO: do we need to relax this test so order is irrelevant?
+    _allPasswordsMatch : function (passwords)
+    {
+        if (this.passwords.length != passwords.length)
+            return false;
+            
+        for (i = 0; i < this.passwords.length; i++)
+        {
+            if (passwords.queryElementAt(i,Components.interfaces.kfILoginField).value !=
+                this.passwords.queryElementAt(i,Components.interfaces.kfILoginField).value)
+                return false;
+        }
+        return true;
+    },
+
+    _usernamesMatch : function (login)
+    {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                            .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");
-
-        // get a reference to the prompt service component.
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-
-        // show an alert. For the first argument, supply the parent window. The second
-        // argument is the dialog title and the third argument is the message
-        // to display.
-        promptService.alert(window,"Alert",msg);
-    },
-
-    init : function (aURL, aFormActionURL, aHttpRealm,
-                     aUsername,      aPassword,
-                     aUsernameField, aPasswordField,
-                     aUniqueID, aTitle) {
-
-        this.URL      = aURL;
-        this.formActionURL = aFormActionURL;
-        this.httpRealm     = aHttpRealm;
-        this.username      = aUsername;
-        this.password      = aPassword;
-        this.usernameField = aUsernameField;
-        this.passwordField = aPasswordField;
-        this.uniqueID = aUniqueID;
-        this.title = aTitle;
+        
+        if (this.otherFields.length != login.otherFields.length)
+            return false;
+         
+        var loginUsername = null;
+        if (login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > login.usernameIndex)
+        {
+            var temp = login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+            loginUsername = temp.value;
+        }
+        
+        var thisUsername = null;
+        if (this.usernameIndex >= 0 && this.otherFields != null && this.otherFields.length > this.usernameIndex)
+        {
+            var temp = this.otherFields.queryElementAt(this.usernameIndex,Components.interfaces.kfILoginField);
+            thisUsername = temp.value;
+        }
+        
+        if (thisUsername != loginUsername)
+            return false;
+        
+        return true;
     },
     
-    initCustom : function (aURL, aFormActionURL, aHttpRealm,
-                     aUsername,      aPassword,
-                     aUsernameField, aPasswordField,
-                     aUniqueID, aTitle, customFieldsArray) {
-
-        this.init(aURL, aFormActionURL, aHttpRealm,
-                     aUsername,      aPassword,
-                     aUsernameField, aPasswordField,
-                     aUniqueID, aTitle);
-        
-        this.customFields = customFieldsArray;   
-       
-    },
-
-//CPT: had to hack this a bit. might come back to bite later. now if either httprealm is empty string we will not test for equality.
-// maybe want to do the same for URL, or maybe it'll cause probs down the line. it's all becuase ICE can't distinguish
-// between null and empty string but there may be nicer ways to workaround...
-    matches : function (aLogin, ignorePassword, ignoreURIPaths, ignoreURIPathsAndSchemes) {
+    
+//CPT: had to hack this a bit. might come back to bite later. now if either
+// httprealm is empty string we will not test for equality.
+// It's all becuase ICE can't distinguish between null and empty string but
+// there may be nicer ways to workaround...
+// do we care if fields are moved around onto different pages?
+// should we match then or not?...
+    // determines if this matches another supplied login object, with a number
+    // of controllable definitions of "match" to support various use cases
+    matches : function (aLogin, ignorePasswords, ignoreURIPaths, ignoreURIPathsAndSchemes, ignoreUsernames) {
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                            .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");
         
-        window.keeFoxILM.log("match1:"+ignoreURIPaths+":"+ignoreURIPathsAndSchemes);
-        if (ignoreURIPathsAndSchemes && window.keeFoxILM._getURISchemeHostAndPort(aLogin.URL) != window.keeFoxILM._getURISchemeHostAndPort(this.URL))
-            return false;
-        else if (!ignoreURIPathsAndSchemes && ignoreURIPaths && window.keeFoxILM._getURIHostAndPort(aLogin.URL) != window.keeFoxILM._getURIHostAndPort(this.URL))
-            return false;
-        else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && this.URL != aLogin.URL)
-            return false;
-        window.keeFoxILM.log("match2");
-        if ((this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ) ||
-            this.username      != aLogin.username)
+        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keeFoxILM))
             return false;
 
-        if (!ignorePassword && this.password != aLogin.password)
+        if ((this.httpRealm     != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == "")   ))
+            return false;
+
+        if (!ignoreUsernames && !this._usernamesMatch(aLogin))
+            return false;
+
+        if (!ignorePasswords && !this._allPasswordsMatch(aLogin.passwords))
             return false;
 
         // If either formActionURL is blank (but not null), then match.
@@ -127,26 +235,59 @@ kfLoginInfo.prototype = {
             return false;
         }
 
-        // The .usernameField and .passwordField values are ignored.
-
         return true;
     },
 
-//TODO: compare all custom fields for equality 
-//(though maybe matching on just the uniqueID is a better way to move towards?)
-    equals : function (aLogin) {
-        if (this.URL      != aLogin.URL      ||
-            this.formActionURL != aLogin.formActionURL ||
-            this.httpRealm     != aLogin.httpRealm     ||
-            this.username      != aLogin.username      ||
-            this.password      != aLogin.password      ||
-            this.usernameField != aLogin.usernameField ||
-            this.passwordField != aLogin.passwordField ||
-            this.uniqueID != aLogin.uniqueID ||
-            this.title != aLogin.title)
-            return false;
+    // merge another login into this one. Only certain fields are merged
+    // - URLs, passwords and usernames
+    mergeWith : function (previousStageLogin) {
+ 
+        if (previousStageLogin.URLs != undefined && previousStageLogin.URLs != null 
+            && previousStageLogin.URLs.length > 0)
+        {
+            if (this.URLs == undefined || this.URLs == null)
+                this.URLs = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+                        
+            for (i = 0; i < previousStageLogin.URLs.length; i++)
+            {
+                var URL = 
+                    previousStageLogin.URLs.queryElementAt(i,Components.interfaces.kfIURL);
+                this.URLs.appendElement(URL,false);
+            }
+        }
 
-        return true;
+        if (previousStageLogin.passwords != undefined && previousStageLogin.passwords != null 
+            && previousStageLogin.passwords.length > 0)
+        {
+            if (this.passwords == undefined || this.passwords == null)
+                this.passwords = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+                        
+            for (i = 0; i < previousStageLogin.passwords.length; i++)
+            {
+                var passField = 
+                    previousStageLogin.passwords.queryElementAt(i,Components.interfaces.kfILoginField);
+                this.passwords.appendElement(passField,false);
+            }
+        }
+        
+        if (previousStageLogin.otherFields != undefined && previousStageLogin.otherFields != null
+            && previousStageLogin.otherFields.length > 0)
+        {
+            if (this.otherFields == undefined || this.otherFields == null)
+                this.otherFields = Components.classes["@mozilla.org/array;1"]
+                        .createInstance(Components.interfaces.nsIMutableArray);
+                        
+            for (i = 0; i < previousStageLogin.otherFields.length; i++)
+            {
+                var otherField = 
+                    previousStageLogin.otherFields.queryElementAt(i,Components.interfaces.kfILoginField);
+                this.otherFields.appendElement(otherField,false);
+            }
+        }
+        
+        this.maximumPage = Math.max(this.maximumPage, previousStageLogin.maximumPage);
     }
   
 };

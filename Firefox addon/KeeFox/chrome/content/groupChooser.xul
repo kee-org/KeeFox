@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!--
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is the KeeFox group chooser XUL file. It describes the window which allows
+  the user to choose a KeePass group/folder.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+
+<!DOCTYPE window SYSTEM "chrome://keefox/locale/keefox.dtd">
+<window
+    id="keefox-choose-group-window"
+    title="Choose Group"
+    orient="horizontal"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    onload="keeFoxUI.setTreeViewGroupChooser();">
+<tree id="keefox-group-chooser-tree" flex="1" hidecolumnpicker="true" seltype="text" class="tree"
+      rows="5">
+  <treecols id="keefox-group-chooser-tree-treeCols">
+    <treecol id="keefox-group-chooser-tree-treeCol0" primary="true" flex="2" label="Group"
+             persist="width" ordinal="1"/>
+    
+  </treecols>
+  <treechildren/>
+  <!--  <treeitem>
+      <treerow>
+        <treecell label="1"/>
+      </treerow>
+    </treeitem>
+    <!- Make sure to set container="true" -
+    <treeitem container="true" open="true">
+      <treerow>
+        <treecell label="2"/>
+      </treerow>
+      <treechildren>
+        <treeitem>
+          <treerow>
+            <treecell label="2a"/>
+          </treerow>
+        </treeitem>
+      </treechildren>
+    </treeitem>
+  </treechildren>-->
+</tree>
+  <!-- Other elements go here -->
+</window>
+
