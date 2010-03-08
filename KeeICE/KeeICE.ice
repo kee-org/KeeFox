@@ -176,11 +176,6 @@ module KPlib {
 		void callback(int num);
 	};
 
-	//interface CallbackSender
-	//{
-	//	void addClient(Ice::Identity ident);
-	//};
-
 };
 };
 

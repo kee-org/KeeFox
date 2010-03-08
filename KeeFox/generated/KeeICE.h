@@ -10,8 +10,8 @@
 // Ice-E version 1.3.0
 // Generated from file `KeeICE.ice'
 
-#ifndef __C__development_KeeFox_KeeFox_generated_KeeICE_h__
-#define __C__development_KeeFox_KeeFox_generated_KeeICE_h__
+#ifndef __E__development_KeeFox_KeeFox_generated_KeeICE_h__
+#define __E__development_KeeFox_KeeFox_generated_KeeICE_h__
 
 #include <IceE/ProxyF.h>
 #include <IceE/ObjectF.h>

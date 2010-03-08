@@ -105,6 +105,24 @@ namespace KeeICE
                 //t.Join();
             }
             return 0;
+
+            //Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
+            //CallbackSenderI sender = new CallbackSenderI(communicator());
+            //adapter.add(sender, communicator().stringToIdentity("sender"));
+            //adapter.activate();
+
+            //Thread t = new Thread(new ThreadStart(sender.Run));
+            //t.Start();
+
+            //try
+            //{
+            //    communicator().waitForShutdown();
+            //}
+            //finally
+            //{
+            //    sender.destroy();
+            //    t.Join();
+            //}
         }
 
         public void ICEthread(object state)
@@ -174,6 +192,29 @@ namespace KeeICE
             keeICEServer.m_host.MainWindow.FileCreated -= setupKeeICEServerListener;
         }
 
+        private int FindICEPort(IPluginHost host)
+        {
+            bool allowCommandLineOverride = host.CustomConfig.GetBool("KeeICE.connection.allowCommandLineOverride", true);
+            int ICEport = (int)host.CustomConfig.GetULong("KeeICE.connection.port", 12535);
+
+            if (allowCommandLineOverride)
+            {
+                string ICEportStr = host.CommandLineArgs["KeeICEPort"];
+                if (ICEportStr != null)
+                {
+                    try
+                    {
+                        ICEport = int.Parse(ICEportStr);
+                    }
+                    catch
+                    {
+                        // just stick with what we had already decided
+                    }
+                }
+            }
+            return ICEport;
+        }
+
 		/// <summary>
 		/// The <c>Initialize</c> function is called by KeePass when
 		/// you should initialize your plugin (create menu items, etc.).
@@ -184,28 +225,13 @@ namespace KeeICE
 		/// <returns>true if channel registered correctly, otherwise false</returns>
 		public override bool Initialize(IPluginHost host)
 		{
-            string ICEportStr = host.CommandLineArgs["KeeICEPort"];
-            int ICEport = 12535;
-            
-            
-            if (ICEportStr != null)
-            {
-                try
-                {
-                    ICEport = int.Parse(ICEportStr);
-                }
-                catch
-                {
-                    ICEport = 12535;
-                }
-            }
-
             keeICEServer = new KeeICEServer();
             Debug.Assert(host != null);
             if(host == null) return false;
             keeICEServer.m_host = host;
             keeICEServer.standardIconsBase64 = getStandardIconsBase64(host.MainWindow.ClientIcons);
-
+            int ICEport = FindICEPort(host);
+            
            // if (host.Database.IsOpen) // unlikely!
             setupKeeICEServer(ICEport);
           /*  else
