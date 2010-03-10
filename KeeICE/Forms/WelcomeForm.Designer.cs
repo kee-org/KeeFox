@@ -28,73 +28,56 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.m_bannerImage = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.m_bannerImage = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.SuspendLayout();
-            // 
-            // m_bannerImage
-            // 
-            this.m_bannerImage.Dock = System.Windows.Forms.DockStyle.Top;
-            this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
-            this.m_bannerImage.Name = "m_bannerImage";
-            this.m_bannerImage.Size = new System.Drawing.Size(448, 60);
-            this.m_bannerImage.TabIndex = 3;
-            this.m_bannerImage.TabStop = false;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(103, 29);
+            this.label1.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(74, 14);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(133, 31);
+            this.label1.Size = new System.Drawing.Size(184, 33);
             this.label1.TabIndex = 4;
-            this.label1.Text = "Welcome";
+            this.label1.Text = "Welcome to ";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(13, 67);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(430, 16);
+            this.label2.Size = new System.Drawing.Size(412, 16);
             this.label2.TabIndex = 5;
             this.label2.Text = "KeeFox links Firefox to KeePass, which stores your passwords securely";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(13, 100);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(285, 16);
+            this.label3.Size = new System.Drawing.Size(267, 16);
             this.label3.TabIndex = 6;
             this.label3.Text = "KeeFox requires a working KeePass database";
             // 
-            // button1
-            // 
-            this.button1.DialogResult = System.Windows.Forms.DialogResult.Yes;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(16, 139);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(420, 64);
-            this.button1.TabIndex = 7;
-            this.button1.Text = "Create a new database";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
             // button2
             // 
+            this.button2.BackgroundImage = global::KeeICE.Properties.Resources.buttonGradient;
             this.button2.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Location = new System.Drawing.Point(16, 210);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(420, 34);
+            this.button2.Size = new System.Drawing.Size(420, 54);
             this.button2.TabIndex = 8;
             this.button2.Text = "No thanks, I will use an existing KeePass database";
             this.button2.UseVisualStyleBackColor = true;
@@ -102,6 +85,7 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.linkLabel1.Location = new System.Drawing.Point(16, 267);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(47, 13);
@@ -109,18 +93,70 @@
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "Get help";
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.BackColor = System.Drawing.Color.Transparent;
+            this.label4.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(97)))), ((int)(((byte)(15)))));
+            this.label4.Location = new System.Drawing.Point(233, 14);
+            this.label4.Margin = new System.Windows.Forms.Padding(0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(66, 33);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "Kee";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.Transparent;
+            this.label5.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(282, 14);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(64, 33);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Fox";
+            // 
+            // button1
+            // 
+            this.button1.BackgroundImage = global::KeeICE.Properties.Resources.buttonGradient;
+            this.button1.DialogResult = System.Windows.Forms.DialogResult.Yes;
+            this.button1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(16, 139);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(420, 54);
+            this.button1.TabIndex = 7;
+            this.button1.Text = "Create a new database";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // m_bannerImage
+            // 
+            this.m_bannerImage.Dock = System.Windows.Forms.DockStyle.Left;
+            this.m_bannerImage.Image = global::KeeICE.Properties.Resources.KeeFox64;
+            this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
+            this.m_bannerImage.Name = "m_bannerImage";
+            this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);
+            this.m_bannerImage.Size = new System.Drawing.Size(74, 287);
+            this.m_bannerImage.TabIndex = 3;
+            this.m_bannerImage.TabStop = false;
+            this.m_bannerImage.Visible = false;
+            // 
             // WelcomeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(448, 287);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.m_bannerImage);
+            this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "WelcomeForm";
@@ -140,5 +176,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
 	}
 }

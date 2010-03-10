@@ -30,11 +30,11 @@
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KeyCreationSimpleForm));
             this.m_lblIntro = new System.Windows.Forms.Label();
-            this.m_lblMultiInfo = new System.Windows.Forms.Label();
+            this.labelWarning = new System.Windows.Forms.Label();
             this.m_tbPassword = new System.Windows.Forms.TextBox();
             this.m_lblRepeatPassword = new System.Windows.Forms.Label();
             this.m_tbRepeatPassword = new System.Windows.Forms.TextBox();
-            this.m_lblKeyFileInfo = new System.Windows.Forms.Label();
+            this.labelAdvancedTip = new System.Windows.Forms.Label();
             this.m_btnCancel = new System.Windows.Forms.Button();
             this.m_btnCreate = new System.Windows.Forms.Button();
             this.m_cbHidePassword = new System.Windows.Forms.CheckBox();
@@ -44,65 +44,81 @@
             this.m_lblQualityBits = new System.Windows.Forms.Label();
             this.m_bannerImage = new System.Windows.Forms.PictureBox();
             this.dbNameTextBox = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.labelMasterPassword = new System.Windows.Forms.Label();
+            this.labelDBName = new System.Windows.Forms.Label();
+            this.advancedKeyButton = new System.Windows.Forms.Button();
+            this.labelHeading = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.SuspendLayout();
             // 
             // m_lblIntro
             // 
+            this.m_lblIntro.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblIntro.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.m_lblIntro.Location = new System.Drawing.Point(9, 72);
             this.m_lblIntro.Name = "m_lblIntro";
             this.m_lblIntro.Size = new System.Drawing.Size(498, 13);
             this.m_lblIntro.TabIndex = 19;
-            this.m_lblIntro.Text = "Specify a master password, which will be used to encrypt the database.";
+            this.m_lblIntro.Text = "Please specify a master password, which will be used to protect (encrypt) your da" +
+                "tabase.";
             // 
-            // m_lblMultiInfo
+            // labelWarning
             // 
-            this.m_lblMultiInfo.Location = new System.Drawing.Point(9, 93);
-            this.m_lblMultiInfo.Name = "m_lblMultiInfo";
-            this.m_lblMultiInfo.Size = new System.Drawing.Size(498, 42);
-            this.m_lblMultiInfo.TabIndex = 20;
-            this.m_lblMultiInfo.Text = "If you forget your password, you will not be able to open the database. There are" +
-                " NO ways to recover your password.";
+            this.labelWarning.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelWarning.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.labelWarning.Location = new System.Drawing.Point(9, 93);
+            this.labelWarning.Name = "labelWarning";
+            this.labelWarning.Size = new System.Drawing.Size(498, 42);
+            this.labelWarning.TabIndex = 20;
+            this.labelWarning.Text = "If you forget your password, you will not be able to open the database. There is " +
+                "NO way to recover your password.";
             // 
             // m_tbPassword
             // 
+            this.m_tbPassword.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_tbPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.m_tbPassword.Location = new System.Drawing.Point(150, 145);
             this.m_tbPassword.Name = "m_tbPassword";
-            this.m_tbPassword.Size = new System.Drawing.Size(316, 20);
+            this.m_tbPassword.Size = new System.Drawing.Size(308, 21);
             this.m_tbPassword.TabIndex = 0;
             this.m_tbPassword.UseSystemPasswordChar = true;
             // 
             // m_lblRepeatPassword
             // 
             this.m_lblRepeatPassword.AutoSize = true;
-            this.m_lblRepeatPassword.Location = new System.Drawing.Point(28, 174);
+            this.m_lblRepeatPassword.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblRepeatPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.m_lblRepeatPassword.Location = new System.Drawing.Point(49, 174);
             this.m_lblRepeatPassword.Name = "m_lblRepeatPassword";
-            this.m_lblRepeatPassword.Size = new System.Drawing.Size(93, 13);
+            this.m_lblRepeatPassword.Size = new System.Drawing.Size(95, 13);
             this.m_lblRepeatPassword.TabIndex = 2;
             this.m_lblRepeatPassword.Text = "Repeat password:";
             // 
             // m_tbRepeatPassword
             // 
+            this.m_tbRepeatPassword.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_tbRepeatPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.m_tbRepeatPassword.Location = new System.Drawing.Point(150, 171);
             this.m_tbRepeatPassword.Name = "m_tbRepeatPassword";
-            this.m_tbRepeatPassword.Size = new System.Drawing.Size(316, 20);
+            this.m_tbRepeatPassword.Size = new System.Drawing.Size(308, 21);
             this.m_tbRepeatPassword.TabIndex = 3;
             this.m_tbRepeatPassword.UseSystemPasswordChar = true;
             // 
-            // m_lblKeyFileInfo
+            // labelAdvancedTip
             // 
-            this.m_lblKeyFileInfo.Location = new System.Drawing.Point(28, 263);
-            this.m_lblKeyFileInfo.Name = "m_lblKeyFileInfo";
-            this.m_lblKeyFileInfo.Size = new System.Drawing.Size(479, 48);
-            this.m_lblKeyFileInfo.TabIndex = 11;
-            this.m_lblKeyFileInfo.Text = "KeePass can use other sources to encrypt your database. If you would like to use a key file, windows user account (not recommended) or other third party key source provider sources, use the button below to switch to advanced mode.";
+            this.labelAdvancedTip.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelAdvancedTip.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.labelAdvancedTip.Location = new System.Drawing.Point(28, 263);
+            this.labelAdvancedTip.Name = "labelAdvancedTip";
+            this.labelAdvancedTip.Size = new System.Drawing.Size(479, 48);
+            this.labelAdvancedTip.TabIndex = 11;
+            this.labelAdvancedTip.Text = resources.GetString("labelAdvancedTip.Text");
             // 
             // m_btnCancel
             // 
             this.m_btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.m_btnCancel.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.m_btnCancel.Location = new System.Drawing.Point(432, 325);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(75, 23);
@@ -115,6 +131,8 @@
             // m_btnCreate
             // 
             this.m_btnCreate.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.m_btnCreate.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnCreate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.m_btnCreate.Location = new System.Drawing.Point(351, 324);
             this.m_btnCreate.Name = "m_btnCreate";
             this.m_btnCreate.Size = new System.Drawing.Size(75, 23);
@@ -127,10 +145,13 @@
             // m_cbHidePassword
             // 
             this.m_cbHidePassword.Appearance = System.Windows.Forms.Appearance.Button;
-            this.m_cbHidePassword.Location = new System.Drawing.Point(475, 143);
+            this.m_cbHidePassword.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_cbHidePassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.m_cbHidePassword.Location = new System.Drawing.Point(464, 145);
             this.m_cbHidePassword.Name = "m_cbHidePassword";
-            this.m_cbHidePassword.Size = new System.Drawing.Size(32, 23);
+            this.m_cbHidePassword.Size = new System.Drawing.Size(46, 21);
             this.m_cbHidePassword.TabIndex = 1;
+            this.m_cbHidePassword.Text = "***";
             this.m_cbHidePassword.UseVisualStyleBackColor = true;
             this.m_cbHidePassword.CheckedChanged += new System.EventHandler(this.OnCheckedHidePassword);
             // 
@@ -157,14 +178,18 @@
             // m_lblEstimatedQuality
             // 
             this.m_lblEstimatedQuality.AutoSize = true;
-            this.m_lblEstimatedQuality.Location = new System.Drawing.Point(28, 198);
+            this.m_lblEstimatedQuality.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblEstimatedQuality.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.m_lblEstimatedQuality.Location = new System.Drawing.Point(51, 198);
             this.m_lblEstimatedQuality.Name = "m_lblEstimatedQuality";
-            this.m_lblEstimatedQuality.Size = new System.Drawing.Size(89, 13);
+            this.m_lblEstimatedQuality.Size = new System.Drawing.Size(93, 13);
             this.m_lblEstimatedQuality.TabIndex = 4;
             this.m_lblEstimatedQuality.Text = "Estimated quality:";
             // 
             // m_lblQualityBits
             // 
+            this.m_lblQualityBits.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblQualityBits.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.m_lblQualityBits.Location = new System.Drawing.Point(413, 197);
             this.m_lblQualityBits.Name = "m_lblQualityBits";
             this.m_lblQualityBits.Size = new System.Drawing.Size(53, 13);
@@ -174,65 +199,87 @@
             // 
             // m_bannerImage
             // 
-            this.m_bannerImage.Dock = System.Windows.Forms.DockStyle.Top;
-            this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
+            this.m_bannerImage.Image = global::KeeICE.Properties.Resources.KeeFox64;
+            this.m_bannerImage.Location = new System.Drawing.Point(0, -2);
             this.m_bannerImage.Name = "m_bannerImage";
-            this.m_bannerImage.Size = new System.Drawing.Size(519, 60);
+            this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);
+            this.m_bannerImage.Size = new System.Drawing.Size(75, 60);
             this.m_bannerImage.TabIndex = 15;
             this.m_bannerImage.TabStop = false;
             // 
             // dbNameTextBox
             // 
+            this.dbNameTextBox.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dbNameTextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.dbNameTextBox.Location = new System.Drawing.Point(150, 225);
             this.dbNameTextBox.Name = "dbNameTextBox";
-            this.dbNameTextBox.Size = new System.Drawing.Size(260, 20);
+            this.dbNameTextBox.Size = new System.Drawing.Size(260, 21);
             this.dbNameTextBox.TabIndex = 22;
             // 
-            // label1
+            // labelMasterPassword
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(28, 148);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(90, 13);
-            this.label1.TabIndex = 23;
-            this.label1.Text = "Master password:";
+            this.labelMasterPassword.AutoSize = true;
+            this.labelMasterPassword.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelMasterPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.labelMasterPassword.Location = new System.Drawing.Point(51, 150);
+            this.labelMasterPassword.Name = "labelMasterPassword";
+            this.labelMasterPassword.Size = new System.Drawing.Size(93, 13);
+            this.labelMasterPassword.TabIndex = 23;
+            this.labelMasterPassword.Text = "Master password:";
             // 
-            // label2
+            // labelDBName
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(31, 228);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(85, 13);
-            this.label2.TabIndex = 24;
-            this.label2.Text = "Database name:";
+            this.labelDBName.AutoSize = true;
+            this.labelDBName.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelDBName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.labelDBName.Location = new System.Drawing.Point(58, 228);
+            this.labelDBName.Name = "labelDBName";
+            this.labelDBName.Size = new System.Drawing.Size(86, 13);
+            this.labelDBName.TabIndex = 24;
+            this.labelDBName.Text = "Database name:";
             // 
-            // button1
+            // advancedKeyButton
             // 
-            this.button1.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.button1.Location = new System.Drawing.Point(12, 325);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(214, 23);
-            this.button1.TabIndex = 25;
-            this.button1.Text = "Switch to advanced key creation mode";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.advancedKeyButton.DialogResult = System.Windows.Forms.DialogResult.No;
+            this.advancedKeyButton.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.advancedKeyButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.advancedKeyButton.Location = new System.Drawing.Point(12, 325);
+            this.advancedKeyButton.Name = "advancedKeyButton";
+            this.advancedKeyButton.Size = new System.Drawing.Size(214, 23);
+            this.advancedKeyButton.TabIndex = 25;
+            this.advancedKeyButton.Text = "Switch to advanced key creation mode";
+            this.advancedKeyButton.UseVisualStyleBackColor = true;
+            this.advancedKeyButton.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // labelHeading
+            // 
+            this.labelHeading.AutoSize = true;
+            this.labelHeading.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelHeading.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.labelHeading.Location = new System.Drawing.Point(80, 13);
+            this.labelHeading.Name = "labelHeading";
+            this.labelHeading.Size = new System.Drawing.Size(231, 29);
+            this.labelHeading.TabIndex = 26;
+            this.labelHeading.Text = "Create a master key";
             // 
             // KeyCreationSimpleForm
             // 
             this.AcceptButton = this.m_btnCreate;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.White;
             this.CancelButton = this.m_btnCancel;
             this.ClientSize = new System.Drawing.Size(519, 354);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.labelHeading);
+            this.Controls.Add(this.advancedKeyButton);
+            this.Controls.Add(this.labelDBName);
+            this.Controls.Add(this.labelMasterPassword);
             this.Controls.Add(this.dbNameTextBox);
             this.Controls.Add(this.m_lblQualityBits);
             this.Controls.Add(this.m_lblEstimatedQuality);
             this.Controls.Add(this.m_pbPasswordQuality);
             this.Controls.Add(this.m_lblSeparator);
-            this.Controls.Add(this.m_lblKeyFileInfo);
+            this.Controls.Add(this.labelAdvancedTip);
             this.Controls.Add(this.m_cbHidePassword);
             this.Controls.Add(this.m_bannerImage);
             this.Controls.Add(this.m_btnCancel);
@@ -240,7 +287,7 @@
             this.Controls.Add(this.m_tbRepeatPassword);
             this.Controls.Add(this.m_lblRepeatPassword);
             this.Controls.Add(this.m_tbPassword);
-            this.Controls.Add(this.m_lblMultiInfo);
+            this.Controls.Add(this.labelWarning);
             this.Controls.Add(this.m_lblIntro);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -262,7 +309,7 @@
 		#endregion
 
 		private System.Windows.Forms.Label m_lblIntro;
-        private System.Windows.Forms.Label m_lblMultiInfo;
+        private System.Windows.Forms.Label labelWarning;
 		private System.Windows.Forms.TextBox m_tbPassword;
 		private System.Windows.Forms.Label m_lblRepeatPassword;
         private System.Windows.Forms.TextBox m_tbRepeatPassword;
@@ -270,14 +317,15 @@
 		private System.Windows.Forms.Button m_btnCancel;
 		private System.Windows.Forms.PictureBox m_bannerImage;
         private System.Windows.Forms.CheckBox m_cbHidePassword;
-        private System.Windows.Forms.Label m_lblKeyFileInfo;
+        private System.Windows.Forms.Label labelAdvancedTip;
 		private System.Windows.Forms.Label m_lblSeparator;
 		private KeePass.UI.QualityProgressBar m_pbPasswordQuality;
 		private System.Windows.Forms.Label m_lblEstimatedQuality;
         private System.Windows.Forms.Label m_lblQualityBits;
         private System.Windows.Forms.TextBox dbNameTextBox;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label labelMasterPassword;
+        private System.Windows.Forms.Label labelDBName;
+        private System.Windows.Forms.Button advancedKeyButton;
+        private System.Windows.Forms.Label labelHeading;
 	}
 }

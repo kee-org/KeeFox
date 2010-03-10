@@ -32,6 +32,8 @@
             this.m_bannerImage = new System.Windows.Forms.PictureBox();
             this.m_btnCancel = new System.Windows.Forms.Button();
             this.m_btnOK = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -47,17 +49,19 @@
             // 
             // m_bannerImage
             // 
-            this.m_bannerImage.Dock = System.Windows.Forms.DockStyle.Top;
+            this.m_bannerImage.BackColor = System.Drawing.Color.White;
+            this.m_bannerImage.Image = global::KeeICE.Properties.Resources.KeeFox64;
             this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
             this.m_bannerImage.Name = "m_bannerImage";
-            this.m_bannerImage.Size = new System.Drawing.Size(386, 60);
+            this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);
+            this.m_bannerImage.Size = new System.Drawing.Size(78, 60);
             this.m_bannerImage.TabIndex = 2;
             this.m_bannerImage.TabStop = false;
             // 
             // m_btnCancel
             // 
             this.m_btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_btnCancel.Location = new System.Drawing.Point(297, 103);
+            this.m_btnCancel.Location = new System.Drawing.Point(308, 147);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(75, 23);
             this.m_btnCancel.TabIndex = 4;
@@ -67,7 +71,7 @@
             // m_btnOK
             // 
             this.m_btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.m_btnOK.Location = new System.Drawing.Point(216, 103);
+            this.m_btnOK.Location = new System.Drawing.Point(218, 147);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(75, 23);
             this.m_btnOK.TabIndex = 3;
@@ -75,11 +79,34 @@
             this.m_btnOK.UseVisualStyleBackColor = true;
             this.m_btnOK.Click += new System.EventHandler(this.m_btnOK_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.label1.Location = new System.Drawing.Point(84, 19);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(242, 25);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "KeeFox (KeeICE) options";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(13, 114);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(238, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Tip: Most KeeFox options can be found in Firefox";
+            // 
             // OptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(386, 138);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(386, 173);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.m_btnCancel);
             this.Controls.Add(this.m_btnOK);
             this.Controls.Add(this.m_bannerImage);
@@ -98,5 +125,7 @@
         private System.Windows.Forms.PictureBox m_bannerImage;
         private System.Windows.Forms.Button m_btnCancel;
         private System.Windows.Forms.Button m_btnOK;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }

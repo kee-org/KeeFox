@@ -319,5 +319,6 @@ namespace KeeICE
         {
             //TODO: can we securly pass the user's existing master password / CompositeKey to the advanced key creation form?
         }
+
 	}
 }
