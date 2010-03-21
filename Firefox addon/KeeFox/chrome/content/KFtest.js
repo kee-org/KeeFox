@@ -88,10 +88,10 @@ KFtests.prototype = {
     do_tests: function() {
 
       //  keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenLoggedOut",!keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",true));
-       // keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeeICEInactive",!keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeeICEInactive",true));
+       // keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeePassRPCInactive",!keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeePassRPCInactive",true));
         
  //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenLoggedOut",true);
- //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeeICEInactive",true);
+ //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeePassRPCInactive",true);
 
 //keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_RunSelfTests-Button'), 12, keeFoxToolbar._currentWindow);
 //return;

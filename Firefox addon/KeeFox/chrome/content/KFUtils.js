@@ -1,5 +1,5 @@
 /*
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   This is a file with utility functions to aid with a variety of tasks such as
@@ -36,16 +36,15 @@ KFexecutableInstallerRunner.prototype = {
         throw Components.results.NS_ERROR_NO_INTERFACE;
     },
     run: function() {
-        keeFoxInst._KeeFoxXPCOMobj.RunAnInstaller(this.path,this.params);//file.path, this.params);
+        keeFoxInst.runAnInstaller(this.path,this.params);
         var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-        main.dispatch(new KFmainThreadHandler("executableInstallerRunner", this.reason, '', this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL); 
+        main.dispatch(new KFmainThreadHandler("executableInstallerRunner",
+                        this.reason, '', this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL); 
     }
 };
 
-
-
-
-var KFmainThreadHandler = function(source, reason, result, mainWindow, browserWindow) {
+var KFmainThreadHandler = function(source, reason, result, mainWindow, browserWindow)
+{
   this.source = source;
   this.reason = reason;
   this.result = result;
@@ -53,12 +52,15 @@ var KFmainThreadHandler = function(source, reason, result, mainWindow, browserWi
   this.browserWindow = browserWindow;
 };
 
-KFmainThreadHandler.prototype = {
-    run: function() {
-        try {
+KFmainThreadHandler.prototype =
+{
+    run: function()
+    {
+        try
+        {
             KFLog.debug(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
-            switch (this.source) {
-            
+            switch (this.source)
+            {
                 case "executableInstallerRunner":
                     if (this.reason == "IC1NETSetupFinished") {
                         this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_EXECUTING;
@@ -78,13 +80,11 @@ KFmainThreadHandler.prototype = {
                         this.browserWindow.IC2setupKI(this.mainWindow);
                     }
                     break;
-
                 case "IC1PriDownload": this.handleIC1PriDownload(); break;
                 case "IC1SecDownload": this.handleIC1SecDownload(); break;
                 case "IC2PriDownload": this.handleIC2PriDownload(); break;
                 case "IC5PriDownload": this.handleIC5PriDownload(); break;
             }
-
         } catch (err) {
             Components.utils.reportError(err);
         }
@@ -98,7 +98,8 @@ KFmainThreadHandler.prototype = {
         throw Components.results.NS_ERROR_NO_INTERFACE;
     },
     
-    handleIC1PriDownload: function () {
+    handleIC1PriDownload: function ()
+    {
         // if we've just finished downloading NET
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
         
@@ -154,7 +155,8 @@ KFmainThreadHandler.prototype = {
     
     },
     
-    handleIC1SecDownload: function() {
+    handleIC1SecDownload: function()
+    {
         // if we've just finished downloading NET3.5
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET35_DOWNLOADING) {
         
@@ -209,7 +211,8 @@ KFmainThreadHandler.prototype = {
         }
     },
     
-    handleIC2PriDownload: function() {
+    handleIC2PriDownload: function()
+    {
         // The IC2SecDownload just uses the same file as IC1Pri so we just check below whether we run silent or not
         
         // if we've just finished downloading KP
@@ -244,7 +247,8 @@ KFmainThreadHandler.prototype = {
         }
     },
     
-    handleIC5PriDownload: function() {
+    handleIC5PriDownload: function()
+    {
         // if we've just finished downloading KP ZIP file
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
             KFLog.info("Finished downloading IC5zipKP");
@@ -276,13 +280,13 @@ KFmainThreadHandler.prototype = {
 };
 
 
-
 /* download listener. decides what to do and if desired, we'll update the main thread
 by calling the generic keefox main thread handler (maybe this listener is just called in
 the main thread anyway but might as well play it safe and make sure we definitely only
  let the main thread touch the UI
 */
-function KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist) {
+function KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist)
+{
     this.source = source;
     this.URL = URL;
     this.destinationFile = destinationFile;
@@ -291,7 +295,9 @@ function KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, 
     this.lastPerCom = 0;
     this.persist = persist;
 }
-KeeFoxFileDownloaderListener.prototype = {
+
+KeeFoxFileDownloaderListener.prototype =
+{
     QueryInterface: function(aIID) {
         if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
             aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
@@ -300,28 +306,31 @@ KeeFoxFileDownloaderListener.prototype = {
         throw Components.results.NS_NOINTERFACE;
     },
 
-    onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-
-//TODO: check if user or script has cancelled download and call persist.cancelSave() if needed?
+    onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
+    {
+        //TODO: check if user or script has cancelled download and call persist.cancelSave() if needed?
         var percentComplete = Math.floor((aCurTotalProgress / aMaxTotalProgress) * 100);
 
-//TODO: only send message to main thread once per second or if it = 100%
-        if (percentComplete > this.lastPerCom) {
-            //var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-            //main.dispatch(new KFmainThreadHandler(this.source, "progress", percentComplete, this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL);
+        //TODO: only send message to main thread once per second or if it = 100%
+        if (percentComplete > this.lastPerCom)
+        {
             var kfMTH = new KFmainThreadHandler(this.source, "progress", percentComplete, this.mainWindow, this.browserWindow);
             kfMTH.run();
         }
 
         this.lastPerCom = percentComplete;
     },
-    onStateChange: function(aWebProgress, aRequest, aStatus, aMessage) {
+    
+    onStateChange: function(aWebProgress, aRequest, aStatus, aMessage)
+    {
         if (aStatus & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
         
-            if (this.persist.result == 0) { // NS_OK
+            if (this.persist.result == 0) 
+            { // NS_OK
                 var kfMTH = new KFmainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
-            } else if (this.persist.result == 2152398850) { //NS_BINDING_ABORTED: 0x804b0002
+            } else if (this.persist.result == 2152398850)
+            { //NS_BINDING_ABORTED: 0x804b0002
                 var kfMTH = new KFmainThreadHandler(this.source, "cancelled", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
             } else 
@@ -333,12 +342,11 @@ KeeFoxFileDownloaderListener.prototype = {
     }
 }
 
-
 /*
 download a file - saveURI function is asyncronous so I don't think this needs to be called away from the main thread
 */
-function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow, persist) {
-
+function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow, persist)
+{
     persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
         .createInstance(Components.interfaces.nsIWebBrowserPersist);
     var file = Components.classes["@mozilla.org/file/local;1"]
@@ -356,21 +364,17 @@ function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow,
     persist.saveURI(obj_URI, null, null, null, "", file);
     
     return persist;
-    //while (persist.currentState != persist.PERSIST_STATE_FINISHED)
-
 }
 
-function KFMD5checksumVerification(path, testMD5) {
-
-    try {
+function KFMD5checksumVerification(path, testMD5)
+{
+    try
+    {
         var f = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         f.initWithPath(keeFoxInst._myDepsDir());
         f.append(path);
         
-    //var f = Components.classes["@mozilla.org/file/local;1"]
-    //                      .createInstance(Components.interfaces.nsILocalFile);
-    //    f.initWithPath(keeFoxInst._myDepsDir() + path);
         var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
                                 .createInstance(Components.interfaces.nsIFileInputStream);
         // open for reading
@@ -402,6 +406,3 @@ function KFMD5checksumVerification(path, testMD5) {
     }
     return false;
 }
-
-
-

@@ -4,8 +4,8 @@
 <!DOCTYPE prefwindow SYSTEM "chrome://keefox/locale/options.dtd">
 
 <!--
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox options XUL file which describes the interface for 
   viewing and editing the various preferences which KeeFox understands.
@@ -37,27 +37,27 @@
 
       <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
     <preferences>
-      <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.chris.tomlinson@keefox.dynamicFormScanning" type="bool"/>
-      <preference id="KeeFox-pref-autoFillForms" name="extensions.chris.tomlinson@keefox.autoFillForms" type="bool"/>
-      <preference id="KeeFox-pref-autoSubmitForms" name="extensions.chris.tomlinson@keefox.autoSubmitForms" type="bool"/>
-      <preference id="KeeFox-pref-autoFillDialogs" name="extensions.chris.tomlinson@keefox.autoFillDialogs" type="bool"/>
-      <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.chris.tomlinson@keefox.autoSubmitDialogs" type="bool"/>
-      <preference id="KeeFox-pref-overWriteFieldsAutomatically" name="extensions.chris.tomlinson@keefox.overWriteFieldsAutomatically" type="bool"/>
-      <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.chris.tomlinson@keefox.autoSubmitMatchedForms" type="bool"/>
-      <preference id="KeeFox-pref-rememberMRUDB" name="extensions.chris.tomlinson@keefox.rememberMRUDB" type="bool"/>
-      <preference id="KeeFox-pref-saveFavicons" name="extensions.chris.tomlinson@keefox.saveFavicons" type="bool"/>
+      <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.keefox@chris.tomlinson.dynamicFormScanning" type="bool"/>
+      <preference id="KeeFox-pref-autoFillForms" name="extensions.keefox@chris.tomlinson.autoFillForms" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitForms" name="extensions.keefox@chris.tomlinson.autoSubmitForms" type="bool"/>
+      <preference id="KeeFox-pref-autoFillDialogs" name="extensions.keefox@chris.tomlinson.autoFillDialogs" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.keefox@chris.tomlinson.autoSubmitDialogs" type="bool"/>
+      <preference id="KeeFox-pref-overWriteFieldsAutomatically" name="extensions.keefox@chris.tomlinson.overWriteFieldsAutomatically" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.keefox@chris.tomlinson.autoSubmitMatchedForms" type="bool"/>
+      <preference id="KeeFox-pref-rememberMRUDB" name="extensions.keefox@chris.tomlinson.rememberMRUDB" type="bool"/>
+      <preference id="KeeFox-pref-saveFavicons" name="extensions.keefox@chris.tomlinson.saveFavicons" type="bool"/>
 
-      <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.chris.tomlinson@keefox.notifyBarRequestPasswordSave" type="bool"/>
-      <preference id="KeeFox-pref-notifyBarWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.notifyBarWhenKeeICEInactive" type="bool"/>
-      <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.chris.tomlinson@keefox.notifyBarWhenLoggedOut" type="bool"/>
-      <preference id="KeeFox-pref-flashIconWhenKeeICEInactive" name="extensions.chris.tomlinson@keefox.flashIconWhenKeeICEInactive" type="bool"/>
-      <preference id="KeeFox-pref-flashIconWhenLoggedOut" name="extensions.chris.tomlinson@keefox.flashIconWhenLoggedOut" type="bool"/>
+      <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
+      <preference id="KeeFox-pref-notifyBarWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.notifyBarWhenKeePassRPCInactive" type="bool"/>
+      <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyBarWhenLoggedOut" type="bool"/>
+      <preference id="KeeFox-pref-flashIconWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.flashIconWhenKeePassRPCInactive" type="bool"/>
+      <preference id="KeeFox-pref-flashIconWhenLoggedOut" name="extensions.keefox@chris.tomlinson.flashIconWhenLoggedOut" type="bool"/>
 
-      <preference id="KeeFox-pref-keeICEInstalledLocation" name="extensions.chris.tomlinson@keefox.keeICEInstalledLocation" type="string"/>
-      <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.chris.tomlinson@keefox.keePassInstalledLocation" type="string"/>
-      <preference id="KeeFox-pref-keePassMRUDB" name="extensions.chris.tomlinson@keefox.keePassMRUDB" type="string"/>
-      <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.chris.tomlinson@keefox.keePassRemeberInstalledLocation" type="bool"/>
-      <preference id="KeeFox-pref-debugToConsole" name="extensions.chris.tomlinson@keefox.debugToConsole" type="bool"/>
+      <preference id="KeeFox-pref-keePassRPCInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRPCInstalledLocation" type="string"/>
+      <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassInstalledLocation" type="string"/>
+      <preference id="KeeFox-pref-keePassMRUDB" name="extensions.keefox@chris.tomlinson.keePassMRUDB" type="string"/>
+      <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRemeberInstalledLocation" type="bool"/>
+      <preference id="KeeFox-pref-debugToConsole" name="extensions.keefox@chris.tomlinson.debugToConsole" type="bool"/>
     </preferences>
 
         <tabbox flex="1">
@@ -96,12 +96,12 @@
                 
                 <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
                         label="&KeeFox-pref-notifyBarRequestPasswordSave.label;" />
-                <checkbox id="notifyBarWhenKeeICEInactive" preference="KeeFox-pref-notifyBarWhenKeeICEInactive"
-                          label="&KeeFox-pref-notifyBarWhenKeeICEInactive.label;" />
+                <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
+                          label="&KeeFox-pref-notifyBarWhenKeePassRPCInactive.label;" />
                 <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
                         label="&KeeFox-pref-notifyBarWhenLoggedOut.label;" />
-                <checkbox id="flashIconWhenKeeICEInactive" preference="KeeFox-pref-flashIconWhenKeeICEInactive"
-                        label="&KeeFox-pref-flashIconWhenKeeICEInactive.label;" />
+                <checkbox id="flashIconWhenKeePassRPCInactive" preference="KeeFox-pref-flashIconWhenKeePassRPCInactive"
+                        label="&KeeFox-pref-flashIconWhenKeePassRPCInactive.label;" />
                 <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
                         label="&KeeFox-pref-flashIconWhenLoggedOut.label;" />
 
@@ -110,8 +110,8 @@
             
             <tabpanel>
               <vbox align="center">
-                <label control="keeICEInstalledLocation" value="&KeeFox-pref-keeICEInstalledLocation.label;"/>
-                <textbox preference="KeeFox-pref-keeICEInstalledLocation" id="keeICEInstalledLocation" maxlength="255"/>
+                <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;"/>
+                <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255"/>
                 <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;"/>
                 <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255"/>
                 <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" />

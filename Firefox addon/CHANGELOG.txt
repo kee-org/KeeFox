@@ -1,5 +1,9 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.76
+----
+- KeePassRPC replaces KeeICE
+
 0.73
 ----
 - KeeICE upgrades detectable on KeePass startup from version 0.7.3 onwards

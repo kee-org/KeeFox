@@ -32,7 +32,7 @@ using KeePass.UI;
 using KeePass.Plugins;
 using KeePass.Resources;
 
-namespace KeeICE
+namespace KeePassRPC
 {
     public partial class OptionsForm : Form
     {

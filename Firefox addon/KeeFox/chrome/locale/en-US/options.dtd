@@ -21,12 +21,12 @@
 <!ENTITY KeeFox-pref-saveFavicons.label "Save website logo/icon (favicon)">
 
 <!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Offer to save passwords">
-<!ENTITY KeeFox-pref-notifyBarWhenKeeICEInactive.label "Display a notification bar when KeePass needs to be opened">
+<!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Display a notification bar when KeePass needs to be opened">
 <!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Display a notification bar when you need to log in to a KeePass database">
-<!ENTITY KeeFox-pref-flashIconWhenKeeICEInactive.label "Flash the KeeFox login icon when KeePass needs to be opened">
+<!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Flash the KeeFox login icon when KeePass needs to be opened">
 <!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Flash the KeeFox login icon when you need to log in to a KeePass database">
 
-<!ENTITY KeeFox-pref-keeICEInstalledLocation.label "KeeICE plugin installation location">
+<!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC plugin installation location">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installation location">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Using KeePass Portable (remember settings)">
 <!ENTITY KeeFox-pref-keePassMRUDB.label "Location of most recently used KeePass database">

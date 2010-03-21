@@ -72,21 +72,21 @@
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Download and install .NET from Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Download and install KeePass Password Safe 2 setup or ZIP from http://keepass.info">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description "3a) Either restart Firefox to get back to this setup page so it can complete the last step">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description "3b) Or manually copy files (KeeICE.plgx and Ice.dll) from the Firefox extension folder (look in a subfolder called deps) to the KeePass Password Safe 2 plugins folder.">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description "3b) Or manually copy files (KeePassRPC.plgx and ...dll) from the Firefox extension folder (look in a subfolder called deps) to the KeePass Password Safe 2 plugins folder.">
 
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpandee.description "If you want to choose the KeePass Password Safe 2 installation location, language or advanced options, click the button below.">
 <!ENTITY KeeFox_Install_KPsetupExeInstallButton.label "Setup KeePass with full control of the process">
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpandeePortable.description "If you want to install the portable version of KeePass into a specific location (such as a USB memory stick) you can choose a location below. If you already have KeePass Password Safe 2 installed, please use the box below to tell KeeFox where to find it.">
 <!ENTITY KeeFox_Install_copyKPToSpecificLocationInstallButton.label "Set KeePass Password Safe 2's installation location">
 
-<!ENTITY KeeFox_Install_admincopyKIToKnownKPLocationInstallExpander.description "Click the above button to link KeeFox to KeePass Password Safe 2. (Technically, this installs the KeeICE plugin for KeePass Password Safe 2).">
+<!ENTITY KeeFox_Install_admincopyKIToKnownKPLocationInstallExpander.description "Click the above button to link KeeFox to KeePass Password Safe 2. (Technically, this installs the KeePassRPC plugin for KeePass Password Safe 2).">
 
 <!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpandee.description "If you know the administrative password for this computer you can install KeePass for all users by using one of the options below. Click on the bottom button if you want to set a particular installation location, a non-English language or other advanced options.">
 <!ENTITY KeeFox_Install_KPsetupExeSilentInstallButton.label "Setup KeeFox for all users">
 <!ENTITY KeeFox_Install_KPsetupExeInstallButton.label "Setup KeePass for all users with full control of the process">
 
 <!ENTITY KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallExpandee.description "You can install KeePass Password Safe 2 on a portable / USB drive (or in a second location on your computer). Just click the button below but do consider the potential confusion you might experience in future because your computer will have two seperate installations of KeePass Password Safe 2. If at all possible, you should setup KeeFox using the button above, providing the computer administrative password if prompted.">
-<!ENTITY KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallButton.label "Install KeePass/KeeICE in a second location">
+<!ENTITY KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallButton.label "Install KeePass/KeePassRPC in a second location">
 
 <!-- strings describing the download and install progress for KeeFox dependancies -->
 <!ENTITY KeeFox_Install_IC1setupNETdownloading.description "%KeeFox_Shared_Files_Are_Being_Downloaded;">

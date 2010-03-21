@@ -1,5 +1,5 @@
 /*
-  KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
+  KeePassRPC - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
   Example usage includes the KeeFox firefox extension.
   
   Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
@@ -48,7 +48,7 @@ using KeePassLib.Utility;
 using KeePass;
 using KeePass.Forms;
 
-namespace KeeICE
+namespace KeePassRPC
 {
 	public partial class KeyCreationSimpleForm : Form
 	{

@@ -1,16 +1,9 @@
 /*
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
-  This is the KeeFox Improved Login Manager javascript file. The KFILM object
-  is mainly concerned with user-visible behaviour and actual use of the data
-  in the active KeePass database. Eventually this should have enough options
-  and features to allow the user fine control over their password management
-  experience.
-  
-  Some of the code is based on Mozilla's LoginManagerPrompt.js, used under
-  GPL 2.0 terms. Lots of the functions are currently unused and really just
-  there in case they prove useful in the future.
+  This is the KeeFox Improved Login Manager javascript file. The KFUI object
+  is concerned only with user-visible interface behaviour.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,24 +20,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/* ==================== LoginManagerPrompter ==================== */
-
-/*
- * LoginManagerPrompter
- *
- * Implements interfaces for prompting the user to enter/save/change auth info.
- *
- * nsIAuthPrompt: Used by SeaMonkey, Thunderbird, but not Firefox.
- *
- * nsIAuthPrompt2: Is invoked by a channel for protocol-based authentication
- * (eg HTTP Authenticate, FTP login).
- *
- * nsILoginManagerPrompter: Used by Login Manager for saving/changing logins
- * found in HTML forms.
- */
-function KFUI() {
-
-}
+function KFUI() {}
 
 KFUI.prototype = {
 
@@ -65,7 +41,8 @@ KFUI.prototype = {
     _kfilm : null,
         
     __logService : null, // Console logging service, used for debugging.
-    get _logService() {
+    get _logService()
+    {
         if (!this.__logService)
             this.__logService = Cc["@mozilla.org/consoleservice;1"].
                                 getService(Ci.nsIConsoleService);
@@ -73,7 +50,8 @@ KFUI.prototype = {
     },
 
     __promptService : null, // Prompt service for user interaction
-    get _promptService() {
+    get _promptService()
+    {
         if (!this.__promptService)
             this.__promptService =
                 Cc["@mozilla.org/embedcomp/prompt-service;1"].
@@ -83,24 +61,9 @@ KFUI.prototype = {
 
     strbundle: null,
 
-/*
-    __strBundle : null, // String bundle for L10N
-    get _strBundle() {
-        if (!this.__strBundle) {
-            var bunService = Cc["@mozilla.org/intl/stringbundle;1"].
-                             getService(Ci.nsIStringBundleService);
-            this.__strBundle = bunService.createBundle(
-                        "chrome://passwordmgr/locale/passwordmgr.properties");
-            if (!this.__strBundle)
-                throw "String bundle for Login Manager not present!";
-        }
-
-        return this.__strBundle;
-    },
-*/
-
     __brandBundle : null, // String bundle for L10N
-    get _brandBundle() {
+    get _brandBundle()
+    {
         if (!this.__brandBundle) {
             var bunService = Cc["@mozilla.org/intl/stringbundle;1"].
                              getService(Ci.nsIStringBundleService);
@@ -113,26 +76,17 @@ KFUI.prototype = {
         return this.__brandBundle;
     },
 
-
     __ioService: null, // IO service for string -> nsIURI conversion
-    get _ioService() {
+    get _ioService()
+    {
         if (!this.__ioService)
             this.__ioService = Cc["@mozilla.org/network/io-service;1"].
                                getService(Ci.nsIIOService);
         return this.__ioService;
     },
 
-    /* ---------- nsILoginManagerPrompter prompts ---------- */
-
-
-
-
-    /*
-     * init
-     *
-     */
-    //init : function (aWindow,kf,kfilm) {
-    init : function (kf,kfilm) {
+    init : function (kf,kfilm)
+    {
         
         this._kf = kf;
         this._kfilm = kfilm;
@@ -140,12 +94,8 @@ KFUI.prototype = {
         this.strbundle = this._kfilm._currentWindow.document.getElementById("KeeFox-strings");
     },
 
-
-    /*
-     * promptToSavePassword
-     *
-     */
-    promptToSavePassword : function (aLogin, isMultiPage) {
+    promptToSavePassword : function (aLogin, isMultiPage)
+    {
         var notifyBox = this._getNotifyBox();
 
         if (notifyBox)
@@ -161,7 +111,8 @@ KFUI.prototype = {
      * Displays a notification bar.
      *
      */
-    _showLoginNotification : function (aNotifyBox, aName, aText, aButtons) {
+    _showLoginNotification : function (aNotifyBox, aName, aText, aButtons)
+    {
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
         const priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
 
@@ -201,28 +152,6 @@ KFUI.prototype = {
 
         //var DBname = null;//_kf.getDatabaseName();
         var notificationText = "";
-
-        
-      /*  // Find the <browser> which contains notifyWindow, by looking
-            // through all the open windows and all the <browsers> in each.
-            var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
-                     getService(Ci.nsIWindowMediator);
-            var enumerator = wm.getEnumerator("navigator:browser");
-            var tabbrowser = null;
-            var foundBrowser = null;
-//this.log("window has name:" + notifyWindow.name);
-            while (!foundBrowser && enumerator.hasMoreElements()) {
-                var win = enumerator.getNext();
-                this.log("found window with name:" + win.name);
-                tabbrowser = win.getBrowser(); 
-                foundBrowser = tabbrowser.getBrowserForDocument(
-                                                  this._document);
-            }
-            
-            // this is null... why is this so fucking shit?!
-            var document = foundBrowser.document;
-            */
-            
             
         // Ugh. We can't use the strings from the popup window, because they
         // have the access key marked in the string (eg "Mo&zilla"), along
@@ -245,16 +174,6 @@ KFUI.prototype = {
         var notNowButtonAccessKey =
               this._getLocalizedString("notifyBarNotNowButton.key");
 
-        /*if (DBname != undefined && DBname != null) 
-            notificationText = this._getLocalizedString(
-                                        "savePasswordText", [DBname]);
-        else
-            notificationText = this._getLocalizedString(
-                                        "savePasswordText", ["un-named"]);
-        */
-                                        
-       
-
         // The callbacks in |buttons| have a closure to access the variables
         // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
         // without a getService() call.
@@ -263,13 +182,11 @@ KFUI.prototype = {
         var popupName = "rememberAdvancedButtonPopup";
         if (isMultiPage)
         {
-        
-        popupName = "rememberAdvancedButtonPopup2";
-        notificationText = this._getLocalizedString("saveMultiPagePasswordText");
-        
+            popupName = "rememberAdvancedButtonPopup2";
+            notificationText = this._getLocalizedString("saveMultiPagePasswordText");
         } else
         {
-        notificationText = this._getLocalizedString("savePasswordText");
+            notificationText = this._getLocalizedString("savePasswordText");
         }
 
         var buttons = [
@@ -280,7 +197,7 @@ KFUI.prototype = {
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
                     var result = kfilm.addLogin(aLogin, null);
-                    if (result == "This login already exists.") //TOD: verify this doesn't crash when actual result found or is null
+                    if (result == "This login already exists.")
                     {
                         //TODO: create a new notification bar for 2 seconds with an error message?
                     }
@@ -290,24 +207,7 @@ KFUI.prototype = {
                     //aNotificationBar.parentNode.removeCurrentNotification();
                 }
             },
-            /*
-            {
-                label:     rememberAdvancedButtonText,
-                accessKey: rememberAdvancedButtonAccessKey,
-                popup:     popupName,
-                callback: null
-            },
-*/
-            // "Never for this site" button
-            /*{
-                label:     neverButtonText,
-                accessKey: neverButtonAccessKey,
-                popup:     null,
-                callback: function(aNotificationBar, aButton) {
-                    kfilm.setLoginSavingEnabled(aLogin.hostname, false);
-                }
-            },*/
-
+            
             // "Not now" button
             {
                 label:     notNowButtonText,
@@ -321,116 +221,15 @@ KFUI.prototype = {
         
          this._showLoginNotification(aNotifyBox, "password-save",
              notificationText, buttons);
-        
-/*        var notification = notificationBox.appendNotification(
-"this is the notification text",
-"notificationID",
-"notification.png",
-notificationBox.PRIORITY_WARNING_LOW,
-null);
-*/
-/*
-
-//var customString = "
-
-       // this._showLoginNotification(aNotifyBox, "password-save",
-       //      notificationText, buttons);
-             
-             var oldBar = aNotifyBox.getNotificationWithValue("password-save");
-        const priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
-
-        this.log("Adding new password-save notification bar");
-        var newBar = aNotifyBox.appendNotification(
-                                "test original text", "password-save",
-                                "chrome://mozapps/skin/passwordmgr/key.png",
-                                priority, null);
-                                //priority, buttons);
-                                
-         this.log("hh:"+newBar.value);                       
-         this.log("hfh:"+newBar.messageText);
-var messageText = document.getAnonymousElementByAttribute(newBar, "anonid", "messageText");
-messageText.setAttribute("flex", "1000");
-//messageText.setAttribute("style", "width: 90%;");
-
-var fragment = document.createDocumentFragment();
-fragment.appendChild(document.createTextNode("new "));
-var italic = document.createElementNS("http://www.w3.org/1999/xhtml", "i");
-italic.appendChild(document.createTextNode("replacement"));
-fragment.appendChild(italic);
-fragment.appendChild(document.createTextNode(" text element."));
-
-messageText.removeChild(messageText.firstChild);
-messageText.appendChild(fragment);
-
-//var detailsHolder = document.getAnonymousElementByAttribute(newBar, "anonid", "details");
-
-  const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-  var item = document.createElementNS(XUL_NS, "button"); // create a new XUL menuitem
-  item.setAttribute("label", "press me");
-  item.setAttribute("oncommand", "alert('press me');");
-  
-  var spacer = document.createElementNS(XUL_NS, "spacer"); // create a new XUL menuitem
-  spacer.setAttribute("flex", "1000");
-spacer.setAttribute("style", "width: 90%;");
-var fragment_again = document.createDocumentFragment();
-fragment_again.appendChild(spacer);
-fragment_again.appendChild(item);
-var italic_again = document.createElementNS("http://www.w3.org/1999/xhtml", "i");
-italic_again.appendChild(document.createTextNode("tempDDD"));
-fragment_again.appendChild(italic_again);
-//fragment.appendChild(document.createTextNode(" text element."));
-
-//var popup = document.getElementById("myPopup"); // a <menupopup> element
-//var first = createMenuItem("First item");
-//var last = createMenuItem("Last item");
-//popup.insertBefore(first, popup.firstChild);
-//detailsHolder.appendChild(item);
-//messageText.parentNode.insertBefore(document.createTextNode("TESTTTT!"), messageText.nextSibling.nextSibling);
-messageText.appendChild(fragment_again);
-//messageText.parentNode.appendChild(document.createTextNode("TEST2!"));
-//detailsHolder.appendChild(document.createTextNode("TEST3!"));
-
-
-// use this to get the order right?
-//parentDiv.insertBefore(sp1, sp2.nextSibling);
-
-
-    
-             var notification = notificationBox.appendNotification(
-"this is the notification text",
-"notificationID",
-"notification.png",
-notificationBox.PRIORITY_WARNING_LOW,
-null);
-
-var messageText = document.getAnonymousElementByAttribute(notification, "anonid", "messageText");
-
-var fragment = document.createDocumentFragment();
-fragment.appendChild(document.createTextNode("new "));
-var italic = document.createElementNS("http://www.w3.org/1999/xhtml", "i");
-italic.appendChild(document.createTextNode("replacement"));
-fragment.appendChild(italic);
-fragment.appendChild(document.createTextNode(" text element."));
-
-messageText.removeChild(messageText.firstChild);
-messageText.appendChild(fragment);
-
-(http://forums.mozillazine.org/viewtopic.php?f=19&t=525703)
-*/
-
-
     },
 
-
-    /*
-     * _removeSaveLoginNotification
-     *
-     */
-    _removeSaveLoginNotification : function (aNotifyBox) {
+    _removeSaveLoginNotification : function (aNotifyBox)
+    {
 
         var oldBar = aNotifyBox.getNotificationWithValue("password-save");
 
-        if (oldBar) {
+        if (oldBar)
+        {
             KFLog.debug("Removing save-password notification bar.");
             aNotifyBox.removeNotification(oldBar);
         }
@@ -444,7 +243,8 @@ messageText.appendChild(fragment);
      * fields.
      *
      */
-    promptToChangePassword : function (aOldLogin, aNewLogin) {
+    promptToChangePassword : function (aOldLogin, aNewLogin)
+    {
         var notifyBox = this._getNotifyBox();
 
         if (notifyBox)
@@ -458,7 +258,8 @@ messageText.appendChild(fragment);
      * Shows the Change Password notification bar.
      *
      */
-    _showChangeLoginNotification : function (aNotifyBox, aOldLogin, aNewLogin) {
+    _showChangeLoginNotification : function (aNotifyBox, aOldLogin, aNewLogin)
+    {
         var notificationText;
         var oldUsernameValue = "";
         
@@ -515,8 +316,8 @@ messageText.appendChild(fragment);
              notificationText, buttons);
     },
 
-    _showLaunchKFNotification : function () {
-
+    _showLaunchKFNotification : function ()
+    {
         var notifyBox = this._getNotifyBox();
 
         var loginButtonText =
@@ -530,11 +331,8 @@ messageText.appendChild(fragment);
 
         var notificationText  = 
             this._getLocalizedString("notifyBarLaunchKeePass.label");
-        
-
         var kfilm = this._kfilm;
         var kf = this._kf;
-
 
         var buttons = [
             // "Remember" button
@@ -560,8 +358,8 @@ messageText.appendChild(fragment);
              notificationText, buttons);
     },
     
-    _showLoginToKFNotification : function () {
-
+    _showLoginToKFNotification : function ()
+    {
         var notifyBox = this._getNotifyBox();
 
         var loginButtonText =
@@ -578,7 +376,6 @@ messageText.appendChild(fragment);
 
         var kfilm = this._kfilm;
         var kf = this._kf;
-
 
         var buttons = [
             // "Remember" button
@@ -604,12 +401,8 @@ messageText.appendChild(fragment);
              notificationText, buttons);
     },
     
-    /*
-     * _removeOLDKFNotifications
-     *
-     */
-    _removeOLDKFNotifications : function () {
-
+    _removeOLDKFNotifications : function ()
+    {
         var notifyBox = this._getNotifyBox();
         
         if (notifyBox)
@@ -637,35 +430,24 @@ messageText.appendChild(fragment);
         }
     },
     
-    
-    
-
-
-
-
-
-
-    /* ---------- Internal Methods ---------- */
-
-
-
-
     /*
      * _getNotifyBox
      *
      * Returns the notification box to this prompter, or null if there isn't
      * a notification box available.
      */
-    _getNotifyBox : function () {
-        try {
+    _getNotifyBox : function ()
+    {
+        try
+        {
             // Get topmost window, in case we're in a frame.
             var notifyWindow = this._window.top
-            //notifyWindow.alert("hello");
-
+            
             // Some sites pop up a temporary login window, when disappears
             // upon submission of credentials. We want to put the notification
             // bar in the opener window if this seems to be happening.
-            if (notifyWindow.opener) {
+            if (notifyWindow.opener)
+            {
                 var webnav = notifyWindow
                                     .QueryInterface(Ci.nsIInterfaceRequestor)
                                     .getInterface(Ci.nsIWebNavigation);
@@ -681,7 +463,8 @@ messageText.appendChild(fragment);
                 // has been used to visit other pages (ie, has a history),
                 // assume it'll stick around and *don't* use the opener.
                 if (chromeDoc.getAttribute("chromehidden") &&
-                    webnav.sessionHistory.count == 1) {
+                    webnav.sessionHistory.count == 1)
+                {
                     KFLog.debug("Using opener window for notification bar.");
                     notifyWindow = notifyWindow.opener; //not convinced this will work - maybe change this._document
                 }
@@ -695,8 +478,8 @@ messageText.appendChild(fragment);
             var enumerator = wm.getEnumerator("navigator:browser");
             var tabbrowser = null;
             var foundBrowser = null;
-//this.log("window has name:" + notifyWindow.name);
-            while (!foundBrowser && enumerator.hasMoreElements()) {
+            while (!foundBrowser && enumerator.hasMoreElements())
+            {
                 var win = enumerator.getNext();
                 KFLog.debug("found window with name:" + win.name);
                 tabbrowser = win.getBrowser(); 
@@ -733,7 +516,8 @@ messageText.appendChild(fragment);
      * formatted if required.
      *
      */ 
-    _getLocalizedString : function (key, formatArgs) {
+    _getLocalizedString : function (key, formatArgs)
+    {
         if (formatArgs)
             return this.strbundle.getFormattedString(key, formatArgs);
         else
@@ -749,9 +533,11 @@ messageText.appendChild(fragment);
      * Returns the hostname to use in a nsILoginInfo object (for example,
      * "http://example.com").
      */
-    _getFormattedHostname : function (aURI) {
+    _getFormattedHostname : function (aURI)
+    {
         var uri;
-        if (aURI instanceof Ci.nsIURI) {
+        if (aURI instanceof Ci.nsIURI)
+        {
             uri = aURI;
         } else {
             uri = this._ioService.newURI(aURI, null, null);
@@ -763,7 +549,8 @@ messageText.appendChild(fragment);
         // If the URI explicitly specified a port, only include it when
         // it's not the default. (We never want "http://foo.com:80")
         port = uri.port;
-        if (port != -1) {
+        if (port != -1)
+        {
             var handler = this._ioService.getProtocolHandler(scheme);
             if (port != handler.defaultPort)
                 hostname += ":" + port;
@@ -773,41 +560,37 @@ messageText.appendChild(fragment);
     },
 
 
- setTreeViewGroupChooser : function()
- {
+    setTreeViewGroupChooser : function()
+    {
 
-// TODO: Check to see if we are logged in and trigger an attempt to if not (fail or create dummy chooser if can't log in?)
+    // TODO: Check to see if we are logged in and trigger an attempt to if not (fail or create dummy chooser if can't log in?)
 
-// Get array of group names (and guids somehow) which are ordered by depth-first queries to the group folder structure from KeeICE.
+    // Get array of group names (and guids somehow) which are ordered by depth-first queries to the group folder structure from KeePassRPC.
 
-keefoxInst.treeViewGroupChooser = {
-    rowCount : 10000,
-    getCellText : function(row,column){
-      if (column.id == "namecol") return "Row "+row;
-      else return "February 18";
-    },
-    setTree: function(treebox){ this.treebox = treebox; },
-    isContainer: function(row){ return false; },
-    isSeparator: function(row){ return false; },
-    isSorted: function(){ return false; },
-    getLevel: function(row){ return 0; },
-    getImageSrc: function(row,col){ return null; },
-    getRowProperties: function(index, properties) {
-    
-  var atomService = Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService);
-  var atom = atomService.getAtom("dummy"); //TODO: maybe set this to be the GUID of the appropriate group?
-  properties.AppendElement(atom);
-},
-    getCellProperties: function(row,col,props){},
-    getColumnProperties: function(colid,col,props){}
+        keefoxInst.treeViewGroupChooser =
+        {
+            rowCount : 10000,
+            getCellText : function(row,column
+            {
+              if (column.id == "namecol") return "Row "+row;
+              else return "February 18";
+            },
+            setTree: function(treebox){ this.treebox = treebox; },
+            isContainer: function(row){ return false; },
+            isSeparator: function(row){ return false; },
+            isSorted: function(){ return false; },
+            getLevel: function(row){ return 0; },
+            getImageSrc: function(row,col){ return null; },
+            getRowProperties: function(index, properties)
+            {
+                var atomService = Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService);
+                var atom = atomService.getAtom("dummy"); //TODO: maybe set this to be the GUID of the appropriate group?
+                properties.AppendElement(atom);
+            },
+            getCellProperties: function(row,col,props){},
+            getColumnProperties: function(colid,col,props){}
+        };
+        document.getElementById('keefox-group-chooser-tree').view = keefoxInst.treeViewGroupChooser;
+    }
+
 };
-
-    document.getElementById('keefox-group-chooser-tree').view = keefoxInst.treeViewGroupChooser;
-}
-
-
-};
-
-var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                       .getService(Components.interfaces.mozIJSSubScriptLoader); 
-loader.loadSubScript("resource://kfscripts/KFUI_protocol.js");   

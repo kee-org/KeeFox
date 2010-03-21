@@ -4,8 +4,8 @@
 <!DOCTYPE overlay SYSTEM "chrome://keefox/locale/options.dtd">
 
 <!--
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   Overlays all common dialogs with a bit of javascript that determines whether
   the dialog contains a username and password field and if so, links KeeFox to them

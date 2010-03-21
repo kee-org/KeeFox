@@ -1,4 +1,4 @@
-﻿namespace KeeICE
+﻿namespace KeePassRPC
 {
     partial class OptionsForm
     {
@@ -50,7 +50,7 @@
             // m_bannerImage
             // 
             this.m_bannerImage.BackColor = System.Drawing.Color.White;
-            this.m_bannerImage.Image = global::KeeICE.Properties.Resources.KeeFox64;
+            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.KeeFox64;
             this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);

@@ -1,4 +1,4 @@
-﻿namespace KeeICE
+﻿namespace KeePassRPC
 {
 	partial class WelcomeForm
 	{
@@ -72,7 +72,7 @@
             // 
             // button2
             // 
-            this.button2.BackgroundImage = global::KeeICE.Properties.Resources.buttonGradient;
+            this.button2.BackgroundImage = global::KeePassRPC.Properties.Resources.buttonGradient;
             this.button2.DialogResult = System.Windows.Forms.DialogResult.No;
             this.button2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Location = new System.Drawing.Point(16, 210);
@@ -119,7 +119,7 @@
             // 
             // button1
             // 
-            this.button1.BackgroundImage = global::KeeICE.Properties.Resources.buttonGradient;
+            this.button1.BackgroundImage = global::KeePassRPC.Properties.Resources.buttonGradient;
             this.button1.DialogResult = System.Windows.Forms.DialogResult.Yes;
             this.button1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.Location = new System.Drawing.Point(16, 139);
@@ -132,7 +132,7 @@
             // m_bannerImage
             // 
             this.m_bannerImage.Dock = System.Windows.Forms.DockStyle.Left;
-            this.m_bannerImage.Image = global::KeeICE.Properties.Resources.KeeFox64;
+            this.m_bannerImage.Image = global::KeePassRPC.Properties.Resources.KeeFox64;
             this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);

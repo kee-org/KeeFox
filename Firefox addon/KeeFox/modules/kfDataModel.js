@@ -1,0 +1,431 @@
+/*
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  
+  kfLoginInfo:
+  This was loosly based on the LoginInfo object that Mozilla provided with Firefox 3.0
+  but it has been heavily modified to support some of the extra features
+  that KeeFox can support compared to the built-in Firefox login manager.
+  
+  kfLoginField:
+  Represents an individual form field
+  
+  kfFormFieldType:
+  enumeration of form field type (e.g. text, checkbox, password, etc.)
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+const Cr = Components.results;
+
+var EXPORTED_SYMBOLS = ["newkfLoginInfo","newkfLoginField","newkfFormFieldType"];
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+// this feels a bit odd but I can't seem to export class
+// constructors any other way and it seems to work...
+function newkfLoginInfo() { return new kfLoginInfo();}
+function newkfLoginField() { return new kfLoginField();}
+function newkfFormFieldType() { return new kfFormFieldType();}
+
+function kfLoginInfo() {}
+
+kfLoginInfo.prototype =
+{    
+    // array of URL strings (normally just one is needed
+    // but a given login can be associated with more than one site
+    // or with multiple pages on that site)
+    URLs      : null,
+    
+    // The "action" parameter of the form (for multi-page
+    // logins, this is always the first page)
+    formActionURL : null,
+    
+    // The realm of a HTTP athentication request
+    httpRealm     : null,
+    
+    // The index of the otherField which we will treat as the username in KeePass
+    usernameIndex      : null,
+    
+    // array of kfLoginField objects representing all passwords
+    // on this (potentially multi-page) form
+    passwords      : null,
+    
+    // The KeePass entry's uniqueID (if known)
+    uniqueID : null,
+    
+    // The title of the KeePass entry (auto-generated from the page title by default)
+    title : null,
+    
+    // array of kfLoginField objects representing all non-passwords
+    // on this (potentially multi-page) form
+    otherFields : null,
+    
+    // How relevant this login entry is to the current form in
+    // the browser - transient (not stored in KeePass)
+    relevanceScore : null,
+    
+    // The total number of pages the login entry will fill (usually 1; transient)
+    maximumPage : null,
+    
+    // A base64 encoding of the icon for this entry. It will always be a 
+    // PNG when populated from KeePass but could be other formats when first 
+    // loading a favicon from a website. (Hopefully this will be an easy exception 
+    // to deal with but if not we can add a mime type field to this object too)
+    iconImageData : null,
+
+    parentGroup : null,
+    
+    priority : 0,
+	alwaysAutoFill : false,
+	alwaysAutoSubmit : false,
+	neverAutoFill : false,
+	neverAutoSubmit : false,
+    
+    // assists with serialisation of this object to a string
+    // (for attachment to the current tab session)
+    // currently used only for recording potentially half-finished new entries after
+    // user has submitted a form, hence not all info. needs to be persisted
+    toSource : function ()
+    {
+        var formActionURLParam = (this.formActionURL == null) ? "null" : ("'"+this.formActionURL+"'");
+        var httpRealmParam = (this.httpRealm == null) ? "null" : ("'"+this.httpRealm+"'");
+        var uniqueIDParam = (this.uniqueID == null) ? "null" : ("'"+this.uniqueID+"'");
+        var titleParam = (this.title == null) ? "null" : ("'"+this.title+"'");
+    
+        return "( deserialisedOutputURLs , "+ formActionURLParam +", "+httpRealmParam+" , "+this.usernameIndex
+            +" , deserialisedOutputPasswords , "+uniqueIDParam+" , "+titleParam+" , deserialisedOutputOtherFields , "+this.maximumPage+" )";
+    },
+
+    init : function (aURLs, aFormActionURL, aHttpRealm,
+                     aUsernameIndex,      aPasswords,
+                     aUniqueID, aTitle, otherFieldsArray, aMaximumPage) {
+
+        this.otherFields = otherFieldsArray;   
+        this.URLs      = aURLs;
+        this.formActionURL = aFormActionURL;
+        this.httpRealm     = aHttpRealm;
+        this.usernameIndex      = aUsernameIndex;
+        this.passwords      = aPasswords;
+        this.uniqueID = aUniqueID;
+        this.title = aTitle;
+        this.maximumPage = aMaximumPage;
+        this.iconImageData = "";
+        this.parentGroupName = "";
+        this.parentGroupUUID = "";
+        this.parentGroupPath = "";
+        this.priority = 0;
+	    this.alwaysAutoFill = false;
+	    this.alwaysAutoSubmit = false;
+	    this.neverAutoFill = false;
+	    this.neverAutoSubmit = false;
+    },
+    
+    initFromEntry : function (entry)
+    {
+        var passwords = [];
+        var otherFields = [];
+        var usernameIndex = 0;
+        var maximumPage = 1;
+
+        for (var j = 0; j < entry.formFieldList.length; j++) 
+        {
+            var kpff = entry.formFieldList[j];
+
+            if (kpff.type == kfFormFieldType.password)
+            {
+	            if (kpff.page > maximumPage)
+		            maximumPage = kpff.page;
+            	
+	            newField = new kfLoginField();
+	            newField.init(kpff.name, kpff.value, kpff.id, "password", kpff.page);
+	            passwords.push(newField);
+
+            } else if (kpff.type == kfFormFieldType.text || kpff.type == kfFormFieldType.username
+	             || kpff.type == kfFormFieldType.select || kpff.type == kfFormFieldType.radio
+	              || kpff.type == kfFormFieldType.checkbox)
+            {
+	            var otherLength = otherFields.length;
+	            var type = "unknown";
+
+	            switch (kpff.type)
+	            {
+		            case kfFormFieldType.username: usernameIndex = otherLength; type = "username"; break;
+		            case kfFormFieldType.text: type = "text"; break;
+		            case kfFormFieldType.radio: type = "radio"; break;
+		            case kfFormFieldType.checkbox: type = "checkbox"; break;
+		            case kfFormFieldType.select: type = "select-one"; break;
+	            }
+
+	            if (pff.page > maximumPage)
+		            maximumPage = pff.page;
+            	
+	            newField = new kfLoginField();
+	            newField.init(kpff.name, kpff.value, kpff.id, type, kpff.page);
+	            otherFields.push(newField);
+            }
+        }
+
+        this.init(entry.uRLs, entry.formActionURL, entry.hTTPRealm, usernameIndex,
+                  passwords, entry.uniqueID, entry.title, otherFields, maximumPage);
+                     
+        this.parentGroup = entry.parentGroup;
+        this.iconImageData = entry.iconImageData;
+        this.alwaysAutoFill = entry.alwaysAutoFill;
+        this.alwaysAutoSubmit = entry.alwaysAutoSubmit;
+        this.neverAutoFill = entry.neverAutoFill;
+        this.neverAutoSubmit = entry.neverAutoSubmit;
+        this.priority = entry.priority;
+    },
+        
+    // the order of URLs must also match
+    // TODO: do we need to relax this test so order is irrelevant?
+    _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    {
+        if (this.URLs.length != URLs.length)
+            return false;
+            
+        for (i = 0; i < this.URLs.length; i++)
+        {
+            var url1 = URLs[i];
+            var url2 = this.URLs[i];
+        
+            if (ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                return false;
+            else if (!ignoreURIPathsAndSchemes && ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                return false;
+            else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && url1 != url2)
+                return false;
+        }
+        return true;
+    },
+    
+    // the order of password fields must also match
+    _allPasswordsMatch : function (passwords)
+    {
+        if (this.passwords.length != passwords.length)
+            return false;
+            
+        for (i = 0; i < this.passwords.length; i++)
+            for (j = 0; j < passwords.length; j++)
+                if (passwords[i].value == this.passwords[i].value)
+                {
+                    matches++;
+                    break; // leave only the inner loop
+                }
+                
+        if (matches != passwords.length)
+            return false;
+                    
+        return true;
+    },
+
+    //TODO 0.8: Not sure about this. Is it possible for two otherwise identical entries
+    // to be deemed different just due to a different ordering of login details?
+    _usernamesMatch : function (login)
+    {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+        
+        if (this.otherFields.length != login.otherFields.length)
+            return false;
+         
+        var loginUsername = null;
+        if (login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > login.usernameIndex)
+        {
+            var temp = login.otherFields[login.usernameIndex];
+            loginUsername = temp.value;
+        }
+        
+        var thisUsername = null;
+        if (this.usernameIndex >= 0 && this.otherFields != null && this.otherFields.length > this.usernameIndex)
+        {
+            var temp = this.otherFields[this.usernameIndex];
+            thisUsername = temp.value;
+        }
+        
+        if (thisUsername != loginUsername)
+            return false;
+        
+        return true;
+    },
+    
+    
+    //CPT: had to hack this a bit. might come back to bite later. now if either
+    // httprealm is empty string we will not test for equality.
+    // It's all becuase ICE can't distinguish between null and empty string but
+    // there may be nicer ways to workaround...
+    // do we care if fields are moved around onto different pages?
+    // should we match then or not?...
+    //TODO: Review validity of comments and implementation after move from reliance on ICE
+    // determines if this matches another supplied login object, with a number
+    // of controllable definitions of "match" to support various use cases
+    matches : function (aLogin, ignorePasswords, ignoreURIPaths,
+         ignoreURIPathsAndSchemes, ignoreUsernames)
+    {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+        
+        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keeFoxILM))
+            return false;
+
+        if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
+            return false;
+
+        if (!ignoreUsernames && !this._usernamesMatch(aLogin))
+            return false;
+
+        if (!ignorePasswords && !this._allPasswordsMatch(aLogin.passwords))
+            return false;
+
+        // If either formActionURL is blank (but not null), then match.
+        if (this.formActionURL != "" && aLogin.formActionURL != "")
+        {
+            if (ignoreURIPathsAndSchemes 
+                && window.keeFoxILM._getURISchemeHostAndPort(aLogin.formActionURL)
+                    != window.keeFoxILM._getURISchemeHostAndPort(this.formActionURL))
+                return false;
+            else if (!ignoreURIPathsAndSchemes 
+                && ignoreURIPaths && window.keeFoxILM._getURIHostAndPort(aLogin.formActionURL) 
+                    != window.keeFoxILM._getURIHostAndPort(this.formActionURL))
+                return false;
+            else if (!ignoreURIPathsAndSchemes 
+                && !ignoreURIPaths 
+                && this.formActionURL != aLogin.formActionURL)
+                return false;
+        }
+
+        return true;
+    },
+
+    // merge another login into this one. Only certain fields are merged
+    // - URLs, passwords and usernames
+    mergeWith : function (previousStageLogin) {
+ 
+        if (previousStageLogin.URLs != undefined && previousStageLogin.URLs != null 
+            && previousStageLogin.URLs.length > 0)
+        {
+            if (this.URLs == undefined || this.URLs == null)
+                this.URLs = [];
+                        
+            for (i = 0; i < previousStageLogin.URLs.length; i++)
+            {
+                var URL = previousStageLogin.URLs[i];
+                this.URLs.push(URL);
+            }
+        }
+
+        if (previousStageLogin.passwords != undefined && previousStageLogin.passwords != null 
+            && previousStageLogin.passwords.length > 0)
+        {
+            if (this.passwords == undefined || this.passwords == null)
+                this.passwords = [];
+                        
+            for (i = 0; i < previousStageLogin.passwords.length; i++)
+            {
+                var passField = previousStageLogin.passwords[i];
+                this.passwords.push(passField);
+            }
+        }
+        
+        if (previousStageLogin.otherFields != undefined && previousStageLogin.otherFields != null
+            && previousStageLogin.otherFields.length > 0)
+        {
+            if (this.otherFields == undefined || this.otherFields == null)
+                this.otherFields = [];
+                        
+            for (i = 0; i < previousStageLogin.otherFields.length; i++)
+            {
+                var otherField = previousStageLogin.otherFields[i];
+                this.otherFields.push(otherField);
+            }
+        }
+        
+        this.maximumPage = Math.max(this.maximumPage, previousStageLogin.maximumPage);
+    }
+  
+};
+
+
+function kfFormFieldType() {}
+
+kfFormFieldType.prototype =
+{
+    radio   : "FFTradio",
+    username: "FFTusername",
+    text    : "FFTtext",
+    password: "FFTpassword",
+    select  : "FFTselect",
+    checkbox: "FFTcheckbox"
+};		  
+			  
+	
+function kfLoginField() {}
+
+kfLoginField.prototype = {
+    // "name" attribute on the HTML form element
+    name      : null,
+    
+    // "value" attribute on the HTML form element
+    value : null,
+    
+    // "id" attribute on the HTML form element
+    fieldId : null,
+    
+    // The HTML form element DOM objects - transient (not sent to KeePass)
+    DOMInputElement : null,
+    DOMSelectElement : null,
+    
+    // "type" attribute on the HTML form element
+    type : null,
+    
+    // on which page of a login procedure this field can be found
+    formFieldPage : -1,
+    
+    // assists with deserialisation of this object to a string
+    // (for attachment to the current tab session)
+    toSource : function ()
+    {
+        var fieldIdParam = (this.fieldId == null) ? "null" : ("'"+this.fieldId+"'");
+        var fieldNameParam = (this.name == null) ? "null" : ("'"+this.name.replace("'","\\'")+"'"); // replace("\\","\\\\")
+        var fieldValueParam = (this.value == null) ? "null" : ("'"+this.value.replace("'","\\'")+"'"); // replace("\\","\\\\")
+        
+        return "( "+fieldNameParam+", "+fieldValueParam+" , "+fieldIdParam+" , '"+this.type+"' , "+this.formFieldPage+" )";
+    },
+    
+    init : function ( aName, aValue, aID, aType, aFormFieldPage )
+    {
+        var logService = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+        //logService.logStringMessage("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]");
+        
+        //dump("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]\n");
+        
+        this.name = aName;
+        this.value = aValue;
+        if (aID == null || aID == undefined)
+            this.fieldId = "";
+        else
+            this.fieldId = aID;
+        this.type = aType;
+        this.formFieldPage = aFormFieldPage;
+    }
+  
+};
+	  
+			  
+			  

@@ -1,6 +1,6 @@
 /*
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox Improved Login Manager javascript file. The KFILM object
   is mainly concerned with user-visible behaviour and actual use of the data
@@ -8,8 +8,10 @@
   and features to allow the user fine control over their password management
   experience.
   
+  See KFILM_Submit.js and KFILM_Fill.js for many of this object's important functions
+  
   Some of the code is based on Mozilla's nsLoginManager.js, used under
-  GPL 2.0 terms. Lots of the functions are currently unused and really just
+  GPL 2.0 terms. A few functions are currently unused and really just
   there in case they prove useful in the future.
 
   This program is free software; you can redistribute it and/or modify
@@ -28,16 +30,19 @@
 */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://kfmod/kfDataModel.js");
 
-var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
+var Application = Components.classes["@mozilla.org/fuel/application;1"]
+                  .getService(Components.interfaces.fuelIApplication);
 
-function KFILM(kf,keeFoxToolbar,currentWindow) {
-
+// constructor
+function KFILM(kf,keeFoxToolbar,currentWindow)
+{
     this._kf = kf;
     this._toolbar = keeFoxToolbar;
     this._currentWindow = currentWindow;
-    this._refillTimer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-
+    this._refillTimer = Components.classes["@mozilla.org/timer;1"]
+                        .createInstance(Components.interfaces.nsITimer);
     this.init();
     KFLog.debug("currentWindowName:" + currentWindow.name);
     KFLog.debug ("KFILM constructor finished");
@@ -47,33 +52,27 @@ KFILM.prototype = {
     _test : null,
     _currentWindow : null,
     _remember : true,  // (eventually) mirrors extension.keeFox.rememberSignons preference
-    _kf : null, // KeeFox object (e.g. for xpcom service access)
+    _kf : null, // KeeFox object (e.g. for KeePassRPC access)
     _toolbar : null, // the keefox toolbar in this scope
-    _kfLoginInfo : null, // Constructor for kfILoginInfo implementation
-    _refillTimer : null,
+    _refillTimer : null, // timer to cause re-filling of
+                        // forms every x seconds (if option enabled)
     
     __ioService: null, // IO service for string -> nsIURI conversion
-    get _ioService() {
+    get _ioService()
+    {
         if (!this.__ioService)
             this.__ioService = Cc["@mozilla.org/network/io-service;1"].
                                getService(Ci.nsIIOService);
         return this.__ioService;
     },
-
-
-    __formFillService : null, // FormFillController, for username autocompleting
-    get _formFillService() {
-        if (!this.__formFillService)
-            this.__formFillService =
-                            Cc["@mozilla.org/satchel/form-fill-controller;1"].
-                            getService(Ci.nsIFormFillController);
-        return this.__formFillService;
-    },
     
     //TODO: improve weighting of matches to reflect real world tests
-    _calculateRelevanceScore : function (login, form, usernameIndex, passwordFields, currentTabPage) {
-    
-        // entry priorities override any relevance based on URL, etc. (remember that we are already dealing only with those entries that KeeICE says are relevant for this domain).
+    _calculateRelevanceScore : function (login, form,
+        usernameIndex, passwordFields, currentTabPage)
+    {    
+        // entry priorities override any relevance based on URL,
+        // etc. (remember that we are already dealing only with
+        // those entries that KeePassRPC says are relevant for this domain).
         if (login.priority > 0)
             return (1000000 - login.priority);
 
@@ -99,19 +98,17 @@ KFILM.prototype = {
         for (i = 0; i < login.URLs.length; i++)
         {
             var URLscore=0;
-            // Unfortunately the container is declared to have elements
-            // that are generic nsIMutableArray. So, we must QI...
-            var loginURL = login.URLs.queryElementAt(i,Components.interfaces.kfIURL);
+            var loginURL = login.URLs[i];
             
-            if (KFLog.logSensitiveData) KFLog.debug(loginURL.URL);
+            if (KFLog.logSensitiveData) KFLog.debug(loginURL);
 
-            if (URL == loginURL.URL)
+            if (URL == loginURL)
                 URLscore = 22;
-            else if (this._getURIExcludingQS(URL) == this._getURIExcludingQS(loginURL.URL))
+            else if (this._getURIExcludingQS(URL) == this._getURIExcludingQS(loginURL))
                 URLscore = 15;
-            else if (this._getURISchemeHostAndPort(URL) == this._getURISchemeHostAndPort(loginURL.URL))
+            else if (this._getURISchemeHostAndPort(URL) == this._getURISchemeHostAndPort(loginURL))
                 URLscore = 9;
-            else if (this._getURIHostAndPort(URL) == this._getURIHostAndPort(loginURL.URL))
+            else if (this._getURIHostAndPort(URL) == this._getURIHostAndPort(loginURL))
                 URLscore = 4;
             
             if (URLscore > maxURLscore)
@@ -119,23 +116,14 @@ KFILM.prototype = {
         }
         
         score += maxURLscore;
-
-        // TODO: username and password field test unlikely to help much but shouldn't harm either so will leave it in for testing for a bit
-        //TODO: disabled until see need to modify for new index based username data
-        //if (login.username != null && usernameField.name == login.username.name)
-        //    score += 3;
-        
-        // TODO: password test currently disabled - re-enable by making it work with multi-passwords.    
-        //if (passwordField == login.passwordField)
-        //    score += 2;
         
         KFLog.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
-    },
-    
+    },    
 
-    init : function () {
-        KFLog.debug("ILM init start");
+    init : function ()
+    {
+        KFLog.debug("KFILM init start");
         
         // Cache references to current |this| in utility objects
         this._webProgressListener._domEventListener = this._domEventListener;
@@ -143,10 +131,6 @@ KFILM.prototype = {
         
         this._domEventListener._pwmgr    = this;
         this._observer._pwmgr            = this;
-
-        // Get constructor for kfILoginInfo
-        this._kfLoginInfo = new Components.Constructor(
-            "@christomlinson.name/kfLoginInfo;1", Ci.kfILoginInfo);
 
         // Form submit observer checks forms for new logins and pw changes.
         var observerService = Cc["@mozilla.org/observer-service;1"].
@@ -166,7 +150,7 @@ KFILM.prototype = {
             KFLog.error("couldn't add nsIWebProgress listener: " + e);
         }
         
-        KFLog.debug("ILM init complete");
+        KFLog.debug("KFILM init complete");
     },
     
     _countAllDocuments : function (window)
@@ -175,14 +159,11 @@ KFILM.prototype = {
         
         if (window.frames.length > 0)
         {
-            //KFLog.debug("Filling " + window.frames.length + " sub frames");
             var frames = window.frames;
-            for (var i = 0; i < frames.length; i++) { 
-              localDocCount += this._countAllDocuments (frames[i]);
-            }
+            for (var i = 0; i < frames.length; i++)
+                localDocCount += this._countAllDocuments (frames[i]);
         }
         return localDocCount;
-        
     },
     
     /*
@@ -191,7 +172,8 @@ KFILM.prototype = {
      * Internal utility object, implements the nsIObserver interface.
      * Used to receive notification for: form submission, preference changes.
      */
-    _observer : {
+    _observer :
+    {
         _pwmgr : null,
 
         QueryInterface : XPCOMUtils.generateQI([Ci.nsIObserver, 
@@ -199,57 +181,53 @@ KFILM.prototype = {
                                                 Ci.nsISupportsWeakReference]),
 
         // nsFormSubmitObserver
-        notify : function (formElement, aWindow, actionURI) {
-        
-            //TODO: HACK ALERT: Obviously i should remove the form observer from closed windows but this should get us up and running quickly and i'll work out how to do that later.
+        notify : function (formElement, aWindow, actionURI)
+        {        
+            //TODO: HACK ALERT: Obviously I should remove the form observer
+            // from closed windows but this should get us up and running quickly
+            // and i'll work out how to do that later.
             if (typeof Components == "undefined")
                 return true;
         
             KFLog.debug("observer notified for form submission.");
 
-            try {
-                if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("notifyBarRequestPasswordSave",true) &&  keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+            try
+            {
+                if (this._pwmgr._kf._keeFoxExtension.prefs.getValue(
+                        "notifyBarRequestPasswordSave",true) 
+                    &&  keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
                 {
-                    // We don't do this unless we have a KeeICE connection
-                    //TODO: improve so it prompts user to load KeePass
+                    // We don't do this unless we think we have a KeePassRPC connection
                     this._pwmgr._onFormSubmit(formElement);
                 }
-            } catch (e) {
+            } catch (e)
+            {
                 KFLog.error("Caught error in onFormSubmit: " + e);
             }
 
-            return true; // Always return true, or form submit will be canceled.
+            return true; // Always return true, or form submit will be cancelled.
         },
 
         // nsObserver
-        observe : function (subject, topic, data) {
-
-            /*if (topic == "nsPref:changed") {
-                var prefName = data;
-                this._pwmgr.log("got change to " + prefName + " preference");
-
-                if (prefName == "debug") {
-                    this._pwmgr._debug = 
-                        this._pwmgr._prefBranch.getBoolPref("debug");
-                } else if (prefName == "rememberSignons") {
-                    this._pwmgr._remember =
-                        this._pwmgr._prefBranch.getBoolPref("rememberSignons");
-                } else {
-                    this._pwmgr.log("Oops! Pref not handled, change ignored.");
-                }
-            } else */if (topic == "xpcom-shutdown") {
-                for (let i in this._pwmgr) {
-                  try {
+        observe : function (subject, topic, data)
+        {
+            if (topic == "xpcom-shutdown")
+            {
+                for (let i in this._pwmgr)
+                {
+                  try
+                  {
                     this._pwmgr[i] = null;
-                  } catch(ex) {}
+                  }
+                  catch(ex) {}
                 }
                 this._pwmgr = null;
-            } else {
+            } else
+            {
                 KFLog.warn("Unexpected notification: " + topic);
             }
         }
     },
-
 
     /*
      * _webProgressListener object
@@ -258,30 +236,23 @@ KFILM.prototype = {
      * This is attached to the document loader service, so we get
      * notifications about all page loads.
      */
-    _webProgressListener : {
+    _webProgressListener :
+    {
         _pwmgr : null,
         _domEventListener : null,
 
         QueryInterface : XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
                                                 Ci.nsISupportsWeakReference]),
 
-
         onStateChange : function (aWebProgress, aRequest,
-                                  aStateFlags,  aStatus) {
-
+                                  aStateFlags,  aStatus)
+        {
             // STATE_START is too early, doc is still the old page.
             if (!(aStateFlags & Ci.nsIWebProgressListener.STATE_TRANSFERRING))
                 return;
 
-            //if (!this._pwmgr._remember)
-            //    return;
-
             var domWin = aWebProgress.DOMWindow;
             var domDoc = domWin.document;
-            //this._pwmgr.log("winName:" + this._pwmgr._currentWindow.name);
-            //this._pwmgr.log(this._pwmgr._test);
-            //aWebProgress.DOMWindow.top.alert("test");
-            //aWebProgress.alert("test");
             
             var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
@@ -308,10 +279,9 @@ KFILM.prototype = {
                     .getService(Components.interfaces.nsISessionStore);
 
             // see if this tab has our special attributes and promote them to session data
-            if (currentTab.hasAttribute("KF_uniqueID")) {
-
-                KFLog.debug("has uid");
-                
+            if (currentTab.hasAttribute("KF_uniqueID"))
+            {
+                KFLog.debug("has uid");                
                 ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
                 ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
                 currentTab.removeAttribute("KF_uniqueID")
@@ -333,7 +303,8 @@ KFILM.prototype = {
             
             //TODO: How do we reliably detect a page refresh?
             
-            try {
+            try
+            {
                 if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
                      && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
                      && (
@@ -349,30 +320,23 @@ KFILM.prototype = {
                 {
                     removeTabSessionStoreData = true;
                 }
-            } catch (ex) {
-                
-            }
+            } catch (ex) {}
             
-            try {
+            try
+            {
                 if (domWin.history.next != undefined 
                     && domWin.history.next != null 
                     && domWin.history.next != "")
                 {
                     removeTabSessionStoreData = true;
                 }
-            } catch (ex) {
-               
-            }
-            
+            } catch (ex) {}            
             
             // When pages are being navigated without form
             // submissions we want to cancel multi-page login forms 
             var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
             var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
 
-//if (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null && numberOfTabFillsTarget != "")
-//        {
-        
             if (formSubmitTrackerCount > 0)
             {
                 KFLog.debug("formSubmitTrackerCount > 0");
@@ -385,8 +349,7 @@ KFILM.prototype = {
                     pageLoadSinceSubmitTrackerCount = 0;
                     removeTabSessionStoreData = true;
                     ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
-                }
-            
+                }            
                 ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
             }        
         
@@ -399,7 +362,8 @@ KFILM.prototype = {
             }
                 
             // Fastback doesn't fire DOMContentLoaded, so process forms now.
-            if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING) {
+            if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING)
+            {
                 KFLog.debug("onStateChange: restoring document");
                 return this._pwmgr._fillDocument(domDoc,true);
             }
@@ -447,73 +411,41 @@ KFILM.prototype = {
                                                 Ci.nsISupportsWeakReference]),
 
         // nsObserver
-        observe : function (subject, topic, data) {
+        observe : function (subject, topic, data)
+        {
             var doc;
-            switch(topic) {
+            switch(topic)
+            {
                 case "sessionstore-windows-restored":
-
                     break;
                 case "timer-callback":    
                     //this._pwmgr.log("timer fired");
                     //doc = this._pwmgr._currentWindow.content.document;
                     this._pwmgr._toolbar.setLogins(null, null);
                     this._pwmgr._fillAllFrames(this._pwmgr._currentWindow.content,false);
-                    //this._pwmgr._fillDocument(doc,false); //TODO: find some ways of deciding that there is no need to call this function in some cases. E.g. DOMMutation events? but just having those events on a page drops all other DOM performance by > 50% so will be too slow for DOM heavy sites. maybe do one every 2 seconds regardless and some others more frequently only if # of forms has changed?
+                    //TODO: find some ways of deciding that there is no need
+                    // to call this function in some cases. E.g. DOMMutation
+                    // events? but just having those events on a page drops
+                    // all other DOM performance by > 50% so will be too slow
+                    // for DOM heavy sites. maybe do one every 2 seconds regardless
+                    // and some others more frequently only if # of forms has changed?
                     break;
-
             }
-
         },
 
-        handleEvent : function (event) {
+        handleEvent : function (event)
+        {
             KFLog.debug("domEventListener: got event " + event.type);
 
             var doc, inputElement;
-            switch (event.type) {
+            switch (event.type)
+            {
                 case "DOMContentLoaded":
-                    doc = event.target;
-                    /*
-                    var KFTabState = {
-        docFillAttemptCount: null
-        //TODO: store this to help improve refill feature:
-        // number of forms in document
-        // form.length = number of control items in a form
-        }
-        
-        KFTabState.docFillAttemptCount = 0;
-        
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                        .getService(Components.interfaces.nsIWindowMediator);
-        var newWindow = wm.getMostRecentWindow("navigator:browser");
-        var b = newWindow.getBrowser();
-        var newTab = b.loadOneTab( actionURL, null, null, null, false, null );
-        var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                .getService(Components.interfaces.nsISessionStore);
-
-        ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
-        ss.setTabValue(newTab, "KF_autoSubmit", "yes");*/
+                    doc = event.target;                    
                     KFLog.debug("domEventListener: trying to load form filler");
                     this._pwmgr._fillDocument(doc,true);
-                    /*for (var i = 0; i < doc.forms.length; i++) {
-                        var form = doc.forms[i];
-                        for (var j = 0; j < form.elements.length; j++) {
-                            alert(form.elements[j].value);
-                        }
-                    }*/
                     KFLog.debug("domEventListener: form filler finished");
                     return;
-                    
-                //case "load":
-                    //doc = event.target;
-                    //this._pwmgr._fillDocument(doc,true);
-                    /*for (var i = 0; i < doc.forms.length; i++) {
-                        var form = doc.forms[i];
-                        for (var j = 0; j < form.elements.length; j++) {
-                            alert(form.elements[j].value);
-                        }
-                    }*/
-                 //   return;
-
                 default:
                     KFLog.warn("This event unexpected.");
                     return;
@@ -543,25 +475,24 @@ KFILM.prototype = {
      * relevant fields are.
      *
      * Returns: [usernameIndex, passwords, ...]
-     * all arrays are standard javascript arrays - you may need to convert them to ns arrays...
+     * all arrays are standard javascript arrays
      * usernameField may be null.
      */
-    _getFormFields : function (form, isSubmission, currentTabPage) {
+    _getFormFields : function (form, isSubmission, currentTabPage)
+    {
         var DOMusernameField = null;
-         var pwFields = [];
-         var otherFields = [];
-         var allFields = [];
-         var firstPasswordIndex = -1;
-         var firstPossibleUsernameIndex = -1;
-         var usernameIndex = -1;
-         var usernameField = null;
-        
-        var kfLoginField = new Components.Constructor(
-            "@christomlinson.name/kfLoginField;1", Ci.kfILoginField);
+        var pwFields = [];
+        var otherFields = [];
+        var allFields = [];
+        var firstPasswordIndex = -1;
+        var firstPossibleUsernameIndex = -1;
+        var usernameIndex = -1;
+        var usernameField = null;        
+        var kfLoginField = newkfLoginField();
 
         // search the DOM for any form fields we might be interested in
-        for (var i = 0; i < form.elements.length; i++) {
-        
+        for (var i = 0; i < form.elements.length; i++)
+        {        
             if (form.elements[i].type == undefined || form.elements[i].type == null)
                 continue; // maybe it's a fieldset or something else un-interesting
                 
@@ -569,20 +500,20 @@ KFILM.prototype = {
             
             KFLog.debug("domtype: "+ DOMtype );
             
-            if (DOMtype != "password" && DOMtype != "text" && DOMtype != "checkbox" && DOMtype != "radio" && DOMtype != "select-one")
+            if (DOMtype != "password" && DOMtype != "text" && DOMtype != "checkbox" 
+                && DOMtype != "radio" && DOMtype != "select-one")
                 continue; // ignoring other form types at the moment
             
             if (DOMtype == "checkbox" && isSubmission && form.elements[i].checked == false) continue;
-            if (DOMtype == "radio" && isSubmission && form.elements[i].checked == false) continue;
-            
+            if (DOMtype == "radio" && isSubmission && form.elements[i].checked == false) continue;            
             if (DOMtype == "password" && isSubmission && !form.elements[i].value) continue;
             if (DOMtype == "select-one" && isSubmission && !form.elements[i].value) continue;
             
-KFLog.debug("proccessing...");
+            KFLog.debug("proccessing...");
             allFields[allFields.length] =
             {
                 index   : i,
-                element : new kfLoginField,
+                element : newkfLoginField(),
                 type    : DOMtype
             };
             allFields[allFields.length-1].element.init(
@@ -592,11 +523,14 @@ KFLog.debug("proccessing...");
             else
                 allFields[allFields.length-1].element.DOMInputElement = form.elements[i];
             
-            
-            if (DOMtype == "password" && firstPasswordIndex == -1) firstPasswordIndex = allFields.length-1;
-            if (DOMtype == "text" && firstPossibleUsernameIndex == -1 && this._isAKnownUsernameString(form.elements[i].name)) firstPossibleUsernameIndex = allFields.length-1;
+            if (DOMtype == "password" && firstPasswordIndex == -1)
+                firstPasswordIndex = allFields.length-1;
+            if (DOMtype == "text" && firstPossibleUsernameIndex == -1 
+                && this._isAKnownUsernameString(form.elements[i].name))
+                firstPossibleUsernameIndex = allFields.length-1;
         }
         KFLog.debug("firstPossibleUsernameIndex: "+ firstPossibleUsernameIndex );
+        
         // work out which DOM form element is most likely to be the username field
         if (firstPossibleUsernameIndex != -1)
             usernameIndex = firstPossibleUsernameIndex;
@@ -608,26 +542,25 @@ KFLog.debug("proccessing...");
         var actualUsernameIndex = 0;
         
         // seperate the field data into appropriate variables
-        for (var i = 0; i < allFields.length; i++) {
-            
+        for (var i = 0; i < allFields.length; i++)
+        {            
             if (allFields[i].type == "password")
                 pwFields[pwFields.length] = allFields[i].element;
-            else if (allFields[i].type == "text" || allFields[i].type == "checkbox" || allFields[i].type == "radio"  || allFields[i].type == "select-one")
+            else if (allFields[i].type == "text" || allFields[i].type == "checkbox"
+                || allFields[i].type == "radio"  || allFields[i].type == "select-one")
             {
                 otherFields[otherFields.length] = allFields[i].element;
                 if (i == usernameIndex) 
                     actualUsernameIndex = otherCount;
                 else
                     otherCount++;
-            }
-                
+            }                
         }
         
         KFLog.debug("actualUsernameIndex: "+ actualUsernameIndex );
         KFLog.debug("otherFields.length:" + otherFields.length);
 
         return [actualUsernameIndex, pwFields, otherFields];
-
     },
  
     /*
@@ -635,7 +568,8 @@ KFLog.debug("proccessing...");
      *
      * Add a new login to login storage.
      */
-    addLogin : function (login, parentUUID) {
+    addLogin : function (login, parentUUID)
+    {
         // Sanity check the login
         if (login.URLs == null || login.URLs.length == 0)
             throw "Can't add a login with a null or empty list of hostnames / URLs.";
@@ -647,15 +581,18 @@ KFLog.debug("proccessing...");
         if (login.passwords == null || login.passwords.length <= 0)
             throw "Can't add a login with a null or empty list of passwords.";
 
-        if (login.formActionURL || login.formActionURL == "") {
+        if (login.formActionURL || login.formActionURL == "")
+        {
             // We have a form submit URL. Can't have a HTTP realm.
             if (login.httpRealm != null)
                 throw "Can't add a login with both a httpRealm and formSubmitURL.";
-        } else if (login.httpRealm) {
+        } else if (login.httpRealm)
+        {
             // We have a HTTP realm. Can't have a form submit URL.
             if (login.formActionURL != null)
                 throw "Can't add a login with both a httpRealm and formSubmitURL.";
-        } else {
+        } else
+        {
             // Need one or the other!
             throw "Can't add a login without a httpRealm or formSubmitURL.";
         }
@@ -667,14 +604,12 @@ KFLog.debug("proccessing...");
         // one go but in practice this will affect performance only rarely
         for (i = 0; i < login.URLs.length; i++)
         {
-            // Unfortunately the container is declared to have elements
-            // that are generic nsIMutableArray. So, we must QI...
-            var loginURL = login.URLs.queryElementAt(i,Components.interfaces.kfIURL);
-          
-            var logins = this.findLogins({}, loginURL.URL, login.formActionURL,
-                                     login.httpRealm);
+            var loginURL = login.URLs[i];          
+            var logins = this.findLogins(loginURL, login.formActionURL,
+                                        login.httpRealm);
 
-            if (logins.some(function(l) login.matches(l, false, false, false, false)))
+            //TODO 0.8: Test this - I changed it during KeePassRPC migration
+            if (logins.some(function(l) { return login.matches(l, false, false, false, false); }))
             {
                 KFLog.info("This login already exists.");
                 return "This login already exists.";
@@ -686,7 +621,8 @@ KFLog.debug("proccessing...");
         
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
         {
-            try {
+            try
+            {
                 login.iconImageData = this._kf.loadFavicon(primaryURL);
             } catch (ex) 
             {
@@ -703,44 +639,48 @@ KFLog.debug("proccessing...");
      *
      * Add a new group to the KeePass database
      */
-    addGroup : function (title, parentUUID) {
+    addGroup : function (title, parentUUID)
+    {
         // Sanity check the login
         if (title == null || title.length == 0)
             throw "Can't add a group with no title.";
-
 
         KFLog.info("Adding group: " + title + " to group: " + parentUUID);
         return this._kf.addGroup(title, parentUUID);
     },
     
-    getParentGroup : function (uniqueID) {
+    getParentGroup : function (uniqueID)
+    {
         KFLog.debug("Getting parent group of: " + uniqueID);
         return this._kf.getParentGroup(uniqueID);
     },
     
-    getRootGroup : function () {
+    getRootGroup : function ()
+    {
         KFLog.debug("Getting root group");
         return this._kf.getRootGroup();
     },
     
-    getChildGroups : function (count, uniqueID) {
+    getChildGroups : function (count, uniqueID)
+    {
         KFLog.debug("Getting all child groups of: " + uniqueID);
         return this._kf.getChildGroups(count, uniqueID);
     },
     
-    getChildEntries : function (count, uniqueID) {
+    getChildEntries : function (count, uniqueID)
+    {
         KFLog.debug("Getting all child entries of: " + uniqueID);
         return this._kf.getChildEntries(count, uniqueID);
     },
-    
-    
+        
 
     /*
      * removeLogin
      *
      * Remove the specified login from the stored logins.
      */
-    removeLogin : function (uniqueID) {
+    removeLogin : function (uniqueID)
+    {
         KFLog.info("Removing login: " + uniqueID);
         return this._kf.removeLogin(uniqueID);
     },
@@ -750,35 +690,36 @@ KFLog.debug("proccessing...");
      *
      * Remove the specified group and its contents from the KeePass DB.
      */
-    removeGroup : function (uniqueID) {
+    removeGroup : function (uniqueID)
+    {
         KFLog.info("Removing group: " + uniqueID);
         return this._kf.removeGroup(uniqueID);
     },
-
 
     /*
      * modifyLogin
      *
      * Change the specified login to match the new login.
      */
-    modifyLogin : function (oldLogin, newLogin) {
+    modifyLogin : function (oldLogin, newLogin)
+    {
         KFLog.info("Modifying a login");
         return this._kf.modifyLogin(oldLogin, newLogin);
     },
 
-
     /*
      * getAllLogins
      *
-     * Get a dump of all stored logins. Used by the login manager UI.
-     *
-     * |count| is only needed for XPCOM.
-     *
      * Returns an array of logins. If there are no logins, the array is empty.
      */
-    getAllLogins : function (count) {
+     //TODO: Maybe using this will be a faster way to set up and cache
+     // the "logins" menu. Ideally we'd get the best of both worlds but
+     // one big delay at the start when the DB is first loaded,switched,
+     // etc. might be preferable to delays on every sub-menu
+    getAllLogins : function ()
+    {
         KFLog.debug("Getting a list of all logins");
-        return this._kf.getAllLogins(count);
+        return this._kf.getAllLogins();
     },
         
     /*
@@ -786,7 +727,8 @@ KFLog.debug("proccessing...");
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (count, url, formSubmitURL, httpRealm, uniqueID) {
+    findLogins : function (url, formSubmitURL, httpRealm, uniqueID)
+    {
         if (KFLog.logSensitiveData)
             KFLog.info("Searching for logins matching URL: " + url +
             ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm
@@ -794,27 +736,27 @@ KFLog.debug("proccessing...");
         else
             KFLog.info("Searching for logins");
 
-        return this._kf.findLogins(count, url, formSubmitURL, httpRealm, uniqueID);
+        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID);
     },
     
-    countLogins : function (hostName,actionURL,loginSearchType)
+    countLogins : function (hostName,actionURL,httpRealm)
     {
-        
-        if (this._kf._keeFoxStorage.get("KeeICEActive",false))
+        if (this._kf._keeFoxStorage.get("KeePassRPCActive",false))
         {
-            return this._kf.countLogins(hostName,actionURL,loginSearchType);
+            return this._kf.countLogins(hostName,actionURL,httpRealm);
         }
     },
 
     /*
      * _getURIExcludingQS
      *
-     * Get a string that incldues all but a URI's query string
+     * Get a string that includes all but a URI's query string
      */
-    _getURIExcludingQS : function (uriString) {
-
+    _getURIExcludingQS : function (uriString)
+    {
         var realm = "";
-        try {
+        try
+        {
             var uri = this._ioService.newURI(uriString, null, null);
 
             if (uri.scheme == "file")
@@ -826,23 +768,22 @@ KFLog.debug("proccessing...");
                 // If the URI explicitly specified a port, only include it when
                 // it's not the default. (We never want "http://foo.com:80")
                 var port = uri.port;
-                if (port != -1) {
+                if (port != -1)
+                {
                     var handler = this._ioService.getProtocolHandler(uri.scheme);
                     if (port != handler.defaultPort)
                         realm += ":" + port;
                 }
             }
             
-            var QSbreak = uri.path.indexOf('?');
-            
-            realm += uri.path.substring(1,QSbreak > 1 ? QSbreak : uri.path.length);
-            
-
-        } catch (e) {
+            var QSbreak = uri.path.indexOf('?');            
+            realm += uri.path.substring(1,QSbreak > 1 ? QSbreak : uri.path.length);         
+        } catch (e)
+        {
             if (KFLog.logSensitiveData)
-                KFLog.error("Couldn't parse origin for " + uriString);
+                KFLog.warn("Couldn't parse origin for " + uriString);
             else
-                KFLog.error("Couldn't parse origin");
+                KFLog.warn("Couldn't parse origin");
             realm = null;
         }
         return realm;
@@ -854,10 +795,11 @@ KFLog.debug("proccessing...");
      * Get a string that includes only a URI's host and port.
      * EXCEPTION: For file protocol this returns the file path
      */
-    _getURIHostAndPort : function (uriString) {
-
+    _getURIHostAndPort : function (uriString)
+    {
         var realm = "";
-        try {
+        try
+        {
             var uri = this._ioService.newURI(uriString, null, null);
 
             if (uri.scheme == "file")
@@ -869,18 +811,19 @@ KFLog.debug("proccessing...");
                 // If the URI explicitly specified a port, only include it when
                 // it's not the default. (We never want "http://foo.com:80")
                 var port = uri.port;
-                if (port != -1) {
+                if (port != -1)
+                {
                     var handler = this._ioService.getProtocolHandler(uri.scheme);
                     if (port != handler.defaultPort)
                         realm += ":" + port;
                 }
             }
-
-        } catch (e) {
+        } catch (e)
+        {
             if (KFLog.logSensitiveData)
-                KFLog.error("Couldn't parse origin for " + uriString);
+                KFLog.warn("Couldn't parse origin for " + uriString);
             else
-                KFLog.error("Couldn't parse origin");
+                KFLog.warn("Couldn't parse origin");
             realm = null;
         }
         return realm;
@@ -892,10 +835,11 @@ KFLog.debug("proccessing...");
      * Get a string that includes only a URI's scheme, host and port
      * EXCEPTION: For file protocol this returns the file scheme and path
      */
-    _getURISchemeHostAndPort : function (uriString) {
-
+    _getURISchemeHostAndPort : function (uriString)
+    {
         var realm = "";
-        try {
+        try
+        {
             var uri = this._ioService.newURI(uriString, null, null);
             
             if (uri.scheme == "file")
@@ -907,18 +851,20 @@ KFLog.debug("proccessing...");
                 // If the URI explicitly specified a port, only include it when
                 // it's not the default. (We never want "http://foo.com:80")
                 var port = uri.port;
-                if (port != -1) {
+                if (port != -1)
+                {
                     var handler = this._ioService.getProtocolHandler(uri.scheme);
                     if (port != handler.defaultPort)
                         realm += ":" + port;
                 }
             }
 
-        } catch (e) {
+        } catch (e)
+        {
             if (KFLog.logSensitiveData)
-                KFLog.error("Couldn't parse origin for " + uriString);
+                KFLog.warn("Couldn't parse origin for " + uriString);
             else
-                KFLog.error("Couldn't parse origin");
+                KFLog.warn("Couldn't parse origin");
             realm = null;
         }
         if (KFLog.logSensitiveData) KFLog.debug("_getURISchemeHostAndPort:"+realm);
@@ -930,18 +876,18 @@ KFLog.debug("proccessing...");
      *
      * Get a string that includes only a URI's scheme
      */
-    _getURIScheme : function (uriString) {
-
-        try {
-            var uri = this._ioService.newURI(uriString, null, null);
-            
+    _getURIScheme : function (uriString)
+    {
+        try
+        {
+            var uri = this._ioService.newURI(uriString, null, null);            
             return uri.scheme;
-
-        } catch (e) {
+        } catch (e)
+        {
             if (KFLog.logSensitiveData)
-                KFLog.error("Couldn't parse scheme for " + uriString);
+                KFLog.warn("Couldn't parse scheme for " + uriString);
             else
-                KFLog.error("Couldn't parse scheme");
+                KFLog.warn("Couldn't parse scheme");
             return "unknown";
         }
     },
@@ -951,103 +897,69 @@ KFLog.debug("proccessing...");
      *
      * Get the parts of the URL we want for identification.
      */
-    _getPasswordOrigin : function (uriString, allowJS) {
-    
+    _getPasswordOrigin : function (uriString, allowJS)
+    {    
         // temporarily(?) returning the URI string as is - if it needs to
-        // be trimmed to host and port this will be done in KeeICE
+        // be trimmed to host and port this will be done in KeePassRPC
         return uriString;
-    
-        var realm = "";
-        try {
-            var uri = this._ioService.newURI(uriString, null, null);
+//    
+//        var realm = "";
+//        try {
+//            var uri = this._ioService.newURI(uriString, null, null);
 
-            if (allowJS && uri.scheme == "javascript")
-                return "javascript:"
+//            if (allowJS && uri.scheme == "javascript")
+//                return "javascript:"
 
-            realm = uri.scheme + "://" + uri.host;
+//            realm = uri.scheme + "://" + uri.host;
 
-            // If the URI explicitly specified a port, only include it when
-            // it's not the default. (We never want "http://foo.com:80")
-            var port = uri.port;
-            if (port != -1) {
-                var handler = this._ioService.getProtocolHandler(uri.scheme);
-                if (port != handler.defaultPort)
-                    realm += ":" + port;
-            }
+//            // If the URI explicitly specified a port, only include it when
+//            // it's not the default. (We never want "http://foo.com:80")
+//            var port = uri.port;
+//            if (port != -1) {
+//                var handler = this._ioService.getProtocolHandler(uri.scheme);
+//                if (port != handler.defaultPort)
+//                    realm += ":" + port;
+//            }
 
-        } catch (e) {
-            // bug 159484 - disallow url types that don't support a hostPort.
-            // (although we handle "javascript:..." as a special case above.)
-            if (KFLog.logSensitiveData)
-                KFLog.error("Couldn't parse origin for " + uriString);
-            else
-                KFLog.error("Couldn't parse origin");
-            realm = null;
-        }
-        return realm;
+//        } catch (e) {
+//            // bug 159484 - disallow url types that don't support a hostPort.
+//            // (although we handle "javascript:..." as a special case above.)
+//            if (KFLog.logSensitiveData)
+//                KFLog.error("Couldn't parse origin for " + uriString);
+//            else
+//                KFLog.error("Couldn't parse origin");
+//            realm = null;
+//        }
+//        return realm;
     },
     
     
-    _getActionOrigin : function (form) {
+    _getActionOrigin : function (form)
+    {
         var uriString = form.action;
 
         // A blank or mission action submits to where it came from.
         if (uriString == "")
             uriString = form.baseURI;
         return this._getPasswordOrigin(uriString, true);
-    },
+    },    
     
-    
-    
-    loadAndAutoSubmit : function (usernameName,usernameValue,actionURL,usernameID,formID,uniqueID) {
-        KFLog.debug("loadAndAutoSubmit");
-        
+    loadAndAutoSubmit : function (usernameName,usernameValue,
+                        actionURL,usernameID,formID,uniqueID)
+    {
+        KFLog.debug("loadAndAutoSubmit");        
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                        .getService(Components.interfaces.nsIWindowMediator);
+                 .getService(Components.interfaces.nsIWindowMediator);
         var newWindow = wm.getMostRecentWindow("navigator:browser");
         var b = newWindow.getBrowser();
         var newTab = b.loadOneTab( actionURL, null, null, null, false, null );
         newTab.setAttribute("KF_uniqueID", uniqueID);
         newTab.setAttribute("KF_autoSubmit", "yes");
-
-        
-        //TODO: this is not allowed becuase the tab has most likely not loaded yet! need to register a callback function!
-        //var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-        //        .getService(Components.interfaces.nsISessionStore);
-
-       // ss.setTabValue(newTab, "KF_uniqueID", uniqueID);
-       // ss.setTabValue(newTab, "KF_autoSubmit", "yes");
-    }//,
-    
-    
-    //_generateFormLogin : function (URL, formActionURL, title, usernameIndex, passwordFields, otherFields, maxPageCount)
-    //{
-    //    var formLogin = new this._kfLoginInfo();
-    
-      /*  if (otherFields != null && otherFields != undefined)
-        {
-            formLogin.initOther(URL, formActionURL, null,
-                usernameIndex,
-                passwordFields, null, title, otherFields);
-            this.log("login object initialised with custom data");
-        } else
-        {*/
-     //       formLogin.init(URL, formActionURL, null,
-     //           usernameIndex,
-     //           passwordFields, null, title, otherFields, maxPageCount);
-       /*     this.log("login object initialised without custom data");
-        }*/
-        
-     //   return formLogin;
-    //}
-    
-    
+    }
     
    };
    
-   
 var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                        .getService(Components.interfaces.mozIJSSubScriptLoader); 
-loader.loadSubScript("resource://kfscripts/KFILM_Fill.js");   
-loader.loadSubScript("resource://kfscripts/KFILM_Submit.js");   
-   
+loader.loadSubScript("resource://kfscripts/KFILM_Fill.js");
+loader.loadSubScript("resource://kfscripts/KFILM_Submit.js");

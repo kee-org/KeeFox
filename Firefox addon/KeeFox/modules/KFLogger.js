@@ -1,11 +1,11 @@
 /*
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   The KFLog object manages logging KeeFox activity, used for debugging purposes.
   
   There are four cumulative log levels. Change the current level in about:config:
-    extensions.chris.tomlinson@keefox.logLevel
+    extensions.keefox@chris.tomlinson.logLevel
   
   Off = 0
   Error = 1
@@ -15,7 +15,7 @@
   
   The default level will be set as part of the installation process. The exact
   level that will be used as a defualt will probably drop as the beta testing
-  process continues. For 0.7, Info will be default.
+  process continues. For 0.8, Info will be default.
   
   There are four log methods:
   
@@ -50,16 +50,14 @@ const Cr = Components.results;
 var EXPORTED_SYMBOLS = ["KFLog"];
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
-
+var Application = Components.classes["@mozilla.org/fuel/application;1"]
+                .getService(Components.interfaces.fuelIApplication);
 
 // constructor
 function KeeFoxLogger()
 {
-    this.keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
-    
+    this.keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
     this.configureFromPreferences();
-    
     this._log("Logging system initialised at " + Date());
 }
 
@@ -76,7 +74,6 @@ KeeFoxLogger.prototype = {
     methodFile: false,
     logSensitiveData: false,
     
-
     // Console logging service
     __logService : null, 
     
@@ -94,8 +91,7 @@ KeeFoxLogger.prototype = {
         var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         
-        
-        var MY_ID = "chris.tomlinson@keefox";
+        var MY_ID = "keefox@chris.tomlinson";
         var em = Components.classes["@mozilla.org/extensions/manager;1"].
              getService(Components.interfaces.nsIExtensionManager);
         var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
@@ -164,7 +160,7 @@ KeeFoxLogger.prototype = {
     {
         if (this.levelError) this._log("ERROR: " + message);
     },
-    
+        
     // set current logger configuration to whatever is described in the Firefox preferences system
     // (these preferences could be set from about:config or an options panel)
     configureFromPreferences : function ()

@@ -1,12 +1,11 @@
 /*
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   This KFToolBar.js file contains functions and data related to the visible
   toolbar buttons that kefox.xul defines. It also contains some other related
   functions such as displaying popup menus and serves as a known access
-  point for a given window's KeeFox features. (I'll probably split some 
-  of these into different files in the future)
+  point for a given window's KeeFox features.
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +23,7 @@
 */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://kfmod/kfDataModel.js");
 
 function KFToolbar(currentWindow) {
     this._currentWindow = currentWindow;
@@ -55,7 +55,8 @@ KFToolbar.prototype = {
     },
     
     // add all matched logins to the menu
-    setLogins: function(logins, doc) {
+    setLogins: function(logins, doc)
+    {
         KFLog.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
@@ -97,23 +98,20 @@ KFToolbar.prototype = {
             var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
             var usernameName = "";
             var usernameId = "";
-            var displayGroupPath = login.parentGroupPath;
+            var displayGroupPath = login.parentGroup.path;
 //            var groupDivider = this.strbundle.getString("groupDividerCharacter");
 //            if (groupDivider != ".")
 //                displayGroupPath = displayGroupPath.replace(/\./g,groupDivider);
             
             if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
             {
-                // Unfortunately the container is decared to have elements
-                // that are generic nsIMutableArray. So, we must QI...
-                var field = 
-                login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+                var field = login.otherFields[login.usernameIndex];
 
                 usernameValue = field.value;
                 if (usernameValue != undefined && usernameValue != null && usernameValue != "")
                     usernameDisplayValue = usernameValue;
                 usernameName = field.name;
-                usernameId = field.fieldId;
+                usernameId = field.id;
             }
                         
             if (i==0)
@@ -234,24 +232,21 @@ KFToolbar.prototype = {
                 KFLog.debug("otherfields length: "+login.otherFields.length);
                 KFLog.debug("login.usernameIndex: "+login.usernameIndex);
 
-                // Unfortunately the container is decared to have elements
-                // that are generic nsIMutableArray. So, we must QI...
-                var field = 
-                login.otherFields.queryElementAt(login.usernameIndex,Components.interfaces.kfILoginField);
+                var field = login.otherFields[login.usernameIndex];
 
                 usernameValue = field.value;
                 if (usernameValue != undefined && usernameValue != null && usernameValue != "")
                     usernameDisplayValue = usernameValue;
                 usernameName = field.name;
-                usernameId = field.fieldId;
+                usernameId = field.id;
             }
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loginsButtonLogin.tip",[usernameDisplayValue]) );
+            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loginsButtonLogin.tip",[usernameDisplayValue]) + "URL:"+login.URLs[0] );
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
-                usernameName + "','" + usernameValue + "','" + login.URLs.queryElementAt(0,Components.interfaces.kfIURL).URL + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.URLs[0] + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
@@ -388,19 +383,19 @@ KFToolbar.prototype = {
         {
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
             if (DBname == null || DBname == "")
-                return; // KeeICE suddenly dissapeared - toolbar will have been updated from deeper in the stack
+                return; // KeePassRPC suddenly dissapeared - toolbar will have been updated from deeper in the stack
             mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
            // mainButton.setAttribute("oncommand", "alert('blah')");
             mainButton.setAttribute("disabled", "true");
             mainButton.removeAttribute("oncommand");
-        } else if (!keeFoxInst._keeFoxStorage.get("KeeICEInstalled", false))
+        } else if (!keeFoxInst._keeFoxStorage.get("KeePassRPCInstalled", false))
         {
             mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
             mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
         
-        } else if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+        } else if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
         {
             mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
@@ -413,7 +408,7 @@ KFToolbar.prototype = {
         }
 
             
-        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
         {    
             changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
             changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );

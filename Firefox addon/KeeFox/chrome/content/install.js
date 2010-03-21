@@ -1,8 +1,8 @@
 /*
-KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
+KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
 Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
-This install.js file helps manage the installation of .NET, KeePass and KeeICE.
+This install.js file helps manage the installation of .NET, KeePass and KeePassRPC.
 
 See install.xul for a description of each of the ICs (Install Cases)
 
@@ -838,10 +838,10 @@ function launchAndConnectToKeePass()
     // Tell KeeFox that KeeICE has been installed so it will reguarly
     // attempt to connect to KeePass when the timer goes off.
     var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
-    var keeFoxExtension = Application.extensions.get('chris.tomlinson@keefox');
+    var keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
     var keeFoxStorage = keeFoxExtension.storage;
 
-    keeFoxStorage.set("KeeICEInstalled", true)
+    keeFoxStorage.set("KeePassRPCInstalled", true)
     
     // launch KeePass and then try to connect to KeeICE
     // (after 7.5 seconds although it might work sooner than that)
@@ -958,7 +958,7 @@ function copyKeeICEFilesTo(keePassLocation)
     if (!noExceptions || !KeeICEDLLfound)
     {
         mainWindow.keeFoxInst._KFLog.debug("4");
-        mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keeICEInstalledLocation","");
+        mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
         runKeeICEExecutableInstaller(keePassLocation);
         mainWindow.keeFoxInst._KFLog.debug("5");
         keeICELocation = "not installed";
@@ -971,7 +971,7 @@ function copyKeeICEFilesTo(keePassLocation)
         if (!KeeICEDLLfound)
         {
         mainWindow.keeFoxInst._KFLog.debug("8");
-            mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keeICEInstalledLocation","");
+            mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
             //TODO: better handle this unusual situation (e.g. Vista user cancelling UAC request)
         }
     }
@@ -989,7 +989,7 @@ function runKeeICEExecutableInstaller(keePassLocation)
         file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
         file.append(KF_KI_FILE_NAME);
 
-    mainWindow.keeFoxInst._KeeFoxXPCOMobj.RunAnInstaller(file.path,'"' + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
+    mainWindow.keeFoxInst.runAnInstaller(file.path,'"' + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
 
 }
 

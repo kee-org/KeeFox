@@ -1,6 +1,6 @@
 /*
-KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
 This hooks onto every common dialog in Firefox and for any dialog that contains one
 username and one password (with the usual Firefox field IDs) it will discover
@@ -9,6 +9,9 @@ dialog fields and/or populate a drop down box containing all of the matching log
 
 TODO: extend so that new passwords can be saved automatically too (at the moment
 you have to add them via KeePass)
+
+TODO: streamline log-in when starting without an active connection to an
+open KeePass database
 
 Some ideas and code snippets from AutoAuth Firefox extension:
 https://addons.mozilla.org/en-US/firefox/addon/4949
@@ -161,7 +164,7 @@ var keeFoxDialogManager = {
             }    
 								
 		    // if we're not logged in to KeePass then we can't go on
-            if (!keeFoxInst._keeFoxStorage.get("KeeICEActive", false))
+            if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
             {
                 //TODO: put notification text on dialog box to inform user
                 // and have button to load KeePass and then refresh the dialog?
@@ -174,7 +177,7 @@ var keeFoxDialogManager = {
             }
         
 			// find all the logins
-			var foundLogins = keeFoxInst.findLogins({}, host, null, realm);
+			var foundLogins = keeFoxInst.findLogins(host, null, realm, null);
 
             if (keeFoxInst._KFLog.logSensitiveData)
                 keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ realm + "' realm.");
@@ -192,9 +195,9 @@ var keeFoxDialogManager = {
 			{
 		        try {
 		            var username = 
-                        foundLogins[i].otherFields.queryElementAt(0,Components.interfaces.kfILoginField);
+                        foundLogins[i].otherFields[0];
                     var password = 
-                        foundLogins[i].passwords.queryElementAt(0,Components.interfaces.kfILoginField);
+                        foundLogins[i].passwords[0];
                    
 			        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : host });
 			        showList = true;
@@ -209,7 +212,10 @@ var keeFoxDialogManager = {
 				var box = document.createElement("hbox");
 
 				var button = document.createElement("button");
-				//TODO: find a way to get string bundles into here without referencing document specific vars that go out of scope when windows are closed...button.setAttribute("label", keeFoxInst.strbundle.getString("autoFillWith
+				//TODO: find a way to get string bundles into here without
+				// referencing document specific vars that go out of scope
+				// when windows are closed...button.setAttribute("label",
+				// keeFoxInst.strbundle.getString("autoFillWith
 				button.setAttribute("label", "Auto Fill With");
 				button.setAttribute("onclick",'keeFoxDialogManager.fill(document.getElementById("autoauth-list").selectedItem.username, document.getElementById("autoauth-list").selectedItem.password);');
 
@@ -243,35 +249,26 @@ var keeFoxDialogManager = {
 			    document.getElementById("password1Textbox").value = matchedLogins[0].password
 			    //matchedLogins[0].username
 			    
-			    
-			    
-			    //TODO: make a better guess about which login should be autofilled. e.g. exact host and realm match has higher priority
+			    //TODO: make a better guess about which login should be autofilled.
+			    // e.g. exact host and realm match has higher priority
 			
 			}
-			
 			
 			if (autoSubmit)
 			{
 			    commonDialogOnAccept();
 			    window.close();
 			}
-				
-				
 		}
     },
     
     fill : function (username, password)
     {
 		document.getElementById("loginTextbox").value = username;
-		document.getElementById("password1Textbox").value = password;
-		//document.getElementById("checkbox").checked = true;
-		//onCheckboxClick(document.getElementById("checkbox"));
-		
+		document.getElementById("password1Textbox").value = password;		
 		commonDialogOnAccept();
 		window.close();
 	}
-
-
 };
 
 window.addEventListener("load", keeFoxDialogManager.dialogInit, false);

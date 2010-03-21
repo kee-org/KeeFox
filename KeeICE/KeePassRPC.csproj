@@ -1,0 +1,281 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4C1BB6F8-D2CD-49C2-9053-21705681356C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KeePassRPC</RootNamespace>
+    <AssemblyName>KeePassRPC</AssemblyName>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>C:\Program Files\KeePass Password Safe 2\plugins\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleasePLGX|AnyCPU' ">
+    <OutputPath>bin\ReleasePLGX\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="KeePass, Version=2.1.0.28189, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\KeePass Password Safe 2\KeePass.exe</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataExchangeModel.cs" />
+    <Compile Include="Forms\KeyCreationSimpleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KeyCreationSimpleForm.designer.cs">
+      <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WelcomeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WelcomeForm.Designer.cs">
+      <DependentUpon>WelcomeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeePassRPCClient.cs" />
+    <Compile Include="KeePassRPCExt.cs">
+    </Compile>
+    <Compile Include="KeePassRPCServer.cs" />
+    <Compile Include="KeePassRPCService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KeeICE.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\KeyCreationSimpleForm.resx">
+      <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OptionsForm.resx">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WelcomeForm.resx">
+      <DependentUpon>WelcomeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KeeFox64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\buttonGradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\buttonGradientHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jayrock\src\Jayrock.Json\Jayrock.Json.csproj">
+      <Project>{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}</Project>
+      <Name>Jayrock.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Jayrock\src\Jayrock\Jayrock.csproj">
+      <Project>{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}</Project>
+      <Name>Jayrock</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      echo POSTBUILDSTEP for $(ProjectName)
+
+      set KPDir=c:\Program Files (x86)\KeePass Password Safe 2 DEV\
+      set KPPDir=%25KPDir%25plugins\
+      set KPPTempDir=%25KPPDir%25$(ProjectName)
+
+      IF NOT "$(ConfigurationName)"=="Release" Goto :NotDebug
+      REM In debug mode we want to move the generated DLLs and PDBs to the plugins
+      REM directory so we can easily set breakpoints, etc.
+      REM In this case, we don't care if the Firefox add-on has missing or outdated
+      REM files (they are only used at install time so it won't affect debugging)
+
+      REM delete the PLGX from any previous Release build
+      del /Q "%25KPPDir%25$(ProjectName).plgx"
+      REM if errorlevel 1 goto BuildEventFailed
+      echo Release plgx deleted
+
+      REM copy output DLLs to KeePass plugins directory
+      copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
+      if errorlevel 1 goto BuildEventFailed
+      copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
+      copy "Jayrock.JSON.dll" "%25KPPDir%25\Jayrock.JSON.dll"
+      if errorlevel 1 goto BuildEventFailed
+      echo Debug DLLs copied to plugins directory
+
+      goto BuildEventOK
+
+      :NotDebug
+      IF NOT "$(ConfigurationName)"=="ReleasePLGX" Goto :NotRelease
+      REM In release mode we want to make sure that we are working with the PLGX version.
+      REM For the KeeFox project we will be in this mode quite a lot (whenever working
+      REM primarily on the Firefox add-on part of the project rather than KeeICE)
+
+      REM delete the DLLs from any previous Debug build
+      del /Q "%25KPPDir%25$(ProjectName).dll"
+      if errorlevel 1 goto BuildEventFailed
+      del /Q "%25KPPDir%25Ice.dll"
+      if errorlevel 1 goto BuildEventFailed
+      echo Debug DLLs deleted
+
+      REM create temporary directory
+      rmdir /S /Q "%25KPPTempDir%25"
+      mkdir "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo Temporary directory created
+
+      REM copy relevant project files to temporary directory
+      REM (for simple KeePass plugins you may need to
+      REM copy only *.cs files and .csproj file)
+      copy "Ice.dll" "%25KPPTempDir%25\Ice.dll"
+      if errorlevel 1 goto BuildEventFailed
+      copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      copy "$(ProjectDir)$(ProjectName).csproj" "%25KPPTempDir%25\$(ProjectName).csproj"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\Forms"
+      copy "$(ProjectDir)Forms\*.cs" "%25KPPTempDir%25\Forms"
+copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\Properties"
+      copy "$(ProjectDir)Properties\AssemblyInfo.cs" "%25KPPTempDir%25\Properties\AssemblyInfo.cs"
+      if errorlevel 1 goto BuildEventFailed
+      mkdir "%25KPPTempDir%25\generated"
+      copy "$(ProjectDir)generated\KeeICE.cs" "%25KPPTempDir%25\generated\KeeICE.cs"
+      if errorlevel 1 goto BuildEventFailed
+      echo Files copied to temporary directory
+
+      REM create the PLGX
+      "%25KPDir%25KeePass.exe" --plgx-create "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo PLGX created
+
+      REM copy PLGX to Firefox addon folder (for packaging in a .xpi later)
+      copy "%25KPPDir%25KeeICE.plgx" "$(SolutionDir)Firefox addon\KeeFox\deps\KeeICE.plgx"
+      if errorlevel 1 goto BuildEventFailed
+      echo PLGX copied to Firefox add-on
+
+      REM delete the temporary directory and its contents
+      rmdir /S /Q "%25KPPTempDir%25"
+      if errorlevel 1 goto BuildEventFailed
+      echo Temporary directory deleted
+
+      goto BuildEventOK
+
+
+      :NotRelease
+      echo Invalid configuration selected. Please choose a different build configuration
+      echo or modify the post-build script to add support for this configuration.
+
+      :BuildEventFailed
+      echo POSTBUILDSTEP for $(ProjectName) FAILED
+      exit 1
+
+      :BuildEventOK
+      echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</PostBuildEvent>
+  </PropertyGroup>
+</Project>

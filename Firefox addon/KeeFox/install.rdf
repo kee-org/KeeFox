@@ -4,8 +4,8 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
   <Description about="urn:mozilla:install-manifest">
-    <em:id>chris.tomlinson@keefox</em:id>
-    <em:version>0.75</em:version>
+    <em:id>keefox@chris.tomlinson</em:id>
+    <em:version>0.76</em:version>
     <em:type>2</em:type>
 
     <em:optionsURL>chrome://keefox/content/options.xul</em:optionsURL>
@@ -14,8 +14,8 @@
          with minimum and maximum supported versions. -->
     <em:targetApplication>
       <Description>
-        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>3.0.6</em:minVersion>
+        <em:id>{b80a14a0-1a4d-48ea-bc3c-726207c916dd}</em:id>
+        <em:minVersion>3.5.*</em:minVersion>
         <!-- Should work with earlier 3.0 versions but for a bug which makes installation slightly more difficult -->
         <em:maxVersion>3.6.*</em:maxVersion>
       </Description>

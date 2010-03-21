@@ -37,7 +37,7 @@ module KPlib {
     
     struct KPFormField
     {
-		string name;
+		string name; // difference between this and below?
 		string displayName;
 		string value;
 		formFieldType type;

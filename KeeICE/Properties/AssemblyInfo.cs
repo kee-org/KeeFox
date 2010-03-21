@@ -1,8 +1,8 @@
 ﻿/*
-  KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
+  KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2010 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General assembly properties
-[assembly: AssemblyTitle("KeeICE")]
-[assembly: AssemblyDescription("Provides Inter Process Communication (IPC) facilities to KeePass. Used by the KeeFox Firefox add-on.")]
+[assembly: AssemblyTitle("KeePassRPC")]
+[assembly: AssemblyDescription("A Remote Procedure Call (RPC) server for KeePass. Used by the KeeFox Firefox add-on.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Chris Tomlinson")]
 [assembly: AssemblyProduct("KeePass Plugin")]
-[assembly: AssemblyCopyright("Copyright © 2009 Chris Tomlinson")]
+[assembly: AssemblyCopyright("Copyright © 2010 Chris Tomlinson")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -37,8 +37,8 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Assembly GUID
-[assembly: Guid("D36DD08D-2080-448a-8509-BF3D8D95B106")]
+[assembly: Guid("89631AAE-8DE6-4593-8DAB-AB28490A490A")]
 
 // Assembly version information
-[assembly: AssemblyVersion("2.0.9.*")]
-[assembly: AssemblyFileVersion("0.7.5.0")]
+[assembly: AssemblyVersion("2.0.10.*")]
+[assembly: AssemblyFileVersion("0.7.6.0")]

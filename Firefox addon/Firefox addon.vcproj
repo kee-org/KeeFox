@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
@@ -319,6 +319,82 @@
 			Name="JS"
 			Filter="js"
 			>
+			<File
+				RelativePath=".\KeeFox\chrome\content\commonDialog.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\install.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\modules\json.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\keefox.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\modules\KF.js"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\KeeFox\modules\kfDataModel.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFILM.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFILM_Fill.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFILM_Submit.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\modules\KFLogger.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFtest.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFtestDefinitions.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFToolBar.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFUI.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\KFUtils.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\defaults\preferences\prefs.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\modules\session.js"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\CHANGELOG.txt"
@@ -326,10 +402,6 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome.manifest"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\commonDialog.js"
 			>
 		</File>
 		<File
@@ -350,10 +422,6 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\skin\install.css"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\install.js"
 			>
 		</File>
 		<File
@@ -389,10 +457,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\content\keefox.js"
-			>
-		</File>
-		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.properties"
 			>
 		</File>
@@ -407,74 +471,6 @@
 					Name="VCCustomBuildTool"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\KeeFox\modules\KF.js"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\KeeFox\components\kfGroupInfo.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFILM.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFILM_Fill.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFILM_Submit.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\modules\KFLogger.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\components\kfLoginField.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\components\kfLoginInfo.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFtest.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFtestDefinitions.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFToolBar.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFUI.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFUI_protocol.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\components\kfURL.js"
-			>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\content\KFUtils.js"
-			>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\options.dtd"
@@ -523,10 +519,6 @@
 					Name="VCCustomBuildTool"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\KeeFox\defaults\preferences\prefs.js"
-			>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\protocolAuth.xul"
