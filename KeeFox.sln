@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPC", "KeeICE\KeePassRPC.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPC", "KeePassRPC\KeePassRPC.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFox", "KeeFox\KeeFox.vcproj", "{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}"
 EndProject
