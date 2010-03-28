@@ -1,4 +1,5 @@
 \_svn
+\.svn
 .pdb
 .pgd
 .dll.manifest
@@ -7,7 +8,9 @@
 KeeICEInstaller
 Microsoft.VC90.DebugCRT
 debug-keefox-libraries
+keefox-libraries
 .ilk
 iceutil33d.dll
 ice33d.dll
 bzip2d.dll
+log.txt

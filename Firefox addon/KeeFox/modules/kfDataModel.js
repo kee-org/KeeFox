@@ -32,14 +32,28 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
 
-var EXPORTED_SYMBOLS = ["newkfLoginInfo","newkfLoginField","newkfFormFieldType"];
+var EXPORTED_SYMBOLS = ["newkfLoginInfo","newkfLoginField","kfFormFieldType"];
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://kfmod/KFLogger.js");
+
+var log = KFLog;
+
+
+
+kfFormFieldType =
+{
+    radio   : "FFTradio",
+    username: "FFTusername",
+    text    : "FFTtext",
+    password: "FFTpassword",
+    select  : "FFTselect",
+    checkbox: "FFTcheckbox"
+}	
 
 // this feels a bit odd but I can't seem to export class
 // constructors any other way and it seems to work...
 function newkfLoginInfo() { return new kfLoginInfo();}
 function newkfLoginField() { return new kfLoginField();}
-function newkfFormFieldType() { return new kfFormFieldType();}
 
 function kfLoginInfo() {}
 
@@ -105,7 +119,7 @@ kfLoginInfo.prototype =
         var httpRealmParam = (this.httpRealm == null) ? "null" : ("'"+this.httpRealm+"'");
         var uniqueIDParam = (this.uniqueID == null) ? "null" : ("'"+this.uniqueID+"'");
         var titleParam = (this.title == null) ? "null" : ("'"+this.title+"'");
-    
+    log.info("TITLESOURCE: " + titleParam);
         return "( deserialisedOutputURLs , "+ formActionURLParam +", "+httpRealmParam+" , "+this.usernameIndex
             +" , deserialisedOutputPasswords , "+uniqueIDParam+" , "+titleParam+" , deserialisedOutputOtherFields , "+this.maximumPage+" )";
     },
@@ -113,7 +127,7 @@ kfLoginInfo.prototype =
     init : function (aURLs, aFormActionURL, aHttpRealm,
                      aUsernameIndex,      aPasswords,
                      aUniqueID, aTitle, otherFieldsArray, aMaximumPage) {
-
+log.info("ATITLE: " + aTitle);
         this.otherFields = otherFieldsArray;   
         this.URLs      = aURLs;
         this.formActionURL = aFormActionURL;
@@ -124,9 +138,9 @@ kfLoginInfo.prototype =
         this.title = aTitle;
         this.maximumPage = aMaximumPage;
         this.iconImageData = "";
-        this.parentGroupName = "";
-        this.parentGroupUUID = "";
-        this.parentGroupPath = "";
+//        this.parentGroupName = "";
+//        this.parentGroupUUID = "";
+//        this.parentGroupPath = "";
         this.priority = 0;
 	    this.alwaysAutoFill = false;
 	    this.alwaysAutoSubmit = false;
@@ -144,12 +158,12 @@ kfLoginInfo.prototype =
         for (var j = 0; j < entry.formFieldList.length; j++) 
         {
             var kpff = entry.formFieldList[j];
-
+log.debug("2: " + kpff.type + ": " + kfFormFieldType.password);
             if (kpff.type == kfFormFieldType.password)
             {
 	            if (kpff.page > maximumPage)
 		            maximumPage = kpff.page;
-            	
+
 	            newField = new kfLoginField();
 	            newField.init(kpff.name, kpff.value, kpff.id, "password", kpff.page);
 	            passwords.push(newField);
@@ -163,15 +177,15 @@ kfLoginInfo.prototype =
 
 	            switch (kpff.type)
 	            {
-		            case kfFormFieldType.username: usernameIndex = otherLength; type = "username"; break;
+		            case kfFormFieldType.username: usernameIndex = otherLength; type = "text"; break;
 		            case kfFormFieldType.text: type = "text"; break;
 		            case kfFormFieldType.radio: type = "radio"; break;
 		            case kfFormFieldType.checkbox: type = "checkbox"; break;
 		            case kfFormFieldType.select: type = "select-one"; break;
 	            }
 
-	            if (pff.page > maximumPage)
-		            maximumPage = pff.page;
+	            if (kpff.page > maximumPage)
+		            maximumPage = kpff.page;
             	
 	            newField = new kfLoginField();
 	            newField.init(kpff.name, kpff.value, kpff.id, type, kpff.page);
@@ -181,8 +195,8 @@ kfLoginInfo.prototype =
 
         this.init(entry.uRLs, entry.formActionURL, entry.hTTPRealm, usernameIndex,
                   passwords, entry.uniqueID, entry.title, otherFields, maximumPage);
-                     
-        this.parentGroup = entry.parentGroup;
+         log.debug("7");            
+        this.parentGroup = entry.parent;
         this.iconImageData = entry.iconImageData;
         this.alwaysAutoFill = entry.alwaysAutoFill;
         this.alwaysAutoSubmit = entry.alwaysAutoSubmit;
@@ -357,23 +371,41 @@ kfLoginInfo.prototype =
         }
         
         this.maximumPage = Math.max(this.maximumPage, previousStageLogin.maximumPage);
+    },
+    
+    asEntry : function ()
+    {
+    log.info("TITLEAS: " + this.title);
+        var entry = {};
+        
+        entry.parent = this.parentGroup;
+        entry.iconImageData = this.iconImageData;
+        entry.alwaysAutoFill = this.alwaysAutoFill;
+        entry.alwaysAutoSubmit = this.alwaysAutoSubmit;
+        entry.neverAutoFill = this.neverAutoFill;
+        entry.neverAutoSubmit = this.neverAutoSubmit;
+        entry.priority = this.priority;
+        entry.uRLs = this.URLs;
+        entry.formActionURL = this.formActionURL;
+        entry.hTTPRealm = this.httpRealm;
+        entry.uniqueID = this.uniqueID;
+        entry.title = this.title;
+        entry.formFieldList = [];
+        //log.debug("gg:"+this.passwords.length);
+        //log.debug("gg:"+this.otherFields.length);
+        for (var i in this.passwords)
+            entry.formFieldList.push(this.passwords[i].asFormField(false));
+        for (var i in this.otherFields)
+            if (this.usernameIndex == i)
+                entry.formFieldList.push(this.otherFields[i].asFormField(true));
+            else
+                entry.formFieldList.push(this.otherFields[i].asFormField(false));
+        
+        return entry;    
     }
   
 };
-
-
-function kfFormFieldType() {}
-
-kfFormFieldType.prototype =
-{
-    radio   : "FFTradio",
-    username: "FFTusername",
-    text    : "FFTtext",
-    password: "FFTpassword",
-    select  : "FFTselect",
-    checkbox: "FFTcheckbox"
-};		  
-			  
+	  
 	
 function kfLoginField() {}
 
@@ -423,6 +455,27 @@ kfLoginField.prototype = {
             this.fieldId = aID;
         this.type = aType;
         this.formFieldPage = aFormFieldPage;
+    },
+    
+    asFormField : function (isUsername)
+    {
+        formField = {};
+        
+        formField.name = this.name;
+        formField.value = this.value;
+        formField.id = this.fieldId;
+        formField.page = this.formFieldPage;
+        
+        switch (this.type)
+        {
+            case "password": formField.type = kfFormFieldType.password; break;
+            case "text": formField.type = isUsername ? kfFormFieldType.username : kfFormFieldType.text; break;
+            case "radio": formField.type = kfFormFieldType.radio; break;
+            case "checkbox": formField.type = kfFormFieldType.checkbox; break;
+            case "select-one": formField.type = kfFormFieldType.select; break;
+        }
+    
+		return formField;
     }
   
 };

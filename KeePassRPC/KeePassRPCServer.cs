@@ -97,7 +97,7 @@ namespace KeePassRPC
         {
             lock (_lockRPCClients)
             {
-                foreach (var client in _RPCClients)
+                foreach (KeePassRPCClient client in _RPCClients)
                     client.Signal(signal);
             }
         }
@@ -106,7 +106,7 @@ namespace KeePassRPC
         {
             lock (_lockRPCClients)
             {
-                foreach (var client in _RPCClients)
+                foreach (KeePassRPCClient client in _RPCClients)
                 {
                     client.Signal(KeePassRPC.DataExchangeModel.Signal.EXITING);
                     client.Connection.Client.Close();
@@ -126,7 +126,7 @@ namespace KeePassRPC
                 this._tcpListener =  new TcpListener(IPAddress.Loopback, port);
                 this._listenThread = new Thread(new ThreadStart(ListenForClients));
                 this._listenThread.Start();
-                _isListening = true;
+                this._isListening = true; // just in case the main thread checks for successful startup before the thread has got going.
             }
             catch (Exception e)
             {
@@ -141,32 +141,50 @@ namespace KeePassRPC
         /// </summary>
         private void ListenForClients()
         {
-            try
-            {
-                this._tcpListener.Start();
+            bool tryToListen = true;
+            long lastListenAttempt = 0;
 
-                while (true)
+            while (tryToListen)
+            {
+                try
                 {
-                    //blocks until a client has connected to the server
-                    TcpClient client = this._tcpListener.AcceptTcpClient();
+                    // 100-nanosecond intervals is plenty accurate enough for us
+                    lastListenAttempt = DateTime.UtcNow.Ticks;
+                    this._isListening = true;
+                    this._tcpListener.Start();
 
-                    //create a thread to handle communication with connected client
-                    Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientComm));
-                    clientThread.Start(client);
+                    while (true)
+                    {
+                        //blocks until a client has connected to the server
+                        TcpClient client = this._tcpListener.AcceptTcpClient();
+
+                        //create a thread to handle communication with connected client
+                        Thread clientThread = new Thread(new ParameterizedThreadStart(HandleClientComm));
+                        clientThread.Start(client);
+                    }
                 }
-            }
-            catch
-            {
-                //TODO: attempt recovery without KeePass restart being necessary
-                this._isListening = false;
+                catch
+                {
+                    // attempt recovery without KeePass restart being
+                    // necessary unless we've been trying for a while (3 seconds)
+                    if (DateTime.UtcNow.Ticks > lastListenAttempt+(10*1000*1000*3))
+                        tryToListen = false;
+
+                    this._isListening = false;
+                }
             }
         }
 
-        const byte TOKEN_QUOT = 34;
-        const byte TOKEN_CURLY_START = 123;
-        const byte TOKEN_CURLY_END = 125;
-        const byte TOKEN_SQUARE_START = 91;
-        const byte TOKEN_SQUARE_END = 93;
+        //const byte TOKEN_QUOT = 34;
+        //const byte TOKEN_CURLY_START = 123;
+        //const byte TOKEN_CURLY_END = 125;
+        //const byte TOKEN_SQUARE_START = 91;
+        //const byte TOKEN_SQUARE_END = 93;
+        const char TOKEN_QUOT = '"';
+        const char TOKEN_CURLY_START = '{';
+        const char TOKEN_CURLY_END = '}';
+        const char TOKEN_SQUARE_START = '[';
+        const char TOKEN_SQUARE_END = ']';
 
         //TODO: transport level protection could be used or we just base64 encode an encrtyped version of the json-rpc data using a DH-PSK?
         
@@ -213,11 +231,13 @@ namespace KeePassRPC
                     break;
                 }
 
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    //TODO: More efficient to track integer index and run the encoding only once on the whole message?
-                    currentJSONPacket.Append(System.Text.Encoding.UTF8.GetString(message,i,1));
-                    switch (message[i])
+                // Can we ever receive a partial UTF8 character? if so, this could go wrong, albeit rarely
+                string receivedData = System.Text.Encoding.UTF8.GetString(message, 0, bytesRead);
+                int jsonPacketStartIndex = 0;
+
+                for (int i = 0; i < receivedData.Length; i++)
+                {                    
+                    switch (receivedData[i])
                     {
                         case TOKEN_QUOT: parsingStringContents = parsingStringContents ? false : true; break;
                         case TOKEN_CURLY_START: if (!parsingStringContents) tokenCurlyCount++; break;
@@ -227,8 +247,11 @@ namespace KeePassRPC
                     }
                     if (tokenCurlyCount == 0 && tokenSquareCount == 0)
                     {
+                        currentJSONPacket.Append(receivedData.Substring(
+                            jsonPacketStartIndex,i-jsonPacketStartIndex+1));
                         DispatchToRPCService(currentJSONPacket.ToString(), keePassRPCClient);
                         currentJSONPacket = new StringBuilder(50);
+                        jsonPacketStartIndex = i+1;
                     }
                 }
                 // http://groups.google.com/group/jayrock/browse_thread/thread/59cf6a58bc63f0df/a7775c3097cf6957?lnk=gst&q=thread+JsonRpcDispatcher+#a7775c3097cf6957

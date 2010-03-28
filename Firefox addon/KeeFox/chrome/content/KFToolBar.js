@@ -61,7 +61,7 @@ KFToolbar.prototype = {
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         
-        // if the logins container is locked (becuase it's currently open) we don't
+        // if the matched logins container is locked (becuase it's currently open) we don't
         // make any changes. In future, maybe we could delay the change rather than
         // completely ignore it but for now, the frequent "dynamic form polling"
         // feature will ensure a minimal wait for update once the lock is released.
@@ -111,7 +111,7 @@ KFToolbar.prototype = {
                 if (usernameValue != undefined && usernameValue != null && usernameValue != "")
                     usernameDisplayValue = usernameValue;
                 usernameName = field.name;
-                usernameId = field.id;
+                usernameId = field.fieldId;
             }
                         
             if (i==0)
@@ -141,7 +141,8 @@ KFToolbar.prototype = {
     },
     
     // populate the "all logins" menu with every login in this database
-    setAllLogins: function() {
+    setAllLogins: function()
+    {
         KFLog.debug("setAllLogins start");
         
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
@@ -149,12 +150,18 @@ KFToolbar.prototype = {
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
             // start with the current root group uniqueID
-            var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
-            
-            if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
-                this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
-            loginButton.setAttribute("disabled","false"); //TODO: conditional
-            //loginButton.setAttribute("class","false");
+            try
+            {
+                var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
+                
+                if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
+                    this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
+            } catch (e)
+            {
+                KFLog.error("setAllLogins exception: " + e);
+                return;
+            }
+            loginButton.setAttribute("disabled","false");
         } else
         {
             loginButton.setAttribute("disabled","true");
@@ -171,7 +178,8 @@ KFToolbar.prototype = {
     },
     
     // add all the logins and subgroups for one KeePass group
-    setOneLoginsMenu: function(containerID, groupUniqueID) {
+    setOneLoginsMenu: function(containerID, groupUniqueID)
+    {
         KFLog.debug("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
 
         // get the popup menu for this list of logins and subgroups
@@ -196,7 +204,8 @@ KFToolbar.prototype = {
             return;
         }
 
-        for (var i = 0; i < foundGroups.length; i++) {
+        for (var i = 0; i < foundGroups.length; i++)
+        {
             var group = foundGroups[i];
             
             // maybe this duplicated oncommand, etc. is un-needed?
@@ -220,14 +229,17 @@ KFToolbar.prototype = {
 
         }
         
-        for (var i = 0; i < foundLogins.length; i++) {
+        for (var i = 0; i < foundLogins.length; i++)
+        {
             var login = foundLogins[i];
             var usernameValue = "";
             var usernameName = "";
             var usernameId = "";
             var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
             
-            if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
+            if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" 
+                && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null 
+                && login.otherFields.length > 0)
             {
                 KFLog.debug("otherfields length: "+login.otherFields.length);
                 KFLog.debug("login.usernameIndex: "+login.usernameIndex);
@@ -238,15 +250,17 @@ KFToolbar.prototype = {
                 if (usernameValue != undefined && usernameValue != null && usernameValue != "")
                     usernameDisplayValue = usernameValue;
                 usernameName = field.name;
-                usernameId = field.id;
+                usernameId = field.fieldId;
             }
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loginsButtonLogin.tip",[usernameDisplayValue]) + "URL:"+login.URLs[0] );
+            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
+                "loginsButtonLogin.tip", [login.URLs[0], usernameDisplayValue]));
             tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
-                usernameName + "','" + usernameValue + "','" + login.URLs[0] + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                usernameName + "','" + usernameValue + "','" + login.URLs[0] 
+                + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");

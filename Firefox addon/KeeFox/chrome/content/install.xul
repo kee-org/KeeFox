@@ -4,12 +4,12 @@
 <!DOCTYPE overlay SYSTEM "chrome://keefox/locale/keefox.dtd">
 
 <!--
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox installation XUL file. It overlays all of the possible
   installation interface options (controlled by install.js based on user's
-  existing setup.
+  existing setup.)
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 
-<window id="KeeFoxInstallWizard" title="&KeeFox_Install_Window_Title.label;" 
+<window id="KeeFoxInstallWizard" title="&KeeFox_Install_Setup_KeeFox.label;" 
         xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" onload="prepareInstallPage();">
 
@@ -40,12 +40,15 @@
   IC4: non-administrator and .NET not installed
   IC5: non-administrator, .NET installed and KeePass not installed
   IC6: non-administrator, .NET installed and KeePass installed
-  IC7: administrator, upgrade of KeeICE required
-  IC8: non-administrator, upgrade of KeeICE required
+  IC7: administrator, upgrade of KeePassRPC required
+  IC8: non-administrator, upgrade of KeePassRPC required
   
-  TODO: In some cases (especially IC6/8), user may not have priveledges to write to an existing KeePass directory. If this happens, we will catch the access denied exception and give the user two choices:
+  TODO: In some cases (especially IC6/8), user may not have priveledges to write
+  to an existing KeePass directory. If this happens, we will catch the access 
+  denied exception and give the user two choices:
   a) Get an administrator to install the KeeICE files in the plugins folder
-  b) Choose a new installation directory for a seperate install of KeICE (warn that this may not work and could be confusing and/or against organistation's policy)
+  b) Choose a new installation directory for a seperate install of KeICE (warn
+  that this may not work and could be confusing and/or against organistation's policy)
   
   
 outline of default and optional installation processes for each of the main cases
@@ -54,42 +57,49 @@ outline of default and optional installation processes for each of the main case
 IC1:
 default:    run .NET 2.0 installer;
             quietly run KeePass installer;
-            copy the two KeeICE files to the newly installed KP location.
+            copy the KeePassRPC.plgx file to the newly installed KP location.
 secondary:  run .NET 3.5 installer;
             quietly run KeePass installer;
-            copy the two KeeICE files to the newly installed KP location.
+            copy the KeePassRPC.plgx file to the newly installed KP location.
 manual options:
-Download and install .NET from Microsoft; restart and return to this page OR download KeePass setup or ZIP from keepass.info; restart firefox to get back to this page so it can complete the last step OR manually copy files from extension folder to plugin folder.
+Download and install .NET from Microsoft; restart and return to this page OR
+download KeePass setup or ZIP from keepass.info; restart firefox to get back
+to this page so it can complete the last step OR manually copy KeePassRPC.plgx
+file from extension folder to plugin folder.
 
 IC2:
 default:    quietly run KeePass installer;
-            copy the two KeeICE files to the newly installed KP location.
+            copy the KeePassRPC.plgx file to the newly installed KP location.
 secondary:  run KeePass installer;
-            copy the two KeeICE files to the newly installed KP location.
-tertiary:   install KeePass ZIP contents into selected folder; [may be auto-skipped if KP found in there already]
-            copy the two KeeICE files to the newly installed KP location.
+            copy the KeePassRPC.plgx file to the newly installed KP location.
+tertiary:   install KeePass ZIP contents into selected folder; [may be auto-skipped
+            if KP found in there already]
+            copy the KeePassRPC.plgx file to the newly installed KP location.
             
 IC3:
-default:    copy the two KeeICE files to the discovered KP location.
+default:    copy the KeePassRPC.plgx file to the discovered KP location.
 
 IC4:
-currently treated the same as IC1 (though a few visual differences are apparent to the user before the install process starts)
+currently treated the same as IC1 (though a few visual differences are apparent
+to the user before the install process starts)
 
 IC5:
-default:    install KeePass ZIP contents into selected folder; [may be auto-skipped if KP found in there already]
-            copy the two KeeICE files to the newly installed KP location.
+default:    install KeePass ZIP contents into selected folder; [may be 
+            auto-skipped if KP found in there already]
+            copy the KeePassRPC.plgx file to the newly installed KP location.
 secondary:  run KeePass installer;
-            copy the two KeeICE files to the newly installed KP location.
+            copy the KeePassRPC.plgx file to the newly installed KP location.
             
 IC6:
-default:    copy the two KeeICE files to the discovered KP location.
+default:    copy the KeePassRPC.plgx file to the discovered KP location.
        
-IC7 and 8: Currently same as IC3/6 but probably will change soon to display different text to user            
-  
+IC7 and 8: Currently same as IC3/6 but probably will change soon to display
+          different text to user            
   -->
 
   <grid flex="1" style="overflow: auto;">
 
+    <!-- centre the installation window -->
     <columns>
       <column flex="1" />
       <column width="600px" />
@@ -107,13 +117,17 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
           </vbox>
 
           <vbox id="KFInstallPageTitle" width="590px" >
-            <description>Setup KeeFox</description>
+            <description>&KeeFox_Install_Setup_KeeFox.label;</description>
           </vbox>
 
           <vbox id="KFInstallPageContent" width="590px" >
 
             <vbox id="KFInstallAlreadyInProgress" hidden="true">
               <description>&KeeFox_Install_Process_Running_In_Other_Tab.label;</description>
+            </vbox>
+
+            <vbox id="KFInstallNotRequired" hidden="true">
+              <description>&KeeFox_Install_Not_Required.label;</description>
             </vbox>
 
             <vbox id="ERRORInstallButtonMain" hidden="true">
@@ -132,45 +146,44 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
             </vbox>
 
 
-            <!-- everything in this box is displayed on first page load and hidden after installation has started -->
+            <!-- everything in this box is displayed on first page load and hidden
+                after installation has started -->
             <vbox style="width:600px;" id="installationStartView" hidden="false">
 
               <!-- these boxes can be styled to be big massive pretty "click me!" buttons -->
 
               <!-- IC1, IC4 -->
               <vbox id="setupExeInstallButtonMain" hidden="true">
-                <button label="Setup KeeFox"
+                <button label="&KeeFox_Install_Setup_KeeFox.label;"
                       oncommand="setupExeInstall();"/>
               </vbox>
 
               <!-- IC2 -->
               <vbox id="KPsetupExeSilentInstallButtonMain" hidden="true">
-                <button label="Setup KeeFox"
+                <button label="&KeeFox_Install_Setup_KeeFox.label;"
                       oncommand="KPsetupExeSilentInstall();"/>
               </vbox>
 
               <!-- IC3, IC6 -->
-              <vbox id="copyKIToKnownKPLocationInstallButtonMain" hidden="true">
-                <button label="Setup KeeFox"
-                      oncommand="copyKIToKnownKPLocationInstall();"/>
+              <vbox id="copyKRPCToKnownKPLocationInstallButtonMain" hidden="true">
+                <button label="&KeeFox_Install_Setup_KeeFox.label;"
+                      oncommand="copyKRPCToKnownKPLocationInstall();"/>
               </vbox>
 
               <!-- IC5 -->
               <vbox id="copyKPToSpecificLocationInstallButtonMain" hidden="true">
                 <!-- file chooser field needed -->
-                <button label="Install KeePass in this specific location"
+                <button label="&KeeFox_Install_copyKPToSpecificLocationInstallButton.label;"
                       oncommand="copyKPToSpecificLocationInstall();"/>
               </vbox>
 
               <!-- IC7, IC8 -->
-              <vbox id="copyKIToKnownKPLocationUpgradeButtonMain" hidden="true">
+              <vbox id="copyKRPCToKnownKPLocationUpgradeButtonMain" hidden="true">
                 <description>Please close KeePass before continuing!</description>
-                <button label="Upgrade KeeFox"
-                      oncommand="copyKIToKnownKPLocationInstall();"/>
+                <button label="&KeeFox_Install_Upgrade_KeeFox.label;"
+                      oncommand="copyKRPCToKnownKPLocationInstall();"/>
               </vbox>
 
-              
-              
               
               <!-- these boxes are used to provide a "click to see more options" interface to the user -->
 
@@ -178,44 +191,55 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
               <vbox id="adminNETInstallExpander" hidden="true">
                 <description>&KeeFox_Install_adminNETInstallExpander.description;</description>
 
-                <button id="adminNETInstallExpanderButton" label="&KeeFox_Install_adminNETInstallExpander_More_Info_Button.label;"
-                      oncommand="expandSection('setupNET35ExeInstallExpandee','adminNETInstallExpanderButton');"/>
+                <button id="adminNETInstallExpanderButton" 
+                        label="&KeeFox_Install_adminNETInstallExpander_More_Info_Button.label;"
+                      oncommand="expandSection('setupNET35ExeInstallExpandee',
+                            'adminNETInstallExpanderButton');"/>
               </vbox>
 
               <!-- IC2 -->
               <vbox id="adminSetupKPInstallExpander" hidden="true">
                 <description>&KeeFox_Install_adminSetupKPInstallExpander.description;</description>
-                <button id="adminSetupKPInstallExpanderButton" label="&KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label;"
-                      oncommand="expandSection('adminSetupKPInstallExpandee','adminSetupKPInstallExpanderButton');"/>
+                <button id="adminSetupKPInstallExpanderButton" 
+                        label="&KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label;"
+                      oncommand="expandSection('adminSetupKPInstallExpandee',
+                            'adminSetupKPInstallExpanderButton');"/>
               </vbox>
 
               <!-- IC3 -->
-              <vbox id="admincopyKIToKnownKPLocationInstallExpander" hidden="true">
-                <description>&KeeFox_Install_admincopyKIToKnownKPLocationInstallExpander.description;</description>
+              <vbox id="admincopyKRPCToKnownKPLocationInstallExpander" hidden="true">
+                <description>&KeeFox_Install_admincopyKRPCToKnownKPLocationInstallExpander.description;</description>
               </vbox>
 
               <!-- IC4 -->
               <vbox id="nonAdminNETInstallExpander" hidden="true">
                 <description>&KeeFox_Install_nonAdminNETInstallExpander.description;</description>
-                <button id="nonAdminNETInstallExpanderButton" label="&KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label;"
-                      oncommand="expandSection('setupNET35ExeInstallExpandee','nonAdminNETInstallExpanderButton');"/>
+                <button id="nonAdminNETInstallExpanderButton" 
+                        label="&KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label;"
+                      oncommand="expandSection('setupNET35ExeInstallExpandee',
+                          'nonAdminNETInstallExpanderButton');"/>
               </vbox>
 
               <!-- IC5 -->
               <vbox id="nonAdminSetupKPInstallExpander" hidden="true">
                 <description>&KeeFox_Install_nonAdminSetupKPInstallExpander.description;</description>
-                <button id="nonAdminSetupKPInstallExpanderButton" label="&KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label;"
-                      oncommand="expandSection('nonAdminSetupKPInstallExpandee','nonAdminSetupKPInstallExpanderButton');"/>
+                <button id="nonAdminSetupKPInstallExpanderButton" 
+                        label="&KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label;"
+                      oncommand="expandSection('nonAdminSetupKPInstallExpandee',
+                          'nonAdminSetupKPInstallExpanderButton');"/>
               </vbox>
 
               <!-- IC6 -->
-              <vbox id="nonAdmincopyKIToKnownKPLocationInstallExpander" hidden="true">
-                <description>&KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallExpander.description;</description>
-                <button id="nonAdmincopyKIToKnownKPLocationInstallExpanderButton" label="&KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallExpander_More_Info_Button.label;"
-                      oncommand="expandSection('nonAdmincopyKIToKnownKPLocationInstallExpandee','nonAdmincopyKIToKnownKPLocationInstallExpanderButton');"/>
+              <vbox id="nonAdmincopyKRPCToKnownKPLocationInstallExpander" hidden="true">
+                <description>&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description;</description>
+                <button id="nonAdmincopyKRPCToKnownKPLocationInstallExpanderButton" 
+                        label="&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label;"
+                      oncommand="expandSection('nonAdmincopyKRPCToKnownKPLocationInstallExpandee',
+                        'nonAdmincopyKRPCToKnownKPLocationInstallExpanderButton');"/>
               </vbox>
 
-              <!-- these boxes contain buttons and text that helps guide the user through advanced install options -->
+              <!-- these boxes contain buttons and text that helps guide the user through
+                advanced install options -->
 
               <vbox id="setupNET35ExeInstallExpandee" hidden="true">
                 <description id="setupNET35ExeInstallExpandeeOverview">&KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description;</description>
@@ -259,11 +283,11 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
 
               </vbox>
 
-              <vbox id="nonAdmincopyKIToKnownKPLocationInstallExpandee" hidden="true">
-                <description>&KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallExpandee.description;</description>
-                <vbox id="nonAdmincopyKIToKnownKPLocationInstallButton" hidden="false">
+              <vbox id="nonAdmincopyKRPCToKnownKPLocationInstallExpandee" hidden="true">
+                <description>&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description;</description>
+                <vbox id="nonAdmincopyKRPCToKnownKPLocationInstallButton" hidden="false">
                   <!-- file chooser field needed -->
-                  <button label="&KeeFox_Install_nonAdmincopyKIToKnownKPLocationInstallButton.label;"
+                  <button label="&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label;"
                         oncommand="copyKPToSpecificLocationInstall();"/>
                 </vbox>
               </vbox>
@@ -303,8 +327,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
                 <description>&KeeFox_Install_IC1setupKPdownloaded.description;</description>
               </vbox>
 
-              <vbox id="IC1KIdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC1KIdownloaded.description;</description>
+              <vbox id="IC1KRPCdownloaded" hidden="true">
+                <description>&KeeFox_Install_IC1KRPCdownloaded.description;</description>
               </vbox>
 
               <vbox id="IC2setupKPdownloading" hidden="true">
@@ -317,8 +341,8 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
                 <description>&KeeFox_Install_IC2setupKPdownloaded.description;</description>
               </vbox>
 
-              <vbox id="IC2KIdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC2KIdownloaded.description;</description>
+              <vbox id="IC2KRPCdownloaded" hidden="true">
+                <description>&KeeFox_Install_IC2KRPCdownloaded.description;</description>
               </vbox>
 
               <vbox id="IC3installing" hidden="true">
@@ -343,7 +367,7 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display diff
 
             <!-- everything in this box is displayed when everything is installed correctly -->
             <vbox id="InstallFinished" hidden="true">
-              <description>&KeeFox_Install_InstallFinished.description; [TODO]</description>
+              <description>&KeeFox_Install_InstallFinished.description;</description>
 
             </vbox>
           </vbox> <!-- end KFInstallPageContent -->

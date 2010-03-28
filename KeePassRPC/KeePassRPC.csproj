@@ -69,6 +69,14 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Jayrock, Version=0.9.12210.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Jayrock.dll</HintPath>
+    </Reference>
+    <Reference Include="Jayrock.Json, Version=0.9.12210.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Jayrock.Json.dll</HintPath>
+    </Reference>
     <Reference Include="KeePass, Version=2.1.0.28189, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\KeePass Password Safe 2\KeePass.exe</HintPath>
@@ -158,17 +166,8 @@
     <None Include="Resources\buttonGradient.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="KeePassRPCDiagram.cd" />
     <None Include="Resources\buttonGradientHover.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Jayrock\src\Jayrock.Json\Jayrock.Json.csproj">
-      <Project>{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}</Project>
-      <Name>Jayrock.Json</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Jayrock\src\Jayrock\Jayrock.csproj">
-      <Project>{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}</Project>
-      <Name>Jayrock</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -213,12 +212,13 @@
       IF NOT "$(ConfigurationName)"=="ReleasePLGX" Goto :NotRelease
       REM In release mode we want to make sure that we are working with the PLGX version.
       REM For the KeeFox project we will be in this mode quite a lot (whenever working
-      REM primarily on the Firefox add-on part of the project rather than KeeICE)
+      REM primarily on the Firefox add-on part of the project rather than KeePassRPC)
 
       REM delete the DLLs from any previous Debug build
       del /Q "%25KPPDir%25$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
-      del /Q "%25KPPDir%25Ice.dll"
+      del /Q "%25KPPDir%25\Jayrock.dll"
+      del /Q "%25KPPDir%25\Jayrock.JSON.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs deleted
 
@@ -231,7 +231,8 @@
       REM copy relevant project files to temporary directory
       REM (for simple KeePass plugins you may need to
       REM copy only *.cs files and .csproj file)
-      copy "Ice.dll" "%25KPPTempDir%25\Ice.dll"
+      copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
+      copy "Jayrock.JSON.dll" "%25KPPTempDir%25\Jayrock.JSON.dll"
       if errorlevel 1 goto BuildEventFailed
       copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
       if errorlevel 1 goto BuildEventFailed
@@ -239,13 +240,14 @@
       if errorlevel 1 goto BuildEventFailed
       mkdir "%25KPPTempDir%25\Forms"
       copy "$(ProjectDir)Forms\*.cs" "%25KPPTempDir%25\Forms"
-copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
+      copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
       if errorlevel 1 goto BuildEventFailed
       mkdir "%25KPPTempDir%25\Properties"
       copy "$(ProjectDir)Properties\AssemblyInfo.cs" "%25KPPTempDir%25\Properties\AssemblyInfo.cs"
-      if errorlevel 1 goto BuildEventFailed
-      mkdir "%25KPPTempDir%25\generated"
-      copy "$(ProjectDir)generated\KeeICE.cs" "%25KPPTempDir%25\generated\KeeICE.cs"
+      copy "$(ProjectDir)Properties\Resources.resx" "%25KPPTempDir%25\Properties\Resources.resx"
+      copy "$(ProjectDir)Properties\Resources.Designer.cs" "%25KPPTempDir%25\Properties\Resources.Designer.cs"
+      mkdir "%25KPPTempDir%25\Resources"
+      copy "$(ProjectDir)Resources\*.png" "%25KPPTempDir%25\Resources"
       if errorlevel 1 goto BuildEventFailed
       echo Files copied to temporary directory
 
@@ -255,7 +257,7 @@ copy "$(ProjectDir)Forms\*.resx" "%25KPPTempDir%25\Forms"
       echo PLGX created
 
       REM copy PLGX to Firefox addon folder (for packaging in a .xpi later)
-      copy "%25KPPDir%25KeeICE.plgx" "$(SolutionDir)Firefox addon\KeeFox\deps\KeeICE.plgx"
+      copy "%25KPPDir%25KeePassRPC.plgx" "$(SolutionDir)Firefox addon\KeeFox\deps\KeePassRPC.plgx"
       if errorlevel 1 goto BuildEventFailed
       echo PLGX copied to Firefox add-on
 

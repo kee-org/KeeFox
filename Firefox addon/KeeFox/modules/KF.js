@@ -147,6 +147,7 @@ KeeFox.prototype = {
            promptService.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
            return false;
         }
+        return true;
     },
 
     _registerUninstallListeners: function()
@@ -187,8 +188,17 @@ KeeFox.prototype = {
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
             this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
         
+        // make the initial connection to KeePassRPC
+        // (fails silently if KeePassRPC is not reachable)
         this.KeePassRPC.connect();
-        this._KFLog.info("KeeFox initialised OK - the connection to KeePass may not be established just yet...");            
+        
+        // start regular attempts to reconnect to KeePassRPC
+        // NB: overheads here include a test whether a socket is alive
+        // and regular timer scheduling overheads - hopefully that's insignificant
+        // but if not we can try more complicated connection strategies
+        this.KeePassRPC.reconnectSoon();
+        
+        this._KFLog.info("KeeFox initialised OK although the connection to KeePass may not be established just yet...");            
     },
     
     _keeFoxInitialToolBarSetup : function (currentKFToolbar, currentWindow)
@@ -636,7 +646,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getDBName();
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -648,7 +658,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getDBFileName();
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
         return "";
@@ -662,7 +672,7 @@ KeeFox.prototype = {
           
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
         return "";
@@ -675,7 +685,7 @@ KeeFox.prototype = {
             this.KeePassRPC.changeDB(fileName, closeCurrent);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -684,10 +694,11 @@ KeeFox.prototype = {
     {
         try
         {
+        this._KFLog.debug("Log in – Last.fm");
             return this.KeePassRPC.addLogin(login, parentUUID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -699,7 +710,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.addGroup(title, parentUUID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -711,7 +722,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.deleteLogin(uniqueID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -723,7 +734,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.deleteGroup(uniqueID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -735,7 +746,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getParentGroup(uniqueID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -747,7 +758,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getRootGroup();
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -759,7 +770,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getChildGroups(uniqueID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -771,7 +782,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getChildEntries(uniqueID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -784,7 +795,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.modifyLogin(oldLogin, newLogin);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -796,7 +807,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.getAllLogins();
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -808,7 +819,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.findLogins(hostname, formSubmitURL, httpRealm, uniqueID);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -820,7 +831,7 @@ KeeFox.prototype = {
             return this.KeePassRPC.countLogins(hostName,actionURL,httpRealm);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -836,7 +847,7 @@ KeeFox.prototype = {
              thread.dispatch(new launchLoginEditorThread(uuid), thread.DISPATCH_NORMAL);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -851,7 +862,7 @@ KeeFox.prototype = {
              thread.dispatch(new launchGroupEditorThread(uuid), thread.DISPATCH_NORMAL);
         } catch (e)
         {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling an exception with this code: " + e.result);
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
@@ -865,7 +876,7 @@ KeeFox.prototype = {
     {
         var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(_myDepsDir() + "\\CheckForAdminRights.exe");
+        file.initWithPath(this._myDepsDir() + "\\CheckForAdminRights.exe");
 
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess);
@@ -923,7 +934,7 @@ KeeFox.prototype = {
     {
         var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(keeFoxInst._myInstalledDir());
+        file.initWithPath(this._myInstalledDir());
         file.append("deps");
         return file.path;
     },

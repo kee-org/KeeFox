@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPC", "KeePassRPC\KeePassRPC.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFox", "KeeFox\KeeFox.vcproj", "{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firefox addon", "Firefox addon\Firefox addon.vcproj", "{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0BDCB786-3AD0-458D-9850-9BAF04223FF7} = {0BDCB786-3AD0-458D-9850-9BAF04223FF7}
 		{4C1BB6F8-D2CD-49C2-9053-21705681356C} = {4C1BB6F8-D2CD-49C2-9053-21705681356C}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeICECopier", "KeeICECopier\KeeICECopier.vcproj", "{0BDCB786-3AD0-458D-9850-9BAF04223FF7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeePassRPCCopier", "KeeICECopier\KeeICECopier.vcproj", "{0BDCB786-3AD0-458D-9850-9BAF04223FF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "Jayrock\src\Jayrock\Jayrock.csproj", "{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}"
 EndProject
@@ -74,28 +72,6 @@ Global
 		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.ReleasePLGX|Mixed Platforms.Build.0 = ReleasePLGX|Any CPU
 		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.ReleasePLGX|Win32.ActiveCfg = teast|Any CPU
 		{4C1BB6F8-D2CD-49C2-9053-21705681356C}.ReleasePLGX|x86.ActiveCfg = teast|Any CPU
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Analyse|Any CPU.ActiveCfg = Analyse|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Analyse|Mixed Platforms.ActiveCfg = Analyse|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Analyse|Mixed Platforms.Build.0 = Analyse|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Analyse|Win32.ActiveCfg = Analyse|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Analyse|Win32.Build.0 = Analyse|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Analyse|x86.ActiveCfg = Analyse|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|Win32.Build.0 = Debug|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Debug|x86.ActiveCfg = Debug|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Any CPU.ActiveCfg = Release|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Win32.ActiveCfg = Release|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|Win32.Build.0 = Release|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.Release|x86.ActiveCfg = Release|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.ReleasePLGX|Any CPU.ActiveCfg = teast|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.ReleasePLGX|Mixed Platforms.ActiveCfg = Release|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.ReleasePLGX|Win32.ActiveCfg = teast|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.ReleasePLGX|Win32.Build.0 = teast|Win32
-		{AC42FC11-1A1D-4B0F-9050-0468D6CB60D3}.ReleasePLGX|x86.ActiveCfg = teast|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Analyse|Any CPU.ActiveCfg = Analyse|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Analyse|Mixed Platforms.ActiveCfg = Analyse|Win32
 		{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}.Analyse|Mixed Platforms.Build.0 = Analyse|Win32
@@ -206,13 +182,11 @@ Global
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Win32.ActiveCfg = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|x86.ActiveCfg = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Any CPU.ActiveCfg = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Any CPU.Build.0 = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Mixed Platforms.Build.0 = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Win32.ActiveCfg = Release|Any CPU
 		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|x86.ActiveCfg = Release|Any CPU
 		{8EAC7277-0259-426A-BC92-8E20C2637150}.Analyse|Any CPU.ActiveCfg = Release|Win32

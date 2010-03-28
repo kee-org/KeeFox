@@ -80,7 +80,7 @@ namespace KeePassRPC
         private int FindKeePassRPCPort(IPluginHost host)
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
-            int KeePassRPCport = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12535);
+            int KeePassRPCport = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536);
 
             if (allowCommandLineOverride)
             {

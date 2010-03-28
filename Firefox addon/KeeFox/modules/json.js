@@ -36,9 +36,10 @@ var log = KFLog;
 
 function jsonrpcClient() {
     this.requestId = 1;
-    this.callbacks = {};
+    this.callbacks = {}; //TODO: does FF JS engine leak memory if I use high indexed, mostly empty arrays?
+    this.syncRequestResults = {}; // ditto
     this.partialData = {};
-    this.syncRequestComplete = false;
+    //this.syncRequestComplete = false;
     this.parsingStringContents = false;
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
@@ -55,12 +56,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         {
         //TODO: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
         //TODO: calculate base64 representations of the security codes required to identify this RPC client
-            this.request(this, "Authenticate", [this.clientVersion, "base64enc1", "base64enc2"], function rpc_callback(result) {
+            this.request(this, "Authenticate", [this.clientVersion, "base64enc1", "base64enc2"], function rpc_callback(resultWrapper) {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
                 var window = wm.getMostRecentWindow("navigator:browser");
 
-                if (result == 0) // successfully authorised by remote RPC server
+                if (resultWrapper.result == 0) // successfully authorised by remote RPC server
                 {
                     window.setTimeout(function () {
                     
@@ -74,16 +75,17 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 } else { //TODO: handle error codes
                 } 
                 //TODO: set confirmation that the connection is established and authenticated?
-            });
+            }, this.requestId);
         }
     }
 
     this.onDataAvailable = function(request, ctx, inputStream, offset, count)
     {
-        var data = this.readData(count);
+        //var data = this.readData(count);
+        var data = this.readData(); // don't care about the number of bytes, we'll just read all the UTF8 characters available
         var lastPacketEndIndex = 0;
         
-        //TODO: handle whitespace between json packets?
+        //TODO: handle whitespace between json packets? (although KeePassRPC should never send them)
         for (var i = 0; i < data.length; i++)
         {
             switch (data[i])
@@ -104,7 +106,10 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 // if we're looking at only part of the full message we'll patch the previous bit together now
                 if (session in this.partialData)
                     fullData = this.partialData[session] + fullData;
-                    
+                
+                
+                log.debug("Processing fullData we just recieved: " + fullData);
+            
                 lastPacketEndIndex = i+1;
                 
                 // we have consumed any previous data
@@ -119,8 +124,15 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             
                 if ("result" in obj && obj.result !== false)
                 {
-                    this.callbacks[obj.id](obj.result);
-                    delete this.callbacks[obj.id];
+                    try
+                    {
+                        this.callbacks[obj.id](obj);
+                        delete this.callbacks[obj.id];
+                    } catch (e)
+                    {
+                        delete this.callbacks[obj.id];
+                        log.warn("An error occurred when processing the callback for JSON-RPC object id " + obj.id);
+                    }
                 } else if ("method" in obj)
                 {
                     var result = {"id": obj.id};
@@ -132,6 +144,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     } catch(e)
                     {
                         result.error = e;
+                        log.error("An error occurred when processing a JSON-RPC request: " + e);
                     }
                     // json rpc not specific about notifications, other than the fact
                     // they do not have the id in the request.  do not respond to
@@ -158,18 +171,35 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     this.onStartRequest = function(request, ctx) {}
     this.onStopRequest = function(request, ctx, status) {}
 
-    // send a request to the current RPC server
-    this.request = function(session, method, params, callback)
+    // send a request to the current RPC server.
+    // calling functions MUST manage the requestID to limit thread concurrency errors
+    this.request = function(session, method, params, callback, requestId)
     {
-        this.callbacks[this.requestId] = callback;
-        var data = JSON.stringify({ "params": params, "method": method, "id": this.requestId });
-        this.requestId++;
+        if (requestId == undefined || requestId == null || requestId < 0)
+            throw("JSON-RPC communciation requested with no requestID provided.");
+        try
+        {
+            log.info("TITLE: " + params[0].title);
+        } catch (e) {}
+            
+        this.callbacks[requestId] = callback;
+        log.info("Processing a JSON-RPC object..." + method + ":" + params);
+        //log.info("Processing a JSON-RPC object..." + method + ":" + params);
+        var data = JSON.stringify({ "params": "1" });
+        log.info("Processed a JSON-RPC object: " + data);
+        var data = JSON.stringify({ "params": 2 });
+        log.info("Processed a JSON-RPC object: " + data);
+        var data = JSON.stringify( params );
+        log.info("Processed a JSON-RPC object: " + data);
+        var data = JSON.stringify({ "params": params, "method": method, "id": requestId });
+        log.info("Processed a JSON-RPC object: " + data);
         session.writeData(data);
     }
 
     // send a notification to the current RPC server
     this.notify = function(session, method, params, callback)
     {
+        log.debug("Preparing a JSON-RPC notification object..." + method + ":" + params);
         var data = JSON.stringify({ "params": params, "method": method });
         session.writeData(data);
     }
@@ -178,6 +208,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     this.evalJson = function(method, params)
     {
         var data = JSON.stringify(params);
+        log.info("Processing a JSON-RPC object we just recieved: " + data);
         if (data)
         {
             data = data.match(/\s*\[(.*)\]\s*/)[1];
@@ -191,26 +222,43 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     // send a synchronous request to the JSON server
     this.syncRequest = function(session, method, params)
     {
-        this.syncRequestComplete = false;
+        log.debug("Preparing a synchronous request to the JSON-RPC server..." + method + ":" + params);
+        //this.syncRequestComplete = false;
+        
+        //ASSUMPTION: this operation is atomic (if not, very unfortunate
+        // multi-thread timing could lead to two requests with the same ID)
+        var myRequestId = ++this.requestId;
+        this.syncRequestResults[myRequestId] = null; //TODO: can the JSON parser ever
+        // return null? if so, change this or else we might deadlock
+        // TODO: set a timeout on this sync event (set above to non-null value - maybe a JS exception object?)
 
-        this.request(session, method, params, function rpc_callback(result) {
+        this.request(session, method, params, function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser");
             
-            window.keeFoxInst.KeePassRPC.syncRequestComplete = true;
-            window.keeFoxInst.KeePassRPC.syncRequestResult = result;
-        });
-                          
+            //window.keeFoxInst.KeePassRPC.syncRequestComplete = true;
+            window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = resultWrapper.result;
+            
+        }, myRequestId);
+        log.debug("Waiting for the synchronous request to the JSON-RPC server to end..." + method + ":" + params);
+        //yield;
         var thread = Components.classes["@mozilla.org/thread-manager;1"]
                      .getService(Components.interfaces.nsIThreadManager)
                      .currentThread;
                             
-        while (!this.syncRequestComplete)
+        while (this.syncRequestResults[myRequestId] == null)
             thread.processNextEvent(true);
             
-        this.syncRequestComplete = false;
-        return this.syncRequestResult;
+        log.debug("Synchronous request to the JSON-RPC server has returned..." + method + ":" + params);                  
+        
+        var result = this.syncRequestResults[myRequestId];
+        
+        // we won't ever use this array slot again but I
+        // suspect clearing it will help with JS memory recovery  
+        this.syncRequestResults[myRequestId] = null;
+        
+        return result;
     }
 
     this.callBackToKeeFoxJS = function (signal)
@@ -232,6 +280,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     // Functions below can be thought of as proxies to the RPC
     // methods exposed in the KeePassRPC server.
     // See KeePassRPCService.cs for more detail
+    // TODO: pull these out into a more specific prototype
     //***************************************
 
     this.launchGroupEditor = function(uniqueID)
@@ -278,7 +327,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.addLogin = function(login, parentUUID)
     {
-        var jslogin = login; // TODO: translate?
+        var jslogin = login.asEntry();
         var result = this.syncRequest(this, "AddLogin", [jslogin, parentUUID]);
         return;
     }
@@ -313,6 +362,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             kfl.initFromEntry(result[i]);
             convertedResult.push(kfl);
         }
+        log.debug("converted logins: " + JSON.stringify(convertedResult));
         return convertedResult; // an array of logins
     }
 

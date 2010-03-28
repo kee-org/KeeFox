@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
@@ -314,6 +314,14 @@
 			Name="CSS"
 			Filter="css"
 			>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\install.css"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\keefox.css"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="JS"
@@ -421,10 +429,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\skin\install.css"
-			>
-		</File>
-		<File
 			RelativePath=".\KeeFox\install.rdf"
 			>
 		</File>
@@ -439,10 +443,6 @@
 					Name="VCCustomBuildTool"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\KeeFox\chrome\skin\keefox.css"
-			>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"

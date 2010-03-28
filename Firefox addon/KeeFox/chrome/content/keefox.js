@@ -116,10 +116,13 @@ var keeFoxInitStartupListener =
 // window is ready to be used
 // ... unless creation of KF object failed for some reason (conflicting extension?)
 if (keeFoxInst != null)
-{
+{    
     keeFoxInitStartupListener._kf = keeFoxInst;
     keeFoxInitStartupListener._assignedWindow = window;
     window.addEventListener("load", keeFoxInitStartupListener, false);
+} else
+{
+    KFLog.warn("KeeFox startup was NOT ATTEMPTED. Maybe there is a conflicting extension that prevents startup?");
 }
     
 // TODO: we actually end up creating a new listener for each Firefox window and 

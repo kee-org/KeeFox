@@ -570,7 +570,7 @@ KFUI.prototype = {
         keefoxInst.treeViewGroupChooser =
         {
             rowCount : 10000,
-            getCellText : function(row,column
+            getCellText : function(row,column)
             {
               if (column.id == "namecol") return "Row "+row;
               else return "February 18";

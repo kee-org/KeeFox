@@ -183,14 +183,6 @@ namespace KeePassRPC
             }
         }
 
-        string getPassword()
-        {
-            //KeePass.Program.PwGeneratorPool
-            // KeePass.Util.PwGeneratorUtil.
-            return "password";
-        }
-
-
         void openGroupEditorWindow(PwGroup pg)
         {
             GroupForm gf = new GroupForm();
@@ -428,8 +420,6 @@ namespace KeePassRPC
 
         private Group GetGroupFromPwGroup(PwGroup pwg)
         {
-            ArrayList formFieldList = new ArrayList();
-
             string imageData = iconToBase64(pwg.CustomIconUuid, pwg.IconId);
 
             Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes), imageData, pwg.GetFullPath("/", false));
@@ -491,7 +481,7 @@ namespace KeePassRPC
             {
                 string url = login.URLs[i];
                 if (i == 0)
-                    pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url));
+                    pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
                 else if (i == 1)
                     altURLs += url;
                 else
@@ -500,11 +490,11 @@ namespace KeePassRPC
             if (altURLs.Length > 0)
                 pwe.Strings.Set("Alternative URLs", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, altURLs));
 
-            pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.FormActionURL));
-            pwe.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm));
+            pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.FormActionURL ?? ""));
+            pwe.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm ?? ""));
 
             // Set some of the string fields
-            pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title));
+            pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
 
             // update the icon for this entry (in most cases we'll 
             // just detect that it is the same standard icon as before)
@@ -682,6 +672,22 @@ namespace KeePassRPC
 
             host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
             return;
+        }
+
+        [JsonRpcMethod]
+        public string GeneratePassword(string profileName)
+        {
+            //KeePass.Program.PwGeneratorPool
+            // KeePass.Util.PwGeneratorUtil.
+            //foreach (PwProfile pwgo in Program.Config.PasswordGenerator.UserProfiles)
+            //{
+            //    if (pwgo.Name == strProfile)
+            //    {
+            //        SetGenerationOptions(pwgo);
+            //        break;
+            //    }
+            //}
+            return "password";
         }
 
         #endregion

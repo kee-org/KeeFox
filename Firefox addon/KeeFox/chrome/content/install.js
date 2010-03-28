@@ -21,21 +21,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const KF_KPZIP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.09/KeePass-2.09.zip/";
+const KF_KPZIP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.10/KeePass-2.10.zip/";
 const KF_KPZIP_FILE_NAME = "download";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.09.zip";
-const KF_KPZIP_FILE_CHECKSUM = "549B5107DDEE45418697A5114C27B5A8";
-const KF_KP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.09/KeePass-2.09-Setup.exe/";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.10.zip";
+const KF_KPZIP_FILE_CHECKSUM = "1A7A1CC9367869A5CE86AAC60D22E40F";
+const KF_KP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.10/KeePass-2.10-Setup.exe/";
 const KF_KP_FILE_NAME = "download";
-const KF_KP_SAVE_NAME = "KeePass-2.09-Setup.exe"
-const KF_KP_FILE_CHECKSUM = "9FC81681C521C14C0C982B17D93213B9";
-const KF_NET_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
+const KF_KP_SAVE_NAME = "KeePass-2.10-Setup.exe"
+const KF_KP_FILE_CHECKSUM = "1FD29AF2425A2D6F71D65C52F6F05411";
+const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
-const KF_NET_FILE_CHECKSUM = "";
-const KF_NET35_DOWNLOAD_PATH = "http://christomlinson.name/dl/";
-const KF_NET35_FILE_NAME = "dotnetfx35setup.exe";
-const KF_NET35_FILE_CHECKSUM = "";
-const KF_KI_FILE_NAME = "KeeICECopier.exe";
+const KF_NET_FILE_CHECKSUM = "93A13358898A54643ADBCA67D1533462";
+const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
+const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
+const KF_NET35_FILE_CHECKSUM = "C626670633DDCC2A66B0D935195CF2A1";
+const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
 
 const KF_INSTALL_STATE_SELECTED_PRI = 1; // user has asked to run default installation routine
 const KF_INSTALL_STATE_NET_DOWNLOADING = 2;
@@ -46,10 +46,10 @@ const KF_INSTALL_STATE_KP_DOWNLOADING = 32;
 const KF_INSTALL_STATE_KP_DOWNLOADED = 64;
 const KF_INSTALL_STATE_KP_EXECUTING = 128;
 const KF_INSTALL_STATE_KP_EXECUTED = 256;  // KeePass installer has been executed or KeePass was already installed
-const KF_INSTALL_STATE_KI_DOWNLOADING = 512;
-const KF_INSTALL_STATE_KI_DOWNLOADED = 1024; // KeeICE files have been downloaded (actually we will bundle them with XPI for time being at least)
-const KF_INSTALL_STATE_KI_EXECUTING = 2048; // KeeICE files are being copied
-const KF_INSTALL_STATE_KI_EXECUTED = 4096;  // KeeICE files have been copied
+const KF_INSTALL_STATE_KRPC_DOWNLOADING = 512;
+const KF_INSTALL_STATE_KRPC_DOWNLOADED = 1024; // KeePassRPC files have been downloaded (actually we will bundle them with XPI for time being at least)
+const KF_INSTALL_STATE_KRPC_EXECUTING = 2048; // KeePassRPC files are being copied
+const KF_INSTALL_STATE_KRPC_EXECUTED = 4096;  // KeePassRPC files have been copied
 
 const KF_INSTALL_STATE_SELECTED_SEC = 8192; // user has asked to run secondary installation routine
 const KF_INSTALL_STATE_SELECTED_TER = 16384; // user has asked to run tertiary installation routine
@@ -85,8 +85,8 @@ var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 
 var mainWindow = mainWin.keeFoxILM._currentWindow;
 
-function prepareInstallPage() {
-
+function prepareInstallPage()
+{
     var qs = "";
     var args = new Object();
     var query = location.search.substring(1);
@@ -115,8 +115,13 @@ function prepareInstallPage() {
     
     var keePassLocation = "not installed";
 
-    //TODO: prevent reinstallation if KeeFox is already working
-
+    // prevent reinstallation if KeeFox is already working
+    if (mainWindow.keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+    {
+        document.getElementById('KFInstallNotRequired').setAttribute('hidden', false);
+        return;
+    }
+    
     // only let this install script run once per firefox session unless user cancels
     if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
     {
@@ -154,52 +159,65 @@ function prepareInstallPage() {
     // comment this out to enable normal operation or uncomment to specify a test case
     //installCase = 4; mainWindow.KFLog.warn("Overriding with installation case " + installCase);
 
-// configure the current installation state and trigger any relevant pre-emptive file downloads to give the impression of speed to end user
+// configure the current installation state and trigger any relevant pre-emptive file
+// downloads to give the impression of speed to end user
 //TODO: support cancellation of pre-emptive downloading in case advanced user chooses unusual option
-    switch (installCase) {
+    switch (installCase)
+    {
         case 1:
             showSection('setupExeInstallButtonMain');
             showSection('adminNETInstallExpander');
-            installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
+            installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+            persist = mainWindow.KFdownloadFile("IC1PriDownload",
+                KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
             break;
         case 2: 
             showSection('KPsetupExeSilentInstallButtonMain');
             showSection('adminSetupKPInstallExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC2PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
+            installState = KF_INSTALL_STATE_NET_EXECUTED 
+                | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+            persist = mainWindow.KFdownloadFile("IC2PriDownload",
+                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 3: 
-            showSection('copyKIToKnownKPLocationInstallButtonMain');            
-            showSection('admincopyKIToKnownKPLocationInstallExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
+            showSection('copyKRPCToKnownKPLocationInstallButtonMain');            
+            showSection('admincopyKRPCToKnownKPLocationInstallExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
+                | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;
         case 4: 
             showSection('setupExeInstallButtonMain');
             showSection('nonAdminNETInstallExpander');
-            installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1PriDownload", KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist); // using IC1 since same process is followed from now on...
+            installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+            persist = mainWindow.KFdownloadFile("IC1PriDownload",
+                KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
+                // using IC1 since same process is followed from now on...
             break;
         case 5: 
             showSection('copyKPToSpecificLocationInstallButtonMain'); 
             showSection('nonAdminSetupKPInstallExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING 
+                | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+            persist = mainWindow.KFdownloadFile("IC5PriDownload",
+                KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 6: 
-            showSection('copyKIToKnownKPLocationInstallButtonMain');
-            showSection('nonAdmincopyKIToKnownKPLocationInstallExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
+            showSection('copyKRPCToKnownKPLocationInstallButtonMain');
+            showSection('nonAdmincopyKRPCToKnownKPLocationInstallExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
+                | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;
         case 7: 
-            showSection('copyKIToKnownKPLocationUpgradeButtonMain');
-            showSection('admincopyKIToKnownKPLocationInstallExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
+            showSection('copyKRPCToKnownKPLocationUpgradeButtonMain');
+            showSection('admincopyKRPCToKnownKPLocationInstallExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
+                | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;
         case 8: 
-            showSection('copyKIToKnownKPLocationUpgradeButtonMain');
-            showSection('nonAdmincopyKIToKnownKPLocationInstallExpander');
-            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED | KF_INSTALL_STATE_KI_DOWNLOADED;
+            showSection('copyKRPCToKnownKPLocationUpgradeButtonMain');
+            showSection('nonAdmincopyKRPCToKnownKPLocationInstallExpander');
+            installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
+                | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;   
             //TODO: update 7 and 8 to show Upgrade text, etc.       
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
@@ -233,8 +251,7 @@ function cancelCurrentDownload()
     hideSection("installProgressView");
     persist.cancelSave();
     showSection('restartInstallationOption');
-    resetInstallation();
-    
+    resetInstallation();    
 }
 
 function hideInstallView() {
@@ -261,178 +278,200 @@ function hideSection(id) {
 START:
 functions to support the execution of Install Case 1
 ********************/
-function IC1finished(mainWindow) {
-
-    hideSection('IC1KIdownloaded');
+function IC1finished(mainWindow)
+{
+    hideSection('IC1KKRPCdownloaded');
     showSection('InstallFinished');
     mainWindow.keeFoxInst._KFLog.debug("AAA");
     launchAndConnectToKeePass();
 }
 
-function IC1setupKI(mainWindow) {
-try {
-    if ((installState & KF_INSTALL_STATE_KI_DOWNLOADED) && (installState & KF_INSTALL_STATE_KP_EXECUTED))
+function IC1setupKRPC(mainWindow)
+{
+    try
     {
-        // we don't checksum bundled DLLs since if they are compromised the whole XPI, including this file, could be too
-        hideSection('IC1setupKPdownloaded');
-        showSection('IC1KIdownloaded');
-        
-        installState |= KF_INSTALL_STATE_KI_EXECUTING;
-
-        // we've just run the official KeePass installer so can be pretty confident that we can automatically find the installation directory (though if we get time, we should handle exceptions too...)
-        var keePassLocation;
-        var KeePassEXEfound;
-        KeePassEXEfound = false;
-        keePassLocation = "not installed";
-
-        keePassLocation = mainWindow.keeFoxInst._discoverKeePassInstallLocation();
-        if (keePassLocation != "not installed")
+        if ((installState & KF_INSTALL_STATE_KRPC_DOWNLOADED) 
+            && (installState & KF_INSTALL_STATE_KP_EXECUTED))
         {
-            KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(keePassLocation);
+            // we don't checksum bundled DLLs since if they are compromised the
+            // whole XPI, including this file, could be too
+            hideSection('IC1setupKPdownloaded');
+            showSection('IC1KRPCdownloaded');
+            
+            installState |= KF_INSTALL_STATE_KRPC_EXECUTING;
+
+            // we've just run the official KeePass installer so can be pretty
+            // confident that we can automatically find the installation directory
+            // (though if we get time, we should handle exceptions too...)
+            var keePassLocation;
+            var KeePassEXEfound;
+            KeePassEXEfound = false;
+            keePassLocation = "not installed";
+
+            keePassLocation = mainWindow.keeFoxInst._discoverKeePassInstallLocation();
+            if (keePassLocation != "not installed")
+            {
+                KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(keePassLocation);
+            }
+            
+            if (KeePassEXEfound)
+            {
+                copyKeePassRPCFilesTo(keePassLocation);
+
+                installState ^= KF_INSTALL_STATE_KRPC_EXECUTING; // we can
+                    // safely assume this bit is already set since no other threads are involved
+                installState |= KF_INSTALL_STATE_KRPC_EXECUTED;
+                IC1finished(mainWindow);
+            } else
+            {
+                hideSection('IC1KRPCdownloaded');
+                showSection('ERRORInstallButtonMain');
+            }
         }
-        
-        if (KeePassEXEfound)
-        {
-            copyKeeICEFilesTo(keePassLocation);
-
-            installState ^= KF_INSTALL_STATE_KI_EXECUTING; // we can safely assume this bit is already set since no other threads are involved
-            installState |= KF_INSTALL_STATE_KI_EXECUTED;
-            IC1finished(mainWindow);
-        } else
-        {
-            hideSection('IC1KIdownloaded');
-            showSection('ERRORInstallButtonMain');
-        }
-    }
     } catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
-        }
+        mainWindow.keeFoxInst._KFLog.error(err);
+    }
 }
 
-function IC1setupKP(mainWindow) {
-try {
-
-    if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) && (installState & KF_INSTALL_STATE_NET_EXECUTED || installState & KF_INSTALL_STATE_NET35_EXECUTED))
+function IC1setupKP(mainWindow)
+{
+    try
     {
-        if (installState & KF_INSTALL_STATE_NET_EXECUTED)
-            hideSection('IC1setupNETdownloaded');
-        else if (installState & KF_INSTALL_STATE_NET35_EXECUTED)
-            hideSection('IC1setupNET35downloaded');
-            
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
-        
-        hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
-        
-        if (checkTest)
-            mainWindow.KFLog.info("File checksum succeeded.");
-        else
+        if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) 
+            && (installState & KF_INSTALL_STATE_NET_EXECUTED 
+                || installState & KF_INSTALL_STATE_NET35_EXECUTED))
         {
-            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+            if (installState & KF_INSTALL_STATE_NET_EXECUTED)
+                hideSection('IC1setupNETdownloaded');
+            else if (installState & KF_INSTALL_STATE_NET35_EXECUTED)
+                hideSection('IC1setupNET35downloaded');
+                
+            var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
+            
+            hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
+            
+            if (checkTest)
+                mainWindow.KFLog.info("File checksum succeeded.");
+            else
+            {
+                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+                
+            }
+            // TODO: kick user back to start if it fails
+            
+            
+            showSection('IC1setupKPdownloaded');
+            
+            var file = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.append(KF_KP_SAVE_NAME);
+            
+            threadFixer = file.path;
+
+            installState |= KF_INSTALL_STATE_KP_EXECUTING;
+
+            setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
+                       
+            setupKPThread.dispatch(new mainWindow.
+                KFexecutableInstallerRunner(threadFixer,"/silent",
+                    "IC1KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
+            
+        } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
+        {
+            hideSection('IC1setupNETdownloaded');
+            showSection('IC1setupKPdownloading');
+        }
+    } catch (err) {
+        mainWindow.keeFoxInst._KFLog.error(err);
+    }    
+}
+
+function IC1setupNET(mainWindow)
+{
+    try
+    {
+        if ((installState & KF_INSTALL_STATE_NET_DOWNLOADED)
+            && (installState & KF_INSTALL_STATE_SELECTED_PRI))
+        {
+            var checkTest = mainWindow.KFMD5checksumVerification(KF_NET_FILE_NAME,KF_NET_FILE_CHECKSUM);
+            
+            if (checkTest)
+                mainWindow.KFLog.info("File checksum succeeded.");
+            else
+                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+            // TODO: kick user back to start if it fails
+            
+            hideSection('IC1setupNETdownloading');
+            showSection('IC1setupNETdownloaded');
+            
+            // start the pre-download of the KeePass setup file (while user installs .Net...)
+            installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
+            persist = mainWindow.KFdownloadFile("IC1PriDownload",
+                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
+            
+            installState |= KF_INSTALL_STATE_NET_EXECUTING;
+
+            var file = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.append(KF_NET_FILE_NAME);
+            
+            threadFixer = file.path;
+            
+            setupNETThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);                   
+            setupNETThread.dispatch(new mainWindow.
+                KFexecutableInstallerRunner(threadFixer,"",
+                    "IC1NETSetupFinished", mainWindow, window), setupNETThread.DISPATCH_NORMAL);
             
         }
-        // TODO: kick user back to start if it fails
-        
-        
-        showSection('IC1setupKPdownloaded');
-        
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KP_SAVE_NAME);
-        
-        threadFixer = file.path;
-
-        installState |= KF_INSTALL_STATE_KP_EXECUTING;
-
-        setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                   
-        setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"/silent","IC1KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
-        
-    } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
-    {
-        hideSection('IC1setupNETdownloaded');
-        showSection('IC1setupKPdownloading');
+    } catch (err) {
+        mainWindow.keeFoxInst._KFLog.error(err);
     }
-} catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
-        }    
-}
-
-function IC1setupNET(mainWindow) {
-try {
-    if ((installState & KF_INSTALL_STATE_NET_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_PRI))
-    {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_NET_FILE_NAME,KF_NET_FILE_CHECKSUM);
-        
-        if (checkTest)
-            mainWindow.KFLog.info("File checksum succeeded.");
-        else
-            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-        // TODO: kick user back to start if it fails
-        
-        hideSection('IC1setupNETdownloading');
-        showSection('IC1setupNETdownloaded');
-        
-        // start the pre-download of the KeePass setup file (while user installs .Net...)
-        installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
-        persist = mainWindow.KFdownloadFile("IC1PriDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
-        
-        installState |= KF_INSTALL_STATE_NET_EXECUTING;
-
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_NET_FILE_NAME);
-        
-        threadFixer = file.path;
-        
-        setupNETThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                   
-        setupNETThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"","IC1NETSetupFinished", mainWindow, window), setupNETThread.DISPATCH_NORMAL);
-        
-    }
-} catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
-        }
 }
 
 
-function IC1setupNET35(mainWindow) {
-try {
-    if ((installState & KF_INSTALL_STATE_NET35_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_SEC))
+function IC1setupNET35(mainWindow)
+{
+    try
     {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_NET35_FILE_NAME,KF_NET35_FILE_CHECKSUM);
-        
-        if (checkTest)
-            mainWindow.KFLog.info("File checksum succeeded.");
-        else
-            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-        // TODO: kick user back to start if it fails
-        
-        hideSection('IC1setupNET35downloading');
-        showSection('IC1setupNET35downloaded');
-        
-        // start the pre-download of the KeePass setup file (while user installs .Net...)
-        installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
-        persist = mainWindow.KFdownloadFile("IC1SecDownload", KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
-        
-        installState |= KF_INSTALL_STATE_NET_EXECUTING;
+        if ((installState & KF_INSTALL_STATE_NET35_DOWNLOADED) 
+            && (installState & KF_INSTALL_STATE_SELECTED_SEC))
+        {
+            var checkTest = mainWindow.KFMD5checksumVerification(KF_NET35_FILE_NAME,KF_NET35_FILE_CHECKSUM);
+            
+            if (checkTest)
+                mainWindow.KFLog.info("File checksum succeeded.");
+            else
+                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+            // TODO: kick user back to start if it fails
+            
+            hideSection('IC1setupNET35downloading');
+            showSection('IC1setupNET35downloaded');
+            
+            // start the pre-download of the KeePass setup file (while user installs .Net...)
+            installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
+            persist = mainWindow.KFdownloadFile("IC1SecDownload",
+                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
+            
+            installState |= KF_INSTALL_STATE_NET_EXECUTING;
 
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_NET35_FILE_NAME);
-        
-        threadFixer = file.path;
-        
-        setupNETThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                   
-        setupNETThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"","IC1NET35SetupFinished", mainWindow, window), setupNETThread.DISPATCH_NORMAL);
-        
-    }
-} catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
+            var file = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.append(KF_NET35_FILE_NAME);
+            
+            threadFixer = file.path;
+            
+            setupNETThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
+                       
+            setupNETThread.dispatch(new mainWindow.
+                KFexecutableInstallerRunner(threadFixer,"",
+                    "IC1NET35SetupFinished", mainWindow, window), setupNETThread.DISPATCH_NORMAL);
         }
+    } catch (err) {
+        mainWindow.keeFoxInst._KFLog.error(err);
+    }
 }
 /********************
 END:
@@ -457,128 +496,143 @@ keeFoxInst._keeFoxVariableInit(window.keeFoxToolbar,
                              keeFoxInst._configureKeeICECallbacks();
                              keeFoxInst._refreshKPDB();
                              */
-    hideSection('IC2KIdownloaded');
+    hideSection('IC2KRPCdownloaded');
     showSection('InstallFinished');
     mainWindow.keeFoxInst._KFLog.debug("AAA");
     launchAndConnectToKeePass();
 }
 
-function IC2setupKI(mainWindow) {
-try {
-    if ((installState & KF_INSTALL_STATE_KI_DOWNLOADED) && (installState & KF_INSTALL_STATE_KP_EXECUTED))
+function IC2setupKRPC(mainWindow)
+{
+    try
     {
-        // we don't checksum bundled DLLs since if they are compromised the whole XPI, including this file, could be too
-        hideSection('IC2setupKPdownloaded');
-        showSection('IC2KIdownloaded');
-        
-        installState |= KF_INSTALL_STATE_KI_EXECUTING;
-
-        // we've just run the official KeePass installer so can be pretty confident that we can automatically find the installation directory (though if we get time, we should handle exceptions too...)
-        var keePassLocation;
-        var KeePassEXEfound;
-        KeePassEXEfound = false;
-        keePassLocation = "not installed";
-
-        keePassLocation = mainWindow.keeFoxInst._discoverKeePassInstallLocation();
-        if (keePassLocation != "not installed")
+        if ((installState & KF_INSTALL_STATE_KRPC_DOWNLOADED)
+            && (installState & KF_INSTALL_STATE_KP_EXECUTED))
         {
-            KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(keePassLocation);
+            // we don't checksum bundled DLLs since if they are compromised
+            // the whole XPI, including this file, could be too
+            hideSection('IC2setupKPdownloaded');
+            showSection('IC2KRPCdownloaded');
+            
+            installState |= KF_INSTALL_STATE_KRPC_EXECUTING;
+
+            // we've just run the official KeePass installer so can be pretty
+            // confident that we can automatically find the installation directory
+            // (though if we get time, we should handle exceptions too...)
+            var keePassLocation;
+            var KeePassEXEfound;
+            KeePassEXEfound = false;
+            keePassLocation = "not installed";
+
+            keePassLocation = mainWindow.keeFoxInst._discoverKeePassInstallLocation();
+            if (keePassLocation != "not installed")
+            {
+                KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(keePassLocation);
+            }
+            
+            if (KeePassEXEfound)
+            {
+                copyKeePassRPCFilesTo(keePassLocation);
+
+                installState ^= KF_INSTALL_STATE_KRPC_EXECUTING; // we can safely
+                    // assume this bit is already set since no other threads are involved
+                installState |= KF_INSTALL_STATE_KRPC_EXECUTED;
+                IC2finished(mainWindow);
+            } else
+            {
+                hideSection('IC2KRPCdownloaded');
+                showSection('ERRORInstallButtonMain');
+            }
         }
-        
-        if (KeePassEXEfound)
-        {
-            copyKeeICEFilesTo(keePassLocation);
-
-            installState ^= KF_INSTALL_STATE_KI_EXECUTING; // we can safely assume this bit is already set since no other threads are involved
-            installState |= KF_INSTALL_STATE_KI_EXECUTED;
-            IC2finished(mainWindow);
-        } else
-        {
-            hideSection('IC2KIdownloaded');
-            showSection('ERRORInstallButtonMain');
-        }
-    }
     } catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
+        mainWindow.keeFoxInst._KFLog.error(err);
+    }
+}
+
+function IC2setupKP(mainWindow)
+{
+    try
+    {
+        if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED)
+            && (installState & KF_INSTALL_STATE_SELECTED_PRI))
+        {
+            var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
+            
+            if (checkTest)
+                mainWindow.KFLog.info("File checksum succeeded.");
+            else
+                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+            // TODO: kick user back to start if it fails
+            
+            hideSection('IC2setupKPdownloading'); // if applicable
+            showSection('IC2setupKPdownloaded');
+
+            installState |= KF_INSTALL_STATE_KP_EXECUTING;
+
+            var file = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.append(KF_KP_SAVE_NAME);
+            
+            threadFixer = file.path;
+            
+            setupKPThread = Components.classes["@mozilla.org/thread-manager;1"]
+                .getService().newThread(0);
+                       
+            setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,
+                "/silent","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
+            
+        } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
+        {
+            showSection('IC2setupKPdownloading');
         }
+    } catch (err) {
+        mainWindow.keeFoxInst._KFLog.error(err);
+    }    
 }
 
-function IC2setupKP(mainWindow) {
-try {
-
-    if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_PRI))
+function IC2setupCustomKP(mainWindow)
+{
+    try
     {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
-        
-        if (checkTest)
-            mainWindow.KFLog.info("File checksum succeeded.");
-        else
-            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-        // TODO: kick user back to start if it fails
-        
-        hideSection('IC2setupKPdownloading'); // if applicable
-        showSection('IC2setupKPdownloaded');
+        if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED)
+            && (installState & KF_INSTALL_STATE_SELECTED_SEC))
+        {
+            var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
+            
+            if (checkTest)
+                mainWindow.KFLog.info("File checksum succeeded.");
+            else
+                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+            // TODO: kick user back to start if it fails
+            
+            hideSection('IC2setupKPdownloading'); // if applicable (probably this was never shown)
+            showSection('IC2setupKPdownloaded');
 
-        installState |= KF_INSTALL_STATE_KP_EXECUTING;
+            installState |= KF_INSTALL_STATE_KP_EXECUTING;
 
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KP_SAVE_NAME);
-        
-        threadFixer = file.path;
-        
-        setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                   
-        setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"/silent","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
-        
-    } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
-    {
-        showSection('IC2setupKPdownloading');
-    }
-} catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
-        }    
-}
-
-function IC2setupCustomKP(mainWindow) {
-try {
-
-    if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_SEC))
-    {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
-        
-        if (checkTest)
-            mainWindow.KFLog.info("File checksum succeeded.");
-        else
-            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-        // TODO: kick user back to start if it fails
-        
-        hideSection('IC2setupKPdownloading'); // if applicable (probably this was never shown)
-        showSection('IC2setupKPdownloaded');
-
-        installState |= KF_INSTALL_STATE_KP_EXECUTING;
-
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KP_SAVE_NAME);
-        
-        threadFixer = file.path;
-        
-        setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                   
-        setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,"","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
-      // var temp = new mainWindow.KFexecutableInstallerRunner("KeePass-2.06-Beta-Setup.exe","","IC1KPSetupFinished", mainWindow, window);
-      // temp.run();
-        
-    } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
-    {
-        showSection('IC2setupKPdownloading');
-    }
-} catch (err) {
-            mainWindow.keeFoxInst._KFLog.error(err);
-        }    
+            var file = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.append(KF_KP_SAVE_NAME);
+            
+            threadFixer = file.path;
+            
+            setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
+                       
+            setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,
+                "","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
+          // var temp = new mainWindow.KFexecutableInstallerRunner("KeePass-2.06-Beta-Setup.exe",
+          //"","IC1KPSetupFinished", mainWindow, window);
+          // temp.run();
+            
+        } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
+        {
+            showSection('IC2setupKPdownloading');
+        }
+    } catch (err) {
+        mainWindow.keeFoxInst._KFLog.error(err);
+    }    
 }
 /********************
 END:
@@ -594,13 +648,17 @@ functions to support the execution of IC5 (and IC2 tertiary)
 ********************/
 /*
  IC5 (and IC2 tertiary)
- test to see if KeePass is installed in specified location, if it isn't, extract the portable zip file there
+ test to see if KeePass is installed in specified location, if
+ it isn't, extract the portable zip file there
  then in either case we will copy the KeeICE files into the plugin folder
  */
- //TODO: rearrange this install process so that the folder is chosen first (before download - or during?) just in case user cancels first (so minimal bandwidth wasted)
-function IC5zipKP() {
-
-    if ((installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED) && (installState & KF_INSTALL_STATE_SELECTED_TER))
+ //TODO: rearrange this install process so that the folder is chosen
+ // first (before download - or during?) just in case user cancels
+ // first (so minimal bandwidth wasted)
+function IC5zipKP()
+{
+    if ((installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED)
+        && (installState & KF_INSTALL_STATE_SELECTED_TER))
     {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KPZIP_SAVE_NAME, KF_KPZIP_FILE_CHECKSUM);
         
@@ -623,7 +681,8 @@ function IC5zipKP() {
         //fp.appendFilters(nsIFilePicker.filterAll);
 
         var rv = fp.show();
-        if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
+        if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
+        {
             var folder = fp.file;
             // Get the path as string. Note that you usually won't 
             // need to work with the string paths.
@@ -634,7 +693,10 @@ function IC5zipKP() {
               
             var KeePassEXEfound;
             
-            mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation",path+"\\"); //TODO: probably should store the file object itself rather than string version (X-Plat)
+            mainWindow.keeFoxInst._keeFoxExtension.prefs
+                .setValue("keePassInstalledLocation",path+"\\");
+                    //TODO: probably should store the file object
+                    // itself rather than string version (X-Plat)
             KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(path+"\\");
             mainWindow.KFLog.info("KeePass install location set to: " + path+"\\");
             if (!KeePassEXEfound)
@@ -642,29 +704,25 @@ function IC5zipKP() {
                 mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation","");
             } else
             {
-                copyKeeICEFilesTo(path);
+                copyKeePassRPCFilesTo(path);
             }
                 
             hideSection('IC5installing');
             showSection('InstallFinished');
             mainWindow.keeFoxInst._KFLog.debug("AAA");
             launchAndConnectToKeePass();
-
         } else
         {
             hideSection('installProgressView');
             showSection('installationStartView');
             hideSection('IC5installing');
-        }
-        
+        }        
         
     } else if (installState & KF_INSTALL_STATE_KPZIP_DOWNLOADING)
     {
         showSection('IC5zipKPdownloading');
     }
-
-    
-  
+ 
 }
 /********************
 END:
@@ -680,18 +738,16 @@ functions initiated by user choice in UI
  IC1 and IC4
  run (with admin rights escalation) the .NET 2 installer 
  */
-function setupExeInstall() {
-
+function setupExeInstall()
+{
     hideInstallView();
     showProgressView();
     
     if (installState & KF_INSTALL_STATE_NET_DOWNLOADING)
-    {
-        
         showSection('IC1setupNETdownloading');
-    }
  
-    // call this now and let it decide if it is the right time to run the installer or wait until it's called again by progress listener
+    // call this now and let it decide if it is the right time to run
+    // the installer or wait until it's called again by progress listener
     installState |= KF_INSTALL_STATE_SELECTED_PRI;
     IC1setupNET(mainWindow);
 }
@@ -701,18 +757,16 @@ function setupExeInstall() {
  run (quietly and with admin rights escalation) the keepass 2.x exe installer
  and copy the KeeICE files into place
  */
-function KPsetupExeSilentInstall() {
-
+function KPsetupExeSilentInstall()
+{
     hideInstallView();
     showProgressView();
     
     if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
-    {
-        
         showSection('IC2setupKPdownloading');
-    }
  
-    // call this now and let it decide if it is the right time to run the installer or wait until it's called again by progress listener
+    // call this now and let it decide if it is the right time to run
+    // the installer or wait until it's called again by progress listener
     installState |= KF_INSTALL_STATE_SELECTED_PRI;
     IC2setupKP(mainWindow);
 }
@@ -721,13 +775,15 @@ function KPsetupExeSilentInstall() {
 /*
  IC3 and IC6
  copy KeeICE files to the known KeePass 2.x location
- TODO: detect access denied failures and prompt user accordingly (this could happen if an admin installed KeePass at an earlier time)
+ TODO: detect access denied failures and prompt user accordingly
+ (this could happen if an admin installed KeePass at an earlier time)
  */
-function copyKIToKnownKPLocationInstall() {
-
+function copyKRPCToKnownKPLocationInstall()
+{
     hideInstallView();
     
-    keePassLocation = mainWindow.keeFoxInst._keeFoxExtension.prefs.getValue("keePassInstalledLocation", "not installed");
+    keePassLocation = mainWindow.keeFoxInst._keeFoxExtension.prefs
+                    .getValue("keePassInstalledLocation", "not installed");
 
     if (keePassLocation == "not installed")
     {
@@ -738,31 +794,34 @@ function copyKIToKnownKPLocationInstall() {
         showProgressView();
         showSection('IC3installing');
       
-        copyKeeICEFilesTo(keePassLocation);
+        copyKeePassRPCFilesTo(keePassLocation);
   
         hideSection('IC3installing');
         showSection('InstallFinished');
         mainWindow.keeFoxInst._KFLog.debug("AAA");
         launchAndConnectToKeePass();
-
     }
 }
 
 
 /*
  IC5 (and IC2 tertiary)
- test to see if KeePass is installed in specified location, if it isn't, extract the portable zip file there
+ test to see if KeePass is installed in specified location,
+ if it isn't, extract the portable zip file there
  then in either case we will copy the KeeICE files into the plugin folder
  */
-function copyKPToSpecificLocationInstall() {
-
+function copyKPToSpecificLocationInstall()
+{
 //TODO: cancel KPsetup download
     
     // start the download if it hasn't already been done
-    if (!(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADING) && !(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED))
+    if (!(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADING) 
+        && !(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED))
     {
-        installState |= KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-        persist = mainWindow.KFdownloadFile("IC5PriDownload", KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
+        installState |= KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+        persist = mainWindow.KFdownloadFile("IC5PriDownload",
+            KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME,
+            KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
     }
     
     hideInstallView();
@@ -770,8 +829,11 @@ function copyKPToSpecificLocationInstall() {
     
     showSection('IC5zipKPdownloading');
  
-    // call this now and let it decide if it is the right time to run the installer or wait until it's called again by progress listener
-    installState |= KF_INSTALL_STATE_SELECTED_TER; // mini-cheat: this state is also applied even when the true state is IC5 primary but this is the quick way to identify this varient of the installation
+    // call this now and let it decide if it is the right time to run
+    // the installer or wait until it's called again by progress listener
+    installState |= KF_INSTALL_STATE_SELECTED_TER; // mini-cheat: this state
+        // is also applied even when the true state is IC5 primary
+        // but this is the quick way to identify this varient of the installation
     
     IC5zipKP(mainWindow);
 }
@@ -781,22 +843,24 @@ function copyKPToSpecificLocationInstall() {
  IC1 and IC4
  run (with admin rights escalation) the .NET 3.5 installer 
  */
-function setupNET35ExeInstall() {
-
+function setupNET35ExeInstall()
+{
 //TODO: cancel net2 download
-
-installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1SecDownload", KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME, KF_NET35_FILE_NAME, mainWindow, window, persist);
+    installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+            persist = mainWindow.KFdownloadFile("IC1SecDownload",
+                KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME,
+                KF_NET35_FILE_NAME, mainWindow, window, persist);
     hideInstallView();
     showProgressView();
     
     showSection('IC1setupNET35downloading');
-
  
-    // call this now and let it decide if it is the right time to run the installer or wait until it's called again by progress listener
+    // call this now and let it decide if it is the right time to run
+    // the installer or wait until it's called again by progress listener
     installState |= KF_INSTALL_STATE_SELECTED_SEC;
     
-    // we just call IC1 straight away since we currently treat IC1 and IC4 as the same situation
+    // we just call IC1 straight away since we currently treat
+    // IC1 and IC4 as the same situation
     IC1setupNET35(mainWindow);
 }
 
@@ -804,20 +868,18 @@ installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KI_DOWNLOAD
 /*
  (IC2 secondary and IC5 secondary)
  run (with admin rights escalation) the keepass 2.x exe installer
- and copy the KeeICE files into place
+ and copy the KeePassRPC.plgx file into place
  */
-function KPsetupExeInstall() {
-
+function KPsetupExeInstall()
+{
     hideInstallView();
     showProgressView();
     
     if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
-    {
-        
         showSection('IC2setupKPdownloading');
-    }
  
-    // call this now and let it decide if it is the right time to run the installer or wait until it's called again by progress listener
+    // call this now and let it decide if it is the right time to run
+    // the installer or wait until it's called again by progress listener
     installState |= KF_INSTALL_STATE_SELECTED_SEC;
     IC2setupCustomKP(mainWindow);
 }
@@ -835,28 +897,29 @@ utility functions
 ********************/
 function launchAndConnectToKeePass()
 {
-    // Tell KeeFox that KeeICE has been installed so it will reguarly
+    // Tell KeeFox that KeePassRPC has been installed so it will reguarly
     // attempt to connect to KeePass when the timer goes off.
-    var Application = Components.classes["@mozilla.org/fuel/application;1"].getService(Components.interfaces.fuelIApplication);
+    var Application = Components.classes["@mozilla.org/fuel/application;1"]
+        .getService(Components.interfaces.fuelIApplication);
     var keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
     var keeFoxStorage = keeFoxExtension.storage;
 
-    keeFoxStorage.set("KeePassRPCInstalled", true)
+    keeFoxStorage.set("KeePassRPCInstalled", true);
     
-    // launch KeePass and then try to connect to KeeICE
-    // (after 7.5 seconds although it might work sooner than that)
-    // If it's still not ready by then, a 10 second repeat timer
-    // in the main KF.js file will be activated
-    mainWindow.keeFoxInst.launchKeePass("-welcomeToKeeFox");
-    var event = { notify: function(timer) { mainWindow.keeFoxInst.startICEcallbackConnector(); } }
+    // launch KeePass and then try to connect to KeePassRPC
+    mainWindow.keeFoxInst.launchKeePass();
     
-    var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-    timer.initWithCallback(event, 7500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-    mainWindow.keeFoxInst._KFLog.info("Installation timer started");
+    // The session connect process should still be listening every 10 seconds anyway...
+    
+//    var event = { notify: function(timer) { mainWindow.keeFoxInst.startICEcallbackConnector(); } }
+//    
+//    var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+//    timer.initWithCallback(event, 7500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+//    mainWindow.keeFoxInst._KFLog.info("Installation timer started");
 }
 
-function userHasAdminRights(mainWindow) {
-
+function userHasAdminRights(mainWindow)
+{
     var isAdmin;
     isAdmin = false;
 
@@ -872,24 +935,32 @@ function userHasAdminRights(mainWindow) {
     }
 }
 
-function checkDotNetFramework(mainWindow) {
+function checkDotNetFramework(mainWindow)
+{
     var dotNetFrameworkFound;
     dotNetFrameworkFound = false;
       
-    // platform is a string with one of the following values: "Win32", "Linux i686", "MacPPC", "MacIntel", or other.
-    if (window.navigator.platform == "Win32") {
-        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"].createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-        "SOFTWARE\\Microsoft",
-        wrk.ACCESS_READ);
-        if (wrk.hasChild(".NETFramework")) {
+    // platform is a string with one of the following values: "Win32",
+    // "Linux i686", "MacPPC", "MacIntel", or other.
+    if (window.navigator.platform == "Win32")
+    {
+        var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
+            .createInstance(Components.interfaces.nsIWindowsRegKey);
+        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft",
+            wrk.ACCESS_READ);
+        if (wrk.hasChild(".NETFramework"))
+        {
             var subkey = wrk.openChild(".NETFramework", wrk.ACCESS_READ);
-            if (subkey.hasChild("policy")) {
+            if (subkey.hasChild("policy"))
+            {
                 var subkey2 = subkey.openChild("policy", subkey.ACCESS_READ);
-                if (subkey2.hasChild("v2.0")) {
+                if (subkey2.hasChild("v2.0"))
+                {
                     var subkey3 = subkey2.openChild("v2.0", subkey2.ACCESS_READ);
-                    if (subkey3.hasValue("50727")) {
-                        if (subkey3.readStringValue("50727") == "50727-50727") {
+                    if (subkey3.hasValue("50727"))
+                    {
+                        if (subkey3.readStringValue("50727") == "50727-50727")
+                        {
                             dotNetFrameworkFound = true;
                             mainWindow.KFLog.info(".NET framework has been found");
                         }
@@ -905,79 +976,85 @@ function checkDotNetFramework(mainWindow) {
     return dotNetFrameworkFound;
 }
 
-//TODO: doesn't work on Windows 7
-function copyKeeICEFilesTo(keePassLocation)
+// Even admins can't make changes to the Program Files directory on
+// Windows Vista / 7 so this function will increasingly become
+// useless... might as well at least try it though
+function copyKeePassRPCFilesTo(keePassLocation)
 {
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);
     destFolder.append("plugins");
     
-    var destFileKeeICE = Components.classes["@mozilla.org/file/local;1"]
+    var destFileKeePassRPC = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
-    destFileKeeICE.initWithPath(keePassLocation);
-    destFileKeeICE.append("plugins");
-    destFileKeeICE.append("KeeICE.plgx");
-        
-    var noExceptions = false;
-
-    try {
+    destFileKeePassRPC.initWithPath(keePassLocation);
+    destFileKeePassRPC.append("plugins");
+    destFileKeePassRPC.append("KeePassRPC.plgx");
+    
+    try
+    {
         if (!destFolder.exists())
             destFolder.create(destFolder.DIRECTORY_TYPE, 0775);
-        var KeeICEfile = Components.classes["@mozilla.org/file/local;1"]
+        var KeePassRPCfile = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-        KeeICEfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        KeeICEfile.append("KeeICE.plgx");
-        if (destFileKeeICE.exists())
-            destFileKeeICE.remove(false);
-        KeeICEfile.copyTo(destFolder,"");
-
-        noExceptions = true;
+        KeePassRPCfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+        KeePassRPCfile.append("KeePassRPC.plgx");
+        if (destFileKeePassRPC.exists())
+            destFileKeePassRPC.remove(false);
+        KeePassRPCfile.copyTo(destFolder,"");
     } catch (ex)
     {
         mainWindow.keeFoxInst._KFLog.error(ex);
-        //TODO: check it really was the assumed 0x80520008 (NS_ERROR_FILE_ALREADY_EXISTS) exception
     }
 
-    var KeeICEDLLfound;
+    var KeePassRPCfound;
     
-    var keeICELocation;
-    try {
-        keeICELocation = "not installed";
-        mainWindow.keeFoxInst._KFLog.debug("1");
-        keeICELocation = mainWindow.keeFoxInst._discoverKeeICEInstallLocation(); // this also stores the preference
-        mainWindow.keeFoxInst._KFLog.debug("2");
-        KeeICEDLLfound = mainWindow.keeFoxInst._confirmKeeICEInstallLocation(keeICELocation);
-        mainWindow.keeFoxInst._KFLog.debug("3");
+    var keePassRPCLocation;
+    try
+    {
+        keePassRPCLocation = "not installed";
+        keePassRPCLocation = mainWindow.keeFoxInst._discoverKeePassRPCInstallLocation(); // this also stores the preference
+        KeePassRPCfound = mainWindow.keeFoxInst._confirmKeePassRPCInstallLocation(keePassRPCLocation);
     } catch (ex)
     {
         mainWindow.keeFoxInst._KFLog.error(ex);
     }
-    // if we can't find the DLLs, they were probably not copied because of a permissions fault so lets try
-    // a fully escalated executable to get them put into place
-    if (!noExceptions || !KeeICEDLLfound)
+    
+    // if we can't find KeePassRPC, it was probably not copied because of
+    // a permissions fault so lets try a fully escalated executable
+    // to get it put into place
+    if (!KeePassRPCfound)
     {
         mainWindow.keeFoxInst._KFLog.debug("4");
         mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
-        runKeeICEExecutableInstaller(keePassLocation);
+        runKeePassRPCExecutableInstaller(keePassLocation);
         mainWindow.keeFoxInst._KFLog.debug("5");
-        keeICELocation = "not installed";
+        keePassRPCLocation = "not installed";
 
-        keeICELocation = mainWindow.keeFoxInst._discoverKeeICEInstallLocation(); // this also stores the preference
+        keePassRPCLocation = mainWindow.keeFoxInst._discoverKeePassRPCInstallLocation(); // this also stores the preference
         mainWindow.keeFoxInst._KFLog.debug("6");
-        KeeICEDLLfound = mainWindow.keeFoxInst._confirmKeeICEInstallLocation(keeICELocation);
+        KeePassRPCfound = mainWindow.keeFoxInst._confirmKeePassRPCInstallLocation(keePassRPCLocation);
         mainWindow.keeFoxInst._KFLog.debug("7");
-        // still not found!
-        if (!KeeICEDLLfound)
+        
+        // still not found! Have to give up :-(
+        if (!KeePassRPCfound)
         {
-        mainWindow.keeFoxInst._KFLog.debug("8");
+            mainWindow.keeFoxInst._KFLog.debug("8");
             mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
-            //TODO: better handle this unusual situation (e.g. Vista user cancelling UAC request)
+            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                        .getService(Components.interfaces.nsIPromptService);
+            promptService.alert("Sorry, KeeFox could not automatically install the KeePassRPC"
+                + " plugin for KeePass Password Safe 2, which is required for KeeFox to function."
+                + " This is usually becuase you are trying to install to a location into which you are"
+                + " not permitted to add new files. You may be able to restart Firefox and"
+                + " try the installation again choosing different options or you could ask your"
+                + " computer administrator for assistance.");           
         }
     }
 }
 
-function runKeeICEExecutableInstaller(keePassLocation)
+function runKeePassRPCExecutableInstaller(keePassLocation)
 {
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
@@ -987,16 +1064,20 @@ function runKeeICEExecutableInstaller(keePassLocation)
     var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-        file.append(KF_KI_FILE_NAME);
+        file.append(KF_KRPC_FILE_NAME);
 
-    mainWindow.keeFoxInst.runAnInstaller(file.path,'"' + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
-
+    mainWindow.keeFoxInst.runAnInstaller(file.path,
+        '"' + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
 }
 
-// TODO: would be nice if this could go in a seperate thread but my guess is that would be masochistic
-// in the mean time I've tried sticking some thread.processNextEvent calls in at strategic points...
-function extractKPZip (zipFilePath, storeLocation) {
-
+// TODO: would be nice if this could go in a seperate
+// thread but my guess is that would be masochistic
+// in the mean time I've tried sticking some
+// thread.processNextEvent calls in at strategic points...
+// TODO2: revisit threaded approach now that we can
+// rely on FF 3.5 thread workers to simplify things
+function extractKPZip (zipFilePath, storeLocation)
+{
     var zipFile = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         zipFile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
@@ -1010,27 +1091,34 @@ function extractKPZip (zipFilePath, storeLocation) {
     var zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
                      .createInstance(Components.interfaces.nsIZipReader);
     zipReader.open(zipFile);
-    //zipReader.test(null);
     
     // create directories first
     var entries = zipReader.findEntries("*/");
-    while (entries.hasMore()) {
+    while (entries.hasMore())
+    {
         thread.processNextEvent(true); // should this be false instead?
         var entryName = entries.getNext();
         var target = getItemFile(entryName);
-        if (!target.exists()) {
-            try {
+        if (!target.exists())
+        {
+            try
+            {
                 target.create(Components.interfaces.nsILocalFile.DIRECTORY_TYPE, 0744);
             }
-            catch (e) {
-                alert("extractKPZip: failed to create target directory for extraction " +
-                " file = " + target.path + ", exception = " + e + "\n");
+            catch (e)
+            {
+                var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                        .getService(Components.interfaces.nsIPromptService);
+                promptService.alert("Installation failure. Could not extract the KeePass Password"
+                    + " Safe 2 files. More information: Failed to create target directory for"
+                    + "extraction file = " + target.path + ", exception = " + e + "\n");
             }
         }
     }
 
     entries = zipReader.findEntries(null);
-    while (entries.hasMore()) {
+    while (entries.hasMore())
+    {
         var entryName = entries.getNext();
         target = getItemFile(entryName);
         if (target.exists())
@@ -1038,26 +1126,34 @@ function extractKPZip (zipFilePath, storeLocation) {
 
         thread.processNextEvent(true); // should this be false instead?
 
-        try {
-            target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 0744); //TODO: different permissions for special files on linux. e.g. 755 for main executable? not sure how it works with Mono though so needs much more reading...
+        try
+        {
+            target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 0744);
+            //TODO: different permissions for special files on linux. e.g. 755
+            // for main executable? not sure how it works with Mono though
+            // so needs much more reading...
         }
-        catch (e) {
-            alert("extractKPZip: failed to create target file for extraction " +
-            " file = " + target.path + ", exception = " + e + "\n");
+        catch (e)
+        {
+            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                        .getService(Components.interfaces.nsIPromptService);
+                promptService.alert("Installation failure. Could not extract the KeePass"
+                    + " Password Safe 2 files. More information: Failed to create target"
+                    + " file for extraction "
+                    + " file = " + target.path + ", exception = " + e + "\n");
         }
         zipReader.extract(entryName, target);
     }
-    zipReader.close();
-    
+    zipReader.close();    
 
-    function getItemFile( filePath) {
+    function getItemFile(filePath)
+    {
         var itemLocation = storeLocation.clone();
         var parts = filePath.split("/");
         for (var i = 0; i < parts.length; ++i)
           itemLocation.append(parts[i]);
         return itemLocation;
     }
-
 }
 
 /********************
@@ -1067,10 +1163,7 @@ utility functions
   
 /*
 
-TODO in 0.7: 
-see if moving nsfile stuff outside of seperate thread stops all crashes again or if i just been unlucky
+TODO in 0.8: 
 test each install start point in VMs
-scrolling box for chrome window
-work out and configure sensible keepass defaults for use as a mainly browser based password management system (put option changes into the new user wizzard in KeeICE)
 
 */

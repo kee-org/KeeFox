@@ -268,10 +268,13 @@ KFILM.prototype = {
             if (!(domDoc instanceof Ci.nsIDOMHTMLDocument))
                 return;
 
-            if (KFLog.logSensitiveData) KFLog.debug("onStateChange accepted: req = " +
+            if (KFLog.logSensitiveData)
+                KFLog.debug("onStateChange accepted: req = " +
                             (aRequest ?  aRequest.name : "(null)") +
                             ", flags = 0x" + aStateFlags.toString(16));
-
+            else
+                KFLog.debug("onStateChange accepted"); 
+                       
             var b = getBrowser();
             var currentTab = b.selectedTab; //TODO: are we sure this always the tab that this event refers to?
 
@@ -386,7 +389,7 @@ KFILM.prototype = {
         { 
             KFLog.debug("Location changed: " + aURI.spec);
             // remove all the old logins from the toolbar
-            keeFoxToolbar.removeLogins();
+            //keeFoxToolbar.removeLogins();
          },
 
         // stubs for the nsIWebProgressListener interfaces which we don't use.
@@ -616,7 +619,7 @@ KFILM.prototype = {
             }
             
             if (i == 0)
-                primaryURL = loginURL.URL;
+                primaryURL = loginURL;
         }
         
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
@@ -947,7 +950,11 @@ KFILM.prototype = {
     loadAndAutoSubmit : function (usernameName,usernameValue,
                         actionURL,usernameID,formID,uniqueID)
     {
-        KFLog.debug("loadAndAutoSubmit");        
+        if (KFLog.logSensitiveData)
+            KFLog.debug("loading and auto submitting " + actionURL); 
+        else
+            KFLog.debug("loading and auto submitting..."); 
+               
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
         var newWindow = wm.getMostRecentWindow("navigator:browser");

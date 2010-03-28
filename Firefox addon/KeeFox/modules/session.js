@@ -37,85 +37,147 @@ function session()
     this.reconnectionAttemptFrequency = 10000;
     this.port = 12536;
     this.address = "127.0.0.1";
-    this.connectionTimeout = 3600000;
+    this.connectionTimeout = 1000; // short timeout for connections
+    this.activityTimeout = 3600000; // long timeout for activity
 }
 
 session.prototype =
 {
+    reconnectTimer: null,
+    reconnectSoon: function()
+    {
+        log.debug("Creating a reconnection timer.");
+         // Create a timer 
+         this.reconnectTimer = Components.classes["@mozilla.org/timer;1"]
+                    .createInstance(Components.interfaces.nsITimer);
+         
+         this.reconnectTimer.initWithCallback(this.reconnectNow,
+            this.reconnectionAttemptFrequency,
+            Components.interfaces.nsITimer.TYPE_REPEATING_SLACK); //TODO: does the timer stay in scope?
+        
+//        while (true) //TODO: is there any need to shutdown cleanly from here? if so, how?
+//        {
+////            yield;
+//            log.debug("Attempting to connect to RPC server.");
+////            if (this.connect(this.address, this.port) == "alive")
+////                log.debug("Connection already established.");
+//        }
+        
+//        timer.cancel();
+    },
+    
     connect: function()
     {
-        try {
+        try
+        {
             if (this.transport != null && this.transport.isAlive())
                 return "alive";
-            
             var transportService =
                 Components.classes["@mozilla.org/network/socket-transport-service;1"].
                 getService(Components.interfaces.nsISocketTransportService);
             var transport = transportService.createTransport(null, 0, this.address, this.port, null);
             if (!transport) {
-                this.onNotify("connect-failed", "Unable to create transport for "+this.address+":"+this.port);
-                this.reconnectSoon();  
+                this.onNotify("connect-failed", "Unable to create transport for "+this.address+":"+this.port); 
                 return;
             }
-            // long timeout for connections
             transport.setTimeout(Components.interfaces.nsISocketTransport.TIMEOUT_CONNECT, this.connectionTimeout);
+            transport.setTimeout(Components.interfaces.nsISocketTransport.TIMEOUT_READ_WRITE, this.activityTimeout);
             this.setTransport(transport);
-        } catch(ex) {
+        } catch(ex)
+        {
             this.onNotify("connect-failed", "Unable to connect to "+this.address+":"+this.port+"; Exception occured "+ex);
             this.disconnect();
-            this.reconnectSoon();  
         }
     },
     
     setTransport: function(transport)
     {
-        try {
+        try
+        {
             this.transport = transport;
             this.raw_istream = this.transport.openInputStream(0, 0, 0);
-            this.ostream = this.transport.openOutputStream(0,0,0);
-            this.istream = Components.classes["@mozilla.org/binaryinputstream;1"]
-                           .createInstance(Components.interfaces.nsIBinaryInputStream);
-            this.istream.setInputStream(this.raw_istream);
-            if (!this.transport.isAlive()) {
+            this.raw_ostream = this.transport.openOutputStream(0, 0, 0);
+//            this.istream = Components.classes["@mozilla.org/binaryinputstream;1"]
+//                           .createInstance(Components.interfaces.nsIBinaryInputStream);
+//            this.istream.setInputStream(this.raw_istream);
+            
+            const replacementChar = Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
+            var charset = "UTF-8";
+
+            this.ostream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
+                               .createInstance(Components.interfaces.nsIConverterOutputStream);
+
+            // This assumes that fos is the template.Interface("nsIOutputStream") you want to write to
+            this.ostream.init(this.raw_ostream, charset, 0, replacementChar);
+
+            //os.writeString("Umlaute: \u00FC \u00E4\n");
+            //os.writeString("Hebrew:  \u05D0 \u05D1\n");
+            // etc.
+
+            //os.close();
+
+            this.istream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+                               .createInstance(Components.interfaces.nsIConverterInputStream);
+            this.istream.init(this.raw_istream, charset, 0, replacementChar);
+            
+            
+            if (!this.transport.isAlive())
+            {
+                log.debug("transport stream is not alive yet");
                 var mainThread = Components.classes["@mozilla.org/thread-manager;1"]
                                  .getService(Components.interfaces.nsIThreadManager).mainThread;
-                var asyncOutputStream = this.ostream.QueryInterface(Components.interfaces.nsIAsyncOutputStream);
+                var asyncOutputStream = this.raw_ostream.QueryInterface(Components.interfaces.nsIAsyncOutputStream);
                 // We need to be able to write at least one byte.
                 asyncOutputStream.asyncWait(this, 0, 1, mainThread);
-            } else {
+                log.debug("async input wait begun");
+            } else
+            {
+                log.debug("onconnect");
                 this.onConnect();
             }
         } catch(ex) {
-            this.onNotify("connect-failed", "setTransport failed, Unable to connect; Exception "+ex);
             log.error(ex, "setTransport failed: ");
+            this.onNotify("connect-failed", "setTransport failed, Unable to connect; Exception "+ex);            
             this.disconnect();
-            this.reconnectSoon();  
+            //this.reconnectSoon();  
         }
     },
     
-    tryReconnect: function(originalObject)
-    {
+    reconnectNow: { 
+        notify: function(timer) 
+        { 
+            log.debug("Connection attempt is now due.");
+        
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+            //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
+            var rpc = window.keeFoxInst.KeePassRPC;
+            log.debug("Attempting to connect to RPC server.");
+            if (rpc.connect() == "alive")
+                log.debug("Connection already established.");
+            
+        } 
+    },
+    
+    
+//    function(originalObject)
+//    {
+//        log.debug("Connection attempt is now due.");
+//        this.reconnectSoon.next(); // pretty sure we won't be able to access this object from "this" but might as well try once...
+//        
         // we try to connect and then schedule another attempt. 
         // If the first attempt was successful then the latter will just return immediately
         // and we can then stop making connection attempts
-        if (originalObject.connect(this.address, this.port) == "alive")
-            return;
-        
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-        window.setTimeout(originalObject.tryReconnect, this.reconnectionAttemptFrequency, originalObject);
-    },
+//        if (originalObject.connect(this.address, this.port) == "alive")
+//            return;
+//        
+//        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+//                 .getService(Components.interfaces.nsIWindowMediator);
+//        var window = wm.getMostRecentWindow("navigator:browser");
+//        window.setTimeout(originalObject.tryReconnect, this.reconnectionAttemptFrequency, originalObject);
+//    },
     
-    reconnectSoon: function()
-    {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-        window.setTimeout(this.tryReconnect, this.reconnectionAttemptFrequency, this);
-    },
 
     onOutputStreamReady: function()
     {
@@ -123,12 +185,14 @@ session.prototype =
             this.onConnect();
            //  else handle stream errors without risking double reaction to legitimate disconnection
         else
-            this.reconnectSoon();    
+            log.error("Connection attempt failed. Is The KeePassRPC server running?");
     },
 
     onConnect: function()
     {
-        try {
+        try
+        {
+            log.debug("Setting up async reading pump");
             // start the async read
             this.pump = Components.classes["@mozilla.org/network/input-stream-pump;1"]
                         .createInstance(Components.interfaces.nsIInputStreamPump);
@@ -139,29 +203,39 @@ session.prototype =
             log.error(ex, "Session::onConnect failed: ");
             this.onNotify("connect-failed", "Unable to connect; Exception occured "+ex);
             this.disconnect();
-            this.reconnectSoon();  
+            //this.reconnectSoon();  
         }
     },
     
     disconnect: function()
     {
+        log.info("Disconnecting from RPC server");
         if ("istream" in this && this.istream)
             this.istream.close();
         if ("ostream" in this && this.ostream)
             this.ostream.close();
+        if ("raw_ostream" in this && this.raw_ostream)
+            this.raw_ostream.close();
         if ("transport" in this && this.transport)
           this.transport.close(Components.results.NS_OK);
     
         this.pump = null;
         this.istream = null;
         this.ostream = null;
+        this.raw_ostream = null;
         this.transport = null;
         this.onNotify("connect-closed", null);
     },
 
-    readData: function(count) 
+    readData: function() 
     {
-        return this.istream.readBytes(count);
+        var fullString = "";
+        var str = {};
+        while (this.istream.readString(4096, str) != 0)
+            fullString += str.value;
+
+        return fullString;
+        //return this.istream.readBytes(count);
     },
     
     //TODO: try to recover from dead connections...
@@ -182,22 +256,22 @@ session.prototype =
             }
     
             var str1 = this.expand(data);
-            if (str1.length > 1000) {
-                str1 = str1.substr(0, 1000) + "...";
-            }
+//            if (str1.length > 1000) {
+//                str1 = str1.substr(0, 1000) + "...";
+//            }
             log.debug("writeData: [" + str1 + "]");
             
-            var num_written = this.ostream.write(data, dataLen);
-            if (num_written != dataLen) {
-                log.debug("Expected to write "
-                          + dataLen
-                          + " chars, but wrote only "
-                          + num_written);
-                if (num_written == 0) {
-                    log.debug("bailing out...");
-                    this.disconnect();
-                }
-            }
+            var num_written = this.ostream.writeString(data);
+//            if (num_written != dataLen) {
+//                log.debug("Expected to write "
+//                          + dataLen
+//                          + " chars, but wrote only "
+//                          + num_written);
+//                if (num_written == 0) {
+//                    log.debug("bailing out...");
+//                    this.disconnect();
+//                }
+//            }
             return num_written;
         } catch(ex) {
             log.debug(ex, "writeData failed: ");

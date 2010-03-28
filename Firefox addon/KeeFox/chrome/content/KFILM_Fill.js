@@ -329,8 +329,20 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 
         // Deleting these bits of info no matter what, so future uses of this tab are unaffected by previous uses.
         // (if we actually go ahead with the form fill we will add them back in then)
-        ss.deleteTabValue(currentTab, "KF_uniqueID");
-        ss.deleteTabValue(currentTab, "KF_autoSubmit"); // problem if this has not been set previously?
+        var SSautoSubmit = ss.getTabValue(currentTab, "KF_autoSubmit");
+
+        if (SSautoSubmit != undefined && SSautoSubmit != null && SSautoSubmit != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_autoSubmit");
+        }
+        
+        var SSuniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
+
+        if (SSuniqueID != undefined && SSuniqueID != null && SSuniqueID != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_uniqueID");
+        }
+        
         KFLog.debug("deleted some tab values");
     }
     
