@@ -56,7 +56,7 @@
       <Project>{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}</Project>
       <Name>Jayrock</Name>
     </ProjectReference>
-    <ProjectReference Include="..\KeeICE\KeePassRPC.csproj">
+    <ProjectReference Include="..\KeePassRPC\KeePassRPC.csproj">
       <Project>{4C1BB6F8-D2CD-49C2-9053-21705681356C}</Project>
       <Name>KeePassRPC</Name>
     </ProjectReference>

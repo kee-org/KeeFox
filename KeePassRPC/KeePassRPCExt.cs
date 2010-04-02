@@ -116,7 +116,7 @@ namespace KeePassRPC
             _host = host;
 
             _RPCService = new KeePassRPCService(host, 
-                getStandardIconsBase64(host.MainWindow.ClientIcons), PluginVersion);
+                getStandardIconsBase64(host.MainWindow.ClientIcons), this);
             _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService);
 
             // register to recieve events that we need to deal with
@@ -231,17 +231,26 @@ namespace KeePassRPC
             return icons;
         }
 
-        public void RegisterKnownClient()
-        {
-            WelcomeKeeFoxUser();
-        }
+        //public void RegisterKnownClient()
+        //{
+        //    WelcomeKeeFoxUser();
+        //}
 
-        private void WelcomeKeeFoxUser()
+        public delegate object WelcomeKeeFoxUserDelegate(PendingRPCClient client);
+        
+
+        public object WelcomeKeeFoxUser(PendingRPCClient client)
         {
             WelcomeForm wf = new WelcomeForm();
-            DialogResult dr = wf.ShowDialog();
+            DialogResult dr = wf.ShowDialog(); //TODO: explain / warn on dialog and provide a Cancel button
+
+            if (dr == DialogResult.Yes || dr == DialogResult.No)
+                RPCService.AddKnownRPCClient(client);
             if (dr == DialogResult.Yes)
                 CreateNewDatabase();
+            if (dr == DialogResult.Yes || dr == DialogResult.No)
+                return 0;
+            return 1;
         }
 
         /// <summary>

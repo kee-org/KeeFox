@@ -35,6 +35,7 @@ using KeePassLib.Serialization;
 using System.IO;
 using KeePassLib.Security;
 using KeePass.Plugins;
+using System.Security.Cryptography;
 
 namespace KeePassRPC
 {
@@ -45,6 +46,7 @@ namespace KeePassRPC
     {
         #region Class variables, constructor and destructor
 
+        KeePassRPCExt KeePassRPCPlugin;
         Version PluginVersion;
         IPluginHost host;
         // no way to make use of this yet: bool permitUnencryptedURLs = false;
@@ -54,9 +56,10 @@ namespace KeePassRPC
 
         private string[] _standardIconsBase64;
 
-        public KeePassRPCService(IPluginHost host, string[] standardIconsBase64, Version pluginVersion)
+        public KeePassRPCService(IPluginHost host, string[] standardIconsBase64, KeePassRPCExt plugin)
         {
-            PluginVersion = pluginVersion;
+            KeePassRPCPlugin = plugin;
+            PluginVersion = KeePassRPCExt.PluginVersion;
             this.host = host;
             _standardIconsBase64 = standardIconsBase64;
         }
@@ -76,55 +79,219 @@ namespace KeePassRPC
         #region Client authentication
 
         /// <summary>
-        /// Authenticates an RPC client by verifying it is the correct version, is in possesion of an identifying string encrypted by the private key companian of the public key embedded in this application and that hash of its unique ID data matches that stored in the KeePass config file. Unrecognised clients will be presented to the user for one-time validation.
+        /// Authenticates an RPC client by verifying it is the correct version,
+        /// is in possesion of an identifying string signed by the private key
+        /// companion of the public key embedded in this application and that
+        /// the hash of its unique ID data matches that stored in the KeePass
+        /// config file. Unrecognised clients will be presented to the user
+        /// for one-time validation.
         /// </summary>
-        /// <param name="versionParts">The version of the client (must be identical to this RPC plugin version for authentication to succeed)</param>
-        /// <param name="b64Id">Base64 encoded unique id.</param>
-        /// <param name="b64PrivId">Base64 encoded client type identifer (encrypted by a private key)</param>
-        /// <returns>0 if authentication was approved; other positive integers to indicate various error conditions</returns>
+        /// <param name="versionParts">The version of the client (must be
+        /// identical to this RPC plugin version for authentication
+        /// to succeed)</param>
+        /// <param name="clientId">The claimed name of the RPC client that 
+        /// is attempting to gain access to KeePassRPC</param>
+        /// <param name="b64IdSig">Base64 encoded signature for clientId.</param>
+        /// <param name="b64PrivId">Base64 encoded client type identifer
+        /// (encrypted by a private key on the client)</param>
+        /// <returns>0 if authentication was approved; other positive
+        /// integers to indicate various error conditions</returns>
+        /// <remarks>
+        ///Main limitations are that private keys will be stored on the
+        ///client without protection. File system level protection may
+        ///help, as might use of Firefox master password? Probably not
+        ///becuase we can't prevent malicious extensions installing
+        ///themselves into Firefox anyway. Other clients may face
+        ///similar challenges.
+        ///
+        ///Modification of stored hash could provide a means for attacker
+        ///to use a spoofed client machine to connect but string ID is
+        ///recalculated each time using public key held in program code so
+        ///cos the hash is based on that, attacker can't control the actual
+        ///hash value that the server is expecting - therefore modification
+        ///of the hash key is at worst a DOS.
+        /// </remarks>
         [JsonRpcMethod]
-        public int Authenticate(int[] versionParts, string b64Id, string b64PrivId)
+        public int Authenticate(int[] versionParts, string clientId, string b64IdSig, string b64PrivId)
         {
-            return 0; // authenticated and versions match!!!!!!!!!!!!!!!!!!!!!!!!!
-            //TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            //do version negotiation first so C and S know they'll be using correct key pairs (in case some are changed in future).
-
-            //A(k) = encrypted KeeFoxID string where A is private (only developer knows)
-            //A(k) is decrypted by B() where server knows (public) B
-
-            //C sends A(k) to S
-            //C sends X(A(k)) to S where X is based on private encryption key (generated at random on first connect and then stored in KeeFox profile)
-            //S calculates string ID using B(A(k))
-            //S calculates hash1 = H(X(A(k)) + string ID)
-            //S stores hash1 in KeePass config file
-
-            //Main limitations are that private keys will be stored on the client without protection. File system level protection may help, as might use of Firefox master password? Other clients may face similar challenges.
-            //Modification of hash1 could provide a means for attacker to use a spoofed client machine to connect but string ID is recalculated each time using public key held in program code so cos the hash is based on that, attacker can't control the actual hash value that the server is expecting - therefore modification of the hash key is at worst a DOS.
-
+            //do version negotiation first so client and server know they'll
+            //be using correct key pairs (in case signatures are changed in future).
             bool versionMatch = false;
-            //TODO: sanitation
+            if (versionParts == null || versionParts.Length != 3)
+                return 2; // throw new AuthorisationException("Invalid version specification. Please state the version of RPC client that is requesting authorisation. This can differ from the version of your client application provided that the RPC interface remains identical.", -1, 2);
+
             Version versionClient = new Version(versionParts[0], versionParts[1], versionParts[2]);
 
             if (PluginVersion.CompareTo(versionClient) == 0)
                 versionMatch = true;
 
             if (versionMatch == false)
-                return 2; // version mismatch
+                return 3; // version mismatch
 
-            //S calculates string ID using B(A(k))
-            string clientID = "keefox";
+            if (string.IsNullOrEmpty(clientId))
+                return 4; // missing clientId parameter
 
-            //S calculates hash1 = H(X(A(k)) + string ID)
-            string hash = "hash of: " + b64PrivId + clientID;
+            if (string.IsNullOrEmpty(b64IdSig))
+                return 5; // missing base64 encoded clientId signature parameter
 
-            //First authentication, user must confirm string ID is expected.
-            MessageBox.Show("KeePassRPC detected an attempt to connect to KeePass. Please verify it was expected, blah, blah, blah.");
-            // if so, S stores hash in KeePass config file, indexed upon the clientID
+            if (string.IsNullOrEmpty(b64PrivId))
+                return 6; // missing base64 encoded unique client hash parameter
 
-            //TODO: audit logging options? needs to be a KeePass supported feature really or maybe a seperate plugin?
-            return 1; // General authentication system error
+            byte[] clientIdClaim = System.Text.Encoding.UTF8.GetBytes(clientId);
+            byte[] clientIdSignature = Convert.FromBase64String(b64IdSig);
+
+            // calculate hash of claimed client ID
+            SHA1 sha1 = new SHA1CryptoServiceProvider(); //TODO: SHA256
+            byte[] clientIdClaimHash = sha1.ComputeHash(clientIdClaim);
+
+            // Load public key information
+            DSACryptoServiceProvider DSA = new DSACryptoServiceProvider();
+            DSA.ImportCspBlob(GetClientIdPublicKey());
+
+            //Create an DSASignatureDeformatter object and pass it the 
+            //DSACryptoServiceProvider to transfer the key information.
+            DSASignatureDeformatter DSADeformatter = new DSASignatureDeformatter(DSA);
+
+            //Verify the hash and the signature
+            if (!DSADeformatter.VerifySignature(
+                clientIdClaimHash, clientIdSignature))
+            {
+                return 7; // Signature invalid
+            }
+
+            // hash the (now authenticated) client Id and the client's
+            // secret unique identifier so we can tell if this particular
+            // client has conencted to KeePassRPC before
+            //TODO: record failed attempts too so we can avoid bothering
+            // the user if they choose to ignore certain clients
+            byte[] data = System.Text.Encoding.UTF8.GetBytes("hash of: " + b64PrivId + clientId);
+            byte[] result;
+            SHA256 shaM = new SHA256Managed();
+            result = shaM.ComputeHash(data);
+            string clientHash = Convert.ToBase64String(result);
+
+            string currentKnownClients = host.CustomConfig
+                .GetString("KeePassRPC.knownClients." + clientId, "");
+            string[] knownClients = new string[0];
+
+            if (!string.IsNullOrEmpty(currentKnownClients))
+            {
+                knownClients = currentKnownClients.Split(',');
+                foreach (string knownClient in knownClients)
+                    if (knownClient == clientHash)
+                        return 0; // everything's good, access granted
+            }
+
+            // This is the first time this type of client has
+            // connected to KeePassRPC so we start the new user
+            // wizard (extend in future to support wizards for
+            // different clients?)
+            if (knownClients.Length == 0 && clientId == "KeeFox Firefox add-on")
+            {
+                // The wizard handles user confirmation - if user says yes,
+                // the hash will be stored in the KeePass config file
+                PendingRPCClient newClient = new PendingRPCClient(
+                    clientId, clientHash, new List<string>(knownClients));
+                object[] delParams = { newClient };
+                object invokeResult = host.MainWindow.Invoke(
+                    new KeePassRPCExt.WelcomeKeeFoxUserDelegate(
+                        KeePassRPCPlugin.WelcomeKeeFoxUser), delParams);
+                return (int)invokeResult; // Should be 0 unless user cancels
+            }
+            else
+            {
+                DialogResult userConfirmationResult = MessageBox.Show(
+                    "KeePass detected an attempt to connect to KeePass from '"
+                    + clientId 
+                    + "'. Should KeePass allow this application to access your passwords?",
+                    "Security check from the KeePassRPC plugin", MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+
+                // if user says yes, we store the hash in the KeePass config file
+                if (userConfirmationResult == DialogResult.Yes)
+                {
+                    AddKnownRPCClient(new PendingRPCClient(clientId, clientHash, new List<string>(knownClients)));
+                    return 0; // everything's good, access granted
+                }
+                return 5;
+            }
+            //TODO: audit logging options? needs to be a KeePass supported
+            //feature really or maybe a seperate plugin?
         }
+
+        //TODO: find some way that this can be private
+        internal void AddKnownRPCClient(PendingRPCClient client)
+        {
+            client.KnownClientList.Add(client.Hash);
+            string newKnownClients = string.Join(",", client.KnownClientList.ToArray());
+            host.CustomConfig.SetString("KeePassRPC.knownClients." + client.ClientId, newKnownClients);
+            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
+        }
+
+        /// <summary>
+        /// Gets the public key which can verify the digital
+        /// signature of a claimed RPC client identity. The key
+        /// is embedded in source code to prevent casual modification
+        /// </summary>
+        /// <returns>CspBlob byte array</returns>
+        private byte[] GetClientIdPublicKey()
+        {
+            //SetupPrivateKeySignatures("KeeFox Firefox add-on");
+            byte[] embeddedPublicKey = Convert.FromBase64String("BgIAAAAiAABEU1MxAAQAAAc/SiKCjBFIOQ8oBOO40DsSFmoQhAPq5sgC0gbhYpb3FxLBHaNzxJJe9MJIj2MA/2bMk04/U5uef2QDkHbfJ1eQIUm/Ry48Z+7uuIG4Iw6FKEPHyTr5eFWqKjkxQsMB5aiewutgrNrvbDGgfUSnz+v1joA0TsVdYEFLkpQGlTbnjbIdv3EMBznPOi35Sh6txtNvTtiLyAE3Jg3a3eArH5qHXDT/ezBxuSMa51PyGRdV655VklqdJS78KuInS7VWSSQw0ApghatxPkb8/y/J60xQ0DpXXvZOF8k9c2i1EGftHEZdX2V2MrGrcC5EPHCaplWgtxeLQC2YRvXKTxYJuSSPZgBqznOdfl7Aw9P10aj2SDa0sUu58s6PB02KIJ0pzDyKcao5iLYRNz2BlITjaOjbOeht4V99ByVek/qsAlHbkv3F2NxbP83tV6soYA6nfgdVtXzng1csh87qsYXD7vMbWDXeuTGAetVIRy/NtMqkfxRrcYMjD9pxB5+iSb76Vx3UnJe6HzLy4nxG19kkrL4Jl3/ONwAAAEvT0WzrHX/9LYzNABAUkZp1K2fg");
+            return embeddedPublicKey;
+        }
+
+        /// <summary>
+        /// Creates a private/public key pair for use with signing
+        /// and verifying the claimed identity of RPC client signatures.
+        /// Also creates a signature for the supplied client identity.
+        /// This function will be used exceedingly rarely and may
+        /// require modification before each use. Interaction within
+        /// a debug session is currently the only way to extract the
+        /// required information from this function.
+        /// </summary>
+        /// <param name="clientId">The text to identify a particular RPC client</param>
+//        private void SetupPrivateKeySignatures(string clientId)
+//        {
+//            byte[] data = Encoding.UTF8.GetBytes(clientId);
+//            //sha1 crypto service, digital signatures are created from the hash
+//            SHA1 sha = new SHA1CryptoServiceProvider();
+//            byte[] hash = sha.ComputeHash(data);
+
+//            //Create a new instance of DSACryptoServiceProvider.
+//            //DSA contains asymmetric public and private key information
+//            DSACryptoServiceProvider DSA1 = new DSACryptoServiceProvider();
+
+
+//            //RSA subjectKey = (RSA)RSA.Create();
+//            //subjectKey.
+//            //DSA.ImportCspBlob();
+//            //TODO, load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
+
+//            System.IO.File.WriteAllBytes(
+//                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "testPrivateKey-NOT-secured.key",
+//                DSA1.ExportCspBlob(true));
+
+//            DSACryptoServiceProvider DSA2 = new DSACryptoServiceProvider();
+
+//            DSA2.ImportCspBlob(System.IO.File.ReadAllBytes(
+//Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "testPrivateKey-NOT-secured.key"));
+
+//            byte[] publicKey = DSA2.ExportCspBlob(false);
+//            //EXPORT: store these bytes in source code
+//            string pubkeyencoded = Convert.ToBase64String(publicKey);
+
+//            DSASignatureFormatter DSAFormatter = new DSASignatureFormatter(DSA2);
+
+//            //Set the hash algorithm to SHA1.
+//            DSAFormatter.SetHashAlgorithm("SHA1");
+
+//            //Create a signature from the hash using the private key
+//            byte[] signature = DSAFormatter.CreateSignature(hash);
+
+//            string encodedClientIdSignature = Convert.ToBase64String(signature);
+//            //EXPORT: Client must send encodedClientIdSignature to KeePassRPC
+//        }
 
         #endregion
 

@@ -50,13 +50,34 @@ jsonrpcClient.prototype = new session();
 jsonrpcClient.prototype.constructor = jsonrpcClient;
 
 (function() {
+    
+    this.getClientIdSignatureBase64 = function()
+    {
+        return "SBgL3aeB37Mnmy94+s3J3KAL/1EkSgiCVEkfp3Otm04tQtKBDDtaIw==";
+    }
+    
+    this.getUniqueClientIdBase64 = function()
+    {
+        var bytes = this.getUniqueClientId(this.getClientIdSignatureBase64());
+        return bytes;
+    }
+    
+    this.getUniqueClientId = function(clientIdSig)
+    {
+        //TODO: get/create a unique private key
+        // encrypt public clientIdSig using private key
+        return btoa("this is not secure yet"+clientIdSig);
+    }
 
     this.onNotify = function(topic, message) {
         if (topic == "transport-status-connected")
         {
         //TODO: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
         //TODO: calculate base64 representations of the security codes required to identify this RPC client
-            this.request(this, "Authenticate", [this.clientVersion, "base64enc1", "base64enc2"], function rpc_callback(resultWrapper) {
+            this.request(this, "Authenticate",
+              [this.clientVersion, "KeeFox Firefox add-on",
+                this.getClientIdSignatureBase64(), this.getUniqueClientIdBase64()],
+              function rpc_callback(resultWrapper) {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
                 var window = wm.getMostRecentWindow("navigator:browser");

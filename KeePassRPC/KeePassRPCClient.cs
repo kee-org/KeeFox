@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
+using System.Net.Security;
+using System.IO;
 
 namespace KeePassRPC
 {
@@ -37,14 +39,28 @@ namespace KeePassRPC
         private int _currentCallBackId = 0;
 
         /// <summary>
-        /// The underlying TCP connection that links us to this client. 
-        /// (NB: Maybe need to change this or add seperate connection
-        /// variable if we use a TLS encrypted channel)
+        /// The underlying TCP connection that links us to this client.
         /// </summary>
-        public TcpClient Connection { get; private set; }
+        public TcpClient UnencryptedConnection { get; private set; }
 
         /// <summary>
-        /// CURRENTLY ALWAYS FALSE! Whether the underlying communications channel is encrypted.
+        /// The underlying TLS encrypted TCP connection that links us to this client.
+        /// </summary>
+        public SslStream EncryptedConnection { get; private set; }
+
+        public Stream ConnectionStream
+        {
+            get
+            {
+                if (ChannelIsEncrypted)
+                    return EncryptedConnection;
+                else
+                    return UnencryptedConnection.GetStream();
+            }
+        }
+
+        /// <summary>
+        /// Whether the underlying communications channel is encrypted.
         /// </summary>
         /// <value><c>true</c> if [channel is encrypted]; otherwise, <c>false</c>.</value>
         public bool ChannelIsEncrypted { get; private set; }
@@ -65,7 +81,16 @@ namespace KeePassRPC
             bool isAuthorised)
         {
             ChannelIsEncrypted = false;
-            Connection = connection;
+            UnencryptedConnection = connection;
+            IdentifiesAs = identifiesAs;
+            Authorised = isAuthorised;
+        }
+
+        public KeePassRPCClient(SslStream connection, string identifiesAs,
+            bool isAuthorised)
+        {
+            ChannelIsEncrypted = true;
+            EncryptedConnection = connection;
             IdentifiesAs = identifiesAs;
             Authorised = isAuthorised;
         }
@@ -86,7 +111,25 @@ namespace KeePassRPC
             StringBuilder sb = new StringBuilder();
             Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
-            this.Connection.GetStream().Write(bytes, 0, bytes.Length);
+            this.ConnectionStream.Write(bytes, 0, bytes.Length);
         }
     }
+
+    /// <summary>
+    /// Tracks requests from RPC clients while they are being authorised
+    /// </summary>
+    public class PendingRPCClient
+    {
+        public string ClientId;
+        public string Hash;
+        public List<string> KnownClientList;
+
+        public PendingRPCClient(string clientId, string hash, List<string> knownClientList)
+        {
+            ClientId = clientId;
+            Hash = hash;
+            KnownClientList = knownClientList;
+        }
+    }
+
 }

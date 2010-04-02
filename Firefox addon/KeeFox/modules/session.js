@@ -7,6 +7,9 @@ session.js manages the low-level connection between Firefox and KeePassRPC
 Some implementation ideas extended from code written by Shane
 Caraveo, ActiveState Software Inc
 
+Secure certificate exception code used under GPL2 license from:
+MitM Me (Johnathan Nightingale)
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -54,16 +57,6 @@ session.prototype =
          this.reconnectTimer.initWithCallback(this.reconnectNow,
             this.reconnectionAttemptFrequency,
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK); //TODO: does the timer stay in scope?
-        
-//        while (true) //TODO: is there any need to shutdown cleanly from here? if so, how?
-//        {
-////            yield;
-//            log.debug("Attempting to connect to RPC server.");
-////            if (this.connect(this.address, this.port) == "alive")
-////                log.debug("Connection already established.");
-//        }
-        
-//        timer.cancel();
     },
     
     connect: function()
@@ -75,11 +68,15 @@ session.prototype =
             var transportService =
                 Components.classes["@mozilla.org/network/socket-transport-service;1"].
                 getService(Components.interfaces.nsISocketTransportService);
-            var transport = transportService.createTransport(null, 0, this.address, this.port, null);
+            var transport = transportService.createTransport(["ssl"], 1, this.address, this.port, null);
             if (!transport) {
                 this.onNotify("connect-failed", "Unable to create transport for "+this.address+":"+this.port); 
                 return;
             }
+            
+            // we want to be told about security certificate problems so we can ignore them
+            transport.securityCallbacks = this;
+            
             transport.setTimeout(Components.interfaces.nsISocketTransport.TIMEOUT_CONNECT, this.connectionTimeout);
             transport.setTimeout(Components.interfaces.nsISocketTransport.TIMEOUT_READ_WRITE, this.activityTimeout);
             this.setTransport(transport);
@@ -96,25 +93,15 @@ session.prototype =
         {
             this.transport = transport;
             this.raw_istream = this.transport.openInputStream(0, 0, 0);
-            this.raw_ostream = this.transport.openOutputStream(0, 0, 0);
-//            this.istream = Components.classes["@mozilla.org/binaryinputstream;1"]
-//                           .createInstance(Components.interfaces.nsIBinaryInputStream);
-//            this.istream.setInputStream(this.raw_istream);
-            
-            const replacementChar = Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
+            this.raw_ostream = this.transport.openOutputStream(0, 0, 0);            
+            const replacementChar = Components.interfaces
+                .nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
             var charset = "UTF-8";
 
             this.ostream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
                                .createInstance(Components.interfaces.nsIConverterOutputStream);
 
-            // This assumes that fos is the template.Interface("nsIOutputStream") you want to write to
             this.ostream.init(this.raw_ostream, charset, 0, replacementChar);
-
-            //os.writeString("Umlaute: \u00FC \u00E4\n");
-            //os.writeString("Hebrew:  \u05D0 \u05D1\n");
-            // etc.
-
-            //os.close();
 
             this.istream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
                                .createInstance(Components.interfaces.nsIConverterInputStream);
@@ -160,25 +147,6 @@ session.prototype =
         } 
     },
     
-    
-//    function(originalObject)
-//    {
-//        log.debug("Connection attempt is now due.");
-//        this.reconnectSoon.next(); // pretty sure we won't be able to access this object from "this" but might as well try once...
-//        
-        // we try to connect and then schedule another attempt. 
-        // If the first attempt was successful then the latter will just return immediately
-        // and we can then stop making connection attempts
-//        if (originalObject.connect(this.address, this.port) == "alive")
-//            return;
-//        
-//        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                 .getService(Components.interfaces.nsIWindowMediator);
-//        var window = wm.getMostRecentWindow("navigator:browser");
-//        window.setTimeout(originalObject.tryReconnect, this.reconnectionAttemptFrequency, originalObject);
-//    },
-    
-
     onOutputStreamReady: function()
     {
         if (this.transport != null && this.transport.isAlive())
@@ -256,22 +224,9 @@ session.prototype =
             }
     
             var str1 = this.expand(data);
-//            if (str1.length > 1000) {
-//                str1 = str1.substr(0, 1000) + "...";
-//            }
             log.debug("writeData: [" + str1 + "]");
             
             var num_written = this.ostream.writeString(data);
-//            if (num_written != dataLen) {
-//                log.debug("Expected to write "
-//                          + dataLen
-//                          + " chars, but wrote only "
-//                          + num_written);
-//                if (num_written == 0) {
-//                    log.debug("bailing out...");
-//                    this.disconnect();
-//                }
-//            }
             return num_written;
         } catch(ex) {
             log.debug(ex, "writeData failed: ");
@@ -291,8 +246,55 @@ session.prototype =
         }
         return s.replace(/[\x00-\x09\x11-\x1f]/g, this._hexEscape);
     },
+
+    // This is needed to allow us to get security certificate error notifications
+    getInterface: function (aIID) {
+        return this.QueryInterface(aIID);
+      },
+
+    handleFailedCertificate: function (gSSLStatus)
+    {
+        gCert = gSSLStatus.QueryInterface(Components.interfaces.nsISSLStatus).serverCert;
+          
+        log.warn("Adding security certificate exception for " + this.address + ":" + this.port
+            + " <-- This should be the address and port of the KeePassRPC server."
+            + " If it is not localhost:12536 or 127.0.0.1:12536 and you have"
+            + " not configured KeeFox to use alternative connection details "
+            + "you should investigate this possible security problem, otherwise everything is probably OK."
+            + " Note: The security certificate exception is required because KeePassRPC has"
+            + " created a custom security certificate unique to your installation."
+            + " This certificate is not authenticated by the organisations that Firefox"
+            + " automatically trusts so an exception is required for this special case. "
+            + "Please see the KeeFox website if you would like more information about this complex topic."
+            );
+            
+        // Add the exception
+        var overrideService = Components.classes["@mozilla.org/security/certoverride;1"]
+                              .getService(Components.interfaces.nsICertOverrideService);
+        var flags = 0;
+        if(gSSLStatus.isUntrusted)
+            flags |= overrideService.ERROR_UNTRUSTED;
+        if(gSSLStatus.isDomainMismatch)
+            flags |= overrideService.ERROR_MISMATCH;
+
+        overrideService.rememberValidityOverride(this.address, this.port, gCert, flags, false);
+        
+        log.info("Exception added to Firefox");
+        //TODO: try to connect again immediately?
+    },
     
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener,
+    notifyCertProblem: function MSR_notifyCertProblem(socketInfo, sslStatus, targetHost)
+    {
+        log.info("A security certification error was encountered while"
+            + " negotiating the initial connection to KeePassRPC.");
+        if (sslStatus)
+            this.handleFailedCertificate(sslStatus);
+        return true; // suppress error UI
+    },
+      
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIBadCertListener2,
+                                           Ci.nsIInterfaceRequestor,
+                                           Ci.nsIStreamListener,
                                            Ci.nsITransportEventSink,
                                            Ci.nsIOutputStreamCallback])
 };

@@ -81,7 +81,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\KeePass Password Safe 2\KeePass.exe</HintPath>
     </Reference>
+    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Mono.Security.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -117,15 +122,13 @@
     <Compile Include="Forms\OptionsForm.Designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MakeCertificate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="KeeICE.ice" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -155,7 +158,7 @@
       <DependentUpon>WelcomeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
@@ -201,6 +204,7 @@
       REM copy output DLLs to KeePass plugins directory
       copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
+      copy "Mono.Security.dll" "%25KPPDir%25\Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
       copy "Jayrock.JSON.dll" "%25KPPDir%25\Jayrock.JSON.dll"
       if errorlevel 1 goto BuildEventFailed
@@ -217,6 +221,7 @@
       REM delete the DLLs from any previous Debug build
       del /Q "%25KPPDir%25$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
+      del /Q "%25KPPDir%25\Mono.Security.dll"
       del /Q "%25KPPDir%25\Jayrock.dll"
       del /Q "%25KPPDir%25\Jayrock.JSON.dll"
       if errorlevel 1 goto BuildEventFailed
@@ -231,6 +236,7 @@
       REM copy relevant project files to temporary directory
       REM (for simple KeePass plugins you may need to
       REM copy only *.cs files and .csproj file)
+      copy "Mono.Security.dll" "%25KPPTempDir%25\Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
       copy "Jayrock.JSON.dll" "%25KPPTempDir%25\Jayrock.JSON.dll"
       if errorlevel 1 goto BuildEventFailed

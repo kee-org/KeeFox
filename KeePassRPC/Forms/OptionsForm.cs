@@ -1,8 +1,8 @@
 ﻿/*
-  KeeICE - Uses ICE to provide IPC facilities to KeePass. (http://www.zeroc.com)
+  KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2010 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
