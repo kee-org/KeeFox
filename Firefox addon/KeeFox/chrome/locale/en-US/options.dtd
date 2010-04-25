@@ -29,6 +29,7 @@
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC plugin installation location">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installation location">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Using KeePass Portable (remember settings)">
-<!ENTITY KeeFox-pref-keePassMRUDB.label "Location of most recently used KeePass database">
-<!ENTITY KeeFox-pref-debugToConsole.label "Output debug information to the Firefox console">
+<!ENTITY KeeFox-pref-keePassDBToOpen.label "When opening or logging in to KeePass, use this database file">
+<!--<!ENTITY KeeFox-pref-keePassMRUDB.label "Location of most recently used KeePass database">
+<!ENTITY KeeFox-pref-debugToConsole.label "Output debug information to the Firefox console">-->
 

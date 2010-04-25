@@ -44,7 +44,7 @@ function KFILM(kf,keeFoxToolbar,currentWindow)
     this._refillTimer = Components.classes["@mozilla.org/timer;1"]
                         .createInstance(Components.interfaces.nsITimer);
     this.init();
-    KFLog.debug("currentWindowName:" + currentWindow.name);
+    //KFLog.debug("currentWindowName:" + currentWindow.name);
     KFLog.debug ("KFILM constructor finished");
 }
 
@@ -151,6 +151,27 @@ KFILM.prototype = {
         }
         
         KFLog.debug("KFILM init complete");
+    },
+    
+    shutdown : function ()
+    {
+        KFLog.debug("KFILM shutdown started");
+        var progress = Cc["@mozilla.org/docloaderservice;1"].
+                       getService(Ci.nsIWebProgress);
+
+        try {
+            progress.removeProgressListener(this._webProgressListener);        
+        } catch (e) {
+            KFLog.error("couldn't remove nsIWebProgress listener: " + e);
+        }
+        
+        // Form submit observer checks forms for new logins and pw changes.
+        var observerService = Cc["@mozilla.org/observer-service;1"].
+                              getService(Ci.nsIObserverService);
+        observerService.removeObserver(this._observer, "earlyformsubmit");
+        observerService.removeObserver(this._observer, "xpcom-shutdown");
+        
+        KFLog.debug("KFILM shutdown complete");
     },
     
     _countAllDocuments : function (window)
@@ -267,7 +288,9 @@ KFILM.prototype = {
             // Only process things which might have HTML forms.
             if (!(domDoc instanceof Ci.nsIDOMHTMLDocument))
                 return;
-
+            if (aRequest.name == null || aRequest.name == "about:blank")
+                return;
+                
             if (KFLog.logSensitiveData)
                 KFLog.debug("onStateChange accepted: req = " +
                             (aRequest ?  aRequest.name : "(null)") +
@@ -389,7 +412,7 @@ KFILM.prototype = {
         { 
             KFLog.debug("Location changed: " + aURI.spec);
             // remove all the old logins from the toolbar
-            //keeFoxToolbar.removeLogins();
+            keeFoxToolbar.removeLogins();
          },
 
         // stubs for the nsIWebProgressListener interfaces which we don't use.
@@ -941,27 +964,40 @@ KFILM.prototype = {
     {
         var uriString = form.action;
 
-        // A blank or mission action submits to where it came from.
+        // A blank or missing action submits to where it came from.
         if (uriString == "")
             uriString = form.baseURI;
         return this._getPasswordOrigin(uriString, true);
     },    
     
-    loadAndAutoSubmit : function (usernameName,usernameValue,
+    loadAndAutoSubmit : function (button, ctrlClick, usernameName,usernameValue,
                         actionURL,usernameID,formID,uniqueID)
     {
         if (KFLog.logSensitiveData)
-            KFLog.debug("loading and auto submitting " + actionURL); 
+            KFLog.debug("loading and auto submitting button " + button + ctrlClick + ":" + actionURL); 
         else
-            KFLog.debug("loading and auto submitting..."); 
+            KFLog.debug("loading and auto submitting button " + button + ctrlClick + "..."); 
                
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
         var newWindow = wm.getMostRecentWindow("navigator:browser");
         var b = newWindow.getBrowser();
-        var newTab = b.loadOneTab( actionURL, null, null, null, false, null );
-        newTab.setAttribute("KF_uniqueID", uniqueID);
-        newTab.setAttribute("KF_autoSubmit", "yes");
+        var tab;
+        
+        if (button == 1 || (button == 0 && ctrlClick))
+        {
+            tab = b.loadOneTab( actionURL, null, null, null, false, null ); 
+            tab.setAttribute("KF_uniqueID", uniqueID);
+        tab.setAttribute("KF_autoSubmit", "yes");       
+        }
+        else
+        {
+            tab = b.selectedTab;
+            tab.setAttribute("KF_uniqueID", uniqueID);
+        tab.setAttribute("KF_autoSubmit", "yes");
+            b.loadURI( actionURL, null, null);
+        }
+        
     }
     
    };

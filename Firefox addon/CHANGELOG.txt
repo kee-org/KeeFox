@@ -3,6 +3,21 @@ This information will often be disseminated onto the official KeeFox website in 
 0.76
 ----
 - KeePassRPC replaces KeeICE
+- New user welcome dialogs prettified
+- Field references in usernames, passwords and other form fields (name, id and value) are now dereferenced before being sent from KeePass to KeeFox
+- Fixes #14 (Provide quick way to utilise KeePass password generator from within Firefox)
+- Fixes #32 (Add option to always open database from a fixed location)
+- Fixes #36 (Support standard mouse button behavior) - left click opens login in same tab, middle click or ctrl-left-click opens it in new tab
+- Logging is disabled when in Private Browsing mode
+- Memory leaks removed
+- A few options panel layout improvements
+- Built-in Firefox password management setting restored after KeeFox uninstalled
+- SessionState configuration variable protected from changes that could break KeeFox
+- Expiry date set to compensate for lack of automatic updates (0.7.6 expires at the end of May 2010 - a new version will be released before then, even if just to push the expiry time back a bit)
+- File logging now put in a "keefox" directory inside your Firefox profile directory (used to be in the extension folder)
+- Failed logging will no longer cause knock-on "random" problems
+- KeeFoxElevate application created to aid with setup
+
 
 0.73
 ----

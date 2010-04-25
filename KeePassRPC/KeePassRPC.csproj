@@ -268,7 +268,7 @@
       echo PLGX copied to Firefox add-on
 
       REM delete the temporary directory and its contents
-      rmdir /S /Q "%25KPPTempDir%25"
+      rem rmdir /S /Q "%25KPPTempDir%25"
       if errorlevel 1 goto BuildEventFailed
       echo Temporary directory deleted
 

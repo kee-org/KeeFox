@@ -5,8 +5,9 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using KeePassRPC;
 
-namespace KeePassRPC
+namespace KeePassRPC.Forms
 {
     public partial class WelcomeForm : Form
     {
@@ -27,7 +28,7 @@ namespace KeePassRPC
 
             if (checkBox1.Checked)
             {
-                linkLabel2.Text = "Thank you. KeeFox is now authorised to communicate with KeePass Password Safe 2";
+                linkLabel2.Text = "Thank you. KeeFox will now be authorised to communicate with KeePass";
                 linkLabel2.Enabled = false;
                 linkLabel2.ForeColor = Color.Black;
                 linkLabel2.LinkColor = Color.Black;

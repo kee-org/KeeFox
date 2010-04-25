@@ -41,6 +41,7 @@ using KeePassLib.Security;
 using KeePass.App;
 using KeePass.UI;
 using Jayrock.JsonRpc;
+using KeePassRPC.Forms;
 
 namespace KeePassRPC
 {
@@ -158,6 +159,12 @@ namespace KeePassRPC
             if (!_RPCServer.IsListening)
                 MessageBox.Show("Could not start listening for RPC connections. KeePassRPC will not function and any services that rely on it will fail to connect to KeePass.");
 
+            // for debug only:
+            //WelcomeForm wf = new WelcomeForm();
+            //DialogResult dr = wf.ShowDialog(); //TODO: explain / warn on dialog and provide a Cancel button
+            //if (dr == DialogResult.Yes)
+            //    CreateNewDatabase();
+
 			return true; // Initialization successful
 		}
 
@@ -186,7 +193,7 @@ namespace KeePassRPC
 
         void OnToolsOptions(object sender, EventArgs e)
         {
-            KeePassRPC.OptionsForm ofDlg = new KeePassRPC.OptionsForm(_host);
+            KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host);
             ofDlg.ShowDialog();
         }
 
@@ -242,7 +249,7 @@ namespace KeePassRPC
         public object WelcomeKeeFoxUser(PendingRPCClient client)
         {
             WelcomeForm wf = new WelcomeForm();
-            DialogResult dr = wf.ShowDialog(); //TODO: explain / warn on dialog and provide a Cancel button
+            DialogResult dr = wf.ShowDialog();
 
             if (dr == DialogResult.Yes || dr == DialogResult.No)
                 RPCService.AddKnownRPCClient(client);

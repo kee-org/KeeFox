@@ -84,33 +84,61 @@ KeeFoxLogger.prototype = {
                                 getService(Ci.nsIConsoleService);
         return this.__logService;
     },
+    
+    // the file we'll use for logging
+    __logFile : null,
+    
+    get _logFile()
+    {this._logService.logStringMessage("logging");
+        if (!this.__logFile)
+        {this._logService.logStringMessage("logging2");
+            var file = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+            
+            //var MY_ID = "keefox@chris.tomlinson";
+            //var em = Components.classes["@mozilla.org/extensions/manager;1"].
+            //     getService(Components.interfaces.nsIExtensionManager);
+            //var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
+            var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+            this._logService.logStringMessage("logging3");
+            file.initWithPath(dir.path);
+            file.append("keefox");
+            file.append("log.txt");
+            this._logService.logStringMessage("logging4");
+            this.__logFile = file;
+        }
+        this._logService.logStringMessage("logging5");
+        return this.__logFile;
+    },    
+    
 
     // logs a message to a file
     _logToFile : function(msg)
     {
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        
-        var MY_ID = "keefox@chris.tomlinson";
-        var em = Components.classes["@mozilla.org/extensions/manager;1"].
-             getService(Components.interfaces.nsIExtensionManager);
-        var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
-        
-        file.initWithPath(dir.path);
-        
-        file.append("log.txt");
-
+    //this._logService.logStringMessage("logginga");
         var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
                                  createInstance(Components.interfaces.nsIFileOutputStream);
 
+var MY_ID = "keefox@chris.tomlinson";
+            var em = Components.classes["@mozilla.org/extensions/manager;1"].
+                 getService(Components.interfaces.nsIExtensionManager);
+            var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
+            //var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+           // this._logService.logStringMessage("logging3");
+            file.initWithPath(dir.path);
+            //file.append("keefox");
+            file.append("log.txt");
+            
+        //foStream.init(this._logFile, 0x02 | 0x08 | 0x10, 0666, 0); 
         foStream.init(file, 0x02 | 0x08 | 0x10, 0666, 0); 
         // write, create if doesn't already exist, append to end
-
+//this._logService.logStringMessage("loggingb");
         var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
                                   createInstance(Components.interfaces.nsIConverterOutputStream);
         converter.init(foStream, "UTF-8", 0, 0);
         converter.writeString(msg);
         converter.close(); // this closes foStream
+  //      this._logService.logStringMessage("loggingc");
     },
     
     // creates an alert message on teh most recently used Firefox window
@@ -131,14 +159,30 @@ KeeFoxLogger.prototype = {
     // Logs a message using the currently enabled methods
     _log : function (message)
     {
-        if (this.methodFile)
-            this._logToFile(message+"\n");
-        if (this.methodStdOut)
-            dump(message+"\n");
-        if (this.methodConsole)
-            this._logService.logStringMessage(message);
-        if (this.methodAlert)
-            this._alert(message);
+        // Don't log anything if user is in private browsing mode, just in case!
+        try
+        {
+        var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
+                    .getService(Components.interfaces.nsIPrivateBrowsingService);
+        if (pbs.privateBrowsingEnabled)
+            return;
+        } catch (nothing) {
+        // log if private browsing feature is unavailable
+        }
+        
+        try
+        {
+            if (this.methodFile)
+                this._logToFile(message+"\n");
+            if (this.methodStdOut)
+                dump(message+"\n");
+            if (this.methodConsole)
+                this._logService.logStringMessage(message);
+            if (this.methodAlert)
+                this._alert(message);
+        } catch (nothing) {
+        // don't let failed logging break anything else
+        }
     },
     
     debug : function (message)

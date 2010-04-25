@@ -37,12 +37,14 @@ using System.Security.Authentication;
 using Mono.Tools;
 using System.Text.RegularExpressions;
 using Jayrock.Json;
+using System.Windows.Forms;
 
 namespace KeePassRPC
 {
     public class KeePassRPCServer
     {
         const char TOKEN_QUOT = '"';
+        const char TOKEN_BACKSLASH = '\\';
         const char TOKEN_CURLY_START = '{';
         const char TOKEN_CURLY_END = '}';
         const char TOKEN_SQUARE_START = '[';
@@ -148,6 +150,7 @@ namespace KeePassRPC
         /// <param name="service">The KeePassRPCService the server should interact with.</param>
         public KeePassRPCServer(int port, KeePassRPCService service)
         {
+            //MessageBox.Show("dfsgdfsg0");
             Service = service;
 
             _store = new X509Store();
@@ -159,22 +162,34 @@ namespace KeePassRPC
             // store (probably becuase they are self-signed)
             X509Certificate2Collection matchingCertificates = _store.Certificates
                 .Find(X509FindType.FindBySubjectDistinguishedName,
-                    "CN=KeePassRPC TLS for " + Environment.MachineName, false);
+                    "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
 
+            //foreach (X509Certificate2 temp in matchingCertificates)
+            //    _store.Remove(temp);
+
+            //matchingCertificates = _store.Certificates
+            //    .Find(X509FindType.FindBySubjectDistinguishedName,
+            //        "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
+
+            //MessageBox.Show("dfsgdfsgaaaaaa: " + matchingCertificates.Count);
             if (matchingCertificates.Count > 0)
                 _serverCertificate = matchingCertificates[0];
             else
             {
+                //_serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\test.p12");
+                
+                
                 // We can use the MakeCert feature from Mono to generate a new
                 // certificate for use by this user on this machine. This means
                 // that every KeePassRPC user will establish TLS connections
                 // that are protected by a private key held on their own
                 // system, rather than a key that is disclosed in this open
                 // source code. NB: The local server is assumed to be secure!
-                byte[] cert = MakeCert.Generate("KeePassRPC TLS for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator");
-                _serverCertificate = new X509Certificate2(cert);
+                byte[] cert = MakeCert.Generate("KeePassRPC TLS aaa for " + Environment.MachineName, "KeePassRPC aaa Automated Self-Signed Key Generator");
+                _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
                 _store.Add(_serverCertificate);
             }
+           // MessageBox.Show("dfsgdfsgaaaaaa:" + _serverCertificate.HasPrivateKey);
 
             try
             {
@@ -186,9 +201,11 @@ namespace KeePassRPC
             }
             catch (Exception e)
             {
+               // MessageBox.Show("error 190: " + e.ToString());
                 Console.Error.WriteLine(e.Message);
                 Trace.TraceError(e.ToString());
             }
+            //MessageBox.Show("dfsgdfsg1");
         }
 
         /// <summary>
@@ -220,10 +237,10 @@ namespace KeePassRPC
                         clientThread.Start(client);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     this._isListening = false;
-
+                    //MessageBox.Show("error 226: " + ex.ToString());
                     // attempt recovery unless we tried less than 3 seconds ago
                     if (DateTime.UtcNow.Ticks > lastListenAttempt+(10*1000*1000*3))
                         tryToListen = false;
@@ -232,7 +249,52 @@ namespace KeePassRPC
 
             //Close the certificate store.
             _store.Close();
+           // MessageBox.Show("store closed");
         }
+
+    //    // The following method is invoked by the RemoteCertificateValidationDelegate.
+    //    public static bool ValidateServerCertificate(
+    //          object sender,
+    //          X509Certificate certificate,
+    //          X509Chain chain,
+    //          SslPolicyErrors sslPolicyErrors)
+    //    {
+    //        if (sslPolicyErrors == SslPolicyErrors.None)
+    //            return true;
+
+    //        Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
+
+    //        // Do not allow this client to communicate with unauthenticated servers.
+    //        return false;
+    //    }
+
+    //    public static X509Certificate SelectLocalCertificate(
+    //object sender,
+    //string targetHost,
+    //X509CertificateCollection localCertificates,
+    //X509Certificate remoteCertificate,
+    //string[] acceptableIssuers)
+    //    {
+    //        Console.WriteLine("Client is selecting a local certificate.");
+    //        if (acceptableIssuers != null &&
+    //            acceptableIssuers.Length > 0 &&
+    //            localCertificates != null &&
+    //            localCertificates.Count > 0)
+    //        {
+    //            // Use the first certificate that is from an acceptable issuer.
+    //            foreach (X509Certificate certificate in localCertificates)
+    //            {
+    //                string issuer = certificate.Issuer;
+    //                if (Array.IndexOf(acceptableIssuers, issuer) != -1)
+    //                    return certificate;
+    //            }
+    //        }
+    //        if (localCertificates != null &&
+    //            localCertificates.Count > 0)
+    //            return localCertificates[0];
+
+    //        return null;
+    //    }
 
         /// <summary>
         /// Handles the client communication
@@ -248,15 +310,18 @@ namespace KeePassRPC
 
             // A client has connected. Create the 
             // SslStream using the client's network stream.
-            SslStream sslStream = new SslStream(((TcpClient)client).GetStream(), false);
-
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            SslStream sslStream = new SslStream(((TcpClient)client).GetStream(), false);//, new RemoteCertificateValidationCallback (ValidateServerCertificate), 
+//    new LocalCertificateSelectionCallback(SelectLocalCertificate)
+  //  );
+           // MessageBox.Show("stream ready to be authenticated");
             try
             {
                 // Authenticate the server but don't require the client to
                 // authenticate - we've got our own authentication requirements
                 sslStream.AuthenticateAsServer(
-                    _serverCertificate, false, SslProtocols.Tls, true);
-
+                    _serverCertificate, false, SslProtocols.Ssl3, false);
+               // MessageBox.Show("stream authenticated");
                 sslStream.ReadTimeout = -1;
                 sslStream.WriteTimeout = -1;
 
@@ -275,6 +340,7 @@ namespace KeePassRPC
 
                 int tokenCurlyCount = 0;
                 int tokenSquareCount = 0;
+                int adjacentBackslashCount = 0;
                 bool parsingStringContents = false;
                 StringBuilder currentJSONPacket = new StringBuilder(50);
 
@@ -288,8 +354,9 @@ namespace KeePassRPC
                         //blocks until a client sends a message
                         bytesRead = sslStream.Read(message, 0, 4096);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        //MessageBox.Show("error 295: " + ex.ToString());
                         //a socket error has occured
                         break;
                     }
@@ -306,16 +373,31 @@ namespace KeePassRPC
 
                     for (int i = 0; i < receivedData.Length; i++)
                     {
+                        bool incrementAdjacentBackslashCount = false;
+
                         // Use the simple structure of JSON-RPC to extract
                         // complete messages from the network stream
                         switch (receivedData[i])
                         {
-                            case TOKEN_QUOT: parsingStringContents = parsingStringContents ? false : true; break;
-                            case TOKEN_CURLY_START: if (!parsingStringContents) tokenCurlyCount++; break;
-                            case TOKEN_CURLY_END: if (!parsingStringContents) tokenCurlyCount--; break;
-                            case TOKEN_SQUARE_START: if (!parsingStringContents) tokenSquareCount++; break;
-                            case TOKEN_SQUARE_END: if (!parsingStringContents) tokenSquareCount--; break;
+                            case TOKEN_QUOT: if (adjacentBackslashCount%2 == 0)
+                                    parsingStringContents = parsingStringContents ? false : true;
+                                break;
+                            case TOKEN_BACKSLASH: incrementAdjacentBackslashCount = true;
+                                break;
+                            case TOKEN_CURLY_START: if (!parsingStringContents) tokenCurlyCount++;
+                                break;
+                            case TOKEN_CURLY_END: if (!parsingStringContents) tokenCurlyCount--;
+                                break;
+                            case TOKEN_SQUARE_START: if (!parsingStringContents) tokenSquareCount++;
+                                break;
+                            case TOKEN_SQUARE_END: if (!parsingStringContents) tokenSquareCount--;
+                                break;
                         }
+
+                        if (incrementAdjacentBackslashCount)
+                            adjacentBackslashCount++;
+                        else
+                            adjacentBackslashCount = 0;
 
                         // When both counts are zero, we know we have
                         // reached the end of a JSON-RPC request
@@ -333,17 +415,20 @@ namespace KeePassRPC
             }
             catch (AuthorisationException authEx)
             {
+                MessageBox.Show("error 339: " + authEx.ToString());
                 // Send a JSON message down the pipe
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authEx.AsJSONResult());
                 keePassRPCClient.ConnectionStream.Write(bytes, 0, bytes.Length);
             }
             catch (AuthenticationException e)
             {
+                MessageBox.Show("error 346: " + e.ToString());
                 // Nothing we can do about this since client can't
                 // receive messages over an invalid network stream
             }
             catch (Exception ex)
             {
+                MessageBox.Show("error 352: " + ex.ToString());
                 //TODO: send a JSON message down the pipe
                 // ex.AsJSONResult(); 
             }
@@ -364,6 +449,7 @@ namespace KeePassRPC
         /// <param name="keePassRPCClient">The client we're communicating with.</param>
         private void DispatchToRPCService(string message, KeePassRPCClient keePassRPCClient)
         {
+            //MessageBox.Show("processing: " + message);
             StringBuilder sb = new StringBuilder();
             string requiredResultString = "";
             long authorisationAttemptId = -1;
@@ -393,7 +479,7 @@ namespace KeePassRPC
             dispatcher.Process(new StringReader(message),
                 new StringWriter(sb), keePassRPCClient.Authorised);
             string output = sb.ToString();
-
+            //MessageBox.Show("result: " + output);
             if (_authorisationRequired && !keePassRPCClient.Authorised)
             {
                 // Process the output from the JsonRpcDispatcher which
@@ -405,8 +491,13 @@ namespace KeePassRPC
                     // If the result follows an accepted syntax we will send
                     // it back to the client so they know why it failed
                     if (!Regex.IsMatch(output,
-                    "^\\{\\\"result\\\"\\:(\\d+),\\\"id\\\"\\:(\\d+)\\}$"))
-                        return;
+                        "^\\{\\\"id\\\"\\:(\\d+),\\\"result\\\"\\:(\\d+)\\}$"))
+                    {
+                        MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (there's a link at http://keefox.org/help). Doing this will help other people to use KeeFox without any unexpected error messages like this. Thanks! Technical detail follows: " + output + ": " + Regex.IsMatch(output,
+                        "\\{\\\"id\\\"\\:(\\d+),\\\"result\\\"\\:(\\d+)\\}"));
+                        return; // maybe could return a proper result indicating failure
+                        //but user might get annoyed with this popup appearing every 10 seconds!
+                    }
                 }
             }
 

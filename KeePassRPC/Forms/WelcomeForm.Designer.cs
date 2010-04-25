@@ -1,4 +1,4 @@
-﻿namespace KeePassRPC
+﻿namespace KeePassRPC.Forms
 {
 	partial class WelcomeForm
 	{
@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WelcomeForm));
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
@@ -71,7 +72,7 @@
             this.button2.Location = new System.Drawing.Point(16, 248);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(420, 54);
-            this.button2.TabIndex = 8;
+            this.button2.TabIndex = 4;
             this.button2.Text = "No thanks, I will use an existing KeePass database";
             this.button2.UseVisualStyleBackColor = true;
             // 
@@ -82,7 +83,7 @@
             this.linkLabel1.Location = new System.Drawing.Point(16, 315);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(47, 13);
-            this.linkLabel1.TabIndex = 9;
+            this.linkLabel1.TabIndex = 5;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "Get help";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
@@ -96,7 +97,7 @@
             this.button1.Location = new System.Drawing.Point(16, 188);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(420, 54);
-            this.button1.TabIndex = 7;
+            this.button1.TabIndex = 3;
             this.button1.Text = "Create a new database";
             this.button1.UseVisualStyleBackColor = true;
             // 
@@ -110,42 +111,50 @@
             this.m_bannerImage.Size = new System.Drawing.Size(74, 334);
             this.m_bannerImage.TabIndex = 3;
             this.m_bannerImage.TabStop = false;
-            this.m_bannerImage.Visible = false;
             // 
             // richTextBox1
             // 
+            this.richTextBox1.BackColor = System.Drawing.Color.White;
             this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox1.Enabled = false;
+            this.richTextBox1.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox1.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold);
             this.richTextBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.richTextBox1.Location = new System.Drawing.Point(80, 12);
             this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
             this.richTextBox1.Size = new System.Drawing.Size(178, 33);
             this.richTextBox1.TabIndex = 10;
+            this.richTextBox1.TabStop = false;
             this.richTextBox1.Text = "Welcome to";
             // 
             // richTextBox2
             // 
+            this.richTextBox2.BackColor = System.Drawing.Color.White;
             this.richTextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox2.Enabled = false;
+            this.richTextBox2.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox2.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold);
             this.richTextBox2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.richTextBox2.Location = new System.Drawing.Point(300, 12);
             this.richTextBox2.Name = "richTextBox2";
+            this.richTextBox2.ReadOnly = true;
             this.richTextBox2.Size = new System.Drawing.Size(58, 45);
             this.richTextBox2.TabIndex = 11;
+            this.richTextBox2.TabStop = false;
             this.richTextBox2.Text = "Fox";
             // 
             // richTextBox3
             // 
+            this.richTextBox3.BackColor = System.Drawing.Color.White;
             this.richTextBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox3.Enabled = false;
+            this.richTextBox3.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox3.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold);
             this.richTextBox3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(97)))), ((int)(((byte)(15)))));
             this.richTextBox3.Location = new System.Drawing.Point(249, 12);
             this.richTextBox3.Name = "richTextBox3";
+            this.richTextBox3.ReadOnly = true;
             this.richTextBox3.Size = new System.Drawing.Size(54, 45);
             this.richTextBox3.TabIndex = 12;
+            this.richTextBox3.TabStop = false;
             this.richTextBox3.Text = "Kee";
             // 
             // checkBox1
@@ -154,7 +163,7 @@
             this.checkBox1.Location = new System.Drawing.Point(16, 129);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(402, 17);
-            this.checkBox1.TabIndex = 13;
+            this.checkBox1.TabIndex = 1;
             this.checkBox1.Text = "Please check this box to confirm that you were expecting KeeFox to be installed";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
@@ -165,7 +174,7 @@
             this.linkLabel2.Location = new System.Drawing.Point(13, 158);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(303, 13);
-            this.linkLabel2.TabIndex = 14;
+            this.linkLabel2.TabIndex = 2;
             this.linkLabel2.TabStop = true;
             this.linkLabel2.Text = "Click for help if you are not sure why this window has appeared";
             this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
@@ -188,9 +197,12 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.m_bannerImage);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "WelcomeForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Welcome To KeeFox and KeePass";
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();
             this.ResumeLayout(false);

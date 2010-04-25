@@ -36,6 +36,7 @@ using System.IO;
 using KeePassLib.Security;
 using KeePass.Plugins;
 using System.Security.Cryptography;
+using KeePassLib.Cryptography.PasswordGenerator;
 
 namespace KeePassRPC
 {
@@ -440,6 +441,12 @@ namespace KeePassRPC
         
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
 
+        private string GetPwEntryString(PwEntry pwe, string name)
+        {
+            return KeePass.Util.Spr.SprEngine.Compile(
+                pwe.Strings.ReadSafe(name), false, pwe, host.Database, false, false);
+        }
+
         private Entry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
         {
             ArrayList formFieldList = new ArrayList();
@@ -469,7 +476,7 @@ namespace KeePassRPC
                     {
                         try
                         {
-                            fieldPage = int.Parse(pwe.Strings.ReadSafe("Form field " + fieldName + " page"));
+                            fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page"));
                         }
                         catch (Exception)
                         {
@@ -479,7 +486,7 @@ namespace KeePassRPC
 
 
                     if (pwe.Strings.Exists("Form field " + fieldName + " id"))
-                        fieldId = pwe.Strings.ReadSafe("Form field " + fieldName + " id");
+                        fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id");
 
                     if (pweValue == "password")
                     {
@@ -487,37 +494,37 @@ namespace KeePassRPC
                         // we can just use the standard entry password.
                         if (pwe.Strings.Exists("Form field " + fieldName + " value"))
                             formFieldList.Add(new FormField(fieldName,
-                "Password", pwe.Strings.ReadSafe("Form field " + fieldName + " value"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                "Password", GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTpassword, fieldId, fieldPage));
                         else
                             formFieldList.Add(new FormField(fieldName,
-                "Password", pwe.Strings.ReadSafe("Password"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, fieldId, fieldPage));
                         passwordFound = true;
                     }
                     else if (pweValue == "username")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                "User name", pwe.Strings.ReadSafe("UserName"), FormFieldType.FFTusername, fieldId, fieldPage));
+                "User name", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, fieldId, fieldPage));
                         usernameFound = true;
                     }
                     else if (pweValue == "text")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), FormFieldType.FFTtext, fieldId, fieldPage));
+                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTtext, fieldId, fieldPage));
                     }
                     else if (pweValue == "radio")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), FormFieldType.FFTradio, fieldId, fieldPage));
+                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTradio, fieldId, fieldPage));
                     }
                     else if (pweValue == "select")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), FormFieldType.FFTselect, fieldId, fieldPage));
+                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTselect, fieldId, fieldPage));
                     }
                     else if (pweValue == "checkbox")
                     {
                         formFieldList.Add(new FormField(fieldName,
-                fieldName, pwe.Strings.ReadSafe("Form field " + fieldName + " value"), FormFieldType.FFTcheckbox, fieldId, fieldPage));
+                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTcheckbox, fieldId, fieldPage));
                     }
                 }
                 else if (pweKey == "Alternative URLs")
@@ -535,7 +542,7 @@ namespace KeePassRPC
             if (!passwordFound)
             {
                 formFieldList.Add(new FormField("password",
-                    "Password", pwe.Strings.ReadSafe("Password"), FormFieldType.FFTpassword, "password", 1));
+                    "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, "password", 1));
             }
 
             // If we didn't find an explicit username field, we assume any value
@@ -543,7 +550,7 @@ namespace KeePassRPC
             if (!usernameFound)
             {
                 formFieldList.Add(new FormField("username",
-                    "Username", pwe.Strings.ReadSafe("UserName"), FormFieldType.FFTusername, "username", 1));
+                    "Username", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, "username", 1));
             }
 
             string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);
@@ -577,13 +584,40 @@ namespace KeePassRPC
             FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
             Entry kpe = new Entry(
                 (string[])URLs.ToArray(typeof(string)),
-                pwe.Strings.ReadSafe("Form match URL"), pwe.Strings.ReadSafe("Form HTTP realm"),
+                GetPwEntryString(pwe, "Form match URL"), GetPwEntryString(pwe, "Form HTTP realm"),
                 pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
                 GetGroupFromPwGroup(pwe.ParentGroup), imageData);
             return kpe;
         }
+
+        /*
+         * public static void ReorderEntriesAsInDatabase(PwObjectList<PwEntry> v,
+			PwDatabase pd)
+		{
+			if((v == null) || (pd == null)) { Debug.Assert(false); return; }
+
+			PwObjectList<PwEntry> vRem = v.CloneShallow();
+			v.Clear();
+
+			EntryHandler eh = delegate(PwEntry pe)
+			{
+				int p = vRem.IndexOf(pe);
+				if(p >= 0)
+				{
+					v.Add(pe);
+					vRem.RemoveAt((uint)p);
+				}
+
+				return true;
+			};
+
+			pd.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
+
+			foreach(PwEntry peRem in vRem) v.Add(peRem); // Entries not found
+		}
+         * */
 
         private Group GetGroupFromPwGroup(PwGroup pwg)
         {
@@ -844,9 +878,42 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public string GeneratePassword(string profileName)
         {
-            //KeePass.Program.PwGeneratorPool
-            // KeePass.Util.PwGeneratorUtil.
-            //foreach (PwProfile pwgo in Program.Config.PasswordGenerator.UserProfiles)
+            PwProfile profile = null;
+
+            if (string.IsNullOrEmpty(profileName))
+                profile = KeePass.Program.Config.PasswordGenerator.LastUsedProfile;
+            else
+            {
+                foreach (PwProfile pp in KeePass.Program.Config.PasswordGenerator.UserProfiles)
+                {
+                    if (pp.Name == profileName)
+                    {
+                        profile = pp;
+                        break;
+                    }
+                }
+            }
+
+            if (profile == null)
+                return "";
+
+            ProtectedString newPassword = new ProtectedString();
+            PwgError result = PwGenerator.Generate(newPassword, profile, null, null);
+
+            if (result == PwgError.Success)
+                return newPassword.ReadString();
+            else
+                return "";
+
+            //KeePass.Program.Config.PasswordGenerator.AutoGeneratedPasswordsProfile.Name
+
+            ////KeePassLib.Cryptography.PasswordGenerator.PwProfile profile = new KeePassLib.Cryptography.PasswordGenerator.PwProfile();//host.PwGeneratorPool.Find(
+            ////KeePass.Program.PwGeneratorPool
+            // //KeePass.Util.PwGeneratorUtil.
+            //profile.
+            //KeePassLib.Security
+            //KeePassLib.Cryptography.PasswordGenerator.PwGenerator.Generate(null, KeePassLib.Cryptography.PasswordGenerator.PwProfile
+            //foreach (PwProfile pwgo in host.PwGeneratorPool.Config.PasswordGenerator.UserProfiles)
             //{
             //    if (pwgo.Name == strProfile)
             //    {
@@ -854,7 +921,7 @@ namespace KeePassRPC
             //        break;
             //    }
             //}
-            return "password";
+            //return "password";
         }
 
         #endregion
@@ -1237,7 +1304,6 @@ namespace KeePassRPC
 
                     if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         continue;
-
                     Entry kpe = GetEntryFromPwEntry(pwe, false);
                     allEntries.Add(kpe);
                 }
@@ -1366,6 +1432,10 @@ namespace KeePassRPC
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
+
+
+                //MessageBox.Show(KeePass.Util.Spr.SprEngine.Compile(matchedLogin.Strings.ReadSafe("Password"), false, matchedLogin, host.Database, false, false));
+       //         MessageBox.Show(KeePass.Util.Spr.SprEngine.Compile(matchedLogin.Strings.ReadSafe("Password"), false, null, host.Database, false, false));
 
                 Entry[] logins = new Entry[1];
                 logins[0] = GetEntryFromPwEntry(matchedLogin, true);

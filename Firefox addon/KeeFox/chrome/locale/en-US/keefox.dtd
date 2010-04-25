@@ -12,6 +12,9 @@
 <!ENTITY KeeFox_Menu-Button.fillCurrentDocument.label "Detect forms">
 <!ENTITY KeeFox_Menu-Button.fillCurrentDocument.tip "Force KeeFox to re-detect forms on this page. This is necessary on a small minority of web sites.">
 <!ENTITY KeeFox_Menu-Button.fillCurrentDocument.key "D">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.label "Generate new password">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.tip "Gets a new password from KeePass using the most recently used password generator profile and puts it into your clipboard.">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.key "P">
 <!ENTITY KeeFox_Menu-Button.options.label "Options">
 <!ENTITY KeeFox_Menu-Button.options.tip "View and change your preferred KeeFox options.">
 <!ENTITY KeeFox_Menu-Button.options.key "O">

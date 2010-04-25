@@ -132,31 +132,31 @@ Return Values:
 		the return value is FALSE.
 */
 
-#ifndef WIN64
-
-BOOL DLL_API
-IsWow64();
-
-/*
-Use IsWow64() to determine whether the current 32-bit process is running under 64-bit Windows 
-(Vista or XP)
-
-Return Values:
-	If the function succeeds, and the current version of Windows is x64, 
-		the return value is TRUE. 
-	If the function fails, or if the current version of Windows is 32-bit,
-		the return value is FALSE.
-
-While this function is not Vista specific (it works under XP as well), 
-we include it here to be able to prevent execution of the 32-bit code under 64-bit Windows,
-when required.
-*/
-
-#endif//WIN64
-
-
-HRESULT DLL_API
-GetElevationType( __out TOKEN_ELEVATION_TYPE * ptet );
+//#ifndef WIN64
+//
+//BOOL DLL_API
+//IsWow64();
+//
+///*
+//Use IsWow64() to determine whether the current 32-bit process is running under 64-bit Windows 
+//(Vista or XP)
+//
+//Return Values:
+//	If the function succeeds, and the current version of Windows is x64, 
+//		the return value is TRUE. 
+//	If the function fails, or if the current version of Windows is 32-bit,
+//		the return value is FALSE.
+//
+//While this function is not Vista specific (it works under XP as well), 
+//we include it here to be able to prevent execution of the 32-bit code under 64-bit Windows,
+//when required.
+//*/
+//
+//#endif//WIN64
+//
+//
+//HRESULT DLL_API
+//GetElevationType( __out TOKEN_ELEVATION_TYPE * ptet );
 
 /*
 Use GetElevationType() to determine the elevation type of the current process.
@@ -184,9 +184,9 @@ Return Values:
 	If the function fails, the return value is E_FAIL. To get extended error information, 
 	call GetLastError().
 */
-
-HRESULT DLL_API
-IsElevated( __out_opt BOOL * pbElevated = NULL );
+//
+//HRESULT DLL_API
+//IsElevated( __out_opt BOOL * pbElevated = NULL );
 
 /*
 Use IsElevated() to determine whether the current process is elevated or not.
@@ -317,128 +317,74 @@ MyShellExec(	HWND hwnd,
 // MyShellExec is just a wrapper around a call to ShellExecuteEx, 
 // to be able to specify the verb easily.
 
-BOOL 
-MyShellExec(	HWND hwnd, 
-				LPCTSTR pszVerb, 
-				LPCTSTR pszPath, 
-				LPCTSTR pszParameters, // = NULL,
-				LPCTSTR pszDirectory,  // = NULL,
-				BOOL wait)
-{
-	SHELLEXECUTEINFO shex;
-	DWORD dwRet;
 
-	memset( &shex, 0, sizeof( shex) );
 
-	shex.cbSize			= sizeof( SHELLEXECUTEINFO ); 
-	shex.hwnd			= hwnd;
-	shex.lpVerb			= pszVerb; 
-	shex.lpFile			= pszPath; 
-	shex.lpParameters	= pszParameters; 
-	shex.lpDirectory	= pszDirectory; 
-	shex.nShow			= SW_NORMAL; 
-	if (wait)
-		shex.fMask		= SEE_MASK_NOCLOSEPROCESS; 
-	else
-		shex.fMask		= 0;
 
-	// Returns Non-Zero on success
-      if( ::ShellExecuteEx( &shex ) )
-      {
-            DWORD dwSignaled = ::WaitForSingleObject( shex.hProcess , INFINITE );
-            // WAIT_OBJECT_0 is success for the event trigger
-            if ( dwSignaled == WAIT_OBJECT_0 )
-            {
-                  // Returns Non-Zero on success
-                  if( ::GetExitCodeProcess( shex.hProcess , &dwRet ) )
-                  {
-					  //dwRet = ::GetLastError( );
-                      return TRUE;
-                  }
-            }
-      }
-      //dwRet = ::GetLastError( );
-      return FALSE;
-}
 
-BOOL IsVista()
-{
-	OSVERSIONINFO osver;
+//#ifndef WIN64 // we need this when compiling 32-bit code only
+//
+//typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE hProcess,PBOOL Wow64Process);
+//
+//LPFN_ISWOW64PROCESS fnIsWow64Process = 
+//	(LPFN_ISWOW64PROCESS)::GetProcAddress( ::GetModuleHandle(L"kernel32"),"IsWow64Process");
+//
+//BOOL 
+//IsWow64()
+//{
+//    BOOL bIsWow64 = FALSE;
+// 
+//    if (NULL != fnIsWow64Process)
+//    {
+//		if ( !fnIsWow64Process( ::GetCurrentProcess(),&bIsWow64) )
+//        {
+//            ASSERT_HERE;
+//        }
+//    }
+//
+//    return bIsWow64;
+//}
+//
+//#endif//WIN64
 
-	osver.dwOSVersionInfoSize = sizeof( OSVERSIONINFO );
-	
-	if (	::GetVersionEx( &osver ) && 
-			osver.dwPlatformId == VER_PLATFORM_WIN32_NT && 
-			(osver.dwMajorVersion >= 6 ) )
-		return TRUE;
-
-	return FALSE;
-}
-
-#ifndef WIN64 // we need this when compiling 32-bit code only
-
-typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE hProcess,PBOOL Wow64Process);
-
-LPFN_ISWOW64PROCESS fnIsWow64Process = 
-	(LPFN_ISWOW64PROCESS)::GetProcAddress( ::GetModuleHandle(L"kernel32"),"IsWow64Process");
-
-BOOL 
-IsWow64()
-{
-    BOOL bIsWow64 = FALSE;
- 
-    if (NULL != fnIsWow64Process)
-    {
-		if ( !fnIsWow64Process( ::GetCurrentProcess(),&bIsWow64) )
-        {
-            ASSERT_HERE;
-        }
-    }
-
-    return bIsWow64;
-}
-
-#endif//WIN64
-
-HRESULT
-GetElevationType( __out TOKEN_ELEVATION_TYPE * ptet )
-{
-	ASSERT( IsVista() );
-	ASSERT( ptet );
-
-	HRESULT hResult = E_FAIL; // assume an error occured
-	HANDLE hToken	= NULL;
-
-	if ( !::OpenProcessToken( 
-				::GetCurrentProcess(), 
-				TOKEN_QUERY, 
-				&hToken ) )
-	{
-		ASSERT_HERE;
-		return hResult;
-	}
-
-	DWORD dwReturnLength = 0;
-
-	if ( !::GetTokenInformation(
-				hToken,
-				TokenElevationType,
-				ptet,
-				sizeof( *ptet ),
-				&dwReturnLength ) )
-	{
-		ASSERT_HERE;
-	}
-	else
-	{
-		ASSERT( dwReturnLength == sizeof( *ptet ) );
-		hResult = S_OK;
-	}
-
-	::CloseHandle( hToken );
-
-	return hResult;
-}
+//HRESULT
+//GetElevationType( __out TOKEN_ELEVATION_TYPE * ptet )
+//{
+//	ASSERT( IsVista() );
+//	ASSERT( ptet );
+//
+//	HRESULT hResult = E_FAIL; // assume an error occured
+//	HANDLE hToken	= NULL;
+//
+//	if ( !::OpenProcessToken( 
+//				::GetCurrentProcess(), 
+//				TOKEN_QUERY, 
+//				&hToken ) )
+//	{
+//		ASSERT_HERE;
+//		return hResult;
+//	}
+//
+//	DWORD dwReturnLength = 0;
+//
+//	if ( !::GetTokenInformation(
+//				hToken,
+//				TokenElevationType,
+//				ptet,
+//				sizeof( *ptet ),
+//				&dwReturnLength ) )
+//	{
+//		ASSERT_HERE;
+//	}
+//	else
+//	{
+//		ASSERT( dwReturnLength == sizeof( *ptet ) );
+//		hResult = S_OK;
+//	}
+//
+//	::CloseHandle( hToken );
+//
+//	return hResult;
+//}
 //
 //HRESULT 
 //IsElevated( __out_opt BOOL * pbElevated ) //= NULL )

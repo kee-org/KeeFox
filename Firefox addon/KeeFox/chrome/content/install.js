@@ -21,12 +21,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const KF_KPZIP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.10/KeePass-2.10.zip/";
-const KF_KPZIP_FILE_NAME = "download";
+const KF_KPZIP_DOWNLOAD_PATH = "http://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.10/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.10.zip";
 const KF_KPZIP_SAVE_NAME = "KeePass-2.10.zip";
 const KF_KPZIP_FILE_CHECKSUM = "1A7A1CC9367869A5CE86AAC60D22E40F";
-const KF_KP_DOWNLOAD_PATH = "http://sourceforge.net/projects/keepass/files/KeePass%202.x/2.10/KeePass-2.10-Setup.exe/";
-const KF_KP_FILE_NAME = "download";
+const KF_KP_DOWNLOAD_PATH = "http://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.10/";
+const KF_KP_FILE_NAME = "KeePass-2.10-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
 const KF_KP_SAVE_NAME = "KeePass-2.10-Setup.exe"
 const KF_KP_FILE_CHECKSUM = "1FD29AF2425A2D6F71D65C52F6F05411";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
@@ -280,9 +280,8 @@ functions to support the execution of Install Case 1
 ********************/
 function IC1finished(mainWindow)
 {
-    hideSection('IC1KKRPCdownloaded');
+    hideSection('IC1KRPCdownloaded');
     showSection('InstallFinished');
-    mainWindow.keeFoxInst._KFLog.debug("AAA");
     launchAndConnectToKeePass();
 }
 
@@ -314,10 +313,8 @@ function IC1setupKRPC(mainWindow)
                 KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(keePassLocation);
             }
             
-            if (KeePassEXEfound)
+            if (KeePassEXEfound && copyKeePassRPCFilesTo(keePassLocation))
             {
-                copyKeePassRPCFilesTo(keePassLocation);
-
                 installState ^= KF_INSTALL_STATE_KRPC_EXECUTING; // we can
                     // safely assume this bit is already set since no other threads are involved
                 installState |= KF_INSTALL_STATE_KRPC_EXECUTED;
@@ -489,16 +486,8 @@ function IC2finished(mainWindow) {
 
 //TODO: customise this for upgrades?)
 
-/*
-if upgrade:
-keeFoxInst._keeFoxVariableInit(window.keeFoxToolbar,
-                             window, this.result);
-                             keeFoxInst._configureKeeICECallbacks();
-                             keeFoxInst._refreshKPDB();
-                             */
     hideSection('IC2KRPCdownloaded');
     showSection('InstallFinished');
-    mainWindow.keeFoxInst._KFLog.debug("AAA");
     launchAndConnectToKeePass();
 }
 
@@ -530,10 +519,8 @@ function IC2setupKRPC(mainWindow)
                 KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(keePassLocation);
             }
             
-            if (KeePassEXEfound)
+            if (KeePassEXEfound && copyKeePassRPCFilesTo(keePassLocation))
             {
-                copyKeePassRPCFilesTo(keePassLocation);
-
                 installState ^= KF_INSTALL_STATE_KRPC_EXECUTING; // we can safely
                     // assume this bit is already set since no other threads are involved
                 installState |= KF_INSTALL_STATE_KRPC_EXECUTED;
@@ -704,12 +691,16 @@ function IC5zipKP()
                 mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation","");
             } else
             {
-                copyKeePassRPCFilesTo(path);
+                if (!copyKeePassRPCFilesTo(path))
+                {
+                    hideSection('IC5installing');
+                    showSection('ERRORInstallButtonMain');
+                    return;
+                }
             }
                 
             hideSection('IC5installing');
             showSection('InstallFinished');
-            mainWindow.keeFoxInst._KFLog.debug("AAA");
             launchAndConnectToKeePass();
         } else
         {
@@ -794,11 +785,15 @@ function copyKRPCToKnownKPLocationInstall()
         showProgressView();
         showSection('IC3installing');
       
-        copyKeePassRPCFilesTo(keePassLocation);
+        if (!copyKeePassRPCFilesTo(keePassLocation))
+        {
+            hideSection('IC3installing');
+            showSection('ERRORInstallButtonMain');
+            return;
+        }
   
         hideSection('IC3installing');
         showSection('InstallFinished');
-        mainWindow.keeFoxInst._KFLog.debug("AAA");
         launchAndConnectToKeePass();
     }
 }
@@ -1026,32 +1021,29 @@ function copyKeePassRPCFilesTo(keePassLocation)
     // to get it put into place
     if (!KeePassRPCfound)
     {
-        mainWindow.keeFoxInst._KFLog.debug("4");
         mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
         runKeePassRPCExecutableInstaller(keePassLocation);
-        mainWindow.keeFoxInst._KFLog.debug("5");
         keePassRPCLocation = "not installed";
 
         keePassRPCLocation = mainWindow.keeFoxInst._discoverKeePassRPCInstallLocation(); // this also stores the preference
-        mainWindow.keeFoxInst._KFLog.debug("6");
         KeePassRPCfound = mainWindow.keeFoxInst._confirmKeePassRPCInstallLocation(keePassRPCLocation);
-        mainWindow.keeFoxInst._KFLog.debug("7");
         
         // still not found! Have to give up :-(
         if (!KeePassRPCfound)
         {
-            mainWindow.keeFoxInst._KFLog.debug("8");
             mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
             var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                         .getService(Components.interfaces.nsIPromptService);
-            promptService.alert("Sorry, KeeFox could not automatically install the KeePassRPC"
+            promptService.alert(mainWindow,"Something went wrong","Sorry, KeeFox could not automatically install the KeePassRPC"
                 + " plugin for KeePass Password Safe 2, which is required for KeeFox to function."
                 + " This is usually becuase you are trying to install to a location into which you are"
                 + " not permitted to add new files. You may be able to restart Firefox and"
                 + " try the installation again choosing different options or you could ask your"
-                + " computer administrator for assistance.");           
+                + " computer administrator for assistance."); 
+            return false;          
         }
     }
+    return true;
 }
 
 function runKeePassRPCExecutableInstaller(keePassLocation)
@@ -1066,8 +1058,8 @@ function runKeePassRPCExecutableInstaller(keePassLocation)
         file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
         file.append(KF_KRPC_FILE_NAME);
 
-    mainWindow.keeFoxInst.runAnInstaller(file.path,
-        '"' + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
+    mainWindow.keeFoxInst.runAnInstaller(file.path, '"'
+        + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
 }
 
 // TODO: would be nice if this could go in a seperate

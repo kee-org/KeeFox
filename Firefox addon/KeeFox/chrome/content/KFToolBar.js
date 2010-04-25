@@ -34,19 +34,34 @@ KFToolbar.prototype = {
 
     _currentWindow : null,
     strbundle : null,
+    
+    shutdown: function()
+    {
+        var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
+        if (container != undefined || container != null)
+            container.setAttribute("disabled", "true");
+        container = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
+        if (container != undefined || container != null)
+            container.setAttribute("disabled", "true");
+        container = this._currentWindow.document.getElementById("KeeFox_Menu-Button");
+        if (container != undefined || container != null)
+            container.setAttribute("disabled", "true");
+            
+        
+    },
  
     // remove matched logins from the menu
     removeLogins: function() {
-
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
-
+        if (container === undefined || container == null)
+            return;
+            
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
-        
-        this.setupButton_ready(null,this._currentWindow);
+        //TODO: see if we can remove this successfully: this.setupButton_ready(null,this._currentWindow);
     },
     
     compareRelevanceScores: function (a , b)
@@ -60,7 +75,9 @@ KFToolbar.prototype = {
         KFLog.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
-        
+        if (container === undefined || container == null)
+            return;
+            
         // if the matched logins container is locked (becuase it's currently open) we don't
         // make any changes. In future, maybe we could delay the change rather than
         // completely ignore it but for now, the frequent "dynamic form polling"
@@ -146,6 +163,8 @@ KFToolbar.prototype = {
         KFLog.debug("setAllLogins start");
         
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
+        if (loginButton === undefined || loginButton == null)
+            return;
 
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
@@ -184,7 +203,9 @@ KFToolbar.prototype = {
 
         // get the popup menu for this list of logins and subgroups
         var container = this._currentWindow.document.getElementById(containerID);
-
+        if (container === undefined || container == null)
+            return;
+            
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
@@ -258,9 +279,12 @@ KFToolbar.prototype = {
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
                 "loginsButtonLogin.tip", [login.URLs[0], usernameDisplayValue]));
-            tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit('" +
+            tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit(0,event.ctrlKey,'" +
                 usernameName + "','" + usernameValue + "','" + login.URLs[0] 
                 + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+            tempButton.setAttribute("onclick", "if (event.button == 1) { keeFoxILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
+                usernameName + "','" + usernameValue + "','" + login.URLs[0] 
+                + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation();");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
@@ -271,71 +295,71 @@ KFToolbar.prototype = {
         
     },
 
-    setupButton_installListener: {
-        _KFToolBar: null,
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
+//    setupButton_installListener: {
+//        _KFToolBar: null,
+//        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
-        handleEvent: function(event) {
-            KFLog.debug("setupButton_installListener: got event " + event.type);
+//        handleEvent: function(event) {
+//            KFLog.debug("setupButton_installListener: got event " + event.type);
 
-            var doc, inputElement;
-            switch (event.type) {
-                case "load":
-                    doc = event.target;
-                    this._KFToolBar.setupButton_install(doc.defaultView);
-                    return;
+//            var doc, inputElement;
+//            switch (event.type) {
+//                case "load":
+//                    doc = event.target;
+//                    this._KFToolBar.setupButton_install(doc.defaultView);
+//                    return;
 
-                default:
-                    KFLog.warn("This event was unexpected and has been ignored.");
-                    return;
-            }
-        }
+//                default:
+//                    KFLog.warn("This event was unexpected and has been ignored.");
+//                    return;
+//            }
+//        }
 
-    },
-    
-    setupButton_readyListener: {
-        _KFToolBar: null,
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
+//    },
+//    
+//    setupButton_readyListener: {
+//        _KFToolBar: null,
+//        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
-        handleEvent: function(event) {
-            KFLog.debug("setupButton_readyListener: got event " + event.type);
+//        handleEvent: function(event) {
+//            KFLog.debug("setupButton_readyListener: got event " + event.type);
 
-            var doc, inputElement;
-            switch (event.type) {
-                case "load":
-                    doc = event.target;
-                    this._KFToolBar.setupButton_ready(doc.defaultView);
-                    return;
+//            var doc, inputElement;
+//            switch (event.type) {
+//                case "load":
+//                    doc = event.target;
+//                    this._KFToolBar.setupButton_ready(doc.defaultView);
+//                    return;
 
-                default:
-                    KFLog.warn("This event was unexpected and has been ignored.");
-                    return;
-            }
-        }
+//                default:
+//                    KFLog.warn("This event was unexpected and has been ignored.");
+//                    return;
+//            }
+//        }
 
-    },
-    
-    setupButton_loadKeePassListener: {
-        _KFToolBar: null,
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
+//    },
+//    
+//    setupButton_loadKeePassListener: {
+//        _KFToolBar: null,
+//        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
 
-        handleEvent: function(event) {
-            KFLog.debug("setupButton_loadKeePassListener: got event " + event.type);
+//        handleEvent: function(event) {
+//            KFLog.debug("setupButton_loadKeePassListener: got event " + event.type);
 
-            var doc, inputElement;
-            switch (event.type) {
-                case "load":
-                    doc = event.target;
-                    this._KFToolBar.setupButton_loadKeePass(doc.defaultView);
-                    return;
+//            var doc, inputElement;
+//            switch (event.type) {
+//                case "load":
+//                    doc = event.target;
+//                    this._KFToolBar.setupButton_loadKeePass(doc.defaultView);
+//                    return;
 
-                default:
-                    KFLog.warn("This event was unexpected and has been ignored.");
-                    return;
-            }
-        }
+//                default:
+//                    KFLog.warn("This event was unexpected and has been ignored.");
+//                    return;
+//            }
+//        }
 
-    },
+//    },
 
     setupButton_install: function(targetWindow) {
         KFLog.debug("setupButton_install start");
@@ -347,7 +371,9 @@ KFToolbar.prototype = {
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
-        
+        if (mainButton === undefined || mainButton == null)
+            return;
+            
         // Remove all of the existing buttons
         for (i = mainButton.childNodes.length; i > 0; i--) {
             mainButton.removeChild(mainButton.childNodes[0]);
@@ -382,6 +408,9 @@ KFToolbar.prototype = {
         }
         
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
+        if (mainButton === undefined || mainButton == null)
+            return;
+            
         mainButton.setAttribute("disabled", "false");
         // Remove all of the existing buttons
         for (var i = mainButton.childNodes.length; i > 0; i--) {
@@ -397,7 +426,7 @@ KFToolbar.prototype = {
         {
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
             if (DBname == null || DBname == "")
-                return; // KeePassRPC suddenly dissapeared - toolbar will have been updated from deeper in the stack
+                return; // KeePassRPC suddenly dissapeared - toolbar will have been updated from deeper in the stack? maybe not since removal of ICE?
             mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
            // mainButton.setAttribute("oncommand", "alert('blah')");
@@ -452,6 +481,9 @@ KFToolbar.prototype = {
                    .getInterface(Components.interfaces.nsIDOMWindow);
 
         mainButton = mainWindow.document.getElementById("KeeFox_Main-Button");
+        if (mainButton === undefined || mainButton == null)
+            return;
+            
         mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
         mainButton.setAttribute("disabled", "false");
         // Remove all of the existing buttons
@@ -483,8 +515,11 @@ KFToolbar.prototype = {
         KFLog._alert(outMsg);
     },
     
-    flashItem: function (flashyItem, numberOfTimes, theWindow) {
-    
+    flashItem: function (flashyItem, numberOfTimes, theWindow)
+    {
+        if (flashyItem === undefined || flashyItem == null)
+            return;
+            
         if (numberOfTimes < 1)
             return;
         
@@ -499,6 +534,8 @@ KFToolbar.prototype = {
     detachMRUpopup: function () {
     alert("detach");
         var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
+        if (container === undefined || container == null)
+            return;
 
         //var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
                 // Remove all of the existing popup containers
@@ -516,6 +553,8 @@ KFToolbar.prototype = {
    //     var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
 
         var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+        if (popupContainer === undefined || popupContainer == null)
+            return;
 
         // Remove all of the existing buttons
         for (i = popupContainer.childNodes.length; i > 0; i--) {
@@ -676,7 +715,21 @@ KFToolbar.prototype = {
         this.setLogins(null, null);
         this._currentWindow.keeFoxILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
         
-    }
+    },
+    
+    generatePassword : function ()
+    {
+        var currentGBrowser = this._currentWindow.gBrowser;
+        //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
+        this.setLogins(null, null);
+        var newPassword = this._currentWindow.keeFoxInst.generatePassword();
+        
+        const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
+        getService(Components.interfaces.nsIClipboardHelper);
+        gClipboardHelper.copyString(newPassword);
+        
+        this._currentWindow.alert("A new password has been copied to your clipboard.");//TODO: replace with a growl if FF supports such a thing
+    }    
 
 };
 

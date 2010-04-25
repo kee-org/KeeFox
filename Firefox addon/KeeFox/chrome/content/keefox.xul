@@ -53,6 +53,12 @@
 
         <menuseparator />
 
+        <menuitem id="KeeFox_CopyNewPasswordToClipboard-Button" tooltiptext="&KeeFox_Menu-Button.copyNewPasswordToClipboard.tip;"
+                           class="" label="&KeeFox_Menu-Button.copyNewPasswordToClipboard.label;" oncommand="keeFoxToolbar.generatePassword()" accesskey="&KeeFox_Menu-Button.copyNewPasswordToClipboard.key;" />
+
+
+        <menuseparator />
+
         <!--<menuitem id="KeeFox_UpdateAllFavicons-Button" tooltiptext="&KeeFox_Menu-Button.updateAllFavicons.tip;"
                                    class="" label="&KeeFox_Menu-Button.updateAllFavicons.label;" oncommand="keeFoxInst.updateAllFavicons()" accesskey="&KeeFox_Menu-Button.updateAllFavicons.key;" />
 
@@ -81,7 +87,7 @@
                  label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;"
                    KFLock="disabled" disabled="true" maxwidth="200"/>
       
-    <toolbarbutton id="KeeFox_Logins-Button" tooltiptext="&KeeFox_Logins-Button.tip;"
+    <toolbarbutton id="KeeFox_Logins-Button" disabled="true" tooltiptext="&KeeFox_Logins-Button.tip;"
              label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu">
       <menupopup id="KeeFox_Logins-Button-root">
         

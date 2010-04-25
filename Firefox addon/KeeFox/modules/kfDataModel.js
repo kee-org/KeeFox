@@ -119,7 +119,7 @@ kfLoginInfo.prototype =
         var httpRealmParam = (this.httpRealm == null) ? "null" : ("'"+this.httpRealm+"'");
         var uniqueIDParam = (this.uniqueID == null) ? "null" : ("'"+this.uniqueID+"'");
         var titleParam = (this.title == null) ? "null" : ("'"+this.title+"'");
-    log.info("TITLESOURCE: " + titleParam);
+
         return "( deserialisedOutputURLs , "+ formActionURLParam +", "+httpRealmParam+" , "+this.usernameIndex
             +" , deserialisedOutputPasswords , "+uniqueIDParam+" , "+titleParam+" , deserialisedOutputOtherFields , "+this.maximumPage+" )";
     },
@@ -127,7 +127,7 @@ kfLoginInfo.prototype =
     init : function (aURLs, aFormActionURL, aHttpRealm,
                      aUsernameIndex,      aPasswords,
                      aUniqueID, aTitle, otherFieldsArray, aMaximumPage) {
-log.info("ATITLE: " + aTitle);
+
         this.otherFields = otherFieldsArray;   
         this.URLs      = aURLs;
         this.formActionURL = aFormActionURL;
@@ -138,9 +138,6 @@ log.info("ATITLE: " + aTitle);
         this.title = aTitle;
         this.maximumPage = aMaximumPage;
         this.iconImageData = "";
-//        this.parentGroupName = "";
-//        this.parentGroupUUID = "";
-//        this.parentGroupPath = "";
         this.priority = 0;
 	    this.alwaysAutoFill = false;
 	    this.alwaysAutoSubmit = false;
@@ -158,7 +155,6 @@ log.info("ATITLE: " + aTitle);
         for (var j = 0; j < entry.formFieldList.length; j++) 
         {
             var kpff = entry.formFieldList[j];
-log.debug("2: " + kpff.type + ": " + kfFormFieldType.password);
             if (kpff.type == kfFormFieldType.password)
             {
 	            if (kpff.page > maximumPage)
@@ -195,7 +191,6 @@ log.debug("2: " + kpff.type + ": " + kfFormFieldType.password);
 
         this.init(entry.uRLs, entry.formActionURL, entry.hTTPRealm, usernameIndex,
                   passwords, entry.uniqueID, entry.title, otherFields, maximumPage);
-         log.debug("7");            
         this.parentGroup = entry.parent;
         this.iconImageData = entry.iconImageData;
         this.alwaysAutoFill = entry.alwaysAutoFill;
@@ -375,7 +370,6 @@ log.debug("2: " + kpff.type + ": " + kfFormFieldType.password);
     
     asEntry : function ()
     {
-    log.info("TITLEAS: " + this.title);
         var entry = {};
         
         entry.parent = this.parentGroup;
@@ -391,8 +385,6 @@ log.debug("2: " + kpff.type + ": " + kfFormFieldType.password);
         entry.uniqueID = this.uniqueID;
         entry.title = this.title;
         entry.formFieldList = [];
-        //log.debug("gg:"+this.passwords.length);
-        //log.debug("gg:"+this.otherFields.length);
         for (var i in this.passwords)
             entry.formFieldList.push(this.passwords[i].asFormField(false));
         for (var i in this.otherFields)

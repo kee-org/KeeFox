@@ -56,6 +56,7 @@ namespace Mono.Tools
             subject = "CN=" + subject;
             issuer = "CN=" + issuer;
             RSA subjectKey = (RSA)RSA.Create();
+            RSA issuerKey = (RSA)RSA.Create();
 
             string hashName = "SHA1";
 
@@ -66,8 +67,8 @@ namespace Mono.Tools
             if ((sn[0] & 0x80) == 0x80)
                 sn[0] -= 0x80;
 
-            issuer = subject;
-            RSA issuerKey = subjectKey;
+            //issuer = subject;
+            //RSA issuerKey = subjectKey;
 
             if (subject == null)
                 throw new Exception("Missing Subject Name");
@@ -93,6 +94,9 @@ namespace Mono.Tools
 
             p12.AddCertificate(new X509Certificate(rawcert), attributes);
             p12.AddPkcs8ShroudedKeyBag(subjectKey, attributes);
+
+           // p12.SaveToFile(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\test.p12");
+
             return p12.GetBytes();
         }
     }

@@ -73,11 +73,11 @@ KFmainThreadHandler.prototype =
                     } else if (this.reason == "IC1KPSetupFinished") {
                         this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_EXECUTING;
                         this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_EXECUTED;
-                        this.browserWindow.IC1setupKI(this.mainWindow);
+                        this.browserWindow.IC1setupKRPC(this.mainWindow);
                     } else if (this.reason == "IC2KPSetupFinished") {
                         this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_EXECUTING;
                         this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_EXECUTED;
-                        this.browserWindow.IC2setupKI(this.mainWindow);
+                        this.browserWindow.IC2setupKRPC(this.mainWindow);
                     }
                     break;
                 case "IC1PriDownload": this.handleIC1PriDownload(); break;

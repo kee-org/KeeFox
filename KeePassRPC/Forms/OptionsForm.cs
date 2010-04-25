@@ -31,8 +31,9 @@ using KeePass;
 using KeePass.UI;
 using KeePass.Plugins;
 using KeePass.Resources;
+using KeePassRPC;
 
-namespace KeePassRPC
+namespace KeePassRPC.Forms
 {
     public partial class OptionsForm : Form
     {
@@ -44,20 +45,16 @@ namespace KeePassRPC
 
             InitializeComponent();
             this.checkBox1.Text = "Automatically save KeePass database when KeeFox makes changes";
-            if (host.CustomConfig.GetBool("KeeICE.KeeFox.autoCommit", true))
+            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
                 this.checkBox1.Checked = true;
             else
                 this.checkBox1.Checked = false;
 
-            m_bannerImage.Image = BannerFactory.CreateBanner(m_bannerImage.Width,
-                m_bannerImage.Height, BannerStyle.Default,
-                null, "KeeFox (KeeICE) Options",
-                "Change the settings of the KeeFox / KeeICE plugin");
         }
 
         private void m_btnOK_Click(object sender, EventArgs e)
         {
-            _host.CustomConfig.SetBool("KeeICE.KeeFox.autoCommit", this.checkBox1.Checked);
+            _host.CustomConfig.SetBool("KeePassRPC.KeeFox.autoCommit", this.checkBox1.Checked);
 
             _host.MainWindow.Invoke((MethodInvoker)delegate { _host.MainWindow.SaveConfig(); });
         }
@@ -65,10 +62,6 @@ namespace KeePassRPC
         private void OnFormLoad(object sender, EventArgs e)
         {
             GlobalWindowManager.AddWindow(this);
-            m_bannerImage.Image = BannerFactory.CreateBanner(m_bannerImage.Width,
-                m_bannerImage.Height, BannerStyle.Default,
-                null, "KeeFox (KeeICE) Options",
-                "Change the settings of the KeeFox / KeeICE plugin");
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

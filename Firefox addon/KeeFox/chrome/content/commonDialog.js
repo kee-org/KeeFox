@@ -160,7 +160,7 @@ var keeFoxDialogManager = {
                 var uri = ioService.newURI(host, null, null);
                 host = uri.host;            
             } catch (exception) {
-                keeFoxInst._KFLog.warn("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
+                keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
             }    
 								
 		    // if we're not logged in to KeePass then we can't go on

@@ -1,4 +1,4 @@
-﻿namespace KeePassRPC
+﻿namespace KeePassRPC.Forms
 {
 	partial class KeyCreationSimpleForm
 	{
@@ -80,7 +80,7 @@
             this.m_tbPassword.Location = new System.Drawing.Point(150, 145);
             this.m_tbPassword.Name = "m_tbPassword";
             this.m_tbPassword.Size = new System.Drawing.Size(308, 21);
-            this.m_tbPassword.TabIndex = 0;
+            this.m_tbPassword.TabIndex = 1;
             this.m_tbPassword.UseSystemPasswordChar = true;
             // 
             // m_lblRepeatPassword
@@ -101,7 +101,7 @@
             this.m_tbRepeatPassword.Location = new System.Drawing.Point(150, 171);
             this.m_tbRepeatPassword.Name = "m_tbRepeatPassword";
             this.m_tbRepeatPassword.Size = new System.Drawing.Size(308, 21);
-            this.m_tbRepeatPassword.TabIndex = 3;
+            this.m_tbRepeatPassword.TabIndex = 2;
             this.m_tbRepeatPassword.UseSystemPasswordChar = true;
             // 
             // labelAdvancedTip
@@ -122,7 +122,7 @@
             this.m_btnCancel.Location = new System.Drawing.Point(432, 325);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.m_btnCancel.TabIndex = 18;
+            this.m_btnCancel.TabIndex = 5;
             this.m_btnCancel.Text = "&Cancel";
             this.m_btnCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.m_btnCancel.UseVisualStyleBackColor = true;
@@ -136,7 +136,7 @@
             this.m_btnCreate.Location = new System.Drawing.Point(351, 324);
             this.m_btnCreate.Name = "m_btnCreate";
             this.m_btnCreate.Size = new System.Drawing.Size(75, 23);
-            this.m_btnCreate.TabIndex = 17;
+            this.m_btnCreate.TabIndex = 4;
             this.m_btnCreate.Text = "&OK";
             this.m_btnCreate.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.m_btnCreate.UseVisualStyleBackColor = true;
@@ -150,7 +150,7 @@
             this.m_cbHidePassword.Location = new System.Drawing.Point(464, 145);
             this.m_cbHidePassword.Name = "m_cbHidePassword";
             this.m_cbHidePassword.Size = new System.Drawing.Size(46, 21);
-            this.m_cbHidePassword.TabIndex = 1;
+            this.m_cbHidePassword.TabIndex = 6;
             this.m_cbHidePassword.Text = "***";
             this.m_cbHidePassword.UseVisualStyleBackColor = true;
             this.m_cbHidePassword.CheckedChanged += new System.EventHandler(this.OnCheckedHidePassword);
@@ -214,7 +214,7 @@
             this.dbNameTextBox.Location = new System.Drawing.Point(150, 225);
             this.dbNameTextBox.Name = "dbNameTextBox";
             this.dbNameTextBox.Size = new System.Drawing.Size(260, 21);
-            this.dbNameTextBox.TabIndex = 22;
+            this.dbNameTextBox.TabIndex = 3;
             // 
             // labelMasterPassword
             // 
@@ -246,7 +246,7 @@
             this.advancedKeyButton.Location = new System.Drawing.Point(12, 325);
             this.advancedKeyButton.Name = "advancedKeyButton";
             this.advancedKeyButton.Size = new System.Drawing.Size(214, 23);
-            this.advancedKeyButton.TabIndex = 25;
+            this.advancedKeyButton.TabIndex = 7;
             this.advancedKeyButton.Text = "Switch to advanced key creation mode";
             this.advancedKeyButton.UseVisualStyleBackColor = true;
             this.advancedKeyButton.Click += new System.EventHandler(this.button1_Click);
@@ -293,7 +293,6 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "KeyCreationSimpleForm";
-            this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "<>";

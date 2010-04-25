@@ -55,9 +55,9 @@
 
       <preference id="KeeFox-pref-keePassRPCInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRPCInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassInstalledLocation" type="string"/>
-      <preference id="KeeFox-pref-keePassMRUDB" name="extensions.keefox@chris.tomlinson.keePassMRUDB" type="string"/>
       <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRemeberInstalledLocation" type="bool"/>
-      <preference id="KeeFox-pref-debugToConsole" name="extensions.keefox@chris.tomlinson.debugToConsole" type="bool"/>
+      <preference id="KeeFox-pref-keePassDBToOpen" name="extensions.keefox@chris.tomlinson.keePassDBToOpen" type="string"/>
+      
     </preferences>
 
         <tabbox flex="1">
@@ -69,7 +69,7 @@
           <tabpanels flex="1">
             
             <tabpanel>
-              <vbox align="center">
+              <vbox align="left">
                 <checkbox id="dynamicFormScanning" preference="KeeFox-pref-dynamicFormScanning"
                           label="&KeeFox-pref-dynamicFormScanning.label;" />
                 <checkbox id="autoFillForms" preference="KeeFox-pref-autoFillForms"
@@ -92,7 +92,7 @@
             </tabpanel>
 
             <tabpanel>
-              <vbox align="center">
+              <vbox align="left">
                 
                 <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
                         label="&KeeFox-pref-notifyBarRequestPasswordSave.label;" />
@@ -109,17 +109,14 @@
             </tabpanel>
             
             <tabpanel>
-              <vbox align="center">
+              <vbox align="left">
                 <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;"/>
-                <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255"/>
+                <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80"/>
                 <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;"/>
-                <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255"/>
+                <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80"/>
                 <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" />
-                <label control="keePassMRUDB" value="&KeeFox-pref-keePassMRUDB.label;"/>
-                <textbox preference="KeeFox-pref-keePassMRUDB" id="keePassMRUDB" maxlength="255"/>
-
-                <checkbox id="debugToConsole" preference="KeeFox-pref-debugToConsole"
-                        label="&KeeFox-pref-debugToConsole.label;" />
+                <label control="keePassDBToOpen" value="&KeeFox-pref-keePassDBToOpen.label;"/>
+                <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80"/>
 
               </vbox>
             </tabpanel>

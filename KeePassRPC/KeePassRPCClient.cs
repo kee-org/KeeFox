@@ -37,16 +37,59 @@ namespace KeePassRPC
         /// The ID of the next signal we'll send to the client
         /// </summary>
         private int _currentCallBackId = 0;
+        private TcpClient _unencryptedConnection;
+        private bool _channelIsEncrypted;
+        private string _identifiesAs;
+        private bool _authorised;
+        private SslStream _encryptedConnection;
 
         /// <summary>
         /// The underlying TCP connection that links us to this client.
         /// </summary>
-        public TcpClient UnencryptedConnection { get; private set; }
+        public TcpClient UnencryptedConnection
+        {
+            get { return _unencryptedConnection; }
+            private set { _unencryptedConnection = value; }
+        }
 
         /// <summary>
         /// The underlying TLS encrypted TCP connection that links us to this client.
         /// </summary>
-        public SslStream EncryptedConnection { get; private set; }
+        public SslStream EncryptedConnection
+        {
+            get { return _encryptedConnection; }
+            private set { _encryptedConnection = value; }
+        }
+
+        /// <summary>
+        /// Whether the underlying communications channel is encrypted.
+        /// </summary>
+        /// <value><c>true</c> if [channel is encrypted]; otherwise, <c>false</c>.</value>
+        public bool ChannelIsEncrypted
+        {
+            get { return _channelIsEncrypted; }
+            private set { _channelIsEncrypted = value; }
+        }
+
+        /// <summary>
+        /// The identification string for this RPC client.
+        /// </summary>
+        /// <value>The identifies as.</value>
+        public string IdentifiesAs
+        {
+            get { return _identifiesAs; }
+            set { _identifiesAs = value; }
+        }
+
+        /// <summary>
+        /// Whether this client has successfully authenticated to the
+        /// server and been authorised to communicate with KeePass
+        /// </summary>
+        public bool Authorised
+        {
+            get { return _authorised; }
+            set { _authorised = value; }
+        }
 
         public Stream ConnectionStream
         {
@@ -58,24 +101,6 @@ namespace KeePassRPC
                     return UnencryptedConnection.GetStream();
             }
         }
-
-        /// <summary>
-        /// Whether the underlying communications channel is encrypted.
-        /// </summary>
-        /// <value><c>true</c> if [channel is encrypted]; otherwise, <c>false</c>.</value>
-        public bool ChannelIsEncrypted { get; private set; }
-
-        /// <summary>
-        /// The identification string for this RPC client.
-        /// </summary>
-        /// <value>The identifies as.</value>
-        public string IdentifiesAs { get; private set; }
-
-        /// <summary>
-        /// Whether this client has successfully authenticated to the
-        /// server and been authorised to communicate with KeePass
-        /// </summary>
-        public bool Authorised { get; set; }
 
         public KeePassRPCClient(TcpClient connection, string identifiesAs,
             bool isAuthorised)

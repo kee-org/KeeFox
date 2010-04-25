@@ -1,4 +1,4 @@
-﻿namespace KeePassRPC
+﻿namespace KeePassRPC.Forms
 {
     partial class OptionsForm
     {
@@ -86,9 +86,9 @@
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(72)))), ((int)(((byte)(152)))));
             this.label1.Location = new System.Drawing.Point(84, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(242, 25);
+            this.label1.Size = new System.Drawing.Size(288, 25);
             this.label1.TabIndex = 5;
-            this.label1.Text = "KeeFox (KeeICE) options";
+            this.label1.Text = "KeePassRPC (KeeFox) options";
             // 
             // label2
             // 
@@ -111,8 +111,12 @@
             this.Controls.Add(this.m_btnOK);
             this.Controls.Add(this.m_bannerImage);
             this.Controls.Add(this.checkBox1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "OptionsForm";
-            this.Text = "KeeFox (KeeICE) Options";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "KeePassRPC (KeeFox) Options";
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

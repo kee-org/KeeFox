@@ -47,8 +47,9 @@ using KeePassLib.Serialization;
 using KeePassLib.Utility;
 using KeePass;
 using KeePass.Forms;
+using KeePassRPC;
 
-namespace KeePassRPC
+namespace KeePassRPC.Forms
 {
 	public partial class KeyCreationSimpleForm : Form
 	{
@@ -94,11 +95,6 @@ namespace KeePassRPC
 		{
 			GlobalWindowManager.AddWindow(this);
 
-			m_bannerImage.Image = BannerFactory.CreateBanner(m_bannerImage.Width,
-				m_bannerImage.Height, BannerStyle.Default,
-				null, KPRes.CreateMasterKey,
-                //Properties.Resources.B48x48_KGPG_Sign, KPRes.CreateMasterKey,
-				m_ioInfo.GetDisplayName());
 			//this.Icon = Properties.Resources.KeePass;
 			this.Text = KPRes.CreateMasterKey;
 

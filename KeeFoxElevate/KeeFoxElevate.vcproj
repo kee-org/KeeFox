@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="KeePassRPCCopier"
-	ProjectGUID="{0BDCB786-3AD0-458D-9850-9BAF04223FF7}"
-	RootNamespace="KeeICECopier"
+	Name="KeeFoxElevate"
+	ProjectGUID="{89548631-4274-4226-AF0E-3A8F90650683}"
+	RootNamespace="KeeFoxElevate"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="0"
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -145,7 +145,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				EntryPointSymbol="windowsMainEntry"
+				EntryPointSymbol="WinMain"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -261,8 +261,28 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\KeePassRPCCopier.cpp"
+				RelativePath=".\KeeFoxElevate.cpp"
 				>
+			</File>
+			<File
+				RelativePath=".\VistaTools.cxx"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

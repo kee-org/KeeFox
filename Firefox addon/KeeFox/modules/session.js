@@ -40,13 +40,40 @@ function session()
     this.reconnectionAttemptFrequency = 10000;
     this.port = 12536;
     this.address = "127.0.0.1";
-    this.connectionTimeout = 1000; // short timeout for connections
+    this.connectionTimeout = 10000; // short timeout for connections
     this.activityTimeout = 3600000; // long timeout for activity
+    this.connectLock = false; // protect the connect function so only one event
+                        // thread (e.g. timer) can execute it at the same time
+                        
+                        //this.pendingConnection = false;
 }
 
 session.prototype =
 {
     reconnectTimer: null,
+    certFailedReconnectTimer: null,
+    onConnectDelayTimer: null,
+    onConnectDelayTimerAction: function()
+    {    
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+            //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
+            var rpc = window.keeFoxInst.KeePassRPC;
+            
+        if (rpc.transport == undefined || rpc.transport == null)
+            log.error("Transport invalid!");    
+        else if (rpc.transport != null && rpc.transport.isAlive())
+            rpc.onConnect();
+           //  else handle stream errors without risking double reaction to legitimate disconnection
+        else
+        {
+            window.keeFoxInst._pauseKeeFox();
+            rpc.disconnect(); // tidy up so future connection attempts can succeed
+            log.error("Connection attempt failed. Is The KeePassRPC server running?");
+        }
+    },
+    
     reconnectSoon: function()
     {
         log.debug("Creating a reconnection timer.");
@@ -56,15 +83,27 @@ session.prototype =
          
          this.reconnectTimer.initWithCallback(this.reconnectNow,
             this.reconnectionAttemptFrequency,
-            Components.interfaces.nsITimer.TYPE_REPEATING_SLACK); //TODO: does the timer stay in scope?
+            Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     },
     
     connect: function()
     {
         try
         {
+            // This is naughty. I wish the async onConnectDelayTimerAction would work but sadly I can't
+            // get it working yet so this inefficient hack will have to do for now.
+//            if (this.pendingConnection)
+//            {
+//                this.pendingConnection = false;
+//                this.onConnect();
+//            }
+            
             if (this.transport != null && this.transport.isAlive())
                 return "alive";
+            if (this.connectLock)
+                return "locked";
+            this.connectLock = true;
+            
             var transportService =
                 Components.classes["@mozilla.org/network/socket-transport-service;1"].
                 getService(Components.interfaces.nsISocketTransportService);
@@ -74,8 +113,9 @@ session.prototype =
                 return;
             }
             
-            // we want to be told about security certificate problems so we can ignore them
+            // we want to be told about security certificate problems so we can suppress them
             transport.securityCallbacks = this;
+            //transport.connectionFlags = 1; //ANONYMOUS_CONNECT - no SSL client certs
             
             transport.setTimeout(Components.interfaces.nsISocketTransport.TIMEOUT_CONNECT, this.connectionTimeout);
             transport.setTimeout(Components.interfaces.nsISocketTransport.TIMEOUT_READ_WRITE, this.activityTimeout);
@@ -85,6 +125,7 @@ session.prototype =
             this.onNotify("connect-failed", "Unable to connect to "+this.address+":"+this.port+"; Exception occured "+ex);
             this.disconnect();
         }
+        this.connectLock = false;
     },
     
     setTransport: function(transport)
@@ -116,17 +157,17 @@ session.prototype =
                 var asyncOutputStream = this.raw_ostream.QueryInterface(Components.interfaces.nsIAsyncOutputStream);
                 // We need to be able to write at least one byte.
                 asyncOutputStream.asyncWait(this, 0, 1, mainThread);
-                log.debug("async input wait begun");
+                log.debug("async input wait begun.");
             } else
             {
-                log.debug("onconnect");
+                log.debug("transport stream is already alive");
                 this.onConnect();
             }
-        } catch(ex) {
-            log.error(ex, "setTransport failed: ");
-            this.onNotify("connect-failed", "setTransport failed, Unable to connect; Exception "+ex);            
-            this.disconnect();
-            //this.reconnectSoon();  
+        } catch (ex)
+        {
+            log.error("setTransport failed: " + ex);
+            this.onNotify("connect-failed", "setTransport failed, Unable to connect; Exception " + ex);            
+            this.disconnect(); 
         }
     },
     
@@ -141,26 +182,41 @@ session.prototype =
             //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
             var rpc = window.keeFoxInst.KeePassRPC;
             log.debug("Attempting to connect to RPC server.");
-            if (rpc.connect() == "alive")
+            var connectResult = rpc.connect();
+            if (connectResult == "alive")
                 log.debug("Connection already established.");
+            if (connectResult == "locked")
+                log.debug("Connection attempt already underway.");
             
         } 
     },
     
     onOutputStreamReady: function()
     {
-        if (this.transport != null && this.transport.isAlive())
-            this.onConnect();
-           //  else handle stream errors without risking double reaction to legitimate disconnection
-        else
-            log.error("Connection attempt failed. Is The KeePassRPC server running?");
+    //this.pendingConnection = true;
+    //return;
+    
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+            //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
+            var rpc = window.keeFoxInst.KeePassRPC;
+            
+        log.debug("Creating an onConnectDelayTimer. " + rpc.transport);
+         // Create a timer 
+         rpc.onConnectDelayTimer = Components.classes["@mozilla.org/timer;1"]
+                    .createInstance(Components.interfaces.nsITimer);
+         
+         rpc.onConnectDelayTimer.initWithCallback(rpc.onConnectDelayTimerAction,
+            1000,
+            Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO: does the timer stay in scope?
     },
 
     onConnect: function()
     {
         try
         {
-            log.debug("Setting up async reading pump");
+            log.debug("Setting up the async reading pump");
             // start the async read
             this.pump = Components.classes["@mozilla.org/network/input-stream-pump;1"]
                         .createInstance(Components.interfaces.nsIInputStreamPump);
@@ -224,12 +280,12 @@ session.prototype =
             }
     
             var str1 = this.expand(data);
-            log.debug("writeData: [" + str1 + "]");
+            //log.debug("writeData: [" + str1 + "]");
             
             var num_written = this.ostream.writeString(data);
             return num_written;
         } catch(ex) {
-            log.debug(ex, "writeData failed: ");
+            log.debug("writeData failed: " + ex);
         }
         return -1;
     },
@@ -259,13 +315,13 @@ session.prototype =
         log.warn("Adding security certificate exception for " + this.address + ":" + this.port
             + " <-- This should be the address and port of the KeePassRPC server."
             + " If it is not localhost:12536 or 127.0.0.1:12536 and you have"
-            + " not configured KeeFox to use alternative connection details "
-            + "you should investigate this possible security problem, otherwise everything is probably OK."
+            + " not configured KeeFox to use alternative connection details"
+            + " you should investigate this possible security problem, otherwise everything is probably OK."
             + " Note: The security certificate exception is required because KeePassRPC has"
             + " created a custom security certificate unique to your installation."
             + " This certificate is not authenticated by the organisations that Firefox"
             + " automatically trusts so an exception is required for this special case. "
-            + "Please see the KeeFox website if you would like more information about this complex topic."
+            + "Please see the KeeFox website if you would like more information about this topic."
             );
             
         // Add the exception
@@ -280,7 +336,17 @@ session.prototype =
         overrideService.rememberValidityOverride(this.address, this.port, gCert, flags, false);
         
         log.info("Exception added to Firefox");
-        //TODO: try to connect again immediately?
+        
+        //Try to connect again immediately (well, after a tiny wait which should
+        //be enough to ensure this failed attempt has given up before we try again)
+        log.debug("Creating a reconnection timer.");
+        this.certFailedReconnectTimer = Components.classes["@mozilla.org/timer;1"]
+                    .createInstance(Components.interfaces.nsITimer);
+         
+        this.certFailedReconnectTimer.initWithCallback(this.reconnectNow,
+            500,
+            Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO: does the timer stay in scope?
+        log.debug("Timer created.");
     },
     
     notifyCertProblem: function MSR_notifyCertProblem(socketInfo, sslStatus, targetHost)
@@ -290,6 +356,21 @@ session.prototype =
         if (sslStatus)
             this.handleFailedCertificate(sslStatus);
         return true; // suppress error UI
+    },
+    
+    // Shutdown this session, releasing all resources
+    shutdown: function()
+    {
+    log.debug("Shutting down sess...");
+        if (this.reconnectTimer)
+            this.reconnectTimer.cancel();
+        if (this.certFailedReconnectTimer)
+            this.certFailedReconnectTimer.cancel();
+        if (this.onConnectDelayTimer)
+            this.onConnectDelayTimer.cancel();
+        this.disconnect();    
+        
+
     },
       
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIBadCertListener2,
