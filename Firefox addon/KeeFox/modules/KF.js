@@ -47,55 +47,23 @@ function KeeFox()
     if (this._keeFoxExtension.firstRun)
     {
         prefs.setValue("originalPreferenceRememberSignons", Application.prefs.getValue("signon.rememberSignons", false));
-        prefs.setValue("originalPreferenceSessionStore", Application.prefs.getValue("browser.sessionstore.enabled", true));
         Application.prefs.setValue("signon.rememberSignons", false);
-        Application.prefs.setValue("browser.sessionstore.enabled", true);
     }
     
     this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
     
-    // register preference change handlers so we can react to altered
-    // preferences while Firefox is running (actually most of the time we
-    // query the current preference value when we need it but this is for completeness)
-    if (prefs.has("notifyBarWhenLoggedOut"))
-        prefs.get("notifyBarWhenLoggedOut").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("notifyBarWhenKeePassRPCInactive"))
-        prefs.get("notifyBarWhenKeePassRPCInactive").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("flashIconWhenLoggedOut"))
-        prefs.get("flashIconWhenLoggedOut").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("flashIconWhenKeePassRPCInactive"))
-        prefs.get("flashIconWhenKeePassRPCInactive").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("rememberMRUDB"))
-        prefs.get("rememberMRUDB").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("dynamicFormScanning"))
-        prefs.get("dynamicFormScanning").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("autoFillForms"))
-        prefs.get("autoFillForms").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("autoSubmitForms"))
-        prefs.get("autoSubmitForms").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("autoFillDialogs"))
-        prefs.get("autoFillDialogs").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("autoSubmitDialogs"))
-        prefs.get("autoSubmitDialogs").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("overWriteFieldsAutomatically"))
-        prefs.get("overWriteFieldsAutomatically").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("autoSubmitMatchedForms"))
-        prefs.get("autoSubmitMatchedForms").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("keePassRPCInstalledLocation"))
-        prefs.get("keePassRPCInstalledLocation").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("keePassInstalledLocation"))
-        prefs.get("keePassInstalledLocation").events.addListener("change", this.preferenceChangeHandler);
-    if (prefs.has("keePassMRUDB"))
-        prefs.get("keePassMRUDB").events.addListener("change", this.preferenceChangeHandler);  
-    if (prefs.has("keePassDBToOpen"))
-        prefs.get("keePassDBToOpen").events.addListener("change", this.preferenceChangeHandler);  
-    if (prefs.has("saveFavicons"))
-        prefs.get("saveFavicons").events.addListener("change", this.preferenceChangeHandler);      
-          
-    Application.prefs.get("signon.rememberSignons").events.addListener("change", this.preferenceChangeHandler);
-    Application.prefs.get("browser.sessionstore.enabled").events.addListener("change", this.preferenceChangeHandler);
-          
     this._registerPlacesListeners();
+    
+    var observerService = Components.classes["@mozilla.org/observer-service;1"].
+                              getService(Ci.nsIObserverService);
+    this._observer._kf = this;    
+    observerService.addObserver(this._observer, "quit-application", false);   
+        
+    this._prefService =  
+        Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);        
+    this._prefService.QueryInterface(Ci.nsIPrefBranch2);
+    this._prefService.addObserver("signon.rememberSignons", this._observer, false);
+    this._prefService.QueryInterface(Ci.nsIPrefBranch);
         
     // Create a timer 
     this.regularCallBackToKeeFoxJSQueueHandlerTimer = Components.classes["@mozilla.org/timer;1"]
@@ -132,6 +100,8 @@ KeeFox.prototype = {
     //callbackQueue: [],
     processingCallback: false,
     pendingCallback: "",
+    
+    urlToOpenOnStartup: null,
 
     // notify all interested objects and functions of changes in preference settings
     // (lots of references to preferences will not be cached so there's not lots to do here)
@@ -153,24 +123,15 @@ KeeFox.prototype = {
                 if (this._keeFoxExtension.prefs.getValue("rememberMRUDB",false)) 
                     keeFoxInst._keeFoxExtension.prefs.setValue("keePassMRUDB","");
                 break;
-            case "signon.rememberSignons":
-                if (promptService.confirm(window, "Password management",
-                    "The KeeFox extension may not work correctly if you allow"
-                    + " Firefox to manage your passwords. Should KeeFox disable"
-                    + " the built-in Firefox password manager?"))
-                {
-                  Application.prefs.setValue("signon.rememberSignons", false);
-                }
-                break;
-            case "browser.sessionstore.enabled":
-                promptService.alert(window, "Password management",
-                    "The KeeFox extension will not work correctly if you disable"
-                    + " browser.sessionstore. KeeFox will now enable"
-                    + " browser.sessionstore. If you must set browser."
-                    + "sessionstore.enabled to false, please disable or"
-                    + " uninstall KeeFox first.");
-                Application.prefs.setValue("browser.sessionstore.enabled", true);
-                break;
+//            case "signon.rememberSignons":
+//                if (promptService.confirm(window, "Password management",
+//                    "The KeeFox extension may not work correctly if you allow"
+//                    + " Firefox to manage your passwords. Should KeeFox disable"
+//                    + " the built-in Firefox password manager?"))
+//                {
+//                  Application.prefs.setValue("signon.rememberSignons", false);
+//                }
+//                break;
                 
             default: break;
         }
@@ -181,12 +142,12 @@ KeeFox.prototype = {
     _checkForConflictingExtensions: function()
     {
         // {22119944-ED35-4ab1-910B-E619EA06A115} - roboform
-        if (Application.extensions.has("{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"))
+        if (Application.extensions.has("chris.tomlinson@keefox"))
         {
             // uninstall the old version of KeeFox (never published on AMO)
             var em = Components.classes["@mozilla.org/extensions/manager;1"]  
                 .getService(Components.interfaces.nsIExtensionManager);  
-            em.uninstallItem("{ec8030f7-c20a-464f-9b0e-13a3a9e97384}");
+            em.uninstallItem("chris.tomlinson@keefox");
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                            .getService(Components.interfaces.nsIWindowMediator);
@@ -208,6 +169,8 @@ KeeFox.prototype = {
 
     uninstallHandler: function()
     {
+    //TODO: this doesn't work. dunno how to catch the secret FUEL notifications yet...
+    
         //TODO: explain to user what will be uninstalled and offer extra
         // options (e.g. "Uninstall KeePass too?")
         
@@ -1016,67 +979,56 @@ KeeFox.prototype = {
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                    .getService(Components.interfaces.nsIWindowMediator);
-//                   var browserEnumerator = wm.getEnumerator("navigator:browser");
+        try
+        {
+        
+            var browserEnumerator = wm.getEnumerator("navigator:browser");
 
-//  // Check each browser instance for our URL
-//  while (!found && browserEnumerator.hasMoreElements())
-//  {
-//    var browserWin = browserEnumerator.getNext();
-//    var tabbrowser = browserWin.gBrowser;
-
-//    // Check each tab of this browser instance
-//    var numTabs = tabbrowser.browsers.length;
-//    for (var index = 0; index < numTabs; index++) {
-//      var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-//      if (url == currentBrowser.currentURI.spec) {
-
-//        // The URL is already opened. Select this tab.
-//        tabbrowser.selectedTab = tabbrowser.tabContainer.childNodes[index];
-
-//        // Focus *this* browser-window
-//        browserWin.focus();
-
-//        found = true;
-//        break;
-//      }
-//    }
-//  }
-try {
-var ttt = wm.getMostRecentWindow("navigator:browser");
-            var bbb = ttt.getBrowser();
-            } catch (ex)
+            // Check each browser instance for our URL
+            while (!found && browserEnumerator.hasMoreElements())
             {
-                this._KFLog.debug("browser window not ready yet");
+                var browserWin = browserEnumerator.getNext();
+                var tabbrowser = browserWin.gBrowser;
+
+                // Check each tab of this browser instance
+                var numTabs = tabbrowser.browsers.length;
+                for (var index = 0; index < numTabs; index++)
+                {
+                    var currentBrowser = tabbrowser.getBrowserAtIndex(index);
+                    if (url == currentBrowser.currentURI.spec)
+                    {
+                        // The URL is already opened. Select this tab.
+                        tabbrowser.selectedTab = tabbrowser.tabContainer.childNodes[index];
+
+                        // Focus *this* browser-window
+                        browserWin.focus();
+
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                this._KFLog.debug("tab with this URL not already open so opening one and focussing it now");
+                var newWindow = wm.getMostRecentWindow("navigator:browser");
+                var b = newWindow.getBrowser();
+                var newTab = b.loadOneTab( url, null, null, null, false, null );
+                return newTab;
+            }
+        } catch (ex)
+        {
+            // if this fails, it's probably because we are setting up the JS module before FUEL is ready (can't find a way to test it so will just have to try and catch)
+            this._KFLog.debug("browser window not ready yet: " + ex);
+            this.urlToOpenOnStartup = url;            
+            var currentWindow = wm.getMostRecentWindow("navigator:browser");
+            if (currentWindow == null)
+            {
+                this._KFLog.error("No windows open yet");
                 return;
             }
-          this._KFLog.debug("browser window ready");
-                return;
-        Application.windows.forEach(function(b) {
-            // look at each open browser window (not tab)
-            Application.activeWindow.tabs.forEach(function(t) {
-                // look at each open tab in browser window b
-                if (url == t.uri.spec) {
-                    this._KFLog.debug("suitable tab already open - focussing it now");
-                    // The URL is already opened. Select this tab.
-                    t.focus();
-
-                    // TODO: Focus *this* browser-window?
-
-                    found = true;
-                    return t;
-                }
-            });
-        });
-
-        if (!found) {
-            this._KFLog.debug("tab with this URL not already open so opening one and focussing it now");
-
-//            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                                        .getService(Components.interfaces.nsIWindowMediator);
-            var newWindow = wm.getMostRecentWindow("navigator:browser");
-            var b = newWindow.getBrowser();
-            var newTab = b.loadOneTab( url, null, null, null, false, null );
-            return newTab;
+            return;
         }
     },
     
@@ -1106,100 +1058,69 @@ var ttt = wm.getMostRecentWindow("navigator:browser");
         return dir.path;
     },
 
-//    /***********************************************
-//    * Main routine. Run every time the script loads (i.e. a new Firefox window is opened)
-//    *
-//    * registers an event listener for when the window finishes loading but only
-//    * if window is not ready and that hasn't already been done in this session
-//    **********************************************/
-//    //TODO: this is registering an object in this KF object to be the event listener and passing the current KFtoolbar
-//    // but that means that a 2nd window opened in quick succession will overwrite the toolbar and only one will ever get updated
-//    // i presume this will happen occasionally when sessions are being restored or scripts/add-ons are opening multiple
-//    // windows in one go so it needs to be fixed but will probably get away with it in the short-term
-//    // longer term, we need to be registering the startup events only on objects that understand different window scopes
-//    init: function(currentKFToolbar, currentWindow)
-//    {
-//        this._KFLog = currentWindow.KFLog;
+    _observer :
+    {
+        _kf : null,
 
-//        this._KFLog.info("Testing to see if we've already established whether KeePassRPC is connected.");
+        QueryInterface : XPCOMUtils.generateQI([Ci.nsIObserver, 
+                                                Ci.nsISupportsWeakReference]),
+        // nsObserver
+        observe : function (subject, topic, data)
+        {
+            KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
+            switch(topic)
+            {
+                case "quit-application":
+                    KFLog.info("Application is shutting down...");
+                    _kf.shutdown();
+                    KFLog.info("KeeFox has nearly shut down.");
+                    var observerService = Cc["@mozilla.org/observer-service;1"].
+                                  getService(Ci.nsIObserverService);
+                    observerService.removeObserver(this, "quit-application");
+                    
+                    this._prefService.QueryInterface(Ci.nsIPrefBranch2);
+                    this._prefService.removeObserver("signon.rememberSignons", this);
+                    
+                    KFLog.info("KeeFox has shut down. Sad times; come back soon!");
+                    break;
+                case "nsPref:changed":
+                    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                       .getService(Components.interfaces.nsIWindowMediator);
+                    var window = wm.getMostRecentWindow("navigator:browser");
 
-//        //TODO: hmmm... if it is active, why would it not be installed?...
-//        // need to review this logic - may be affecting startup in some cases
-//        if (!this._keeFoxStorage.has("KeePassRPCActive"))
-//        {
-//            this._KFLog.info("Nope, it's not running"); 
-//            var observerService = Cc["@mozilla.org/observer-service;1"].
-//                              getService(Ci.nsIObserverService);
-//            this._observer._kf = this;
-//            this._observer._currentKFToolbar = currentKFToolbar;                            
-//            observerService.addObserver(this._observer, "sessionstore-windows-restored", false);
-//        
-//        } else if (!this._keeFoxStorage.get("KeePassRPCInstalled", false))
-//        {
-//            this._KFLog.debug("Updating the toolbar becuase KeePassRPC install is needed.");
+                    // get a reference to the prompt service component.
+                    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                    .getService(Components.interfaces.nsIPromptService);
+                    subject.QueryInterface(Components.interfaces.nsIPrefBranch);
+                    
+                    this.preferenceChangeResponder(subject, data, window, promptService);
+                    break;
+            }          
+        },
+        
+        preferenceChangeResponder : function (prefBranch, prefName, window, promptService)
+        {
+            switch (prefName)
+            {
+                case "signon.rememberSignons":
+                    var newValue = prefBranch.getBoolPref(prefName);
+                    var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
+                        promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
 
-//            if (currentWindow.document)
-//            {
-//                this._KFLog.debug("setting up the toolbar");
-//                currentKFToolbar.setupButton_install(currentWindow);
-//            } else
-//            {
-//                this._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
-//                currentWindow.addEventListener("load", currentKFToolbar.setupButton_installListener, false);
-//            }
-//            
-//        } else if (this._keeFoxStorage.get("KeePassRPCInstalled", false) && !this._keeFoxStorage.get("KeePassRPCActive", false))
-//        {
-//            this._KFLog.debug("Updating the toolbar becuase user needs to load KeePass.");
-
-//            if (currentWindow.document)
-//            {
-//                this._KFLog.debug("setting up the toolbar");
-//                currentKFToolbar.setupButton_ready(currentWindow);
-//            } else
-//            {
-//                this._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
-//                currentWindow.addEventListener("load", currentKFToolbar.setupButton_loadKeePassListener, false);
-//            }
-//            
-//         } else if (this._keeFoxStorage.get("KeePassRPCActive", true))
-//         {
-//            this._KFLog.debug("Updating the toolbar becuase everything has started correctly.");
-//            
-//            if (currentWindow.document)
-//            {
-//                this._KFLog.debug("setting up the toolbar");
-//                currentKFToolbar.setupButton_ready(currentWindow);
-//                currentKFToolbar.setAllLogins();
-//            } else
-//            {
-//                this._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
-//                currentWindow.addEventListener("load", currentKFToolbar.setupButton_readyListener, false);
-//            }
-//            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
-//        }
-//    },
-    
-//    _observer : {
-//        _kf : null,
-//        _currentKFToolbar : null,
-
-//        QueryInterface : XPCOMUtils.generateQI([Ci.nsIObserver, 
-//                                                Ci.nsISupportsWeakReference]),
-//        // nsObserver
-//        observe : function (subject, topic, data)
-//        {
-//            switch(topic)
-//            {
-//                case "sessionstore-windows-restored":
-//                    this._kf._keeFoxBrowserStartup(this._currentKFToolbar, this._currentKFToolbar._currentWindow);
-//                    break;
-//            }
-
-//        },
-//        
-//        notify : function (subject, topic, data) { }
-//    },
+                    if (newValue && promptService.confirmEx(window, "Password management",
+                        "The KeeFox add-on may not work correctly if you allow"
+                        + " Firefox to manage your passwords. Should KeeFox disable"
+                        + " the built-in Firefox password manager?",
+                               flags, "", "", "", null, {}) == 0)
+                    {
+                      Application.prefs.setValue("signon.rememberSignons", false);
+                    }
+                    break;
+            }
+        },
+        
+        notify : function (subject, topic, data) { }
+    },
 
     // we could define multiple callback functions but that looks like it needs 
     // really messy xpcom code so we'll stick with the one and just switch...

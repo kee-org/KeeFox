@@ -37,6 +37,7 @@ using KeePassLib.Security;
 using KeePass.Plugins;
 using System.Security.Cryptography;
 using KeePassLib.Cryptography.PasswordGenerator;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KeePassRPC
 {
@@ -1245,7 +1246,7 @@ namespace KeePassRPC
         public Entry[] GetAllLogins()
         {
             int count = 0;
-            ArrayList allEntries = new ArrayList();
+            List<Entry> allEntries = new List<Entry>();
 
             // Make sure there is an active database
             if (!ensureDBisOpen()) { return null; }
@@ -1267,7 +1268,12 @@ namespace KeePassRPC
 
             }
 
-            return (Entry[])allEntries.ToArray(typeof(Entry));
+            allEntries.Sort(delegate(Entry e1, Entry e2)
+            {
+                return e1.Title.CompareTo(e2.Title);
+            });
+
+            return allEntries.ToArray();
         }
 
         /// <summary>
@@ -1279,8 +1285,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry[] GetChildEntries(string uuid)
         {
-            Entry[] entries = null;
-            ArrayList allEntries = new ArrayList();
+            List<Entry> allEntries = new List<Entry>();
 
             if (uuid != null && uuid.Length > 0)
             {
@@ -1308,10 +1313,15 @@ namespace KeePassRPC
                     allEntries.Add(kpe);
                 }
 
-                entries = (Entry[])allEntries.ToArray(typeof(Entry));
+                allEntries.Sort(delegate(Entry e1, Entry e2)
+                {
+                    return e1.Title.CompareTo(e2.Title);
+                });
+
+                return allEntries.ToArray();
             }
 
-            return entries;
+            return null;
         }
 
         /// <summary>
@@ -1323,8 +1333,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Group[] GetChildGroups(string uuid)
         {
-            Group[] entries = null;
-            ArrayList allGroups = new ArrayList();
+            List<Group> allGroups = new List<Group>();
 
             PwGroup matchedGroup;
 
@@ -1357,8 +1366,12 @@ namespace KeePassRPC
                 allGroups.Add(kpg);
             }
 
-            entries = (Group[])allGroups.ToArray(typeof(Group));
-            return entries;
+            allGroups.Sort(delegate(Group g1, Group g2)
+            {
+                return g1.Title.CompareTo(g2.Title);
+            });
+
+            return allGroups.ToArray();
         }
 
         /// <summary>
@@ -1492,27 +1505,13 @@ namespace KeePassRPC
 
 
             int count = 0;
-            ArrayList allEntries = new ArrayList();
+            List<Entry> allEntries = new List<Entry>();
 
-
-            // Narrow down the possible matches by doing a KeePass search
-            // (We could match on an irrelevant string field but chances are that any matches are suitable)
-            SearchParameters sp = new SearchParameters();
-            sp.SearchInUrls = true;
-            sp.SearchInOther = true;
-            sp.RegularExpression = true;
-            if (hostname.Length == 0)
-                sp.SearchString = ".*";
-            else if (requireFullURLMatches)
-                sp.SearchString = System.Text.RegularExpressions.Regex.Escape(URL);
-            else
-                sp.SearchString = System.Text.RegularExpressions.Regex.Escape(hostname);
-
-            KeePassLib.Collections.PwObjectList<PwEntry> output;
-            output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+            KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 
             PwGroup searchGroup = GetRootPwGroup();
-            searchGroup.SearchEntries(sp, output, false);
+            output = searchGroup.GetEntries(true);
+
             foreach (PwEntry pwe in output)
             {
                 if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
@@ -1524,7 +1523,14 @@ namespace KeePassRPC
                 bool entryIsAMatch = false;
                 bool entryIsAnExactMatch = false;
 
-                if (lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, hostname))
+                if (pwe.Strings.Exists("KeeFox URL Regex match"))
+                {
+                    string pattern = pwe.Strings.ReadSafe("KeeFox URL Regex match");
+                    if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(hostname,pattern))
+                        entryIsAMatch = true;
+                }
+
+                if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, hostname))
                 {
                     if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                     {
@@ -1535,7 +1541,7 @@ namespace KeePassRPC
                         entryIsAMatch = true;
                 }
 
-                if (lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, hostname))
+                if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, hostname))
                 {
                     if (pwe.Strings.Exists("Form HTTP realm") && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
                     && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
@@ -1556,8 +1562,12 @@ namespace KeePassRPC
                 }
 
             }
+            allEntries.Sort(delegate(Entry e1, Entry e2)
+                {
+                    return e1.Title.CompareTo(e2.Title);
+                });
 
-            return (Entry[])allEntries.ToArray(typeof(Entry));
+            return allEntries.ToArray();
         }
 
 

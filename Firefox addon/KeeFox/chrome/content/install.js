@@ -901,6 +901,11 @@ function launchAndConnectToKeePass()
 
     keeFoxStorage.set("KeePassRPCInstalled", true);
     
+    if (mainWindow.keeFoxInst.KeePassRPC.reconnectTimer != null)
+        mainWindow.keeFoxInst.KeePassRPC.reconnectTimer.cancel();
+    
+    mainWindow.keeFoxInst.KeePassRPC.reconnectVerySoon();
+    
     // launch KeePass and then try to connect to KeePassRPC
     mainWindow.keeFoxInst.launchKeePass();
     

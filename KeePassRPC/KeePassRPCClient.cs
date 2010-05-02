@@ -26,12 +26,132 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.IO;
 
+
 namespace KeePassRPC
 {
     /// <summary>
+    /// 
+    /// </summary>
+    public abstract class KeePassRPCClientManager
+    {
+        public string Name { get; private set; }
+        public string CallbackMethodName { get; private set; }
+        private List<KeePassRPCClientConnection> _RPCClientConnections = new List<KeePassRPCClientConnection>(1);
+        private static object _lockRPCClients = new object();
+
+        public KeePassRPCClientManager(string name, string callbackName)
+        {
+            Name = name;
+            CallbackMethodName = callbackName;
+        }
+
+        private KeePassRPCClientManager()
+        {
+        }
+
+        /// <summary>
+        /// Signals all clients.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        public virtual void SignalAll(KeePassRPC.DataExchangeModel.Signal signal)
+        {
+            foreach (KeePassRPCClientConnection client in _RPCClientConnections)
+                client.Signal(signal, CallbackMethodName);
+        }
+
+        /// <summary>
+        /// Adds an RPC client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        public void AddRPCClientConnection(KeePassRPCClientConnection client)
+        {
+            lock (_lockRPCClients)
+            {
+                _RPCClientConnections.Add(client);
+            }
+        }
+
+        /// <summary>
+        /// Removes an RPC client.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        public void RemoveRPCClientConnection(KeePassRPCClientConnection client)
+        {
+            lock (_lockRPCClients)
+            {
+                _RPCClientConnections.Remove(client);
+            }
+        }
+
+        /// <summary>
+        /// Gets the current RPC clients. ACTUAL client list may change immediately after this array is returned.
+        /// </summary>
+        /// <value>The current RPC clients.</value>
+        public KeePassRPCClientConnection[] CurrentRPCClientConnections
+        {
+            get
+            {
+                lock (_lockRPCClients)
+                {
+                    KeePassRPCClientConnection[] clients = new KeePassRPCClientConnection[_RPCClientConnections.Count];
+                    _RPCClientConnections.CopyTo(clients);
+                    return clients;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Terminates this server.
+        /// </summary>
+        public void Terminate()
+        {
+            lock (_lockRPCClients)
+            {
+                SignalAll(KeePassRPC.DataExchangeModel.Signal.EXITING);
+                foreach (KeePassRPCClientConnection client in _RPCClientConnections)
+                {
+                    client.ConnectionStream.Close();
+                }
+                _RPCClientConnections.Clear();
+            }
+        }
+
+
+    }
+
+    public class NullRPCClientManager : KeePassRPCClientManager
+    {
+        public NullRPCClientManager()
+            : base("Null", "NULL")
+        {
+
+        }
+
+        /// <summary>
+        /// We don't know how to signal null clients so we skip it
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        public override void SignalAll(KeePassRPC.DataExchangeModel.Signal signal)
+        {
+            return;
+        }
+
+    }
+
+    public class KeeFoxRPCClientManager : KeePassRPCClientManager
+    {
+        public KeeFoxRPCClientManager()
+            : base("KeeFox", "callBackToKeeFoxJS")
+        {
+
+        }
+
+    }
+
+    /// <summary>
     /// Represents a client that has connected to this RPC server
     /// </summary>
-    public class KeePassRPCClient
+    public class KeePassRPCClientConnection
     {
         /// <summary>
         /// The ID of the next signal we'll send to the client
@@ -39,7 +159,7 @@ namespace KeePassRPC
         private int _currentCallBackId = 0;
         private TcpClient _unencryptedConnection;
         private bool _channelIsEncrypted;
-        private string _identifiesAs;
+        //private string _identifiesAs;
         private bool _authorised;
         private SslStream _encryptedConnection;
 
@@ -75,11 +195,11 @@ namespace KeePassRPC
         /// The identification string for this RPC client.
         /// </summary>
         /// <value>The identifies as.</value>
-        public string IdentifiesAs
-        {
-            get { return _identifiesAs; }
-            set { _identifiesAs = value; }
-        }
+        //public string IdentifiesAs
+        //{
+        //    get { return _identifiesAs; }
+        //    set { _identifiesAs = value; }
+        //}
 
         /// <summary>
         /// Whether this client has successfully authenticated to the
@@ -102,21 +222,19 @@ namespace KeePassRPC
             }
         }
 
-        public KeePassRPCClient(TcpClient connection, string identifiesAs,
-            bool isAuthorised)
+        public KeePassRPCClientConnection(TcpClient connection, bool isAuthorised)
         {
             ChannelIsEncrypted = false;
             UnencryptedConnection = connection;
-            IdentifiesAs = identifiesAs;
+            //IdentifiesAs = identifiesAs;
             Authorised = isAuthorised;
         }
 
-        public KeePassRPCClient(SslStream connection, string identifiesAs,
-            bool isAuthorised)
+        public KeePassRPCClientConnection(SslStream connection, bool isAuthorised)
         {
             ChannelIsEncrypted = true;
             EncryptedConnection = connection;
-            IdentifiesAs = identifiesAs;
+            //IdentifiesAs = identifiesAs;
             Authorised = isAuthorised;
         }
 
@@ -124,13 +242,13 @@ namespace KeePassRPC
         /// Sends the specified signal to the client.
         /// </summary>
         /// <param name="signal">The signal.</param>
-        public void Signal(KeePassRPC.DataExchangeModel.Signal signal)
+        public void Signal(KeePassRPC.DataExchangeModel.Signal signal, string methodName)
         {
             //TODO: check we're in a valid state to do this!
 
             Jayrock.Json.JsonObject call = new Jayrock.Json.JsonObject();
             call["id"] = ++_currentCallBackId;
-            call["method"] = "callBackToKeeFoxJS";
+            call["method"] = methodName;
             call["params"] = new int[] {(int)signal};
 
             StringBuilder sb = new StringBuilder();

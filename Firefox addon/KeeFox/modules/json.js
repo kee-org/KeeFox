@@ -216,11 +216,11 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         // if any data was left un-handled we store it ready for use when the next TCP packet arrives
         if (lastPacketEndIndex < data.length-1)
         {
-            log.warn("partial data received - not well tested!");
+            log.warn("partial data received - not well tested! " + lastPacketEndIndex + ":"  + data.length);
             if (this.partialData[session] != undefined)
-                this.partialData[session] += data.substr(lastPacketEndIndex,data.length-1-lastPacketEndIndex);
+                this.partialData[session] += data.substr(lastPacketEndIndex,data.length-lastPacketEndIndex);
             else
-                this.partialData[session] = data.substr(lastPacketEndIndex,data.length-1-lastPacketEndIndex);
+                this.partialData[session] = data.substr(lastPacketEndIndex,data.length-lastPacketEndIndex);
         }
     }
     this.onStartRequest = function(request, ctx) {}

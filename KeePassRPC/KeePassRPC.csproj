@@ -97,6 +97,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataExchangeModel.cs" />
+    <Compile Include="Forms\KeeFoxEntryUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeFoxEntryUserControl.Designer.cs">
+      <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\KeeFoxGroupUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\KeeFoxGroupUserControl.Designer.cs">
+      <DependentUpon>KeeFoxGroupUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\KeyCreationSimpleForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -148,6 +160,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\KeeFoxEntryUserControl.resx">
+      <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\KeeFoxGroupUserControl.resx">
+      <DependentUpon>KeeFoxGroupUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeyCreationSimpleForm.resx">
       <DependentUpon>KeyCreationSimpleForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -171,6 +189,9 @@
   <ItemGroup>
     <None Include="KeePassRPCDiagram.cd" />
     <None Include="Resources\buttonGradientHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KeeFox16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

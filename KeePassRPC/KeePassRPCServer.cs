@@ -57,8 +57,8 @@ namespace KeePassRPC
         private bool _authorisationRequired = true;
         private static X509Certificate2 _serverCertificate = null;
         private X509Store _store;
-        private static object _lockRPCClients = new object();
-        private static List<KeePassRPCClient> _RPCClients = new List<KeePassRPCClient>(1);
+        KeePassRPCExt KeePassRPCPlugin;
+        
 
         /// <summary>
         /// Gets a value indicating whether this server is listening for connection requests from clients.
@@ -72,74 +72,11 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Adds an RPC client.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        public static void AddRPCClient(KeePassRPCClient client)
-        {
-            lock (_lockRPCClients)
-            {
-                _RPCClients.Add(client);
-            }
-        }
-
-        /// <summary>
-        /// Removes an RPC client.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        public static void RemoveRPCClient(KeePassRPCClient client)
-        {
-            lock (_lockRPCClients)
-            {
-                _RPCClients.Remove(client);
-            }
-        }
-
-        /// <summary>
-        /// Gets the current RPC clients. ACTUAL client list may change immediately after this array is returned.
-        /// </summary>
-        /// <value>The current RPC clients.</value>
-        public static KeePassRPCClient[] CurrentRPCClients
-        {
-            get
-            {
-                lock (_lockRPCClients)
-                {
-                    KeePassRPCClient[] clients = new KeePassRPCClient[_RPCClients.Count];
-                    _RPCClients.CopyTo(clients);
-                    return clients;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Signals all clients.
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        public void SignalAllClients(KeePassRPC.DataExchangeModel.Signal signal)
-        {
-            lock (_lockRPCClients)
-            {
-                foreach (KeePassRPCClient client in _RPCClients)
-                    client.Signal(signal);
-            }
-        }
-
-        /// <summary>
         /// Terminates this server.
         /// </summary>
         public void Terminate()
         {
-            lock (_lockRPCClients)
-            {
-                foreach (KeePassRPCClient client in _RPCClients)
-                {
-                    client.Signal(KeePassRPC.DataExchangeModel.Signal.EXITING);
-                    client.ConnectionStream.Close();
-                }
-                _RPCClients.Clear();
-                this._tcpListener.Stop();
-            }
+            this._tcpListener.Stop();
         }
 
         /// <summary>
@@ -148,10 +85,11 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="port">port to listen on</param>
         /// <param name="service">The KeePassRPCService the server should interact with.</param>
-        public KeePassRPCServer(int port, KeePassRPCService service)
+        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin)
         {
             //MessageBox.Show("dfsgdfsg0");
             Service = service;
+            KeePassRPCPlugin = keePassRPCPlugin;
 
             _store = new X509Store();
             _store.Open(OpenFlags.ReadWrite);
@@ -162,7 +100,7 @@ namespace KeePassRPC
             // store (probably becuase they are self-signed)
             X509Certificate2Collection matchingCertificates = _store.Certificates
                 .Find(X509FindType.FindBySubjectDistinguishedName,
-                    "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
+                    "CN=KeePassRPC certificate for " + Environment.MachineName, false);
 
             //foreach (X509Certificate2 temp in matchingCertificates)
             //    _store.Remove(temp);
@@ -185,7 +123,7 @@ namespace KeePassRPC
                 // that are protected by a private key held on their own
                 // system, rather than a key that is disclosed in this open
                 // source code. NB: The local server is assumed to be secure!
-                byte[] cert = MakeCert.Generate("KeePassRPC TLS aaa for " + Environment.MachineName, "KeePassRPC aaa Automated Self-Signed Key Generator");
+                byte[] cert = MakeCert.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator");
                 _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
                 _store.Add(_serverCertificate);
             }
@@ -302,7 +240,7 @@ namespace KeePassRPC
         /// <param name="client">The client.</param>
         private void HandleClientComm(object client)
         {
-            KeePassRPCClient keePassRPCClient = null;
+            KeePassRPCClientConnection keePassRPCClient = null;
 
             // TODO: (optionaly) support unencrypted connections in future?
             //TcpClient tcpClient = (TcpClient)client;
@@ -335,8 +273,8 @@ namespace KeePassRPC
                 // successfully authenticates.
                 //TODO: Need to find a way to set the name of this client based
                 // on output of the authentication system
-                keePassRPCClient = new KeePassRPCClient(sslStream, "KeeFox", false);
-                AddRPCClient(keePassRPCClient);
+                keePassRPCClient = new KeePassRPCClientConnection(sslStream, false);
+                KeePassRPCPlugin.AddRPCClientConnection(keePassRPCClient);
 
                 int tokenCurlyCount = 0;
                 int tokenSquareCount = 0;
@@ -415,20 +353,20 @@ namespace KeePassRPC
             }
             catch (AuthorisationException authEx)
             {
-                MessageBox.Show("error 339: " + authEx.ToString());
+            //    MessageBox.Show("error 339: " + authEx.ToString());
                 // Send a JSON message down the pipe
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authEx.AsJSONResult());
                 keePassRPCClient.ConnectionStream.Write(bytes, 0, bytes.Length);
             }
             catch (AuthenticationException e)
             {
-                MessageBox.Show("error 346: " + e.ToString());
+            //    MessageBox.Show("error 346: " + e.ToString());
                 // Nothing we can do about this since client can't
                 // receive messages over an invalid network stream
             }
             catch (Exception ex)
             {
-                MessageBox.Show("error 352: " + ex.ToString());
+            //    MessageBox.Show("error 352: " + ex.ToString());
                 //TODO: send a JSON message down the pipe
                 // ex.AsJSONResult(); 
             }
@@ -436,7 +374,9 @@ namespace KeePassRPC
             {
                 //TODO: change some flags / data in the RPCClient object?
                 if (keePassRPCClient != null)
-                    RemoveRPCClient(keePassRPCClient);
+                {
+                    KeePassRPCPlugin.RemoveRPCClientConnection(keePassRPCClient);
+                }
                 sslStream.Close();
             }
         }
@@ -447,14 +387,14 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="message">The JSON-RPC formatted message.</param>
         /// <param name="keePassRPCClient">The client we're communicating with.</param>
-        private void DispatchToRPCService(string message, KeePassRPCClient keePassRPCClient)
+        private void DispatchToRPCService(string message, KeePassRPCClientConnection keePassRPCClientConnection)
         {
             //MessageBox.Show("processing: " + message);
             StringBuilder sb = new StringBuilder();
             string requiredResultString = "";
             long authorisationAttemptId = -1;
 
-            if (!keePassRPCClient.Authorised && _authorisationRequired)
+            if (!keePassRPCClientConnection.Authorised && _authorisationRequired)
             {
                 // We only accept one type of request if the client has not
                 // already authenticated. Maybe it's not nice having to do this
@@ -471,21 +411,24 @@ namespace KeePassRPC
                 requiredResultString = "{\"id\":" + authorisationAttemptId + ",\"result\":0}";
             }
 
-            Stream clientStream = keePassRPCClient.ConnectionStream;
+            Stream clientStream = keePassRPCClientConnection.ConnectionStream;
 
             //TODO: is this Jayrock stuff thread-safe or do I need new instances of the Service each time? 
             JsonRpcDispatcher dispatcher = JsonRpcDispatcherFactory.CreateDispatcher(Service);
             
             dispatcher.Process(new StringReader(message),
-                new StringWriter(sb), keePassRPCClient.Authorised);
+                new StringWriter(sb), keePassRPCClientConnection.Authorised);
             string output = sb.ToString();
             //MessageBox.Show("result: " + output);
-            if (_authorisationRequired && !keePassRPCClient.Authorised)
+            if (_authorisationRequired && !keePassRPCClientConnection.Authorised)
             {
                 // Process the output from the JsonRpcDispatcher which
                 // should tell us if the authorisation was successful
                 if (output == requiredResultString)
-                    keePassRPCClient.Authorised = true;
+                {
+                    keePassRPCClientConnection.Authorised = true;
+                    KeePassRPCPlugin.PromoteNullRPCClient(keePassRPCClientConnection, "KeeFox"); // TODO: find way to choose different client types
+                }
                 else
                 {
                     // If the result follows an accepted syntax we will send

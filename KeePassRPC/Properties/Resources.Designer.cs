@@ -74,6 +74,13 @@ namespace KeePassRPC.Properties {
             }
         }
         
+        public static System.Drawing.Bitmap KeeFox16 {
+            get {
+                object obj = ResourceManager.GetObject("KeeFox16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         public static System.Drawing.Bitmap KeeFox64 {
             get {
                 object obj = ResourceManager.GetObject("KeeFox64", resourceCulture);

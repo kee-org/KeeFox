@@ -44,7 +44,7 @@ function session()
     this.activityTimeout = 3600000; // long timeout for activity
     this.connectLock = false; // protect the connect function so only one event
                         // thread (e.g. timer) can execute it at the same time
-                        
+    this.fastRetries = 0;
                         //this.pendingConnection = false;
 }
 
@@ -86,6 +86,21 @@ session.prototype =
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     },
     
+    reconnectVerySoon: function()
+    {
+        log.debug("Creating a fast reconnection timer.");
+        
+        this.fastRetries = 30; // 15 seconds of more frequent connection attempts
+        
+         // Create a timer 
+         this.reconnectTimer = Components.classes["@mozilla.org/timer;1"]
+                    .createInstance(Components.interfaces.nsITimer);
+         
+         this.reconnectTimer.initWithCallback(this.reconnectNow,
+            500,
+            Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    },
+    
     connect: function()
     {
         try
@@ -97,7 +112,7 @@ session.prototype =
 //                this.pendingConnection = false;
 //                this.onConnect();
 //            }
-            
+
             if (this.transport != null && this.transport.isAlive())
                 return "alive";
             if (this.connectLock)
@@ -133,8 +148,8 @@ session.prototype =
         try
         {
             this.transport = transport;
-            this.raw_istream = this.transport.openInputStream(0, 0, 0);
-            this.raw_ostream = this.transport.openOutputStream(0, 0, 0);            
+            this.raw_istream = this.transport.openInputStream(0, 512, 0);
+            this.raw_ostream = this.transport.openOutputStream(0, 512, 0);            // change these all to 0 once seen if 512 causes more problems
             const replacementChar = Components.interfaces
                 .nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
             var charset = "UTF-8";
@@ -175,12 +190,28 @@ session.prototype =
         notify: function(timer) 
         { 
             log.debug("Connection attempt is now due.");
-        
+            
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser");
             //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
             var rpc = window.keeFoxInst.KeePassRPC;
+            
+            if (rpc.fastRetries > 0)
+            {
+                rpc.fastRetries--; // count this as a fast retry even if it was triggered from standard retry timer and even if we are already connected
+            
+                if (rpc.fastRetries <= 0)
+                {
+                    if (rpc.reconnectTimer != null)
+                        rpc.reconnectTimer.cancel();
+                    
+                    rpc.reconnectSoon();
+                
+                }
+            
+            }
+                
             log.debug("Attempting to connect to RPC server.");
             var connectResult = rpc.connect();
             if (connectResult == "alive")

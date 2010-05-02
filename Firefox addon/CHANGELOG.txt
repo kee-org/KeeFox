@@ -11,12 +11,18 @@ This information will often be disseminated onto the official KeeFox website in 
 - Logging is disabled when in Private Browsing mode
 - Memory leaks removed
 - A few options panel layout improvements
-- Built-in Firefox password management setting restored after KeeFox uninstalled
+- Built-in Firefox password management setting stored (for later restortion when KeeFox uninstalled)
 - SessionState configuration variable protected from changes that could break KeeFox
 - Expiry date set to compensate for lack of automatic updates (0.7.6 expires at the end of May 2010 - a new version will be released before then, even if just to push the expiry time back a bit)
 - File logging now put in a "keefox" directory inside your Firefox profile directory (used to be in the extension folder)
 - Failed logging will no longer cause knock-on "random" problems
 - KeeFoxElevate application created to aid with setup
+- Installer now finds and focuses existing setup screen across all windows and tabs
+- Sample password entries can be added to your database for use by the yet-to-exist KeeFox tutorial (added to new user's database automatically)
+- New KeePassRPC "search" algorithm for finding matching passwords (speed-up is inversly proportional to number of entries in database; hundreds of times faster for smaller databases but only about twice as fast for one with 3000 entries - the latter is still a touch too slow for my liking but I think there are other reasons to not have a database that massive!)
+- New advanced string allows regular expression matching on website domain name: "KeeFox URL Regex match"
+- Logins now displayed in alphabetical order
+- Installer triggers frantic connection attempts when KeePass is started for the first time (once every half a second for 15 seconds)
 
 
 0.73

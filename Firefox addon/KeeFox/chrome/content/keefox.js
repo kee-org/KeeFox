@@ -57,31 +57,8 @@ var keeFoxEventHandler =
     _assignedWindow : null,
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener,   
-                        Components.interfaces.nsISupportsWeakReference,
-                        Ci.nsIObserver, Ci.nsISupportsWeakReference]),
-       
-    // nsObserver
-    observe : function (subject, topic, data)
-    {
-        switch(topic)
-        {
-            //case "sessionstore-windows-restored":
-               // this._kf._keeFoxBrowserStartup(this._currentKFToolbar, this._currentKFToolbar._currentWindow);
-              //  break;
-            case "quit-application":
-                KFLog.info("Application is shutting down...");
-                _kf.shutdown();
-                KFLog.info("KeeFox has nearly shut down.");
-                var observerService = Cc["@mozilla.org/observer-service;1"].
-                              getService(Ci.nsIObserverService);
-                observerService.removeObserver(this, "quit-application"); 
-                
-                KFLog.info("KeeFox has shut down.");
-                break;
-        }
-
-    },
-    
+                        Components.interfaces.nsISupportsWeakReference]),
+        
     notify : function (subject, topic, data) { },
     
     handleEvent: function(event)
@@ -133,6 +110,13 @@ var keeFoxEventHandler =
                 // (arguably is not needed in version 1.0 but I may keep it
                 // just in case unless performance is noticably worse with it)
                 //KFtester = new KFtests(keeFoxILM);
+                
+                if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0)
+                {
+                    var toOpen = keeFoxInst.urlToOpenOnStartup;
+                    keeFoxInst.urlToOpenOnStartup = null;
+                    keeFoxInst._openAndReuseOneTabPerURL(toOpen);
+                }
 
                 return;
             case "unload": 
@@ -245,13 +229,13 @@ if (keeFoxInst != null)
     window.addEventListener("load", keeFoxEventHandler, false);
     window.addEventListener("unload", keeFoxEventHandler, false);
     
-    var observerService = Cc["@mozilla.org/observer-service;1"].
-                              getService(Ci.nsIObserverService);
-    keeFoxEventHandler._kf = this;
+    //var observerService = Cc["@mozilla.org/observer-service;1"].
+    //                          getService(Ci.nsIObserverService);
+    //keeFoxEventHandler._kf = this;
             //keeFoxEventHandler._currentKFToolbar = currentKFToolbar;                            
             //observerService.addObserver(keeFoxEventHandler, "sessionstore-windows-restored", false);
     
-    observerService.addObserver(keeFoxEventHandler, "quit-application", false);        
+    //observerService.addObserver(keeFoxEventHandler, "quit-application", false);        
     
 } else
 {
@@ -261,3 +245,4 @@ if (keeFoxInst != null)
 // TODO: we actually end up creating a new listener for each Firefox window and 
 // just ignoring the notifications sent by unrelated windows. I think that removing
 // the event listener after initial setup is finished will keep things more efficient
+

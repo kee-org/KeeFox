@@ -429,11 +429,12 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     var formOrigin = this._getURIHostAndPort(doc.documentURI);
 
     // If there are no logins for this site, bail out now.
-    if (!this.countLogins(formOrigin, "", null))
-    {
-        KFLog.info("No logins found for this site");
-        return;
-    }
+    // Not doing this for 0.8+ (Search overhead is far higher than latency or data transfer time)
+//    if (!this.countLogins(formOrigin, "", null))
+//    {
+//        KFLog.info("No logins found for this site");
+//        return;
+//    }
 
     if (KFLog.logSensitiveData)
         KFLog.debug("fillDocument processing " + forms.length +

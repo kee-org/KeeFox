@@ -591,6 +591,19 @@ KFUI.prototype = {
             getColumnProperties: function(colid,col,props){}
         };
         document.getElementById('keefox-group-chooser-tree').view = keefoxInst.treeViewGroupChooser;
-    }
+    },
+
+// Closes all popups that are ancestors of the node.
+closeMenus : function(node)
+{
+  if ("tagName" in node) {
+    if (node.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    && (node.tagName == "menupopup" || node.tagName == "popup"))
+      node.hidePopup();
+
+    closeMenus(node.parentNode);
+  }
+}
+
 
 };

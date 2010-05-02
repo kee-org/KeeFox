@@ -284,7 +284,7 @@ KFToolbar.prototype = {
                 + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("onclick", "if (event.button == 1) { keeFoxILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
                 usernameName + "','" + usernameValue + "','" + login.URLs[0] 
-                + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation();");
+                + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation(); if (event.button == 1) keeFoxUI.closeMenus(event.target);");// var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");

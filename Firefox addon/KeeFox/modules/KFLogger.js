@@ -89,25 +89,51 @@ KeeFoxLogger.prototype = {
     __logFile : null,
     
     get _logFile()
-    {this._logService.logStringMessage("logging");
+    {//this._logService.logStringMessage("logging");
         if (!this.__logFile)
-        {this._logService.logStringMessage("logging2");
-            var file = Components.classes["@mozilla.org/file/local;1"]
-            .createInstance(Components.interfaces.nsILocalFile);
-            
-            //var MY_ID = "keefox@chris.tomlinson";
-            //var em = Components.classes["@mozilla.org/extensions/manager;1"].
-            //     getService(Components.interfaces.nsIExtensionManager);
-            //var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
+        {//this._logService.logStringMessage("logging2");
+            var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
+                getService(Components.interfaces.nsIProperties);
             var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-            this._logService.logStringMessage("logging3");
+            
+            var folder = Components.classes["@mozilla.org/file/local;1"]
+                .createInstance(Components.interfaces.nsILocalFile);
+            folder.initWithPath(dir.path);
+            folder.append("keefox");
+        
+            if (!folder.exists())
+                folder.create(folder.DIRECTORY_TYPE, 0775);
+                
+            var file = Components.classes["@mozilla.org/file/local;1"]
+                .createInstance(Components.interfaces.nsILocalFile);
+
             file.initWithPath(dir.path);
             file.append("keefox");
             file.append("log.txt");
-            this._logService.logStringMessage("logging4");
             this.__logFile = file;
         }
-        this._logService.logStringMessage("logging5");
+        //this._logService.logStringMessage("logging5");
+
+//       if (!this.__logFile)
+//        {//this._logService.logStringMessage("logging2");
+//            var file = Components.classes["@mozilla.org/file/local;1"]
+//            .createInstance(Components.interfaces.nsILocalFile);
+//            
+//            var MY_ID = "keefox@chris.tomlinson";
+//            var em = Components.classes["@mozilla.org/extensions/manager;1"].
+//                 getService(Components.interfaces.nsIExtensionManager);
+//            var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
+//            //var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+//           // this._logService.logStringMessage("logging3");
+//            file.initWithPath(dir.path);
+//            //file.append("keefox");
+//            file.append("log.txt");
+//            
+//            //this._logService.logStringMessage("logging4");
+//            this.__logFile = file;
+//        }
+        //this._logService.logStringMessage("logging5");
+
         return this.__logFile;
     },    
     
@@ -115,22 +141,24 @@ KeeFoxLogger.prototype = {
     // logs a message to a file
     _logToFile : function(msg)
     {
+//    var file = Components.classes["@mozilla.org/file/local;1"]
+//        .createInstance(Components.interfaces.nsILocalFile);
     //this._logService.logStringMessage("logginga");
         var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
                                  createInstance(Components.interfaces.nsIFileOutputStream);
 
-var MY_ID = "keefox@chris.tomlinson";
-            var em = Components.classes["@mozilla.org/extensions/manager;1"].
-                 getService(Components.interfaces.nsIExtensionManager);
-            var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
-            //var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-           // this._logService.logStringMessage("logging3");
-            file.initWithPath(dir.path);
-            //file.append("keefox");
-            file.append("log.txt");
+//var MY_ID = "keefox@chris.tomlinson";
+//            var em = Components.classes["@mozilla.org/extensions/manager;1"].
+//                 getService(Components.interfaces.nsIExtensionManager);
+//            var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
+//            //var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+//           // this._logService.logStringMessage("logging3");
+//            file.initWithPath(dir.path);
+//            //file.append("keefox");
+//            file.append("log.txt");
             
-        //foStream.init(this._logFile, 0x02 | 0x08 | 0x10, 0666, 0); 
-        foStream.init(file, 0x02 | 0x08 | 0x10, 0666, 0); 
+        foStream.init(this._logFile, 0x02 | 0x08 | 0x10, 0666, 0); 
+        //foStream.init(file, 0x02 | 0x08 | 0x10, 0666, 0); 
         // write, create if doesn't already exist, append to end
 //this._logService.logStringMessage("loggingb");
         var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
@@ -162,10 +190,10 @@ var MY_ID = "keefox@chris.tomlinson";
         // Don't log anything if user is in private browsing mode, just in case!
         try
         {
-        var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
-                    .getService(Components.interfaces.nsIPrivateBrowsingService);
-        if (pbs.privateBrowsingEnabled)
-            return;
+            var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
+                        .getService(Components.interfaces.nsIPrivateBrowsingService);
+            if (pbs.privateBrowsingEnabled)
+                return;
         } catch (nothing) {
         // log if private browsing feature is unavailable
         }
@@ -174,10 +202,26 @@ var MY_ID = "keefox@chris.tomlinson";
         {
             if (this.methodFile)
                 this._logToFile(message+"\n");
+        } catch (nothing) {
+        this._logService.logStringMessage(nothing);
+        // don't let failed logging break anything else
+        }
+        try
+        {
             if (this.methodStdOut)
                 dump(message+"\n");
+        } catch (nothing) {
+        // don't let failed logging break anything else
+        }
+        try
+        {
             if (this.methodConsole)
                 this._logService.logStringMessage(message);
+        } catch (nothing) {
+        // don't let failed logging break anything else
+        }
+        try
+        {
             if (this.methodAlert)
                 this._alert(message);
         } catch (nothing) {
