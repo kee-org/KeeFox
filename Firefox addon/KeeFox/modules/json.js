@@ -107,8 +107,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                                  .getService(Components.interfaces.nsIWindowMediator);
                         var window = wm.getMostRecentWindow("navigator:browser");
                         window.keeFoxInst._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
-                        window.keeFoxInst._keeFoxVariableInit();//window.keeFoxToolbar, window);
-                        window.keeFoxInst._refreshKPDB();//_keeFoxInitialToolBarSetup(window.keeFoxToolbar, window);
+                        window.keeFoxInst._keeFoxVariableInit();//window.keefox_org.toolbar, window);
+                        window.keeFoxInst._refreshKPDB();//_keeFoxInitialToolBarSetup(window.keefox_org.toolbar, window);
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 { //TODO: handle error codes better

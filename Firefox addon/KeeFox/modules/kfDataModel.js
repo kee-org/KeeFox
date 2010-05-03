@@ -357,7 +357,7 @@ dump(json);
                 .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");
         
-        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keeFoxILM))
+        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_org.ILM))
             return false;
 
         if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
@@ -373,12 +373,12 @@ dump(json);
         if (this.formActionURL != "" && aLogin.formActionURL != "")
         {
             if (ignoreURIPathsAndSchemes 
-                && window.keeFoxILM._getURISchemeHostAndPort(aLogin.formActionURL)
-                    != window.keeFoxILM._getURISchemeHostAndPort(this.formActionURL))
+                && window.keefox_org.ILM._getURISchemeHostAndPort(aLogin.formActionURL)
+                    != window.keefox_org.ILM._getURISchemeHostAndPort(this.formActionURL))
                 return false;
             else if (!ignoreURIPathsAndSchemes 
-                && ignoreURIPaths && window.keeFoxILM._getURIHostAndPort(aLogin.formActionURL) 
-                    != window.keeFoxILM._getURIHostAndPort(this.formActionURL))
+                && ignoreURIPaths && window.keefox_org.ILM._getURIHostAndPort(aLogin.formActionURL) 
+                    != window.keefox_org.ILM._getURIHostAndPort(this.formActionURL))
                 return false;
             else if (!ignoreURIPathsAndSchemes 
                 && !ignoreURIPaths 

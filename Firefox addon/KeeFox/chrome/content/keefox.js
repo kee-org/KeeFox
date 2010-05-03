@@ -24,28 +24,25 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+var keefox_org = {};
 
 // Load our logging subsystem
 Components.utils.import("resource://kfmod/KFLogger.js");
-var KFLogger = KFLog;
+keefox_org.Logger = KFLog;
 // Load our other javascript
-var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+keefox_org.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                        .getService(Components.interfaces.mozIJSSubScriptLoader); 
 Components.utils.import("resource://kfmod/kfDataModel.js");
-loader.loadSubScript("resource://kfscripts/KFToolBar.js"); 
-loader.loadSubScript("resource://kfscripts/KFILM.js"); 
-loader.loadSubScript("resource://kfscripts/KFUI.js"); 
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFToolBar.js"); 
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM.js"); 
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUI.js"); 
 Components.utils.import("resource://kfmod/KF.js");
-loader.loadSubScript("resource://kfscripts/KFUtils.js"); 
-loader.loadSubScript("resource://kfscripts/KFtest.js"); 
-
-// These variables are accessible from (and specific to) the current
-// window scope.
-var keeFoxToolbar, keeFoxILM, keeFoxUI, KFtester;
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUtils.js"); 
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFtest.js"); 
 
 // This object listens for the "window loaded" event, fired after
 // Firefox finishes loading a window
-var keeFoxEventHandler =
+keefox_org.mainEventHandler =
 {
     // a reference to this scope's KF object
     _kf: null,
@@ -84,32 +81,32 @@ var keeFoxEventHandler =
             case "load":            
                 // our toolbar (+ a bit more, maybe needs renaming
                 // in future if I can think of something better)
-                keeFoxToolbar = new KFToolbar(currentWindow);
+                keefox_org.toolbar = new KFToolbar(currentWindow);
                 
                 // an event listener on the toolbar clears session data relating to
                 // the form filling process. ATOW only called in response to user
                 // editing form field contents.
                 document.addEventListener("KeeFoxClearTabFormFillData", this, false, true);
 //                document.addEventListener("KeeFoxClearTabFormFillData", function(e)
-//                    { keeFoxToolbar.clearTabFormFillData(e); }, false, true);
+//                    { keefox_org.toolbar.clearTabFormFillData(e); }, false, true);
                     
                 // the improved login manager which acts (a bit) like a bridge
                 // between the user visible code and the KeeFox module / JSON-RPC    
-                keeFoxILM = new KFILM(keeFoxInst,keeFoxToolbar,currentWindow);
+                keefox_org.ILM = new KFILM(keeFoxInst,keefox_org.toolbar,currentWindow);
                 
                 // the main UI code including things like
                 // the generation of notification boxes
-                keeFoxUI = new KFUI();
-                keeFoxUI.init(keeFoxInst, keeFoxILM);
+                keefox_org.UI = new KFUI();
+                keefox_org.UI.init(keeFoxInst, keefox_org.ILM);
                 
-                //keeFoxInst.init(keeFoxToolbar,currentWindow);
-                this.startupKeeFox(keeFoxToolbar,currentWindow);
+                //keeFoxInst.init(keefox_org.toolbar,currentWindow);
+                this.startupKeeFox(keefox_org.toolbar,currentWindow);
                 
 
                 // Used to aid testing of various KeeFox features
                 // (arguably is not needed in version 1.0 but I may keep it
                 // just in case unless performance is noticably worse with it)
-                //KFtester = new KFtests(keeFoxILM);
+                //KFtester = new KFtests(keefox_org.ILM);
                 
                 if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0)
                 {
@@ -125,13 +122,13 @@ var keeFoxEventHandler =
                 
                 window.removeEventListener("load", this, false);
                 window.removeEventListener("unload", this, false);
-                keeFoxILM.shutdown();
+                keefox_org.ILM.shutdown();
                 document.removeEventListener("KeeFoxClearTabFormFillData", this, false);
-                keeFoxToolbar.shutdown();
+                keefox_org.toolbar.shutdown();
                 KFLog.info("Window shut down.");
                 return;
             case "KeeFoxClearTabFormFillData":    
-                keeFoxToolbar.clearTabFormFillData(event);
+                keefox_org.toolbar.clearTabFormFillData(event);
             default:
                 KFLog.warn("This event was unexpected and has been ignored.");
                 return;
@@ -140,9 +137,9 @@ var keeFoxEventHandler =
     
     startupKeeFox : function(currentKFToolbar, currentWindow)
     {
-        //keeFoxInst._KFLog = KFLogger;
+        //keeFoxInst._KFLog = keefox_org.Logger;
 
-        KFLogger.info("Testing to see if we've already established whether KeePassRPC is connected.");
+        keefox_org.Logger.info("Testing to see if we've already established whether KeePassRPC is connected.");
 
 
         if (keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
@@ -154,65 +151,6 @@ var keeFoxEventHandler =
             //currentWindow.addEventListener("TabSelect", keeFoxInst._onTabSelected, false); //TODO: Move tab selected out here rather than in the module!
             return;
         }
-
-
-//        //TODO: hmmm... if it is active, why would it not be installed?...
-//        // need to review this logic - may be affecting startup in some cases
-////        if (!this._keeFoxStorage.has("KeePassRPCActive"))
-////        {
-////            this._KFLog.info("Nope, it's not running"); 
-////            //var observerService = Cc["@mozilla.org/observer-service;1"].
-////            //                  getService(Ci.nsIObserverService);
-////            //this._observer._kf = this;
-////            //this._observer._currentKFToolbar = currentKFToolbar;                            
-////            //observerService.addObserver(this._observer, "sessionstore-windows-restored", false);
-////        
-////        }
-////         else if (!this._keeFoxStorage.get("KeePassRPCInstalled", false))
-////        {
-////            this._KFLog.debug("Updating the toolbar becuase KeePassRPC install is needed.");
-
-////            if (currentWindow.document)
-////            {
-////                this._KFLog.debug("setting up the toolbar");
-////                currentKFToolbar.setupButton_install(currentWindow);
-////            } else
-////            {
-////                this._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
-////                currentWindow.addEventListener("load", currentKFToolbar.setupButton_installListener, false);
-////            }
-////            
-////        }
-//         else if (keeFoxInst._keeFoxStorage.get("KeePassRPCInstalled", false) && !keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
-//        {
-//            keeFoxInst._KFLog.debug("Updating the toolbar becuase user needs to load KeePass.");
-
-//            if (currentWindow.document)
-//            {
-//                keeFoxInst._KFLog.debug("setting up the toolbar");
-//                currentKFToolbar.setupButton_ready(currentWindow);
-//            } else
-//            {
-//                keeFoxInst._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
-//                currentWindow.addEventListener("load", currentKFToolbar.setupButton_loadKeePassListener, false);
-//            }
-//            
-//         } else if (keeFoxInst._keeFoxStorage.get("KeePassRPCActive", true))
-//         {
-//            keeFoxInst._KFLog.debug("Updating the toolbar becuase everything has started correctly.");
-//            
-//            if (currentWindow.document)
-//            {
-//                keeFoxInst._KFLog.debug("setting up the toolbar");
-//                currentKFToolbar.setupButton_ready(currentWindow);
-//                currentKFToolbar.setAllLogins();
-//            } else
-//            {
-//                keeFoxInst._KFLog.debug("registering an event listener so we can configure the toolbar when Firefox is ready for us");
-//                currentWindow.addEventListener("load", currentKFToolbar.setupButton_readyListener, false);
-//            }
-//            //currentWindow.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
-//        }
     
     
     }
@@ -224,18 +162,18 @@ var keeFoxEventHandler =
 // ... unless creation of KF object failed for some reason (conflicting extension?)
 if (keeFoxInst != null)
 {    
-    keeFoxEventHandler._kf = keeFoxInst;
-    keeFoxEventHandler._assignedWindow = window;
-    window.addEventListener("load", keeFoxEventHandler, false);
-    window.addEventListener("unload", keeFoxEventHandler, false);
+    keefox_org.mainEventHandler._kf = keeFoxInst;
+    keefox_org.mainEventHandler._assignedWindow = window;
+    window.addEventListener("load", keefox_org.mainEventHandler, false);
+    window.addEventListener("unload", keefox_org.mainEventHandler, false);
     
     //var observerService = Cc["@mozilla.org/observer-service;1"].
     //                          getService(Ci.nsIObserverService);
-    //keeFoxEventHandler._kf = this;
-            //keeFoxEventHandler._currentKFToolbar = currentKFToolbar;                            
-            //observerService.addObserver(keeFoxEventHandler, "sessionstore-windows-restored", false);
+    //keefox_org.mainEventHandler._kf = this;
+            //keefox_org.mainEventHandler._currentKFToolbar = currentKFToolbar;                            
+            //observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);
     
-    //observerService.addObserver(keeFoxEventHandler, "quit-application", false);        
+    //observerService.addObserver(keefox_org.mainEventHandler, "quit-application", false);        
     
 } else
 {

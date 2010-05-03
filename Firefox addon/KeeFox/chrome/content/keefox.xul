@@ -38,7 +38,7 @@
            class="" type="menu" label="&KeeFox_Menu-Button.label;" >
       <menupopup>
         <!--<menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
-                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keeFoxToolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />-->
+                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keefox_org.toolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />-->
 
         <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
                    class="" image="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
@@ -48,13 +48,13 @@
         </menu>
 
         <menuitem id="KeeFox_FillCurrentDocument-Button" tooltiptext="&KeeFox_Menu-Button.fillCurrentDocument.tip;"
-                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keeFoxToolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
+                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keefox_org.toolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
         
 
         <menuseparator />
 
         <menuitem id="KeeFox_CopyNewPasswordToClipboard-Button" tooltiptext="&KeeFox_Menu-Button.copyNewPasswordToClipboard.tip;"
-                           class="" label="&KeeFox_Menu-Button.copyNewPasswordToClipboard.label;" oncommand="keeFoxToolbar.generatePassword()" accesskey="&KeeFox_Menu-Button.copyNewPasswordToClipboard.key;" />
+                           class="" label="&KeeFox_Menu-Button.copyNewPasswordToClipboard.label;" oncommand="keefox_org.toolbar.generatePassword()" accesskey="&KeeFox_Menu-Button.copyNewPasswordToClipboard.key;" />
 
 
         <menuseparator />
@@ -124,9 +124,9 @@
                "chrome://keefox/content/groupChooser.xul",
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
-              ); keeFoxToolbar.clearTabFormRecordingData();' />
+              ); keefox_org.toolbar.clearTabFormRecordingData();' />
       <menuitem label="&KeeFox_Remember-Advanced-Popup-Multi-Page.label;"
-                oncommand='keeFoxToolbar.setTabFormRecordingData();' />
+                oncommand='keefox_org.toolbar.setTabFormRecordingData();' />
     </menupopup>
   </popupset>
 

@@ -93,7 +93,7 @@ KFtests.prototype = {
  //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenLoggedOut",true);
  //       keeFoxInst._keeFoxExtension.prefs.setValue("notifyBarWhenKeePassRPCInactive",true);
 
-//keeFoxToolbar._currentWindow.setTimeout(keeFoxToolbar.flashItem, 10, keeFoxToolbar._currentWindow.document.getElementById('KeeFox_RunSelfTests-Button'), 12, keeFoxToolbar._currentWindow);
+//keefox_org.toolbar._currentWindow.setTimeout(keefox_org.toolbar.flashItem, 10, keefox_org.toolbar._currentWindow.document.getElementById('KeeFox_RunSelfTests-Button'), 12, keefox_org.toolbar._currentWindow);
 //return;
 
         // an inline function (for scope reasons) to eval test expressions at run time
@@ -123,7 +123,7 @@ KFtests.prototype = {
         }
         
         // load the test definitions into this scope
-        loader.loadSubScript("resource://kfscripts/KFtestDefinitions.js"); 
+        keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFtestDefinitions.js"); 
         
         var testusers = KFgetTestUsers();
         var testgroups = [];

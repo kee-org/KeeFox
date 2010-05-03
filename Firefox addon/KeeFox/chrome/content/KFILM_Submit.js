@@ -50,7 +50,7 @@ KFILM.prototype._onFormSubmit = function (form)
     
     var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
              .getService(Components.interfaces.nsISessionStore);
-    var currentGBrowser = keeFoxToolbar._currentWindow.gBrowser;
+    var currentGBrowser = keefox_org.toolbar._currentWindow.gBrowser;
     var topDoc = doc;
     if (doc.defaultView.frameElement)
         while (topDoc.defaultView.frameElement)
@@ -239,16 +239,16 @@ KFILM.prototype._onFormSubmit = function (form)
         if (existingLogin) // as long as we have previously stored a login for this site...
         {
             KFLog.info("we are changing the password");
-            keeFoxUI.setWindow(win);
-            keeFoxUI.setDocument(doc);
+            keefox_org.UI.setWindow(win);
+            keefox_org.UI.setDocument(doc);
 
             if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO: is this needed?
                 //var oldLogin = logins[0];
                 //formLogin.usernameIndex      = oldLogin.usernameIndex;
 
-                keeFoxUI.promptToChangePassword(oldLogin, formLogin);
+                keefox_org.UI.promptToChangePassword(oldLogin, formLogin);
             } else {
-                keeFoxUI.promptToChangePasswordWithUsernames(
+                keefox_org.UI.promptToChangePasswordWithUsernames(
                                     logins, logins.length, formLogin);
             } // TODO: allow option to override change password option and instead save as a new password. (need a new prompt function)
         }
@@ -312,8 +312,8 @@ KFILM.prototype._onFormSubmit = function (form)
         }
     }
     // Prompt user to save login (via dialog or notification bar)
-    keeFoxUI.setWindow(win);
-    keeFoxUI.setDocument(topDoc);
+    keefox_org.UI.setWindow(win);
+    keefox_org.UI.setDocument(topDoc);
     
 //    KFLog.debug("formLogin.otherFields.length:" + formLogin.otherFields.length);
 //    KFLog.debug("formLogin.passwords.length:" + formLogin.passwords.length);
@@ -363,8 +363,8 @@ KFILM.prototype._onFormSubmit = function (form)
     } 
     
     if (nextPage > 2)
-        keeFoxUI.promptToSavePassword(formLogin, true);
+        keefox_org.UI.promptToSavePassword(formLogin, true);
     else
-        keeFoxUI.promptToSavePassword(formLogin, false);
+        keefox_org.UI.promptToSavePassword(formLogin, false);
     
 };

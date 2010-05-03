@@ -527,13 +527,13 @@ KeeFox.prototype = {
         while (enumerator.hasMoreElements())
         {
             var win = enumerator.getNext();
-            win.keeFoxToolbar.removeLogins(); // remove matched logins           
-            win.keeFoxToolbar.setAllLogins(); // remove list of all logins
-            //win.keeFoxToolbar.setupButton_loadKeePass(win);
-            win.keeFoxToolbar.setupButton_ready(win);
-            win.keeFoxUI._removeOLDKFNotifications();
+            win.keefox_org.toolbar.removeLogins(); // remove matched logins           
+            win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
+            //win.keefox_org.toolbar.setupButton_loadKeePass(win);
+            win.keefox_org.toolbar.setupButton_ready(win);
+            win.keefox_org.UI._removeOLDKFNotifications();
             win.removeEventListener("TabSelect", this._onTabSelected, false);
-            //TODO: try this. will it know the DB is offline already? win.keeFoxToolbar.setAllLogins();
+            //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
         }
         this.KeePassRPC.disconnect();
         this._KFLog.info("KeeFox paused.");
@@ -573,14 +573,14 @@ KeeFox.prototype = {
         while (enumerator.hasMoreElements())
         {
             var win = enumerator.getNext();
-            win.keeFoxToolbar.removeLogins();
-            win.keeFoxToolbar.setAllLogins();
-            win.keeFoxToolbar.setupButton_ready(win);
-            win.keeFoxUI._removeOLDKFNotifications();
+            win.keefox_org.toolbar.removeLogins();
+            win.keefox_org.toolbar.setAllLogins();
+            win.keefox_org.toolbar.setupButton_ready(win);
+            win.keefox_org.UI._removeOLDKFNotifications();
             win.addEventListener("TabSelect", this._onTabSelected, false);
             if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
             {
-                win.keeFoxILM._fillDocument(win.content.document,false);
+                win.keefox_org.ILM._fillDocument(win.content.document,false);
             }
         }
         
@@ -1235,8 +1235,8 @@ KeeFox.prototype = {
 
 //TODO: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM
     _onTabSelected: function(event) {
-        event.target.ownerDocument.defaultView.keeFoxToolbar.setLogins(null, null);  
-        event.target.ownerDocument.defaultView.keeFoxILM._fillAllFrames(event.target.contentWindow,false);
+        event.target.ownerDocument.defaultView.keefox_org.toolbar.setLogins(null, null);  
+        event.target.ownerDocument.defaultView.keefox_org.ILM._fillAllFrames(event.target.contentWindow,false);
     },
     
     loadFavicon: function(url)

@@ -29,7 +29,7 @@
     title="Choose Group"
     orient="horizontal"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    onload="keeFoxUI.setTreeViewGroupChooser();">
+    onload="keefox_org.UI.setTreeViewGroupChooser();">
 <tree id="keefox-group-chooser-tree" flex="1" hidecolumnpicker="true" seltype="text" class="tree"
       rows="5">
   <treecols id="keefox-group-chooser-tree-treeCols">

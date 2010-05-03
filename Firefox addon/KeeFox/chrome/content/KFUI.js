@@ -203,7 +203,7 @@ KFUI.prototype = {
                     }
                     //TODO: copy completed to multi-page menu, etc.
                 
-                    keeFoxToolbar.clearTabFormRecordingData();
+                    keefox_org.toolbar.clearTabFormRecordingData();
                     //aNotificationBar.parentNode.removeCurrentNotification();
                 }
             },
@@ -214,7 +214,7 @@ KFUI.prototype = {
                 accessKey: notNowButtonAccessKey,
                 popup:     null,
                 callback:  function() { 
-                    keeFoxToolbar.clearTabFormRecordingData();
+                    keefox_org.toolbar.clearTabFormRecordingData();
                 } 
             }
         ];

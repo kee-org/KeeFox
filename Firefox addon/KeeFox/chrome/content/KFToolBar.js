@@ -136,7 +136,7 @@ KFToolbar.prototype = {
                 container.setAttribute("label", login.title);
                 container.setAttribute("value", doc.documentURI);
                 container.setAttribute("tooltiptext", usernameDisplayValue + " in " +  displayGroupPath);
-                container.setAttribute("oncommand", "keeFoxILM.fill('" +
+                container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
                     usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             
             }
@@ -148,7 +148,7 @@ KFToolbar.prototype = {
             tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
             tempButton.setAttribute("value", doc.documentURI);
             tempButton.setAttribute("tooltiptext", usernameDisplayValue + " in " + displayGroupPath);
-            tempButton.setAttribute("oncommand", "keeFoxILM.fill('" +
+            tempButton.setAttribute("oncommand", "keefox_org.ILM.fill('" +
                 usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
             menupopup.appendChild(tempButton);
 
@@ -171,7 +171,7 @@ KFToolbar.prototype = {
             // start with the current root group uniqueID
             try
             {
-                var rootGroup = this._currentWindow.keeFoxILM.getRootGroup();
+                var rootGroup = this._currentWindow.keefox_org.ILM.getRootGroup();
                 
                 if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                     this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
@@ -211,8 +211,8 @@ KFToolbar.prototype = {
             container.removeChild(container.childNodes[0]);
         }
         
-        var foundGroups = this._currentWindow.keeFoxILM.getChildGroups({}, groupUniqueID);
-        var foundLogins = this._currentWindow.keeFoxILM.getChildEntries({}, groupUniqueID);
+        var foundGroups = this._currentWindow.keefox_org.ILM.getChildGroups({}, groupUniqueID);
+        var foundLogins = this._currentWindow.keefox_org.ILM.getChildEntries({}, groupUniqueID);
 
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0))
         {
@@ -234,7 +234,7 @@ KFToolbar.prototype = {
             newMenu = this._currentWindow.document.createElement("menu");
             newMenu.setAttribute("label", group.title);
             newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
-            newMenu.setAttribute("onpopupshowing", "keeFoxToolbar.setOneLoginsMenu('KeeFox_Group-" +
+            newMenu.setAttribute("onpopupshowing", "keefox_org.toolbar.setOneLoginsMenu('KeeFox_Group-" +
                 group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
             newMenu.setAttribute("class", "menu-iconic");
             newMenu.setAttribute("value", group.uniqueID);
@@ -279,12 +279,12 @@ KFToolbar.prototype = {
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
                 "loginsButtonLogin.tip", [login.URLs[0], usernameDisplayValue]));
-            tempButton.setAttribute("oncommand", "keeFoxILM.loadAndAutoSubmit(0,event.ctrlKey,'" +
+            tempButton.setAttribute("oncommand", "keefox_org.ILM.loadAndAutoSubmit(0,event.ctrlKey,'" +
                 usernameName + "','" + usernameValue + "','" + login.URLs[0] 
                 + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
-            tempButton.setAttribute("onclick", "if (event.button == 1) { keeFoxILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
+            tempButton.setAttribute("onclick", "if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
                 usernameName + "','" + usernameValue + "','" + login.URLs[0] 
-                + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation(); if (event.button == 1) keeFoxUI.closeMenus(event.target);");// var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
+                + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation(); if (event.button == 1) keefox_org.UI.closeMenus(event.target);");// var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
@@ -455,9 +455,9 @@ KFToolbar.prototype = {
         {    
             changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
             changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
-            changeDBButton.setAttribute("onpopupshowing", "keeFoxToolbar.setMRUdatabases(); event.stopPropagation();");
+            changeDBButton.setAttribute("onpopupshowing", "keefox_org.toolbar.setMRUdatabases(); event.stopPropagation();");
             changeDBButton.setAttribute("disabled", "false");
-            //changeDBButton.setAttribute("onpopuphiding", "keeFoxToolbar.detachMRUpopup(); event.stopPropagation();");
+            //changeDBButton.setAttribute("onpopuphiding", "keefox_org.toolbar.detachMRUpopup(); event.stopPropagation();");
             
             
         } else
@@ -720,7 +720,7 @@ KFToolbar.prototype = {
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);
-        this._currentWindow.keeFoxILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
+        this._currentWindow.keefox_org.ILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
         
     },
     

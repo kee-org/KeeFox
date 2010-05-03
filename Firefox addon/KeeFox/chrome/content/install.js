@@ -83,7 +83,7 @@ var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIDOMWindow);
 
-var mainWindow = mainWin.keeFoxILM._currentWindow;
+var mainWindow = mainWin.keefox_org.ILM._currentWindow;
 
 function prepareInstallPage()
 {

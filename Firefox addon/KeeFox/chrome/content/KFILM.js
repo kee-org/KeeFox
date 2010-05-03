@@ -383,8 +383,8 @@ KFILM.prototype = {
             {
                 // remove the data that helps us track multi-page logins, etc.
                 KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                keeFoxToolbar.clearTabFormRecordingData();
-                keeFoxToolbar.clearTabFormFillData();                
+                keefox_org.toolbar.clearTabFormRecordingData();
+                keefox_org.toolbar.clearTabFormFillData();                
             }
                 
             // Fastback doesn't fire DOMContentLoaded, so process forms now.
@@ -412,7 +412,7 @@ KFILM.prototype = {
         { 
             KFLog.debug("Location changed: " + aURI.spec);
             // remove all the old logins from the toolbar
-            keeFoxToolbar.removeLogins();
+            keefox_org.toolbar.removeLogins();
          },
 
         // stubs for the nsIWebProgressListener interfaces which we don't use.
@@ -1002,7 +1002,7 @@ KFILM.prototype = {
     
    };
    
-var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                       .getService(Components.interfaces.mozIJSSubScriptLoader); 
-loader.loadSubScript("resource://kfscripts/KFILM_Fill.js");
-loader.loadSubScript("resource://kfscripts/KFILM_Submit.js");
+//var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+//                       .getService(Components.interfaces.mozIJSSubScriptLoader); 
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM_Fill.js");
+keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM_Submit.js");
