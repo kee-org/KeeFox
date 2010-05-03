@@ -88,9 +88,10 @@ KFILM.prototype._onFormSubmit = function (form)
     } else if (currentPage >= 10)
     {
         ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
-        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
-        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
-        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateJSON");
+//        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+//        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+//        ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
         currentPage = 1;
         savePageCountToTab = false;
     }
@@ -276,29 +277,31 @@ KFILM.prototype._onFormSubmit = function (form)
     {
         KFLog.info("This form submission is part of a multi-page login process.");
         
-        var previousStageLoginMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
-        var previousStageLoginURLs = ss.getTabValue(currentTab, "KF_recordFormCurrentStateURLs");
-        var previousStageLoginPasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
-        var previousStageLoginOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+        var previousStageLoginJSON = ss.getTabValue(currentTab, "KF_recordFormCurrentStateJSON");
+//        var previousStageLoginMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
+//        var previousStageLoginURLs = ss.getTabValue(currentTab, "KF_recordFormCurrentStateURLs");
+//        var previousStageLoginPasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+//        var previousStageLoginOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
         
-        var kfLoginField = newkfLoginField();
+        //var kfLoginField = newkfLoginField();
         //var kfURL;
-        var deserialisedOutputOtherFields = [];
-        var deserialisedOutputPasswords = [];
-        var deserialisedOutputURLs = [];
+//        var deserialisedOutputOtherFields = [];
+//        var deserialisedOutputPasswords = [];
+//        var deserialisedOutputURLs = [];
         var previousStageLogin = newkfLoginInfo();
+        previousStageLogin.fromJSON(previousStageLoginJSON);
                   
-        if (previousStageLoginOtherFields != undefined && previousStageLoginOtherFields != null)
-            eval (previousStageLoginOtherFields);
+//        if (previousStageLoginOtherFields != undefined && previousStageLoginOtherFields != null)
+//            eval (previousStageLoginOtherFields);
 
-        if (previousStageLoginPasswords != undefined && previousStageLoginPasswords != null)
-            eval (previousStageLoginPasswords);
-       
-        if (previousStageLoginURLs != undefined && previousStageLoginURLs != null)
-            eval (previousStageLoginURLs);
-  
-        if (previousStageLoginMain != undefined && previousStageLoginMain != null)
-            eval ("previousStageLogin.init"+previousStageLoginMain);
+//        if (previousStageLoginPasswords != undefined && previousStageLoginPasswords != null)
+//            eval (previousStageLoginPasswords);
+//       
+//        if (previousStageLoginURLs != undefined && previousStageLoginURLs != null)
+//            eval (previousStageLoginURLs);
+//  
+//        if (previousStageLoginMain != undefined && previousStageLoginMain != null)
+//            eval ("previousStageLogin.init"+previousStageLoginMain);
     
         // set the tab value ready for the next time the page loads
         //TODO: how do we "cancel" this so that the page count is reset when the next login/signup process begins?
@@ -312,37 +315,47 @@ KFILM.prototype._onFormSubmit = function (form)
     keeFoxUI.setWindow(win);
     keeFoxUI.setDocument(topDoc);
     
-    KFLog.debug("formLogin.otherFields.length:" + formLogin.otherFields.length);
-    
-    var otherFieldsSerialsed = "";            
-    for (j = 0; j < formLogin.otherFields.length; j++)
-    {
-        var matchedField = formLogin.otherFields[j];
-        otherFieldsSerialsed += "var tempOutputOtherField"+ j + " = newkfLoginField(); tempOutputOtherField"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputOtherFields.push(tempOutputOtherField"+ j + "); ";
-    }
-                  
-    var passwordsSerialsed = "";            
-    for (j = 0; j < formLogin.passwords.length; j++)
-    {
-        var matchedField = formLogin.passwords[j];
-        passwordsSerialsed += "var tempOutputPassword"+ j + " = newkfLoginField(); tempOutputPassword"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputPasswords.push(tempOutputPassword"+ j + "); ";
-    }
+//    KFLog.debug("formLogin.otherFields.length:" + formLogin.otherFields.length);
+//    KFLog.debug("formLogin.passwords.length:" + formLogin.passwords.length);
+//    
+//    var otherFieldsSerialsed = "";            
+//    for (j = 0; j < formLogin.otherFields.length; j++)
+//    {
+//        var matchedField = formLogin.otherFields[j];
+//        otherFieldsSerialsed += "var tempOutputOtherField"+ j + " = newkfLoginField(); tempOutputOtherField"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputOtherFields.push(tempOutputOtherField"+ j + "); ";
+//    }
+//                  
+//    var passwordsSerialsed = "";            
+//    for (j = 0; j < formLogin.passwords.length; j++)
+//    {
+//        var matchedField = formLogin.passwords[j];
+//        passwordsSerialsed += "var tempOutputPassword"+ j + " = newkfLoginField(); tempOutputPassword"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputPasswords.push(tempOutputPassword"+ j + "); ";
+//    }
 
-    var URLsSerialsed = "";            
-    for (j = 0; j < formLogin.URLs.length; j++)
-    {
-        var matchedURL = formLogin.URLs[j];
-        URLsSerialsed += "var tempOutputURL"+ j + " ='" + matchedURL + "'; deserialisedOutputURLs.push(tempOutputURL"+ j + "); ";
-    }
+//    var URLsSerialsed = "";            
+//    for (j = 0; j < formLogin.URLs.length; j++)
+//    {
+//        var matchedURL = formLogin.URLs[j];
+//        URLsSerialsed += "var tempOutputURL"+ j + " ='" + matchedURL + "'; deserialisedOutputURLs.push(tempOutputURL"+ j + "); ";
+//    }
    
-   finalEval = formLogin.toSource()
-
+//   finalEval = formLogin.toSource();
+//    KFLog.debug("test1");
+//    var tempJSON = JSON.stringify(formLogin);
+//     KFLog.debug("test2:" + tempJSON);
+//    KFLog.debug("test3:" + passwordsSerialsed);
+//    var tempTestLogin = newkfLoginInfo();
+//    tempTestLogin.fromJSON(tempJSON);
+//    var tempJSON2 = JSON.stringify(tempTestLogin);
+//     KFLog.debug("test4:" + tempJSON2);
+     
     // we save the current state no matter what, just in case user
     // does decide to convert this into a multi-page login
-    ss.setTabValue(currentTab, "KF_recordFormCurrentStateURLs", URLsSerialsed);
-    ss.setTabValue(currentTab, "KF_recordFormCurrentStatePasswords", passwordsSerialsed);
-    ss.setTabValue(currentTab, "KF_recordFormCurrentStateOtherFields", otherFieldsSerialsed);
-    ss.setTabValue(currentTab, "KF_recordFormCurrentStateMain", finalEval);
+//    ss.setTabValue(currentTab, "KF_recordFormCurrentStateURLs", URLsSerialsed);
+//    ss.setTabValue(currentTab, "KF_recordFormCurrentStatePasswords", passwordsSerialsed);
+//    ss.setTabValue(currentTab, "KF_recordFormCurrentStateOtherFields", otherFieldsSerialsed);
+//    ss.setTabValue(currentTab, "KF_recordFormCurrentStateMain", finalEval);
+    ss.setTabValue(currentTab, "KF_recordFormCurrentStateJSON", JSON.stringify(formLogin));    
     
     if (savePageCountToTab)
     {

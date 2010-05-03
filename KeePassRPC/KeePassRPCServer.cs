@@ -348,6 +348,10 @@ namespace KeePassRPC
                             jsonPacketStartIndex = i + 1;
                         }
                     }
+
+                    // If the JSON request is not complete we store what we have already found
+                    if (tokenCurlyCount != 0 || tokenSquareCount != 0)
+                        currentJSONPacket.Append(receivedData);
                     // http://groups.google.com/group/jayrock/browse_thread/thread/59cf6a58bc63f0df/a7775c3097cf6957?lnk=gst&q=thread+JsonRpcDispatcher+#a7775c3097cf6957
                 }
             }

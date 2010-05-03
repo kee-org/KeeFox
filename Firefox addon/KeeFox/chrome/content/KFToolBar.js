@@ -619,26 +619,33 @@ KFToolbar.prototype = {
             */
         }
         
-        var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
+        var currentStateJSON = ss.getTabValue(currentTab, "KF_recordFormCurrentStateJSON");
 
-        if (currentStateMain != undefined && currentStateMain != null && currentStateMain != "")
+        if (currentStateJSON != undefined && currentStateJSON != null && currentStateJSON != "")
         {
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateJSON");
         }
         
-        var currentStatePasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+//        var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
 
-        if (currentStatePasswords != undefined && currentStatePasswords != null && currentStatePasswords != "")
-        {
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
-        }
-        
-        var currentStateOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+//        if (currentStateMain != undefined && currentStateMain != null && currentStateMain != "")
+//        {
+//            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
+//        }
+//        
+//        var currentStatePasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
 
-        if (currentStateOtherFields != undefined && currentStateOtherFields != null && currentStateOtherFields != "")
-        {
-            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
-        }
+//        if (currentStatePasswords != undefined && currentStatePasswords != null && currentStatePasswords != "")
+//        {
+//            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
+//        }
+//        
+//        var currentStateOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+
+//        if (currentStateOtherFields != undefined && currentStateOtherFields != null && currentStateOtherFields != "")
+//        {
+//            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
+//        }
         
         
             

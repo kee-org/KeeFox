@@ -108,6 +108,73 @@ kfLoginInfo.prototype =
 	alwaysAutoSubmit : false,
 	neverAutoFill : false,
 	neverAutoSubmit : false,
+	
+	fuckOff : function (fieldArray)
+	{
+	//this.passwords.map(function(item) { return item.toJSON(); });
+
+    var len = fieldArray.length;
+
+    var res = new Array(len);
+    //var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      //if (i in this)
+        res[i] = fieldArray[i].toJSONifiable();
+    }
+var json = JSON.stringify(res);
+dump(json);
+    return res;
+
+	
+	},
+	
+	toJSON : function ()
+    {
+        var intermediateObject = {};
+        intermediateObject.URLs = this.URLs;
+        intermediateObject.formActionURL = this.formActionURL;
+        intermediateObject.httpRealm = this.httpRealm;
+        intermediateObject.usernameIndex = this.usernameIndex;
+        intermediateObject.passwords = this.passwords;//this.fuckOff(this.passwords);
+        intermediateObject.uniqueID = this.uniqueID;
+        intermediateObject.title = this.title;
+        intermediateObject.otherFields = this.otherFields;//this.otherFields.map(function(item) { return item.toJSONifiable(); });
+        intermediateObject.relevanceScore = this.relevanceScore;
+        intermediateObject.maximumPage = this.maximumPage;
+        intermediateObject.iconImageData = this.iconImageData;
+        intermediateObject.parentGroup = this.parentGroup;
+        intermediateObject.priority = this.priority;
+        intermediateObject.alwaysAutoFill = this.alwaysAutoFill;
+        intermediateObject.alwaysAutoSubmit = this.alwaysAutoSubmit;
+        intermediateObject.neverAutoFill = this.neverAutoFill;
+        intermediateObject.neverAutoSubmit = this.neverAutoSubmit;
+        
+        //var json = JSON.stringify(intermediateObject);
+        return intermediateObject;
+    },
+    
+    fromJSON : function (json)
+    {
+        var intermediateObject = JSON.parse(json);
+        this.URLs = intermediateObject.URLs;
+        this.formActionURL = intermediateObject.formActionURL;
+        this.httpRealm = intermediateObject.httpRealm;
+        this.usernameIndex = intermediateObject.usernameIndex;
+        this.passwords = intermediateObject.passwords.map(function(item) { var newField = new kfLoginField(); newField.fromJSONifiable(item); return newField; });
+        this.uniqueID = intermediateObject.uniqueID;
+        this.title = intermediateObject.title;
+        this.otherFields = intermediateObject.otherFields.map(function(item) { var newField = new kfLoginField(); newField.fromJSONifiable(item); return newField; });
+        this.relevanceScore = intermediateObject.relevanceScore;
+        this.maximumPage = intermediateObject.maximumPage;
+        this.iconImageData = intermediateObject.iconImageData;
+        this.parentGroup = intermediateObject.parentGroup;
+        this.priority = intermediateObject.priority;
+        this.alwaysAutoFill = intermediateObject.alwaysAutoFill;
+        this.alwaysAutoSubmit = intermediateObject.alwaysAutoSubmit;
+        this.neverAutoFill = intermediateObject.neverAutoFill;
+        this.neverAutoSubmit = intermediateObject.neverAutoSubmit;
+    },
     
     // assists with serialisation of this object to a string
     // (for attachment to the current tab session)
@@ -420,6 +487,40 @@ kfLoginField.prototype = {
     
     // on which page of a login procedure this field can be found
     formFieldPage : -1,
+    
+    toJSON : function ()
+    {
+        var intermediateObject = {};
+        intermediateObject.name = this.name;
+        intermediateObject.value = this.value;
+        intermediateObject.fieldId = this.fieldId;
+        //intermediateObject.DOMInputElement = this.DOMInputElement;
+        //intermediateObject.DOMSelectElement = this.DOMSelectElement;
+        intermediateObject.type = this.type;
+        intermediateObject.formFieldPage = this.formFieldPage;
+        
+        //var json = JSON.stringify(intermediateObject);
+        //return json;
+        return intermediateObject;
+    },
+    
+    toJSONKF : function ()
+    {
+        //var intermediateObject = this.toJSONifiable();        
+        //var json = JSON.stringify(intermediateObject);
+        //return json;
+    },
+    
+    fromJSONifiable : function (intermediateObject)
+    {
+        this.name = intermediateObject.name;
+        this.value = intermediateObject.value;
+        this.fieldId = intermediateObject.fieldId;
+        //this.DOMInputElement = intermediateObject.DOMInputElement;
+        //this.DOMSelectElement = intermediateObject.DOMSelectElement;
+        this.type = intermediateObject.type;
+        this.formFieldPage = intermediateObject.formFieldPage;
+    },
     
     // assists with deserialisation of this object to a string
     // (for attachment to the current tab session)
