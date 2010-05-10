@@ -61,7 +61,8 @@ KFToolbar.prototype = {
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
-        //TODO: see if we can remove this successfully: this.setupButton_ready(null,this._currentWindow);
+        //TODO: see if we can remove this successfully: NO. why did I want to?!
+        this.setupButton_ready(null,this._currentWindow);
     },
     
     compareRelevanceScores: function (a , b)
@@ -717,6 +718,7 @@ KFToolbar.prototype = {
     
     fillCurrentDocument : function ()
     {
+     KFLog.debug("fillCurrentDocument start");
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);

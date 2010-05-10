@@ -415,7 +415,7 @@ namespace Jayrock.JsonRpc
             if (JsonRpcTrace.Switch.TraceError)
                 JsonRpcTrace.Error(e);
 
-            return JsonRpcError.FromException(e, LocalExecution);
+            return JsonRpcError.FromException(e, true); //CPT: replaced LocalExecution by true
         }
 
         private static object ReadParameters(Method method, JsonReader reader, JsonImportHandler importer)

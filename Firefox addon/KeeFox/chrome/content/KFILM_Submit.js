@@ -216,7 +216,7 @@ KFILM.prototype._onFormSubmit = function (form)
                 
             for (var i = 0; i < logins.length; i++)
             {
-                if (formLogin.matches(logins[i],false,false,false,false))
+                if (formLogin.matches(logins[i],false,true,false,false))
                     existingLogin = true;
             }
         }

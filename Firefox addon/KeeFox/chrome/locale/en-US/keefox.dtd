@@ -27,6 +27,12 @@
 <!ENTITY KeeFox_Logins-Context-Edit-Group.label "Edit group">
 <!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "Save to a group...">
 <!ENTITY KeeFox_Remember-Advanced-Popup-Multi-Page.label "This is part of a multi-page login form">
+<!ENTITY KeeFox_Menu-Button.Help.tip "KeeFox help.">
+<!ENTITY KeeFox_Menu-Button.Help.label "Help">
+<!ENTITY KeeFox_Menu-Button.Help.key "H">
+<!ENTITY KeeFox_Help-GettingStarted-Button.tip "Visit the online getting started tutorial.">
+<!ENTITY KeeFox_Help-GettingStarted-Button.label "Getting Started">
+<!ENTITY KeeFox_Help-GettingStarted-Button.key "G">
 
 <!-- strings that may be used in more than one location -->
 <!ENTITY % KeeFox_Shared_More_Info_And_Options "More information and advanced setup options">

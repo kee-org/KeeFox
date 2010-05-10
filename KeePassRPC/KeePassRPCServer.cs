@@ -360,7 +360,7 @@ namespace KeePassRPC
             //    MessageBox.Show("error 339: " + authEx.ToString());
                 // Send a JSON message down the pipe
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authEx.AsJSONResult());
-                keePassRPCClient.ConnectionStream.Write(bytes, 0, bytes.Length);
+                keePassRPCClient.ConnectionStreamWrite(bytes);
             }
             catch (AuthenticationException e)
             {
@@ -415,7 +415,7 @@ namespace KeePassRPC
                 requiredResultString = "{\"id\":" + authorisationAttemptId + ",\"result\":0}";
             }
 
-            Stream clientStream = keePassRPCClientConnection.ConnectionStream;
+            //Stream clientStream = keePassRPCClientConnection.ConnectionStream;
 
             //TODO: is this Jayrock stuff thread-safe or do I need new instances of the Service each time? 
             JsonRpcDispatcher dispatcher = JsonRpcDispatcherFactory.CreateDispatcher(Service);
@@ -449,7 +449,7 @@ namespace KeePassRPC
             }
 
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(output);
-            clientStream.Write(bytes,0,bytes.Length);
+            keePassRPCClientConnection.ConnectionStreamWrite(bytes);
         }
     }
 

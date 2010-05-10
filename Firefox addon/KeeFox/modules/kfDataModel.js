@@ -240,7 +240,7 @@ dump(json);
 
 	            switch (kpff.type)
 	            {
-		            case kfFormFieldType.username: usernameIndex = otherLength; type = "text"; break;
+		            case kfFormFieldType.username: usernameIndex = otherLength; type = "username"; break; // may 2010: should be "text"?
 		            case kfFormFieldType.text: type = "text"; break;
 		            case kfFormFieldType.radio: type = "radio"; break;
 		            case kfFormFieldType.checkbox: type = "checkbox"; break;
@@ -268,28 +268,31 @@ dump(json);
     },
         
     // the order of URLs must also match
-    // TODO: do we need to relax this test so order is irrelevant?
+    // TODO: do we need to relax this test so order is irrelevant? YES!
     _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
-    {
+    {    
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+    //window.keefox_org.Logger.debug("aa");
         if (this.URLs.length != URLs.length)
             return false;
-            
+            //window.keefox_org.Logger.debug("ab");
         for (i = 0; i < this.URLs.length; i++)
         {
             var url1 = URLs[i];
             var url2 = this.URLs[i];
-        
-            if (ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+        //window.keefox_org.Logger.debug("ac:"+url1+":"+url2);
+            if (!ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
                 return false;
-            else if (!ignoreURIPathsAndSchemes && ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+            else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
                 return false;
-            else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && url1 != url2)
+            else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && url1 != url2) //TODO: remove query strings!
                 return false;
         }
         return true;
     },
-    
-    // the order of password fields must also match
+
     _allPasswordsMatch : function (passwords)
     {
         if (this.passwords.length != passwords.length)
@@ -353,10 +356,12 @@ dump(json);
     matches : function (aLogin, ignorePasswords, ignoreURIPaths,
          ignoreURIPathsAndSchemes, ignoreUsernames)
     {
+    //if (formLogin.matches(logins[i],false,false,false,false))
+    // test to find out which bits fail below...
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");
-        
+
         if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_org.ILM))
             return false;
 

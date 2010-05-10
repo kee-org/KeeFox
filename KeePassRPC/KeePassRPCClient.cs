@@ -110,7 +110,7 @@ namespace KeePassRPC
                 SignalAll(KeePassRPC.DataExchangeModel.Signal.EXITING);
                 foreach (KeePassRPCClientConnection client in _RPCClientConnections)
                 {
-                    client.ConnectionStream.Close();
+                    client.ConnectionStreamClose();
                 }
                 _RPCClientConnections.Clear();
             }
@@ -162,6 +162,10 @@ namespace KeePassRPC
         //private string _identifiesAs;
         private bool _authorised;
         private SslStream _encryptedConnection;
+        private object streamAccessLock = new object(); // undocumented "The Write method cannot be called
+        //when another write operation is pending" errors can be thrown when accessing the stream from
+        //multiple threads so this protects against that but also being cautious and assuming
+        //similar problems may occur on reading
 
         /// <summary>
         /// The underlying TCP connection that links us to this client.
@@ -211,16 +215,43 @@ namespace KeePassRPC
             set { _authorised = value; }
         }
 
-        public Stream ConnectionStream
+        private Stream ConnectionStream
         {
             get
             {
-                if (ChannelIsEncrypted)
-                    return EncryptedConnection;
-                else
-                    return UnencryptedConnection.GetStream();
+                lock (streamAccessLock)
+                {
+                    if (ChannelIsEncrypted)
+                        return EncryptedConnection;
+                    else
+                        return UnencryptedConnection.GetStream();
+                }
             }
         }
+
+        public void ConnectionStreamWrite(byte[] bytes)
+        {
+            lock (streamAccessLock)
+            {
+                this.ConnectionStream.Write(bytes, 0, bytes.Length);
+            }
+        }
+
+        public void ConnectionStreamRead(byte[] bytes)
+        {
+            lock (streamAccessLock)
+            {
+                this.ConnectionStream.Write(bytes, 0, bytes.Length);
+            }
+        }
+
+        public void ConnectionStreamClose()
+        {
+            lock (streamAccessLock)
+            {
+                this.ConnectionStream.Close();
+            }
+        } 
 
         public KeePassRPCClientConnection(TcpClient connection, bool isAuthorised)
         {
@@ -254,7 +285,7 @@ namespace KeePassRPC
             StringBuilder sb = new StringBuilder();
             Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
-            this.ConnectionStream.Write(bytes, 0, bytes.Length);
+            this.ConnectionStreamWrite(bytes);
         }
     }
 

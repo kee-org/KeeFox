@@ -45,6 +45,7 @@ function jsonrpcClient() {
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
     this.clientVersion = [0,7,6];
+    //this.syncFixupTimer = null;
 }
 
 jsonrpcClient.prototype = new session();
@@ -70,7 +71,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     
     this.getClientIdSignatureBase64 = function()
     {
-        return "SBgL3aeB37Mnmy94+s3J3KAL/1EkSgiCVEkfp3Otm04tQtKBDDtaIw==";
+        return "hUiPbbPln4TIl+/RCsl5pjL0QOeEN7OqBmkz68ZMz7tGZOUxb7BCaQ==";
     }
     
     this.getUniqueClientIdBase64 = function()
@@ -81,9 +82,25 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     
     this.getUniqueClientId = function(clientIdSig)
     {
-        //TODO: get/create a unique private key
-        // encrypt public clientIdSig using private key
-        return btoa("this is not secure yet"+clientIdSig);
+        //TODO: get/create a unique private key?
+        // encrypt public clientIdSig using private key?
+        // probably no point since we can't store it securely for next session anyway :-(
+        var sig = "";
+        
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                 .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+                        
+        if (window.keeFoxInst._keeFoxExtension.prefs.has("uniqueProfileId"))
+            sig = window.keeFoxInst._keeFoxExtension.prefs.getValue("uniqueProfileId","");
+        
+        if (sig == "")
+        {
+            sig = (Math.random() * (4294967296 - 1) + 1) + clientIdSig + (Math.random() * (4294967296 - 1) + 1);
+            window.keeFoxInst._keeFoxExtension.prefs.setValue("uniqueProfileId",sig);
+        }
+        
+        return btoa(sig);
     }
 
     this.onNotify = function(topic, message) {
@@ -177,12 +194,26 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 {
                     try
                     {
-                        this.callbacks[obj.id](obj);
+                        if (this.callbacks[obj.id] != null)
+                            this.callbacks[obj.id](obj);
                         delete this.callbacks[obj.id];
                     } catch (e)
                     {
                         delete this.callbacks[obj.id];
-                        log.warn("An error occurred when processing the callback for JSON-RPC object id " + obj.id);
+                        log.warn("An error occurred when processing the callback for JSON-RPC object id " + obj.id + ": " + e);
+                    }
+                } else if ("error" in obj)
+                {
+                    try
+                    {
+                        log.error("An error occurred in KeePassRPC object id: " + obj.id + " with this message: " + obj.message);
+                        if (this.callbacks[obj.id] != null)
+                            this.callbacks[obj.id](obj);
+                        delete this.callbacks[obj.id];
+                    } catch (e)
+                    {
+                        delete this.callbacks[obj.id];
+                        log.warn("An error occurred when processing the callback for JSON-RPC object id " + obj.id + ": " + e);
                     }
                 } else if ("method" in obj)
                 {
@@ -206,9 +237,9 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     //    session.writeData(JSON.stringify(result));
                 } else {
                     if (log.logSensitiveData)
-                        log.error("Error processing onDataAvailable:" + data);
+                        log.error("Unexpected error processing onDataAvailable:" + data);
                     else
-                        log.error("Error processing onDataAvailable");
+                        log.error("Unexpected error processing onDataAvailable");
                 }
             }
         }
@@ -292,14 +323,22 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var myRequestId = ++this.requestId;
         
         this.syncRequestResults[myRequestId] = null; //TODO: can the JSON parser ever
-        // return null? if so, change this or else we might deadlock
+        // return null? if so, change this or else we might deadlock YES! And we do deadlock!
         // TODO: set a timeout on this sync event (set above to a JS Error object)
 
         this.request(session, method, params, function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser");
-            window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = resultWrapper.result;            
+            
+            if ("result" in resultWrapper && resultWrapper.result !== false)
+            {
+                if (resultWrapper.result !== null)
+                    window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = resultWrapper.result;
+                else
+                    window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error("Null return result received");
+            } else
+                window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error(resultWrapper.error);    
         }, myRequestId);
         
         if (log.logSensitiveData)
@@ -352,55 +391,158 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.launchGroupEditor = function(uniqueID)
     {
-        var result = this.syncRequest(this, "LaunchGroupEditor", [uniqueID]);
+        /*ASYNC review: always launched in seperate thread anyway so should be zero problems
+        
+        */
+        //var result = this.syncRequest(this, "LaunchGroupEditor", [uniqueID]);
+        // fire and forget
+        this.request(this, "LaunchGroupEditor", [uniqueID], null, ++this.requestId);
         return;
     }
 
     this.launchLoginEditor = function(uniqueID)
     {
-        var result = this.syncRequest(this, "LaunchLoginEditor", [uniqueID]);
+        /*ASYNC review: always launched in seperate thread anyway so should be zero problems
+        
+        */
+        //var result = this.syncRequest(this, "LaunchLoginEditor", [uniqueID]);
+        // fire and forget
+        this.request(this, "LaunchLoginEditor", [uniqueID], null, ++this.requestId);
         return;
     }
 
     this.getDBName = function()
-    {
+    {  
+        /*ASYNC review: KF.js(547)
+        KFToolBar.js(427)
+        1) blocks _refreshKPDB (name required before can decide if we're logged in, etc.)
+        2) blocks setupButton_ready toolbar (same reason); function later creates MRU DB 
+        button but this is just another call (potentially async) and won't fail if this
+        function hasn't returned yet
+        
+        1) move all contents of _refreshKPDB into a callback function. tabselect event
+        listener timing may be fragile (but if so, needs fixing anyway)
+        2) create a loggedInAs call back to recieve the name and do the work currently 
+        in the if statement on line 427+
+        
+        **** callbacks need to happen on main thread (GUI access)
+        
+        3 hours
+        
+        */
         var result = this.syncRequest(this, "GetDatabaseName");
         return result;
     }
 
     this.getDBFileName = function()
     {
+        /*ASYNC review: 
+        called only from within _refreshKPDB method. only to update MRU preference
+        so no problem pulling it into a callback function
+        
+        1 hour
+        
+        */
         var result = this.syncRequest(this, "GetDatabaseFileName");
         return result;
     }
 
     this.getRootGroup = function()
     {
+        /*ASYNC review: KFToolBar.js(174) only
+        blocks start of loading all logins onto toolbar
+        
+        logins button enabled after logins menu populated but login menu 
+        population could be started from a callback
+        
+        !!! calling functions assume that calls to those functions have completed and hence 
+        sometimes make a second call shortly after (e.g. logins cleared
+         and then updated list added)
+         
+        shouldn't be a problem dealing with two concurrent requests to this function
+        but related function calls need more thought...
+        
+        ? hours
+        
+        */
         var result = this.syncRequest(this, "GetRoot");
         return result;
     }
 
     this.changeDB = function(fileName, closeCurrent)
     {
-        this.syncRequest(this, "ChangeDatabase", [fileName, closeCurrent]);
+        /*ASYNC review: 
+        KFToolBar.js(588)
+        KF.js(689)
+        MRU list & launch KeePass
+        
+        No issues
+        
+        Doesn't even need a callback - one-way notification is sufficient
+        
+        */
+        //this.syncRequest(this, "ChangeDatabase", [fileName, closeCurrent]);
+        // fire and forget
+        this.request(this, "ChangeDatabase", [fileName, closeCurrent], null, ++this.requestId);
         return;
     }
 
     this.getMRUdatabases = function()
     {
+        /*ASYNC review: called only in response to popup menu showing on MRU menu
+        
+        need to add support for "please wait" in menu drop down/out but otherwise
+        straightforward
+                
+        */
         var result = this.syncRequest(this, "GetCurrentKFConfig");
         return result.knownDatabases;
     }
 
     this.addLogin = function(login, parentUUID)
     {
+        /*ASYNC review: KFUI.js(199)
+        initiated from notification bar - no need to keep that open while we send 
+        the login to KeePass (although very lengthy delays could be confusing)
+                
+        */
         var jslogin = login.asEntry();
-        var result = this.syncRequest(this, "AddLogin", [jslogin, parentUUID]);
+        //var result = this.syncRequest(this, "AddLogin", [jslogin, parentUUID]);
+        // fire and forget
+        this.request(this, "AddLogin", [jslogin, parentUUID], null, ++this.requestId);        
         return;
     }
 
     this.findLogins = function(hostname, formSubmitURL, httpRealm, uniqueID)
     {
+        /*ASYNC review: 
+        1) commonDialog.js(180)
+        2) KFILM.js(634)
+        3) KFILM_Fill.js(488)
+        4) ...
+        5) 
+        
+        1) Not benefit to user if result is handled asyncronously - they'll just see
+         a momentary delay before everything gets shuffled around just as they are
+         trying to interact with the dialog. Only transport layer failure or KeePass 
+         crash could cause long delay at this point but find operation should be pretty 
+         quick for all databases and computers so a 10 second timeout should give us a
+         way to recover from such an exceptional event.
+         Alternative is to design placeholders saying "loading" to user. Not sure we can
+         calculate the size in advance but if so this could be a neater thing to aim for
+        2) Only called from notification bar so no need for callback feedback to user.
+        Will need to create a callback function that incorporates the addLogin() 
+        call referred to above
+        3) called for every form on a page load; currently skips call if previous call was
+        for same criteria. could maybe yield at each iteration? BUT information stored in 
+        tab (for passing on to next page) can't be done until function calls to all forms
+        have returned - what if one doesn't? need to do some things ASAP but only after 
+        we know the result - e.g. setting form contents change listeners (can't do this
+         before autofill has happened)
+        
+        Massive task - many days at least.
+        
+        */
         var lst = "LSTall";
         if (httpRealm == undefined || httpRealm == null || httpRealm == "")
             lst = "LSTnoRealms";
@@ -419,7 +561,17 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     }
 
     this.getChildEntries = function(uniqueID)
-    {      
+    {   
+        /*ASYNC review: 
+        used only via user interaction with Logins menu. as with getRoot, we could put up some sort 
+        of "loading" sign and make all these requests async. but maybe we're better off just developing
+        the getAllLogins feature so that the entire DB structure is stored in the main module and toolbar Logins
+        updates consist of locking user interaction with the menu, transferring data from the module into a toolbar
+        structure and then unlocking UI. This cuold be forced upon the toolbar as per current _refreshKPDB system
+        or it could be intiated by the toolbar (e.g. in response to a notification from the module that the logins
+        structure has changed). Latter could be far more efficient if actual changes to DB are rare? Maybe module
+        could cache DB contents for each database? but how do we know we need to clear it when that DB is locked / closed?
+        */   
         var result = this.syncRequest(this, "GetChildEntries", [uniqueID]);
 
         var convertedResult = [];
@@ -436,6 +588,9 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.getAllLogins = function()
     {      
+        /*ASYNC review: 
+        never used; could be useful in re-worked "all logins" storage in shared module rather than getChildEntries/Groups
+        */
         var result = this.syncRequest(this, "GetAllLogins");
 
         var convertedResult = [];
@@ -450,6 +605,9 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.countLogins = function(hostname, formSubmitURL, httpRealm)
     {
+        /*ASYNC review: 
+        deprecating this function anyway.
+        */
         var lst = "LSTall";
         if (httpRealm == undefined || httpRealm == null || httpRealm == "")
             lst = "LSTnoRealms";
@@ -462,12 +620,20 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.getChildGroups = function(uniqueID)
     {
+        /*ASYNC review: 
+        similar situation to getChildEntries
+        */
         var result = this.syncRequest(this, "GetChildGroups", [uniqueID]);
         return result; // an array of groups
     }
     
     this.generatePassword = function()
     {
+        /*ASYNC review: 
+        could easily make async but might be better for user to see a slight pause
+         rather than risk dodgy connections causing clipboard to be overwritten
+          long after user thinks operation failed
+        */
         var result = this.syncRequest(this, "GeneratePassword", [""]);
         return result; // a string
     }

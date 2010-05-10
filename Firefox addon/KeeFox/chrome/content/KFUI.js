@@ -401,7 +401,7 @@ KFUI.prototype = {
              notificationText, buttons);
     },
     
-    _removeOLDKFNotifications : function ()
+    _removeOLDKFNotifications : function (keepLaunchBar)
     {
         var notifyBox = this._getNotifyBox();
         
@@ -421,11 +421,14 @@ KFUI.prototype = {
                 notifyBox.removeNotification(oldBar);
             }
             
-            oldBar = notifyBox.getNotificationWithValue("keefox-launch");
+            if (!keepLaunchBar)
+            {
+                oldBar = notifyBox.getNotificationWithValue("keefox-launch");
 
-            if (oldBar) {
-                KFLog.debug("Removing keefox-launch notification bar.");
-                notifyBox.removeNotification(oldBar);
+                if (oldBar) {
+                    KFLog.debug("Removing keefox-launch notification bar.");
+                    notifyBox.removeNotification(oldBar);
+                }
             }
         }
     },

@@ -282,6 +282,7 @@ KFILM.prototype = {
                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIDOMWindow); 
 
+            // only process things aimed at our window
             if (mainWindow != this._pwmgr._currentWindow)
                 return;
                 
@@ -300,10 +301,15 @@ KFILM.prototype = {
                        
             var b = getBrowser();
             var currentTab = b.selectedTab; //TODO: are we sure this always the tab that this event refers to?
+// maybe not when we have just opened a url in a new tab?
+// KF_uniqueID is not set...
 
             var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
 
+
+            removeTabSessionStoreData = false;
+            
             // see if this tab has our special attributes and promote them to session data
             if (currentTab.hasAttribute("KF_uniqueID"))
             {
@@ -314,7 +320,58 @@ KFILM.prototype = {
             } else
             {
                 KFLog.debug("nouid");
+                
+                try
+                {
+                    if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
+                         && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
+                         && (
+                            this._pwmgr._getURIScheme(domWin.history.current) == "file"
+                            || this._pwmgr._getURIScheme(domWin.history.previous) == "file"
+                            ||
+                            (domWin.history.current != domWin.history.previous                         
+                                && this._pwmgr._getURISchemeHostAndPort(domWin.history.current)
+                                != this._pwmgr._getURISchemeHostAndPort(domWin.history.previous) 
+                            )
+                            )
+                       )
+                    {
+                        removeTabSessionStoreData = true;
+                    }
+                } catch (ex) {}
+                
+                try
+                {
+                    if (domWin.history.next != undefined 
+                        && domWin.history.next != null 
+                        && domWin.history.next != "")
+                    {
+                        removeTabSessionStoreData = true;
+                    }
+                } catch (ex) {}            
+                
+                // When pages are being navigated without form
+                // submissions we want to cancel multi-page login forms 
+                var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
+                var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
+
+                if (formSubmitTrackerCount > 0)
+                {
+                    KFLog.debug("formSubmitTrackerCount > 0");
+                    pageLoadSinceSubmitTrackerCount++;
+                    
+                    if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
+                    {
+                        KFLog.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
+                        formSubmitTrackerCount = 0;
+                        pageLoadSinceSubmitTrackerCount = 0;
+                        removeTabSessionStoreData = true;
+                        ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
+                    }            
+                    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
+                } 
             }
+            //KFLog.debug("temp:" + currentTab.KF_uniqueID);
             
             // If this tab location has changed domain then we assume user
             // wants to cancel any outstanding form filling or saving
@@ -325,59 +382,9 @@ KFILM.prototype = {
             // could complicate options with respect to one-click logins?
             // probably will be fine but look here if problems occur)
             
-            removeTabSessionStoreData = false;
-            
             //TODO: How do we reliably detect a page refresh?
             
-            try
-            {
-                if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
-                     && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
-                     && (
-                        this._pwmgr._getURIScheme(domWin.history.current) == "file"
-                        || this._pwmgr._getURIScheme(domWin.history.previous) == "file"
-                        ||
-                        (domWin.history.current != domWin.history.previous                         
-                            && this._pwmgr._getURISchemeHostAndPort(domWin.history.current)
-                            != this._pwmgr._getURISchemeHostAndPort(domWin.history.previous) 
-                        )
-                        )
-                   )
-                {
-                    removeTabSessionStoreData = true;
-                }
-            } catch (ex) {}
-            
-            try
-            {
-                if (domWin.history.next != undefined 
-                    && domWin.history.next != null 
-                    && domWin.history.next != "")
-                {
-                    removeTabSessionStoreData = true;
-                }
-            } catch (ex) {}            
-            
-            // When pages are being navigated without form
-            // submissions we want to cancel multi-page login forms 
-            var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
-            var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
-
-            if (formSubmitTrackerCount > 0)
-            {
-                KFLog.debug("formSubmitTrackerCount > 0");
-                pageLoadSinceSubmitTrackerCount++;
-                
-                if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
-                {
-                    KFLog.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
-                    formSubmitTrackerCount = 0;
-                    pageLoadSinceSubmitTrackerCount = 0;
-                    removeTabSessionStoreData = true;
-                    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
-                }            
-                ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
-            }        
+                   
         
             if (removeTabSessionStoreData)
             {
@@ -410,6 +417,20 @@ KFILM.prototype = {
         
         onLocationChange : function(aProgress, aRequest, aURI)
         { 
+            var domWin = aProgress.DOMWindow;
+            var domDoc = domWin.document;
+            
+            var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIWebNavigation)
+                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                   .rootTreeItem
+                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIDOMWindow); 
+
+            // only process things aimed at our window
+            if (mainWindow != this._pwmgr._currentWindow)
+                return;
+                
             KFLog.debug("Location changed: " + aURI.spec);
             // remove all the old logins from the toolbar
             keefox_org.toolbar.removeLogins();
@@ -635,7 +656,7 @@ KFILM.prototype = {
                                         login.httpRealm);
 
             //TODO 0.8: Test this - I changed it during KeePassRPC migration
-            if (logins.some(function(l) { return login.matches(l, false, false, false, false); }))
+            if (logins.some(function(l) { return login.matches(l, false, true, false, false); })) // set last to true (usernames)? or make the test more flexible
             {
                 KFLog.info("This login already exists.");
                 return "This login already exists.";
@@ -986,9 +1007,11 @@ KFILM.prototype = {
         
         if (button == 1 || (button == 0 && ctrlClick))
         {
+        this._loadingKeeFoxLogin = uniqueID;
             tab = b.loadOneTab( actionURL, null, null, null, false, null ); 
+            tab = b.selectedTab; // loadOneTab does not seem to return the correct tab (or type of object) not sure why it worked 6 months ago.
             tab.setAttribute("KF_uniqueID", uniqueID);
-        tab.setAttribute("KF_autoSubmit", "yes");       
+            tab.setAttribute("KF_autoSubmit", "yes");       
         }
         else
         {
@@ -996,6 +1019,8 @@ KFILM.prototype = {
             tab.setAttribute("KF_uniqueID", uniqueID);
         tab.setAttribute("KF_autoSubmit", "yes");
             b.loadURI( actionURL, null, null);
+            tab.setAttribute("KF_uniqueID", uniqueID);
+        tab.setAttribute("KF_autoSubmit", "yes");
         }
         
     }

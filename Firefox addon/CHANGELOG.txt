@@ -25,6 +25,9 @@ This information will often be disseminated onto the official KeeFox website in 
 - Installer triggers frantic connection attempts when KeePass is started for the first time (once every half a second for 15 seconds)
 - SECURITY: Communication between Firefox and KeePass is protected by SSL encryption
 - SECURITY: Multi-page login tracking is now safer (using JSON to track intermediate data between subsequent pages instead of eval)
+- "Getting started" tutorial link added to new "Help" section on main menu
+- New login favicons now re-use existing favicon if it is already in the KeePass database
+
 
 
 0.73

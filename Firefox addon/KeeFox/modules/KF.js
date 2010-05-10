@@ -142,27 +142,27 @@ KeeFox.prototype = {
     _checkForConflictingExtensions: function()
     {
         // {22119944-ED35-4ab1-910B-E619EA06A115} - roboform
-        if (Application.extensions.has("chris.tomlinson@keefox"))
-        {
-            // uninstall the old version of KeeFox (never published on AMO)
-            var em = Components.classes["@mozilla.org/extensions/manager;1"]  
-                .getService(Components.interfaces.nsIExtensionManager);  
-            em.uninstallItem("chris.tomlinson@keefox");
-            
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                           .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+//        if (Application.extensions.has("chris.tomlinson@keefox"))
+//        {
+//            // uninstall the old version of KeeFox (never published on AMO)
+//            var em = Components.classes["@mozilla.org/extensions/manager;1"]  
+//                .getService(Components.interfaces.nsIExtensionManager);  
+//            em.uninstallItem("chris.tomlinson@keefox");
+//            
+//            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+//                           .getService(Components.interfaces.nsIWindowMediator);
+//            var window = wm.getMostRecentWindow("navigator:browser");
 
-            // get a reference to the prompt service component.
-            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                        .getService(Components.interfaces.nsIPromptService);
-           promptService.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
-           return false;
-        }
+//            // get a reference to the prompt service component.
+//            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+//                        .getService(Components.interfaces.nsIPromptService);
+//           promptService.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
+//           return false;
+//        }
         
         // also prevent startup if this version is too old        
-        if ((new Date()).getMonth() > 6 || (new Date()).getFullYear > 2010)
-            return false;
+//        if ((new Date()).getMonth() > 6 || (new Date()).getFullYear > 2010)
+//            return false;
             
         return true;
     },
@@ -176,9 +176,7 @@ KeeFox.prototype = {
         
         // Reset prefs to pre-KeeFox settings
         var rs = prefs.getValue("originalPreferenceRememberSignons", false);
-        var ss = prefs.getValue("originalPreferenceSessionStore", true);
         Application.prefs.setValue("signon.rememberSignons", rs);
-        Application.prefs.setValue("browser.sessionstore.enabled", ss);
     },
 
     _registerPlacesListeners: function()
@@ -516,6 +514,8 @@ KeeFox.prototype = {
     _pauseKeeFox: function()
     {
         this._KFLog.debug("Pausing KeeFox.");
+        //var wasConnected = this._keeFoxStorage.get("KeePassRPCActive", false);
+        //var wasLoggedIn = this._keeFoxStorage.get("KeePassDatabaseOpen", false);
         this._keeFoxStorage.set("KeePassRPCActive", false);
         this._keeFoxStorage.set("KeePassDatabaseOpen", false); // grrr. This was HOPEFULLY the missing statement that led to the deadlocks (actually a slowly executing infinite recursive loop that would take a long time to exhast the stack - win.keeFoxToolbar.setupButton_ready calls KF.getSatabaseName calls KF._pauseKeeFox). This note remains as a painful reminder and maybe a clue for future debugging!
         
@@ -531,7 +531,7 @@ KeeFox.prototype = {
             win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
             //win.keefox_org.toolbar.setupButton_loadKeePass(win);
             win.keefox_org.toolbar.setupButton_ready(win);
-            win.keefox_org.UI._removeOLDKFNotifications();
+            win.keefox_org.UI._removeOLDKFNotifications(true);
             win.removeEventListener("TabSelect", this._onTabSelected, false);
             //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
         }
@@ -1235,8 +1235,26 @@ KeeFox.prototype = {
 
 //TODO: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM
     _onTabSelected: function(event) {
-        event.target.ownerDocument.defaultView.keefox_org.toolbar.setLogins(null, null);  
-        event.target.ownerDocument.defaultView.keefox_org.ILM._fillAllFrames(event.target.contentWindow,false);
+        event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabSelected:" + event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+        if (event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != undefined
+        && event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != null)
+        {
+//            event.target.addEventListener("load", function () {
+//  event.target.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+//}, true);
+
+//            event.target.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+            //event.target.ownerDocument.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+            //event.target.ownerDocument.defaultView.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+//            event.target.KF_uniqueID = event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin;
+            //event.target.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+            //event.target.setAttribute("KF_autoSubmit", "yes"); 
+            event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin = null;
+        } else
+        {            
+            event.target.ownerDocument.defaultView.keefox_org.toolbar.setLogins(null, null);  
+            event.target.ownerDocument.defaultView.keefox_org.ILM._fillAllFrames(event.target.contentWindow,false);
+        }
     },
     
     loadFavicon: function(url)

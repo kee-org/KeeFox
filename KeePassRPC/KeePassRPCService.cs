@@ -239,7 +239,7 @@ namespace KeePassRPC
         private byte[] GetClientIdPublicKey()
         {
             //SetupPrivateKeySignatures("KeeFox Firefox add-on");
-            byte[] embeddedPublicKey = Convert.FromBase64String("BgIAAAAiAABEU1MxAAQAAAc/SiKCjBFIOQ8oBOO40DsSFmoQhAPq5sgC0gbhYpb3FxLBHaNzxJJe9MJIj2MA/2bMk04/U5uef2QDkHbfJ1eQIUm/Ry48Z+7uuIG4Iw6FKEPHyTr5eFWqKjkxQsMB5aiewutgrNrvbDGgfUSnz+v1joA0TsVdYEFLkpQGlTbnjbIdv3EMBznPOi35Sh6txtNvTtiLyAE3Jg3a3eArH5qHXDT/ezBxuSMa51PyGRdV655VklqdJS78KuInS7VWSSQw0ApghatxPkb8/y/J60xQ0DpXXvZOF8k9c2i1EGftHEZdX2V2MrGrcC5EPHCaplWgtxeLQC2YRvXKTxYJuSSPZgBqznOdfl7Aw9P10aj2SDa0sUu58s6PB02KIJ0pzDyKcao5iLYRNz2BlITjaOjbOeht4V99ByVek/qsAlHbkv3F2NxbP83tV6soYA6nfgdVtXzng1csh87qsYXD7vMbWDXeuTGAetVIRy/NtMqkfxRrcYMjD9pxB5+iSb76Vx3UnJe6HzLy4nxG19kkrL4Jl3/ONwAAAEvT0WzrHX/9LYzNABAUkZp1K2fg");
+            byte[] embeddedPublicKey = Convert.FromBase64String("BgIAAAAiAABEU1MxAAQAAKlVa5DMwU6hDdC4w7BBJWmY9b8rtxUhCe/35rTf+BgXFLsF8q2SJTpj0RHghq9qAcX1MSNPy1wCIPGdVch2p4ss0IByc7irnSnfVRZd8t2c+5f/6kwhILpretiqbQrQ40grnDCBGJnydbCJhTLA6yLw414e826sWfrFL8RTN/W0C/N9kD3vaKHcfakszFRgoltGV8bKcwMY1DaGlY/iMYm497rxV8qzBj6aCuNRAieBHrtRz/B10CIChSDpfNBbqPKctCBWGPM82gdwPUVQVbEylC7ZwvcKHzPSUebAFW8dRUrKyf426OaAvBqWyAsg4RR/R/+IDtLpOIsO5slyT4aeeQp8rYjUv0C+9/9oRU7iYCO8iaZ96Pg/z36brJh8HrkgeK9PG09/fnKZpYjCLK4g/XYRBcYNDULM0LPzWkiVXYb/HRjqQI9V9NP78I3m1tOvoYVnEoiPi8/fLQ7c6uPCeR46phN6vznyVGTIbzh0vrM7SygB3inff3gD3KRjfU31I3ar9amF2TGvfDi3twJoOJqOVgEAABNQm4zmjXSi7PPcGENZGU9WCXZJ");
             return embeddedPublicKey;
         }
 
@@ -270,14 +270,15 @@ namespace KeePassRPC
 //            //DSA.ImportCspBlob();
 //            //TODO, load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
 
+//            //TODO: store staight into Truecrypt
 //            System.IO.File.WriteAllBytes(
-//                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "testPrivateKey-NOT-secured.key",
+//                "X:\\" + "KPRPCclientSignaturePrivateKey.key",
 //                DSA1.ExportCspBlob(true));
 
 //            DSACryptoServiceProvider DSA2 = new DSACryptoServiceProvider();
 
 //            DSA2.ImportCspBlob(System.IO.File.ReadAllBytes(
-//Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "testPrivateKey-NOT-secured.key"));
+//"X:\\" + "KPRPCclientSignaturePrivateKey.key"));
 
 //            byte[] publicKey = DSA2.ExportCspBlob(false);
 //            //EXPORT: store these bytes in source code
@@ -781,8 +782,23 @@ namespace KeePassRPC
                 MemoryStream ms = new MemoryStream();
                 imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
+                byte[] msByteArray = ms.ToArray();
+
+                foreach (PwCustomIcon item in host.Database.CustomIcons)
+                {
+                    // re-use existing custom icon if it's already in the database
+                    // (This will probably fail if database is used on 
+                    // both 32 bit and 64 bit machines - not sure why...)
+                    if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
+                    {
+                        customIconUUID = item.Uuid;
+                        host.Database.UINeedsIconUpdate = true;
+                        return true;
+                    }
+                }
+
                 PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true),
-                    ms.ToArray());
+                    msByteArray);
                 host.Database.CustomIcons.Add(pwci);
 
                 customIconUUID = pwci.Uuid;
@@ -872,7 +888,7 @@ namespace KeePassRPC
                 ioci.Path = fileName;
             }
 
-            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
+            host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
             return;
         }
 

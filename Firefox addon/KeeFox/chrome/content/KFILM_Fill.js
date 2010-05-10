@@ -142,14 +142,12 @@ KFILM.prototype._fillManyFormFields = function
            ))
         {
             KFLog.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
-            
             for (j = 0; j < matchFields.length; j++)
             {
                 // if we have already identified a form field that we want
                 // to fill with the value in this field, skip on to the next possibility...
                 if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
                     continue;
-                    
                 var matchedField = matchFields[j];
                 
                 if ((pageFields[i].type == matchedField.type && pageFields[i].type != "text")
@@ -160,13 +158,14 @@ KFILM.prototype._fillManyFormFields = function
                     KFLog.debug("Data field "+j+" is a match for form field " + i);
                     break;
                 }
-                
+
                 if (backupMatchedValues[j] != undefined && backupMatchedValues[j] != null 
                     && backupMatchedValues[j] != "" && (pageFields[i].type == matchedField.type
                     || (pageFields[i].type == "text" && matchedField.type == "username")
                     || (pageFields[i].type == "username" && matchedField.type == "text")
                    ))
                 {
+
                     backupMatchedValues[j] = matchedField.value;
                     backupMatchedIds[j] = i;
                     KFLog.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
@@ -241,7 +240,7 @@ KFILM.prototype._fillManyFormFields = function
  */
 KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 {
-    KFLog.info("Filling document");
+    KFLog.info("Filling document. Initial page load: " + initialPageLoad);
     
     // We'll do things differently if this is a fill operation some time
     // after the page has alread loaded (e.g. don't auto-fill or
@@ -669,18 +668,29 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         // just compare against enitre login objects becuase we can't be certain
         // if we are just on one particular page in a multi-page login sequence)
         for (var i = 0; i < passwordFields.length; i++)
-        {
+        {//KFLog.debug("testi:"+i);
             var passField = passwordFields[i];
+           // KFLog.debug("testi:"+passField);
+           // KFLog.debug("testi:"+passField.DOMInputElement);
             if (passField.DOMInputElement != null)
-                passField.DOMInputElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+            //passField.DOMInputElement.onchange="alert('1');";
+                //passField.DOMInputElement.onchange="var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);";
+                passField.DOMInputElement.setAttribute("onchange","keefox_org.Logger.debug('dsfasdfsdf'); var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
         }
         
         for (var i = 0; i < otherFields.length; i++)
-        {
+        {//KFLog.debug("testj:"+i);
             var otherField = otherFields[i];
+         //   KFLog.debug("testi:"+otherField);
+          //  KFLog.debug("testi:"+otherField.DOMInputElement);
             if (otherField.DOMInputElement != null)
+            //otherField.DOMInputElement.text = "yyyyyyyy";
+            //otherField.DOMInputElement.onchange="alert('2');";
+                //otherField.DOMInputElement.onchange="var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);";
                 otherField.DOMInputElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
             else if (otherField.DOMSelectElement != null)
+            //otherField.DOMInputElement.onchange="alert('3');";
+                //otherField.DOMSelectElement.onchange="var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);";
                 otherField.DOMSelectElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
         }
     }
@@ -773,10 +783,10 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
             
             // only fill in forms that match the host and port of the selected login
             // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
-            if (!(actionURL != undefined && actionURL != null && actionURL.length > 0) 
-                || this._getURISchemeHostAndPort(
-                    this._getActionOrigin(formi)) == this._getURISchemeHostAndPort(actionURL))
-            {
+//            if (!(actionURL != undefined && actionURL != null && actionURL.length > 0) 
+//                || this._getURISchemeHostAndPort(
+//                    this._getActionOrigin(formi)) == this._getURISchemeHostAndPort(actionURL))
+//            {
                 form = formi;
                 [usernameIndex, passwords, otherFields] = this._getFormFields(form, false, 1);
                 
@@ -784,7 +794,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
                     continue;
                 
                 break;
-            }
+//            }
         }        
     }
     
@@ -867,6 +877,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
 
 KFILM.prototype._fillAllFrames = function (window, initialPageLoad)
 {
+    KFLog.debug("_fillAllFrames start");
     this._fillDocument(window.document,false);
     
     if (window.frames.length > 0)
