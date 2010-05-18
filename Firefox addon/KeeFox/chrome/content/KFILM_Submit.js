@@ -109,7 +109,7 @@ KFILM.prototype._onFormSubmit = function (form)
     var existingLogin = false;    
     
     if (currentTabUniqueID != undefined && currentTabUniqueID != null && currentTabUniqueID.length > 0)
-    existingLogin = true;
+        existingLogin = true;
     
     // Get the appropriate fields from the form.
     

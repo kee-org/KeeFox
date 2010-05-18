@@ -13,7 +13,7 @@ This information will often be disseminated onto the official KeeFox website in 
 - A few options panel layout improvements
 - Built-in Firefox password management setting stored (for later restortion when KeeFox uninstalled)
 - SessionState configuration variable protected from changes that could break KeeFox
-- Expiry date set to compensate for lack of automatic updates (0.7.6 expires at the end of June 2010 - a new version will be released before then, even if just to push the expiry time back a bit)
+- Expiry date set to compensate for lack of automatic updates (0.7.6 expires at the end of July 2010 - a new version will be released before then, even if just to push the expiry time back a bit)
 - File logging now put in a "keefox" directory inside your Firefox profile directory (used to be in the extension folder)
 - Failed logging will no longer cause knock-on "random" problems
 - KeeFoxElevate application created to aid with setup
@@ -27,8 +27,6 @@ This information will often be disseminated onto the official KeeFox website in 
 - SECURITY: Multi-page login tracking is now safer (using JSON to track intermediate data between subsequent pages instead of eval)
 - "Getting started" tutorial link added to new "Help" section on main menu
 - New login favicons now re-use existing favicon if it is already in the KeePass database
-
-
 
 0.73
 ----

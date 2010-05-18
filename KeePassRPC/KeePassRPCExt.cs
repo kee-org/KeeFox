@@ -509,7 +509,6 @@ namespace KeePassRPC
                 PwEntry pe = createKeeFoxSample(pd, entry1Uuid,
                     "Quick Start (double click on the URL to learn how to use KeeFox)",
                     "testU1", "testP1", @"http://tutorial.keefox.org/", null);
-                pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "1"));
                 kfpg.AddEntry(pe, true);
             }
 
@@ -519,7 +518,7 @@ namespace KeePassRPC
                     "KeeFox sample entry with alternative URL",
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
                 pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "5"));
-                pe.Strings.Set("Alternative URLs", new ProtectedString(false, @"http://tutorial.keefox.org/ http://tutorial.keefox.org/part1"));
+                pe.Strings.Set("Alternative URLs", new ProtectedString(false, @"http://tutorial-section-c.keefox.org/part3"));
                 kfpg.AddEntry(pe, true);
             }
 
@@ -527,8 +526,8 @@ namespace KeePassRPC
             {
                 PwEntry pe = createKeeFoxSample(pd, entry3Uuid,
                     "KeeFox sample entry with no auto-fill and no auto-submit",
-                    "testU3", "testP3", @"http://tutorial.keefox.org/part2", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
-                pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "15"));
+                    "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
+                pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "2"));
                 pe.Strings.Set("KeeFox Never Auto Fill", new ProtectedString(false, ""));
                 pe.Strings.Set("KeeFox Never Auto Submit", new ProtectedString(false, ""));
                 kfpg.AddEntry(pe, true);
@@ -539,9 +538,9 @@ namespace KeePassRPC
             {
                 PwEntry pe = createKeeFoxSample(pd, entry5Uuid,
                     "KeeFox sample entry for HTTP authentication",
-                    "testU4", "testP4", @"http://tutorial.keefox.org/part4", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
+                    "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
                 pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "20"));
-                pe.Strings.Set("Form HTTP realm", new ProtectedString(false, "KeeFox Tutorial part 4"));
+                pe.Strings.Set("Form HTTP realm", new ProtectedString(false, "KeeFox tutorial sample"));
                 kfpg.AddEntry(pe, true);
             }
 

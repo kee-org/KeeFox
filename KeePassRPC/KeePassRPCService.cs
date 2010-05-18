@@ -1508,7 +1508,7 @@ namespace KeePassRPC
             }
 
 
-            protocolIndex = actionURL.IndexOf("://");
+            protocolIndex = (actionURL==null) ? -1 : actionURL.IndexOf("://");
             if (protocolIndex > -1)
             {
                 string actionURLAndPort = actionURL.Substring(protocolIndex + 3);

@@ -533,6 +533,7 @@ KeeFox.prototype = {
             win.keefox_org.toolbar.setupButton_ready(win);
             win.keefox_org.UI._removeOLDKFNotifications(true);
             win.removeEventListener("TabSelect", this._onTabSelected, false);
+            win.removeEventListener("TabOpen", this._onTabOpened, false);
             //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
         }
         this.KeePassRPC.disconnect();
@@ -578,6 +579,8 @@ KeeFox.prototype = {
             win.keefox_org.toolbar.setupButton_ready(win);
             win.keefox_org.UI._removeOLDKFNotifications();
             win.addEventListener("TabSelect", this._onTabSelected, false);
+            win.addEventListener("TabOpen", this._onTabOpened, false);
+
             if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
             {
                 win.keefox_org.ILM._fillDocument(win.content.document,false);
@@ -1233,9 +1236,22 @@ KeeFox.prototype = {
         keeFoxInst._KFLog.debug("RegularCallBackToKeeFoxJSQueueHandler has finished executing the item");
     },
 
+    _onTabOpened: function(event)
+    {
+    //event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabOpened.");
+
+    },
+
 //TODO: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM
-    _onTabSelected: function(event) {
-        event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabSelected:" + event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+//TODO: recent workaround for loading logins ni new tabs is fine but doesn't help when external application or other process opens a page with a login form on it
+// in that situation, the fillAllFrames call breaks the auto-login system :-( could try looking for tab open events but looks like tab selected is called many times for each load :-(
+    _onTabSelected: function(event)
+    {
+        if (event.target.ownerDocument.defaultView.keefox_org.Logger.logSensitiveData)
+            event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabSelected:" + event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
+        else
+            event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabSelected.");
+        
         if (event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != undefined
         && event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != null)
         {

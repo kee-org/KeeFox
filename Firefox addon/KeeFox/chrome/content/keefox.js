@@ -51,7 +51,7 @@ if (keefox_org.StartupTestApplication.extensions.has("chris.tomlinson@keefox"))
 }
 
 // also prevent startup if this version is too old        
-if ((new Date()).getMonth() > 6 || (new Date()).getFullYear > 2010)
+if ((new Date()).getMonth() > 7 || (new Date()).getFullYear > 2010)
     keefox_org.shouldLoad = false;
 
 
@@ -84,9 +84,28 @@ if (keefox_org.shouldLoad)
         // the window we are interested in (see below for performance improvement option)
         _assignedWindow : null,
 
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener,   
+        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
+                            Components.interfaces.nsIDOMEventListener,   
                             Components.interfaces.nsISupportsWeakReference]),
-            
+
+        // nsObserver
+        observe : function (subject, topic, data)
+        {
+            //var doc;
+            switch(topic)
+            {
+                case "sessionstore-windows-restored":
+                    KFLog.debug("got sessionstore-windows-restored");
+                    if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0)
+                    {
+                        var toOpen = keeFoxInst.urlToOpenOnStartup;
+                        keeFoxInst.urlToOpenOnStartup = null;
+                        keeFoxInst._openAndReuseOneTabPerURL(toOpen);
+                    }
+                    break;
+            }
+        },
+        
         notify : function (subject, topic, data) { },
         
         handleEvent: function(event)
@@ -99,7 +118,7 @@ if (keefox_org.shouldLoad)
             // proving we can get to the navigator for future use...
             // this._kf.log(currentWindow.navigator.buildID);
             
-            if (currentWindow != this._assignedWindow)
+            if (currentWindow != this._assignedWindow && event.type != "KeeFoxClearTabFormFillData")
             {
                 KFLog.debug("not the right window");
                 return;
@@ -117,9 +136,7 @@ if (keefox_org.shouldLoad)
                     // an event listener on the toolbar clears session data relating to
                     // the form filling process. ATOW only called in response to user
                     // editing form field contents.
-//                    document.addEventListener("KeeFoxClearTabFormFillData", this, false, true);
-                    document.addEventListener("KeeFoxClearTabFormFillData", function(e)
-                        { keefox_org.toolbar.clearTabFormFillData(e); }, false, true);
+                    document.addEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false, true);
                         
                     // the improved login manager which acts (a bit) like a bridge
                     // between the user visible code and the KeeFox module / JSON-RPC    
@@ -139,27 +156,28 @@ if (keefox_org.shouldLoad)
                     // just in case unless performance is noticably worse with it)
                     //KFtester = new KFtests(keefox_org.ILM);
                     
-                    if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0)
-                    {
-                        var toOpen = keeFoxInst.urlToOpenOnStartup;
-                        keeFoxInst.urlToOpenOnStartup = null;
-                        keeFoxInst._openAndReuseOneTabPerURL(toOpen);
-                    }
+//                    if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0)
+//                    {
+//                        var toOpen = keeFoxInst.urlToOpenOnStartup;
+//                        keeFoxInst.urlToOpenOnStartup = null;
+//                        keeFoxInst._openAndReuseOneTabPerURL(toOpen);
+//                    }
 
                     return;
                 case "unload": 
-                    KFLog.info("Window shutting down...");
-                    
+                    KFLog.info("Window shutting down...");                    
                     
                     window.removeEventListener("load", this, false);
                     window.removeEventListener("unload", this, false);
+                    //remove://observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);
                     keefox_org.ILM.shutdown();
-                    //document.removeEventListener("KeeFoxClearTabFormFillData", this, false);
+                    document.removeEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false);
                     keefox_org.toolbar.shutdown();
                     KFLog.info("Window shut down.");
                     return;
-                case "KeeFoxClearTabFormFillData":    
+                case "KeeFoxClearTabFormFillData":
                     keefox_org.toolbar.clearTabFormFillData(event);
+                    return;  
                 default:
                     KFLog.warn("This event was unexpected and has been ignored.");
                     return;
@@ -168,10 +186,7 @@ if (keefox_org.shouldLoad)
         
         startupKeeFox : function(currentKFToolbar, currentWindow)
         {
-            //keeFoxInst._KFLog = keefox_org.Logger;
-
             keefox_org.Logger.info("Testing to see if we've already established whether KeePassRPC is connected.");
-
 
             if (keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
             {
@@ -181,9 +196,7 @@ if (keefox_org.shouldLoad)
                 //currentKFToolbar.setAllLogins();
                 //currentWindow.addEventListener("TabSelect", keeFoxInst._onTabSelected, false); //TODO: Move tab selected out here rather than in the module!
                 return;
-            }
-        
-        
+            }       
         }
     };
 
@@ -198,11 +211,11 @@ if (keefox_org.shouldLoad)
         window.addEventListener("load", keefox_org.mainEventHandler, false);
         window.addEventListener("unload", keefox_org.mainEventHandler, false);
         
-        //var observerService = Cc["@mozilla.org/observer-service;1"].
-        //                          getService(Ci.nsIObserverService);
+        var observerService = Cc["@mozilla.org/observer-service;1"].
+                                  getService(Ci.nsIObserverService);
         //keefox_org.mainEventHandler._kf = this;
                 //keefox_org.mainEventHandler._currentKFToolbar = currentKFToolbar;                            
-                //observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);
+        observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);
         
         //observerService.addObserver(keefox_org.mainEventHandler, "quit-application", false);        
         

@@ -105,14 +105,6 @@ session.prototype =
     {
         try
         {
-            // This is naughty. I wish the async onConnectDelayTimerAction would work but sadly I can't
-            // get it working yet so this inefficient hack will have to do for now.
-//            if (this.pendingConnection)
-//            {
-//                this.pendingConnection = false;
-//                this.onConnect();
-//            }
-
             if (this.transport != null && this.transport.isAlive())
                 return "alive";
             if (this.connectLock)

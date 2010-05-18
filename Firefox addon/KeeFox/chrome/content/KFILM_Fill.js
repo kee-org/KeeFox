@@ -658,7 +658,11 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         {
             uniqueID = matchingLogin.uniqueID;
         }
-        
+                
+    }
+    
+    if (passwordFields || otherFields)
+    {
         // we register listeners so that if the user modifies the form contents,
         // we break the spell (i.e. we no longer link this form to a specific login.
         // In most cases this won't make a difference but for multi-page logins it
@@ -668,32 +672,25 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         // just compare against enitre login objects becuase we can't be certain
         // if we are just on one particular page in a multi-page login sequence)
         for (var i = 0; i < passwordFields.length; i++)
-        {//KFLog.debug("testi:"+i);
+        {
             var passField = passwordFields[i];
-           // KFLog.debug("testi:"+passField);
-           // KFLog.debug("testi:"+passField.DOMInputElement);
+            //KFLog.debug("testi:"+passField.DOMInputElement);
             if (passField.DOMInputElement != null)
-            //passField.DOMInputElement.onchange="alert('1');";
-                //passField.DOMInputElement.onchange="var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);";
-                passField.DOMInputElement.setAttribute("onchange","keefox_org.Logger.debug('dsfasdfsdf'); var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+            {
+                passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+            }
         }
         
         for (var i = 0; i < otherFields.length; i++)
-        {//KFLog.debug("testj:"+i);
+        {
             var otherField = otherFields[i];
-         //   KFLog.debug("testi:"+otherField);
-          //  KFLog.debug("testi:"+otherField.DOMInputElement);
+            //KFLog.debug("testi:"+otherField.DOMInputElement);
             if (otherField.DOMInputElement != null)
-            //otherField.DOMInputElement.text = "yyyyyyyy";
-            //otherField.DOMInputElement.onchange="alert('2');";
-                //otherField.DOMInputElement.onchange="var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);";
-                otherField.DOMInputElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+                otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
             else if (otherField.DOMSelectElement != null)
-            //otherField.DOMInputElement.onchange="alert('3');";
-                //otherField.DOMSelectElement.onchange="var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);";
-                otherField.DOMSelectElement.setAttribute("onchange","var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt);");
+                otherField.DOMSelectElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
         }
-    }
+    }                
     
     // if we know we are only interested in filling one specific uniqueID or that
     // we have knowledge of whether we want to autofill when the next page is

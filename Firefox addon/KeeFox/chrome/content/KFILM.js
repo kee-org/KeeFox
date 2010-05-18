@@ -223,7 +223,12 @@ KFILM.prototype = {
                 }
             } catch (e)
             {
-                KFLog.error("Caught error in onFormSubmit: " + e);
+                try
+                {
+                    KFLog.error("Caught error in onFormSubmit: " + e);
+                }
+                catch (ex)
+                {}
             }
 
             return true; // Always return true, or form submit will be cancelled.
@@ -268,6 +273,9 @@ KFILM.prototype = {
         onStateChange : function (aWebProgress, aRequest,
                                   aStateFlags,  aStatus)
         {
+            // none of this is allowed to throw exceptions up the stack to the rest of Firefox
+            try
+            {
             // STATE_START is too early, doc is still the old page.
             if (!(aStateFlags & Ci.nsIWebProgressListener.STATE_TRANSFERRING))
                 return;
@@ -411,7 +419,11 @@ KFILM.prototype = {
             if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                 this._pwmgr._refillTimer.init(this._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
             
-            KFLog.debug("onStateChange: end");                
+            KFLog.debug("onStateChange: end");   
+            } catch (ex)
+            {
+                // not gonna risk even logging anything here until I have more time to be sure it can't cause further problems.
+            }             
             return;
         },
         
@@ -430,8 +442,12 @@ KFILM.prototype = {
             // only process things aimed at our window
             if (mainWindow != this._pwmgr._currentWindow)
                 return;
+            
+            if (KFLog.logSensitiveData)    
+                KFLog.debug("Location changed: " + aURI.spec);
+            else
+                KFLog.debug("Location changed.");
                 
-            KFLog.debug("Location changed: " + aURI.spec);
             // remove all the old logins from the toolbar
             keefox_org.toolbar.removeLogins();
          },
@@ -576,7 +592,6 @@ KFILM.prototype = {
                 && this._isAKnownUsernameString(form.elements[i].name))
                 firstPossibleUsernameIndex = allFields.length-1;
         }
-        KFLog.debug("firstPossibleUsernameIndex: "+ firstPossibleUsernameIndex );
         
         // work out which DOM form element is most likely to be the username field
         if (firstPossibleUsernameIndex != -1)
