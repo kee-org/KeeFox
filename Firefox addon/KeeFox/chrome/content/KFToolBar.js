@@ -732,12 +732,18 @@ KFToolbar.prototype = {
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);
         var newPassword = this._currentWindow.keeFoxInst.generatePassword();
-        
-        const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
-        getService(Components.interfaces.nsIClipboardHelper);
-        gClipboardHelper.copyString(newPassword);
-        
-        this._currentWindow.alert("A new password has been copied to your clipboard.");//TODO: replace with a growl if FF supports such a thing
+        if (newPassword.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
+        {
+            this._currentWindow.alert("Please launch KeePass first.");
+        }            
+        else
+        {
+            const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
+            getService(Components.interfaces.nsIClipboardHelper);
+            gClipboardHelper.copyString(newPassword);
+            
+            this._currentWindow.alert("A new password has been copied to your clipboard.");//TODO: replace with a growl if FF supports such a thing
+        }
     }    
 
 };

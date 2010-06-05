@@ -391,10 +391,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.launchGroupEditor = function(uniqueID)
     {
-        /*ASYNC review: always launched in seperate thread anyway so should be zero problems
-        
-        */
-        //var result = this.syncRequest(this, "LaunchGroupEditor", [uniqueID]);
         // fire and forget
         this.request(this, "LaunchGroupEditor", [uniqueID], null, ++this.requestId);
         return;
@@ -402,10 +398,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.launchLoginEditor = function(uniqueID)
     {
-        /*ASYNC review: always launched in seperate thread anyway so should be zero problems
-        
-        */
-        //var result = this.syncRequest(this, "LaunchLoginEditor", [uniqueID]);
         // fire and forget
         this.request(this, "LaunchLoginEditor", [uniqueID], null, ++this.requestId);
         return;
@@ -471,17 +463,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.changeDB = function(fileName, closeCurrent)
     {
-        /*ASYNC review: 
-        KFToolBar.js(588)
-        KF.js(689)
-        MRU list & launch KeePass
-        
-        No issues
-        
-        Doesn't even need a callback - one-way notification is sufficient
-        
-        */
-        //this.syncRequest(this, "ChangeDatabase", [fileName, closeCurrent]);
         // fire and forget
         this.request(this, "ChangeDatabase", [fileName, closeCurrent], null, ++this.requestId);
         return;
@@ -501,13 +482,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.addLogin = function(login, parentUUID)
     {
-        /*ASYNC review: KFUI.js(199)
-        initiated from notification bar - no need to keep that open while we send 
-        the login to KeePass (although very lengthy delays could be confusing)
-                
-        */
         var jslogin = login.asEntry();
-        //var result = this.syncRequest(this, "AddLogin", [jslogin, parentUUID]);
         // fire and forget
         this.request(this, "AddLogin", [jslogin, parentUUID], null, ++this.requestId);        
         return;
@@ -620,9 +595,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.getChildGroups = function(uniqueID)
     {
-        /*ASYNC review: 
-        similar situation to getChildEntries
-        */
         var result = this.syncRequest(this, "GetChildGroups", [uniqueID]);
         return result; // an array of groups
     }

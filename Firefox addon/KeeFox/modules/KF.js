@@ -270,6 +270,14 @@ KeeFox.prototype = {
     
     _keeFoxVariableInit : function()//currentKFToolbar, currentWindow)
     {
+        var notWindows = false;
+        
+        if (notWindows)
+        {
+            this._keeFoxStorage.set("KeePassRPCInstalled", true);
+            return;
+        }
+        
         var KeePassEXEfound;
         var KeePassRPCfound;
         
@@ -604,7 +612,20 @@ KeeFox.prototype = {
     
     launchKeePass: function(params)
     {
-        if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
+        var notWindows = false;
+        
+        if (notWindows)
+        {
+            var file = Components.classes["@mozilla.org/file/local;1"]
+                   .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath("mono KeePass.exe");
+
+            var process = Components.classes["@mozilla.org/process/util;1"]
+                          .createInstance(Components.interfaces.nsIProcess);
+            process.init(file);
+            process.run(false, args, args.length);
+            return;
+        } else if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
             return; // TODO: work it out, prompt user or just bomb out with notification why
         }
