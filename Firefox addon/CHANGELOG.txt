@@ -1,5 +1,11 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.77
+----
+- Workaround for probable Firefox bug regarding SSL negotiation callback timing and thread safety
+- Installs KeePass 2.12 by default (doesn't upgrade existing KeePass 2.x installations)
+- NTLM dialog autofill support - http://sourceforge.net/apps/phpbb/keefox/viewtopic.php?f=1&t=50 (thanks to aheisner!)
+
 0.76
 ----
 - KeePassRPC replaces KeeICE

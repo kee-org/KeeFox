@@ -28,30 +28,46 @@
 var keefox_org = {};
 
 keefox_org.shouldLoad = true;
-keefox_org.StartupTestApplication = Components.classes["@mozilla.org/fuel/application;1"]
-                .getService(Components.interfaces.fuelIApplication);
-                
-if (keefox_org.StartupTestApplication.extensions.has("chris.tomlinson@keefox"))
-{
-    // uninstall the old version of KeeFox (never published on AMO)
-    var em = Components.classes["@mozilla.org/extensions/manager;1"]  
-        .getService(Components.interfaces.nsIExtensionManager);  
-    em.uninstallItem("chris.tomlinson@keefox");
-    
-//    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                   .getService(Components.interfaces.nsIWindowMediator);
-//    var window = wm.getMostRecentWindow("navigator:browser");
 
-    // get a reference to the prompt service component.
-    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                .getService(Components.interfaces.nsIPromptService);
-   promptService.alert(null,"KeeFox upgrade", "An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work!");
-//window.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
-   keefox_org.shouldLoad = false;
+//StartupTestApplication stuff can be skipped for Firefox > 3.6 becuase
+// the old version was never published as compatible for newer versions
+
+// assuming we're running under Firefox
+keefox_org.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                        .getService(Components.interfaces.nsIXULAppInfo);
+keefox_org.versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                               .getService(Components.interfaces.nsIVersionComparator);
+                               
+if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") >= 0)
+{
+    // running under Firefox 3.7 (4) or later
+
+    keefox_org.StartupTestApplication = Components.classes["@mozilla.org/fuel/application;1"]
+                    .getService(Components.interfaces.fuelIApplication);
+                    
+    if (keefox_org.StartupTestApplication.extensions.has("chris.tomlinson@keefox"))
+    {
+        // uninstall the old version of KeeFox (never published on AMO)
+        keefox_org.em = Components.classes["@mozilla.org/extensions/manager;1"]  
+            .getService(Components.interfaces.nsIExtensionManager);  
+        keefox_org.em.uninstallItem("chris.tomlinson@keefox");
+        
+    //    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+    //                   .getService(Components.interfaces.nsIWindowMediator);
+    //    var window = wm.getMostRecentWindow("navigator:browser");
+
+        // get a reference to the prompt service component.
+        keefox_org.promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                    .getService(Components.interfaces.nsIPromptService);
+       keefox_org.promptService.alert(null,"KeeFox upgrade", "An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work!");
+    //window.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
+       keefox_org.shouldLoad = false;
+    }
 }
 
 // also prevent startup if this version is too old        
-if ((new Date()).getMonth() > 7 || (new Date()).getFullYear > 2010)
+//if (((new Date()).getMonth() > 6 && (new Date()).getFullYear == 2011) || (new Date()).getFullYear > 2011)
+if ((new Date()).getMonth() > 9 || (new Date()).getFullYear > 2010)
     keefox_org.shouldLoad = false;
 
 

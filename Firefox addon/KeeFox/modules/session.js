@@ -38,7 +38,7 @@ function session()
 {
     this.transport = null;
     this.reconnectionAttemptFrequency = 10000;
-    this.port = 12537;
+    this.port = 12536;
     this.address = "127.0.0.1";
     this.connectionTimeout = 10000; // short timeout for connections
     this.activityTimeout = 3600000; // long timeout for activity
@@ -53,32 +53,6 @@ session.prototype =
     reconnectTimer: null,
     certFailedReconnectTimer: null,
     onConnectDelayTimer: null,
-    onConnectDelayTimerAction: function()
-    {    
-     log.debug("onConnectDelayTimerAction started");
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
-            //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
-            var rpc = window.keeFoxInst.KeePassRPC;
-            
-        if (rpc.transport == undefined || rpc.transport == null)
-        {
-            log.error("Transport invalid!");    
-        } else if (rpc.transport != null && rpc.transport.isAlive())
-        {
-        log.debug("onConnectDelayTimerAction connected");
-            rpc.onConnect();
-        }
-           //  else handle stream errors without risking double reaction to legitimate disconnection
-        else
-        {
-            window.keeFoxInst._pauseKeeFox();
-            rpc.disconnect(); // tidy up so future connection attempts can succeed
-            log.error("Connection attempt failed. Is The KeePassRPC server running?");
-        }
-        log.debug("onConnectDelayTimerAction ended");
-    },
     
     reconnectSoon: function()
     {
@@ -120,10 +94,11 @@ session.prototype =
             var transportService =
                 Components.classes["@mozilla.org/network/socket-transport-service;1"].
                 getService(Components.interfaces.nsISocketTransportService);
-            //var transport = transportService.createTransport(["ssl"], 1, this.address, this.port, null);
-            var transport = transportService.createTransport(["tcp"], 1, this.address, this.port, null);
+            var transport = transportService.createTransport(["ssl"], 1, this.address, this.port, null);
+            //var transport = transportService.createTransport(null, 0, this.address, this.port, null);
             if (!transport) {
                 this.onNotify("connect-failed", "Unable to create transport for "+this.address+":"+this.port); 
+                log.warn("Problem connecting to KeePass: " + "Unable to create transport for "+this.address+":"+this.port);
                 return;
             }
             
@@ -137,6 +112,7 @@ session.prototype =
         } catch(ex)
         {
             this.onNotify("connect-failed", "Unable to connect to "+this.address+":"+this.port+"; Exception occured "+ex);
+            log.warn("Problem connecting to KeePass: " + "Unable to connect to "+this.address+":"+this.port+"; Exception occured "+ex);
             this.disconnect();
         }
         this.connectLock = false;
@@ -180,7 +156,7 @@ session.prototype =
         } catch (ex)
         {
             log.error("setTransport failed: " + ex);
-            this.onNotify("connect-failed", "setTransport failed, Unable to connect; Exception " + ex);            
+            this.onNotify("connect-failed", "setTransport failed, Unable to connect; Exception " + ex);     
             this.disconnect(); 
         }
     },
@@ -223,26 +199,25 @@ session.prototype =
     
     onOutputStreamReady: function()
     {
-    //this.pendingConnection = true;
-    //return;
+        log.debug("onOutputStreamReady started");
     
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
-            //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
-            var rpc = window.keeFoxInst.KeePassRPC;
-            
-        log.debug("Creating an onConnectDelayTimer. " + rpc.transport);
-         // Create a timer 
-         rpc.onConnectDelayTimer = Components.classes["@mozilla.org/timer;1"]
-                    .createInstance(Components.interfaces.nsITimer);
-         log.debug("onConnectDelayTimer instance created");
-         rpc.onConnectDelayTimer.initWithCallback(rpc.onConnectDelayTimerAction,
-            1000,
-            Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO: does the timer stay in scope?
-            log.debug("onConnectDelayTimer ended");
-    },
+        var window = wm.getMostRecentWindow("navigator:browser");
 
+        var rpc = window.keeFoxInst.KeePassRPC;
+            
+        if (rpc.transport == undefined || rpc.transport == null)
+        {
+            log.error("Transport invalid!");    
+        } else
+        {
+            log.debug("onConnectDelayTimerAction connected");
+            rpc.onConnect();
+        }
+        log.debug("onOutputStreamReady ended");
+    },
+    
     onConnect: function()
     {
         try
@@ -253,12 +228,11 @@ session.prototype =
                         .createInstance(Components.interfaces.nsIInputStreamPump);
             this.pump.init(this.raw_istream, -1, -1, 0, 0, false);
             this.pump.asyncRead(this, null);
-            this.onNotify("transport-status-connected", null);
+            //TODO: put in a notify function... this.onNotify("transport-status-connected", null);
         } catch(ex) {
             log.error(ex, "Session::onConnect failed: ");
             this.onNotify("connect-failed", "Unable to connect; Exception occured "+ex);
-            this.disconnect();
-            //this.reconnectSoon();  
+            this.disconnect(); 
         }
     },
     

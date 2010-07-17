@@ -36,6 +36,7 @@ Components.utils.import("resource://kfmod/KFLogger.js");
 var Application = Components.classes["@mozilla.org/fuel/application;1"]
                 .getService(Components.interfaces.fuelIApplication);
 
+//TODO: need to make the entire module asyncronous so that the new FUEL extension system in FF4 actually works?!
 // constructor
 function KeeFox()
 {
@@ -534,15 +535,21 @@ KeeFox.prototype = {
 
         while (enumerator.hasMoreElements())
         {
-            var win = enumerator.getNext();
-            win.keefox_org.toolbar.removeLogins(); // remove matched logins           
-            win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
-            //win.keefox_org.toolbar.setupButton_loadKeePass(win);
-            win.keefox_org.toolbar.setupButton_ready(win);
-            win.keefox_org.UI._removeOLDKFNotifications(true);
-            win.removeEventListener("TabSelect", this._onTabSelected, false);
-            win.removeEventListener("TabOpen", this._onTabOpened, false);
-            //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
+            try
+            {
+                var win = enumerator.getNext();
+                win.keefox_org.toolbar.removeLogins(); // remove matched logins           
+                win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
+                //win.keefox_org.toolbar.setupButton_loadKeePass(win);
+                win.keefox_org.toolbar.setupButton_ready(win);
+                win.keefox_org.UI._removeOLDKFNotifications(true);
+                win.removeEventListener("TabSelect", this._onTabSelected, false);
+                win.removeEventListener("TabOpen", this._onTabOpened, false);
+                //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
+            } catch (exception)
+            {
+                this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
+            }
         }
         this.KeePassRPC.disconnect();
         this._KFLog.info("KeeFox paused.");
@@ -581,17 +588,23 @@ KeeFox.prototype = {
 
         while (enumerator.hasMoreElements())
         {
-            var win = enumerator.getNext();
-            win.keefox_org.toolbar.removeLogins();
-            win.keefox_org.toolbar.setAllLogins();
-            win.keefox_org.toolbar.setupButton_ready(win);
-            win.keefox_org.UI._removeOLDKFNotifications();
-            win.addEventListener("TabSelect", this._onTabSelected, false);
-            win.addEventListener("TabOpen", this._onTabOpened, false);
-
-            if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
+            try
             {
-                win.keefox_org.ILM._fillDocument(win.content.document,false);
+                var win = enumerator.getNext();
+                win.keefox_org.toolbar.removeLogins();
+                win.keefox_org.toolbar.setAllLogins();
+                win.keefox_org.toolbar.setupButton_ready(win);
+                win.keefox_org.UI._removeOLDKFNotifications();
+                win.addEventListener("TabSelect", this._onTabSelected, false);
+                win.addEventListener("TabOpen", this._onTabOpened, false);
+
+                if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
+                {
+                    win.keefox_org.ILM._fillDocument(win.content.document,false);
+                }
+            } catch (exception)
+            {
+                this._KFLog.warn("Could not refresh KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
             }
         }
         
@@ -720,6 +733,19 @@ KeeFox.prototype = {
         installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeePassRPCInstalled", false);
+    },
+    
+    _authenticate: function()
+    {
+        try
+        {
+            this.KeePassRPC.onNotify("transport-status-connected");              
+            return;
+        } catch (e)
+        {
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
+            throw e;
+        }
     },
     
     /*******************************************
@@ -1166,6 +1192,7 @@ KeeFox.prototype = {
             // deprecated case "0": keeFoxInst._KFLog.info("Javascript callbacks from KeeFox XPCOM DLL are now disabled."); keeFoxInst._pauseKeeFox(); break;
             // deprecated case "1": keeFoxInst._KFLog.info("Javascript callbacks from KeeFox XPCOM DLL are now enabled."); break;
             // deprecated case "2": keeFoxInst._KFLog.info("KeeICE callbacks from KeePass to KeeFox XPCOM are now enabled."); break;
+            case "0": keeFoxInst._KFLog.info("KeePassRPC is requesting authentication."); keeFoxInst._authenticate(); break;
             case "3": keeFoxInst._KFLog.info("KeePass' currently active DB is about to be opened."); break;
             case "4": keeFoxInst._KFLog.info("KeePass' currently active DB has just been opened.");
                 refresh = true;

@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,7,6];
+    this.clientVersion = [0,7,7];
     //this.syncFixupTimer = null;
 }
 
@@ -129,11 +129,17 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 { //TODO: handle error codes better
-                    window.keeFoxInst.KFLog.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result);
+                    window.keefox_org.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result);
                     window.keeFoxInst._pauseKeeFox();
                 } 
                 //TODO: set confirmation that the connection is established and authenticated?
             }, this.requestId);
+        } else if (topic == "connect-failed")
+        {
+            //var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+            //         .getService(Components.interfaces.nsIWindowMediator);
+            //var window = wm.getMostRecentWindow("navigator:browser");
+            //window.keeFoxInst.KFLog.warn("Problem connecting to KeePass: " + message);
         }
     }
 
@@ -200,20 +206,20 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     } catch (e)
                     {
                         delete this.callbacks[obj.id];
-                        log.warn("An error occurred when processing the callback for JSON-RPC object id " + obj.id + ": " + e);
+                        log.warn("An error occurred when processing the result callback for JSON-RPC object id " + obj.id + ": " + e);
                     }
                 } else if ("error" in obj)
                 {
                     try
                     {
-                        log.error("An error occurred in KeePassRPC object id: " + obj.id + " with this message: " + obj.message);
+                        log.error("An error occurred in KeePassRPC object id: " + obj.id + " with this message: " + obj.message + " and this error: " + obj.error + " and this error message: " + obj.error.message);
                         if (this.callbacks[obj.id] != null)
                             this.callbacks[obj.id](obj);
                         delete this.callbacks[obj.id];
                     } catch (e)
                     {
                         delete this.callbacks[obj.id];
-                        log.warn("An error occurred when processing the callback for JSON-RPC object id " + obj.id + ": " + e);
+                        log.warn("An error occurred when processing the error callback for JSON-RPC object id " + obj.id + ": " + e);
                     }
                 } else if ("method" in obj)
                 {
@@ -610,6 +616,19 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return result; // a string
     }
     
+    /*
+    
+    maybe a standard timeout could be put in place for some functions so if their async response comes back after some recorded deadline we can ignore it.
+    
+    
+    
+    DEBUG: setupButton_ready start
+DEBUG: Preparing a synchronous request to the JSON-RPC server.
+DEBUG: Sending a JSON-RPC request
+DEBUG: Waiting for the synchronous request to the JSON-RPC server to end.
+    
+    
+    */
     
 
 

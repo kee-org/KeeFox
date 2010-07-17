@@ -149,9 +149,9 @@ namespace KeePassRPC.DataExchangeModel
     public enum Signal
     {
         /// <summary>
-        /// deprecated?
+        /// 
         /// </summary>
-        JSCALLBACKS_DISABLED = 0,
+        PLEASE_AUTHENTICATE = 0,
         /// <summary>
         /// deprecated?
         /// </summary>

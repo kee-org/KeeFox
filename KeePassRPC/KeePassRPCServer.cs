@@ -58,6 +58,7 @@ namespace KeePassRPC
         private static X509Certificate2 _serverCertificate = null;
         private X509Store _store;
         KeePassRPCExt KeePassRPCPlugin;
+        private bool _useSSL = true;
         
 
         /// <summary>
@@ -85,47 +86,51 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="port">port to listen on</param>
         /// <param name="service">The KeePassRPCService the server should interact with.</param>
-        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin)
+        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin, bool useSSL)
         {
+            _useSSL = useSSL;
             //MessageBox.Show("dfsgdfsg0");
             Service = service;
             KeePassRPCPlugin = keePassRPCPlugin;
 
-            _store = new X509Store();
-            _store.Open(OpenFlags.ReadWrite);
-
-            // Find any certificates in this user's certificate store and re-use
-            // them rather than suffer the overhead of creating an entirly new
-            // certificate. Our certificates are considered "invalid" by the
-            // store (probably becuase they are self-signed)
-            X509Certificate2Collection matchingCertificates = _store.Certificates
-                .Find(X509FindType.FindBySubjectDistinguishedName,
-                    "CN=KeePassRPC certificate for " + Environment.MachineName, false);
-
-            //foreach (X509Certificate2 temp in matchingCertificates)
-            //    _store.Remove(temp);
-
-            //matchingCertificates = _store.Certificates
-            //    .Find(X509FindType.FindBySubjectDistinguishedName,
-            //        "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
-
-            //MessageBox.Show("dfsgdfsgaaaaaa: " + matchingCertificates.Count);
-            if (matchingCertificates.Count > 0)
-                _serverCertificate = matchingCertificates[0];
-            else
+            if (_useSSL)
             {
-                //_serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\test.p12");
-                
-                
-                // We can use the MakeCert feature from Mono to generate a new
-                // certificate for use by this user on this machine. This means
-                // that every KeePassRPC user will establish TLS connections
-                // that are protected by a private key held on their own
-                // system, rather than a key that is disclosed in this open
-                // source code. NB: The local server is assumed to be secure!
-                byte[] cert = MakeCert.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator");
-                _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
-                _store.Add(_serverCertificate);
+                _store = new X509Store();
+                _store.Open(OpenFlags.ReadWrite);
+
+                // Find any certificates in this user's certificate store and re-use
+                // them rather than suffer the overhead of creating an entirly new
+                // certificate. Our certificates are considered "invalid" by the
+                // store (probably becuase they are self-signed)
+                X509Certificate2Collection matchingCertificates = _store.Certificates
+                    .Find(X509FindType.FindBySubjectDistinguishedName,
+                        "CN=KeePassRPC certificate for " + Environment.MachineName, false);
+
+                //foreach (X509Certificate2 temp in matchingCertificates)
+                //    _store.Remove(temp);
+
+                //matchingCertificates = _store.Certificates
+                //    .Find(X509FindType.FindBySubjectDistinguishedName,
+                //        "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
+
+                //MessageBox.Show("dfsgdfsgaaaaaa: " + matchingCertificates.Count);
+                if (matchingCertificates.Count > 0)
+                    _serverCertificate = matchingCertificates[0];
+                else
+                {
+                    //_serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\test.p12");
+
+
+                    // We can use the MakeCert feature from Mono to generate a new
+                    // certificate for use by this user on this machine. This means
+                    // that every KeePassRPC user will establish TLS connections
+                    // that are protected by a private key held on their own
+                    // system, rather than a key that is disclosed in this open
+                    // source code. NB: The local server is assumed to be secure!
+                    byte[] cert = MakeCert.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator");
+                    _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
+                    _store.Add(_serverCertificate);
+                }
             }
            // MessageBox.Show("dfsgdfsgaaaaaa:" + _serverCertificate.HasPrivateKey);
 
@@ -186,53 +191,10 @@ namespace KeePassRPC
             }
 
             //Close the certificate store.
-            _store.Close();
+            if (_useSSL)
+                _store.Close();
            // MessageBox.Show("store closed");
         }
-
-    //    // The following method is invoked by the RemoteCertificateValidationDelegate.
-    //    public static bool ValidateServerCertificate(
-    //          object sender,
-    //          X509Certificate certificate,
-    //          X509Chain chain,
-    //          SslPolicyErrors sslPolicyErrors)
-    //    {
-    //        if (sslPolicyErrors == SslPolicyErrors.None)
-    //            return true;
-
-    //        Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
-
-    //        // Do not allow this client to communicate with unauthenticated servers.
-    //        return false;
-    //    }
-
-    //    public static X509Certificate SelectLocalCertificate(
-    //object sender,
-    //string targetHost,
-    //X509CertificateCollection localCertificates,
-    //X509Certificate remoteCertificate,
-    //string[] acceptableIssuers)
-    //    {
-    //        Console.WriteLine("Client is selecting a local certificate.");
-    //        if (acceptableIssuers != null &&
-    //            acceptableIssuers.Length > 0 &&
-    //            localCertificates != null &&
-    //            localCertificates.Count > 0)
-    //        {
-    //            // Use the first certificate that is from an acceptable issuer.
-    //            foreach (X509Certificate certificate in localCertificates)
-    //            {
-    //                string issuer = certificate.Issuer;
-    //                if (Array.IndexOf(acceptableIssuers, issuer) != -1)
-    //                    return certificate;
-    //            }
-    //        }
-    //        if (localCertificates != null &&
-    //            localCertificates.Count > 0)
-    //            return localCertificates[0];
-
-    //        return null;
-    //    }
 
         /// <summary>
         /// Handles the client communication
@@ -241,27 +203,42 @@ namespace KeePassRPC
         private void HandleClientComm(object client)
         {
             KeePassRPCClientConnection keePassRPCClient = null;
+            TcpClient tcpClient = null;
+            NetworkStream clientStream = null;
+            SslStream sslStream = null;
 
-            // TODO: (optionaly) support unencrypted connections in future?
-            //TcpClient tcpClient = (TcpClient)client;
-            //NetworkStream clientStream = tcpClient.GetStream();
+            if (_useSSL)
+            {                
+                // A client has connected. Create the 
+                // SslStream using the client's network stream.
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                sslStream = new SslStream(((TcpClient)client).GetStream(), false);//, new RemoteCertificateValidationCallback (ValidateServerCertificate), 
+                //    new LocalCertificateSelectionCallback(SelectLocalCertificate)
+                //  );
+            } else
+            {
+                tcpClient = (TcpClient)client;
+                clientStream = tcpClient.GetStream();
+            }
 
-            // A client has connected. Create the 
-            // SslStream using the client's network stream.
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            SslStream sslStream = new SslStream(((TcpClient)client).GetStream(), false);//, new RemoteCertificateValidationCallback (ValidateServerCertificate), 
-//    new LocalCertificateSelectionCallback(SelectLocalCertificate)
-  //  );
            // MessageBox.Show("stream ready to be authenticated");
             try
             {
-                // Authenticate the server but don't require the client to
-                // authenticate - we've got our own authentication requirements
-                sslStream.AuthenticateAsServer(
-                    _serverCertificate, false, SslProtocols.Ssl3, false);
-               // MessageBox.Show("stream authenticated");
-                sslStream.ReadTimeout = -1;
-                sslStream.WriteTimeout = -1;
+                if (_useSSL)
+                {
+                    // Authenticate the server but don't require the client to
+                    // authenticate - we've got our own authentication requirements
+                    sslStream.AuthenticateAsServer(
+                        _serverCertificate, false, SslProtocols.Ssl3, false);
+                    // MessageBox.Show("stream authenticated");
+                    sslStream.ReadTimeout = -1;
+                    sslStream.WriteTimeout = -1;
+                }
+                else
+                {
+                    clientStream.ReadTimeout = -1;
+                    clientStream.WriteTimeout = -1;
+                }
 
                 byte[] message = new byte[4096];
                 int bytesRead;
@@ -273,8 +250,11 @@ namespace KeePassRPC
                 // successfully authenticates.
                 //TODO: Need to find a way to set the name of this client based
                 // on output of the authentication system
-                keePassRPCClient = new KeePassRPCClientConnection(sslStream, false);
+                keePassRPCClient = _useSSL ? new KeePassRPCClientConnection(sslStream, false) : new KeePassRPCClientConnection(tcpClient, false);
                 KeePassRPCPlugin.AddRPCClientConnection(keePassRPCClient);
+
+                // send an "invitation to authenticate" to the new RPC client
+                keePassRPCClient.Signal(KeePassRPC.DataExchangeModel.Signal.PLEASE_AUTHENTICATE, "callBackToKeeFoxJS"); //TODO: use the Manager class instead
 
                 int tokenCurlyCount = 0;
                 int tokenSquareCount = 0;
@@ -290,7 +270,7 @@ namespace KeePassRPC
                     try
                     {
                         //blocks until a client sends a message
-                        bytesRead = sslStream.Read(message, 0, 4096);
+                        bytesRead = _useSSL ? sslStream.Read(message, 0, 4096) : clientStream.Read(message, 0, 4096);
                     }
                     catch (Exception ex)
                     {
@@ -381,7 +361,10 @@ namespace KeePassRPC
                 {
                     KeePassRPCPlugin.RemoveRPCClientConnection(keePassRPCClient);
                 }
-                sslStream.Close();
+                if (_useSSL)
+                    sslStream.Close();
+                else
+                    clientStream.Close();
             }
         }
 

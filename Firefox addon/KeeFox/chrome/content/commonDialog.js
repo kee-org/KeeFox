@@ -148,6 +148,22 @@ var keeFoxDialogManager = {
                 }
             }
             
+            // check for NTLM auth dialog
+            if (host.length < 1) 
+            {
+                // e.g. en-US:
+			    // Enter username and password for %1$S
+			    var currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
+
+                currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
+                var regEx = new RegExp(currentProxyL10nPattern);
+
+                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                if (matches !== null && typeof matches[1] !== "undefined")  {
+                        host = matches[1];
+                }
+            }
+            
             if (host.length < 1)
                 return;
                 

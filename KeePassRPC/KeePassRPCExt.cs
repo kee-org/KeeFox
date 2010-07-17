@@ -52,7 +52,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,7,6);
+        public static readonly Version PluginVersion = new Version(0,7,7);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -108,6 +108,29 @@ namespace KeePassRPC
             return KeePassRPCport;
         }
 
+        private bool FindKeePassRPCSSLEnabled(IPluginHost host)
+        {
+            bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
+            bool sslEnabled = host.CustomConfig.GetBool("KeePassRPC.connection.SSLEnabled", true);
+            
+            if (allowCommandLineOverride)
+            {
+                string SSLEnabledStr = host.CommandLineArgs["SSLEnabled"];
+                if (SSLEnabledStr != null)
+                {
+                    try
+                    {
+                        sslEnabled = bool.Parse(SSLEnabledStr);
+                    }
+                    catch
+                    {
+                        // just stick with what we had already decided
+                    }
+                }
+            }
+            return sslEnabled;
+        }
+
 		/// <summary>
 		/// The <c>Initialize</c> function is called by KeePass when
 		/// you should initialize your plugin (create menu items, etc.).
@@ -128,7 +151,7 @@ namespace KeePassRPC
 
             _RPCService = new KeePassRPCService(host, 
                 getStandardIconsBase64(host.MainWindow.ClientIcons), this);
-            _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService, this);
+            _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService, this, FindKeePassRPCSSLEnabled(host));
 
             // register to recieve events that we need to deal with
 
@@ -190,7 +213,7 @@ namespace KeePassRPC
 
 		void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
 		{
-            return; // not in 0.76
+            return; // not in 0.8 (soon after hopefully...)
 
 			PwEntryForm ef = e.Form as PwEntryForm;
             if (ef != null)
@@ -252,21 +275,23 @@ namespace KeePassRPC
             PwEntryForm form = sender as PwEntryForm;
             PwEntry entry = null;
             TabControl mainTabControl = null;
+            CustomListViewEx advancedListView = null;
 
-            //This might not work, especially in .NET 2.0 RTM, a shame but more
-            //up to date users might as well use the feature if possible.
+            //This might not work, but might as well use the feature if possible.
             try
             {
                 // reflection doesn't seem to be needed for 2.10 and above
-                //TODO: test KeePass version and fall back to reflection attempt if it's 2.09
-                //FieldInfo fi = typeof(GroupForm).GetField("m_pwGroup", BindingFlags.NonPublic | BindingFlags.Instance);
-                //group = (PwGroup)fi.GetValue(form);
                 entry = form.EntryRef;
 
                 Control[] cs = form.Controls.Find("m_tabMain", true);
                 if (cs.Length == 0)
                     return;
                 mainTabControl = cs[0] as TabControl;
+
+                Control[] cs2 = form.Controls.Find("m_lvStrings", true);
+                if (cs2.Length == 0)
+                    return;
+                advancedListView = cs2[0] as CustomListViewEx;
             }
             catch
             {
@@ -277,7 +302,7 @@ namespace KeePassRPC
             if (entry == null)
                 return;
 
-            KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(this, entry);
+            KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(this, entry, advancedListView);
             TabPage keefoxTabPage = new TabPage("KeeFox");
             entryControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(entryControl);
