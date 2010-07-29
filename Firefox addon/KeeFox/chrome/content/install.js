@@ -982,6 +982,8 @@ function checkDotNetFramework(mainWindow)
 // useless... might as well at least try it though
 function copyKeePassRPCFilesTo(keePassLocation)
 {
+    var removeExistingPluginFailed = true;
+    removeExistingPluginFailed = false;
     var destFolder = Components.classes["@mozilla.org/file/local;1"]
     .createInstance(Components.interfaces.nsILocalFile);
     destFolder.initWithPath(keePassLocation);
@@ -1002,7 +1004,11 @@ function copyKeePassRPCFilesTo(keePassLocation)
         KeePassRPCfile.initWithPath(mainWindow.keeFoxInst._myDepsDir());
         KeePassRPCfile.append("KeePassRPC.plgx");
         if (destFileKeePassRPC.exists())
+        {
+            removeExistingPluginFailed = true;
             destFileKeePassRPC.remove(false);
+            removeExistingPluginFailed = false;
+        }
         KeePassRPCfile.copyTo(destFolder,"");
     } catch (ex)
     {
@@ -1025,7 +1031,7 @@ function copyKeePassRPCFilesTo(keePassLocation)
     // if we can't find KeePassRPC, it was probably not copied because of
     // a permissions fault so lets try a fully escalated executable
     // to get it put into place
-    if (!KeePassRPCfound)
+    if (!KeePassRPCfound || removeExistingPluginFailed)
     {
         mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
         runKeePassRPCExecutableInstaller(keePassLocation);

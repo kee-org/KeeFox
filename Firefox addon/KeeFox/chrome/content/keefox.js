@@ -38,9 +38,9 @@ keefox_org.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
 keefox_org.versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
                                .getService(Components.interfaces.nsIVersionComparator);
                                
-if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") >= 0)
+if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0)
 {
-    // running under Firefox 3.7 (4) or later
+    // running under Firefox 3.7 (4) or earlier
 
     keefox_org.StartupTestApplication = Components.classes["@mozilla.org/fuel/application;1"]
                     .getService(Components.interfaces.fuelIApplication);
@@ -66,8 +66,8 @@ if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") >= 0)
 }
 
 // also prevent startup if this version is too old        
-//if (((new Date()).getMonth() > 6 && (new Date()).getFullYear == 2011) || (new Date()).getFullYear > 2011)
-if ((new Date()).getMonth() > 9 || (new Date()).getFullYear > 2010)
+if (((new Date()).getMonth() > 6 && (new Date()).getFullYear == 2011) || (new Date()).getFullYear > 2011)
+//if ((new Date()).getMonth() > 9 || (new Date()).getFullYear > 2010)
     keefox_org.shouldLoad = false;
 
 

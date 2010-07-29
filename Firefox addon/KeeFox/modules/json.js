@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,7,7];
+    this.clientVersion = [0,8,0];
     //this.syncFixupTimer = null;
 }
 
@@ -129,7 +129,14 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 { //TODO: handle error codes better
-                    window.keefox_org.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result);
+                    if (resultWrapper.result == 3) // version mismatch
+                    {
+                        window.keefox_org.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
+                        window.keeFoxInst._launchInstaller(null,null,true);
+                    } else
+                    {
+                        window.keefox_org.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result);
+                    }
                     window.keeFoxInst._pauseKeeFox();
                 } 
                 //TODO: set confirmation that the connection is established and authenticated?

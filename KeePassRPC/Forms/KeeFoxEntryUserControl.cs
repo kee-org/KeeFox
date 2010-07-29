@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using KeePassLib;
 using KeePassLib.Security;
 using KeePass.UI;
+using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC.Forms
 {
@@ -19,6 +20,8 @@ namespace KeePassRPC.Forms
         private PwEntry _entry;
         KeePassRPCExt KeePassRPCPlugin;
         CustomListViewEx _advancedListView;
+
+        List<FormField> fields = new List<FormField>(); 
 
         public KeeFoxEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry, CustomListViewEx advancedListView)
         {
@@ -90,17 +93,27 @@ namespace KeePassRPC.Forms
             bool kfNeverAutoSubmit = false;
             bool kfAlwaysAutoSubmit = false;
 
-
             foreach (ListViewItem existingLi in _advancedListView.Items)
             {
-                switch (existingLi.Text)
+                if (existingLi.Text == "Hide from KeeFox") { checkBoxHideFromKeeFox.Checked = true; }
+                else if (existingLi.Text == "KeeFox Never Auto Fill") { kfNeverAutoFill = true; }
+                else if (existingLi.Text == "KeeFox Always Auto Fill") { kfAlwaysAutoFill = true; }
+                else if (existingLi.Text == "KeeFox Never Auto Submit") { kfNeverAutoSubmit = true; }
+                else if (existingLi.Text == "KeeFox Always Auto Submit") { kfAlwaysAutoSubmit = true; }
+                else if (existingLi.Text.StartsWith("Form field "))
                 {
-                    case "Hide from KeeFox": checkBoxHideFromKeeFox.Checked = true; break;
-                    case "KeeFox Never Auto Fill": kfNeverAutoFill = true; break;
-                    case "KeeFox Always Auto Fill": kfAlwaysAutoFill = true; break;
-                    case "KeeFox Never Auto Submit": kfNeverAutoSubmit = true; break;
-                    case "KeeFox Always Auto Submit": kfAlwaysAutoSubmit = true; break;
-                    default: break;
+                    // extract name
+                    string name = "the name";
+
+                    string value = "the value";
+
+                    FormFieldType fft = FormFieldType.FFTusername;
+
+                    string id = "the id";
+
+                    int page = 1;
+
+                    fields.Add(new FormField(name, name, value, fft, id, page));
                 }
 
                 

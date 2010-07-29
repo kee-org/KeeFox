@@ -77,9 +77,9 @@ function KeeFox()
     //TODO: set some/all of my tab session state to be persistent so it survives crashes/restores?
     
     this.lastKeePassRPCRefresh = 0;
-    KFLog.debug("test1111");
+    //KFLog.debug("test1111");
     this._keeFoxBrowserStartup();
-    KFLog.debug("test1112");
+    //KFLog.debug("test1112");
 }
 
 KeeFox.prototype = {
@@ -142,29 +142,6 @@ KeeFox.prototype = {
     // take if certain extensions cause problems in future
     _checkForConflictingExtensions: function()
     {
-        // {22119944-ED35-4ab1-910B-E619EA06A115} - roboform
-//        if (Application.extensions.has("chris.tomlinson@keefox"))
-//        {
-//            // uninstall the old version of KeeFox (never published on AMO)
-//            var em = Components.classes["@mozilla.org/extensions/manager;1"]  
-//                .getService(Components.interfaces.nsIExtensionManager);  
-//            em.uninstallItem("chris.tomlinson@keefox");
-//            
-//            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                           .getService(Components.interfaces.nsIWindowMediator);
-//            var window = wm.getMostRecentWindow("navigator:browser");
-
-//            // get a reference to the prompt service component.
-//            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-//                        .getService(Components.interfaces.nsIPromptService);
-//           promptService.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
-//           return false;
-//        }
-        
-        // also prevent startup if this version is too old        
-//        if ((new Date()).getMonth() > 6 || (new Date()).getFullYear > 2010)
-//            return false;
-            
         return true;
     },
 
@@ -238,38 +215,8 @@ KeeFox.prototype = {
         
         this._KFLog.info("KeeFox initialised OK although the connection to KeePass may not be established just yet...");            
     },
-    
-//    _keeFoxInitialToolBarSetup : function (currentKFToolbar, currentWindow)
-//    {    
-//        // set toolbar
-//        if (this._keeFoxStorage.get("KeePassRPCActive", false))
-//        {
-//            var dbName = this.getDatabaseName();
-//            
-//            if (dbName == "")
-//            {
-//                this._KFLog.info("Everything has started correctly but no database has been opened yet.");
-//                this._keeFoxStorage.set("KeePassDatabaseOpen", false);
-//            } else
-//            {
-//                if (this._KFLog.logSensitiveData)
-//                    this._KFLog.info("Everything has started correctly and the '" + dbName + "' database has been opened.");
-//                else
-//                    this._KFLog.info("Everything has started correctly and a database has been opened.");
-//                    this._keeFoxStorage.set("KeePassDatabaseOpen", true);
-//            }
-//            currentKFToolbar.setupButton_ready(currentWindow);
-//            currentKFToolbar.setAllLogins();
-//            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
-//        } else if (this._keeFoxStorage.get("KeePassRPCInstalled", false))
-//        {
-//            // update toolbar etc to say "launch KeePass"
-//            currentKFToolbar.setupButton_ready(currentWindow);
-//            currentKFToolbar.setAllLogins();
-//        }
-//    },
-    
-    _keeFoxVariableInit : function()//currentKFToolbar, currentWindow)
+        
+    _keeFoxVariableInit : function()
     {
         var notWindows = false;
         
