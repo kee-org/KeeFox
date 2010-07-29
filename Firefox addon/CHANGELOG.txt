@@ -1,5 +1,11 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8
+---
+
+- A couple of little installer bug fixes that aren't likely be an issue until later builds
+- Otherwise just a rebadged 0.77
+
 0.77
 ----
 - Workaround for probable Firefox bug regarding SSL negotiation callback timing and thread safety
