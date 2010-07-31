@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,0];
+    this.clientVersion = [0,8,1];
     //this.syncFixupTimer = null;
 }
 
@@ -354,21 +354,34 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error(resultWrapper.error);    
         }, myRequestId);
         
+        var startTime = Date.now();
+        
         if (log.logSensitiveData)
-            log.debug("Waiting for the synchronous request to the JSON-RPC server to end:" + method + ":" + params);
+            log.debug("Waiting for the synchronous request (at " + startTime + ") to the JSON-RPC server to end:" + method + ":" + params);
         else
-            log.debug("Waiting for the synchronous request to the JSON-RPC server to end.");
+            log.debug("Waiting for the synchronous request (at " + startTime + ") to the JSON-RPC server to end.");
         
         var thread = Components.classes["@mozilla.org/thread-manager;1"]
                      .getService(Components.interfaces.nsIThreadManager)
                      .currentThread;
-                            
+
+        var timeout = false;
+        var timeoutTime = startTime + 10000;                          
         while (this.syncRequestResults[myRequestId] == null)
+        {
             thread.processNextEvent(true);
+            var currentTime = Date.now();
+            if (currentTime > timeoutTime)
+            {
+                timeout = true;
+                this.syncRequestResults[myRequestId] = new Error("Synchronous request timed out");
+                break;
+            }
+        }
         
-        if (log.logSensitiveData)    
+        if (!timeout && log.logSensitiveData)    
             log.debug("Synchronous request to the JSON-RPC server has returned:" + method + ":" + params);                  
-        else
+        else if (!timeout)
             log.debug("Synchronous request to the JSON-RPC server has returned."); 
         
         var result = this.syncRequestResults[myRequestId];
