@@ -41,4 +41,4 @@ using System.Runtime.InteropServices;
 
 // Assembly version information
 [assembly: AssemblyVersion("2.0.10.*")]
-[assembly: AssemblyFileVersion("0.8.1.0")] // also change PluginVersion in KeePassRPCExt.cs!
+[assembly: AssemblyFileVersion("0.8.2.0")] // also change PluginVersion in KeePassRPCExt.cs!

@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,1];
+    this.clientVersion = [0,8,2];
     //this.syncFixupTimer = null;
 }
 
@@ -107,7 +107,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         if (topic == "transport-status-connected")
         {
         //TODO: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
-        //TODO: calculate base64 representations of the security codes required to identify this RPC client
             this.request(this, "Authenticate",
               [this.clientVersion, "KeeFox Firefox add-on",
                 this.getClientIdSignatureBase64(), this.getUniqueClientIdBase64()],
@@ -124,11 +123,11 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                                  .getService(Components.interfaces.nsIWindowMediator);
                         var window = wm.getMostRecentWindow("navigator:browser");
                         window.keeFoxInst._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
-                        window.keeFoxInst._keeFoxVariableInit();//window.keefox_org.toolbar, window);
-                        window.keeFoxInst._refreshKPDB();//_keeFoxInitialToolBarSetup(window.keefox_org.toolbar, window);
+                        window.keeFoxInst._keeFoxVariableInit();
+                        window.keeFoxInst._refreshKPDB();
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
-                { //TODO: handle error codes better
+                {
                     if (resultWrapper.result == 3) // version mismatch
                     {
                         window.keefox_org.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
@@ -152,7 +151,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.onDataAvailable = function(request, ctx, inputStream, offset, count)
     {
-        //var data = this.readData(count);
         var data = this.readData(); // don't care about the number of bytes, we'll just read all the UTF8 characters available
         var lastPacketEndIndex = 0;
         

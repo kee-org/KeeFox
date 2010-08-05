@@ -34,8 +34,10 @@ namespace KeePassRPC
     /// </summary>
     public abstract class KeePassRPCClientManager
     {
-        public string Name { get; private set; }
-        public string CallbackMethodName { get; private set; }
+        private string _name;
+        private string _callbackMethodName;
+        public string Name { get { return _name; } private set { _name = value; } }
+        public string CallbackMethodName { get { return _callbackMethodName; } private set { _callbackMethodName = value; } }
         private List<KeePassRPCClientConnection> _RPCClientConnections = new List<KeePassRPCClientConnection>(1);
         private static object _lockRPCClients = new object();
 

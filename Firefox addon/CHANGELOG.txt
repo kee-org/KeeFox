@@ -1,13 +1,15 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.2
+-----
+- Removed some C# 3 syntax that upsets the PLGX compiler when running .NET 2.0
+
 0.8.1
 -----
-
 - All synchronous requests from KeeFox to KeePassRPC will now timeout after 10 seconds so even crashed KeePassRPC requests cannot freeze Firefox for very long (or prevent it shutting down)
 
 0.8
 ---
-
 - A couple of little installer bug fixes that aren't likely be an issue until later builds
 - Otherwise just a rebadged 0.77
 

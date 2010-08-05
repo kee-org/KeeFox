@@ -52,7 +52,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,1);
+        public static readonly Version PluginVersion = new Version(0,8,2);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -620,8 +620,17 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 0xeb, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x22});
 
-            PwCustomIcon icon = _host.Database.CustomIcons.Find(p => p.Uuid == keeFoxIconUuid);
+            PwCustomIcon icon = null;
 
+            foreach (PwCustomIcon testIcon in _host.Database.CustomIcons)
+            {
+                if (testIcon.Uuid == keeFoxIconUuid)
+                {
+                    icon = testIcon;
+                    break;
+                }
+            }
+            
             if (icon == null)
             {
                 MemoryStream ms = new MemoryStream();
