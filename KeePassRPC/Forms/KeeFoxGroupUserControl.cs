@@ -20,7 +20,7 @@ namespace KeePassRPC.Forms
         KeeFoxHomeStatus Status { get {
             if (_status == KeeFoxHomeStatus.Unknown)
             {
-                PwGroup _rootGroup = KeePassRPCPlugin.RPCService.GetRootPwGroup();
+                PwGroup _rootGroup = KeePassRPCPlugin.RPCService.GetRootPwGroup(KeePassRPCPlugin._host.Database);
 
                 if (KeePassRPCPlugin._host.Database.RootGroup.Uuid.EqualsValue(_group.Uuid))
                     _status = KeeFoxHomeStatus.Home;

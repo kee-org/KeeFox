@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using KeePassLib;
 
 namespace KeePassRPC.DataExchangeModel
 {     
@@ -78,6 +79,10 @@ namespace KeePassRPC.DataExchangeModel
 		public string IconImageData;
         public string Path;
 
+        public Group[] ChildGroups;
+        public Entry[] ChildEntries;
+        public LightEntry[] ChildLightEntries;
+
         public Group () {}
 
         public Group (string title,
@@ -92,7 +97,7 @@ namespace KeePassRPC.DataExchangeModel
         }
     }
     
-    public class Entry
+    public class Entry : LightEntry
     {
 		public string[] URLs;
 		public string FormActionURL;
@@ -144,6 +149,81 @@ namespace KeePassRPC.DataExchangeModel
             Parent = parent;
             IconImageData = iconImageData;
         }
+    }
+
+    public class LightEntry
+    {
+        public string[] URLs;
+        public string Title;
+        public string UniqueID;
+        public string UsernameValue;
+        public string UsernameName;
+        public string IconImageData;
+
+        public LightEntry() { }
+
+        public LightEntry(
+            string[] urls,
+            string title,
+            string uniqueID,
+            string iconImageData,
+            string usernameName,
+            string usernameValue)
+        {
+            URLs = urls;
+            Title = title;
+            UniqueID = uniqueID;
+            IconImageData = iconImageData;
+            UsernameName = usernameName;
+            UsernameValue = usernameValue;
+        }
+    }
+
+    public class Database
+    {
+        public string Name;
+        public string FileName;
+        public Group Root;
+        public bool Active;
+
+        public Database() { }
+
+        public Database(string name,
+        string fileName,
+        Group root,
+        bool active)
+        {
+            Name = name;
+            Root = root;
+            FileName = fileName;
+            Active = active;
+        }
+    }
+
+    public class IconCache
+    {
+        private static object iconCacheLock = new object();
+        public static Dictionary<PwUuid, string> _icons = new Dictionary<PwUuid,string>();
+       // public static Dictionary<PwUuid, string> Icons { get { } set { } }
+        public static void AddIcon(PwUuid uuid, string base64representation)
+        {
+            lock (iconCacheLock) {
+                if (!_icons.ContainsKey(uuid))
+                    _icons.Add(uuid, base64representation);
+            }
+        }
+
+        public static string GetIconEncoding(PwUuid uuid)
+        {
+            string base64representation = null;
+            lock (iconCacheLock)
+            {
+                if (!_icons.TryGetValue(uuid, out base64representation))
+                    return null;
+                return base64representation;
+            }
+        }
+
     }
 
     public enum Signal

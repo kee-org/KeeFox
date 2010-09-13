@@ -51,14 +51,13 @@ var keeFoxDialogManager = {
     
     dialogInit : function(e) {
         try {
-            keeFoxDialogManager.autoFill();
+            keeFoxDialogManager.prepareFill();
         } catch (exception) {
             keeFoxInst._KFLog.error(exception);
         }
     },
     
-    // fill in the dialog with the first matched login found and/or the list of all matched logins
-    autoFill : function()
+    prepareFill : function()
     {
         if (document.getElementById("loginTextbox") != null
 		    && document.getElementById("password1Textbox") != null
@@ -67,38 +66,13 @@ var keeFoxDialogManager = {
 		    && document.getElementById("password1Container") != null
 		    && !document.getElementById("password1Container").hidden)
 		{
-		    
-		    // auto fill the dialog by default unless a preference or tab variable tells us otherwise
-		    var autoFill = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
-            
-            // do not auto submit the dialog by default unless a preference or tab variable tells us otherwise
-            var autoSubmit = keeFoxInst._keeFoxExtension.prefs.getValue("autoSubmitDialogs",false);
-            
-            // overwrite existing username by default unless a preference or tab variable tells us otherwise
-            var overWriteFieldsAutomatically = keeFoxInst._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
-                
-		    if (keeFoxInst._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
-            {
-                if (Math.round(new Date().getTime() / 1000) - keeFoxInst._keeFoxExtension.prefs.get("lastProtocolAuthAttempt") <= 3)
-                {
-                    autoFill = false;
-                    autoSubmit = false;
-                }
-            }
-            
-			if (document.getElementById("loginTextbox").getAttribute("value") != ''
-			    && document.getElementById("password1Textbox").getAttribute("value") != ''
-			    && !overWriteFieldsAutomatically)
-			{	
-			    autoFill = false;
-                autoSubmit = false;
-			}
-			
+			    
 			var host = "";
 			var realm = "";
 			
 			// e.g. en-US:
 			// A username and password are being requested by %2$S. The site says: "%1$S"
+			// TODO:0.9: this doesn't work in FF4... but they are replacing the whole commonDialog thingy I think...
 			var currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
 
             var realmFirst = false;
@@ -187,98 +161,210 @@ var keeFoxDialogManager = {
             {
                 //TODO: put notification text on dialog box to inform user
                 // and have button to load KeePass and then refresh the dialog?
+                // register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?
                 return;
             } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
                 //TODO: put notification text on dialog box to inform user
-                // and have button to load database and then refresh the dialog?
+                // and have button to load database and then refresh the dialog?                
+                // register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?                
                 return;
             }
+            
+            //TODO: most of these attributes are probably redundant...
+            
+            var row = document.createElement("row");
+            row.setAttribute("id","keefox-autoauth-row");
+            //row.setAttribute("align", "center");
+            row.setAttribute("flex", "1");
+            //row.setAttribute("pack", "center");
+            
+            var boxLabel = document.createElement("hbox");
+            boxLabel.setAttribute("id","keefox-autoauth-label");
+            boxLabel.setAttribute("align", "end");
+            boxLabel.setAttribute("flex", "1");
+            boxLabel.setAttribute("pack", "end");
+            
+            var label = document.createElement("description");
+		    label.setAttribute("value", "KeeFox:");
+		    label.setAttribute("align", "end");
+		    label.setAttribute("pack", "end");
+		    label.setAttribute("flex", "1");
+		    boxLabel.appendChild(label);
+		    
+		    var box = document.createElement("hbox");
+            box.setAttribute("id","keefox-autoauth-box");
+            box.setAttribute("align", "start");
+            box.setAttribute("flex", "1");
+            box.setAttribute("pack", "start");
+		    
+		    var loadingPasswords = document.createElement("description");
+		    loadingPasswords.setAttribute("value", "Loading passwords...");
+		    loadingPasswords.setAttribute("align", "start");
+		    loadingPasswords.setAttribute("flex", "1");
+		    box.appendChild(loadingPasswords);
+		    row.appendChild(boxLabel);
+		    row.appendChild(box);
+		    document.getElementById("loginContainer").parentNode.appendChild(row);
+            
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
         
+            var dialogFindLoginStorage = {};
+            dialogFindLoginStorage.host = host;
+            dialogFindLoginStorage.realm = realm;
+            dialogFindLoginStorage.document = document;
 			// find all the logins
-			var foundLogins = keeFoxInst.findLogins(host, null, realm, null);
-
-            if (keeFoxInst._KFLog.logSensitiveData)
-                keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ realm + "' realm.");
-            else
-                keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
-			
-			if (foundLogins.length <= 0)
-			    return;
-			    
-			var matchedLogins = [];
-			var showList;
-			
-			// for every login
-			for (var i = 0; i < foundLogins.length; i++)
-			{
-		        try {
-		            var username = 
-                        foundLogins[i].otherFields[0];
-                    var password = 
-                        foundLogins[i].passwords[0];
-                   
-			        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : host });
-			        showList = true;
-
-		        } catch (e) {
-		            keeFoxInst._KFLog.error(e);
-		        }
-			}
-				
-			// create a drop down box with all matched logins
-			if (showList) {
-				var box = document.createElement("hbox");
-
-				var button = document.createElement("button");
-				//TODO: find a way to get string bundles into here without
-				// referencing document specific vars that go out of scope
-				// when windows are closed...button.setAttribute("label",
-				// keeFoxInst.strbundle.getString("autoFillWith
-				button.setAttribute("label", "Auto Fill With");
-				button.setAttribute("onclick",'keeFoxDialogManager.fill(document.getElementById("autoauth-list").selectedItem.username, document.getElementById("autoauth-list").selectedItem.password);');
-
-				var list = document.createElement("menulist");
-				list.setAttribute("id","autoauth-list");
-				var popup = document.createElement("menupopup");
-				var done = false;
-			
-				for (var i = 0; i < matchedLogins.length; i++){
-					var item = document.createElement("menuitem");
-					item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
-					item.username = matchedLogins[i].username;
-					item.password = matchedLogins[i].password;
-
-					popup.appendChild(item);
-				}
-
-				list.appendChild(popup);
-				box.appendChild(button);
-				box.appendChild(list);
-
-				document.getElementById("loginContainer").parentNode.appendChild(box);
-			}
-
-			
-			
-			if (autoFill)
-			{
-			    // fill in the first matching login
-			    document.getElementById("loginTextbox").value = matchedLogins[0].username
-			    document.getElementById("password1Textbox").value = matchedLogins[0].password
-			    //matchedLogins[0].username
-			    
-			    //TODO: make a better guess about which login should be autofilled.
-			    // e.g. exact host and realm match has higher priority
-			
-			}
-			
-			if (autoSubmit)
-			{
-			    commonDialogOnAccept();
-			    window.close();
-			}
+			var requestId = keeFoxInst.findLogins(host, null, realm, null, this.autoFill);
+		    window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
 		}
+    
+    },
+    
+    // fill in the dialog with the first matched login found and/or the list of all matched logins
+    autoFill : function(resultWrapper)
+    {
+        
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+         window.keeFoxInst._KFLog.info("callback fired!");
+         
+        var foundLogins = null;
+        var convertedResult = [];
+        
+        if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
+        {
+            logins = resultWrapper.result; 
+            
+            for (var i in logins)
+            {
+                var kfl = window.newkfLoginInfo();
+                kfl.initFromEntry(logins[i]);
+                convertedResult.push(kfl);
+            }
+        } else
+            return;
+        foundLogins = convertedResult;
+            
+        var dialogFindLoginStorage = window.keefox_org.ILM.dialogFindLoginStorages[resultWrapper.id];
+        
+        
+        
+		    
+	    // auto fill the dialog by default unless a preference or tab variable tells us otherwise
+	    var autoFill = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
+        
+        // do not auto submit the dialog by default unless a preference or tab variable tells us otherwise
+        var autoSubmit = keeFoxInst._keeFoxExtension.prefs.getValue("autoSubmitDialogs",false);
+        
+        // overwrite existing username by default unless a preference or tab variable tells us otherwise
+        var overWriteFieldsAutomatically = keeFoxInst._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
+        
+        // this protects against infinite loops when the auto-submitted details are rejected    
+	    if (keeFoxInst._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
+        {
+            if (Math.round(new Date().getTime() / 1000) - keeFoxInst._keeFoxExtension.prefs.get("lastProtocolAuthAttempt") <= 3)
+            {
+                autoFill = false;
+                autoSubmit = false;
+            }
+        }
+        
+		if (dialogFindLoginStorage.document.getElementById("loginTextbox").getAttribute("value") != ''
+		    && dialogFindLoginStorage.document.getElementById("password1Textbox").getAttribute("value") != ''
+		    && !overWriteFieldsAutomatically)
+		{	
+		    autoFill = false;
+            autoSubmit = false;
+		}
+		
+
+        if (keeFoxInst._KFLog.logSensitiveData)
+            keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
+        else
+            keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
+		
+		if (foundLogins.length <= 0)
+		    return;
+		    
+		var matchedLogins = [];
+		var showList;
+		
+		// for every login
+		for (var i = 0; i < foundLogins.length; i++)
+		{
+	        try {
+	            var username = 
+                    foundLogins[i].otherFields[0];
+                var password = 
+                    foundLogins[i].passwords[0];
+               
+		        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host });
+		        showList = true;
+
+	        } catch (e) {
+	            keeFoxInst._KFLog.error(e);
+	        }
+		}
+			
+		// create a drop down box with all matched logins
+		if (showList) {
+			var box = dialogFindLoginStorage.document.getElementById("keefox-autoauth-box");
+            
+			//var button = dialogFindLoginStorage.document.createElement("button");
+			//TODO: find a way to get string bundles into here without
+			// referencing document specific vars that go out of scope
+			// when windows are closed...button.setAttribute("label",
+			// keeFoxInst.strbundle.getString("autoFillWith
+			//button.setAttribute("label", "Auto Fill With");
+			//button.
+
+			var list = dialogFindLoginStorage.document.createElement("menulist");
+			list.setAttribute("id","autoauth-list");
+			var popup = dialogFindLoginStorage.document.createElement("menupopup");
+			var done = false;
+		
+			for (var i = 0; i < matchedLogins.length; i++){
+				var item = dialogFindLoginStorage.document.createElement("menuitem");
+				item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
+				item.setAttribute("oncommand",'keeFoxDialogManager.fill(this.username, this.password);');
+				item.username = matchedLogins[i].username;
+				item.password = matchedLogins[i].password;
+
+				popup.appendChild(item);
+			}
+
+			list.appendChild(popup);
+			// Remove all of the existing children
+            for (i = box.childNodes.length; i > 0; i--) {
+                box.removeChild(box.childNodes[0]);
+            }
+			//box.appendChild(button);
+			box.appendChild(list);
+		}
+
+		
+		
+		if (autoFill)
+		{
+		    // fill in the first matching login
+		    dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[0].username
+		    dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[0].password
+		    //matchedLogins[0].username
+		    
+		    //TODO: make a better guess about which login should be autofilled.
+		    // e.g. exact host and realm match has higher priority
+		
+		}
+		
+		if (autoSubmit)
+		{
+		    commonDialogOnAccept();
+		    window.close();
+		}
+		
     },
     
     fill : function (username, password)

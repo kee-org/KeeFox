@@ -242,13 +242,16 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 {
     KFLog.info("Filling document. Initial page load: " + initialPageLoad);
     
+    //TODO: maybe need to attach this var to somewhere in case it gets GCd?
+    var findLoginDoc = {};
+    
     // We'll do things differently if this is a fill operation some time
     // after the page has alread loaded (e.g. don't auto-fill or
     // auto-submit in case we overwrite user's data)
     if ( initialPageLoad === undefined )
         initialPageLoad = false;
     
-    var passwords;
+    //?/var passwords;
     var mainWindow = doc.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                .getInterface(Components.interfaces.nsIWebNavigation)
                .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -278,116 +281,121 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 
     KFLog.info("attempting document fill");
     
-    var uniqueID = "";
-    var logins = [];
+    findLoginDoc.uniqueID = "";
+    findLoginDoc.logins = [];
     
     // auto fill the form by default unless a preference or tab variable tells us otherwise
-    var wantToAutoFillForm = this._kf._keeFoxExtension.prefs.getValue("autoFillForms",true);
-    var mustAutoFillForm = false;
-    var cannotAutoFillForm = false;
+    findLoginDoc.wantToAutoFillForm = this._kf._keeFoxExtension.prefs.getValue("autoFillForms",true);
+    findLoginDoc.mustAutoFillForm = false;
+    findLoginDoc.cannotAutoFillForm = false;
 
     // do not auto submit the form by default unless a preference or tab variable tells us otherwise
-    var wantToAutoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitForms",false);
-    var mustAutoSubmitForm = false;
-    var cannotAutoSubmitForm = false;
+    findLoginDoc.wantToAutoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitForms",false);
+    findLoginDoc.mustAutoSubmitForm = false;
+    findLoginDoc.cannotAutoSubmitForm = false;
     
     // overwrite existing username by default unless a preference or tab variable tells us otherwise
-    var overWriteFieldsAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
-    
+    findLoginDoc.overWriteFieldsAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
+
     var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                 .getService(Components.interfaces.nsISessionStore);
-    var currentGBrowser = keefox_org.toolbar._currentWindow.gBrowser;
+    findLoginDoc.ss = ss;
+    findLoginDoc.currentGBrowser = keefox_org.toolbar._currentWindow.gBrowser;
     var topDoc = doc;
     if (doc.defaultView.frameElement)
         while (topDoc.defaultView.frameElement)
             topDoc=topDoc.defaultView.frameElement.ownerDocument;
+    findLoginDoc.topDoc = topDoc;
 
-    var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(topDoc)];
-    var currentTabUniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
-    var numberOfTabFillsRemaining = ss.getTabValue(currentTab, "KF_numberOfTabFillsRemaining");
-    var numberOfTabFillsTarget = ss.getTabValue(currentTab, "KF_numberOfTabFillsTarget");
-    var currentTabPage = null;    
-    
-    if (currentTabUniqueID != undefined && currentTabUniqueID != null && currentTabUniqueID != "")
+    findLoginDoc.currentTab = findLoginDoc.currentGBrowser.mTabs[findLoginDoc.currentGBrowser.getBrowserIndexForDocument(findLoginDoc.topDoc)];
+    findLoginDoc.currentTabUniqueID = ss.getTabValue(findLoginDoc.currentTab, "KF_uniqueID");
+    findLoginDoc.numberOfTabFillsRemaining = ss.getTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining");
+    findLoginDoc.numberOfTabFillsTarget = ss.getTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget");
+    findLoginDoc.currentTabPage = null;    
+
+    if (findLoginDoc.currentTabUniqueID != undefined && findLoginDoc.currentTabUniqueID != null && findLoginDoc.currentTabUniqueID != "")
     {
-        KFLog.info("Found this KeePass uniqueID in the tab: " + currentTabUniqueID);
-        uniqueID = currentTabUniqueID;
+        KFLog.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
+        findLoginDoc.uniqueID = findLoginDoc.currentTabUniqueID;
         
         // we want to fill the form with this data
-        mustAutoFillForm = true;
-        overWriteFieldsAutomatically = true;
+        findLoginDoc.mustAutoFillForm = true;
+        findLoginDoc.overWriteFieldsAutomatically = true;
         
         // but need to check whether we want to autosubmit it too
-        var localAutoSubmitPref = ss.getTabValue(currentTab, "KF_autoSubmit");
+        findLoginDoc.localAutoSubmitPref = ss.getTabValue(findLoginDoc.currentTab, "KF_autoSubmit");
 
-        if (localAutoSubmitPref != undefined && localAutoSubmitPref != null && localAutoSubmitPref == "yes")
+        if (findLoginDoc.localAutoSubmitPref != undefined && findLoginDoc.localAutoSubmitPref != null && findLoginDoc.localAutoSubmitPref == "yes")
         {
             KFLog.debug("We must auto-submit this form.");
-            mustAutoSubmitForm = true;
+            findLoginDoc.mustAutoSubmitForm = true;
         }
 
         // Deleting these bits of info no matter what, so future uses of this tab are unaffected by previous uses.
         // (if we actually go ahead with the form fill we will add them back in then)
-        var SSautoSubmit = ss.getTabValue(currentTab, "KF_autoSubmit");
+        var SSautoSubmit = ss.getTabValue(findLoginDoc.currentTab, "KF_autoSubmit");
 
         if (SSautoSubmit != undefined && SSautoSubmit != null && SSautoSubmit != "")
         {
-            ss.deleteTabValue(currentTab, "KF_autoSubmit");
+            ss.deleteTabValue(findLoginDoc.currentTab, "KF_autoSubmit");
         }
         
-        var SSuniqueID = ss.getTabValue(currentTab, "KF_uniqueID");
+        var SSuniqueID = ss.getTabValue(findLoginDoc.currentTab, "KF_uniqueID");
 
         if (SSuniqueID != undefined && SSuniqueID != null && SSuniqueID != "")
         {
-            ss.deleteTabValue(currentTab, "KF_uniqueID");
+            ss.deleteTabValue(findLoginDoc.currentTab, "KF_uniqueID");
         }
         
         KFLog.debug("deleted some tab values");
     }
-    
+
     // If we have exceeded the maximum number of expected pages during
     // this form filling session, we reset the record of those fills
     // and ensure that we don't auto-fill or auto-submit the form (chances
     // are high that password or server fault occured)
-    if (numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null && numberOfTabFillsRemaining.length > 0)
+    if (findLoginDoc.numberOfTabFillsRemaining != undefined && findLoginDoc.numberOfTabFillsRemaining != null && findLoginDoc.numberOfTabFillsRemaining.length > 0)
     {
-        KFLog.info("Found this numberOfTabFillsRemaining in the tab: " + numberOfTabFillsRemaining);
-        if (numberOfTabFillsRemaining == "0")
+        KFLog.info("Found this numberOfTabFillsRemaining in the tab: " + findLoginDoc.numberOfTabFillsRemaining);
+        if (findLoginDoc.numberOfTabFillsRemaining == "0")
         {
-            cannotAutoSubmitForm = true;
-            cannotAutoFillForm = true;
-            ss.deleteTabValue(currentTab, "KF_numberOfTabFillsRemaining");
+            findLoginDoc.cannotAutoSubmitForm = true;
+            findLoginDoc.cannotAutoFillForm = true;
+            ss.deleteTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining");
             KFLog.debug("Not auto-filling or auto-submiting this form.");
             KFLog.debug("KF_numberOfTabFillsRemaining deleted");
         }
     }
-    
+
     // If we haven't been told whether this is a multi-page login yet,
     // we'll set relevant variables to -1
     // so that future stages of the login choosing process know we
     // are on the first page and they need
     // to find out whether the best matching form is a multi-page login or not
     
-    if ((numberOfTabFillsRemaining != undefined && numberOfTabFillsRemaining != null 
-            && numberOfTabFillsRemaining.length > 0 && numberOfTabFillsRemaining > 0) 
-        || (numberOfTabFillsTarget != undefined && numberOfTabFillsTarget != null 
-            && numberOfTabFillsTarget.length > 0 && numberOfTabFillsTarget > 0))
+    if ((findLoginDoc.numberOfTabFillsRemaining != undefined && findLoginDoc.numberOfTabFillsRemaining != null 
+            && findLoginDoc.numberOfTabFillsRemaining.length > 0 && findLoginDoc.numberOfTabFillsRemaining > 0) 
+        || (findLoginDoc.numberOfTabFillsTarget != undefined && findLoginDoc.numberOfTabFillsTarget != null 
+            && findLoginDoc.numberOfTabFillsTarget.length > 0 && findLoginDoc.numberOfTabFillsTarget > 0))
     {
-        currentTabPage = numberOfTabFillsTarget - numberOfTabFillsRemaining + 1;
+        findLoginDoc.currentTabPage = findLoginDoc.numberOfTabFillsTarget - findLoginDoc.numberOfTabFillsRemaining + 1;
     } else
     {
-        numberOfTabFillsRemaining = -1;
-        numberOfTabFillsTarget = -1;
-        currentTabPage = -1;
+        findLoginDoc.numberOfTabFillsRemaining = -1;
+        findLoginDoc.numberOfTabFillsTarget = -1;
+        findLoginDoc.currentTabPage = -1;
     }    
 
     var forms = doc.forms;
+    findLoginDoc.forms = forms;
+    findLoginDoc.doc = doc;
+    
     if (!forms || forms.length == 0)
     {
         KFLog.info("No forms found on this page");
         return;
     }
-    
+
     // if we're not logged in to KeePass then we should prompt user (or not)
     if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
     {
@@ -425,16 +433,6 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         return;
     }
 
-    var formOrigin = this._getURIHostAndPort(doc.documentURI);
-
-    // If there are no logins for this site, bail out now.
-    // Not doing this for 0.8+ (Search overhead is far higher than latency or data transfer time)
-//    if (!this.countLogins(formOrigin, "", null))
-//    {
-//        KFLog.info("No logins found for this site");
-//        return;
-//    }
-
     if (KFLog.logSensitiveData)
         KFLog.debug("fillDocument processing " + forms.length +
              " forms on " + doc.documentURI);
@@ -442,23 +440,32 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         KFLog.debug("fillDocument processing " + forms.length + " forms");
 
     var previousActionOrigin = null;
-    var formsReadyForSubmit = 0; // tracks how many forms we auto-fill on this page
+    findLoginDoc.formsReadyForSubmit = 0; // tracks how many forms we auto-fill on this page
     
-    var allMatchingLogins = [];
-    var formToAutoSubmit;
-    var formRelevanceScores = [];
-    var usernameIndexArray = [];
-    var passwordFieldsArray = [];
-    var otherFieldsArray = [];
+    
+    
+    findLoginDoc.initialPageLoad = initialPageLoad;
+    findLoginDoc.formOrigin = this._getURIHostAndPort(doc.documentURI);
+    findLoginDoc.wrappers = [];
+    findLoginDoc.allMatchingLogins = [];
+    findLoginDoc.formToAutoSubmit;
+    findLoginDoc.formRelevanceScores = [];
+    findLoginDoc.usernameIndexArray = [];
+    findLoginDoc.passwordFieldsArray = [];
+    findLoginDoc.otherFieldsArray = [];
+    findLoginDoc.requestCount = 0;
+    findLoginDoc.responseCount = 0;
+    
+    var previousRequestId = 0;
 
     for (var i = 0; i < forms.length; i++)
     {
         var form = forms[i];
-        logins[i] = [];
+        findLoginDoc.logins[i] = [];
 
         // the overall relevance of this form is the maximum of it's
         // matching entries (so we fill the most relevant form)
-        formRelevanceScores[i] = 0;
+        findLoginDoc.formRelevanceScores[i] = 0;
         
         KFLog.debug("about to get form fields");
         var [usernameIndex, passwordFields, otherFields] =
@@ -468,141 +475,199 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         // maybe only if we are doing a multi-page login?
         if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
         {
-        //    this.log("pwfound");
-        //    passwordField = passwords[0].element;
-        //    }
-            
-        // Need a valid password field to do anything.
-        //if (passwordField == null || passwordField == undefined)
-        //{
             KFLog.debug("no password field found in this form");
             continue;
         }
+        
+        findLoginDoc.usernameIndexArray[i] = usernameIndex;
+        findLoginDoc.passwordFieldsArray[i] = passwordFields;
+        findLoginDoc.otherFieldsArray[i] = otherFields;
+        
         // Only the actionOrigin might be changing, so if it's the same
         // as the last form on the page we can reuse the same logins.
         var actionOrigin = this._getURIHostAndPort(this._getActionOrigin(form));
         if (actionOrigin != previousActionOrigin)
         {
-            var foundLogins =
-                this.findLogins(formOrigin, actionOrigin, null, null);
+            var findLoginOp = {};
+            findLoginOp.forms = forms;
+            findLoginOp.formIndexes = [i];
+            findLoginOp.wrappedBy = findLoginDoc;
+            findLoginOp.callback = function (resultWrapper) // the above vars are missing when callback occurs, dunno why but workaround in place anyway
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                         .getService(Components.interfaces.nsIWindowMediator);
+                var window = wm.getMostRecentWindow("navigator:browser");
+                 window.keeFoxInst._KFLog.info("callback fired!");
+                 
+                var foundLogins = null;
+                var convertedResult = [];
+                
+                if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
+                {
+                    foundLogins = resultWrapper.result; 
+                    
+                    for (var i in foundLogins)
+                    {
+                        var kfl = newkfLoginInfo();
+                        kfl.initFromEntry(foundLogins[i]);
+                        convertedResult.push(kfl);
+                    }
+                } else
+                    return;
+                    
+                var findLoginOp = window.keefox_org.ILM.findLoginOps[resultWrapper.id];
+                var findLoginDoc = window.keefox_org.ILM.findLoginDocs[resultWrapper.id];
+     
+                for (var i=0; i < findLoginOp.forms.length; i++)
+                {
+                    // Skip any form that we don't want to match against this set of logins
+                    if (findLoginOp.formIndexes.indexOf(i) == -1)
+                        continue;
+                        
+                    findLoginDoc.logins[i] = convertedResult;
 
-            KFLog.info("form[" + i + "]: found " + foundLogins.length +
-                    " matching logins.");
+                    // Nothing to do if we have no matching logins available.
+                    if (findLoginDoc.logins[i].length == 0)
+                        continue;
+                    
+                    window.keeFoxInst._KFLog.info("match found!");
+                    
+                    // determine the relevance of each login entry to this form
+                    // we could skip this when autofilling based on uniqueID but we would have to check for
+                    // matches first or else we risk no match and no alternative matching logins on the toolbar
+                    for (var v = 0; v < findLoginDoc.logins[i].length; v++)
+                    {
+                        findLoginDoc.logins[i][v].relevanceScore = window.keefox_org.ILM.
+                            _calculateRelevanceScore(findLoginDoc.logins[i][v],
+                                findLoginOp.forms[i],findLoginDoc.usernameIndexArray[i],
+                                findLoginDoc.passwordFieldsArray[i], findLoginDoc.currentTabPage);
+                    }
+                    
+                    findLoginDoc.logins[i].forEach(function(c) {
+                        if (c.relevanceScore > findLoginDoc.formRelevanceScores[i])
+                            findLoginDoc.formRelevanceScores[i] = c.relevanceScore;
+                        } );
+                    KFLog.debug("Relevance of form " + i + " is " + findLoginDoc.formRelevanceScores[i]);
+                    
+                    // only remember the logins which are not already in our list of matching logins
+                    var newUniqueLogins = findLoginDoc.logins[i].filter(function(d) {
+                                            return (findLoginDoc.allMatchingLogins.every(function(e) {
+                                                return (d.uniqueid != e.uniqueid);
+                                            }));
+                                        });
+                    findLoginDoc.allMatchingLogins = findLoginDoc.allMatchingLogins.concat(newUniqueLogins);
+                }
+                findLoginDoc.responseCount++;
+                window.keefox_org.ILM.allSearchesComplete(findLoginDoc); // see if we're ready to do the next stage of form processing...
+                
+            };
+            findLoginDoc.wrappers[i] = findLoginOp;
+            findLoginDoc.requestCount++;
+            
+            var requestId = this.findLogins(findLoginDoc.formOrigin, actionOrigin, null, null, findLoginOp.callback);
+            this.findLoginOps[requestId] = findLoginOp;
+            this.findLoginDocs[requestId] = findLoginDoc; // TODO: waste of space, plus really need to remove them all when done to save memory but lets test it works first...
             previousActionOrigin = actionOrigin;
+            previousRequestId = requestId;
         } else {
-            KFLog.info("form[" + i + "]: reusing logins from last form.");
+            KFLog.debug("form[" + i + "]: reusing logins from last form.");
+            if (previousRequestId > 0)
+                this.findLoginOps[previousRequestId].formIndexes.push(i);
         }
 
-        logins[i] = foundLogins;
 
-        // Nothing to do if we have no matching logins available.
-        if (logins[i].length == 0)
-            continue;
-        
-        KFLog.info("match found!");
-        
-        usernameIndexArray[i] = usernameIndex;
-        passwordFieldsArray[i] = passwordFields;
-        otherFieldsArray[i] = otherFields;
-        
-        // determine the relevance of each login entry to this form
-        // we could skip this when autofilling based on uniqueID but we would have to check for
-        // matches first or else we risk no match and no alternative matching logins on the toolbar
-        for (var v = 0; v < logins[i].length; v++)
-            logins[i][v].relevanceScore = this._calculateRelevanceScore(logins[i][v],
-                    form,usernameIndex,passwordFields, currentTabPage);
-        
-        logins[i].forEach(function(c) {
-            if (c.relevanceScore > formRelevanceScores[i])
-                formRelevanceScores[i] = c.relevanceScore;
-            } );
-        KFLog.debug("Relevance of form is " + formRelevanceScores[i]);
-        
-        // only remember the logins which are not already in our list of matching logins
-        var newUniqueLogins = logins[i].filter(function(d) {
-                                return (allMatchingLogins.every(function(e) {
-                                    return (d.uniqueid != e.uniqueid);
-                                }));
-                            });
-        allMatchingLogins = allMatchingLogins.concat(newUniqueLogins);
     }  // end of form for loop
     
+    
+};
+
+// this happens after each findLogins call has run its callback so we can see if we have received all the answers we need to fill the form now
+KFILM.prototype.allSearchesComplete = function (findLoginDoc)
+{
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+             .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
+    
+    // ensure we only assess the best matching form once all async callbacks have been received
+    if (findLoginDoc.responseCount != findLoginDoc.requestCount)
+        return;
+    
     var mostRelevantFormIndex = 0;
-    formRelevanceScores.forEach(function(c, index) { 
+    findLoginDoc.formRelevanceScores.forEach(function(c, index) { 
         KFLog.debug("Relevance of form is " + c);
-        if (c > formRelevanceScores[mostRelevantFormIndex])
+        if (c > findLoginDoc.formRelevanceScores[mostRelevantFormIndex])
             mostRelevantFormIndex = index;
         } );
     
     KFLog.debug("The most relevant form is #" + mostRelevantFormIndex);
     
     // from now on we concentrate on just the most relevant form and the fields we found earlier
-    form = forms[mostRelevantFormIndex];
-    var passwordFields = passwordFieldsArray[mostRelevantFormIndex];
-    var usernameIndex = usernameIndexArray[mostRelevantFormIndex];
-    var otherFields = otherFieldsArray[mostRelevantFormIndex];
+    form = findLoginDoc.forms[mostRelevantFormIndex];
+    var passwordFields = findLoginDoc.passwordFieldsArray[mostRelevantFormIndex];
+    var usernameIndex = findLoginDoc.usernameIndexArray[mostRelevantFormIndex];
+    var otherFields = findLoginDoc.otherFieldsArray[mostRelevantFormIndex];
     
     // this records the login that we eventually choose as the one to fill the chosen form with
     var matchingLogin = null;
     
     // If this is a "refill" we won't auto-fill/complete/overwrite.
-    if (!initialPageLoad)
+    if (!findLoginDoc.initialPageLoad)
     {
-        cannotAutoFillForm = true;
-        cannotAutoSubmitForm = true;
-        overWriteFieldsAutomatically = false;
+        findLoginDoc.cannotAutoFillForm = true;
+        findLoginDoc.cannotAutoSubmitForm = true;
+        findLoginDoc.overWriteFieldsAutomatically = false;
         KFLog.debug("Not auto-filling or auto-submiting this form. Not overwriting exsisting contents either.");
     }
 
     // No point looking at login specific preferences if we are not allowed to auto-fill
-    if (!cannotAutoFillForm)
+    if (!findLoginDoc.cannotAutoFillForm)
     {
         // first, if we have been instructed to load a specific login on this page, do that
         //TODO: this may not work if requested login can't be exactly matched to a form but another login can
-        if (uniqueID.length > 0)
+        if (findLoginDoc.uniqueID.length > 0)
         {
-            var found = logins[mostRelevantFormIndex].some(function(l) {
+            var found = findLoginDoc.logins[mostRelevantFormIndex].some(function(l) {
                                         matchingLogin = l;
-                                        return (l.uniqueID == uniqueID);
+                                        return (l.uniqueID == findLoginDoc.uniqueID);
                                     });
             if (!found)
             {
                 KFLog.info("Password not filled. None of the stored " +
                          "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
             }
-        } else if (logins[mostRelevantFormIndex].length == 1) {
-            matchingLogin = logins[mostRelevantFormIndex][0];
+        } else if (findLoginDoc.logins[mostRelevantFormIndex].length == 1) {
+            matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][0];
         } else {
             KFLog.debug("Multiple logins for form, so estimating most relevant.");
             var mostRelevantLoginIndex = 0;
             
-            for (var count = 0; count < logins[mostRelevantFormIndex].length; count++)
-                if (logins[mostRelevantFormIndex][count].relevanceScore > logins[mostRelevantFormIndex][mostRelevantLoginIndex].relevanceScore)
+            for (var count = 0; count < findLoginDoc.logins[mostRelevantFormIndex].length; count++)
+                if (findLoginDoc.logins[mostRelevantFormIndex][count].relevanceScore > findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex].relevanceScore)
                     mostRelevantLoginIndex = count;
                 
             KFLog.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
-            matchingLogin = logins[mostRelevantFormIndex][mostRelevantLoginIndex];
+            matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex];
         }
 
         if (matchingLogin != null)
         {
             // update fill and submit preferences from per-entry configuration options
             if (matchingLogin.alwaysAutoFill)
-                wantToAutoFillForm = true;
+                findLoginDoc.wantToAutoFillForm = true;
             if (matchingLogin.neverAutoFill)
-                wantToAutoFillForm = false;
+                findLoginDoc.wantToAutoFillForm = false;
             if (matchingLogin.alwaysAutoSubmit)
-                wantToAutoSubmitForm = true;
+                findLoginDoc.wantToAutoSubmitForm = true;
             if (matchingLogin.neverAutoSubmit)
-                wantToAutoSubmitForm = false;
+                findLoginDoc.wantToAutoSubmitForm = false;
 
-            if (wantToAutoFillForm || mustAutoFillForm)
+            if (findLoginDoc.wantToAutoFillForm || findLoginDoc.mustAutoFillForm)
             {
-                this._fillManyFormFields(passwordFields, matchingLogin.passwords,
-                    currentTabPage, overWriteFieldsAutomatically);
-                this._fillManyFormFields(otherFields, matchingLogin.otherFields,
-                    currentTabPage, overWriteFieldsAutomatically);
-                formsReadyForSubmit++;
+                window.keefox_org.ILM._fillManyFormFields(passwordFields, matchingLogin.passwords,
+                    findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
+                window.keefox_org.ILM._fillManyFormFields(otherFields, matchingLogin.otherFields,
+                    findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
+                findLoginDoc.formsReadyForSubmit++; //TODO: verify if this means we have lost functinoality now - could we fill more than one form before? i don't think so but why is it a count rather than bool?!
             }            
         }
     }
@@ -618,11 +683,11 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     // (filling via the "matched logins" toolbar button
     // could result in these values being recalculated
     // anyway so no point in wasting time here)
-    if (formsReadyForSubmit >= 1)
+    if (findLoginDoc.formsReadyForSubmit >= 1)
     {
         // first we make sure we have some valid values to start with - i.e. if this was a stnadard page load
         // then we need to assign the page details from the best login match
-        if (currentTabPage < 0)
+        if (findLoginDoc.currentTabPage < 0)
         {
             var maximumPageCount = 1;
             for (var i = 0; i < matchingLogin.passwords.length; i++)
@@ -637,26 +702,26 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
                 if (otherField.formFieldPage > maximumPageCount)
                     maximumPageCount = otherField.formFieldPage;
             }
-            numberOfTabFillsRemaining = maximumPageCount;
-            numberOfTabFillsTarget = maximumPageCount;
+            findLoginDoc.numberOfTabFillsRemaining = maximumPageCount;
+            findLoginDoc.numberOfTabFillsTarget = maximumPageCount;
         }
        
         //consume one of our permitted form fills (because next time we read
         // this value it will be as the next page is loading)
-        numberOfTabFillsRemaining -= 1;
-        if (numberOfTabFillsRemaining < 0)
-            numberOfTabFillsRemaining = 0;
+        findLoginDoc.numberOfTabFillsRemaining -= 1;
+        if (findLoginDoc.numberOfTabFillsRemaining < 0)
+            findLoginDoc.numberOfTabFillsRemaining = 0;
         
         // next we update (or set for the first time) the values attached to this tab
-        ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", numberOfTabFillsRemaining);
-        ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
-        KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
-        KFLog.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining", findLoginDoc.numberOfTabFillsRemaining);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget", findLoginDoc.numberOfTabFillsTarget);
+        KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + findLoginDoc.numberOfTabFillsRemaining);
+        KFLog.debug("Set KF_numberOfTabFillsTarget to: " + findLoginDoc.numberOfTabFillsTarget);
         
         // if we didn't already define a uniqueID, we set it up now
-        if (uniqueID == undefined || uniqueID == null || uniqueID == "")
+        if (findLoginDoc.uniqueID == undefined || findLoginDoc.uniqueID == null || findLoginDoc.uniqueID == "")
         {
-            uniqueID = matchingLogin.uniqueID;
+            findLoginDoc.uniqueID = matchingLogin.uniqueID;
         }
                 
     }
@@ -695,32 +760,32 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     // if we know we are only interested in filling one specific uniqueID or that
     // we have knowledge of whether we want to autofill when the next page is
     // loaded then we can (re)populate these values now
-    if (uniqueID != undefined && uniqueID != null && uniqueID != "")
+    if (findLoginDoc.uniqueID != undefined && findLoginDoc.uniqueID != null && findLoginDoc.uniqueID != "")
     {
-        ss.setTabValue(currentTab, "KF_uniqueID", uniqueID);
-        KFLog.debug("Set KF_uniqueID to: " + uniqueID);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
+        KFLog.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
         
         // only auto fill / submit if we expect another page for this login.
         // This may fail in some cases, not sure yet but it should reduce
         // the chances of auto-submit loops occuring, especially confusing
         // on pages where multiple forms are present regardless of login state
         // (and get displayed to user when appropriate).
-        if (numberOfTabFillsRemaining > 0)
+        if (findLoginDoc.numberOfTabFillsRemaining > 0)
         {
-            ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+            findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_autoSubmit", "yes");
             KFLog.debug("Set KF_autoSubmit to: yes");
         }
     }
     
-    if (!cannotAutoSubmitForm && (wantToAutoSubmitForm || mustAutoSubmitForm)
-        && formsReadyForSubmit == 1)
+    if (!findLoginDoc.cannotAutoSubmitForm && (findLoginDoc.wantToAutoSubmitForm || findLoginDoc.mustAutoSubmitForm)
+        && findLoginDoc.formsReadyForSubmit == 1)
     {
         KFLog.info("Auto-submitting form...");
-        this.submitForm(form);
-    } else if (allMatchingLogins.length > 0)
+        keefox_org.ILM.submitForm(form);
+    } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
         KFLog.info("Using toolbar password fill.");
-        this._toolbar.setLogins(allMatchingLogins, doc);
+        keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 
     {
         KFLog.info("Nothing to fill.");
@@ -740,43 +805,81 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 KFILM.prototype.fill = function (usernameName,usernameValue,
     actionURL,usernameID,formID,uniqueID,docURI)
 {
-    if (KFLog.logSensitiveData)
-        KFLog.info("fill login details from username field: " + usernameName + ":" + usernameValue);
-    else
-        KFLog.info("fill login details");
-    
-    var doc = this._findDocumentByURI(
-        Application.activeWindow.activeTab.document.defaultView, docURI);
+    var fillDocumentDataStorage = {};
+    fillDocumentDataStorage.usernameName = usernameName;
+    fillDocumentDataStorage.usernameValue = usernameValue;
+    fillDocumentDataStorage.actionURL = actionURL;
+    fillDocumentDataStorage.usernameID = usernameID;
+    fillDocumentDataStorage.formID = formID;
+    fillDocumentDataStorage.uniqueID = uniqueID;
+    fillDocumentDataStorage.docURI = docURI;
+    fillDocumentDataStorage.gBrowser = keefox_org.toolbar._currentWindow.gBrowser;
+    fillDocumentDataStorage.doc = this._findDocumentByURI(
+            Application.activeWindow.activeTab.document.defaultView, docURI); //TODO:FF4: Application use
+            
+    this.findLogins(fillDocumentDataStorage.URL, fillDocumentDataStorage.actionURL, null,
+     fillDocumentDataStorage.uniqueID, this.fillFindLoginsComplete, fillDocumentDataStorage);
+};
 
+KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
+{                
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+             .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
+     window.keeFoxInst._KFLog.info("callback fired!");
+     
+    var logins = null;
+    var convertedResult = [];
     var form;
     var usernameField;
     var usernameIndex;
     var passwordField;
     var ignored;
     var passwords;
-    var otherFields;
-    
-    var autoSubmitForm = this._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
+    var otherFields;        
+    var autoSubmitForm = window.keefox_org.ILM._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
     var overWriteFields = true; // TODO: create a new preference for this
     
-    if ((form == undefined || form == null)
-        && usernameID != null && usernameID.length > 0)
+    if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
     {
-        usernameField = doc.getElementById(usernameID);
+        logins = resultWrapper.result; 
         
-        if (usernameField != null)
+        for (var i in logins)
         {
-            form = usernameField.form;
-            [usernameIndex, passwords, otherFields] = this._getFormFields(form, false, 1);
+            var kfl = newkfLoginInfo();
+            kfl.initFromEntry(logins[i]);
+            convertedResult.push(kfl);
         }
-        
-    }
+    } else
+        return;
+    logins = convertedResult;
+              
+    if (KFLog.logSensitiveData)
+        KFLog.info("fill login details from username field: " + fillDocumentDataStorage.usernameName + ":" + fillDocumentDataStorage.usernameValue);
+    else
+        KFLog.info("fill login details");
+    
+    
+    
+// not really used or tested yet
+//        if ((form == undefined || form == null)
+//            && usernameID != null && usernameID.length > 0)
+//        {
+//            usernameField = doc.getElementById(usernameID);
+//            
+//            if (usernameField != null)
+//            {
+//                form = usernameField.form;
+//                [usernameIndex, passwords, otherFields] = this._getFormFields(form, false, 1);
+//            }
+//            
+//        }
     
     if (form == undefined || form == null)
     {
-        for (var i = 0; i < doc.forms.length; i++)
+        for (var i = 0; i < fillDocumentDataStorage.doc.forms.length; i++)
         {
-            var formi = doc.forms[i];
+            var formi = fillDocumentDataStorage.doc.forms[i];
             
             // only fill in forms that match the host and port of the selected login
             // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
@@ -785,11 +888,13 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
 //                    this._getActionOrigin(formi)) == this._getURISchemeHostAndPort(actionURL))
 //            {
                 form = formi;
-                [usernameIndex, passwords, otherFields] = this._getFormFields(form, false, 1);
+                [usernameIndex, passwords, otherFields] = window.keefox_org.ILM._getFormFields(form, false, 1);
                 
                 if (passwords == null || passwords.length == 0)
                     continue;
-                
+                //TODO: keep looking for forms!!!
+                // Why do we need to stop at the first password form? In cases where we know somethign about the form we are looking for (eg. field ids, names)
+                // it makes no sense to give up as soon as we find the first form!
                 break;
 //            }
         }        
@@ -802,17 +907,15 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
         return;
     }
 
-    var URL = this._getPasswordOrigin(doc.documentURI);
+    var URL = window.keefox_org.ILM._getPasswordOrigin(fillDocumentDataStorage.doc.documentURI);
     
-    var title = doc.title;
+    var title = fillDocumentDataStorage.doc.title;
     
-    // Look for a existing login and use its password.
     var match = null;
-    var logins = this.findLogins(URL, actionURL, null, uniqueID);
     KFLog.info("Found " + logins.length + " logins.");
     
     // Ensure the entry has not been deleted between page load and fill request
-    if (uniqueID && logins.length == 1)
+    if (fillDocumentDataStorage.uniqueID && logins.length == 1)
         match = logins[0];
     
     if (match == null)
@@ -823,8 +926,8 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
 
     KFLog.debug("Found a matching login, filling in passwords, etc.");
         
-    this._fillManyFormFields(passwords, match.passwords, 1, overWriteFields);
-    this._fillManyFormFields(otherFields, match.otherFields, 1, overWriteFields);
+    window.keefox_org.ILM._fillManyFormFields(passwords, match.passwords, 1, overWriteFields);
+    window.keefox_org.ILM._fillManyFormFields(otherFields, match.otherFields, 1, overWriteFields);
 
     // Attach information to this tab which describes what
     // we know about the number of pages this form covers
@@ -851,9 +954,9 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
     
     var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                 .getService(Components.interfaces.nsISessionStore);
-    var currentGBrowser = keefox_org.toolbar._currentWindow.gBrowser;
-    var topDoc = doc;
-    if (doc.defaultView.frameElement)
+    var currentGBrowser = fillDocumentDataStorage.gBrowser;
+    var topDoc = fillDocumentDataStorage.doc;
+    if (fillDocumentDataStorage.doc.defaultView.frameElement)
         while (topDoc.defaultView.frameElement)
             topDoc=topDoc.defaultView.frameElement.ownerDocument;
     var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(topDoc)];
@@ -861,15 +964,15 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
     ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", numberOfTabFillsRemaining);
     ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-    ss.setTabValue(currentTab, "KF_uniqueID", uniqueID);
+    ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
     KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
     KFLog.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
     KFLog.debug("Set KF_autoSubmit to: yes");
-    KFLog.debug("Set KF_uniqueID to: " + uniqueID);
+    KFLog.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
     
     // now we can submit the form if desired    
     if (autoSubmitForm)
-        this.submitForm(form);
+        window.keefox_org.ILM.submitForm(form);
 };
 
 KFILM.prototype._fillAllFrames = function (window, initialPageLoad)

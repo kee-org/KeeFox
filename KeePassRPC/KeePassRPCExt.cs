@@ -52,7 +52,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,2);
+        public static readonly Version PluginVersion = new Version(0,8,3);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -412,6 +412,14 @@ namespace KeePassRPC
             return 1;
         }
 
+        public delegate object GetIconDelegate(int iconIndex);
+
+
+        public Image GetIcon(int iconIndex)
+        {
+            return _host.MainWindow.ClientIcons.Images[(int)iconIndex];
+        }
+
         /// <summary>
         /// Called when [file new]. TODO: Review whenever private KeePass.MainForm.OnFileNew method changes.
         /// </summary>
@@ -520,7 +528,7 @@ namespace KeePassRPC
                 0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28});
 
-            PwGroup kfpg = RPCService.GetRootPwGroup().FindGroup(groupUuid, false);
+            PwGroup kfpg = RPCService.GetRootPwGroup(pd).FindGroup(groupUuid, false);
             if (kfpg == null)
             {
                 kfpg = new PwGroup(false, true, "KeeFox", PwIcon.Folder);

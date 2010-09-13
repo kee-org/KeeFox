@@ -897,7 +897,7 @@ function launchAndConnectToKeePass()
     // attempt to connect to KeePass when the timer goes off.
     var Application = Components.classes["@mozilla.org/fuel/application;1"]
         .getService(Components.interfaces.fuelIApplication);
-    var keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
+    var keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson'); //TODO:FF4: Application extension use
     var keeFoxStorage = keeFoxExtension.storage;
 
     keeFoxStorage.set("KeePassRPCInstalled", true);

@@ -73,6 +73,8 @@ if (((new Date()).getMonth() > 6 && (new Date()).getFullYear == 2011) || (new Da
 
 if (keefox_org.shouldLoad)
 {
+    Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
     // Load our logging subsystem
     Components.utils.import("resource://kfmod/KFLogger.js");
     keefox_org.Logger = KFLog;
@@ -210,7 +212,8 @@ if (keefox_org.shouldLoad)
                 keeFoxInst._refreshKPDB();
                 //currentKFToolbar.setupButton_ready(currentWindow);
                 //currentKFToolbar.setAllLogins();
-                //currentWindow.addEventListener("TabSelect", keeFoxInst._onTabSelected, false); //TODO: Move tab selected out here rather than in the module!
+                //currentWindow.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
+                //TODO: Move tab selected out here rather than in the module! (esp. RE FF4)
                 return;
             }       
         }

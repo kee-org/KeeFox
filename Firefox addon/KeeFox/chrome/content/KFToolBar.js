@@ -172,10 +172,16 @@ KFToolbar.prototype = {
             // start with the current root group uniqueID
             try
             {
-                var rootGroup = this._currentWindow.keefox_org.ILM.getRootGroup();
+                var rootGroup = keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].root;
                 
                 if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
-                    this.setOneLoginsMenu("KeeFox_Logins-Button-root", rootGroup.uniqueID);
+                {
+                    // get the popup menu for this list of logins and subgroups
+                    var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
+                    if (container === undefined || container == null)
+                        return;
+                    this.setOneLoginsMenu(container, rootGroup);
+                }
             } catch (e)
             {
                 KFLog.error("setAllLogins exception: " + e);
@@ -198,23 +204,20 @@ KFToolbar.prototype = {
     },
     
     // add all the logins and subgroups for one KeePass group
-    setOneLoginsMenu: function(containerID, groupUniqueID)
+    setOneLoginsMenu: function(container, group)
     {
-        KFLog.debug("setOneLoginsMenu called for [" + containerID + "] with uniqueRef: " + groupUniqueID);
+        //KFLog.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
 
-        // get the popup menu for this list of logins and subgroups
-        var container = this._currentWindow.document.getElementById(containerID);
-        if (container === undefined || container == null)
-            return;
+        
             
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
         
-        var foundGroups = this._currentWindow.keefox_org.ILM.getChildGroups({}, groupUniqueID);
-        var foundLogins = this._currentWindow.keefox_org.ILM.getChildEntries({}, groupUniqueID);
-
+        var foundGroups = group.childGroups;
+        var foundLogins = group.childLightEntries;
+//KFLog.debug("loga");
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0))
         {
             var noItemsButton = null;
@@ -225,7 +228,7 @@ KFToolbar.prototype = {
             container.appendChild(noItemsButton);
             return;
         }
-
+//KFLog.debug("logb");
         for (var i = 0; i < foundGroups.length; i++)
         {
             var group = foundGroups[i];
@@ -235,8 +238,8 @@ KFToolbar.prototype = {
             newMenu = this._currentWindow.document.createElement("menu");
             newMenu.setAttribute("label", group.title);
             newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
-            newMenu.setAttribute("onpopupshowing", "keefox_org.toolbar.setOneLoginsMenu('KeeFox_Group-" +
-                group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
+            //newMenu.setAttribute("onpopupshowing", "keefox_org.toolbar.setOneLoginsMenu('KeeFox_Group-" +
+            //    group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
             newMenu.setAttribute("class", "menu-iconic");
             newMenu.setAttribute("value", group.uniqueID);
             newMenu.setAttribute("context", "KeeFox-group-context");
@@ -247,44 +250,33 @@ KFToolbar.prototype = {
             var newMenuPopup = null;
             newMenuPopup = this._currentWindow.document.createElement("menupopup");
             newMenuPopup.setAttribute("id", "KeeFox_Group-" + group.uniqueID);
+            this.setOneLoginsMenu(newMenuPopup,group);
             newMenu.appendChild(newMenuPopup);
 
         }
-        
+        //KFLog.debug("logc");
         for (var i = 0; i < foundLogins.length; i++)
         {
+        //KFLog.debug("logi: " + i);
             var login = foundLogins[i];
             var usernameValue = "";
             var usernameName = "";
-            var usernameId = "";
             var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
-            
-            if (login.usernameIndex != null && typeof(login.usernameIndex) != "undefined" 
-                && login.usernameIndex >= 0 && login.usernameIndex >= 0 && login.otherFields != null 
-                && login.otherFields.length > 0)
-            {
-                KFLog.debug("otherfields length: "+login.otherFields.length);
-                KFLog.debug("login.usernameIndex: "+login.usernameIndex);
-
-                var field = login.otherFields[login.usernameIndex];
-
-                usernameValue = field.value;
-                if (usernameValue != undefined && usernameValue != null && usernameValue != "")
-                    usernameDisplayValue = usernameValue;
-                usernameName = field.name;
-                usernameId = field.fieldId;
-            }
+            usernameValue = login.usernameValue;
+            if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                usernameDisplayValue = usernameValue;
+            usernameName = login.usernameName;
 
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
-                "loginsButtonLogin.tip", [login.URLs[0], usernameDisplayValue]));
+                "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue]));
             tempButton.setAttribute("oncommand", "keefox_org.ILM.loadAndAutoSubmit(0,event.ctrlKey,'" +
-                usernameName + "','" + usernameValue + "','" + login.URLs[0] 
+                usernameName + "','" + usernameValue + "','" + login.uRLs[0] 
                 + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
             tempButton.setAttribute("onclick", "if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
-                usernameName + "','" + usernameValue + "','" + login.URLs[0] 
+                usernameName + "','" + usernameValue + "','" + login.uRLs[0] 
                 + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation(); if (event.button == 1) keefox_org.UI.closeMenus(event.target);");// var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
@@ -293,7 +285,7 @@ KFToolbar.prototype = {
 
             container.appendChild(tempButton);
         }
-        
+        //KFLog.debug("logd");
     },
 
 //    setupButton_installListener: {
@@ -580,12 +572,35 @@ KFToolbar.prototype = {
         
             for (i = 0; i < mruArray.length; i++)
             {
-               
+                var displayName = mruArray[i];
+                if (displayName.length > 50)
+                {
+                    var fileNameStartLocation = displayName.lastIndexOf('\\');
+                    var spareChars = 50 - (displayName.length - fileNameStartLocation);
+                    if (spareChars > 10)
+                    {
+                        var path = displayName.substr(0,fileNameStartLocation);
+                        var parentStartLocation = path.lastIndexOf('\\');
+                        var preferredSpareChars = 50 - (displayName.length - parentStartLocation);
+                        if (preferredSpareChars > 10)
+                        {
+                            suffix = displayName.substr(parentStartLocation);
+                            prefix = displayName.substr(0,preferredSpareChars);
+                        }
+                        else
+                        {
+                            suffix = displayName.substr(fileNameStartLocation);
+                            prefix = displayName.substr(0,spareChars);
+                        }
+                        displayName = prefix + ' ... ' + suffix;
+                    } // otherwise there's not much we can do anyway so just leave it to truncate the end of the file name
+                }
+                    
 
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
-                tempButton.setAttribute("label", mruArray[i]);
-                tempButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonListItem.tip"));
+                tempButton.setAttribute("label", displayName);
+                tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("changeDBButtonListItem.tip", [mruArray[i]]) );
                 tempButton.setAttribute("oncommand", "keeFoxInst.changeDatabase('" +
                     mruArray[i].replace(/[\\]/g,'\\\\') + "',false);  event.stopPropagation();");
                 tempButton.setAttribute("class", "menuitem-iconic");
@@ -712,7 +727,7 @@ KFToolbar.prototype = {
         }
         
         
-            
+        KFLog.debug("clearTabFormFillData end");    
     },
     
     

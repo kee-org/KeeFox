@@ -56,7 +56,14 @@ var Application = Components.classes["@mozilla.org/fuel/application;1"]
 // constructor
 function KeeFoxLogger()
 {
-    this.keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
+//var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+//                    .getService(Components.interfaces.nsIPrefService);
+//prefs = prefs.getBranch("extensions.myext.");
+
+    this._prefService =  
+        Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
+    this.prefBranch = this._prefService.getBranch("extensions.keefox@chris.tomlinson.");    
+    //this.keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
     this.configureFromPreferences();
     this._log("Logging system initialised at " + Date());
 }
@@ -253,7 +260,11 @@ KeeFoxLogger.prototype = {
     // (these preferences could be set from about:config or an options panel)
     configureFromPreferences : function ()
     {
-        var prefLevel = this.keeFoxExtension.prefs.getValue("logLevel",0);
+        var prefLevel = 0;
+        
+        try {
+            prefLevel = this.prefBranch.getIntPref("logLevel");
+            } catch (ex) {  }
         
         switch (prefLevel)
         {
@@ -262,18 +273,23 @@ KeeFoxLogger.prototype = {
             case 2: this.levelWarn = true;
             case 1: this.levelError = true;
         }
-            
-        if (this.keeFoxExtension.prefs.getValue("logMethodAlert",false))
-            this.methodAlert = true;
-        if (this.keeFoxExtension.prefs.getValue("logMethodConsole",false))
-            this.methodConsole = true;
-        if (this.keeFoxExtension.prefs.getValue("logMethodStdOut",false))
-            this.methodStdOut = true;
-        if (this.keeFoxExtension.prefs.getValue("logMethodFile",false))
-            this.methodFile = true;
-            
-        if (this.keeFoxExtension.prefs.getValue("logSensitiveData",false))
-            this.logSensitiveData = true;
+        
+        try {
+            this.methodAlert = this.prefBranch.getBoolPref("logMethodAlert");
+            } catch (ex) { this.methodAlert = false; }
+        try {
+            this.methodConsole = this.prefBranch.getBoolPref("logMethodConsole");
+            } catch (ex) { this.methodConsole = false; }
+        try {
+            this.methodStdOut = this.prefBranch.getBoolPref("logMethodStdOut");
+            } catch (ex) { this.methodStdOut = false; }
+        try {
+            this.methodFile = this.prefBranch.getBoolPref("logMethodFile");
+            } catch (ex) { this.methodFile = false; }
+        try {
+            this.logSensitiveData = this.prefBranch.getBoolPref("logSensitiveData");
+            } catch (ex) { this.logSensitiveData = false; }  
+              
     }
 
 };

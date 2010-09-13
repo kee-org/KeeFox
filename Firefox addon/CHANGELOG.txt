@@ -1,5 +1,14 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.3
+-----
+- Communication between KeeFox and KeePassRPC is now nearly all asynchronous;
+- "Change database" file names truncated in more useful location whenever possible;
+- Fill operation now triggered by selecting a login from the drop down box (no 2nd click on a button anymore);
+- List of logins fully loaded during database changes - no more delays when navigating the Logins toolbar menu but longer delay before menu is updated;
+- New icon cache in KeePassRPC speeds up Logins menu loading;
+- Lots of work towards Firefox 4 support, most noteably removing reliance on FUEL since that's died an early death;
+
 0.8.2
 -----
 - Removed some C# 3 syntax that upsets the PLGX compiler when running .NET 2.0

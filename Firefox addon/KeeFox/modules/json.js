@@ -37,15 +37,14 @@ var log = KFLog;
 function jsonrpcClient() {
     this.requestId = 1;
     this.callbacks = {}; //TODO: does FF JS engine leak memory if I use high indexed, mostly empty arrays?
+    this.callbacksData = {}; // ditto
     this.syncRequestResults = {}; // ditto
     this.partialData = {};
-    //this.syncRequestComplete = false;
     this.parsingStringContents = false;
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,2];
-    //this.syncFixupTimer = null;
+    this.clientVersion = [0,8,3];
 }
 
 jsonrpcClient.prototype = new session();
@@ -149,6 +148,11 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         }
     }
 
+    //TODO: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
+    // talk of moving it to an off-main thread back in 2009 implies it is on main so no problem
+    // but worth experimenting if crashes occur? Also, should I use different UTF8 decoding
+    // routines that can allow adherence to the "count" parameter rather than just reading
+    // everything we can get our potentially dirty paws on.
     this.onDataAvailable = function(request, ctx, inputStream, offset, count)
     {
         var data = this.readData(); // don't care about the number of bytes, we'll just read all the UTF8 characters available
@@ -206,8 +210,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     try
                     {
                         if (this.callbacks[obj.id] != null)
-                            this.callbacks[obj.id](obj);
-                        delete this.callbacks[obj.id];
+                            this.callbacks[obj.id](obj, this.callbacksData[obj.id]);
+                        delete this.callbacks[obj.id]; //TODO:0.9: delete callback data too?
                     } catch (e)
                     {
                         delete this.callbacks[obj.id];
@@ -219,7 +223,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     {
                         log.error("An error occurred in KeePassRPC object id: " + obj.id + " with this message: " + obj.message + " and this error: " + obj.error + " and this error message: " + obj.error.message);
                         if (this.callbacks[obj.id] != null)
-                            this.callbacks[obj.id](obj);
+                            this.callbacks[obj.id](obj, this.callbacksData[obj.id]);
                         delete this.callbacks[obj.id];
                     } catch (e)
                     {
@@ -270,12 +274,15 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     // send a request to the current RPC server.
     // calling functions MUST manage the requestID to limit thread concurrency errors
-    this.request = function(session, method, params, callback, requestId)
+    this.request = function(session, method, params, callback, requestId, callbackData)
     {
         if (requestId == undefined || requestId == null || requestId < 0)
             throw("JSON-RPC communciation requested with no requestID provided.");
  
         this.callbacks[requestId] = callback;
+        if (callbackData != null)
+            this.callbacksData[requestId] = callbackData;
+            
         var data = JSON.stringify({ "params": params, "method": method, "id": requestId });
         if (log.logSensitiveData)
             log.debug("Sending a JSON-RPC request: " + data);
@@ -287,6 +294,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         {
             log.warn("JSON-RPC request could not be sent.");
             this.callbacks[requestId] = null;
+            this.callbacksData[requestId] = null;
             this.syncRequestResults[requestId] = new Error("JSON-RPC request could not be sent");
         }
     }
@@ -333,9 +341,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         // multi-thread timing could lead to two requests with the same ID)
         var myRequestId = ++this.requestId;
         
-        this.syncRequestResults[myRequestId] = null; //TODO: can the JSON parser ever
-        // return null? if so, change this or else we might deadlock YES! And we do deadlock!
-        // TODO: set a timeout on this sync event (set above to a JS Error object)
+        this.syncRequestResults[myRequestId] = null;
 
         this.request(session, method, params, function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -427,64 +433,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.getDBName = function()
-    {  
-        /*ASYNC review: KF.js(547)
-        KFToolBar.js(427)
-        1) blocks _refreshKPDB (name required before can decide if we're logged in, etc.)
-        2) blocks setupButton_ready toolbar (same reason); function later creates MRU DB 
-        button but this is just another call (potentially async) and won't fail if this
-        function hasn't returned yet
-        
-        1) move all contents of _refreshKPDB into a callback function. tabselect event
-        listener timing may be fragile (but if so, needs fixing anyway)
-        2) create a loggedInAs call back to recieve the name and do the work currently 
-        in the if statement on line 427+
-        
-        **** callbacks need to happen on main thread (GUI access)
-        
-        3 hours
-        
-        */
-        var result = this.syncRequest(this, "GetDatabaseName");
-        return result;
-    }
-
-    this.getDBFileName = function()
-    {
-        /*ASYNC review: 
-        called only from within _refreshKPDB method. only to update MRU preference
-        so no problem pulling it into a callback function
-        
-        1 hour
-        
-        */
-        var result = this.syncRequest(this, "GetDatabaseFileName");
-        return result;
-    }
-
-    this.getRootGroup = function()
-    {
-        /*ASYNC review: KFToolBar.js(174) only
-        blocks start of loading all logins onto toolbar
-        
-        logins button enabled after logins menu populated but login menu 
-        population could be started from a callback
-        
-        !!! calling functions assume that calls to those functions have completed and hence 
-        sometimes make a second call shortly after (e.g. logins cleared
-         and then updated list added)
-         
-        shouldn't be a problem dealing with two concurrent requests to this function
-        but related function calls need more thought...
-        
-        ? hours
-        
-        */
-        var result = this.syncRequest(this, "GetRoot");
-        return result;
-    }
-
     this.changeDB = function(fileName, closeCurrent)
     {
         // fire and forget
@@ -512,123 +460,51 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.findLogins = function(hostname, formSubmitURL, httpRealm, uniqueID)
+    this.findLogins = function(hostname, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
     {
-        /*ASYNC review: 
-        1) commonDialog.js(180)
-        2) KFILM.js(634)
-        3) KFILM_Fill.js(488)
-        4) ...
-        5) 
-        
-        1) Not benefit to user if result is handled asyncronously - they'll just see
-         a momentary delay before everything gets shuffled around just as they are
-         trying to interact with the dialog. Only transport layer failure or KeePass 
-         crash could cause long delay at this point but find operation should be pretty 
-         quick for all databases and computers so a 10 second timeout should give us a
-         way to recover from such an exceptional event.
-         Alternative is to design placeholders saying "loading" to user. Not sure we can
-         calculate the size in advance but if so this could be a neater thing to aim for
-        2) Only called from notification bar so no need for callback feedback to user.
-        Will need to create a callback function that incorporates the addLogin() 
-        call referred to above
-        3) called for every form on a page load; currently skips call if previous call was
-        for same criteria. could maybe yield at each iteration? BUT information stored in 
-        tab (for passing on to next page) can't be done until function calls to all forms
-        have returned - what if one doesn't? need to do some things ASAP but only after 
-        we know the result - e.g. setting form contents change listeners (can't do this
-         before autofill has happened)
-        
-        Massive task - many days at least.
-        
-        */
-        var lst = "LSTall";
-        if (httpRealm == undefined || httpRealm == null || httpRealm == "")
-            lst = "LSTnoRealms";
-        else if (formSubmitURL == undefined || formSubmitURL == null || formSubmitURL == "")
-            lst = "LSTnoForms";       
-        var result = this.syncRequest(this, "FindLogins", [hostname, formSubmitURL, httpRealm, lst, false, uniqueID]);
-
-        var convertedResult = [];
-        for (var i in result)
-        {
-            var kfl = newkfLoginInfo();
-            kfl.initFromEntry(result[i]);
-            convertedResult.push(kfl);
-        }
-        return convertedResult; // an array of logins
-    }
-
-    this.getChildEntries = function(uniqueID)
-    {   
-        /*ASYNC review: 
-        used only via user interaction with Logins menu. as with getRoot, we could put up some sort 
-        of "loading" sign and make all these requests async. but maybe we're better off just developing
-        the getAllLogins feature so that the entire DB structure is stored in the main module and toolbar Logins
-        updates consist of locking user interaction with the menu, transferring data from the module into a toolbar
-        structure and then unlocking UI. This cuold be forced upon the toolbar as per current _refreshKPDB system
-        or it could be intiated by the toolbar (e.g. in response to a notification from the module that the logins
-        structure has changed). Latter could be far more efficient if actual changes to DB are rare? Maybe module
-        could cache DB contents for each database? but how do we know we need to clear it when that DB is locked / closed?
-        */   
-        var result = this.syncRequest(this, "GetChildEntries", [uniqueID]);
-
-        var convertedResult = [];
-        for (var i in result)
-        {
-            var kfl = newkfLoginInfo();
-            kfl.initFromEntry(result[i]);
-            convertedResult.push(kfl);
-        }
-        if (log.logSensitiveData)
-            log.debug("converted logins: " + JSON.stringify(convertedResult));
-        return convertedResult; // an array of logins
-    }
-
-    this.getAllLogins = function()
-    {      
-        /*ASYNC review: 
-        never used; could be useful in re-worked "all logins" storage in shared module rather than getChildEntries/Groups
-        */
-        var result = this.syncRequest(this, "GetAllLogins");
-
-        var convertedResult = [];
-        for (var i in result)
-        {
-            var kfl = newkfLoginInfo();
-            kfl.initFromEntry(result[i]);
-            convertedResult.push(kfl);
-        }
-        return convertedResult; // an array of logins
-    }
-
-    this.countLogins = function(hostname, formSubmitURL, httpRealm)
-    {
-        /*ASYNC review: 
-        deprecating this function anyway.
-        */
-        var lst = "LSTall";
-        if (httpRealm == undefined || httpRealm == null || httpRealm == "")
-            lst = "LSTnoRealms";
-        else if (formSubmitURL == undefined || formSubmitURL == null || formSubmitURL == "")
-            lst = "LSTnoForms";       
-        var result = this.syncRequest(this, "CountLogins", [hostname, formSubmitURL, httpRealm, lst, false]);
-
-        return result; // an integer
-    }
-
-    this.getChildGroups = function(uniqueID)
-    {
-        var result = this.syncRequest(this, "GetChildGroups", [uniqueID]);
-        return result; // an array of groups
-    }
+    // now returns ID of async JSON-RPC request so calling functions can track if desired
     
+        var lst = "LSTall";
+        if (httpRealm == undefined || httpRealm == null || httpRealm == "")
+            lst = "LSTnoRealms";
+        else if (formSubmitURL == undefined || formSubmitURL == null || formSubmitURL == "")
+            lst = "LSTnoForms";       
+        
+        var newId = ++this.requestId;
+        // slight chance IDs may be sent out of order but at least this way
+        // they are consistent for any given request/response cycle
+        this.request(this, "FindLogins", [hostname, formSubmitURL, httpRealm, lst, false, uniqueID], callback, newId, callbackData);        
+        return newId;
+    }
+
+    this.getAllDatabases = function()
+    {
+        var result = this.request(this, "GetAllDatabases", null,function rpc_callback(resultWrapper) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+            
+            if ("result" in resultWrapper && resultWrapper.result !== false)
+            {
+                if (resultWrapper.result !== null)
+                    window.keeFoxInst.updateKeePassDatabases(resultWrapper.result);
+                
+                //else
+                //    log something? window.keeFoxInst.rror("Null return result received");
+            } //else
+              //log something?  window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error(resultWrapper.error);    
+        }, ++this.requestId);
+        
+        return;
+    }
+
     this.generatePassword = function()
     {
         /*ASYNC review: 
         could easily make async but might be better for user to see a slight pause
          rather than risk dodgy connections causing clipboard to be overwritten
-          long after user thinks operation failed
+          long after user thinks operation failed.
+          hmmm... a valid concern but probably outweighed by sync disadvantages if this ends up being the only thing we need sync requests for.
         */
         var result = this.syncRequest(this, "GeneratePassword", [""]);
         return result; // a string
@@ -638,23 +514,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     
     maybe a standard timeout could be put in place for some functions so if their async response comes back after some recorded deadline we can ignore it.
     
-    
-    
-    DEBUG: setupButton_ready start
-DEBUG: Preparing a synchronous request to the JSON-RPC server.
-DEBUG: Sending a JSON-RPC request
-DEBUG: Waiting for the synchronous request to the JSON-RPC server to end.
-    
-    
     */
     
-
-
-    // these probably need implementing one day...
-    //addGroup(title, parentUUID)
-    //.deleteLogin(uniqueID)
-    //.deleteGroup(uniqueID)
-    //.getParentGroup(uniqueID)
-    //.modifyLogin(oldLogin, newLogin)
-
 }).apply(jsonrpcClient.prototype);

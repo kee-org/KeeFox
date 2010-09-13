@@ -185,7 +185,10 @@ namespace KeePassRPC
                     this._isListening = false;
                     //MessageBox.Show("error 226: " + ex.ToString());
                     // attempt recovery unless we tried less than 3 seconds ago
-                    if (DateTime.UtcNow.Ticks > lastListenAttempt+(10*1000*1000*3))
+                    // actually, when this works as describes, it just hangs KP on
+                    // exit (while loop keeps this one thread open after main window has shut)
+                    // so more work needed if we want to auto-recover reliably.
+                    //if (DateTime.UtcNow.Ticks < lastListenAttempt+(10*1000*1000*3))
                         tryToListen = false;
                 }
             }

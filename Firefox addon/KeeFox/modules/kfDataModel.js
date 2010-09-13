@@ -108,27 +108,7 @@ kfLoginInfo.prototype =
 	alwaysAutoSubmit : false,
 	neverAutoFill : false,
 	neverAutoSubmit : false,
-	
-	fuckOff : function (fieldArray)
-	{
-	//this.passwords.map(function(item) { return item.toJSON(); });
-
-    var len = fieldArray.length;
-
-    var res = new Array(len);
-    //var thisp = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      //if (i in this)
-        res[i] = fieldArray[i].toJSONifiable();
-    }
-var json = JSON.stringify(res);
-dump(json);
-    return res;
-
-	
-	},
-	
+		
 	toJSON : function ()
     {
         var intermediateObject = {};
@@ -136,7 +116,7 @@ dump(json);
         intermediateObject.formActionURL = this.formActionURL;
         intermediateObject.httpRealm = this.httpRealm;
         intermediateObject.usernameIndex = this.usernameIndex;
-        intermediateObject.passwords = this.passwords;//this.fuckOff(this.passwords);
+        intermediateObject.passwords = this.passwords;
         intermediateObject.uniqueID = this.uniqueID;
         intermediateObject.title = this.title;
         intermediateObject.otherFields = this.otherFields;//this.otherFields.map(function(item) { return item.toJSONifiable(); });

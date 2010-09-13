@@ -159,8 +159,10 @@ KFILM.prototype._onFormSubmit = function (form)
             if (passwords.length == 2)
             {
                 passwordFields.push(passwords[0]);
-                //TODO: it is also reasonably likely that this indicates a sign-up form rather than a password change form. decide which here and flag which one it is
-                // for now, we just assume it's a sign-up form becuase that is more useful for the user in many cases
+                //TODO: it is also reasonably likely that this indicates a
+                // sign-up form rather than a password change form. decide
+                // which here and flag which one it is for now, we just assume
+                // it's a sign-up form becuase that is more useful for the user in many cases
                 isPasswordChangeForm = false;
                 isRegistrationForm = true;
             } else
@@ -200,65 +202,119 @@ KFILM.prototype._onFormSubmit = function (form)
         usernameIndex,
         passwordFields, null, title, otherFields, currentPage);
     
+    
+    var submitDocumentDataStorage = {};
+    submitDocumentDataStorage.formLogin = formLogin;
+    submitDocumentDataStorage.formActionURL = formActionURL;
+    submitDocumentDataStorage.URL = URL;
+    submitDocumentDataStorage.isPasswordChangeForm = isPasswordChangeForm;
+    submitDocumentDataStorage.isRegistrationForm = isRegistrationForm;
+    submitDocumentDataStorage.win = win;
+    submitDocumentDataStorage.currentPage = currentPage;
+    submitDocumentDataStorage.ss = ss;
+    submitDocumentDataStorage.currentTab = currentTab;
+    submitDocumentDataStorage.doc = doc;
+    submitDocumentDataStorage.topDoc = topDoc;
+    submitDocumentDataStorage.savePageCountToTab = savePageCountToTab;            
+    
+    
     // if we still don't think this is an existing loging and the user is logged in,
     // we might as well check to see if the form they have filled in 
     // matches any existing password and not bother showing the notification bar if that's the case.
     // This will still be tripped up by multi-page logins becuase no single page can match the entire
     // stored login but hopefully people will generally be using KeeFox to fill entire
     //  multi-page logins so the uniqueID will be set
-    if (!existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+    if (!submitDocumentDataStorage.existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        var logins = this.findLogins(URL, formActionURL, null, null);
+        this.findLogins(submitDocumentDataStorage.URL, submitDocumentDataStorage.formActionURL, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
+        
+    } else // no need to wait for async response from KeePassRPC
+    {
+        this._onFormSubmitFindLoginsComplete(null,submitDocumentDataStorage);
+    }
+    
+};
 
+/*
+ * _onFormSubmitFindLoginsComplete
+ *
+ * Called in response to a JSON-RPC reply to a request to find logins
+ */
+KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDataStorage)
+{                
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+             .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
+    window.keeFoxInst._KFLog.info("callback fired!");
+     
+    var logins = null;
+    var convertedResult = [];
+            
+    // if no resultWrapper is provided, we just go ahead anyway assuming it's a new login
+    if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
+    {
+        logins = resultWrapper.result; 
+        
+        for (var i in logins)
+        {
+            var kfl = newkfLoginInfo();
+            kfl.initFromEntry(logins[i]);
+            convertedResult.push(kfl);
+        }
+        logins = convertedResult;
+        //submitDocumentDataStorage = window.keefox_org.ILM.submitDocumentDataStorages[resultWrapper.id];
+        
         if (logins != undefined && logins != null)
         {
-            KFLog.debug("matching test: "+logins.length);
-                
             for (var i = 0; i < logins.length; i++)
             {
-                if (formLogin.matches(logins[i],false,true,false,false))
-                    existingLogin = true;
+                if (submitDocumentDataStorage.formLogin.matches(logins[i],false,true,false,false))
+                    submitDocumentDataStorage.existingLogin = true;
             }
         }
     }
     
     // discover the usernames for the submitted form
     var formLoginUsername = null;
-    if (formLogin.usernameIndex >= 0 && formLogin.otherFields != null && formLogin.otherFields.length > formLogin.usernameIndex && formLogin.otherFields[formLogin.usernameIndex] != undefined)
+    if (submitDocumentDataStorage.formLogin.usernameIndex >= 0 
+    && submitDocumentDataStorage.formLogin.otherFields != null 
+    && submitDocumentDataStorage.formLogin.otherFields.length > submitDocumentDataStorage.formLogin.usernameIndex 
+    && submitDocumentDataStorage.formLogin.otherFields[submitDocumentDataStorage.formLogin.usernameIndex] != undefined)
     {
-        var temp = formLogin.otherFields[formLogin.usernameIndex];
+        var temp = submitDocumentDataStorage.formLogin.otherFields[submitDocumentDataStorage.formLogin.usernameIndex];
         formLoginUsername = temp.value;
         if (KFLog.logSensitiveData) KFLog.debug("formLoginUsername: " + formLoginUsername);
     }
 
     //if (oldPasswordField != null) // we are changing the password
     //TODO: implement password change support if it doesn't impact the more important log-in and registration features
-    if (isPasswordChangeForm)
-    {
-        
-        if (existingLogin) // as long as we have previously stored a login for this site...
-        {
-            KFLog.info("we are changing the password");
-            keefox_org.UI.setWindow(win);
-            keefox_org.UI.setDocument(doc);
+//        if (submitDocumentDataStorage.isPasswordChangeForm)
+//        {
+//            
+//            if (submitDocumentDataStorage.existingLogin) // as long as we have previously stored a login for this site...
+//            {
+//                KFLog.info("we are changing the password");
+//                keefox_org.UI.setWindow(submitDocumentDataStorage.win);
+//                keefox_org.UI.setDocument(submitDocumentDataStorage.doc);
 
-            if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO: is this needed?
-                //var oldLogin = logins[0];
-                //formLogin.usernameIndex      = oldLogin.usernameIndex;
+//                if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO: is this needed?
+//                    //var oldLogin = logins[0];
+//                    //formLogin.usernameIndex      = oldLogin.usernameIndex;
 
-                keefox_org.UI.promptToChangePassword(oldLogin, formLogin);
-            } else {
-                keefox_org.UI.promptToChangePasswordWithUsernames(
-                                    logins, logins.length, formLogin);
-            } // TODO: allow option to override change password option and instead save as a new password. (need a new prompt function)
-        }
-        return;
-    
-    } else if (isRegistrationForm)
+//                    keefox_org.UI.promptToChangePassword(submitDocumentDataStorage.oldLogin, submitDocumentDataStorage.formLogin);
+//                } else {
+//                    keefox_org.UI.promptToChangePasswordWithUsernames(
+//                                        logins, logins.length, formLogin);
+//                } // TODO: allow option to override change password option and instead save as a new password. (need a new prompt function)
+//            }
+//            return;
+//        
+//        } else 
+    if (submitDocumentDataStorage.isRegistrationForm)
     {
         KFLog.info("Looks like this is a registration form so doing nothing (not implemented yet).");
         return;
-    } else if (existingLogin) // it's already in the database so ignore
+    } else if (submitDocumentDataStorage.existingLogin) // it's already in the database so ignore
     {
         KFLog.info("we are logging in with a known password so doing nothing.");
         // this could miss some cases. e.g.
@@ -270,101 +326,38 @@ KFILM.prototype._onFormSubmit = function (form)
     KFLog.info("password is not recognised so prompting user to save it");
     
     // set the tab value ready for the next time the page loads
-    var nextPage = currentPage + 1;
+    var nextPage = submitDocumentDataStorage.currentPage + 1;
    
     // If this is the 2nd (or later) part of a multi-page login form, we need to combine the new field items with the previous login data
     if (nextPage > 2)
     {
         KFLog.info("This form submission is part of a multi-page login process.");
         
-        var previousStageLoginJSON = ss.getTabValue(currentTab, "KF_recordFormCurrentStateJSON");
-//        var previousStageLoginMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
-//        var previousStageLoginURLs = ss.getTabValue(currentTab, "KF_recordFormCurrentStateURLs");
-//        var previousStageLoginPasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
-//        var previousStageLoginOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
-        
-        //var kfLoginField = newkfLoginField();
-        //var kfURL;
-//        var deserialisedOutputOtherFields = [];
-//        var deserialisedOutputPasswords = [];
-//        var deserialisedOutputURLs = [];
+        var previousStageLoginJSON = submitDocumentDataStorage.ss.getTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentStateJSON");
         var previousStageLogin = newkfLoginInfo();
         previousStageLogin.fromJSON(previousStageLoginJSON);
-                  
-//        if (previousStageLoginOtherFields != undefined && previousStageLoginOtherFields != null)
-//            eval (previousStageLoginOtherFields);
-
-//        if (previousStageLoginPasswords != undefined && previousStageLoginPasswords != null)
-//            eval (previousStageLoginPasswords);
-//       
-//        if (previousStageLoginURLs != undefined && previousStageLoginURLs != null)
-//            eval (previousStageLoginURLs);
-//  
-//        if (previousStageLoginMain != undefined && previousStageLoginMain != null)
-//            eval ("previousStageLogin.init"+previousStageLoginMain);
-    
+        
         // set the tab value ready for the next time the page loads
         //TODO: how do we "cancel" this so that the page count is reset when the next login/signup process begins?
         if (previousStageLogin != undefined && previousStageLogin != null)
         {   
-            previousStageLogin.mergeWith(formLogin);
-            formLogin = previousStageLogin;
+            previousStageLogin.mergeWith(submitDocumentDataStorage.formLogin);
+            submitDocumentDataStorage.formLogin = previousStageLogin;
         }
     }
     // Prompt user to save login (via dialog or notification bar)
-    keefox_org.UI.setWindow(win);
-    keefox_org.UI.setDocument(topDoc);
+    keefox_org.UI.setWindow(submitDocumentDataStorage.win);
+    keefox_org.UI.setDocument(submitDocumentDataStorage.topDoc);
     
-//    KFLog.debug("formLogin.otherFields.length:" + formLogin.otherFields.length);
-//    KFLog.debug("formLogin.passwords.length:" + formLogin.passwords.length);
-//    
-//    var otherFieldsSerialsed = "";            
-//    for (j = 0; j < formLogin.otherFields.length; j++)
-//    {
-//        var matchedField = formLogin.otherFields[j];
-//        otherFieldsSerialsed += "var tempOutputOtherField"+ j + " = newkfLoginField(); tempOutputOtherField"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputOtherFields.push(tempOutputOtherField"+ j + "); ";
-//    }
-//                  
-//    var passwordsSerialsed = "";            
-//    for (j = 0; j < formLogin.passwords.length; j++)
-//    {
-//        var matchedField = formLogin.passwords[j];
-//        passwordsSerialsed += "var tempOutputPassword"+ j + " = newkfLoginField(); tempOutputPassword"+ j + ".init" + matchedField.toSource() + "; deserialisedOutputPasswords.push(tempOutputPassword"+ j + "); ";
-//    }
-
-//    var URLsSerialsed = "";            
-//    for (j = 0; j < formLogin.URLs.length; j++)
-//    {
-//        var matchedURL = formLogin.URLs[j];
-//        URLsSerialsed += "var tempOutputURL"+ j + " ='" + matchedURL + "'; deserialisedOutputURLs.push(tempOutputURL"+ j + "); ";
-//    }
-   
-//   finalEval = formLogin.toSource();
-//    KFLog.debug("test1");
-//    var tempJSON = JSON.stringify(formLogin);
-//     KFLog.debug("test2:" + tempJSON);
-//    KFLog.debug("test3:" + passwordsSerialsed);
-//    var tempTestLogin = newkfLoginInfo();
-//    tempTestLogin.fromJSON(tempJSON);
-//    var tempJSON2 = JSON.stringify(tempTestLogin);
-//     KFLog.debug("test4:" + tempJSON2);
-     
-    // we save the current state no matter what, just in case user
-    // does decide to convert this into a multi-page login
-//    ss.setTabValue(currentTab, "KF_recordFormCurrentStateURLs", URLsSerialsed);
-//    ss.setTabValue(currentTab, "KF_recordFormCurrentStatePasswords", passwordsSerialsed);
-//    ss.setTabValue(currentTab, "KF_recordFormCurrentStateOtherFields", otherFieldsSerialsed);
-//    ss.setTabValue(currentTab, "KF_recordFormCurrentStateMain", finalEval);
-    ss.setTabValue(currentTab, "KF_recordFormCurrentStateJSON", JSON.stringify(formLogin));    
+    submitDocumentDataStorage.ss.setTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentStateJSON", JSON.stringify(submitDocumentDataStorage.formLogin));    
     
-    if (savePageCountToTab)
+    if (submitDocumentDataStorage.savePageCountToTab)
     {
-        ss.setTabValue(currentTab, "KF_recordFormCurrentPage", nextPage);
+        submitDocumentDataStorage.ss.setTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentPage", nextPage);
     } 
     
     if (nextPage > 2)
-        keefox_org.UI.promptToSavePassword(formLogin, true);
+        keefox_org.UI.promptToSavePassword(submitDocumentDataStorage.formLogin, true);
     else
-        keefox_org.UI.promptToSavePassword(formLogin, false);
-    
+        keefox_org.UI.promptToSavePassword(submitDocumentDataStorage.formLogin, false);
 };

@@ -36,22 +36,116 @@ Components.utils.import("resource://kfmod/KFLogger.js");
 var Application = Components.classes["@mozilla.org/fuel/application;1"]
                 .getService(Components.interfaces.fuelIApplication);
 
-//TODO: need to make the entire module asyncronous so that the new FUEL extension system in FF4 actually works?!
 // constructor
 function KeeFox()
 {
     this._KFLog = KFLog;
-    this._keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
+    
+    this._keeFoxExtension = {};
+    this._keeFoxExtension.storage = {
+        _storage : {},
+        has : function ss_has(aName) {
+            return this._storage.hasOwnProperty(aName);
+        },
+
+        set : function ss_set(aName, aValue) {
+            this._storage[aName] = aValue;
+        },
+
+        get : function ss_get(aName, aDefaultValue) {
+            return this.has(aName) ? this._storage[aName] : aDefaultValue;
+        }
+    };
+    this._keeFoxExtension.prefs = {}; // TODO: move all the pref and storage functions into a seperate prototype definition for clarity?
+    this._keeFoxExtension.prefs._prefService = 
+        Components.classes["@mozilla.org/preferences-service;1"]
+        .getService(Ci.nsIPrefService);
+    this._keeFoxExtension.prefs._prefBranch = 
+        this._keeFoxExtension.prefs._prefService
+        .getBranch("extensions.keefox@chris.tomlinson.");
+    this._keeFoxExtension.prefs.has = function(name)
+    {
+        var prefType = this._prefBranch.getPrefType(name);
+        if (prefType == 32 || prefType == 64 || prefType == 128)
+            return true;
+        return false;
+    };
+    this._keeFoxExtension.prefs.getValue = function(name, defaultValue)
+    {
+        var prefType = this._prefBranch.getPrefType(name);
+
+        var gotValue = null;
+        if (prefType == 32)
+            gotValue = this._getStringValue(name);
+        if (prefType == 64)
+            gotValue = this._getIntValue(name);
+        if (prefType == 128)
+            gotValue = this._getBoolValue(name);
+ 
+        if (gotValue != null)
+            return gotValue;
+        return defaultValue;
+    };
+    this._keeFoxExtension.prefs._getStringValue = function(name)
+    {
+        try { return this._prefBranch.getCharPref(name);
+        } catch (ex) { return null; }
+    };
+    this._keeFoxExtension.prefs._getIntValue = function(name)
+    {
+        try { return this._prefBranch.getIntPref(name);
+        } catch (ex) { return null; }
+    };
+    this._keeFoxExtension.prefs._getBoolValue = function(name)
+    {
+        try { return this._prefBranch.getBoolPref(name);
+        } catch (ex) { return null; }
+    };
+    this._keeFoxExtension.prefs.setValue = function(name,value)
+    {
+        if (typeof value == "string")
+            return this._setStringValue(name, value);
+        if (typeof value == "number")
+            return this._setIntValue(name, value);
+        if (typeof value == "boolean")
+            return this._setBoolValue(name, value);
+    };
+    this._keeFoxExtension.prefs._setStringValue = function(name, value)
+    {
+        try { this._prefBranch.setCharPref(name, value);
+        } catch (ex) {}
+    };
+    this._keeFoxExtension.prefs._setIntValue = function(name, value)
+    {
+        try { this._prefBranch.setIntPref(name, value);
+        } catch (ex) {}
+    };
+    this._keeFoxExtension.prefs._setBoolValue = function(name, value)
+    {
+        try { this._prefBranch.setBoolPref(name, value);
+        } catch (ex) {}
+    };
+    
+    if (!this._keeFoxExtension.prefs.getValue("install-event-fired", false)) {
+        this._keeFoxExtension.prefs.setValue("install-event-fired", true);
+        this._keeFoxExtension.firstRun = true;
+    }
+
+    
     this._keeFoxStorage = this._keeFoxExtension.storage;
-    var prefs = this._keeFoxExtension.prefs;
     
     if (this._keeFoxExtension.firstRun)
     {
-        prefs.setValue("originalPreferenceRememberSignons", Application.prefs.getValue("signon.rememberSignons", false));
-        Application.prefs.setValue("signon.rememberSignons", false);
+        var originalPreferenceRememberSignons = false;
+        try {
+            originalPreferenceRememberSignons = this._keeFoxExtension.prefs._prefService.getBranch("").getBoolPref("signon.rememberSignons");
+            } catch (ex) {}
+        this._keeFoxExtension.prefs.setValue(
+            "signon.rememberSignons", originalPreferenceRememberSignons);
+        this._keeFoxExtension.prefs._prefService.getBranch("").setBoolPref("signon.rememberSignons", false);
     }
     
-    this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
+    //this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
     
     this._registerPlacesListeners();
     
@@ -60,11 +154,10 @@ function KeeFox()
     this._observer._kf = this;    
     observerService.addObserver(this._observer, "quit-application", false);   
         
-    this._prefService =  
-        Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);        
-    this._prefService.QueryInterface(Ci.nsIPrefBranch2);
-    this._prefService.addObserver("signon.rememberSignons", this._observer, false);
-    this._prefService.QueryInterface(Ci.nsIPrefBranch);
+           
+    this._keeFoxExtension.prefs._prefService.QueryInterface(Ci.nsIPrefBranch2);
+    this._keeFoxExtension.prefs._prefService.addObserver("signon.rememberSignons", this._observer, false);
+    this._keeFoxExtension.prefs._prefService.QueryInterface(Ci.nsIPrefBranch);
         
     // Create a timer 
     this.regularCallBackToKeeFoxJSQueueHandlerTimer = Components.classes["@mozilla.org/timer;1"]
@@ -77,12 +170,13 @@ function KeeFox()
     //TODO: set some/all of my tab session state to be persistent so it survives crashes/restores?
     
     this.lastKeePassRPCRefresh = 0;
-    //KFLog.debug("test1111");
+    this.ActiveKeePassDatabaseIndex = 0;
     this._keeFoxBrowserStartup();
-    //KFLog.debug("test1112");
 }
 
 KeeFox.prototype = {
+
+    _keeFoxExtension: null,
 
     regularCallBackToKeeFoxJSQueueHandlerTimer: null,
 
@@ -103,6 +197,8 @@ KeeFox.prototype = {
     pendingCallback: "",
     
     urlToOpenOnStartup: null,
+    
+    KeePassDatabases: null,
 
     // notify all interested objects and functions of changes in preference settings
     // (lots of references to preferences will not be cached so there's not lots to do here)
@@ -145,6 +241,7 @@ KeeFox.prototype = {
         return true;
     },
 
+    //TODO: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
     uninstallHandler: function()
     {
     //TODO: this doesn't work. dunno how to catch the secret FUEL notifications yet...
@@ -153,8 +250,8 @@ KeeFox.prototype = {
         // options (e.g. "Uninstall KeePass too?")
         
         // Reset prefs to pre-KeeFox settings
-        var rs = prefs.getValue("originalPreferenceRememberSignons", false);
-        Application.prefs.setValue("signon.rememberSignons", rs);
+        //var rs = prefs.getValue("originalPreferenceRememberSignons", false);
+        //Application.prefs.setValue("signon.rememberSignons", rs);
     },
 
     _registerPlacesListeners: function()
@@ -193,12 +290,7 @@ KeeFox.prototype = {
         
         this._KFLog.info("KeeFox initialising");
         
-        // Set up UI (TODO: Pre-KeePassRPC system did this after attempting
-        // a connection so test that this has no bad side-effects)        
-        
-        this._keeFoxVariableInit();//currentKFToolbar, currentWindow);
-        // not doing this - leave it until first connection attempt has happened... this._refreshKPDB();//this._keeFoxInitialToolBarSetup(currentKFToolbar, currentWindow);
-        
+        this._keeFoxVariableInit();
         this.KeePassRPC = new jsonrpcClient();
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
             this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
@@ -265,19 +357,19 @@ KeeFox.prototype = {
             if (keePassRPCLocation == "not installed")
             {
                 this._KFLog.info("KeePassRPC location was not found");
-                this._launchInstaller();//currentKFToolbar,currentWindow);
+                this._launchInstaller();
             } else
             {
                 if (!KeePassEXEfound)
                 {
                     this._KFLog.info("KeePass EXE not present in expected location");
-                    this._launchInstaller();//currentKFToolbar,currentWindow);
+                    this._launchInstaller();
                 } else
                 {
                     if (!KeePassRPCfound)
                     {
                         this._KFLog.info("KeePassRPC plugin DLL not present in KeePass plugins directory so needs to be installed");
-                        this._launchInstaller();//currentKFToolbar,currentWindow);
+                        this._launchInstaller();
                     } else
                     {
                         this._KFLog.info("KeePass is not running or the connection might be established in a second...");
@@ -470,10 +562,10 @@ KeeFox.prototype = {
     _pauseKeeFox: function()
     {
         this._KFLog.debug("Pausing KeeFox.");
-        //var wasConnected = this._keeFoxStorage.get("KeePassRPCActive", false);
-        //var wasLoggedIn = this._keeFoxStorage.get("KeePassDatabaseOpen", false);
         this._keeFoxStorage.set("KeePassRPCActive", false);
         this._keeFoxStorage.set("KeePassDatabaseOpen", false); // grrr. This was HOPEFULLY the missing statement that led to the deadlocks (actually a slowly executing infinite recursive loop that would take a long time to exhast the stack - win.keeFoxToolbar.setupButton_ready calls KF.getSatabaseName calls KF._pauseKeeFox). This note remains as a painful reminder and maybe a clue for future debugging!
+        this.KeePassDatabases = null;
+        this.ActiveKeePassDatabaseIndex = 0;
         
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
                  getService(Ci.nsIWindowMediator);
@@ -506,12 +598,26 @@ KeeFox.prototype = {
     // This is now intended to be called on all occasions when the toolbar or UI need updating
     // If KeePass is unavailable then this will call _pauseKeeFox instead but
     // it's more efficient to just call the pause function straight away if you know KeePass is disconnected
+    
+    // called on connect, on startup and on many callbacks from KeePass - a bit of shuffling of the first two situations might
+    // leave us in a situation where this can be thought of as only something that happens after a full getallDBs list callback????
+    
+    //OK, this is now considered a request to refresh, not the actual operation itself...
     _refreshKPDB: function ()
     {
+        this._KFLog.debug("Request to refresh KeeFox's view of the KeePass database received.");
+    
+        this.getAllDatabases();
+    
+        this._KFLog.debug("Refresh of KeeFox's view of the KeePass database initiated.");    
+    },
+    
+    _refreshKPDBCallback: function ()
+    {
         this._KFLog.debug("Refreshing KeeFox's view of the KeePass database.");
-        var dbName = this.getDatabaseName();  
+        var dbName = this.getDatabaseName();
         if (dbName.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
-        {
+        { //TODO: Don't think this can ever happen anymore - verify that's OK then remove...
             this._pauseKeeFox();
             return;
         }            
@@ -527,7 +633,7 @@ KeeFox.prototype = {
                 this._KFLog.info("The database is open.");
             this._keeFoxStorage.set("KeePassDatabaseOpen", true);
         }
-                
+        
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
                  getService(Ci.nsIWindowMediator);
         var enumerator = wm.getEnumerator("navigator:browser");
@@ -547,6 +653,7 @@ KeeFox.prototype = {
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
+                    //TODO: test this with new async setup...
                     win.keefox_org.ILM._fillDocument(win.content.document,false);
                 }
             } catch (exception)
@@ -555,6 +662,7 @@ KeeFox.prototype = {
             }
         }
         
+        //TODO:? this can be done in the getalldatabases callback surely?
         if (this._keeFoxStorage.get("KeePassDatabaseOpen",false) 
             && this._keeFoxExtension.prefs.getValue("rememberMRUDB",false))
         {
@@ -564,7 +672,39 @@ KeeFox.prototype = {
         }
 
         this._KFLog.info("KeeFox feels very refreshed now.");
-    },    
+    },  
+    
+    updateKeePassDatabases: function(newDatabases)
+    {
+        var newDatabaseActiveIndex = 0;
+        for (var i=0; i < newDatabases.length; i++)
+        {
+            if (newDatabases[i].active)
+            {
+                newDatabaseActiveIndex = i;
+                break;
+            }
+        }
+        this.KeePassDatabases = newDatabases;
+        this.ActiveKeePassDatabaseIndex = newDatabaseActiveIndex;
+        this._refreshKPDBCallback();  
+    },
+    
+    getDatabaseNameNew: function()
+    {
+        if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
+            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].name;
+        else
+            return "";
+    },
+    
+    getDatabaseFileNameNew: function()
+    {
+        if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
+            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].fileName;
+        else
+            return "";
+    },
     
     /*******************************************
     / Launching and installing
@@ -702,28 +842,12 @@ KeeFox.prototype = {
     
     getDatabaseName: function()
     {
-        try
-        {
-            var result = this.KeePassRPC.getDBName();              
-            return result;
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
+        return this.getDatabaseNameNew();
     },
     
     getDatabaseFileName: function()
     {
-        try
-        {
-            return this.KeePassRPC.getDBFileName();
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
-        return "";
+        return this.getDatabaseFileNameNew();
     },
     
     getAllDatabaseFileNames: function()
@@ -812,43 +936,6 @@ KeeFox.prototype = {
         }
     },
     
-    getRootGroup: function()
-    {
-        try
-        {
-            return this.KeePassRPC.getRootGroup();
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
-    },
-    
-    getChildGroups: function(count, uniqueID)
-    {
-        try
-        {
-            return this.KeePassRPC.getChildGroups(uniqueID);
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
-    },
-    
-    getChildEntries: function(count, uniqueID)
-    {
-        try
-        {
-            return this.KeePassRPC.getChildEntries(uniqueID);
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
-    },
-
-    
     modifyLogin: function (oldLogin, newLogin)
     {
         try
@@ -861,11 +948,11 @@ KeeFox.prototype = {
         }
     },
     
-    getAllLogins: function (count)
+    getAllDatabases: function ()
     {
         try
         {
-            return this.KeePassRPC.getAllLogins();
+            return this.KeePassRPC.getAllDatabases();
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -873,30 +960,17 @@ KeeFox.prototype = {
         }
     },
     
-    findLogins: function(hostname, formSubmitURL, httpRealm, uniqueID)
+    findLogins: function(hostname, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
     {
         try
         {
-            return this.KeePassRPC.findLogins(hostname, formSubmitURL, httpRealm, uniqueID);
+            return this.KeePassRPC.findLogins(hostname, formSubmitURL, httpRealm, uniqueID, callback, callbackData);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
-    
-    countLogins: function(hostName,actionURL,httpRealm)
-    {
-        try
-        {
-            return this.KeePassRPC.countLogins(hostName,actionURL,httpRealm);
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
-    },
-    
     
     launchLoginEditor: function(uuid)
     {
@@ -1110,7 +1184,7 @@ KeeFox.prototype = {
                         + " the built-in Firefox password manager?",
                                flags, "", "", "", null, {}) == 0)
                     {
-                      Application.prefs.setValue("signon.rememberSignons", false);
+                      this._prefService.getBranch("").setBoolPref("signon.rememberSignons", false);
                     }
                     break;
             }
@@ -1119,12 +1193,11 @@ KeeFox.prototype = {
         notify : function (subject, topic, data) { }
     },
 
-    // we could define multiple callback functions but that looks like it needs 
-    // really messy xpcom code so we'll stick with the one and just switch...
-    //TODO?: will we need optional extra data parameter?
-    // this is only called once no matter how many windows are open. so functions within need to handle all open windows
-    // for now, that just means every window although in future maybe there could be a need to store a list of relevant
-    // windows and call those instead
+    // Could use multiple callback functions but just one keeps KeePassRPC simpler
+    // this is only called once no matter how many windows are open. so functions
+    // within need to handle all open windows for now, that just means every
+    // window although in future maybe there could be a need to store a list of
+    // relevant windows and call those instead
     CallBackToKeeFoxJS: function(sig)
     {
         var sigTime = Date();
@@ -1136,9 +1209,6 @@ KeeFox.prototype = {
         var refresh = false;
         
         switch (sig) {
-            // deprecated case "0": keeFoxInst._KFLog.info("Javascript callbacks from KeeFox XPCOM DLL are now disabled."); keeFoxInst._pauseKeeFox(); break;
-            // deprecated case "1": keeFoxInst._KFLog.info("Javascript callbacks from KeeFox XPCOM DLL are now enabled."); break;
-            // deprecated case "2": keeFoxInst._KFLog.info("KeeICE callbacks from KeePass to KeeFox XPCOM are now enabled."); break;
             case "0": keeFoxInst._KFLog.info("KeePassRPC is requesting authentication."); keeFoxInst._authenticate(); break;
             case "3": keeFoxInst._KFLog.info("KeePass' currently active DB is about to be opened."); break;
             case "4": keeFoxInst._KFLog.info("KeePass' currently active DB has just been opened.");

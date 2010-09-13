@@ -38,6 +38,9 @@ var Application = Components.classes["@mozilla.org/fuel/application;1"]
 // constructor
 function KFILM(kf,keeFoxToolbar,currentWindow)
 {
+    this.findLoginOps = [];
+    this.findLoginDocs = [];
+    this.dialogFindLoginStorages = [];
     this._kf = kf;
     this._toolbar = keeFoxToolbar;
     this._currentWindow = currentWindow;
@@ -525,7 +528,7 @@ KFILM.prototype = {
          || fieldName == "user id" || fieldName == "user-id" || fieldName == "userid"
          || fieldName == "email" || fieldName == "e-mail" || fieldName == "id"
          || fieldName == "form_loginname" || fieldName == "wpname" || fieldName == "mail"
-         || fieldName == "loginid" || fieldName == "login id") // etc. etc.
+         || fieldName == "loginid" || fieldName == "login id" || fieldName == "login_name") // etc. etc.
             return true;
         return false;
     },
@@ -660,26 +663,28 @@ KFILM.prototype = {
         }
 
         var primaryURL = "";
-
+        
+//TODO 0.9: Can I really get away with skipping this check? If not I need to create a new KeePassRPC method to find by multiple URLs in one go.
         // Look for an existing entry.
         // NB: maybe not ideal - would be nice to search for all URLs in
         // one go but in practice this will affect performance only rarely
-        for (i = 0; i < login.URLs.length; i++)
-        {
-            var loginURL = login.URLs[i];          
-            var logins = this.findLogins(loginURL, login.formActionURL,
-                                        login.httpRealm);
+//        for (i = 0; i < login.URLs.length; i++)
+//        {
+//            var loginURL = login.URLs[i];          
+//            var logins = this.findLogins(loginURL, login.formActionURL,
+//                                        login.httpRealm);
 
-            //TODO 0.8: Test this - I changed it during KeePassRPC migration
-            if (logins.some(function(l) { return login.matches(l, false, true, false, false); })) // set last to true (usernames)? or make the test more flexible
-            {
-                KFLog.info("This login already exists.");
-                return "This login already exists.";
-            }
-            
-            if (i == 0)
-                primaryURL = loginURL;
-        }
+//            //TODO 0.8: Test this - I changed it during KeePassRPC migration
+//            if (logins.some(function(l) { return login.matches(l, false, true, false, false); })) // set last to true (usernames)? or make the test more flexible
+//            {
+//                KFLog.info("This login already exists.");
+//                return "This login already exists.";
+//            }
+//            
+//            if (i == 0)
+//                primaryURL = loginURL;
+//        }
+primaryURL = login.URLs[0];
         
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
         {
@@ -717,25 +722,6 @@ KFILM.prototype = {
         return this._kf.getParentGroup(uniqueID);
     },
     
-    getRootGroup : function ()
-    {
-        KFLog.debug("Getting root group");
-        return this._kf.getRootGroup();
-    },
-    
-    getChildGroups : function (count, uniqueID)
-    {
-        KFLog.debug("Getting all child groups of: " + uniqueID);
-        return this._kf.getChildGroups(count, uniqueID);
-    },
-    
-    getChildEntries : function (count, uniqueID)
-    {
-        KFLog.debug("Getting all child entries of: " + uniqueID);
-        return this._kf.getChildEntries(count, uniqueID);
-    },
-        
-
     /*
      * removeLogin
      *
@@ -770,26 +756,11 @@ KFILM.prototype = {
     },
 
     /*
-     * getAllLogins
-     *
-     * Returns an array of logins. If there are no logins, the array is empty.
-     */
-     //TODO: Maybe using this will be a faster way to set up and cache
-     // the "logins" menu. Ideally we'd get the best of both worlds but
-     // one big delay at the start when the DB is first loaded,switched,
-     // etc. might be preferable to delays on every sub-menu
-    getAllLogins : function ()
-    {
-        KFLog.debug("Getting a list of all logins");
-        return this._kf.getAllLogins();
-    },
-        
-    /*
      * findLogins
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (url, formSubmitURL, httpRealm, uniqueID)
+    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
     {
         if (KFLog.logSensitiveData)
             KFLog.info("Searching for logins matching URL: " + url +
@@ -798,17 +769,9 @@ KFILM.prototype = {
         else
             KFLog.info("Searching for logins");
 
-        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID);
+        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, callback, callbackData);
     },
     
-    countLogins : function (hostName,actionURL,httpRealm)
-    {
-        if (this._kf._keeFoxStorage.get("KeePassRPCActive",false))
-        {
-            return this._kf.countLogins(hostName,actionURL,httpRealm);
-        }
-    },
-
     /*
      * _getURIExcludingQS
      *

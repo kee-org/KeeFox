@@ -38,6 +38,7 @@ using KeePass.Plugins;
 using System.Security.Cryptography;
 using KeePassLib.Cryptography.PasswordGenerator;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 
 namespace KeePassRPC
 {
@@ -385,7 +386,7 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = GetRootPwGroup().FindGroup(pwuuid, true);
+                PwGroup matchedGroup = GetRootPwGroup(host.Database).FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
@@ -429,7 +430,7 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwEntry matchedLogin = GetRootPwGroup().FindEntry(pwuuid, true);
+                PwEntry matchedLogin = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -445,12 +446,30 @@ namespace KeePassRPC
 
         private string GetPwEntryString(PwEntry pwe, string name)
         {
-            return KeePass.Util.Spr.SprEngine.Compile(
-                pwe.Strings.ReadSafe(name), false, pwe, host.Database, false, false);
+            return GetPwEntryString(pwe, name, true);
         }
 
-        private Entry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch)
+        private string GetPwEntryString(PwEntry pwe, string name, bool dereferenceFieldRefs)
         {
+            //Debug.Indent();
+            //Stopwatch sw = Stopwatch.StartNew();
+            string result = "";
+            if (dereferenceFieldRefs)
+                result = KeePass.Util.Spr.SprEngine.Compile(
+                    pwe.Strings.ReadSafe(name), false, pwe, host.Database, false, false);
+            else
+                pwe.Strings.ReadSafe(name);
+           // sw.Stop();
+            //Debug.WriteLine("GetPwEntryString execution time: " + sw.Elapsed);
+            //Debug.Unindent();
+            return result;
+        }
+
+        private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails)
+        {
+            //Debug.Indent();
+            //Stopwatch sw = Stopwatch.StartNew();
+
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
             URLs.Add(pwe.Strings.ReadSafe("URL"));
@@ -461,87 +480,102 @@ namespace KeePassRPC
             bool alwaysAutoSubmit = false;
             bool neverAutoSubmit = false;
             int priority = 0;
+            string usernameName = "";
+            string usernameValue = "";
 
-            foreach (System.Collections.Generic.KeyValuePair
-                <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
+            if (!fullDetails)
             {
-                string pweKey = pwestring.Key;
-                string pweValue = pwestring.Value.ReadString();
 
-                if (pweKey.StartsWith("Form field ") && pweKey.EndsWith(" type") && pweKey.Length > 16)
+            }
+            else
+            {
+
+                foreach (System.Collections.Generic.KeyValuePair
+                    <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
                 {
-                    string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
-                    string fieldId = "";
-                    int fieldPage = 1;
+                    string pweKey = pwestring.Key;
+                    string pweValue = pwestring.Value.ReadString();
 
-                    if (pwe.Strings.Exists("Form field " + fieldName + " page"))
+                    if (!fullDetails && pweValue != "username")
+                        continue;
+
+                    if (pweKey.StartsWith("Form field ") && pweKey.EndsWith(" type") && pweKey.Length > 16)
                     {
-                        try
+                        string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
+                        string fieldId = "";
+                        int fieldPage = 1;
+
+                        if (pwe.Strings.Exists("Form field " + fieldName + " page"))
                         {
-                            fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page"));
+                            try
+                            {
+                                fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page"));
+                            }
+                            catch (Exception)
+                            {
+                                fieldPage = 1;
+                            }
                         }
-                        catch (Exception)
+
+
+                        if (pwe.Strings.Exists("Form field " + fieldName + " id"))
+                            fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id");
+
+                        if (pweValue == "password")
                         {
-                            fieldPage = 1;
+                            // If there is a matching custom string for this password, use that but if not
+                            // we can just use the standard entry password.
+                            if (pwe.Strings.Exists("Form field " + fieldName + " value"))
+                                formFieldList.Add(new FormField(fieldName,
+                    "Password", GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                            else
+                                formFieldList.Add(new FormField(fieldName,
+                    "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                            passwordFound = true;
+                        }
+                        else if (pweValue == "username")
+                        {
+                            formFieldList.Add(new FormField(fieldName,
+                    "User name", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, fieldId, fieldPage));
+                            usernameName = fieldName;
+                            usernameValue = GetPwEntryString(pwe, "UserName", fullDetails);
+                            usernameFound = true;
+                        }
+                        else if (pweValue == "text")
+                        {
+                            formFieldList.Add(new FormField(fieldName,
+                    fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTtext, fieldId, fieldPage));
+                        }
+                        else if (pweValue == "radio")
+                        {
+                            formFieldList.Add(new FormField(fieldName,
+                    fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTradio, fieldId, fieldPage));
+                        }
+                        else if (pweValue == "select")
+                        {
+                            formFieldList.Add(new FormField(fieldName,
+                    fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTselect, fieldId, fieldPage));
+                        }
+                        else if (pweValue == "checkbox")
+                        {
+                            formFieldList.Add(new FormField(fieldName,
+                    fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTcheckbox, fieldId, fieldPage));
                         }
                     }
+                    else if (pweKey == "Alternative URLs")
+                    {
+                        string[] urlsArray = pweValue.Split(new char[' ']);
+                        foreach (string altURL in urlsArray)
+                            URLs.Add(altURL);
 
-
-                    if (pwe.Strings.Exists("Form field " + fieldName + " id"))
-                        fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id");
-
-                    if (pweValue == "password")
-                    {
-                        // If there is a matching custom string for this password, use that but if not
-                        // we can just use the standard entry password.
-                        if (pwe.Strings.Exists("Form field " + fieldName + " value"))
-                            formFieldList.Add(new FormField(fieldName,
-                "Password", GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTpassword, fieldId, fieldPage));
-                        else
-                            formFieldList.Add(new FormField(fieldName,
-                "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, fieldId, fieldPage));
-                        passwordFound = true;
                     }
-                    else if (pweValue == "username")
-                    {
-                        formFieldList.Add(new FormField(fieldName,
-                "User name", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, fieldId, fieldPage));
-                        usernameFound = true;
-                    }
-                    else if (pweValue == "text")
-                    {
-                        formFieldList.Add(new FormField(fieldName,
-                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTtext, fieldId, fieldPage));
-                    }
-                    else if (pweValue == "radio")
-                    {
-                        formFieldList.Add(new FormField(fieldName,
-                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTradio, fieldId, fieldPage));
-                    }
-                    else if (pweValue == "select")
-                    {
-                        formFieldList.Add(new FormField(fieldName,
-                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTselect, fieldId, fieldPage));
-                    }
-                    else if (pweValue == "checkbox")
-                    {
-                        formFieldList.Add(new FormField(fieldName,
-                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTcheckbox, fieldId, fieldPage));
-                    }
+                    //Debug.WriteLine("GetEntryFromPwEntry field processed: " + sw.Elapsed);
                 }
-                else if (pweKey == "Alternative URLs")
-                {
-                    string[] urlsArray = pweValue.Split(new char[' ']);
-                    foreach (string altURL in urlsArray)
-                        URLs.Add(altURL);
-
-                }
-
             }
 
             // If we didn't find an explicit password field, we assume any value
             // in the KeePass "password" box is what we are looking for
-            if (!passwordFound)
+            if (fullDetails && !passwordFound)
             {
                 formFieldList.Add(new FormField("password",
                     "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, "password", 1));
@@ -553,45 +587,65 @@ namespace KeePassRPC
             {
                 formFieldList.Add(new FormField("username",
                     "Username", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, "username", 1));
+                usernameName = "username";
+                usernameValue = GetPwEntryString(pwe, "UserName");
             }
 
             string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);
+            //Debug.WriteLine("GetEntryFromPwEntry icon converted: " + sw.Elapsed);
 
-            if (pwe.Strings.Exists("KeeFox Always Auto Fill"))
-                alwaysAutoFill = true;
-            if (pwe.Strings.Exists("KeeFox Always Auto Submit"))
-                alwaysAutoSubmit = true;
-            if (pwe.Strings.Exists("KeeFox Never Auto Fill"))
-                neverAutoFill = true;
-            if (pwe.Strings.Exists("KeeFox Never Auto Submit"))
-                neverAutoSubmit = true;
-
-            if (pwe.Strings.Exists("KeeFox Priority"))
+            if (fullDetails)
             {
-                string priorityString = pwe.Strings.ReadSafe("KeeFox Priority");
-                if (!string.IsNullOrEmpty(priorityString))
-                {
-                    try
-                    {
-                        priority = int.Parse(priorityString);
-                    }
-                    catch
-                    { }
+                if (pwe.Strings.Exists("KeeFox Always Auto Fill"))
+                    alwaysAutoFill = true;
+                if (pwe.Strings.Exists("KeeFox Always Auto Submit"))
+                    alwaysAutoSubmit = true;
+                if (pwe.Strings.Exists("KeeFox Never Auto Fill"))
+                    neverAutoFill = true;
+                if (pwe.Strings.Exists("KeeFox Never Auto Submit"))
+                    neverAutoSubmit = true;
 
-                    if (priority < 0 || priority > 100000)
-                        priority = 0;
+                if (pwe.Strings.Exists("KeeFox Priority"))
+                {
+                    string priorityString = pwe.Strings.ReadSafe("KeeFox Priority");
+                    if (!string.IsNullOrEmpty(priorityString))
+                    {
+                        try
+                        {
+                            priority = int.Parse(priorityString);
+                        }
+                        catch
+                        { }
+
+                        if (priority < 0 || priority > 100000)
+                            priority = 0;
+                    }
                 }
             }
 
-            FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
-            Entry kpe = new Entry(
+            //sw.Stop();
+            //Debug.WriteLine("GetEntryFromPwEntry execution time: " + sw.Elapsed);
+            //Debug.Unindent();
+            
+            if (fullDetails)
+            {
+                FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
+                Entry kpe = new Entry(
                 (string[])URLs.ToArray(typeof(string)),
                 GetPwEntryString(pwe, "Form match URL"), GetPwEntryString(pwe, "Form HTTP realm"),
                 pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
                 GetGroupFromPwGroup(pwe.ParentGroup), imageData);
-            return kpe;
+                return kpe;
+            }
+            else
+            {
+                return new LightEntry((string[])URLs.ToArray(typeof(string)),
+                    pwe.Strings.ReadSafe(PwDefs.TitleField),
+                    KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
+                    imageData, usernameName, usernameValue);
+            }
         }
 
         /*
@@ -623,10 +677,39 @@ namespace KeePassRPC
 
         private Group GetGroupFromPwGroup(PwGroup pwg)
         {
+            //Debug.Indent();
+            //Stopwatch sw = Stopwatch.StartNew();
+
             string imageData = iconToBase64(pwg.CustomIconUuid, pwg.IconId);
 
             Group kpg = new Group(pwg.Name, KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwg.Uuid.UuidBytes), imageData, pwg.GetFullPath("/", false));
+
+            //sw.Stop();
+            //Debug.WriteLine("GetGroupFromPwGroup execution time: " + sw.Elapsed);
+            //Debug.Unindent();
             return kpg;
+        }
+
+        private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail)
+        {
+            //Debug.Indent();
+           // Stopwatch sw = Stopwatch.StartNew();
+
+            PwGroup pwg = GetRootPwGroup(pwd);
+            Group rt = GetGroupFromPwGroup(pwg);
+            if (fullDetail)
+                rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail);
+            else
+                rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail);
+            rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
+            //host.Database.RootGroup.
+
+            Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.GetDisplayName(), rt, (pwd == host.Database) ? true : false);
+
+          //  sw.Stop();
+          //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
+          //  Debug.Unindent();
+            return kpd;
         }
 
         private void setPwEntryFromEntry(PwEntry pwe, Entry login)
@@ -724,24 +807,66 @@ namespace KeePassRPC
         private string iconToBase64(PwUuid customIconUUID, PwIcon iconId)
         {
             Image icon = null;
+            PwUuid uuid = null;
+
             string imageData = "";
             if (customIconUUID != PwUuid.Zero)
             {
-                icon = host.Database.GetCustomIcon(customIconUUID);
-                if (icon == null)
-                    icon = host.MainWindow.ClientIcons.Images[(int)iconId];
+                string cachedBase64 = DataExchangeModel.IconCache.GetIconEncoding(customIconUUID);
+                if (string.IsNullOrEmpty(cachedBase64))
+                {
+                    icon = host.Database.GetCustomIcon(customIconUUID);
+                    if (icon != null)
+                    {
+                        uuid = customIconUUID;
+                    }
+                } else
+                {
+                    return cachedBase64;
+                }
             }
-            else
+            
+            // this happens if we didn't want to or couldn't find a custom icon
+            if (icon == null)
             {
-                icon = host.MainWindow.ClientIcons.Images[(int)iconId];
+                int iconIdInt = (int)iconId;
+                uuid = new PwUuid( new byte[]{
+                    (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
+                    (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
+                    (byte)(iconIdInt >> 8 & 0xFF), (byte)(iconIdInt >> 8 & 0xFF),
+                    (byte)(iconIdInt >> 8 & 0xFF), (byte)(iconIdInt >> 8 & 0xFF),
+                    (byte)(iconIdInt >> 16 & 0xFF), (byte)(iconIdInt >> 16 & 0xFF),
+                    (byte)(iconIdInt >> 16 & 0xFF), (byte)(iconIdInt >> 16 & 0xFF),
+                    (byte)(iconIdInt >> 24 & 0xFF), (byte)(iconIdInt >> 24 & 0xFF),
+                    (byte)(iconIdInt >> 24 & 0xFF), (byte)(iconIdInt >> 24 & 0xFF)
+                } );
+
+                string cachedBase64 = DataExchangeModel.IconCache.GetIconEncoding(uuid);
+                if (string.IsNullOrEmpty(cachedBase64))
+                {
+                    object[] delParams = { (int)iconId };
+                    object invokeResult = host.MainWindow.Invoke(
+                        new KeePassRPCExt.GetIconDelegate(
+                            KeePassRPCPlugin.GetIcon), delParams);
+                    if (invokeResult != null)
+                    {
+                        icon = (Image)invokeResult;
+                    }
+                } else
+                {
+                    return cachedBase64;
+                }
             }
 
+            
             if (icon != null)
             {
+                // we found an icon but it wasn't in the cache so lets
+                // calculate its base64 encoding and then add it to the cache
                 MemoryStream ms = new MemoryStream();
                 icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                //Encoding.UTF8.GetBytes
                 imageData = Convert.ToBase64String(ms.ToArray());
+                DataExchangeModel.IconCache.AddIcon(uuid, imageData);
             }
 
             return imageData;
@@ -960,7 +1085,7 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwEntry matchedLogin = GetRootPwGroup().FindEntry(pwuuid, true);
+                PwEntry matchedLogin = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -1021,7 +1146,7 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = GetRootPwGroup().FindGroup(pwuuid, true);
+                PwGroup matchedGroup = GetRootPwGroup(host.Database).FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
@@ -1082,13 +1207,13 @@ namespace KeePassRPC
 
             setPwEntryFromEntry(newLogin, login);
 
-            PwGroup parentGroup = GetRootPwGroup(); // if in doubt we'll stick it in the root folder
+            PwGroup parentGroup = GetRootPwGroup(host.Database); // if in doubt we'll stick it in the root folder
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = GetRootPwGroup().FindGroup(pwuuid, true);
+                PwGroup matchedGroup = GetRootPwGroup(host.Database).FindGroup(pwuuid, true);
 
                 if (matchedGroup != null)
                     parentGroup = matchedGroup;
@@ -1098,7 +1223,7 @@ namespace KeePassRPC
 
             host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
-            Entry output = GetEntryFromPwEntry(newLogin, true);
+            Entry output = (Entry)GetEntryFromPwEntry(newLogin, true, true);
 
             return output;
         }
@@ -1118,7 +1243,7 @@ namespace KeePassRPC
             PwGroup newGroup = new PwGroup(true, true);
             newGroup.Name = name;
 
-            PwGroup parentGroup = GetRootPwGroup(); // if in doubt we'll stick it in the root folder
+            PwGroup parentGroup = GetRootPwGroup(host.Database); // if in doubt we'll stick it in the root folder
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
@@ -1160,7 +1285,7 @@ namespace KeePassRPC
 
             PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLogin.UniqueID));
 
-            PwEntry modificationTarget = GetRootPwGroup().FindEntry(pwuuid, true);
+            PwEntry modificationTarget = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
 
             if (modificationTarget == null)
                 throw new Exception("Could not find correct entry to modify. No changes made to KeePass database.");
@@ -1185,7 +1310,7 @@ namespace KeePassRPC
             if (!ensureDBisOpen()) return null;
 
             PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
-            PwGroup rootGroup = GetRootPwGroup();
+            PwGroup rootGroup = GetRootPwGroup(host.Database);
 
             try
             {
@@ -1220,7 +1345,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Group GetRoot()
         {
-            return GetGroupFromPwGroup(GetRootPwGroup());
+            return GetGroupFromPwGroup(GetRootPwGroup(host.Database));
         }
 
         /// <summary>
@@ -1228,18 +1353,18 @@ namespace KeePassRPC
         /// </summary>
         /// <returns>the root group</returns>
         [JsonRpcMethod]
-        public PwGroup GetRootPwGroup()
+        public PwGroup GetRootPwGroup(PwDatabase pwd)
         {
-            // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
+            if (pwd == null)
+                pwd = host.Database;
 
-            if (host.Database.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && host.Database.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length >= 30) //TODO: tighten
+            if (pwd.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length >= 30) //TODO: tighten
             {
-                string uuid = host.Database.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
+                string uuid = pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
 
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+                PwGroup matchedGroup = pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested group.");
@@ -1248,9 +1373,29 @@ namespace KeePassRPC
             }
             else
             {
-                return host.Database.RootGroup;
+                return pwd.RootGroup;
             }
         }
+
+        [JsonRpcMethod]
+        public Database[] GetAllDatabases(bool fullDetails)
+        {
+            Debug.Indent();
+            Stopwatch sw = Stopwatch.StartNew();
+
+            List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+            List<Database> output = new List<Database>(1);
+
+            foreach (PwDatabase db in dbs)
+            {
+                output.Add(GetDatabaseFromPwDatabase(db, fullDetails));
+            }
+            Database[] dbarray = output.ToArray();
+            sw.Stop();
+            Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
+            Debug.Unindent();
+            return dbarray;
+        }        
 
         /// <summary>
         /// Return a list of every login in the database
@@ -1268,7 +1413,7 @@ namespace KeePassRPC
             if (!ensureDBisOpen()) { return null; }
 
             KeePassLib.Collections.PwObjectList<PwEntry> output;
-            output = GetRootPwGroup().GetEntries(true);
+            output = GetRootPwGroup(host.Database).GetEntries(true);
 
             foreach (PwEntry pwe in output)
             {
@@ -1278,7 +1423,7 @@ namespace KeePassRPC
                 if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                     continue;
 
-                Entry kpe = GetEntryFromPwEntry(pwe, false);
+                Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true);
                 allEntries.Add(kpe);
                 count++;
 
@@ -1301,40 +1446,78 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Entry[] GetChildEntries(string uuid)
         {
-            List<Entry> allEntries = new List<Entry>();
-
+            PwGroup matchedGroup;
             if (uuid != null && uuid.Length > 0)
             {
-                // Make sure there is an active database
-                if (!ensureDBisOpen()) { return null; }
-
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+                matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+            }
+            else
+            {
+                matchedGroup = GetRootPwGroup(host.Database);
+            }
 
-                if (matchedGroup == null)
-                    throw new Exception("Could not find requested group.");
+            if (matchedGroup == null)
+                throw new Exception("Could not find requested group.");
 
+            return (Entry[])GetChildEntries(host.Database, matchedGroup, true);
+        }
+
+        /// <summary>
+        /// Returns a list of every entry contained within a group (not recursive)
+        /// </summary>
+        /// <param name="uuid">the unique ID of the group we're interested in.</param>
+        /// <param name="current__"></param>
+        /// <returns>the list of every entry directly inside the group.</returns>
+        private LightEntry[] GetChildEntries(PwDatabase pwd, PwGroup group, bool fullDetails)
+        {
+            List<Entry> allEntries = new List<Entry>();
+            List<LightEntry> allLightEntries = new List<LightEntry>();
+
+            if (group != null)
+            {
+                
                 KeePassLib.Collections.PwObjectList<PwEntry> output;
-                output = matchedGroup.GetEntries(false);
+                output = group.GetEntries(false);
 
                 foreach (PwEntry pwe in output)
                 {
-                    if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                    if (pwd.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                         continue; // ignore if it's in the recycle bin
 
                     if (pwe.Strings.Exists("Hide from KeeFox") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         continue;
-                    Entry kpe = GetEntryFromPwEntry(pwe, false);
-                    allEntries.Add(kpe);
+                    if (fullDetails)
+                    {
+                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true);
+                        allEntries.Add(kpe);
+                    }
+                    else
+                    {
+                        LightEntry kpe = GetEntryFromPwEntry(pwe, false, false);
+                        allLightEntries.Add(kpe);
+                    }
                 }
 
-                allEntries.Sort(delegate(Entry e1, Entry e2)
+                if (fullDetails)
                 {
-                    return e1.Title.CompareTo(e2.Title);
-                });
+                    allEntries.Sort(delegate(Entry e1, Entry e2)
+                    {
+                        return e1.Title.CompareTo(e2.Title);
+                    });
+                    return allEntries.ToArray();
+                }
+                else
+                {
+                    allLightEntries.Sort(delegate(LightEntry e1, LightEntry e2)
+                    {
+                        return e1.Title.CompareTo(e2.Title);
+                    });
+                    return allLightEntries.ToArray();
+                }
 
-                return allEntries.ToArray();
+                
             }
 
             return null;
@@ -1349,13 +1532,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public Group[] GetChildGroups(string uuid)
         {
-            List<Group> allGroups = new List<Group>();
-
             PwGroup matchedGroup;
-
-            // Make sure there is an active database
-            if (!ensureDBisOpen()) { return null; }
-
             if (uuid != null && uuid.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
@@ -1364,21 +1541,46 @@ namespace KeePassRPC
             }
             else
             {
-                matchedGroup = GetRootPwGroup();
+                matchedGroup = GetRootPwGroup(host.Database);
             }
 
             if (matchedGroup == null)
                 throw new Exception("Could not find requested group.");
 
+            return GetChildGroups(host.Database, matchedGroup, false, true);
+        }
+
+        /// <summary>
+        /// Returns a list of every group contained within a group
+        /// </summary>
+        /// <param name="group">the unique ID of the group we're interested in.</param>
+        /// <param name="complete">true = recursive, including Entries too (direct child entries are not included)</param>
+        /// <param name="fullDetails">true = all details; false = some details ommitted (e.g. password)</param>
+        /// <returns>the list of every group directly inside the group.</returns>
+        private Group[] GetChildGroups(PwDatabase pwd, PwGroup group, bool complete, bool fullDetails)
+        {
+            List<Group> allGroups = new List<Group>();
+
+            if (pwd == null || group == null) { return null; }
+
             KeePassLib.Collections.PwObjectList<PwGroup> output;
-            output = matchedGroup.Groups;
+            output = group.Groups;
 
             foreach (PwGroup pwg in output)
             {
-                if (host.Database.RecycleBinUuid.EqualsValue(pwg.Uuid))
+                if (pwd.RecycleBinUuid.EqualsValue(pwg.Uuid))
                     continue; // ignore if it's the recycle bin
 
                 Group kpg = GetGroupFromPwGroup(pwg);
+
+                if (complete)
+                {
+                    kpg.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetails);
+                    if (fullDetails)
+                        kpg.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetails);
+                    else
+                        kpg.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetails);
+                }
                 allGroups.Add(kpg);
             }
 
@@ -1457,7 +1659,7 @@ namespace KeePassRPC
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uniqueID));
 
-                PwEntry matchedLogin = GetRootPwGroup().FindEntry(pwuuid, true);
+                PwEntry matchedLogin = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
@@ -1467,7 +1669,7 @@ namespace KeePassRPC
        //         MessageBox.Show(KeePass.Util.Spr.SprEngine.Compile(matchedLogin.Strings.ReadSafe("Password"), false, null, host.Database, false, false));
 
                 Entry[] logins = new Entry[1];
-                logins[0] = GetEntryFromPwEntry(matchedLogin, true);
+                logins[0] = (Entry)GetEntryFromPwEntry(matchedLogin, true, true);
                 if (logins[0] != null)
                     return logins;
             }
@@ -1525,7 +1727,7 @@ namespace KeePassRPC
 
             KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 
-            PwGroup searchGroup = GetRootPwGroup();
+            PwGroup searchGroup = GetRootPwGroup(host.Database);
             output = searchGroup.GetEntries(true);
 
             foreach (PwEntry pwe in output)
@@ -1572,7 +1774,7 @@ namespace KeePassRPC
 
                 if (entryIsAMatch)
                 {
-                    Entry kpe = GetEntryFromPwEntry(pwe, entryIsAnExactMatch);
+                    Entry kpe = (Entry)GetEntryFromPwEntry(pwe, entryIsAnExactMatch, true);
                     allEntries.Add(kpe);
                     count++;
                 }
@@ -1659,7 +1861,7 @@ namespace KeePassRPC
             KeePassLib.Collections.PwObjectList<PwEntry> output;
             output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 
-            PwGroup searchGroup = GetRootPwGroup();
+            PwGroup searchGroup = GetRootPwGroup(host.Database);
             searchGroup.SearchEntries(sp, output, false);
             foreach (PwEntry pwe in output)
             {
