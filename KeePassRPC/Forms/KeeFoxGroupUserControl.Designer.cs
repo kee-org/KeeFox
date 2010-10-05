@@ -51,6 +51,7 @@
             this.buttonMakeHome.TabIndex = 1;
             this.buttonMakeHome.Text = "Set as KeeFox Home group";
             this.buttonMakeHome.UseVisualStyleBackColor = true;
+            this.buttonMakeHome.Click += new System.EventHandler(this.buttonMakeHome_Click);
             // 
             // l_homeExplanation
             // 

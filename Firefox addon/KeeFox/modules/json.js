@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,3];
+    this.clientVersion = [0,8,4];
 }
 
 jsonrpcClient.prototype = new session();
@@ -473,7 +473,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var newId = ++this.requestId;
         // slight chance IDs may be sent out of order but at least this way
         // they are consistent for any given request/response cycle
-        this.request(this, "FindLogins", [hostname, formSubmitURL, httpRealm, lst, false, uniqueID], callback, newId, callbackData);        
+        this.request(this, "FindLogins", [[hostname], formSubmitURL, httpRealm, lst, false, uniqueID], callback, newId, callbackData);        
         return newId;
     }
 

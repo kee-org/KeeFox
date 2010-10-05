@@ -209,6 +209,7 @@ KFILM.prototype._onFormSubmit = function (form)
     submitDocumentDataStorage.URL = URL;
     submitDocumentDataStorage.isPasswordChangeForm = isPasswordChangeForm;
     submitDocumentDataStorage.isRegistrationForm = isRegistrationForm;
+    submitDocumentDataStorage.existingLogin = existingLogin;
     submitDocumentDataStorage.win = win;
     submitDocumentDataStorage.currentPage = currentPage;
     submitDocumentDataStorage.ss = ss;
@@ -251,7 +252,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
     var convertedResult = [];
             
     // if no resultWrapper is provided, we just go ahead anyway assuming it's a new login
-    if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
+    if (resultWrapper !== undefined && resultWrapper != null && "result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
     {
         logins = resultWrapper.result; 
         

@@ -43,6 +43,7 @@ using KeePass.UI;
 using Jayrock.JsonRpc;
 using KeePassRPC.Forms;
 using System.Reflection;
+using KeePassLib.Collections;
 
 namespace KeePassRPC
 {
@@ -52,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,3);
+        public static readonly Version PluginVersion = new Version(0,8,4);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -276,12 +277,14 @@ namespace KeePassRPC
             PwEntry entry = null;
             TabControl mainTabControl = null;
             CustomListViewEx advancedListView = null;
+            ProtectedStringDictionary strings = null;
 
             //This might not work, but might as well use the feature if possible.
             try
             {
                 // reflection doesn't seem to be needed for 2.10 and above
                 entry = form.EntryRef;
+                strings = form.EntryStrings;
 
                 Control[] cs = form.Controls.Find("m_tabMain", true);
                 if (cs.Length == 0)
@@ -302,7 +305,7 @@ namespace KeePassRPC
             if (entry == null)
                 return;
 
-            KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(this, entry, advancedListView);
+            KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(this, entry, advancedListView, form, strings);
             TabPage keefoxTabPage = new TabPage("KeeFox");
             entryControl.Dock = DockStyle.Fill;
             keefoxTabPage.Controls.Add(entryControl);

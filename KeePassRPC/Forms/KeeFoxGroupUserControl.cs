@@ -22,7 +22,7 @@ namespace KeePassRPC.Forms
             {
                 PwGroup _rootGroup = KeePassRPCPlugin.RPCService.GetRootPwGroup(KeePassRPCPlugin._host.Database);
 
-                if (KeePassRPCPlugin._host.Database.RootGroup.Uuid.EqualsValue(_group.Uuid))
+                if (_rootGroup.Uuid.EqualsValue(_group.Uuid))
                     _status = KeeFoxHomeStatus.Home;
                 else if (KeePassRPCPlugin._host.Database.RecycleBinUuid.EqualsValue(_group.Uuid))
                     _status = KeeFoxHomeStatus.Rubbish;
@@ -45,6 +45,14 @@ namespace KeePassRPC.Forms
 
         private void KeeFoxGroupUserControl_Load(object sender, EventArgs e)
         {
+            UpdateStatus();
+            
+            l_homeExplanation.Text = @"KeeFox will only know about the groups
+and entries that are inside your Home group";
+        }
+
+        private void UpdateStatus()
+        {
             switch (Status)
             {
                 case KeeFoxHomeStatus.Home:
@@ -64,11 +72,15 @@ group if you want KeeFox to work with this group.";
 the recycle bin if you want KeeFox to work with this group.";
                     break;
             }
-            
-            //buttonMakeHome.Text = @"Set as KeeFox Home group";
+        }
 
-            l_homeExplanation.Text = @"KeeFox will only know about the groups
-and entries that are inside your Home group";
+        private void buttonMakeHome_Click(object sender, EventArgs e)
+        {
+            KeePassRPCPlugin._host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID",
+                KeePassLib.Utility.MemUtil.ByteArrayToHexString(_group.Uuid.UuidBytes));
+            _status = KeeFoxHomeStatus.Unknown;
+            UpdateStatus();
+            KeePassRPCPlugin._host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
         }
     }
 

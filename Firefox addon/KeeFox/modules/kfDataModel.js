@@ -247,8 +247,6 @@ kfLoginInfo.prototype =
         this.priority = entry.priority;
     },
         
-    // the order of URLs must also match
-    // TODO: do we need to relax this test so order is irrelevant? YES!
     _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
     {    
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -258,17 +256,20 @@ kfLoginInfo.prototype =
         if (this.URLs.length != URLs.length)
             return false;
             //window.keefox_org.Logger.debug("ab");
-        for (i = 0; i < this.URLs.length; i++)
+        for (i = 0; i < URLs.length; i++)
         {
             var url1 = URLs[i];
-            var url2 = this.URLs[i];
-        //window.keefox_org.Logger.debug("ac:"+url1+":"+url2);
-            if (!ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
-                return false;
-            else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
-                return false;
-            else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && url1 != url2) //TODO: remove query strings!
-                return false;
+            for (j = 0; j < this.URLs.length; j++)
+            {
+                var url2 = this.URLs[j];
+            //window.keefox_org.Logger.debug("ac:"+url1+":"+url2);
+                if (!ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                    return false;
+                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                    return false;
+                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIExcludingQS(url1) != keeFoxILM._getURIExcludingQS(url2))
+                    return false;
+            }
         }
         return true;
     },

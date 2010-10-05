@@ -73,7 +73,6 @@
             this.comboBoxAutoSubmit.Name = "comboBoxAutoSubmit";
             this.comboBoxAutoSubmit.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoSubmit.TabIndex = 1;
-            this.comboBoxAutoSubmit.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoSubmit_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -95,7 +94,6 @@
             this.comboBoxAutoFill.Name = "comboBoxAutoFill";
             this.comboBoxAutoFill.Size = new System.Drawing.Size(97, 21);
             this.comboBoxAutoFill.TabIndex = 0;
-            this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);
             // 
             // label3
             // 
@@ -131,7 +129,6 @@
             this.checkBoxHideFromKeeFox.TabIndex = 1;
             this.checkBoxHideFromKeeFox.Text = "Hide this entry from KeeFox";
             this.checkBoxHideFromKeeFox.UseVisualStyleBackColor = true;
-            this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
             // 
             // groupBox2
             // 
@@ -160,9 +157,9 @@
             // 
             // buttonURLDelete
             // 
-            this.buttonURLDelete.Location = new System.Drawing.Point(357, 101);
+            this.buttonURLDelete.Location = new System.Drawing.Point(347, 101);
             this.buttonURLDelete.Name = "buttonURLDelete";
-            this.buttonURLDelete.Size = new System.Drawing.Size(50, 25);
+            this.buttonURLDelete.Size = new System.Drawing.Size(60, 25);
             this.buttonURLDelete.TabIndex = 11;
             this.buttonURLDelete.Text = "Delete";
             this.buttonURLDelete.UseVisualStyleBackColor = true;
@@ -170,9 +167,9 @@
             // 
             // buttonURLEdit
             // 
-            this.buttonURLEdit.Location = new System.Drawing.Point(357, 71);
+            this.buttonURLEdit.Location = new System.Drawing.Point(347, 71);
             this.buttonURLEdit.Name = "buttonURLEdit";
-            this.buttonURLEdit.Size = new System.Drawing.Size(50, 24);
+            this.buttonURLEdit.Size = new System.Drawing.Size(60, 24);
             this.buttonURLEdit.TabIndex = 10;
             this.buttonURLEdit.Text = "Edit";
             this.buttonURLEdit.UseVisualStyleBackColor = true;
@@ -180,9 +177,9 @@
             // 
             // buttonURLAdd
             // 
-            this.buttonURLAdd.Location = new System.Drawing.Point(357, 39);
+            this.buttonURLAdd.Location = new System.Drawing.Point(347, 39);
             this.buttonURLAdd.Name = "buttonURLAdd";
-            this.buttonURLAdd.Size = new System.Drawing.Size(50, 26);
+            this.buttonURLAdd.Size = new System.Drawing.Size(60, 26);
             this.buttonURLAdd.TabIndex = 9;
             this.buttonURLAdd.Text = "Add";
             this.buttonURLAdd.UseVisualStyleBackColor = true;
@@ -207,7 +204,7 @@
             this.listView1.Location = new System.Drawing.Point(9, 39);
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(342, 87);
+            this.listView1.Size = new System.Drawing.Size(332, 87);
             this.listView1.TabIndex = 7;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;

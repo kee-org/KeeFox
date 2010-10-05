@@ -616,12 +616,12 @@ KeeFox.prototype = {
     {
         this._KFLog.debug("Refreshing KeeFox's view of the KeePass database.");
         var dbName = this.getDatabaseName();
-        if (dbName.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
-        { //TODO: Don't think this can ever happen anymore - verify that's OK then remove...
-            this._pauseKeeFox();
-            return;
-        }            
-        else if (dbName == "")
+        //if (dbName.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
+        //{ //TODO: Don't think this can ever happen anymore - verify that's OK then remove...
+        //    this._pauseKeeFox();
+        //    return;
+        //} 
+        if (dbName === null)
         {
             this._KFLog.debug("No database is currently open.");
             this._keeFoxStorage.set("KeePassDatabaseOpen", false);
@@ -688,22 +688,6 @@ KeeFox.prototype = {
         this.KeePassDatabases = newDatabases;
         this.ActiveKeePassDatabaseIndex = newDatabaseActiveIndex;
         this._refreshKPDBCallback();  
-    },
-    
-    getDatabaseNameNew: function()
-    {
-        if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
-            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].name;
-        else
-            return "";
-    },
-    
-    getDatabaseFileNameNew: function()
-    {
-        if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
-            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].fileName;
-        else
-            return "";
     },
     
     /*******************************************
@@ -842,12 +826,22 @@ KeeFox.prototype = {
     
     getDatabaseName: function()
     {
-        return this.getDatabaseNameNew();
+        if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 
+            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null 
+            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
+            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].name;
+        else
+            return null;
     },
     
     getDatabaseFileName: function()
     {
-        return this.getDatabaseFileNameNew();
+        if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 
+            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null 
+            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
+            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].fileName;
+        else
+            return null;
     },
     
     getAllDatabaseFileNames: function()

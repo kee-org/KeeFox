@@ -1,5 +1,19 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.4
+-----
+- Installs KeePass 2.13 by default (doesn't upgrade existing KeePass 2.x installations)
+- Refs #50 - No automatic login with multiple entries for the same URL (New hidden config option: autoFillFormsWithMultipleMatches)
+- Fixes #43 - Show the "username" in the matched entries list rather than just in the tooltip
+- Fixes #45 - Eliminate pull down menu when not appropriate
+- Refs #56 - Display favicons for matched entries (only on child menu so far)
+- KPRPC FindLogins now expects array of URLs to search for (can include just one URL in the array for existing behaviour)
+- Now works (again) with databases that have no name
+- Refs #25 - "Do you want KeeFox to save this password?" notification bar pops up when KeeFox has done all the form-filling itself (improved URL comparison)
+- Finalised "Advanced strings" name format (old names can continue to be used but new docs will follow next beta release)
+- New blocking URL "advanced strings" (docs to follow after next beta release)
+- More work on currently hidden KeePass GUI features
+
 0.8.3
 -----
 - Communication between KeeFox and KeePassRPC is now nearly all asynchronous;

@@ -294,6 +294,13 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     findLoginDoc.mustAutoSubmitForm = false;
     findLoginDoc.cannotAutoSubmitForm = false;
     
+    // Allow user to override automatic behaviour if multiple logins match this URL
+    findLoginDoc.wantToAutoFillFormWithMultipleMatches = 
+        this._kf._keeFoxExtension.prefs.getValue("autoFillFormsWithMultipleMatches",true);
+    findLoginDoc.wantToAutoSubmitFormWithMultipleMatches = 
+        this._kf._keeFoxExtension.prefs.getValue("autoSubmitFormsWithMultipleMatches",true);
+    
+    
     // overwrite existing username by default unless a preference or tab variable tells us otherwise
     findLoginDoc.overWriteFieldsAutomatically = this._kf._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
 
@@ -647,6 +654,12 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
                 
             KFLog.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
             matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex];
+            
+            // If user has specified, prevent automatic fill / submit due to multiple matches
+            if (!findLoginDoc.wantToAutoFillFormWithMultipleMatches)
+                findLoginDoc.wantToAutoFillForm = false;
+            if (!findLoginDoc.wantToAutoSubmitFormWithMultipleMatches)
+                findLoginDoc.wantToAutoSubmitForm = false;
         }
 
         if (matchingLogin != null)

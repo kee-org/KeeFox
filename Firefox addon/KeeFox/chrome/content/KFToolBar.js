@@ -99,7 +99,6 @@ KFToolbar.prototype = {
         
         // set up the main button
         container.setAttribute("class", "login-found");
-        container.setAttribute("type", "menu-button");
         container.setAttribute("disabled", "false");
         container.setAttribute("onpopupshowing", "this.setAttribute('KFLock','enabled');");
         container.setAttribute("onpopuphiding", "this.setAttribute('KFLock','disabled');");
@@ -121,7 +120,8 @@ KFToolbar.prototype = {
 //            if (groupDivider != ".")
 //                displayGroupPath = displayGroupPath.replace(/\./g,groupDivider);
             
-            if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 && login.otherFields != null && login.otherFields.length > 0)
+            if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0 
+                && login.otherFields != null && login.otherFields.length > 0)
             {
                 var field = login.otherFields[login.usernameIndex];
 
@@ -134,28 +134,36 @@ KFToolbar.prototype = {
                         
             if (i==0)
             {
-                container.setAttribute("label", login.title);
+                container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));
                 container.setAttribute("value", doc.documentURI);
-                container.setAttribute("tooltiptext", usernameDisplayValue + " in " +  displayGroupPath);
+                container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
                     usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
-            
+                //container.setAttribute("class", "menuitem-iconic");
+                //container.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
+                //TODO: just need to make sure we switch the icon back to standard KeeFox ones during all other menu refresh operations.
             }
-
-            var tempButton = null;
-            tempButton = this._currentWindow.document.createElement("menuitem");
-            tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("class", "menuitem-iconic");
-            tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
-            tempButton.setAttribute("value", doc.documentURI);
-            tempButton.setAttribute("tooltiptext", usernameDisplayValue + " in " + displayGroupPath);
-            tempButton.setAttribute("oncommand", "keefox_org.ILM.fill('" +
-                usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
-            menupopup.appendChild(tempButton);
-
+            
+            if (logins.length > 1)
+            {
+                var tempButton = null;
+                tempButton = this._currentWindow.document.createElement("menuitem");
+                tempButton.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));
+                tempButton.setAttribute("class", "menuitem-iconic");
+                tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
+                tempButton.setAttribute("value", doc.documentURI);
+                tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
+                tempButton.setAttribute("oncommand", "keefox_org.ILM.fill('" +
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
+                menupopup.appendChild(tempButton);
+            }
         }
         
-        container.appendChild(menupopup);
+        if (logins.length > 1)
+        {
+            container.setAttribute("type", "menu-button");
+            container.appendChild(menupopup);
+        }
     },
     
     // populate the "all logins" menu with every login in this database
@@ -418,7 +426,7 @@ KFToolbar.prototype = {
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
             var DBname = mainWindow.keeFoxInst.getDatabaseName();
-            if (DBname == null || DBname == "")
+            if (DBname === null)
                 return; // KeePassRPC suddenly dissapeared - toolbar will have been updated from deeper in the stack? maybe not since removal of ICE?
             mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("loggedIn.tip",[DBname]) );
