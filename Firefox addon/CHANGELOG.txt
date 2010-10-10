@@ -5,7 +5,7 @@ This information will often be disseminated onto the official KeeFox website in 
 - Installs KeePass 2.13 by default (doesn't upgrade existing KeePass 2.x installations)
 - Refs #50 - No automatic login with multiple entries for the same URL (New hidden config option: autoFillFormsWithMultipleMatches)
 - Fixes #43 - Show the "username" in the matched entries list rather than just in the tooltip
-- Fixes #45 - Eliminate pull down menu when not appropriate
+- Refs #45 - Eliminate pull down menu when not appropriate (button doesn't work yet but probably nearly done)
 - Refs #56 - Display favicons for matched entries (only on child menu so far)
 - KPRPC FindLogins now expects array of URLs to search for (can include just one URL in the array for existing behaviour)
 - Now works (again) with databases that have no name

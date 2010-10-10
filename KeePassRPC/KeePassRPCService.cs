@@ -667,11 +667,14 @@ namespace KeePassRPC
                     realm = GetPwEntryString(pwe, "Form HTTP realm");
                 }
                 catch (Exception) { realm = ""; }
-                try
+                if (string.IsNullOrEmpty(realm))
                 {
-                    realm = GetPwEntryString(pwe, "KPRPC Form HTTP realm");
+                    try
+                    {
+                        realm = GetPwEntryString(pwe, "KPRPC Form HTTP realm");
+                    }
+                    catch (Exception) { realm = ""; }
                 }
-                catch (Exception) { realm = ""; }
 
                 FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
                 Entry kpe = new Entry(
@@ -700,11 +703,14 @@ namespace KeePassRPC
                 value = GetPwEntryString(pwe, "Form field " + fieldName + " value");
             }
             catch (Exception) { value = ""; }
-            try
+            if (string.IsNullOrEmpty(value))
             {
-                value = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value");
+                try
+                {
+                    value = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value");
+                }
+                catch (Exception) { value = ""; }
             }
-            catch (Exception) { value = ""; }
             return value;
         }
 

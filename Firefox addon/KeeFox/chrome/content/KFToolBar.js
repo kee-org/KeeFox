@@ -144,7 +144,7 @@ KFToolbar.prototype = {
                 //TODO: just need to make sure we switch the icon back to standard KeeFox ones during all other menu refresh operations.
             }
             
-            if (logins.length > 1)
+            if (logins.length > 0)
             {
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
@@ -159,7 +159,7 @@ KFToolbar.prototype = {
             }
         }
         
-        if (logins.length > 1)
+        if (logins.length > 0)
         {
             container.setAttribute("type", "menu-button");
             container.appendChild(menupopup);
