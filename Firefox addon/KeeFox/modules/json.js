@@ -114,7 +114,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                          .getService(Components.interfaces.nsIWindowMediator);
                 var window = wm.getMostRecentWindow("navigator:browser");
 
-                if (resultWrapper.result == 0) // successfully authorised by remote RPC server
+                if (resultWrapper.result.result == 0) // successfully authorised by remote RPC server
                 {
                     window.setTimeout(function () {
                     
@@ -127,13 +127,13 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 {
-                    if (resultWrapper.result == 3) // version mismatch
+                    if (resultWrapper.result.result == 3) // version mismatch
                     {
                         window.keefox_org.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
                         window.keeFoxInst._launchInstaller(null,null,true);
                     } else
                     {
-                        window.keefox_org.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result);
+                        window.keefox_org.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result.result);
                     }
                     window.keeFoxInst._pauseKeeFox();
                 } 
@@ -325,8 +325,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         }
         
         // We only really need one method to be callable
-        if (method=="callBackToKeeFoxJS")
-            this.callBackToKeeFoxJS(data);
+        if (method=="KPRPCListener")
+            this.KPRPCListener(data);
     }
 
     // send a synchronous request to the JSON server
@@ -397,7 +397,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return result;
     }
 
-    this.callBackToKeeFoxJS = function (signal)
+    this.KPRPCListener = function (signal)
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -408,7 +408,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser");
-            window.keeFoxInst.CallBackToKeeFoxJS(signal);
+            window.keeFoxInst.KPRPCListener(signal);
         },5);
     }
 

@@ -247,17 +247,15 @@ namespace KeePassRPC
                 int bytesRead;
                 //bool authorised = false;
 
-                //TODO: creation of this client probably needs to happen later
+                //TODO2: creation of this client probably should happen later
                 // but we need to know that this connection needs to be closed
                 // during shutdown, even if the client never
                 // successfully authenticates.
-                //TODO: Need to find a way to set the name of this client based
-                // on output of the authentication system
                 keePassRPCClient = _useSSL ? new KeePassRPCClientConnection(sslStream, false) : new KeePassRPCClientConnection(tcpClient, false);
                 KeePassRPCPlugin.AddRPCClientConnection(keePassRPCClient);
 
                 // send an "invitation to authenticate" to the new RPC client
-                keePassRPCClient.Signal(KeePassRPC.DataExchangeModel.Signal.PLEASE_AUTHENTICATE, "callBackToKeeFoxJS"); //TODO: use the Manager class instead
+                keePassRPCClient.Signal(KeePassRPC.DataExchangeModel.Signal.PLEASE_AUTHENTICATE, "KPRPCListener");
 
                 int tokenCurlyCount = 0;
                 int tokenSquareCount = 0;
@@ -340,7 +338,6 @@ namespace KeePassRPC
             }
             catch (AuthorisationException authEx)
             {
-            //    MessageBox.Show("error 339: " + authEx.ToString());
                 // Send a JSON message down the pipe
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authEx.AsJSONResult());
                 keePassRPCClient.ConnectionStreamWrite(bytes);
@@ -354,7 +351,7 @@ namespace KeePassRPC
             catch (Exception ex)
             {
             //    MessageBox.Show("error 352: " + ex.ToString());
-                //TODO: send a JSON message down the pipe
+                //TODO2: send a JSON message down the pipe
                 // ex.AsJSONResult(); 
             }
             finally
@@ -381,7 +378,7 @@ namespace KeePassRPC
         {
             //MessageBox.Show("processing: " + message);
             StringBuilder sb = new StringBuilder();
-            string requiredResultString = "";
+            string requiredResultRegex = "";
             long authorisationAttemptId = -1;
 
             if (!keePassRPCClientConnection.Authorised && _authorisationRequired)
@@ -390,20 +387,23 @@ namespace KeePassRPC
                 // already authenticated. Maybe it's not nice having to do this
                 // outside of the main JayRockJsonRpc library but it'll be good enough
                 
-                //TODO: Make json parameter order irrelevant
                 Match match = Regex.Match(message,
-                    "^\\{.*?\\\"method\\\"\\:\\\"Authenticate\\\",\\\"id\\\"\\:(\\d+).*?\\}$");
-
+                    "^\\{.*?\\\"method\\\"\\:\\\"Authenticate\\\".*?,.*?\\\"id\\\"\\:(\\d+).*?\\}$");
                 if (!match.Success)
-                    throw new AuthorisationException("Authorisation required. You must send a properly formed JSON Authorisation request before using this connection. (s, not z)", -1, 1);
+                {
+                    match = Regex.Match(message,
+                    "^\\{.*?\\\"id\\\"\\:(\\d+).*?,.*?\\\"method\\\"\\:\\\"Authenticate\\\".*?\\}$");
+                    if (!match.Success)
+                        throw new AuthorisationException("Authentication required. You must send a properly formed JSON Authenticate request before using this connection.", -1, 1);
+                }
 
                 authorisationAttemptId = int.Parse(match.Groups[1].Value);
-                requiredResultString = "{\"id\":" + authorisationAttemptId + ",\"result\":0}";
+                requiredResultRegex = "^\\{\\\"id\\\"\\:" + authorisationAttemptId + ",\\\"result\\\"\\:\\{\\\"result\\\"\\:0,\\\"name\\\"\\:\\\"(.*)\\\"\\}\\}$";
             }
 
             //Stream clientStream = keePassRPCClientConnection.ConnectionStream;
 
-            //TODO: is this Jayrock stuff thread-safe or do I need new instances of the Service each time? 
+            //TODO2: is this Jayrock stuff thread-safe or do I need new instances of the Service each time? 
             JsonRpcDispatcher dispatcher = JsonRpcDispatcherFactory.CreateDispatcher(Service);
             
             dispatcher.Process(new StringReader(message),
@@ -412,22 +412,25 @@ namespace KeePassRPC
             //MessageBox.Show("result: " + output);
             if (_authorisationRequired && !keePassRPCClientConnection.Authorised)
             {
+                string authenticatedClientName;
+
                 // Process the output from the JsonRpcDispatcher which
                 // should tell us if the authorisation was successful
-                if (output == requiredResultString)
+                Match match = Regex.Match(output, requiredResultRegex);
+                if (match.Success)
                 {
+                    authenticatedClientName = match.Groups[1].Value;
                     keePassRPCClientConnection.Authorised = true;
-                    KeePassRPCPlugin.PromoteNullRPCClient(keePassRPCClientConnection, "KeeFox"); // TODO: find way to choose different client types
+                    KeePassRPCPlugin.PromoteNullRPCClient(keePassRPCClientConnection, authenticatedClientName);
                 }
                 else
                 {
                     // If the result follows an accepted syntax we will send
-                    // it back to the client so they know why it failed
+                    // it back to the client so they know why it failed but otherwise...
                     if (!Regex.IsMatch(output,
-                        "^\\{\\\"id\\\"\\:(\\d+),\\\"result\\\"\\:(\\d+)\\}$"))
+                        "^\\{\\\"id\\\"\\:(\\d+),\\\"result\\\"\\:\\{\\\"result\\\"\\:(\\d+),\\\"name\\\"\\:\\\".*\\\"\\}\\}$"))
                     {
-                        MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (there's a link at http://keefox.org/help). Doing this will help other people to use KeeFox without any unexpected error messages like this. Thanks! Technical detail follows: " + output + ": " + Regex.IsMatch(output,
-                        "\\{\\\"id\\\"\\:(\\d+),\\\"result\\\"\\:(\\d+)\\}"));
+                        MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (there's a link at http://keefox.org/help). Doing this will help other people to use KeeFox without any unexpected error messages like this. Thanks! Technical detail follows: " + output);
                         return; // maybe could return a proper result indicating failure
                         //but user might get annoyed with this popup appearing every 10 seconds!
                     }

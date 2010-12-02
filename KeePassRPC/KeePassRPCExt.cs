@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,4);
+        public static readonly Version PluginVersion = new Version(0,8,5);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -148,7 +148,7 @@ namespace KeePassRPC
             _host = host;
 
             CreateClientManagers();
-            //TODO: set up language services
+            //TODO2: set up language services
 
             _RPCService = new KeePassRPCService(host, 
                 getStandardIconsBase64(host.MainWindow.ClientIcons), this);
@@ -202,7 +202,7 @@ namespace KeePassRPC
 
             // for debug only:
             //WelcomeForm wf = new WelcomeForm();
-            //DialogResult dr = wf.ShowDialog(); //TODO: explain / warn on dialog and provide a Cancel button
+            //DialogResult dr = wf.ShowDialog();
             //if (dr == DialogResult.Yes)
             //    CreateNewDatabase();
 
@@ -233,7 +233,7 @@ namespace KeePassRPC
 
 		void editGroupFormShown(object sender, EventArgs e)
 		{
-            //TODO: reflect (then cache) to find all custom controls that meet
+            //TODO2: reflect (then cache) to find all custom controls that meet
             // KeePassRPC requirements and display them all, not just KeeFox
 			GroupForm form = sender as GroupForm;
             PwGroup group = null;
@@ -271,7 +271,7 @@ namespace KeePassRPC
 
         void editEntryFormShown(object sender, EventArgs e)
         {
-            //TODO: reflect (then cache) to find all custom controls that meet
+            //TODO2: reflect (then cache) to find all custom controls that meet
             // KeePassRPC requirements and display them all, not just KeeFox
             PwEntryForm form = sender as PwEntryForm;
             PwEntry entry = null;
@@ -479,13 +479,6 @@ namespace KeePassRPC
             InstallKeeFoxSampleEntries(pd);
 
             _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
-
-            // TODO: Can't raise FileCreated event from a plugin?
-            //if (keeICEServer.m_host.MainWindow.FileCreated != null)
-            //{
-            //    FileCreatedEventArgs ea = new FileCreatedEventArgs(pd);
-            //    keeICEServer.m_host.MainWindow.FileCreated(this, ea);
-            //}
         }
 
         private void InsertStandardKeePassData(PwDatabase pd)
@@ -687,7 +680,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             {
                 _RPCClientManagers.Add("null", new NullRPCClientManager());
 
-                //TODO: load managers from plugins, etc.
+                //TODO2: load managers from plugins, etc.
                 _RPCClientManagers.Add("KeeFox", new KeeFoxRPCClientManager());
             }
         }
@@ -696,13 +689,19 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
-                destination.AddRPCClientConnection(connection);
                 ((NullRPCClientManager)_RPCClientManagers["null"]).RemoveRPCClientConnection(connection);
+                destination.AddRPCClientConnection(connection);
             }
         }
 
-        internal void PromoteNullRPCClient(KeePassRPCClientConnection connection, string managerName)
+        internal void PromoteNullRPCClient(KeePassRPCClientConnection connection, string clientName)
         {
+            string managerName = "null";
+            switch (clientName)
+            {
+                case "KeeFox Firefox add-on": managerName = "KeeFox"; break;
+            }
+
             PromoteNullRPCClient(connection,_RPCClientManagers[managerName]);
         }
 

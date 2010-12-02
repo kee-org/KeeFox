@@ -26,130 +26,8 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.IO;
 
-
 namespace KeePassRPC
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public abstract class KeePassRPCClientManager
-    {
-        private string _name;
-        private string _callbackMethodName;
-        public string Name { get { return _name; } private set { _name = value; } }
-        public string CallbackMethodName { get { return _callbackMethodName; } private set { _callbackMethodName = value; } }
-        private List<KeePassRPCClientConnection> _RPCClientConnections = new List<KeePassRPCClientConnection>(1);
-        private static object _lockRPCClients = new object();
-
-        public KeePassRPCClientManager(string name, string callbackName)
-        {
-            Name = name;
-            CallbackMethodName = callbackName;
-        }
-
-        private KeePassRPCClientManager()
-        {
-        }
-
-        /// <summary>
-        /// Signals all clients.
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        public virtual void SignalAll(KeePassRPC.DataExchangeModel.Signal signal)
-        {
-            foreach (KeePassRPCClientConnection client in _RPCClientConnections)
-                client.Signal(signal, CallbackMethodName);
-        }
-
-        /// <summary>
-        /// Adds an RPC client.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        public void AddRPCClientConnection(KeePassRPCClientConnection client)
-        {
-            lock (_lockRPCClients)
-            {
-                _RPCClientConnections.Add(client);
-            }
-        }
-
-        /// <summary>
-        /// Removes an RPC client.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        public void RemoveRPCClientConnection(KeePassRPCClientConnection client)
-        {
-            lock (_lockRPCClients)
-            {
-                _RPCClientConnections.Remove(client);
-            }
-        }
-
-        /// <summary>
-        /// Gets the current RPC clients. ACTUAL client list may change immediately after this array is returned.
-        /// </summary>
-        /// <value>The current RPC clients.</value>
-        public KeePassRPCClientConnection[] CurrentRPCClientConnections
-        {
-            get
-            {
-                lock (_lockRPCClients)
-                {
-                    KeePassRPCClientConnection[] clients = new KeePassRPCClientConnection[_RPCClientConnections.Count];
-                    _RPCClientConnections.CopyTo(clients);
-                    return clients;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Terminates this server.
-        /// </summary>
-        public void Terminate()
-        {
-            lock (_lockRPCClients)
-            {
-                SignalAll(KeePassRPC.DataExchangeModel.Signal.EXITING);
-                foreach (KeePassRPCClientConnection client in _RPCClientConnections)
-                {
-                    client.ConnectionStreamClose();
-                }
-                _RPCClientConnections.Clear();
-            }
-        }
-
-
-    }
-
-    public class NullRPCClientManager : KeePassRPCClientManager
-    {
-        public NullRPCClientManager()
-            : base("Null", "NULL")
-        {
-
-        }
-
-        /// <summary>
-        /// We don't know how to signal null clients so we skip it
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        public override void SignalAll(KeePassRPC.DataExchangeModel.Signal signal)
-        {
-            return;
-        }
-
-    }
-
-    public class KeeFoxRPCClientManager : KeePassRPCClientManager
-    {
-        public KeeFoxRPCClientManager()
-            : base("KeeFox", "callBackToKeeFoxJS")
-        {
-
-        }
-
-    }
-
     /// <summary>
     /// Represents a client that has connected to this RPC server
     /// </summary>
@@ -277,17 +155,22 @@ namespace KeePassRPC
         /// <param name="signal">The signal.</param>
         public void Signal(KeePassRPC.DataExchangeModel.Signal signal, string methodName)
         {
-            //TODO: check we're in a valid state to do this!
+            try
+            {
+                Jayrock.Json.JsonObject call = new Jayrock.Json.JsonObject();
+                call["id"] = ++_currentCallBackId;
+                call["method"] = methodName;
+                call["params"] = new int[] { (int)signal };
 
-            Jayrock.Json.JsonObject call = new Jayrock.Json.JsonObject();
-            call["id"] = ++_currentCallBackId;
-            call["method"] = methodName;
-            call["params"] = new int[] {(int)signal};
-
-            StringBuilder sb = new StringBuilder();
-            Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
-            this.ConnectionStreamWrite(bytes);
+                StringBuilder sb = new StringBuilder();
+                Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+                this.ConnectionStreamWrite(bytes);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (there's a link at http://keefox.org/help). Doing this will help other people to use KeeFox without any unexpected error messages like this. Thanks! Technical detail follows: " + ex.ToString());
+            }
         }
     }
 

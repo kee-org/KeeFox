@@ -1,42 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
   <Class Name="KeePassRPC.DataExchangeModel.Configuration">
-    <Position X="1.5" Y="7" Width="2.25" />
+    <Position X="11.5" Y="9" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAEAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.DataExchangeModel.FormField">
-    <Position X="6.5" Y="7" Width="2.25" />
+    <Position X="4" Y="8.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAACEAAAAAAQAAAAAAAAAAQAAAAAAAAAAQAgAAAAAAA=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.DataExchangeModel.Group">
-    <Position X="4" Y="7" Width="2.25" />
+    <Position X="6.5" Y="8.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAEIAAAQIAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAgAAAEIAAAQICAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.DataExchangeModel.Entry">
-    <Position X="9" Y="2.5" Width="2.25" />
+    <Position X="9" Y="6.75" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAQAAAAAIAIQAEAEAAQIQAAAABIAAAAAAUAAAAAAAAA=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.KeePassRPCExt" Collapsed="true">
-    <Position X="0.5" Y="9.25" Width="1.5" />
+    <Position X="0.5" Y="8.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>YAAAgECjiAAACyBCCoCABAgAAAgAAAAAIBrERA0ECQQ=</HashCode>
+      <HashCode>YBAAgECjiAAACyBCCoCABAgAAAgAAAAAIBrERC0ECQQ=</HashCode>
       <FileName>KeePassRPCExt.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.KeePassRPCServer">
-    <Position X="9" Y="0.5" Width="3" />
+    <Position X="9" Y="0.5" Width="2.5" />
     <Members>
       <Method Name="DispatchToRPCService" Hidden="true" />
       <Method Name="HandleClientComm" Hidden="true" />
@@ -47,7 +47,7 @@
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>UAQAAEAgAIBAAgAAAAAgAgAACEAAQAAABIBEAAAAgEA=</HashCode>
+      <HashCode>UAQAAEAgAIBAAgAAAAAgAgAACEAAQAAABIBEQAAAgEA=</HashCode>
       <FileName>KeePassRPCServer.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -84,19 +84,22 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AKAEASAACAKADACAIAACCEMAAEpgMFAAABoACMZAgAA=</HashCode>
+      <HashCode>AKAEASAACAKAHACCIAACCEMAAEpgMFAAABoACMZAiAA=</HashCode>
       <FileName>KeePassRPCService.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.KeePassRPCClientManager">
-    <Position X="12.25" Y="0.5" Width="2" />
+    <Position X="11.75" Y="0.5" Width="2" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAgAAAAAAAAQAAAAAAAAQAACEAARAQAA=</HashCode>
-      <FileName>KeePassRPCClient.cs</FileName>
+      <HashCode>AAAAIAAAAAAAAgAAAAAAAAQAAAAAAAAwAACEAARAQAA=</HashCode>
+      <FileName>RPCClientManagers.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KeePassRPC.KeePassRPCClientConnection">
-    <Position X="11.5" Y="4.5" Width="2.25" />
+    <Position X="11.5" Y="3.75" Width="2.25" />
     <Members>
       <Method Name="KeePassRPCClientConnection" Hidden="true" />
     </Members>
@@ -109,23 +112,23 @@
     </TypeIdentifier>
   </Class>
   <Enum Name="KeePassRPC.DataExchangeModel.LoginSearchType">
-    <Position X="12.75" Y="7.75" Width="1.5" />
+    <Position X="0.5" Y="9.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAEAAAAAAAAA=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Enum Name="KeePassRPC.DataExchangeModel.FormFieldType">
-    <Position X="11" Y="7.75" Width="1.5" />
+    <Position X="2.25" Y="8.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAABAAAAAAAAAAAAAAAAAAAAAICAAAAAEEAAAAAAAAI=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Enum Name="KeePassRPC.DataExchangeModel.Signal">
-    <Position X="9" Y="6.75" Width="1.75" />
+    <Position X="9" Y="2.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AACAAAAAKAgAgAAAAAAAAAgAAAAAAAAABEABACAAQAA=</HashCode>
+      <HashCode>AACAAAAAKAgAgAAAAAAAAAgAAAAAAAAABEABACAAAAA=</HashCode>
       <FileName>DataExchangeModel.cs</FileName>
     </TypeIdentifier>
   </Enum>

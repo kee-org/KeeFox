@@ -25,7 +25,24 @@ using System.Text;
 using KeePassLib;
 
 namespace KeePassRPC.DataExchangeModel
-{     
+{
+    public class AuthenticationResult
+    {
+       // private int _result;
+        public int Result;// { get { return _result; } }
+        //private string _name;
+        public string Name;// { get { return _name; } }
+
+        public AuthenticationResult() { }
+        public AuthenticationResult(int res, string name)
+        {
+            Name = name;
+            Result = res;
+            //_name = name;
+            //_result = res;
+        }
+    }
+
     public class Configuration
     {
 		//bool allowUnencryptedMetaData; // doesn't affect encryption of passwords themselves

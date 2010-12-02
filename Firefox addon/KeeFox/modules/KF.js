@@ -160,11 +160,11 @@ function KeeFox()
     this._keeFoxExtension.prefs._prefService.QueryInterface(Ci.nsIPrefBranch);
         
     // Create a timer 
-    this.regularCallBackToKeeFoxJSQueueHandlerTimer = Components.classes["@mozilla.org/timer;1"]
+    this.regularKPRPCListenerQueueHandlerTimer = Components.classes["@mozilla.org/timer;1"]
             .createInstance(Components.interfaces.nsITimer);
 
-    this.regularCallBackToKeeFoxJSQueueHandlerTimer.initWithCallback(
-    this.RegularCallBackToKeeFoxJSQueueHandler, 5000,
+    this.regularKPRPCListenerQueueHandlerTimer.initWithCallback(
+    this.RegularKPRPCListenerQueueHandler, 5000,
     Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     
     //TODO: set some/all of my tab session state to be persistent so it survives crashes/restores?
@@ -178,7 +178,7 @@ KeeFox.prototype = {
 
     _keeFoxExtension: null,
 
-    regularCallBackToKeeFoxJSQueueHandlerTimer: null,
+    regularKPRPCListenerQueueHandlerTimer: null,
 
     // localisation string bundle
     strbundle: null,
@@ -264,8 +264,8 @@ KeeFox.prototype = {
         this._KFLog.debug("KeeFox module shutting down...");
         if (this.KeePassRPC != undefined && this.KeePassRPC != null)
             this.KeePassRPC.shutdown();
-        if (this.regularCallBackToKeeFoxJSQueueHandlerTimer != undefined && this.regularCallBackToKeeFoxJSQueueHandlerTimer != null)
-            this.regularCallBackToKeeFoxJSQueueHandlerTimer.cancel();
+        if (this.regularKPRPCListenerQueueHandlerTimer != undefined && this.regularKPRPCListenerQueueHandlerTimer != null)
+            this.regularKPRPCListenerQueueHandlerTimer.cancel();
         this.KeePassRPC = null;
         
         this._KFLog.debug("KeeFox module shut down.");
@@ -1192,11 +1192,11 @@ KeeFox.prototype = {
     // within need to handle all open windows for now, that just means every
     // window although in future maybe there could be a need to store a list of
     // relevant windows and call those instead
-    CallBackToKeeFoxJS: function(sig)
+    KPRPCListener: function(sig)
     {
         var sigTime = Date();
         
-        keeFoxInst._KFLog.debug("Signal received by CallBackToKeeFoxJS (" + sig + ") @" + sigTime);
+        keeFoxInst._KFLog.debug("Signal received by KPRPCListener (" + sig + ") @" + sigTime);
         
         var executeNow = false;
         var pause = false;
@@ -1224,7 +1224,7 @@ KeeFox.prototype = {
             case "12": keeFoxInst._KFLog.info("KeePass is shutting down."); 
                 pause = true;
                 break;
-            default: keeFoxInst._KFLog.error("Invalid signal received by CallBackToKeeFoxJS (" + sig + ")"); break;
+            default: keeFoxInst._KFLog.error("Invalid signal received by KPRPCListener (" + sig + ")"); break;
         }
         
         if (!pause && !refresh)
@@ -1278,13 +1278,13 @@ KeeFox.prototype = {
         }
     },
     
-    RegularCallBackToKeeFoxJSQueueHandler: function()
+    RegularKPRPCListenerQueueHandler: function()
     {
         // If there is nothing in the queue at the moment or we are already processing a callback, we give up for now
         if (keeFoxInst.processingCallback || keeFoxInst.pendingCallback == "")
             return;
             
-        keeFoxInst._KFLog.debug("RegularCallBackToKeeFoxJSQueueHandler will execute the pending item now");
+        keeFoxInst._KFLog.debug("RegularKPRPCListenerQueueHandler will execute the pending item now");
         keeFoxInst.processingCallback = true;
         if (keeFoxInst.pendingCallback=="_pauseKeeFox")
             keeFoxInst._pauseKeeFox();
@@ -1292,7 +1292,7 @@ KeeFox.prototype = {
             keeFoxInst._refreshKPDB();
         keeFoxInst.pendingCallback = "";
         keeFoxInst.processingCallback = false;
-        keeFoxInst._KFLog.debug("RegularCallBackToKeeFoxJSQueueHandler has finished executing the item");
+        keeFoxInst._KFLog.debug("RegularKPRPCListenerQueueHandler has finished executing the item");
     },
 
     _onTabOpened: function(event)

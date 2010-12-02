@@ -115,13 +115,13 @@ namespace KeePassRPC
         ///of the hash key is at worst a DOS.
         /// </remarks>
         [JsonRpcMethod]
-        public int Authenticate(int[] versionParts, string clientId, string b64IdSig, string b64PrivId)
+        public AuthenticationResult Authenticate(int[] versionParts, string clientId, string b64IdSig, string b64PrivId)
         {
             //do version negotiation first so client and server know they'll
             //be using correct key pairs (in case signatures are changed in future).
             bool versionMatch = false;
             if (versionParts == null || versionParts.Length != 3)
-                return 2; // throw new AuthorisationException("Invalid version specification. Please state the version of RPC client that is requesting authorisation. This can differ from the version of your client application provided that the RPC interface remains identical.", -1, 2);
+                return new AuthenticationResult(2, clientId); // throw new AuthorisationException("Invalid version specification. Please state the version of RPC client that is requesting authorisation. This can differ from the version of your client application provided that the RPC interface remains identical.", -1, 2);
 
             Version versionClient = new Version(versionParts[0], versionParts[1], versionParts[2]);
 
@@ -129,22 +129,22 @@ namespace KeePassRPC
                 versionMatch = true;
 
             if (versionMatch == false)
-                return 3; // version mismatch
+                return new AuthenticationResult(3, clientId); // version mismatch
 
             if (string.IsNullOrEmpty(clientId))
-                return 4; // missing clientId parameter
+                return new AuthenticationResult(4, clientId); // missing clientId parameter
 
             if (string.IsNullOrEmpty(b64IdSig))
-                return 5; // missing base64 encoded clientId signature parameter
+                return new AuthenticationResult(5, clientId); // missing base64 encoded clientId signature parameter
 
             if (string.IsNullOrEmpty(b64PrivId))
-                return 6; // missing base64 encoded unique client hash parameter
+                return new AuthenticationResult(6, clientId); // missing base64 encoded unique client hash parameter
 
             byte[] clientIdClaim = System.Text.Encoding.UTF8.GetBytes(clientId);
             byte[] clientIdSignature = Convert.FromBase64String(b64IdSig);
 
             // calculate hash of claimed client ID
-            SHA1 sha1 = new SHA1CryptoServiceProvider(); //TODO: SHA256
+            SHA1 sha1 = new SHA1CryptoServiceProvider(); //TODO2: SHA256
             byte[] clientIdClaimHash = sha1.ComputeHash(clientIdClaim);
 
             // Load public key information
@@ -159,13 +159,13 @@ namespace KeePassRPC
             if (!DSADeformatter.VerifySignature(
                 clientIdClaimHash, clientIdSignature))
             {
-                return 7; // Signature invalid
+                return new AuthenticationResult(7, clientId); // Signature invalid
             }
 
             // hash the (now authenticated) client Id and the client's
             // secret unique identifier so we can tell if this particular
             // client has conencted to KeePassRPC before
-            //TODO: record failed attempts too so we can avoid bothering
+            //TODO2: record failed attempts too so we can avoid bothering
             // the user if they choose to ignore certain clients
             byte[] data = System.Text.Encoding.UTF8.GetBytes("hash of: " + b64PrivId + clientId);
             byte[] result;
@@ -182,13 +182,13 @@ namespace KeePassRPC
                 knownClients = currentKnownClients.Split(',');
                 foreach (string knownClient in knownClients)
                     if (knownClient == clientHash)
-                        return 0; // everything's good, access granted
+                        return new AuthenticationResult(0, clientId); // everything's good, access granted
             }
 
             // This is the first time this type of client has
             // connected to KeePassRPC so we start the new user
-            // wizard (extend in future to support wizards for
-            // different clients?)
+            // wizard.
+            // TODO2: support wizards for different clients
             if (knownClients.Length == 0 && clientId == "KeeFox Firefox add-on")
             {
                 // The wizard handles user confirmation - if user says yes,
@@ -199,7 +199,7 @@ namespace KeePassRPC
                 object invokeResult = host.MainWindow.Invoke(
                     new KeePassRPCExt.WelcomeKeeFoxUserDelegate(
                         KeePassRPCPlugin.WelcomeKeeFoxUser), delParams);
-                return (int)invokeResult; // Should be 0 unless user cancels
+                return new AuthenticationResult((int)invokeResult, clientId); // Should be 0 unless user cancels
             }
             else
             {
@@ -214,15 +214,15 @@ namespace KeePassRPC
                 if (userConfirmationResult == DialogResult.Yes)
                 {
                     AddKnownRPCClient(new PendingRPCClient(clientId, clientHash, new List<string>(knownClients)));
-                    return 0; // everything's good, access granted
+                    return new AuthenticationResult(0, clientId); // everything's good, access granted
                 }
-                return 5;
+                return new AuthenticationResult(5, clientId);
             }
-            //TODO: audit logging options? needs to be a KeePass supported
+            //TODO2: audit logging options? needs to be a KeePass supported
             //feature really or maybe a seperate plugin?
         }
 
-        //TODO: find some way that this can be private
+        //TODO2: find some way that this can be private?
         internal void AddKnownRPCClient(PendingRPCClient client)
         {
             client.KnownClientList.Add(client.Hash);
@@ -269,9 +269,9 @@ namespace KeePassRPC
 //            //RSA subjectKey = (RSA)RSA.Create();
 //            //subjectKey.
 //            //DSA.ImportCspBlob();
-//            //TODO, load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
+//            //TODO2: load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
 
-//            //TODO: store staight into Truecrypt
+//            // store staight into Truecrypt
 //            System.IO.File.WriteAllBytes(
 //                "X:\\" + "KPRPCclientSignaturePrivateKey.key",
 //                DSA1.ExportCspBlob(true));
@@ -312,7 +312,7 @@ namespace KeePassRPC
             {
                 ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
                 // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
-                // TODO: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
+                // TODO2: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
                 host.MainWindow.BeginInvoke(new MethodInvoker(promptUserToOpenDB));
                 ensureDBisOpenEWH.WaitOne(15000, false); // wait until DB has been opened
 
@@ -1424,7 +1424,7 @@ namespace KeePassRPC
             if (pwd == null)
                 pwd = host.Database;
 
-            if (pwd.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length >= 30) //TODO: tighten
+            if (pwd.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length == 32)
             {
                 string uuid = pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
 
@@ -1659,7 +1659,7 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Return a list of groups. If uuid is supplied, the list will have a maximum of one entry. Otherwise it could have any number. TODO: KeePass doesn't have an easy way to search groups by name so postponing that functionality until really needed (or implemented by KeePass API anyway) - for now, name IS COMPLETELY IGNORED
+        /// Return a list of groups. If uuid is supplied, the list will have a maximum of one entry. Otherwise it could have any number. TODO2: KeePass doesn't have an easy way to search groups by name so postponing that functionality until really needed (or implemented by KeePass API anyway) - for now, name IS COMPLETELY IGNORED
         /// </summary>
         /// <param name="name">IGNORED! The name of a groups we are looking for. Must be an exact match.</param>
         /// <param name="uuid">The UUID of the group we are looking for.</param>

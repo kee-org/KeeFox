@@ -313,7 +313,7 @@ namespace KeePassRPC.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //TODO: can we securly pass the user's existing master password / CompositeKey to the advanced key creation form?
+            //TODO2: can we securly pass the user's existing master password / CompositeKey to the advanced key creation form?
         }
 
 	}

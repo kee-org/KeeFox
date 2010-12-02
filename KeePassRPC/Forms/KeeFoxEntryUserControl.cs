@@ -99,8 +99,6 @@ namespace KeePassRPC.Forms
 
         private void KeeFoxEntryUserControl_Load(object sender, EventArgs e)
         {
-            //TODO: what about if user directly edits the strings in the other tab? will this Load function be called every time the KeeFox tab is displayed?
-            
             bool kfNeverAutoFill = false;
             bool kfAlwaysAutoFill = false;
             bool kfNeverAutoSubmit = false;
