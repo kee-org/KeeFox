@@ -26,6 +26,48 @@ using KeePassLib;
 
 namespace KeePassRPC.DataExchangeModel
 {
+    public class Utilities
+    {
+        public static string FormFieldTypeToDisplay(FormFieldType fft, bool titleCase)
+        {
+            string type = "Text";
+            if (fft == FormFieldType.FFTpassword)
+                type = "Password";
+            else if (fft == FormFieldType.FFTselect)
+                type = "Select";
+            else if (fft == FormFieldType.FFTradio)
+                type = "Radio";
+            else if (fft == FormFieldType.FFTtext)
+                type = "Text";
+            else if (fft == FormFieldType.FFTusername)
+                type = "Username";
+            else if (fft == FormFieldType.FFTcheckbox)
+                type = "Checkbox";
+            if (!titleCase)
+                return type.ToLower();
+            return type;
+        }
+
+        public static FormFieldType FormFieldTypeFromDisplay(string type)
+        {
+            type = type.ToLower();
+            FormFieldType fft = FormFieldType.FFTusername;
+            if (type == "password")
+                fft = FormFieldType.FFTpassword;
+            else if (type == "select")
+                fft = FormFieldType.FFTselect;
+            else if (type == "radio")
+                fft = FormFieldType.FFTradio;
+            else if (type == "text")
+                fft = FormFieldType.FFTtext;
+            else if (type == "username")
+                fft = FormFieldType.FFTusername;
+            else if (type == "checkbox")
+                fft = FormFieldType.FFTcheckbox;
+            return fft;
+        }
+    }
+
     public class AuthenticationResult
     {
        // private int _result;

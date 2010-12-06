@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,4];
+    this.clientVersion = [0,8,5];
 }
 
 jsonrpcClient.prototype = new session();
@@ -123,6 +123,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                         var window = wm.getMostRecentWindow("navigator:browser");
                         window.keeFoxInst._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
                         window.keeFoxInst._keeFoxVariableInit();
+                        if (window.keeFoxInst._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
+                        {
+                            currentLocation = window.keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation","");
+                            window.keefox_org.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
+                            window.keeFoxInst.changeLocation(currentLocation); //TODO2: can we be sure this has finished before KPRPC startrs processing the initial refresh request?
+                        }
                         window.keeFoxInst._refreshKPDB();
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
@@ -437,6 +443,13 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     {
         // fire and forget
         this.request(this, "ChangeDatabase", [fileName, closeCurrent], null, ++this.requestId);
+        return;
+    }
+    
+    this.changeLocation = function(locationId)
+    {
+        // fire and forget
+        this.request(this, "ChangeLocation", [locationId], null, ++this.requestId);
         return;
     }
 

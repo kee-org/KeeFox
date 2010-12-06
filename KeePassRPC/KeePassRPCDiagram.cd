@@ -88,16 +88,6 @@
       <FileName>KeePassRPCService.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="KeePassRPC.KeePassRPCClientManager">
-    <Position X="11.75" Y="0.5" Width="2" />
-    <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>AAAAIAAAAAAAAgAAAAAAAAQAAAAAAAAwAACEAARAQAA=</HashCode>
-      <FileName>RPCClientManagers.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="KeePassRPC.KeePassRPCClientConnection">
     <Position X="11.5" Y="3.75" Width="2.25" />
     <Members>
@@ -109,6 +99,16 @@
     <TypeIdentifier>
       <HashCode>JAIAEAQAAAAAAAAAAAQIIAAAAGIAAAAgAAAAAAAIAKA=</HashCode>
       <FileName>KeePassRPCClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KeePassRPC.KeePassRPCClientManager">
+    <Position X="11.75" Y="0.5" Width="2" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAgAAAAAAAAQAgAAAAAAwAACECARAQAA=</HashCode>
+      <FileName>RPCClientManagers.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Enum Name="KeePassRPC.DataExchangeModel.LoginSearchType">

@@ -870,6 +870,18 @@ KeeFox.prototype = {
         }
     },
     
+    changeLocation: function(locationId)
+    {
+        try
+        {
+            this.KeePassRPC.changeLocation(locationId);
+        } catch (e)
+        {
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
+            throw e;
+        }
+    },
+    
     addLogin: function(login, parentUUID)
     {
         try

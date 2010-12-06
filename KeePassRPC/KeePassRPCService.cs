@@ -222,7 +222,8 @@ namespace KeePassRPC
             //feature really or maybe a seperate plugin?
         }
 
-        //TODO2: find some way that this can be private?
+        //TODO2: find some way that this can be private? (but really, what is
+        //private when any plugin could call anything in the appdomain through reflection anyway?...
         internal void AddKnownRPCClient(PendingRPCClient client)
         {
             client.KnownClientList.Add(client.Hash);
@@ -1080,6 +1081,65 @@ namespace KeePassRPC
             }
 
             host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
+            return;
+        }
+
+        /// <summary>
+        /// notifies KeePass of a change in current location
+        /// </summary>
+        /// <param name="locationId">New location identifier (e.g. "work", "home") Case insensitive</param>
+        [JsonRpcMethod]
+        public void ChangeLocation(string locationId)
+        {
+            if (string.IsNullOrEmpty(locationId))
+                return;
+            locationId = locationId.ToLower();
+
+            string newDBFilesConfig = host.CustomConfig
+                .GetString("KeePassRPC.knownLocations." + locationId + ".DatabaseFileNames", "");
+            string[] newDBFiles = new string[0];
+
+            if (!string.IsNullOrEmpty(newDBFilesConfig))
+            {
+                newDBFiles = newDBFilesConfig.Split(',');
+                foreach (string newDBFile in newDBFiles)
+                {
+                    if (newDBFile != null && newDBFile.Length > 0)
+                    {
+                        IOConnectionInfo ioci;
+                        ioci = new KeePassLib.Serialization.IOConnectionInfo();
+                        ioci.Path = newDBFile;
+                        host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
+                    }
+                }
+            }
+
+            //TODO2: Don't think this will work alongside a new database file too - the above file open commands are probably async?
+            // If any listed group UUID is found in this database, set it as the KeeFox home group
+            string rootGroupsConfig = host.CustomConfig
+                .GetString("KeePassRPC.knownLocations." + locationId + ".RootGroups", "");
+            string[] rootGroups = new string[0];
+
+            if (!string.IsNullOrEmpty(rootGroupsConfig))
+            {
+                rootGroups = rootGroupsConfig.Split(',');
+                foreach (string rootGroupId in rootGroups)
+                {
+                    // Make sure there is an active database
+                    if (!ensureDBisOpen()) { break; }
+
+                    PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
+                    PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                    if (matchedGroup == null)
+                        continue;
+
+                    host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID", rootGroupId);
+                    host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+                    break;
+                }
+            }
+
             return;
         }
 

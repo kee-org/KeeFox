@@ -61,7 +61,6 @@ KFToolbar.prototype = {
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
-        //TODO: see if we can remove this successfully: NO. why did I want to?!
         this.setupButton_ready(null,this._currentWindow);
     },
     
@@ -139,9 +138,8 @@ KFToolbar.prototype = {
                 container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
                     usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
-                //container.setAttribute("class", "menuitem-iconic");
-                //container.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
-                //TODO: just need to make sure we switch the icon back to standard KeeFox ones during all other menu refresh operations.
+                container.setAttribute("class", "menuitem-iconic");
+                container.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
             }
             
             if (logins.length > 0)
@@ -215,9 +213,7 @@ KFToolbar.prototype = {
     setOneLoginsMenu: function(container, group)
     {
         //KFLog.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
-
-        
-            
+    
         // Remove all of the existing buttons
         for (i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
@@ -293,74 +289,7 @@ KFToolbar.prototype = {
 
             container.appendChild(tempButton);
         }
-        //KFLog.debug("logd");
     },
-
-//    setupButton_installListener: {
-//        _KFToolBar: null,
-//        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
-
-//        handleEvent: function(event) {
-//            KFLog.debug("setupButton_installListener: got event " + event.type);
-
-//            var doc, inputElement;
-//            switch (event.type) {
-//                case "load":
-//                    doc = event.target;
-//                    this._KFToolBar.setupButton_install(doc.defaultView);
-//                    return;
-
-//                default:
-//                    KFLog.warn("This event was unexpected and has been ignored.");
-//                    return;
-//            }
-//        }
-
-//    },
-//    
-//    setupButton_readyListener: {
-//        _KFToolBar: null,
-//        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
-
-//        handleEvent: function(event) {
-//            KFLog.debug("setupButton_readyListener: got event " + event.type);
-
-//            var doc, inputElement;
-//            switch (event.type) {
-//                case "load":
-//                    doc = event.target;
-//                    this._KFToolBar.setupButton_ready(doc.defaultView);
-//                    return;
-
-//                default:
-//                    KFLog.warn("This event was unexpected and has been ignored.");
-//                    return;
-//            }
-//        }
-
-//    },
-//    
-//    setupButton_loadKeePassListener: {
-//        _KFToolBar: null,
-//        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDOMEventListener, Components.interfaces.nsISupportsWeakReference]),
-
-//        handleEvent: function(event) {
-//            KFLog.debug("setupButton_loadKeePassListener: got event " + event.type);
-
-//            var doc, inputElement;
-//            switch (event.type) {
-//                case "load":
-//                    doc = event.target;
-//                    this._KFToolBar.setupButton_loadKeePass(doc.defaultView);
-//                    return;
-
-//                default:
-//                    KFLog.warn("This event was unexpected and has been ignored.");
-//                    return;
-//            }
-//        }
-
-//    },
 
     setupButton_install: function(targetWindow) {
         KFLog.debug("setupButton_install start");
@@ -380,7 +309,6 @@ KFToolbar.prototype = {
             mainButton.removeChild(mainButton.childNodes[0]);
         }
         mainButton.setAttribute("class", "");
-        //mainButton.setAttribute("type", "");
         mainButton.removeAttribute("type");
         mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
@@ -418,8 +346,8 @@ KFToolbar.prototype = {
             mainButton.removeChild(mainButton.childNodes[0]);
         }
         mainButton.setAttribute("class", "");
-        //mainButton.setAttribute("type", "");
         mainButton.removeAttribute("type");
+        mainButton.removeAttribute("image");
         
         var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
         

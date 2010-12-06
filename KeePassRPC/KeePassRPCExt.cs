@@ -214,7 +214,7 @@ namespace KeePassRPC
 
 		void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
 		{
-            return; // not in 0.8 (soon after hopefully...)
+            //return; // not in 0.8 (soon after hopefully...)
 
 			PwEntryForm ef = e.Form as PwEntryForm;
             if (ef != null)
@@ -233,8 +233,6 @@ namespace KeePassRPC
 
 		void editGroupFormShown(object sender, EventArgs e)
 		{
-            //TODO2: reflect (then cache) to find all custom controls that meet
-            // KeePassRPC requirements and display them all, not just KeeFox
 			GroupForm form = sender as GroupForm;
             PwGroup group = null;
             TabControl mainTabControl = null;
@@ -258,21 +256,17 @@ namespace KeePassRPC
             if (group == null)
                 return;
 
-			KeeFoxGroupUserControl groupControl = new KeeFoxGroupUserControl(this, group);
-            TabPage keefoxTabPage = new TabPage("KeeFox");
-            groupControl.Dock = DockStyle.Fill;
-            keefoxTabPage.Controls.Add(groupControl);
-            if (mainTabControl.ImageList == null)
-                mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
-            keefoxTabPage.ImageIndex = imageIndex;
-            mainTabControl.TabPages.Add(keefoxTabPage);
+            lock (_lockRPCClientManagers)
+            {
+                //TODO2: Only consider managers of client types that have at least one valid client already authorised
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    if (manager.Name != "Null")
+                        manager.AttachToGroupDialog(this, group, mainTabControl);
+            }
 		}
 
         void editEntryFormShown(object sender, EventArgs e)
         {
-            //TODO2: reflect (then cache) to find all custom controls that meet
-            // KeePassRPC requirements and display them all, not just KeeFox
             PwEntryForm form = sender as PwEntryForm;
             PwEntry entry = null;
             TabControl mainTabControl = null;
@@ -305,17 +299,14 @@ namespace KeePassRPC
             if (entry == null)
                 return;
 
-            KeeFoxEntryUserControl entryControl = new KeeFoxEntryUserControl(this, entry, advancedListView, form, strings);
-            TabPage keefoxTabPage = new TabPage("KeeFox");
-            entryControl.Dock = DockStyle.Fill;
-            keefoxTabPage.Controls.Add(entryControl);
-            if (mainTabControl.ImageList == null)
-                mainTabControl.ImageList = new ImageList();
-            int imageIndex = mainTabControl.ImageList.Images.Add(global::KeePassRPC.Properties.Resources.KeeFox16, Color.Transparent);
-            keefoxTabPage.ImageIndex = imageIndex;
-            mainTabControl.TabPages.Add(keefoxTabPage);
-        }
-		
+            lock (_lockRPCClientManagers)
+            {
+                //TODO2: Only consider managers of client types that have at least one valid client already authorised
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    if (manager.Name != "Null")
+                        manager.AttachToEntryDialog(this, entry, mainTabControl, form, advancedListView, strings);
+            }
+        }		
 
         // still useful for tracking server versions I reckon...
         bool refreshVersionInfo(IPluginHost host)
@@ -777,8 +768,11 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal signal)
         {
-            foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
-                manager.SignalAll(signal);
+            lock (_lockRPCClientManagers)
+            {
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    manager.SignalAll(signal);
+            }
         }
 
         internal void AddRPCClientConnection(KeePassRPCClientConnection keePassRPCClient)
