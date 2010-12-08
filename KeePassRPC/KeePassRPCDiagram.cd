@@ -31,7 +31,7 @@
   <Class Name="KeePassRPC.KeePassRPCExt" Collapsed="true">
     <Position X="0.5" Y="8.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>YBAAgECjiAAACyBCCoCABAgAAAgAAAAAIBrERC0ECQQ=</HashCode>
+      <HashCode>YJAAgECjiAAACyBCCoCABAgAAAgAAAAAIBrERC0ECQQ=</HashCode>
       <FileName>KeePassRPCExt.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -84,7 +84,7 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AKAEASAACAKAHACCIAACCEMAAEpgMFAAABoACMZAiAA=</HashCode>
+      <HashCode>AKAEASgACAqAHACCIAACCEMAAEpgMFAAABoACMZAiAA=</HashCode>
       <FileName>KeePassRPCService.cs</FileName>
     </TypeIdentifier>
   </Class>

@@ -127,7 +127,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                         {
                             currentLocation = window.keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation","");
                             window.keefox_org.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
-                            window.keeFoxInst.changeLocation(currentLocation); //TODO2: can we be sure this has finished before KPRPC startrs processing the initial refresh request?
+                            window.keeFoxInst.changeLocation(currentLocation);
                         }
                         window.keeFoxInst._refreshKPDB();
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff

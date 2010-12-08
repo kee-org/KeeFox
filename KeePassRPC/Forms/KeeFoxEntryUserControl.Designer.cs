@@ -68,7 +68,7 @@
             this.groupBox1.Location = new System.Drawing.Point(3, 165);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(462, 50);
-            this.groupBox1.TabIndex = 1;
+            this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Entry behaviour";
             // 
@@ -82,7 +82,7 @@
             this.comboBoxAutoFill.Location = new System.Drawing.Point(56, 20);
             this.comboBoxAutoFill.Name = "comboBoxAutoFill";
             this.comboBoxAutoFill.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxAutoFill.TabIndex = 0;
+            this.comboBoxAutoFill.TabIndex = 7;
             // 
             // comboBoxAutoSubmit
             // 
@@ -94,7 +94,7 @@
             this.comboBoxAutoSubmit.Location = new System.Drawing.Point(326, 20);
             this.comboBoxAutoSubmit.Name = "comboBoxAutoSubmit";
             this.comboBoxAutoSubmit.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxAutoSubmit.TabIndex = 1;
+            this.comboBoxAutoSubmit.TabIndex = 8;
             // 
             // label4
             // 
@@ -120,7 +120,7 @@
             this.label1.Location = new System.Drawing.Point(317, 11);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(142, 13);
-            this.label1.TabIndex = 6;
+            this.label1.TabIndex = 0;
             this.label1.Text = "Priority override (e.g. 1 - 100)";
             // 
             // textBoxKeeFoxPriority
@@ -128,7 +128,7 @@
             this.textBoxKeeFoxPriority.Location = new System.Drawing.Point(272, 7);
             this.textBoxKeeFoxPriority.Name = "textBoxKeeFoxPriority";
             this.textBoxKeeFoxPriority.Size = new System.Drawing.Size(39, 20);
-            this.textBoxKeeFoxPriority.TabIndex = 5;
+            this.textBoxKeeFoxPriority.TabIndex = 2;
             // 
             // checkBoxHideFromKeeFox
             // 
@@ -149,7 +149,7 @@
             this.groupBox2.Location = new System.Drawing.Point(3, 221);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(462, 127);
-            this.groupBox2.TabIndex = 2;
+            this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Form fields";
             // 
@@ -159,7 +159,7 @@
             this.buttonFieldEdit.Location = new System.Drawing.Point(396, 57);
             this.buttonFieldEdit.Name = "buttonFieldEdit";
             this.buttonFieldEdit.Size = new System.Drawing.Size(60, 24);
-            this.buttonFieldEdit.TabIndex = 10;
+            this.buttonFieldEdit.TabIndex = 11;
             this.buttonFieldEdit.Text = "Edit";
             this.buttonFieldEdit.UseVisualStyleBackColor = true;
             this.buttonFieldEdit.Click += new System.EventHandler(this.buttonFieldEdit_Click);
@@ -170,7 +170,7 @@
             this.buttonFieldDelete.Location = new System.Drawing.Point(396, 91);
             this.buttonFieldDelete.Name = "buttonFieldDelete";
             this.buttonFieldDelete.Size = new System.Drawing.Size(60, 25);
-            this.buttonFieldDelete.TabIndex = 11;
+            this.buttonFieldDelete.TabIndex = 12;
             this.buttonFieldDelete.Text = "Delete";
             this.buttonFieldDelete.UseVisualStyleBackColor = true;
             this.buttonFieldDelete.Click += new System.EventHandler(this.buttonFieldDelete_Click);
@@ -191,7 +191,7 @@
             this.listView2.Name = "listView2";
             this.listView2.ShowItemToolTips = true;
             this.listView2.Size = new System.Drawing.Size(380, 97);
-            this.listView2.TabIndex = 0;
+            this.listView2.TabIndex = 9;
             this.listView2.UseCompatibleStateImageBehavior = false;
             this.listView2.View = System.Windows.Forms.View.Details;
             this.listView2.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
@@ -224,7 +224,7 @@
             this.buttonFieldAdd.Location = new System.Drawing.Point(396, 19);
             this.buttonFieldAdd.Name = "buttonFieldAdd";
             this.buttonFieldAdd.Size = new System.Drawing.Size(60, 26);
-            this.buttonFieldAdd.TabIndex = 9;
+            this.buttonFieldAdd.TabIndex = 10;
             this.buttonFieldAdd.Text = "Add";
             this.buttonFieldAdd.UseVisualStyleBackColor = true;
             this.buttonFieldAdd.Click += new System.EventHandler(this.buttonFieldAdd_Click);
@@ -238,7 +238,7 @@
             this.groupBox3.Location = new System.Drawing.Point(3, 30);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(462, 133);
-            this.groupBox3.TabIndex = 3;
+            this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Additional URLs";
             // 
@@ -248,7 +248,7 @@
             this.buttonURLEdit.Location = new System.Drawing.Point(396, 61);
             this.buttonURLEdit.Name = "buttonURLEdit";
             this.buttonURLEdit.Size = new System.Drawing.Size(60, 24);
-            this.buttonURLEdit.TabIndex = 10;
+            this.buttonURLEdit.TabIndex = 5;
             this.buttonURLEdit.Text = "Edit";
             this.buttonURLEdit.UseVisualStyleBackColor = true;
             this.buttonURLEdit.Click += new System.EventHandler(this.buttonURLEdit_Click);
@@ -259,7 +259,7 @@
             this.buttonURLDelete.Location = new System.Drawing.Point(396, 102);
             this.buttonURLDelete.Name = "buttonURLDelete";
             this.buttonURLDelete.Size = new System.Drawing.Size(60, 25);
-            this.buttonURLDelete.TabIndex = 11;
+            this.buttonURLDelete.TabIndex = 6;
             this.buttonURLDelete.Text = "Delete";
             this.buttonURLDelete.UseVisualStyleBackColor = true;
             this.buttonURLDelete.Click += new System.EventHandler(this.buttonURLDelete_Click);
@@ -269,7 +269,7 @@
             this.buttonURLAdd.Location = new System.Drawing.Point(396, 19);
             this.buttonURLAdd.Name = "buttonURLAdd";
             this.buttonURLAdd.Size = new System.Drawing.Size(60, 26);
-            this.buttonURLAdd.TabIndex = 9;
+            this.buttonURLAdd.TabIndex = 4;
             this.buttonURLAdd.Text = "Add";
             this.buttonURLAdd.UseVisualStyleBackColor = true;
             this.buttonURLAdd.Click += new System.EventHandler(this.buttonURLAdd_Click);
@@ -288,7 +288,7 @@
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
             this.listView1.Size = new System.Drawing.Size(380, 108);
-            this.listView1.TabIndex = 7;
+            this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);

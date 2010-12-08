@@ -133,8 +133,9 @@ KFToolbar.prototype = {
                         
             if (i==0)
             {
-                container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));
-                container.setAttribute("value", doc.documentURI);
+                container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));                
+                container.setAttribute("value", login.uniqueID);
+                container.setAttribute("context", "KeeFox-login-toolbar-context");
                 container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
                     usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
@@ -142,14 +143,15 @@ KFToolbar.prototype = {
                 container.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
             }
             
-            if (logins.length > 0)
+            if (logins.length > 1)
             {
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
                 tempButton.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));
                 tempButton.setAttribute("class", "menuitem-iconic");
                 tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
-                tempButton.setAttribute("value", doc.documentURI);
+                tempButton.setAttribute("value", login.uniqueID);
+                tempButton.setAttribute("context", "KeeFox-login-context");
                 tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 tempButton.setAttribute("oncommand", "keefox_org.ILM.fill('" +
                     usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
@@ -157,7 +159,7 @@ KFToolbar.prototype = {
             }
         }
         
-        if (logins.length > 0)
+        if (logins.length > 1)
         {
             container.setAttribute("type", "menu-button");
             container.appendChild(menupopup);
@@ -310,6 +312,8 @@ KFToolbar.prototype = {
         }
         mainButton.setAttribute("class", "");
         mainButton.removeAttribute("type");
+        //mainButton.setAttribute("value", "");
+        //mainButton.removeAttribute("context");
         mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
         mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
@@ -348,6 +352,8 @@ KFToolbar.prototype = {
         mainButton.setAttribute("class", "");
         mainButton.removeAttribute("type");
         mainButton.removeAttribute("image");
+        //mainButton.setAttribute("value", "");
+        //mainButton.removeAttribute("context");
         
         var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
         

@@ -414,6 +414,15 @@ namespace KeePassRPC
             return _host.MainWindow.ClientIcons.Images[(int)iconIndex];
         }
 
+
+        public delegate object GetCustomIconDelegate(PwUuid uuid);
+
+
+        public Image GetCustomIcon(PwUuid uuid)
+        {
+            return _host.Database.GetCustomIcon(uuid);
+        }
+
         /// <summary>
         /// Called when [file new]. TODO: Review whenever private KeePass.MainForm.OnFileNew method changes.
         /// </summary>
@@ -746,6 +755,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBOpen(object sender, FileOpenedEventArgs e)
         {
+            _RPCService.UpdateKeePassRPCGroupFromLocation();
             KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting ICE thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }

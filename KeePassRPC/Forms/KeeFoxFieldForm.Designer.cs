@@ -49,7 +49,7 @@
             this.textBox1.Location = new System.Drawing.Point(50, 9);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(218, 20);
-            this.textBox1.TabIndex = 0;
+            this.textBox1.TabIndex = 1;
             // 
             // label1
             // 
@@ -57,7 +57,7 @@
             this.label1.Location = new System.Drawing.Point(9, 12);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 1;
+            this.label1.TabIndex = 0;
             this.label1.Text = "Name";
             // 
             // label2
@@ -66,7 +66,7 @@
             this.label2.Location = new System.Drawing.Point(10, 38);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(34, 13);
-            this.label2.TabIndex = 2;
+            this.label2.TabIndex = 0;
             this.label2.Text = "Value";
             // 
             // textBox2
@@ -88,7 +88,7 @@
             this.comboBox1.Location = new System.Drawing.Point(328, 8);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(75, 21);
-            this.comboBox1.TabIndex = 4;
+            this.comboBox1.TabIndex = 2;
             // 
             // textBox3
             // 
@@ -102,7 +102,7 @@
             this.textBox4.Location = new System.Drawing.Point(328, 35);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(28, 20);
-            this.textBox4.TabIndex = 6;
+            this.textBox4.TabIndex = 4;
             // 
             // button1
             // 
@@ -110,7 +110,7 @@
             this.button1.Location = new System.Drawing.Point(247, 109);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 7;
+            this.button1.TabIndex = 6;
             this.button1.Text = "OK";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -121,7 +121,7 @@
             this.button2.Location = new System.Drawing.Point(328, 109);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 8;
+            this.button2.TabIndex = 7;
             this.button2.Text = "Cancel";
             this.button2.UseVisualStyleBackColor = true;
             // 
@@ -131,7 +131,7 @@
             this.label3.Location = new System.Drawing.Point(28, 64);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(16, 13);
-            this.label3.TabIndex = 9;
+            this.label3.TabIndex = 0;
             this.label3.Text = "Id";
             // 
             // label4
@@ -140,7 +140,7 @@
             this.label4.Location = new System.Drawing.Point(291, 12);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(31, 13);
-            this.label4.TabIndex = 10;
+            this.label4.TabIndex = 0;
             this.label4.Text = "Type";
             // 
             // label5
@@ -149,7 +149,7 @@
             this.label5.Location = new System.Drawing.Point(290, 38);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(32, 13);
-            this.label5.TabIndex = 11;
+            this.label5.TabIndex = 0;
             this.label5.Text = "Page";
             // 
             // label6
@@ -158,7 +158,7 @@
             this.label6.Location = new System.Drawing.Point(9, 84);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(390, 13);
-            this.label6.TabIndex = 12;
+            this.label6.TabIndex = 0;
             this.label6.Text = "To change the value of the username field, please use the main KeePass edit tab";
             this.label6.Visible = false;
             // 
@@ -168,7 +168,7 @@
             this.label7.Location = new System.Drawing.Point(9, 84);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(389, 13);
-            this.label7.TabIndex = 13;
+            this.label7.TabIndex = 0;
             this.label7.Text = "To change the value of the password field, please use the main KeePass edit tab";
             this.label7.Visible = false;
             // 

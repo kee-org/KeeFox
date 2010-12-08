@@ -882,7 +882,14 @@ namespace KeePassRPC
                 string cachedBase64 = DataExchangeModel.IconCache.GetIconEncoding(customIconUUID);
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
-                    icon = host.Database.GetCustomIcon(customIconUUID);
+                    object[] delParams = { customIconUUID };
+                    object invokeResult = host.MainWindow.Invoke(
+                        new KeePassRPCExt.GetCustomIconDelegate(
+                            KeePassRPCPlugin.GetCustomIcon), delParams);
+                    if (invokeResult != null)
+                    {
+                        icon = (Image)invokeResult;
+                    }
                     if (icon != null)
                     {
                         uuid = customIconUUID;
@@ -1085,7 +1092,8 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// notifies KeePass of a change in current location
+        /// notifies KeePass of a change in current location. The location in the KeePass config file
+        /// is updated and current databse state is modified if applicable
         /// </summary>
         /// <param name="locationId">New location identifier (e.g. "work", "home") Case insensitive</param>
         [JsonRpcMethod]
@@ -1095,26 +1103,40 @@ namespace KeePassRPC
                 return;
             locationId = locationId.ToLower();
 
-            string newDBFilesConfig = host.CustomConfig
-                .GetString("KeePassRPC.knownLocations." + locationId + ".DatabaseFileNames", "");
-            string[] newDBFiles = new string[0];
+            //string newDBFilesConfig = host.CustomConfig
+            //    .GetString("KeePassRPC.knownLocations." + locationId + ".DatabaseFileNames", "");
+            //string[] newDBFiles = new string[0];
 
-            if (!string.IsNullOrEmpty(newDBFilesConfig))
-            {
-                newDBFiles = newDBFilesConfig.Split(',');
-                foreach (string newDBFile in newDBFiles)
-                {
-                    if (newDBFile != null && newDBFile.Length > 0)
-                    {
-                        IOConnectionInfo ioci;
-                        ioci = new KeePassLib.Serialization.IOConnectionInfo();
-                        ioci.Path = newDBFile;
-                        host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
-                    }
-                }
-            }
+            //if (!string.IsNullOrEmpty(newDBFilesConfig))
+            //{
+            //    newDBFiles = newDBFilesConfig.Split(',');
+            //    foreach (string newDBFile in newDBFiles)
+            //    {
+            //        if (newDBFile != null && newDBFile.Length > 0)
+            //        {
+            //            IOConnectionInfo ioci;
+            //            ioci = new KeePassLib.Serialization.IOConnectionInfo();
+            //            ioci.Path = newDBFile;
+            //            host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
+            //        }
+            //    }
+            //}
 
-            //TODO2: Don't think this will work alongside a new database file too - the above file open commands are probably async?
+            host.CustomConfig.SetString("KeePassRPC.currentLocation", locationId);
+            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
+
+            UpdateKeePassRPCGroupFromLocation();
+
+            return;
+        }
+
+        public void UpdateKeePassRPCGroupFromLocation()
+        {
+            if (!host.Database.IsOpen)
+                return;
+
+            string locationId = host.CustomConfig
+                .GetString("KeePassRPC.currentLocation", "default");
             // If any listed group UUID is found in this database, set it as the KeeFox home group
             string rootGroupsConfig = host.CustomConfig
                 .GetString("KeePassRPC.knownLocations." + locationId + ".RootGroups", "");
@@ -1125,9 +1147,6 @@ namespace KeePassRPC
                 rootGroups = rootGroupsConfig.Split(',');
                 foreach (string rootGroupId in rootGroups)
                 {
-                    // Make sure there is an active database
-                    if (!ensureDBisOpen()) { break; }
-
                     PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
                     PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
@@ -1139,8 +1158,6 @@ namespace KeePassRPC
                     break;
                 }
             }
-
-            return;
         }
 
         [JsonRpcMethod]

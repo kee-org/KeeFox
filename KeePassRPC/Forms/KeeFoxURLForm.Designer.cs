@@ -42,7 +42,7 @@
             this.textBox1.Location = new System.Drawing.Point(12, 29);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(260, 20);
-            this.textBox1.TabIndex = 0;
+            this.textBox1.TabIndex = 1;
             // 
             // buttonOK
             // 
@@ -50,7 +50,7 @@
             this.buttonOK.Location = new System.Drawing.Point(116, 98);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
-            this.buttonOK.TabIndex = 1;
+            this.buttonOK.TabIndex = 5;
             this.buttonOK.Text = "OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
@@ -61,7 +61,7 @@
             this.buttonCancel.Location = new System.Drawing.Point(197, 98);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this.buttonCancel.TabIndex = 2;
+            this.buttonCancel.TabIndex = 6;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.button2_Click);
@@ -94,7 +94,7 @@
             this.label1.Location = new System.Drawing.Point(12, 13);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(76, 13);
-            this.label1.TabIndex = 5;
+            this.label1.TabIndex = 0;
             this.label1.Text = "URL / pattern:";
             // 
             // checkBoxRegEx
@@ -103,7 +103,7 @@
             this.checkBoxRegEx.Location = new System.Drawing.Point(12, 55);
             this.checkBoxRegEx.Name = "checkBoxRegEx";
             this.checkBoxRegEx.Size = new System.Drawing.Size(117, 17);
-            this.checkBoxRegEx.TabIndex = 6;
+            this.checkBoxRegEx.TabIndex = 2;
             this.checkBoxRegEx.Text = "Regular Expression";
             this.checkBoxRegEx.UseVisualStyleBackColor = true;
             // 

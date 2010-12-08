@@ -128,38 +128,44 @@ namespace KeePassRPC.Forms
                     string name = null;
                     // extract name
                     if (existingLi.Text.StartsWith("Form field "))
-                        name = existingLi.Text.Substring(11,existingLi.Text.Length-15);
+                        name = existingLi.Text.Substring(11,existingLi.Text.Length-16);
                     else if (existingLi.Text.StartsWith("KPRPC Form field "))
-                        name = existingLi.Text.Substring(17, existingLi.Text.Length - 21);
+                        name = existingLi.Text.Substring(17, existingLi.Text.Length - 22);
                     string displayName = name;
 
-                    string type = existingLi.SubItems[0].Text;
+                    string type = existingLi.SubItems[1].Text;
                     FormFieldType fft = Utilities.FormFieldTypeFromDisplay(type);
 
                     string value = null;
-                    if (_advancedListView.Items.ContainsKey("KPRPC Form field " + name + " value"))
-                        value = _advancedListView.Items["KPRPC Form field " + name + " value"].Text;
-                    if (value == null && _advancedListView.Items.ContainsKey("Form field " + name + " value"))
-                        value = _advancedListView.Items["Form field " + name + " value"].Text;
+                    string id = null;
+                    int page = 1;
+
+                    // Grrrrr... can't find any way to request specific list item!
+                    //TODO2: cache a better data structure than .NET provides to speed up handling of many form fields
+                    foreach (ListViewItem internalLi in _advancedListView.Items)
+                    {
+                        if (internalLi.Text == "KPRPC Form field " + name + " value")
+                            value = internalLi.SubItems[1].Text;
+                        if (value == null && internalLi.Text == "Form field " + name + " value")
+                            value = internalLi.SubItems[1].Text;
+
+                        if (internalLi.Text == "KPRPC Form field " + name + " id")
+                            id = internalLi.SubItems[1].Text;
+                        if (id == null && internalLi.Text == "Form field " + name + " id")
+                            id = internalLi.SubItems[1].Text;
+
+                        if (internalLi.Text == "KPRPC Form field " + name + " page")
+                            page = int.Parse(internalLi.SubItems[1].Text);
+                        if (internalLi.Text == "Form field " + name + " page")
+                            page = int.Parse(internalLi.SubItems[1].Text);
+                    }
                     
                     // if value not found it's probably a standard KeePass data field
                     if (value == null && fft == FormFieldType.FFTusername)
                         displayName = "KeePass username";
                     else if (value == null && fft == FormFieldType.FFTpassword)
                         displayName = "KeePass password";
-
-                    string id = null;
-                    if (_advancedListView.Items.ContainsKey("KPRPC Form field " + name + " id"))
-                        id = _advancedListView.Items["KPRPC Form field " + name + " id"].Text;
-                    if (id == null && _advancedListView.Items.ContainsKey("Form field " + name + " id"))
-                        id = _advancedListView.Items["Form field " + name + " id"].Text;
-
-                    int page = 1;
-                    if (_advancedListView.Items.ContainsKey("KPRPC Form field " + name + " page"))
-                        page = int.Parse(_advancedListView.Items["KPRPC Form field " + name + " page"].Text);
-                    if (_advancedListView.Items.ContainsKey("Form field " + name + " page"))
-                        page = int.Parse(_advancedListView.Items["Form field " + name + " page"].Text);
-
+                    
                     fields.Add(name, new FormField(name, displayName, value, fft, id, page));
                 }
                 else if (existingLi.Text == "KeeFox Priority" || existingLi.Text == "KPRPC Priority")
