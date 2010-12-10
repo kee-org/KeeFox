@@ -828,7 +828,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
     fillDocumentDataStorage.docURI = docURI;
     fillDocumentDataStorage.gBrowser = keefox_org.toolbar._currentWindow.gBrowser;
     fillDocumentDataStorage.doc = this._findDocumentByURI(
-            Application.activeWindow.activeTab.document.defaultView, docURI); //TODO:FF4: Application use
+            gBrowser.contentDocument.defaultView, docURI);
             
     this.findLogins(fillDocumentDataStorage.URL, fillDocumentDataStorage.actionURL, null,
      fillDocumentDataStorage.uniqueID, this.fillFindLoginsComplete, fillDocumentDataStorage);

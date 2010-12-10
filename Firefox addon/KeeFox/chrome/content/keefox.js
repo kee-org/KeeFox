@@ -40,7 +40,7 @@ keefox_org.versionChecker = Components.classes["@mozilla.org/xpcom/version-compa
                                
 if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0)
 {
-    // running under Firefox 3.7 (4) or earlier
+    // running under Firefox 3.6 or earlier
 
     keefox_org.StartupTestApplication = Components.classes["@mozilla.org/fuel/application;1"]
                     .getService(Components.interfaces.fuelIApplication);

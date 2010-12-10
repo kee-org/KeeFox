@@ -582,8 +582,8 @@ KeeFox.prototype = {
                 //win.keefox_org.toolbar.setupButton_loadKeePass(win);
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications(true);
-                win.removeEventListener("TabSelect", this._onTabSelected, false);
-                win.removeEventListener("TabOpen", this._onTabOpened, false);
+                win.gBrowser.tabContainer.removeEventListener("TabSelect", this._onTabSelected, false);
+                win.gBrowser.tabContainer.removeEventListener("TabOpen", this._onTabOpened, false);
                 //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
             } catch (exception)
             {
@@ -648,8 +648,8 @@ KeeFox.prototype = {
                 win.keefox_org.toolbar.setAllLogins();
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications();
-                win.addEventListener("TabSelect", this._onTabSelected, false);
-                win.addEventListener("TabOpen", this._onTabOpened, false);
+                win.gBrowser.tabContainer.addEventListener("TabSelect", this._onTabSelected, false);
+                win.gBrowser.tabContainer.addEventListener("TabOpen", this._onTabOpened, false);
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
@@ -982,10 +982,11 @@ KeeFox.prototype = {
     {
         try
         {
-            var thread = Components.classes["@mozilla.org/thread-manager;1"]
-                                    .getService(Components.interfaces.nsIThreadManager)
-                                    .newThread(0);
-             thread.dispatch(new launchLoginEditorThread(uuid), thread.DISPATCH_NORMAL);
+            this.KeePassRPC.launchLoginEditor(uuid);
+            //var thread = Components.classes["@mozilla.org/thread-manager;1"]
+            //                        .getService(Components.interfaces.nsIThreadManager)
+            //                        .newThread(0);
+            // thread.dispatch(new launchLoginEditorThread(uuid), thread.DISPATCH_NORMAL);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -997,10 +998,11 @@ KeeFox.prototype = {
     {
         try
         {
-             var thread = Components.classes["@mozilla.org/thread-manager;1"]
-                                    .getService(Components.interfaces.nsIThreadManager)
-                                    .newThread(0);
-             thread.dispatch(new launchGroupEditorThread(uuid), thread.DISPATCH_NORMAL);
+        this.KeePassRPC.launchGroupEditor(uuid);
+             //var thread = Components.classes["@mozilla.org/thread-manager;1"]
+            //                        .getService(Components.interfaces.nsIThreadManager)
+             //                       .newThread(0);
+             //thread.dispatch(new launchGroupEditorThread(uuid), thread.DISPATCH_NORMAL);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -1122,11 +1124,13 @@ KeeFox.prototype = {
     {
         this._KFLog.debug("establishing the directory that KeeFox is installed in");
 
-        var MY_ID = "keefox@chris.tomlinson";
-        var em = Components.classes["@mozilla.org/extensions/manager;1"].
-             getService(Components.interfaces.nsIExtensionManager);
-        // the path may use forward slash ("/") as the delimiter
-        var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
+        // Mozilla rightly says that this approach is rather short-sighted - 
+        // unfortuantely from FF4 onwards, they only provide an async
+        // function as an alternative which won't work for KeeFox
+        var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties);
+        var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+        dir.append("extensions");
+        dir.append("keefox@chris.tomlinson");
 
         if (this._KFLog.logSensitiveData)
             this._KFLog.debug("installed in this directory: " + dir.path);
@@ -1326,21 +1330,11 @@ KeeFox.prototype = {
         if (event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != undefined
         && event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != null)
         {
-//            event.target.addEventListener("load", function () {
-//  event.target.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
-//}, true);
-
-//            event.target.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
-            //event.target.ownerDocument.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
-            //event.target.ownerDocument.defaultView.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
-//            event.target.KF_uniqueID = event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin;
-            //event.target.setAttribute("KF_uniqueID", event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
-            //event.target.setAttribute("KF_autoSubmit", "yes"); 
             event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin = null;
         } else
-        {            
+        {
             event.target.ownerDocument.defaultView.keefox_org.toolbar.setLogins(null, null);  
-            event.target.ownerDocument.defaultView.keefox_org.ILM._fillAllFrames(event.target.contentWindow,false);
+            event.target.ownerDocument.defaultView.keefox_org.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
         }
     },
     

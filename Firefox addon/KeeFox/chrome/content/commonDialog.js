@@ -205,7 +205,7 @@ var keeFoxDialogManager = {
 		    box.appendChild(loadingPasswords);
 		    row.appendChild(boxLabel);
 		    row.appendChild(box);
-		    document.getElementById("loginContainer").parentNode.appendChild(row);
+		    document.getElementById("loginContainer").parentNode.appendChild(row); //TODO: FF4 incompatible? (parentNode) - use gbrowser instead?
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);

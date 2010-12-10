@@ -788,44 +788,44 @@ namespace KeePassRPC
                 if (kpff.Type == FormFieldType.FFTpassword && !firstPasswordFound)
                 {
                     pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "password"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "password"));
                     firstPasswordFound = true;
                 }
                 else if (kpff.Type == FormFieldType.FFTpassword)
                 {
-                    pwe.Strings.Set("Form field " + kpff.Name + " value", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value)); // we protect this string if user has asked to protect passwords
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "password"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value)); // we protect this string if user has asked to protect passwords
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "password"));
                 }
                 else if (kpff.Type == FormFieldType.FFTusername)
                 {
                     pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "username"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "username"));
                 }
                 else if (kpff.Type == FormFieldType.FFTtext)
                 {
-                    pwe.Strings.Set("Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "text"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "text"));
                 }
                 else if (kpff.Type == FormFieldType.FFTcheckbox)
                 {
-                    pwe.Strings.Set("Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "checkbox"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "checkbox"));
                 }
                 else if (kpff.Type == FormFieldType.FFTradio)
                 {
-                    pwe.Strings.Set("Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "radio"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "radio"));
                 }
                 else if (kpff.Type == FormFieldType.FFTselect)
                 {
-                    pwe.Strings.Set("Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "select"));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "select"));
                 }
 
-                pwe.Strings.Set("Form field " + kpff.Name + " page", new ProtectedString(false, kpff.Page.ToString()));
+                pwe.Strings.Set("KPRPC Form field " + kpff.Name + " page", new ProtectedString(false, kpff.Page.ToString()));
 
                 if (kpff.Id != null && kpff.Id.Length > 0)
-                    pwe.Strings.Set("Form field " + kpff.Name + " id", new ProtectedString(false, kpff.Id));
+                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " id", new ProtectedString(false, kpff.Id));
             }
 
             string altURLs = "";

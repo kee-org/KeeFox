@@ -55,7 +55,7 @@
 
       <preference id="KeeFox-pref-keePassRPCInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRPCInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassInstalledLocation" type="string"/>
-      <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRemeberInstalledLocation" type="bool"/>
+      <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRememberInstalledLocation" type="bool"/>
       <preference id="KeeFox-pref-keePassDBToOpen" name="extensions.keefox@chris.tomlinson.keePassDBToOpen" type="string"/>
       
     </preferences>

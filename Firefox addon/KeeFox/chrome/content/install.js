@@ -897,8 +897,7 @@ function launchAndConnectToKeePass()
     // attempt to connect to KeePass when the timer goes off.
     var Application = Components.classes["@mozilla.org/fuel/application;1"]
         .getService(Components.interfaces.fuelIApplication);
-    var keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson'); //TODO:FF4: Application extension use
-    var keeFoxStorage = keeFoxExtension.storage;
+    var keeFoxStorage = mainWindow.keeFoxInst._keeFoxExtension.storage;
 
     keeFoxStorage.set("KeePassRPCInstalled", true);
     
@@ -909,14 +908,6 @@ function launchAndConnectToKeePass()
     
     // launch KeePass and then try to connect to KeePassRPC
     mainWindow.keeFoxInst.launchKeePass();
-    
-    // The session connect process should still be listening every 10 seconds anyway...
-    
-//    var event = { notify: function(timer) { mainWindow.keeFoxInst.startICEcallbackConnector(); } }
-//    
-//    var timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-//    timer.initWithCallback(event, 7500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-//    mainWindow.keeFoxInst._KFLog.info("Installation timer started");
 }
 
 function userHasAdminRights(mainWindow)
