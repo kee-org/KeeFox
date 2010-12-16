@@ -1,5 +1,18 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.5
+-----
+- Target platform relaxed to include any WINNT CPU architecture
+- Refs #53 - Some Firefox 4 fixes
+- Fixes broken "remember installation location" option
+- New entries now saved with new style "KPRPC Form field"s
+- Logins can now be edited from the right-click / context menu on the matched login menu or button
+- Fixes #45 - Eliminate pull down menu when not appropriate
+- Location based configuration now stores current location in KeePass config file
+- Fixes #56 - Display favicons for matched entries
+- Fixes #54 - GUI options for Entry and Group added
+- KeePassRPC made less specific to KeeFox RPC client
+
 0.8.4
 -----
 - Installs KeePass 2.13 by default (doesn't upgrade existing KeePass 2.x installations)
