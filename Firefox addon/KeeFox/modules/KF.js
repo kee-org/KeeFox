@@ -745,8 +745,7 @@ KeeFox.prototype = {
         process.run(false, args, args.length);
     },   
     
-    // this runs in a secondary thread - don't access the UI!
-    runAnInstaller: function (fileName, params)
+    runAnInstaller: function (fileName, params, callback)
     {
         var args = [fileName, params];                
         var file = Components.classes["@mozilla.org/file/local;1"]
@@ -754,11 +753,15 @@ KeeFox.prototype = {
         file.initWithPath(this._myDepsDir() + "\\KeeFoxElevate.exe");
 
         var process = Components.classes["@mozilla.org/process/util;1"]
-                      .createInstance(Components.interfaces.nsIProcess);
+                      .createInstance(Components.interfaces.nsIProcess2 || Components.interfaces.nsIProcess);
                       
         this._KFLog.info("about to execute: " + file.path + " " + args.join(' '));
         process.init(file);
-        process.run(true, args, 2);
+        
+        if (callback == undefined || callback == null)
+            process.run(true,args,2);
+        else
+            process.runAsync(args, 2, callback);
     },
     
     _launchInstaller: function(currentKFToolbar,currentWindow, upgrade)
@@ -1035,8 +1038,9 @@ KeeFox.prototype = {
 
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess);
+        this._KFLog.debug("file path: " + file.path);
         process.init(file);
-        process.run(true, [], 0);
+        process.run(true, [], 0); //TODO: make async?
         return process.exitValue;
     },
 

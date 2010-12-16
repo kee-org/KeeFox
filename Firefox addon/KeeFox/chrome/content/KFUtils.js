@@ -21,27 +21,27 @@
 */
 
 
-function KFexecutableInstallerRunner(path, params, reason, mainWindow, browserWindow) {
-    this.path = path;
-    this.params = params;
-    this.reason = reason;
-    this.mainWindow = mainWindow;
-    this.browserWindow = browserWindow;
-}
-KFexecutableInstallerRunner.prototype = {
-    QueryInterface: function(iid) {
-        if (iid.equals(Components.interfaces.nsIRunnable) ||
-        iid.equals(Components.interfaces.nsISupports))
-            return this;
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    },
-    run: function() {
-        keeFoxInst.runAnInstaller(this.path,this.params);
-        var main = Components.classes["@mozilla.org/thread-manager;1"].getService().mainThread;
-        main.dispatch(new KFmainThreadHandler("executableInstallerRunner",
-                        this.reason, '', this.mainWindow, this.browserWindow), main.DISPATCH_NORMAL); 
-    }
-};
+//function KFexecutableInstallerRunner(path, params, reason, mainWindow, browserWindow) {
+//    this.path = path;
+//    this.params = params;
+//    this.reason = reason;
+//    this.mainWindow = mainWindow;
+//    this.browserWindow = browserWindow;
+//}
+//KFexecutableInstallerRunner.prototype = {
+//    QueryInterface: function(iid) {
+//        if (iid.equals(Components.interfaces.nsIRunnable) ||
+//        iid.equals(Components.interfaces.nsISupports))
+//            return this;
+//        throw Components.results.NS_ERROR_NO_INTERFACE;
+//    },
+//    run: function() {
+//        keeFoxInst.runAnInstaller(this.path,this.params, function () {
+//            var kth = new KFmainThreadHandler("executableInstallerRunner", this.reason, '', this.mainWindow, this.browserWindow);
+//            kth.runit(); 
+//        });
+//    }
+//};
 
 var KFmainThreadHandler = function(source, reason, result, mainWindow, browserWindow)
 {
@@ -90,13 +90,13 @@ KFmainThreadHandler.prototype =
         }
     },
 
-    QueryInterface: function(iid) {
-        if (iid.equals(Components.interfaces.nsIRunnable) ||
-        iid.equals(Components.interfaces.nsISupports)) {
-            return this;
-        }
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    },
+//    QueryInterface: function(iid) {
+//        if (iid.equals(Components.interfaces.nsIRunnable) ||
+//        iid.equals(Components.interfaces.nsISupports)) {
+//            return this;
+//        }
+//        throw Components.results.NS_ERROR_NO_INTERFACE;
+//    },
     
     handleIC1PriDownload: function ()
     {
@@ -284,6 +284,7 @@ KFmainThreadHandler.prototype =
 by calling the generic keefox main thread handler (maybe this listener is just called in
 the main thread anyway but might as well play it safe and make sure we definitely only
  let the main thread touch the UI
+ dec 2010: think it's all on the main thread... cos it still works in FF4!
 */
 function KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist)
 {
@@ -311,7 +312,7 @@ KeeFoxFileDownloaderListener.prototype =
         //TODO: check if user or script has cancelled download and call persist.cancelSave() if needed?
         var percentComplete = Math.floor((aCurTotalProgress / aMaxTotalProgress) * 100);
 
-        //TODO: only send message to main thread once per second or if it = 100%
+        //TODO2: only send message to main thread once per second or if it = 100%
         if (percentComplete > this.lastPerCom)
         {
             var kfMTH = new KFmainThreadHandler(this.source, "progress", percentComplete, this.mainWindow, this.browserWindow);
@@ -374,7 +375,8 @@ function KFMD5checksumVerification(path, testMD5)
         .createInstance(Components.interfaces.nsILocalFile);
         f.initWithPath(keeFoxInst._myDepsDir());
         f.append(path);
-        
+        //KFLog.debug(keeFoxInst._myDepsDir());
+        //KFLog.debug(path);
         var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
                                 .createInstance(Components.interfaces.nsIFileInputStream);
         // open for reading
@@ -397,11 +399,11 @@ function KFMD5checksumVerification(path, testMD5)
 
         // convert the binary hash data to a hex string.
         var s = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
-        
         if (s == testMD5)
             return true;
             
     } catch (err) {
+        KFLog.error("Error calculating checksums: " + err);
         Components.utils.reportError(err);
     }
     return false;

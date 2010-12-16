@@ -199,7 +199,7 @@ KFUI.prototype = {
                     var result = kfilm.addLogin(aLogin, null);
                     if (result == "This login already exists.")
                     {
-                        //TODO: create a new notification bar for 2 seconds with an error message?
+                        //TODO2: create a new notification bar for 2 seconds with an error message?
                     }
                     //TODO: copy completed to multi-page menu, etc.
                 

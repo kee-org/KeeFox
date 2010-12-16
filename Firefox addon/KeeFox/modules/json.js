@@ -133,7 +133,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 {
-                    if (resultWrapper.result.result == 3) // version mismatch
+                    if (resultWrapper.result.result == 3 || resultWrapper.result == 3) // version mismatch (including backwards compatible test)
                     {
                         window.keefox_org.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
                         window.keeFoxInst._launchInstaller(null,null,true);
@@ -147,10 +147,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             }, this.requestId);
         } else if (topic == "connect-failed")
         {
-            //var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-            //         .getService(Components.interfaces.nsIWindowMediator);
-            //var window = wm.getMostRecentWindow("navigator:browser");
-            //window.keeFoxInst.KFLog.warn("Problem connecting to KeePass: " + message);
+        try {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                 .getService(Components.interfaces.nsIWindowMediator);
+                        var window = wm.getMostRecentWindow("navigator:browser");
+            window.keeFoxInst.KFLog.warn("Problem connecting to KeePass: " + message);
+            } catch(e) {}
         }
     }
 
@@ -330,8 +332,10 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             data = data.match(/\s*\[(.*)\]\s*/)[1];
         }
         
-        // We only really need one method to be callable
-        if (method=="KPRPCListener")
+        // We only really need one method to be callable... but we'll keep the
+        // old name to enable Authentication attempts to fail with older
+        // RPC server versions
+        if (method=="KPRPCListener" || method=="callBackToKeeFoxJS")
             this.KPRPCListener(data);
     }
 

@@ -24,17 +24,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 const KF_KPZIP_DOWNLOAD_PATH = "http://kent.dl.sourceforge.net/project/keepass/KeePass%202.x/2.13/";
 const KF_KPZIP_FILE_NAME = "KeePass-2.13.zip";
 const KF_KPZIP_SAVE_NAME = "KeePass-2.13.zip";
-const KF_KPZIP_FILE_CHECKSUM = "83531E1268D2A1D862FFABBC0F3D7998";
+const KF_KPZIP_FILE_CHECKSUM = "83531e1268d2a1d862ffabbc0f3d7998";
 const KF_KP_DOWNLOAD_PATH = "http://kent.dl.sourceforge.net/project/keepass/KeePass%202.x/2.13/";
 const KF_KP_FILE_NAME = "KeePass-2.13-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
 const KF_KP_SAVE_NAME = "KeePass-2.13-Setup.exe";
-const KF_KP_FILE_CHECKSUM = "4A11D787D2DD10ED88D87B23A831428D";
+const KF_KP_FILE_CHECKSUM = "4a11d787d2dd10ed88d87b23a831428d";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
-const KF_NET_FILE_CHECKSUM = "93A13358898A54643ADBCA67D1533462";
+const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";
 const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
 const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
-const KF_NET35_FILE_CHECKSUM = "C626670633DDCC2A66B0D935195CF2A1";
+const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
 const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
 
 
@@ -363,17 +363,21 @@ function IC1setupKP(mainWindow)
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-            file.append(KF_KP_SAVE_NAME);
-            
-            threadFixer = file.path;
+            file.append(KF_KP_SAVE_NAME);            
 
             installState |= KF_INSTALL_STATE_KP_EXECUTING;
 
-            setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                       
-            setupKPThread.dispatch(new mainWindow.
-                KFexecutableInstallerRunner(threadFixer,"/silent",
-                    "IC1KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
+            keeFoxInst.runAnInstaller(file.path,"/silent", function () {
+                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIWebNavigation)
+                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                    .rootTreeItem
+                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIDOMWindow);
+                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
+                kth.run(); 
+            });
             
         } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
         {
@@ -414,14 +418,18 @@ function IC1setupNET(mainWindow)
             .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_NET_FILE_NAME);
-            
-            threadFixer = file.path;
-            
-            setupNETThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);                   
-            setupNETThread.dispatch(new mainWindow.
-                KFexecutableInstallerRunner(threadFixer,"",
-                    "IC1NETSetupFinished", mainWindow, window), setupNETThread.DISPATCH_NORMAL);
-            
+                                
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"", function () {
+                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIWebNavigation)
+                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                    .rootTreeItem
+                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIDOMWindow);
+                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
+                kth.run(); 
+            });           
         }
     } catch (err) {
         mainWindow.keeFoxInst._KFLog.error(err);
@@ -458,14 +466,17 @@ function IC1setupNET35(mainWindow)
             .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_NET35_FILE_NAME);
-            
-            threadFixer = file.path;
-            
-            setupNETThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                       
-            setupNETThread.dispatch(new mainWindow.
-                KFexecutableInstallerRunner(threadFixer,"",
-                    "IC1NET35SetupFinished", mainWindow, window), setupNETThread.DISPATCH_NORMAL);
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"", function () {
+                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIWebNavigation)
+                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                    .rootTreeItem
+                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIDOMWindow);
+                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NET35SetupFinished", '', mainWindow, window);
+                kth.run(); 
+            });
         }
     } catch (err) {
         mainWindow.keeFoxInst._KFLog.error(err);
@@ -562,13 +573,17 @@ function IC2setupKP(mainWindow)
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_KP_SAVE_NAME);
             
-            threadFixer = file.path;
-            
-            setupKPThread = Components.classes["@mozilla.org/thread-manager;1"]
-                .getService().newThread(0);
-                       
-            setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,
-                "/silent","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"/silent", function () {
+                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIWebNavigation)
+                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                    .rootTreeItem
+                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIDOMWindow);
+                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
+                kth.run(); 
+            });
             
         } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
         {
@@ -604,15 +619,24 @@ function IC2setupCustomKP(mainWindow)
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_KP_SAVE_NAME);
             
-            threadFixer = file.path;
+//if (mainWindow.keFoxInst.versionChecker.compare(mainWindow.keFoxInst.appInfo.version, "3.7") > 0)
+//{
+//            mainWindow.keFoxInst.runAnInstaller
+//            } else
+//            {
             
-            setupKPThread = Components.classes["@mozilla.org/thread-manager;1"].getService().newThread(0);
-                       
-            setupKPThread.dispatch(new mainWindow.KFexecutableInstallerRunner(threadFixer,
-                "","IC2KPSetupFinished", mainWindow, window), setupKPThread.DISPATCH_NORMAL);
-          // var temp = new mainWindow.KFexecutableInstallerRunner("KeePass-2.06-Beta-Setup.exe",
-          //"","IC1KPSetupFinished", mainWindow, window);
-          // temp.run();
+          mainWindow.keeFoxInst.runAnInstaller(file.path,"", function () {
+            var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIWebNavigation)
+                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                    .rootTreeItem
+                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIDOMWindow);
+                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
+                kth.run(); 
+            });
+//          }
             
         } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
         {

@@ -699,7 +699,7 @@ KFToolbar.prototype = {
             getService(Components.interfaces.nsIClipboardHelper);
             gClipboardHelper.copyString(newPassword);
             
-            this._currentWindow.alert("A new password has been copied to your clipboard.");//TODO: replace with a growl if FF supports such a thing
+            this._currentWindow.alert("A new password has been copied to your clipboard.");//TODO2: replace with a growl if FF supports such a thing
         }
     }    
 

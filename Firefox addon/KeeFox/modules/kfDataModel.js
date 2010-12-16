@@ -293,8 +293,6 @@ kfLoginInfo.prototype =
         return true;
     },
 
-    //TODO 0.8: Not sure about this. Is it possible for two otherwise identical entries
-    // to be deemed different just due to a different ordering of login details?
     _usernamesMatch : function (login)
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
