@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
@@ -322,6 +322,10 @@
 				RelativePath=".\KeeFox\chrome\skin\keefox.css"
 				>
 			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\skin\options.css"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="JS"
@@ -396,6 +400,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\KeeFox\chrome\content\options.js"
+				>
+			</File>
+			<File
 				RelativePath=".\KeeFox\defaults\preferences\prefs.js"
 				>
 			</File>
@@ -410,6 +418,10 @@
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome.manifest"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\modules\ClassTreeView.jsm"
 			>
 		</File>
 		<File

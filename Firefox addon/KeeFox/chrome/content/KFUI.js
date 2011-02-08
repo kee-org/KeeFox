@@ -23,7 +23,6 @@
 function KFUI() {}
 
 KFUI.prototype = {
-
     _window        : null,
     setWindow : function (win)
     {
@@ -178,7 +177,9 @@ KFUI.prototype = {
         // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
         // without a getService() call.
         var kfilm = this._kfilm;
-
+        var url=aLogin.URLs[0];
+        var urlSchemeHostPort=this._kfilm._getURISchemeHostAndPort(aLogin.URLs[0]);
+        
         var popupName = "rememberAdvancedButtonPopup";
         if (isMultiPage)
         {
@@ -207,6 +208,33 @@ KFUI.prototype = {
                     //aNotificationBar.parentNode.removeCurrentNotification();
                 }
             },
+            // "Remember (advanced)" button
+            {
+                label:     rememberAdvancedButtonText,
+                accessKey: rememberAdvancedButtonAccessKey,
+                popup:     null,
+                callback: function(aNotificationBar, aButton) {
+                    function onCancel() {
+                      alert("Operation canceled!");
+                    };
+                    
+                    function onOK(uuid) {
+                        var result = kfilm.addLogin(aLogin, uuid);
+                        if (result == "This login already exists.")
+                        {
+                            //TODO2: create a new notification bar for 2 seconds with an error message?
+                        }
+                    };
+                    
+                    keefox_org.toolbar.clearTabFormRecordingData();
+                    window.openDialog("chrome://keefox/content/groupChooser.xul",
+                  "group", "chrome,centerscreen", 
+                  onOK,
+                  onCancel);
+                  
+                }
+            },
+            
             
             // "Not now" button
             {
@@ -215,6 +243,26 @@ KFUI.prototype = {
                 popup:     null,
                 callback:  function() { 
                     keefox_org.toolbar.clearTabFormRecordingData();
+                } 
+            },
+            
+            // "Never" button
+            {
+                label:     neverButtonText,
+                accessKey: neverButtonAccessKey,
+                popup:     null,
+                callback:  function() {
+                try {
+                //kfilm._kf.
+                
+                //var url = ;
+                var statement = kfilm._kf._keeFoxExtension.db.conn.createStatement("INSERT OR REPLACE INTO sites (id,url,tp,preventSaveNotification) VALUES ( (select id from sites where url = :url), :url, coalesce((select tp from sites where url = :url),0), 1  )");
+                statement.params.url = urlSchemeHostPort;
+                statement.executeAsync();
+        
+                } finally {
+                    keefox_org.toolbar.clearTabFormRecordingData();
+                    }
                 } 
             }
         ];
@@ -560,40 +608,6 @@ KFUI.prototype = {
         }
 
         return hostname;
-    },
-
-
-    setTreeViewGroupChooser : function()
-    {
-
-    // TODO: Check to see if we are logged in and trigger an attempt to if not (fail or create dummy chooser if can't log in?)
-
-    // Get array of group names (and guids somehow) which are ordered by depth-first queries to the group folder structure from KeePassRPC.
-
-        keefoxInst.treeViewGroupChooser =
-        {
-            rowCount : 10000,
-            getCellText : function(row,column)
-            {
-              if (column.id == "namecol") return "Row "+row;
-              else return "February 18";
-            },
-            setTree: function(treebox){ this.treebox = treebox; },
-            isContainer: function(row){ return false; },
-            isSeparator: function(row){ return false; },
-            isSorted: function(){ return false; },
-            getLevel: function(row){ return 0; },
-            getImageSrc: function(row,col){ return null; },
-            getRowProperties: function(index, properties)
-            {
-                var atomService = Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService);
-                var atom = atomService.getAtom("dummy"); //TODO: maybe set this to be the GUID of the appropriate group?
-                properties.AppendElement(atom);
-            },
-            getCellProperties: function(row,col,props){},
-            getColumnProperties: function(colid,col,props){}
-        };
-        document.getElementById('keefox-group-chooser-tree').view = keefoxInst.treeViewGroupChooser;
     },
 
 // Closes all popups that are ancestors of the node.

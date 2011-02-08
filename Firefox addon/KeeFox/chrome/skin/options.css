@@ -1,0 +1,24 @@
+.itemEnd
+{
+	margin-bottom:15px;
+}
+
+.danger
+{
+	color:red;
+}
+
+.note
+{
+	margin-left:15px;
+}
+
+.findEntryGrid
+{
+	height: 50px !important;
+}
+
+.tableLeftName
+{
+	text-align:right;
+}

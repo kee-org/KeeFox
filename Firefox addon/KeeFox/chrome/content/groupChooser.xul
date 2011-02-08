@@ -2,11 +2,11 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
 <!--
-  KeeFox - Allows Firefox to communicate with KeePass (via the KeeICE KeePass-plugin)
-  Copyright 2008-2009 Chris Tomlinson <keefox@christomlinson.name>
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
-  This is the KeeFox group chooser XUL file. It describes the window which allows
-  the user to choose a KeePass group/folder.
+  This is the KeeFox group chooser XUL file which allows a user to select a
+  KeePass group from the currently active database.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,38 +26,55 @@
 <!DOCTYPE window SYSTEM "chrome://keefox/locale/keefox.dtd">
 <window
     id="keefox-choose-group-window"
-    title="Choose Group"
+    title="&KeeFox_Dialog-SelectAGroup.title;"
     orient="horizontal"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    onload="keefox_org.UI.setTreeViewGroupChooser();">
-<tree id="keefox-group-chooser-tree" flex="1" hidecolumnpicker="true" seltype="text" class="tree"
-      rows="5">
-  <treecols id="keefox-group-chooser-tree-treeCols">
-    <treecol id="keefox-group-chooser-tree-treeCol0" primary="true" flex="2" label="Group"
-             persist="width" ordinal="1"/>
+    onload="setTreeViewGroupChooser();">
+  <vbox>
+    <tree id="keePassGroupTree" width="400" height="300" hidecolumnpicker="true">
+    <treecols>
+      <treecol hideheader="true" id="title" primary="true"
+               propertyname="title" flex="1"/>
+      <treecol id="uniqueID" label="UUID" propertyname="uniqueID" hidden="true" flex="1"/>
+    </treecols>
+    <treechildren/>
+  </tree>
+
+  <hbox>
+    <button label="&KeeFox_Dialog_OK_Button.label;" oncommand="onTreeSelected()"/>
+    <button label="&KeeFox_Dialog_Cancel_Button.label;" oncommand="window.arguments[1](); close();"/>
+  </hbox>
+  </vbox>
+  <script>
+    Components.utils.import("resource://kfmod/ClassTreeView.jsm");
+    var keePassGroupTreeView = null;
+
+    function setTreeViewGroupChooser ()
+    {
+      var tree = document.getElementById("keePassGroupTree");
+      keePassGroupTreeView = new ClassTreeView(this.getObjectChildren);
+      var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+        .getService(Components.interfaces.nsIWindowMediator);
+      var window = wm.getMostRecentWindow("navigator:browser");
+      var rootGroup = window.keefox_org.ILM._kf.KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
+      keePassGroupTreeView.addTopObject(rootGroup, true);
+      tree.view = keePassGroupTreeView;
+    }
     
-  </treecols>
-  <treechildren/>
-  <!--  <treeitem>
-      <treerow>
-        <treecell label="1"/>
-      </treerow>
-    </treeitem>
-    <!- Make sure to set container="true" -
-    <treeitem container="true" open="true">
-      <treerow>
-        <treecell label="2"/>
-      </treerow>
-      <treechildren>
-        <treeitem>
-          <treerow>
-            <treecell label="2a"/>
-          </treerow>
-        </treeitem>
-      </treechildren>
-    </treeitem>
-  </treechildren>-->
-</tree>
-  <!-- Other elements go here -->
+    function getObjectChildren (aObject)
+    {
+      return aObject.childGroups;
+    }
+
+    function onTreeSelected ()
+    {
+      var tree = document.getElementById("keePassGroupTree");
+      var cellIndex = 1;
+      var cellText = tree.view.getCellText(tree.currentIndex, tree.columns.getColumnAt(cellIndex));
+      dump(cellText);
+      window.arguments[0](cellText);
+      close();
+    }
+  </script>
 </window>
 

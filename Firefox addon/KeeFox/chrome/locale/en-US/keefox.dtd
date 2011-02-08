@@ -42,7 +42,12 @@
 <!ENTITY % KeeFox_Shared_Files_Are_Being_Downloaded "The files required to setup KeeFox are being downloaded...">
 <!ENTITY % KeeFox_Shared_Files_Have_Been_Downloaded "Download complete">
 <!ENTITY % KeeFox_Shared_Nearly_Finished "Nearly finished...">
+<!ENTITY % KeeFox_Shared_OK_Button.label "OK">
+<!ENTITY % KeeFox_Shared_Cancel_Button.label "Cancel">
 
+<!ENTITY KeeFox_Dialog-SelectAGroup.title "Select A Group" >
+<!ENTITY KeeFox_Dialog_OK_Button.label "%KeeFox_Shared_OK_Button.label;">
+<!ENTITY KeeFox_Dialog_Cancel_Button.label "%KeeFox_Shared_Cancel_Button.label;">
 
 <!-- General installation / setup strings -->
 <!ENTITY KeeFox_Install_Setup_KeeFox.label "Setup KeeFox">
@@ -54,7 +59,7 @@
 <!ENTITY KeeFox_Install_Download_Canceled.label "The download of a required component was cancelled.">
 <!ENTITY KeeFox_Install_Download_Checksum_Failed.label "A downloaded component is corrupt. Try again and if you continue to receive this message, ask in the support forum for help.">
 <!ENTITY KeeFox_Install_Try_Again_Button.label "Try again">
-<!ENTITY KeeFox_Install_Cancel_Button.label "Cancel">
+<!ENTITY KeeFox_Install_Cancel_Button.label "%KeeFox_Shared_Cancel_Button.label;">
 
 
 <!-- strings describing each possible default setup state -->

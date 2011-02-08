@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://keefox/skin/options.css" type="text/css"?>
 
 <!DOCTYPE prefwindow SYSTEM "chrome://keefox/locale/options.dtd">
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox options XUL file which describes the interface for 
   viewing and editing the various preferences which KeeFox understands.
@@ -30,22 +31,19 @@
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             type="prefwindow"
       windowtype="Browser:Preferences"
-          onload="window.sizeToContent();"
+          onload="onLoad(); window.sizeToContent();"
           xmlns:html="http://www.w3.org/1999/xhtml"
-          height="500"
+          height="400"
         >
 
-      <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
+  <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
     <preferences>
-      <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.keefox@chris.tomlinson.dynamicFormScanning" type="bool"/>
+      <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.keefox@chris.tomlinson.autoSubmitMatchedForms" type="bool"/>
       <preference id="KeeFox-pref-autoFillForms" name="extensions.keefox@chris.tomlinson.autoFillForms" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitForms" name="extensions.keefox@chris.tomlinson.autoSubmitForms" type="bool"/>
       <preference id="KeeFox-pref-autoFillDialogs" name="extensions.keefox@chris.tomlinson.autoFillDialogs" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.keefox@chris.tomlinson.autoSubmitDialogs" type="bool"/>
-      <preference id="KeeFox-pref-overWriteFieldsAutomatically" name="extensions.keefox@chris.tomlinson.overWriteFieldsAutomatically" type="bool"/>
-      <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.keefox@chris.tomlinson.autoSubmitMatchedForms" type="bool"/>
-      <preference id="KeeFox-pref-rememberMRUDB" name="extensions.keefox@chris.tomlinson.rememberMRUDB" type="bool"/>
-      <preference id="KeeFox-pref-saveFavicons" name="extensions.keefox@chris.tomlinson.saveFavicons" type="bool"/>
+      <preference id="KeeFox-pref-autoFillFormsWithMultipleMatches" name="extensions.keefox@chris.tomlinson.autoFillFormsWithMultipleMatches" type="bool"/>
 
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.notifyBarWhenKeePassRPCInactive" type="bool"/>
@@ -53,76 +51,171 @@
       <preference id="KeeFox-pref-flashIconWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.flashIconWhenKeePassRPCInactive" type="bool"/>
       <preference id="KeeFox-pref-flashIconWhenLoggedOut" name="extensions.keefox@chris.tomlinson.flashIconWhenLoggedOut" type="bool"/>
 
+      <preference id="KeeFox-pref-logMethodAlert" name="extensions.keefox@chris.tomlinson.logMethodAlert" type="bool"/>
+      <preference id="KeeFox-pref-logMethodConsole" name="extensions.keefox@chris.tomlinson.logMethodConsole" type="bool"/>
+      <preference id="KeeFox-pref-logMethodStdOut" name="extensions.keefox@chris.tomlinson.logMethodStdOut" type="bool"/>
+      <preference id="KeeFox-pref-logMethodFile" name="extensions.keefox@chris.tomlinson.logMethodFile" type="bool"/>
+      <preference id="KeeFox-pref-logLevel" name="extensions.keefox@chris.tomlinson.logLevel" type="int"/>
+      <preference id="KeeFox-pref-logSensitiveData" name="extensions.keefox@chris.tomlinson.logSensitiveData" type="bool"/>
+
+      <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.keefox@chris.tomlinson.dynamicFormScanning" type="bool"/>
+      <preference id="KeeFox-pref-keePassRPCPort" name="extensions.keefox@chris.tomlinson.KeePassRPC.port" type="int"/>
+      <preference id="KeeFox-pref-saveFavicons" name="extensions.keefox@chris.tomlinson.saveFavicons" type="bool"/>
+      <preference id="KeeFox-pref-keePassDBToOpen" name="extensions.keefox@chris.tomlinson.keePassDBToOpen" type="string"/>
+      <preference id="KeeFox-pref-rememberMRUDB" name="extensions.keefox@chris.tomlinson.rememberMRUDB" type="bool"/>
+
       <preference id="KeeFox-pref-keePassRPCInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRPCInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRememberInstalledLocation" type="bool"/>
-      <preference id="KeeFox-pref-keePassDBToOpen" name="extensions.keefox@chris.tomlinson.keePassDBToOpen" type="string"/>
-      
+      <preference id="KeeFox-pref-keePassLocation" name="extensions.keefox@chris.tomlinson.currentLocation" type="string"/>
     </preferences>
 
-        <tabbox flex="1">
-          <tabs>
-            <tab label="&KeeFox-pref-General.heading;"/>
-            <tab label="&KeeFox-pref-Notifications.heading;"/>
-            <tab label="&KeeFox-pref-Advanced.heading;"/>
-          </tabs>
-          <tabpanels flex="1">
-            
-            <tabpanel>
-              <vbox align="left">
-                <checkbox id="dynamicFormScanning" preference="KeeFox-pref-dynamicFormScanning"
-                          label="&KeeFox-pref-dynamicFormScanning.label;" />
-                <checkbox id="autoFillForms" preference="KeeFox-pref-autoFillForms"
-                          label="&KeeFox-pref-autoFillForms.label;" />
-                <checkbox id="autoSubmitForms" preference="KeeFox-pref-autoSubmitForms"
-                          label="&KeeFox-pref-autoSubmitForms.label;" />
-                <checkbox id="autoFillDialogs" preference="KeeFox-pref-autoFillDialogs"
-                          label="&KeeFox-pref-autoFillDialogs.label;" />
-                <checkbox id="autoSubmitDialogs" preference="KeeFox-pref-autoSubmitDialogs"
-                          label="&KeeFox-pref-autoSubmitDialogs.label;" />
-                <checkbox id="overWriteFieldsAutomatically" preference="KeeFox-pref-overWriteFieldsAutomatically"
-                          label="&KeeFox-pref-overWriteFieldsAutomatically.label;" />
-                <checkbox id="autoSubmitMatchedForms" preference="KeeFox-pref-autoSubmitMatchedForms"
-                          label="&KeeFox-pref-autoSubmitMatchedForms.label;" />
-                <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
-                          label="&KeeFox-pref-rememberMRUDB.label;" />
-                <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
-                          label="&KeeFox-pref-saveFavicons.label;" />
-              </vbox>
-            </tabpanel>
+    <tabbox flex="1">
+      <tabs>
+        <tab label="&KeeFox-pref-FindingEntries.heading;"/>
+        <tab label="&KeeFox-pref-Notifications.heading;"/>
+        <tab label="&KeeFox-pref-Logging.heading;"/>
+        <tab label="&KeeFox-pref-Advanced.heading;"/>
+        <tab label="&KeeFox-pref-KeePass.heading;"/>
+      </tabs>
+      <tabpanels flex="1">
 
-            <tabpanel>
-              <vbox align="left">
-                
-                <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
-                        label="&KeeFox-pref-notifyBarRequestPasswordSave.label;" />
-                <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
-                          label="&KeeFox-pref-notifyBarWhenKeePassRPCInactive.label;" />
-                <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
-                        label="&KeeFox-pref-notifyBarWhenLoggedOut.label;" />
-                <checkbox id="flashIconWhenKeePassRPCInactive" preference="KeeFox-pref-flashIconWhenKeePassRPCInactive"
-                        label="&KeeFox-pref-flashIconWhenKeePassRPCInactive.label;" />
-                <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
-                        label="&KeeFox-pref-flashIconWhenLoggedOut.label;" />
+        <tabpanel>
+          <vbox align="left">
+            <description>&KeeFox-pref-when-user-chooses.desc;:</description>
+            <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();" class="itemEnd">
+              <menupopup>
+                <menuitem label="&KeeFox-pref-FillForm.desc;" value="Fill"/>
+                <menuitem label="&KeeFox-pref-FillAndSubmitForm.desc;" value="FillAndSubmit"/>
+              </menupopup>
+            </menulist>
 
-              </vbox>
-            </tabpanel>
-            
-            <tabpanel>
-              <vbox align="left">
-                <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;"/>
-                <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80"/>
-                <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;"/>
-                <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80"/>
-                <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" />
-                <label control="keePassDBToOpen" value="&KeeFox-pref-keePassDBToOpen.label;"/>
-                <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80"/>
+            <grid flex="1" class="itemEnd findEntryGrid">
 
-              </vbox>
-            </tabpanel>
-          </tabpanels>
-        </tabbox>
-              
+              <columns>
+                <column flex="1"/>
+                <column flex="1"/>
+                <column flex="1"/>
+              </columns>
+
+              <rows>
+                <row>
+                  <description>&KeeFox-pref-when-keefox-chooses.desc;:</description>
+                  <description>&KeeFox-pref-a-standard-form.desc;</description>
+                  <description>&KeeFox-pref-a-prompt.desc;</description>
+
+                </row>
+                <row>
+                  <description class="tableLeftName">&KeeFox-pref-KeeFoxShould.desc;:</description>
+                  <menulist id="KeeFox-pref-matchStandard-list" preference="KeeFox-pref-autoSubmitForms" onsyncfrompreference="return onsyncfrompreferenceMatchStandard();" onsynctopreference="return onsynctopreferenceMatchStandard();" class="itemEnd kfMenu">
+                    <menupopup>
+                      <menuitem label="&KeeFox-pref-DoNothing.desc;" value="DoNothing"/>
+                      <menuitem label="&KeeFox-pref-FillForm.desc;" value="Fill"/>
+                      <menuitem label="&KeeFox-pref-FillAndSubmitForm.desc;" value="FillAndSubmit"/>
+                    </menupopup>
+                  </menulist>
+                  <menulist id="KeeFox-pref-matchHTTP-list" preference="KeeFox-pref-autoSubmitDialogs" onsyncfrompreference="return onsyncfrompreferenceMatchHTTP();" onsynctopreference="return onsynctopreferenceMatchHTTP();" class="itemEnd kfMenu">
+                    <menupopup>
+                      <menuitem label="&KeeFox-pref-DoNothing.desc;" value="DoNothing"/>
+                      <menuitem label="&KeeFox-pref-FillPrompt.desc;" value="Fill"/>
+                      <menuitem label="&KeeFox-pref-FillAndSubmitPrompt.desc;" value="FillAndSubmit"/>
+                    </menupopup>
+                  </menulist>
+                </row>
+                <description class="itemEnd note">&KeeFox-pref-FillNote.desc;</description>
+                <checkbox preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="&KeeFox-pref-autoFillFormsWithMultipleMatches.label;" />
+              </rows>
+
+            </grid>
+
+
+          </vbox>
+        </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+
+            <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
+                    label="&KeeFox-pref-notifyBarRequestPasswordSave.label;" class="itemEnd"/>
+
+            <description>&KeeFox-pref-excludedSaveSites.desc;:</description>
+            <hbox>
+              <listbox id="excludedSitesList" rows="4" seltype="multiple" class="itemEnd"/>
+              <button label="Remove" oncommand="removeExcludedItem();" class="itemEnd"/>
+            </hbox>
+
+            <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
+                      label="&KeeFox-pref-notifyBarWhenKeePassRPCInactive.label;" />
+            <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
+                    label="&KeeFox-pref-notifyBarWhenLoggedOut.label;" class="itemEnd"/>
+            <checkbox id="flashIconWhenKeePassRPCInactive" preference="KeeFox-pref-flashIconWhenKeePassRPCInactive"
+                    label="&KeeFox-pref-flashIconWhenKeePassRPCInactive.label;" />
+            <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
+                    label="&KeeFox-pref-flashIconWhenLoggedOut.label;" class="itemEnd"/>
+
+          </vbox>
+        </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+
+            <description>&KeeFox-pref-logMethod.desc;</description>
+            <checkbox preference="KeeFox-pref-logMethodAlert" label="&KeeFox-pref-logMethodAlert;"/>
+            <checkbox preference="KeeFox-pref-logMethodConsole" label="&KeeFox-pref-logMethodConsole;"/>
+            <checkbox preference="KeeFox-pref-logMethodStdOut" label="&KeeFox-pref-logMethodStdOut;"/>
+            <checkbox preference="KeeFox-pref-logMethodFile" label="&KeeFox-pref-logMethodFile;" class="itemEnd"/>
+
+            <description>&KeeFox-pref-logLevel.desc;</description>
+            <menulist id="KeeFox-pref-logLevel-list" preference="KeeFox-pref-logLevel" onsyncfrompreference="return onsyncfrompreferenceLogLevel();" onsynctopreference="return onsynctopreferenceLogLevel();" class="itemEnd kfMenu">
+              <menupopup>
+                <menuitem id="KeeFox-pref-logLevel-debug" label="Debugging" value="Debugging"/>
+                <menuitem id="KeeFox-pref-logLevel-info" label="Information" value="Information"/>
+                <menuitem id="KeeFox-pref-logLevel-warn" label="Warnings" value="Warnings"/>
+                <menuitem id="KeeFox-pref-logLevel-error" label="Errors" value="Errors"/>
+              </menupopup>
+            </menulist>
+
+            <description>&KeeFox-pref-logSensitiveData.desc;</description>
+            <checkbox preference="KeeFox-pref-logSensitiveData" label="&KeeFox-pref-logSensitiveData.label;" class="itemEnd danger"/>
+
+          </vbox>
+        </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+            <checkbox id="dynamicFormScanning" preference="KeeFox-pref-dynamicFormScanning"
+                      label="&KeeFox-pref-dynamicFormScanning.label;" />
+            <label value="&KeeFox-pref-dynamicFormScanningExplanation.label;" class="itemEnd note"/>
+            <label control="keePassRPCPort" value="&KeeFox-pref-keePassRPCPort.label;:"/>
+            <textbox preference="KeeFox-pref-keePassRPCPort" id="keePassRPCPort" maxlength="5" size="5"/>
+            <label value="&KeeFox-pref-keePassRPCPortWarning.label;" class="itemEnd note"/>
+            <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
+                      label="&KeeFox-pref-saveFavicons.label;" class="itemEnd" />
+
+            <label control="keePassDBToOpen" value="&KeeFox-pref-keePassDBToOpen.label;:"/>
+            <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80" class="itemEnd"/>
+            <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
+                      label="&KeeFox-pref-rememberMRUDB.label;"  class="itemEnd"/>
+
+          </vbox>
+        </tabpanel>
+
+
+        <tabpanel>
+          <vbox align="left">
+            <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;:"/>
+            <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80" class="itemEnd"/>
+            <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;:"/>
+            <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80" class="itemEnd"/>
+            <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" class="itemEnd" />
+            <label control="keePassLocation" value="&KeeFox-pref-keePassLocation.label;:"/>
+            <textbox preference="KeeFox-pref-keePassLocation" id="keePassLocation" maxlength="128" size="40" class="itemEnd"/>
+
+          </vbox>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+
+    <script type="application/x-javascript" src="chrome://keefox/content/options.js" />
   </prefpane>
-
 </prefwindow>
