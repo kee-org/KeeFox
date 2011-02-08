@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,5];
+    this.clientVersion = [0,8,6];
 }
 
 jsonrpcClient.prototype = new session();
@@ -477,7 +477,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.findLogins = function(hostname, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
+    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
     {
     // now returns ID of async JSON-RPC request so calling functions can track if desired
     
@@ -490,7 +490,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var newId = ++this.requestId;
         // slight chance IDs may be sent out of order but at least this way
         // they are consistent for any given request/response cycle
-        this.request(this, "FindLogins", [[hostname], formSubmitURL, httpRealm, lst, false, uniqueID], callback, newId, callbackData);        
+        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID], callback, newId, callbackData);        
         return newId;
     }
 

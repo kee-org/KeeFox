@@ -1771,10 +1771,10 @@ namespace KeePassRPC
             return 0;
         }
 
-        private bool matchesAnyURL(PwEntry pwe, string url)
+        private bool matchesAnyURL(PwEntry pwe, string url, string hostname, bool allowHostnameOnlyMatch)
         {
             if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url))
+                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url) || (allowHostnameOnlyMatch && pwe.Strings.ReadSafe("URL").Contains(hostname)))
                )
                 return true;
 
@@ -1782,14 +1782,14 @@ namespace KeePassRPC
             urls = urls + (string.IsNullOrEmpty(urls) ? "" : " ") + pwe.Strings.ReadSafe("KPRPC Alternative URLs");
             string[] urlsArray = urls.Split(new char[' ']);
             foreach (string altURL in urlsArray)
-                if (altURL.Contains(url))
+                if (altURL.Contains(url) || (allowHostnameOnlyMatch && altURL.Contains(hostname)))
                     return true;
 
             return false;
 
         }
 
-        private bool matchesAnyBlockedURL(PwEntry pwe, string url)
+        private bool matchesAnyBlockedURL(PwEntry pwe, string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
         {
             string urls = pwe.Strings.ReadSafe("KPRPC Blocked URLs");
             string[] urlsArray = urls.Split(new char[' ']);
@@ -1831,6 +1831,8 @@ namespace KeePassRPC
             }
             
             int protocolIndex = -1;
+            Dictionary<string, string> URLHostnames = new Dictionary<string, string>();
+
             // make sure that hostname and actionURL always represent only the hostname portion
             // of the URL
             // It's tempting to demand that the protocol must match too (e.g. http forms won't
@@ -1842,6 +1844,7 @@ namespace KeePassRPC
                 string URL = URLs[i];
                 string newURL = URL;
                 protocolIndex = URL.IndexOf("://");
+                string hostAndPort = "";
                 if (URL.IndexOf("file://") > -1)
                 {
                     // the "host and port" of a file is the actual file name (i.e. just not the query string)
@@ -1854,10 +1857,12 @@ namespace KeePassRPC
                 }
                 else if (protocolIndex > -1)
                 {
-                    string hostAndPort = URL.Substring(protocolIndex + 3);
-                    int pathStart = hostAndPort.IndexOf("/", 0);
-                    if (pathStart > -1 && hostAndPort.Length > pathStart)
+                    string URLExcludingProt = URL.Substring(protocolIndex + 3);
+                    int pathStart = URLExcludingProt.IndexOf("/", 0);
+                    
+                    if (pathStart > -1 && URLExcludingProt.Length > pathStart)
                     {
+                        hostAndPort = URL.Substring(protocolIndex+3, pathStart);
                         newURL = URL.Substring(0, pathStart + protocolIndex + 3);
                     }
                 }
@@ -1870,7 +1875,7 @@ namespace KeePassRPC
                         newURL = URL.Substring(1, qsIndex - 1);
                 }
 
-                URLs[i] = newURL;
+                URLHostnames.Add(URLs[i], hostAndPort);
             }
 
             protocolIndex = (actionURL == null) ? -1 : actionURL.IndexOf("://");
@@ -1892,32 +1897,43 @@ namespace KeePassRPC
             PwGroup searchGroup = GetRootPwGroup(host.Database);
             output = searchGroup.GetEntries(true);
 
+            // Search every entry in the DB
             foreach (PwEntry pwe in output)
             {
                 if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                     continue; // ignore if it's in the recycle bin
 
                 if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-                    continue;
+                    continue; // entries must have a standard URL entry
+
+                bool allowHostnameOnlyMatch = true;
+                if (pwe.Strings.Exists("KPRPC Block hostname-only match"))
+                {
+                    allowHostnameOnlyMatch = false;
+                }
 
                 bool entryIsAMatch = false;
                 bool entryIsAnExactMatch = false;
 
-                string regexPattern = null;
+                string regexPatterns = null;
                 if (pwe.Strings.Exists("KeeFox URL Regex match"))
-                    regexPattern = pwe.Strings.ReadSafe("KeeFox URL Regex match");
+                    regexPatterns = pwe.Strings.ReadSafe("KeeFox URL Regex match");
                 if (pwe.Strings.Exists("KPRPC URL Regex match"))
-                    regexPattern = pwe.Strings.ReadSafe("KPRPC URL Regex match");
-                foreach (string URL in URLs)
-                    if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
-                    {
-                        entryIsAMatch = true;
-                        break;
-                    }
+                    regexPatterns = pwe.Strings.ReadSafe("KPRPC URL Regex match");
+                if (!string.IsNullOrEmpty(regexPatterns))
+                    foreach (string URL in URLs)
+                        foreach (string regexPattern in regexPatterns.Split(' '))
+                        {
+                            if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
+                            {
+                                entryIsAMatch = true;
+                                break;
+                            }
+                        }
 
                 foreach (string URL in URLs)
                 {
-                    if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, URL))
+                    if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
                     {
                         if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                         {
@@ -1931,7 +1947,7 @@ namespace KeePassRPC
 
                 foreach (string URL in URLs)
                 {
-                    if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, URL))
+                    if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
                     {
                         if ((
                             (pwe.Strings.Exists("Form HTTP realm") 
@@ -1963,11 +1979,14 @@ namespace KeePassRPC
                     }
                     if (entryIsAMatch && pwe.Strings.Exists("KPRPC URL Regex block"))
                     {
-                        string pattern = pwe.Strings.ReadSafe("KPRPC URL Regex block");
-                        if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                        string patterns = pwe.Strings.ReadSafe("KPRPC URL Regex block");
+                        foreach (string pattern in patterns.Split(' '))
                         {
-                            entryIsAMatch = true;
-                            break;
+                            if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                            {
+                                entryIsAMatch = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -2073,7 +2092,7 @@ namespace KeePassRPC
 
                 bool entryIsAMatch = false;
 
-                if (lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, hostname))
+                if (lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, hostname,hostname,false))
                 {
                     if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                     {
@@ -2083,7 +2102,7 @@ namespace KeePassRPC
                         entryIsAMatch = true;
                 }
 
-                if (lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, hostname))
+                if (lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, hostname, hostname, false))
                 {
                     if ((
                         (pwe.Strings.Exists("Form HTTP realm")

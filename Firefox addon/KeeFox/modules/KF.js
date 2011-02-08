@@ -1014,11 +1014,11 @@ KeeFox.prototype = {
         }
     },
     
-    findLogins: function(hostname, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
+    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
     {
         try
         {
-            return this.KeePassRPC.findLogins(hostname, formSubmitURL, httpRealm, uniqueID, callback, callbackData);
+            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, callback, callbackData);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);

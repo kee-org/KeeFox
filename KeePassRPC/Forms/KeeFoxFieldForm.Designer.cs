@@ -195,6 +195,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "KeeFoxFieldForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "KeeFoxFieldForm";
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -124,6 +124,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "KeeFoxURLForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "KeeFoxURLForm";
             this.ResumeLayout(false);
             this.PerformLayout();

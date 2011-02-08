@@ -452,7 +452,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     
     
     findLoginDoc.initialPageLoad = initialPageLoad;
-    findLoginDoc.formOrigin = this._getURIHostAndPort(doc.documentURI);
+    findLoginDoc.formOrigin = doc.documentURI;//this._getURIHostAndPort(doc.documentURI);
     findLoginDoc.wrappers = [];
     findLoginDoc.allMatchingLogins = [];
     findLoginDoc.formToAutoSubmit;

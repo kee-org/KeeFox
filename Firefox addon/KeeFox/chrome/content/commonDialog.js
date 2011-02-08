@@ -143,6 +143,7 @@ var keeFoxDialogManager = {
                 
                 
             // try to pick out the host from the full protocol, host and port
+            var originalHost = host;
             try
             {
                 var ioService = Components.classes["@mozilla.org/network/io-service;1"].
@@ -216,7 +217,7 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.realm = realm;
             dialogFindLoginStorage.document = document;
 			// find all the logins
-			var requestId = keeFoxInst.findLogins(host, null, realm, null, this.autoFill);
+			var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, this.autoFill);
 		    window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
 		}
     
