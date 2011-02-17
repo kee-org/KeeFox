@@ -76,7 +76,7 @@ namespace KeePassRPC.Forms
                 return;
             }
 
-            //TODO: Check the URL follows an acceptable pattern
+            //TODO2: Check the URL follows an acceptable pattern
 
             if (!radioButtonBlock.Checked && !radioButtonMatch.Checked)
                 this.DialogResult = DialogResult.None;

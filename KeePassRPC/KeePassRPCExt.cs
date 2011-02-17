@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,5);
+        public static readonly Version PluginVersion = new Version(0,8,7);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -424,8 +424,9 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Called when [file new]. TODO: Review whenever private KeePass.MainForm.OnFileNew method changes.
+        /// Called when [file new].
         /// </summary>
+        /// <remarks>Review whenever private KeePass.MainForm.OnFileNew method changes.</remarks>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         internal void CreateNewDatabase()

@@ -77,9 +77,7 @@ namespace KeePassRPC.Forms
                 
             }
 
-            //TODO: only add if string not null or empty?
-            //li.SubItems.Clear();
-            if (protect) li.SubItems.Add("********");
+            if (protect && value != null && value.Length > 0) li.SubItems.Add("********");
             else li.SubItems.Add(value);
 
             UIUtil.SetTopVisibleItem(_advancedListView, iTopVisible);

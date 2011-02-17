@@ -49,6 +49,20 @@ var keeFoxDialogManager = {
         return this.__promptBundle;
     },
     
+    __cdBundle : null, // String bundle for L10N
+    get _cdBundle() {
+        if (!this.__cdBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                             getService(Components.interfaces.nsIStringBundleService);
+            this.__cdBundle = bunService.createBundle(
+                        "chrome://global/locale/commonDialogs.properties");
+            if (!this.__cdBundle)
+                throw "Common Dialogs string bundle not present!";
+        }
+
+        return this.__cdBundle;
+    },
+    
     dialogInit : function(e) {
         try {
             keeFoxDialogManager.prepareFill();
@@ -72,8 +86,14 @@ var keeFoxDialogManager = {
 			
 			// e.g. en-US:
 			// A username and password are being requested by %2$S. The site says: "%1$S"
-			// TODO:0.9: this doesn't work in FF4... but they are replacing the whole commonDialog thingy I think...
-			var currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+			var currentRealmL10nPattern = "";			
+			try 
+			{
+			    currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
+			} catch (exception)
+			{
+			    currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+			}
 
             var realmFirst = false;
             if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
@@ -99,7 +119,14 @@ var keeFoxDialogManager = {
             {
                 // e.g. en-US:
 			    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
-			    var currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
+			    var currentProxyL10nPattern = "";			
+			    try 
+			    {
+			        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+			    } catch (exception)
+			    {
+			        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
+			    }
 
                 realmFirst = false;
                 if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
@@ -127,7 +154,14 @@ var keeFoxDialogManager = {
             {
                 // e.g. en-US:
 			    // Enter username and password for %1$S
-			    var currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
+			    var currentProxyL10nPattern = "";			
+			    try 
+			    {
+			        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+			    } catch (exception)
+			    {
+			        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
+			    }
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
                 var regEx = new RegExp(currentProxyL10nPattern);

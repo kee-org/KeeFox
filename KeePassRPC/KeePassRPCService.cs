@@ -1865,6 +1865,10 @@ namespace KeePassRPC
                         hostAndPort = URL.Substring(protocolIndex+3, pathStart);
                         newURL = URL.Substring(0, pathStart + protocolIndex + 3);
                     }
+                    else if (pathStart == -1) // it's already just a hostname
+                    {
+                        hostAndPort = URLExcludingProt;
+                    }
                 }
                 else
                 {
@@ -1984,7 +1988,7 @@ namespace KeePassRPC
                         {
                             if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
                             {
-                                entryIsAMatch = true;
+                                entryIsAMatch = false;
                                 break;
                             }
                         }

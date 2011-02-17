@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,6];
+    this.clientVersion = [0,8,7];
 }
 
 jsonrpcClient.prototype = new session();
@@ -301,8 +301,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         if (writeResult <=0)
         {
             log.warn("JSON-RPC request could not be sent.");
-            this.callbacks[requestId] = null;
-            this.callbacksData[requestId] = null;
+            delete this.callbacks[requestId];
+            delete this.callbacksData[requestId];
             this.syncRequestResults[requestId] = new Error("JSON-RPC request could not be sent");
         }
     }
