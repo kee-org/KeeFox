@@ -1179,10 +1179,3 @@ function extractKPZip (zipFilePath, storeLocation)
 END:
 utility functions
 ********************/
-  
-/*
-
-TODO in 0.8: 
-test each install start point in VMs
-
-*/

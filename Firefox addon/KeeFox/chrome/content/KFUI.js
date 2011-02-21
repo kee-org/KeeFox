@@ -149,7 +149,6 @@ KFUI.prototype = {
      */
     _showSaveLoginNotification : function (aNotifyBox, aLogin, isMultiPage) {
 
-        //var DBname = null;//_kf.getDatabaseName();
         var notificationText = "";
             
         // Ugh. We can't use the strings from the popup window, because they
@@ -202,7 +201,7 @@ KFUI.prototype = {
                     {
                         //TODO2: create a new notification bar for 2 seconds with an error message?
                     }
-                    //TODO: copy completed to multi-page menu, etc.
+                    //TODO2: copy completed to multi-page menu, etc.
                 
                     keefox_org.toolbar.clearTabFormRecordingData();
                     //aNotificationBar.parentNode.removeCurrentNotification();

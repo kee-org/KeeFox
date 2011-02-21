@@ -562,7 +562,7 @@ namespace KeePassRPC
                 pe.Strings.Set("KeeFox Never Auto Submit", new ProtectedString(false, ""));
                 kfpg.AddEntry(pe, true);
             }
-            //TODO: demo of complex form with select drop downs, etc.
+            //TODO 0.9: demo of complex form with select drop downs, etc.
 
             if (kfpg.FindEntry(entry5Uuid, false) == null)
             {

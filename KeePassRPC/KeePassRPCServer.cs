@@ -356,7 +356,6 @@ namespace KeePassRPC
             }
             finally
             {
-                //TODO: change some flags / data in the RPCClient object?
                 if (keePassRPCClient != null)
                 {
                     KeePassRPCPlugin.RemoveRPCClientConnection(keePassRPCClient);

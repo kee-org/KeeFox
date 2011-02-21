@@ -399,7 +399,6 @@ namespace KeePassRPC
 
         void OpenLoginEditorWindow(PwEntry pe)
         {
-            //TODO: focus existing editor window for this login if there is one. Maybe use host.MainWindow.OwnedForms or keep our own list of open forms in this plugin (and destroy them when plugin is destroyed) + same for Group editor
             PwEntryForm ef = new PwEntryForm();
             ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false, false);
 

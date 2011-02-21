@@ -211,7 +211,7 @@ namespace Jayrock.JsonRpc
             if (methodName.Length == 0)
                 throw new JsonRpcException("No method name supplied for this request.");
 
-            //TODO: change RE authorisation options deny setclientname - just remove it entirely?!?
+            //TODO2: change RE authorisation options deny setclientname - just remove it entirely?!?
             if (!authorised && (methodName != "Authenticate" && methodName != "SetClientName"))
                 throw new JsonRpcException("Not authorised.");
 

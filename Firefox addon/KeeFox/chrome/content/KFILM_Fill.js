@@ -242,7 +242,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 {
     KFLog.info("Filling document. Initial page load: " + initialPageLoad);
     
-    //TODO: maybe need to attach this var to somewhere in case it gets GCd?
+    //TODO2: maybe need to attach this var to somewhere in case it gets GCd?
     var findLoginDoc = {};
     
     // We'll do things differently if this is a fill operation some time
@@ -452,7 +452,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     
     
     findLoginDoc.initialPageLoad = initialPageLoad;
-    findLoginDoc.formOrigin = doc.documentURI;//this._getURIHostAndPort(doc.documentURI);
+    findLoginDoc.formOrigin = doc.documentURI;
     findLoginDoc.wrappers = [];
     findLoginDoc.allMatchingLogins = [];
     findLoginDoc.formToAutoSubmit;
@@ -462,6 +462,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     findLoginDoc.otherFieldsArray = [];
     findLoginDoc.requestCount = 0;
     findLoginDoc.responseCount = 0;
+    findLoginDoc.requestIds = []; // the JSONRPC request Ids that reference this findLoginDoc object (to allow deletion after async callback processing)
     
     var previousRequestId = 0;
 
@@ -478,7 +479,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         var [usernameIndex, passwordFields, otherFields] =
             this._getFormFields(form, false);
             
-        //TODO: remove this restriction as long as we don't get problems with search fields, etc.
+        //TODO2: remove this restriction as long as we don't get problems with search fields, etc.
         // maybe only if we are doing a multi-page login?
         if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
         {
@@ -572,8 +573,9 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             findLoginDoc.requestCount++;
             
             var requestId = this.findLogins(findLoginDoc.formOrigin, actionOrigin, null, null, findLoginOp.callback);
+            findLoginDoc.requestIds.push(requestId);
             this.findLoginOps[requestId] = findLoginOp;
-            this.findLoginDocs[requestId] = findLoginDoc; // TODO: waste of space, plus really need to remove them all when done to save memory but lets test it works first...
+            this.findLoginDocs[requestId] = findLoginDoc;
             previousActionOrigin = actionOrigin;
             previousRequestId = requestId;
         } else {
@@ -630,7 +632,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     if (!findLoginDoc.cannotAutoFillForm)
     {
         // first, if we have been instructed to load a specific login on this page, do that
-        //TODO: this may not work if requested login can't be exactly matched to a form but another login can
+        //TODO2: this may not work if requested login can't be exactly matched to a form but another login can
         if (findLoginDoc.uniqueID.length > 0)
         {
             var found = findLoginDoc.logins[mostRelevantFormIndex].some(function(l) {
@@ -680,7 +682,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
                     findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
                 window.keefox_org.ILM._fillManyFormFields(otherFields, matchingLogin.otherFields,
                     findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
-                findLoginDoc.formsReadyForSubmit++; //TODO: verify if this means we have lost functinoality now - could we fill more than one form before? i don't think so but why is it a count rather than bool?!
+                findLoginDoc.formsReadyForSubmit++; //TODO2: could we fill more than one form before? i don't think so but why is it a count rather than bool?!
             }            
         }
     }
@@ -803,16 +805,25 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     {
         KFLog.info("Nothing to fill.");
     }
+    
+    // delete un-needed array entries.
+    // hoping it is OK to delete the underlying array property while still referencing
+    // it from this function. Assuming normal OO reference GC but don't know the JS
+    // internals well enough to be sure so this is a potential crash cause
+    for (var ridc = 0, l = findLoginDoc.requestIds.length; ridc < l; ridc++)
+    {
+        delete window.keefox_org.ILM.findLoginOps[ridc];
+        delete window.keefox_org.ILM.findLoginDocs[ridc];
+    }     
 };
 
 // login to be used is indentified via KeePass uniqueID (GUID)
 // actionURL and other fields help identify which form we should submit to
-// TODO: we previously calculated the preferred form when the page loaded so maybe we
+// TODO2: we previously calculated the preferred form when the page loaded so maybe we
 // should pass along that information and use it to decide which form to submit to?
-// OTOH this would perclude the user from over-riding the automatic form choice in 
+// OTOH this would prevent the user from over-riding the automatic form choice in 
 // situations where it makes an incorrect decision.
-// TODO: handle situations where forms fields have dissapeared in the mean time.
-// TODO: formID innacurate (so not used yet)
+// TODO2: formID innacurate (so not used yet)
 // TODO2: extend so more than one form can be filled, with option to automatically submit
 // form that matches most accuratly (currently we just pick the first match - this may not be ideal)
 KFILM.prototype.fill = function (usernameName,usernameValue,
@@ -851,7 +862,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     var passwords;
     var otherFields;        
     var autoSubmitForm = window.keefox_org.ILM._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
-    var overWriteFields = true; // TODO: create a new preference for this
+    var overWriteFields = true; // TODO2: create a new preference for this?
     
     if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
     {
@@ -872,7 +883,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     else
         KFLog.info("fill login details");
     
-    
+        
     
 // not really used or tested yet
 //        if ((form == undefined || form == null)
@@ -890,32 +901,52 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     
     if (form == undefined || form == null)
     {
+        var formRelevanceScores = [];
+        var usernameIndexList = [];
+        var passwordsList = [];
+        var otherFieldsList = [];
+        
         for (var i = 0; i < fillDocumentDataStorage.doc.forms.length; i++)
         {
             var formi = fillDocumentDataStorage.doc.forms[i];
+            formRelevanceScores[i] = 0;
             
-            // only fill in forms that match the host and port of the selected login
+            //TODO2:? only fill in forms that match the host and port of the selected login
             // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
-//            if (!(actionURL != undefined && actionURL != null && actionURL.length > 0) 
-//                || this._getURISchemeHostAndPort(
-//                    this._getActionOrigin(formi)) == this._getURISchemeHostAndPort(actionURL))
-//            {
-                form = formi;
-                [usernameIndex, passwords, otherFields] = window.keefox_org.ILM._getFormFields(form, false, 1);
-                
-                if (passwords == null || passwords.length == 0)
-                    continue;
-                //TODO: keep looking for forms!!!
-                // Why do we need to stop at the first password form? In cases where we know somethign about the form we are looking for (eg. field ids, names)
-                // it makes no sense to give up as soon as we find the first form!
-                break;
-//            }
-        }        
+            form = formi;
+            [usernameIndex, passwords, otherFields] = window.keefox_org.ILM._getFormFields(form, false, 1);
+            
+            if (passwords == null || passwords.length == 0)
+                continue;
+            
+            // determine the relevance of the selected login entry to this form
+            //NB: Assuming only one login returned from search (should be by GUID so OK)
+            var relevanceScore = window.keefox_org.ILM._calculateRelevanceScore(logins[0],
+                    form,usernameIndex, passwords, 1); //TODO2: Compare page too?
+            formRelevanceScores[i] = relevanceScore;
+            usernameIndexList[i] = usernameIndex;
+            passwordsList[i] = passwords;
+            otherFieldsList[i] = otherFields;            
+            KFLog.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
+        }
+        
+        // Find the most relevant form
+        var mostRelevantFormIndex = 0;
+        formRelevanceScores.forEach(function(c, index) {
+            if (c > formRelevanceScores[mostRelevantFormIndex])
+                mostRelevantFormIndex = index;
+        }); 
+        KFLog.debug("Most releveant form is " + mostRelevantFormIndex);
+        
+        form = fillDocumentDataStorage.doc.forms[mostRelevantFormIndex];
+        usernameIndex = usernameIndexList[mostRelevantFormIndex];
+        passwords = passwordsList[mostRelevantFormIndex];
+        otherFields = otherFieldsList[mostRelevantFormIndex];
     }
     
     if (passwords == null || passwords.length == 0)
     {
-        //TODO: can we improve here so that forms without password fields can also be handled?
+        //TODO2: can we improve here so that forms without password fields can also be handled?
         KFLog.info("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
         return;
     }
@@ -1037,7 +1068,7 @@ KFILM.prototype.submitForm = function (form)
 			break;
 	    }
 	}
-    //TODO: more accurate searching of submit buttons, etc. to avoid password resets if possible
+    //TODO2: more accurate searching of submit buttons, etc. to avoid password resets if possible
     // maybe special cases for common HTML output patterns (e.g. javascript-only ASP.NET forms)
     
     // if no submit button found, try to find an image button
@@ -1059,7 +1090,7 @@ KFILM.prototype.submitForm = function (form)
     else
 		form.submit();
 		
-		//TODO: maybe something like this might be useful? Dunno why a click()
+		//TODO2: maybe something like this might be useful? Dunno why a click()
 		// above wouldn't be sufficient but maybe some custom event raising might be handy...
 		/*
 		function simulateClick() {

@@ -73,7 +73,6 @@ KFILM.prototype._onFormSubmit = function (form)
     ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 1);
     ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);
     
-    // This variable is set originally by user via menu "start recording" or notification bar "make multi-page"
     var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
     var savePageCountToTab = true;
     
@@ -144,7 +143,7 @@ KFILM.prototype._onFormSubmit = function (form)
             for (i=0; i < passwords.length; i++)
                 passwordFields.push(passwords[i]);
                 
-            //TODO: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
+            //TODO2: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
             //return;
         } else // it's probably a password change form, but may be a sign-up form
         {
@@ -159,7 +158,7 @@ KFILM.prototype._onFormSubmit = function (form)
             if (passwords.length == 2)
             {
                 passwordFields.push(passwords[0]);
-                //TODO: it is also reasonably likely that this indicates a
+                //TODO2: it is also reasonably likely that this indicates a
                 // sign-up form rather than a password change form. decide
                 // which here and flag which one it is for now, we just assume
                 // it's a sign-up form becuase that is more useful for the user in many cases
@@ -288,7 +287,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
     }
 
     //if (oldPasswordField != null) // we are changing the password
-    //TODO: implement password change support if it doesn't impact the more important log-in and registration features
+    //TODO2: implement password change support if it doesn't impact the more important log-in and registration features
 //        if (submitDocumentDataStorage.isPasswordChangeForm)
 //        {
 //            
@@ -298,7 +297,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
 //                keefox_org.UI.setWindow(submitDocumentDataStorage.win);
 //                keefox_org.UI.setDocument(submitDocumentDataStorage.doc);
 
-//                if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO: is this needed?
+//                if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO2: is this needed?
 //                    //var oldLogin = logins[0];
 //                    //formLogin.usernameIndex      = oldLogin.usernameIndex;
 
@@ -306,7 +305,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
 //                } else {
 //                    keefox_org.UI.promptToChangePasswordWithUsernames(
 //                                        logins, logins.length, formLogin);
-//                } // TODO: allow option to override change password option and instead save as a new password. (need a new prompt function)
+//                } // TODO2: allow option to override change password option and instead save as a new password. (need a new prompt function)
 //            }
 //            return;
 //        
@@ -339,7 +338,6 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
         previousStageLogin.fromJSON(previousStageLoginJSON);
         
         // set the tab value ready for the next time the page loads
-        //TODO: how do we "cancel" this so that the page count is reset when the next login/signup process begins?
         if (previousStageLogin != undefined && previousStageLogin != null)
         {   
             previousStageLogin.mergeWith(submitDocumentDataStorage.formLogin);

@@ -134,7 +134,7 @@ int main ()
     LPTSTR KeePassRPCSource;
 	LPTSTR KeePassRPCDest;
 	LPWSTR commandLine = GetCommandLineW();
-	int bufSize = lstrlen(commandLine); //TODO: a bit too cautious
+	int bufSize = lstrlen(commandLine); //TODO2: a bit too cautious
 	TCHAR charBuf[4096];// = L"";
 	for (int j=0; j<4096; j++)
 		charBuf[j] = '\0';

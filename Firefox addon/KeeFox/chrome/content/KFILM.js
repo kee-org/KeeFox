@@ -69,7 +69,7 @@ KFILM.prototype = {
         return this.__ioService;
     },
     
-    //TODO: improve weighting of matches to reflect real world tests
+    //TODO2: improve weighting of matches to reflect real world tests
     _calculateRelevanceScore : function (login, form,
         usernameIndex, passwordFields, currentTabPage)
     {    
@@ -207,11 +207,9 @@ KFILM.prototype = {
         // nsFormSubmitObserver
         notify : function (formElement, aWindow, actionURI)
         {        
-            //TODO: HACK ALERT: Obviously I should remove the form observer
-            // from closed windows but this should get us up and running quickly
-            // and i'll work out how to do that later.
-            if (typeof Components == "undefined")
-                return true;
+            // form observers should now be removed from closed windows so can get rid of this I think
+            //if (typeof Components == "undefined")
+            //    return true;
         
             KFLog.debug("observer notified for form submission.");
 
@@ -224,8 +222,6 @@ KFILM.prototype = {
                     &&  keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
                 {
                     // We don't do this unless we think we have a KeePassRPC connection
-                    
-                    
                     
                     var siteURL = this._pwmgr._getURISchemeHostAndPort(formElement.ownerDocument.documentURI);
                     var statement = this._pwmgr._kf._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE tp = 0 AND url = :siteURL AND preventSaveNotification = 1");
@@ -326,153 +322,154 @@ KFILM.prototype = {
             // none of this is allowed to throw exceptions up the stack to the rest of Firefox
             try
             {
-            // STATE_START is too early, doc is still the old page.
-            if (!(aStateFlags & Ci.nsIWebProgressListener.STATE_TRANSFERRING))
-                return;
+                // STATE_START is too early, doc is still the old page.
+                if (!(aStateFlags & Ci.nsIWebProgressListener.STATE_TRANSFERRING))
+                    return;
 
-            var domWin = aWebProgress.DOMWindow;
-            var domDoc = domWin.document;
-            
-            var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                   .rootTreeItem
-                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIDOMWindow); 
-
-            // only process things aimed at our window
-            if (mainWindow != this._pwmgr._currentWindow)
-                return;
+                var domWin = aWebProgress.DOMWindow;
+                var domDoc = domWin.document;
                 
-            // Only process things which might have HTML forms.
-            if (!(domDoc instanceof Ci.nsIDOMHTMLDocument))
-                return;
-            if (aRequest.name == null || aRequest.name == "about:blank")
-                return;
-                
-            if (KFLog.logSensitiveData)
-                KFLog.debug("onStateChange accepted: req = " +
-                            (aRequest ?  aRequest.name : "(null)") +
-                            ", flags = 0x" + aStateFlags.toString(16));
-            else
-                KFLog.debug("onStateChange accepted"); 
-                       
-            var b = getBrowser();
-            var currentTab = b.selectedTab; //TODO: are we sure this always the tab that this event refers to?
-// maybe not when we have just opened a url in a new tab?
-// KF_uniqueID is not set...
+                var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                       .getInterface(Components.interfaces.nsIWebNavigation)
+                       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                       .rootTreeItem
+                       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                       .getInterface(Components.interfaces.nsIDOMWindow); 
 
-            var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                    .getService(Components.interfaces.nsISessionStore);
-
-
-            removeTabSessionStoreData = false;
-            
-            // see if this tab has our special attributes and promote them to session data
-            if (currentTab.hasAttribute("KF_uniqueID"))
-            {
-                KFLog.debug("has uid");                
-                ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-                currentTab.removeAttribute("KF_uniqueID")
-            } else
-            {
-                KFLog.debug("nouid");
-                
-                try
-                {
-                    if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
-                         && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
-                         && (
-                            this._pwmgr._getURIScheme(domWin.history.current) == "file"
-                            || this._pwmgr._getURIScheme(domWin.history.previous) == "file"
-                            ||
-                            (domWin.history.current != domWin.history.previous                         
-                                && this._pwmgr._getURISchemeHostAndPort(domWin.history.current)
-                                != this._pwmgr._getURISchemeHostAndPort(domWin.history.previous) 
-                            )
-                            )
-                       )
-                    {
-                        removeTabSessionStoreData = true;
-                    }
-                } catch (ex) {}
-                
-                try
-                {
-                    if (domWin.history.next != undefined 
-                        && domWin.history.next != null 
-                        && domWin.history.next != "")
-                    {
-                        removeTabSessionStoreData = true;
-                    }
-                } catch (ex) {}            
-                
-                // When pages are being navigated without form
-                // submissions we want to cancel multi-page login forms 
-                var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
-                var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
-
-                if (formSubmitTrackerCount > 0)
-                {
-                    KFLog.debug("formSubmitTrackerCount > 0");
-                    pageLoadSinceSubmitTrackerCount++;
+                // only process things aimed at our window
+                if (mainWindow != this._pwmgr._currentWindow)
+                    return;
                     
-                    if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
-                    {
-                        KFLog.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
-                        formSubmitTrackerCount = 0;
-                        pageLoadSinceSubmitTrackerCount = 0;
-                        removeTabSessionStoreData = true;
-                        ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
-                    }            
-                    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
-                } 
-            }
-            //KFLog.debug("temp:" + currentTab.KF_uniqueID);
-            
-            // If this tab location has changed domain then we assume user
-            // wants to cancel any outstanding form filling or saving
-            // procedures. Same applies if this is a refresh of the existing
-            // page. Also, if we are not at the top of the history stack, we
-            // can safely assume that we do not need to keep any information
-            // about preferred login uniqueIDs (although maybe one day this
-            // could complicate options with respect to one-click logins?
-            // probably will be fine but look here if problems occur)
-            
-            //TODO: How do we reliably detect a page refresh?
-            
-                   
-        
-            if (removeTabSessionStoreData)
-            {
-                // remove the data that helps us track multi-page logins, etc.
-                KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                keefox_org.toolbar.clearTabFormRecordingData();
-                keefox_org.toolbar.clearTabFormFillData();                
-            }
-                
-            // Fastback doesn't fire DOMContentLoaded, so process forms now.
-            if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING)
-            {
-                KFLog.debug("onStateChange: restoring document");
-                return this._pwmgr._fillDocument(domDoc,true);
-            }
+                // Only process things which might have HTML forms.
+                if (!(domDoc instanceof Ci.nsIDOMHTMLDocument))
+                    return;
+                if (aRequest.name == null || aRequest.name == "about:blank")
+                    return;
+                    
+                if (KFLog.logSensitiveData)
+                    KFLog.debug("onStateChange accepted: req = " +
+                                (aRequest ?  aRequest.name : "(null)") +
+                                ", flags = 0x" + aStateFlags.toString(16));
+                else
+                    KFLog.debug("onStateChange accepted"); 
+                           
+                var b = getBrowser();
+                var currentTab = b.selectedTab; //TODO2: are we sure this always the tab that this event refers to?
+                // maybe not when we have just opened a url in a new tab?
+                // KF_uniqueID is not set...
+                // Seems OK but review here if bugs in this area arise.
 
-            // Add event listener to process page when DOM is complete.
-            domDoc.addEventListener("DOMContentLoaded",
-                                    this._domEventListener, false);
+                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                        .getService(Components.interfaces.nsISessionStore);
+
+
+                removeTabSessionStoreData = false;
+                
+                // see if this tab has our special attributes and promote them to session data
+                if (currentTab.hasAttribute("KF_uniqueID"))
+                {
+                    KFLog.debug("has uid");                
+                    ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                    ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                    currentTab.removeAttribute("KF_uniqueID")
+                } else
+                {
+                    KFLog.debug("nouid");
+                    
+                    try
+                    {
+                        if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
+                             && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
+                             && (
+                                this._pwmgr._getURIScheme(domWin.history.current) == "file"
+                                || this._pwmgr._getURIScheme(domWin.history.previous) == "file"
+                                ||
+                                (domWin.history.current != domWin.history.previous                         
+                                    && this._pwmgr._getURISchemeHostAndPort(domWin.history.current)
+                                    != this._pwmgr._getURISchemeHostAndPort(domWin.history.previous) 
+                                )
+                                )
+                           )
+                        {
+                            removeTabSessionStoreData = true;
+                        }
+                    } catch (ex) {}
+                    
+                    try
+                    {
+                        if (domWin.history.next != undefined 
+                            && domWin.history.next != null 
+                            && domWin.history.next != "")
+                        {
+                            removeTabSessionStoreData = true;
+                        }
+                    } catch (ex) {}            
+                    
+                    // When pages are being navigated without form
+                    // submissions we want to cancel multi-page login forms 
+                    var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
+                    var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
+
+                    if (formSubmitTrackerCount > 0)
+                    {
+                        KFLog.debug("formSubmitTrackerCount > 0");
+                        pageLoadSinceSubmitTrackerCount++;
+                        
+                        if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
+                        {
+                            KFLog.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
+                            formSubmitTrackerCount = 0;
+                            pageLoadSinceSubmitTrackerCount = 0;
+                            removeTabSessionStoreData = true;
+                            ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
+                        }            
+                        ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
+                    } 
+                }
+                //KFLog.debug("temp:" + currentTab.KF_uniqueID);
+                
+                // If this tab location has changed domain then we assume user
+                // wants to cancel any outstanding form filling or saving
+                // procedures. Same applies if this is a refresh of the existing
+                // page. Also, if we are not at the top of the history stack, we
+                // can safely assume that we do not need to keep any information
+                // about preferred login uniqueIDs (although maybe one day this
+                // could complicate options with respect to one-click logins?
+                // probably will be fine but look here if problems occur)
+                
+                //TODO2: How do we reliably detect a page refresh?
+                
+                       
             
-            // attempt to refill the forms on the current tab in this window at a regular interval
-            // This is to enable manual form filling of sites which generate forms dynamically
-            // (i.e. after initial DOM load)
-            if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-                this._pwmgr._refillTimer.init(this._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-            
-            KFLog.debug("onStateChange: end");   
+                if (removeTabSessionStoreData)
+                {
+                    // remove the data that helps us track multi-page logins, etc.
+                    KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                    keefox_org.toolbar.clearTabFormRecordingData();
+                    keefox_org.toolbar.clearTabFormFillData();                
+                }
+                    
+                // Fastback doesn't fire DOMContentLoaded, so process forms now.
+                if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING)
+                {
+                    KFLog.debug("onStateChange: restoring document");
+                    return this._pwmgr._fillDocument(domDoc,true);
+                }
+
+                // Add event listener to process page when DOM is complete.
+                domDoc.addEventListener("DOMContentLoaded",
+                                        this._domEventListener, false); //ael
+                
+                // attempt to refill the forms on the current tab in this window at a regular interval
+                // This is to enable manual form filling of sites which generate forms dynamically
+                // (i.e. after initial DOM load)
+                if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
+                    this._pwmgr._refillTimer.init(this._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                
+                KFLog.debug("onStateChange: end");   
             } catch (ex)
             {
-                // not gonna risk even logging anything here until I have more time to be sure it can't cause further problems.
+                //TODO2: not gonna risk even logging anything here until I have more time to be sure it can't cause further problems.
             }             
             return;
         },
@@ -536,7 +533,7 @@ KFILM.prototype = {
                     //doc = this._pwmgr._currentWindow.content.document;
                     this._pwmgr._toolbar.setLogins(null, null);
                     this._pwmgr._fillAllFrames(this._pwmgr._currentWindow.content,false);
-                    //TODO: find some ways of deciding that there is no need
+                    //TODO2: find some ways of deciding that there is no need
                     // to call this function in some cases. E.g. DOMMutation
                     // events? but just having those events on a page drops
                     // all other DOM performance by > 50% so will be too slow
@@ -709,29 +706,7 @@ KFILM.prototype = {
             throw "Can't add a login without a httpRealm or formSubmitURL.";
         }
 
-        var primaryURL = "";
-        
-//TODO 0.9: Can I really get away with skipping this check? If not I need to create a new KeePassRPC method to find by multiple URLs in one go.
-        // Look for an existing entry.
-        // NB: maybe not ideal - would be nice to search for all URLs in
-        // one go but in practice this will affect performance only rarely
-//        for (i = 0; i < login.URLs.length; i++)
-//        {
-//            var loginURL = login.URLs[i];          
-//            var logins = this.findLogins(loginURL, login.formActionURL,
-//                                        login.httpRealm);
-
-//            //TODO 0.8: Test this - I changed it during KeePassRPC migration
-//            if (logins.some(function(l) { return login.matches(l, false, true, false, false); })) // set last to true (usernames)? or make the test more flexible
-//            {
-//                KFLog.info("This login already exists.");
-//                return "This login already exists.";
-//            }
-//            
-//            if (i == 0)
-//                primaryURL = loginURL;
-//        }
-primaryURL = login.URLs[0];
+        var primaryURL = login.URLs[0];
         
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
         {

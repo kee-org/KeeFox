@@ -7,11 +7,8 @@ username and one password (with the usual Firefox field IDs) it will discover
 any matching logins and depending on preferences, etc. it will fill in the
 dialog fields and/or populate a drop down box containing all of the matching logins.
 
-TODO: extend so that new passwords can be saved automatically too (at the moment
+TODO 0.9: extend so that new passwords can be saved automatically too (at the moment
 you have to add them via KeePass)
-
-TODO: streamline log-in when starting without an active connection to an
-open KeePass database
 
 Some ideas and code snippets from AutoAuth Firefox extension:
 https://addons.mozilla.org/en-US/firefox/addon/4949
@@ -194,25 +191,83 @@ var keeFoxDialogManager = {
 		    // if we're not logged in to KeePass then we can't go on
             if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
             {
-                //TODO: put notification text on dialog box to inform user
-                // and have button to load KeePass and then refresh the dialog?
-                // register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?
+                //TODO2: be more helpful: have button to load database and then refresh the dialog?                
+                //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?    
+                //TODO2: Refactor to remove duplication
+                
+                var row = document.createElement("row");
+                row.setAttribute("id","keefox-autoauth-row");
+                row.setAttribute("flex", "1");
+                var boxLabel = document.createElement("hbox");
+                boxLabel.setAttribute("id","keefox-autoauth-label");
+                boxLabel.setAttribute("align", "end");
+                boxLabel.setAttribute("flex", "1");
+                boxLabel.setAttribute("pack", "end");
+                var label = document.createElement("description");
+		        label.setAttribute("value", "");
+		        label.setAttribute("align", "end");
+		        label.setAttribute("pack", "end");
+		        label.setAttribute("flex", "1");
+		        boxLabel.appendChild(label);
+	        
+		        var box = document.createElement("hbox");
+                box.setAttribute("id","keefox-autoauth-box");
+                box.setAttribute("align", "start");
+                box.setAttribute("flex", "1");
+                box.setAttribute("pack", "start");
+		    
+		        var loadingPasswords = document.createElement("description");
+		        loadingPasswords.setAttribute("value", "To log in using KeeFox please cancel this dialog box, login to KeePass and then refresh this page.");
+		        loadingPasswords.setAttribute("align", "start");
+		        loadingPasswords.setAttribute("flex", "1");
+		        box.appendChild(loadingPasswords);
+		        row.appendChild(boxLabel);
+		        row.appendChild(box);
+                document.getElementById("loginContainer").parentNode.appendChild(row);
                 return;
             } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
-                //TODO: put notification text on dialog box to inform user
-                // and have button to load database and then refresh the dialog?                
-                // register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?                
+                //TODO2: be more helpful: have button to load database and then refresh the dialog?                
+                //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?    
+                //TODO2: Refactor to remove duplication
+                
+                var row = document.createElement("row");
+                row.setAttribute("id","keefox-autoauth-row");
+                row.setAttribute("flex", "1");
+                var boxLabel = document.createElement("hbox");
+                boxLabel.setAttribute("id","keefox-autoauth-label");
+                boxLabel.setAttribute("align", "end");
+                boxLabel.setAttribute("flex", "1");
+                boxLabel.setAttribute("pack", "end");
+                var label = document.createElement("description");
+		        label.setAttribute("value", "");
+		        label.setAttribute("align", "end");
+		        label.setAttribute("pack", "end");
+		        label.setAttribute("flex", "1");
+		        boxLabel.appendChild(label);
+	        
+		        var box = document.createElement("hbox");
+                box.setAttribute("id","keefox-autoauth-box");
+                box.setAttribute("align", "start");
+                box.setAttribute("flex", "1");
+                box.setAttribute("pack", "start");
+		    
+		        var loadingPasswords = document.createElement("description");
+		        loadingPasswords.setAttribute("value", "To log in using KeeFox please cancel this dialog box, login to KeePass and then refresh this page.");
+		        loadingPasswords.setAttribute("align", "start");
+		        loadingPasswords.setAttribute("flex", "1");
+		        box.appendChild(loadingPasswords);
+		        row.appendChild(boxLabel);
+		        row.appendChild(box);
+                document.getElementById("loginContainer").parentNode.appendChild(row);                           
                 return;
             }
             
-            //TODO: most of these attributes are probably redundant...
+            //TODO2: most of these attributes are probably redundant...
             
             var row = document.createElement("row");
             row.setAttribute("id","keefox-autoauth-row");
-            //row.setAttribute("align", "center");
             row.setAttribute("flex", "1");
-            //row.setAttribute("pack", "center");
             
             var boxLabel = document.createElement("hbox");
             boxLabel.setAttribute("id","keefox-autoauth-label");
@@ -240,7 +295,7 @@ var keeFoxDialogManager = {
 		    box.appendChild(loadingPasswords);
 		    row.appendChild(boxLabel);
 		    row.appendChild(box);
-		    document.getElementById("loginContainer").parentNode.appendChild(row); //TODO: FF4 incompatible? (parentNode) - use gbrowser instead?
+		    document.getElementById("loginContainer").parentNode.appendChild(row);
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -349,7 +404,7 @@ var keeFoxDialogManager = {
 			var box = dialogFindLoginStorage.document.getElementById("keefox-autoauth-box");
             
 			//var button = dialogFindLoginStorage.document.createElement("button");
-			//TODO: find a way to get string bundles into here without
+			//TODO2: find a way to get string bundles into here without
 			// referencing document specific vars that go out of scope
 			// when windows are closed...button.setAttribute("label",
 			// keeFoxInst.strbundle.getString("autoFillWith
@@ -389,7 +444,7 @@ var keeFoxDialogManager = {
 		    dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[0].password
 		    //matchedLogins[0].username
 		    
-		    //TODO: make a better guess about which login should be autofilled.
+		    //TODO 0.9: make a better guess about which login should be autofilled.
 		    // e.g. exact host and realm match has higher priority
 		
 		}

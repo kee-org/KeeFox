@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
   The KFLog object manages logging KeeFox activity, used for debugging purposes.
   
@@ -15,7 +15,7 @@
   
   The default level will be set as part of the installation process. The exact
   level that will be used as a defualt will probably drop as the beta testing
-  process continues. For 0.8, Info will be default.
+  process continues. For 0.8, Info will be default. For 0.9+, Warn will be default.
   
   There are four log methods:
   
@@ -50,20 +50,12 @@ const Cr = Components.results;
 var EXPORTED_SYMBOLS = ["KFLog"];
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var Application = Components.classes["@mozilla.org/fuel/application;1"]
-                .getService(Components.interfaces.fuelIApplication);
-
 // constructor
 function KeeFoxLogger()
 {
-//var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-//                    .getService(Components.interfaces.nsIPrefService);
-//prefs = prefs.getBranch("extensions.myext.");
-
     this._prefService =  
         Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
-    this.prefBranch = this._prefService.getBranch("extensions.keefox@chris.tomlinson.");    
-    //this.keeFoxExtension = Application.extensions.get('keefox@chris.tomlinson');
+    this.prefBranch = this._prefService.getBranch("extensions.keefox@chris.tomlinson.");
     this.configureFromPreferences();
     this._log("Logging system initialised at " + Date());
 }
@@ -74,7 +66,6 @@ KeeFoxLogger.prototype = {
     levelWarn: false,
     levelInfo: false,
     levelDebug: false,
-    keeFoxExtension: null,
     methodAlert: false,
     methodConsole: false,
     methodStdOut: false,
@@ -96,9 +87,9 @@ KeeFoxLogger.prototype = {
     __logFile : null,
     
     get _logFile()
-    {//this._logService.logStringMessage("logging");
+    {
         if (!this.__logFile)
-        {//this._logService.logStringMessage("logging2");
+        {
             var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
                 getService(Components.interfaces.nsIProperties);
             var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
@@ -119,28 +110,6 @@ KeeFoxLogger.prototype = {
             file.append("log.txt");
             this.__logFile = file;
         }
-        //this._logService.logStringMessage("logging5");
-
-//       if (!this.__logFile)
-//        {//this._logService.logStringMessage("logging2");
-//            var file = Components.classes["@mozilla.org/file/local;1"]
-//            .createInstance(Components.interfaces.nsILocalFile);
-//            
-//            var MY_ID = "keefox@chris.tomlinson";
-//            var em = Components.classes["@mozilla.org/extensions/manager;1"].
-//                 getService(Components.interfaces.nsIExtensionManager);
-//            var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
-//            //var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-//           // this._logService.logStringMessage("logging3");
-//            file.initWithPath(dir.path);
-//            //file.append("keefox");
-//            file.append("log.txt");
-//            
-//            //this._logService.logStringMessage("logging4");
-//            this.__logFile = file;
-//        }
-        //this._logService.logStringMessage("logging5");
-
         return this.__logFile;
     },    
     
@@ -148,36 +117,20 @@ KeeFoxLogger.prototype = {
     // logs a message to a file
     _logToFile : function(msg)
     {
-//    var file = Components.classes["@mozilla.org/file/local;1"]
-//        .createInstance(Components.interfaces.nsILocalFile);
-    //this._logService.logStringMessage("logginga");
         var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
                                  createInstance(Components.interfaces.nsIFileOutputStream);
 
-//var MY_ID = "keefox@chris.tomlinson";
-//            var em = Components.classes["@mozilla.org/extensions/manager;1"].
-//                 getService(Components.interfaces.nsIExtensionManager);
-//            var dir = em.getInstallLocation(MY_ID).getItemLocation(MY_ID);
-//            //var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-//           // this._logService.logStringMessage("logging3");
-//            file.initWithPath(dir.path);
-//            //file.append("keefox");
-//            file.append("log.txt");
-            
-        foStream.init(this._logFile, 0x02 | 0x08 | 0x10, 0666, 0); 
-        //foStream.init(file, 0x02 | 0x08 | 0x10, 0666, 0); 
         // write, create if doesn't already exist, append to end
-//this._logService.logStringMessage("loggingb");
+        foStream.init(this._logFile, 0x02 | 0x08 | 0x10, 0666, 0);
         var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
                                   createInstance(Components.interfaces.nsIConverterOutputStream);
         converter.init(foStream, "UTF-8", 0, 0);
         converter.writeString(msg);
         converter.close(); // this closes foStream
-  //      this._logService.logStringMessage("loggingc");
     },
     
-    // creates an alert message on teh most recently used Firefox window
-    // (probably too annoying to be used reguarly but nice to have the option)
+    // creates an alert message on the most recently used Firefox window
+    // (probably too annoying to be used reguarly but nice to have the option?)
     _alert : function(msg)
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -204,6 +157,10 @@ KeeFoxLogger.prototype = {
         } catch (nothing) {
         // log if private browsing feature is unavailable
         }
+        
+        //timestamp the message
+        var ts = Date();
+        message = ts + ":" + message;
         
         try
         {
@@ -257,7 +214,7 @@ KeeFoxLogger.prototype = {
     },
         
     // set current logger configuration to whatever is described in the Firefox preferences system
-    // (these preferences could be set from about:config or an options panel)
+    // (these preferences can be set from about:config or the options panel)
     configureFromPreferences : function ()
     {
         var prefLevel = 0;

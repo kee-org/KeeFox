@@ -146,7 +146,10 @@ if (keefox_org.shouldLoad)
             // we only care about "load" events for the moment at least
             switch (event.type)
             {
-                case "load":            
+                case "load":
+                    // We don't need to know about load events anymore for the life of this window
+                    window.removeEventListener("load", this, false);
+                    
                     // our toolbar (+ a bit more, maybe needs renaming
                     // in future if I can think of something better)
                     keefox_org.toolbar = new KFToolbar(currentWindow);
@@ -154,7 +157,7 @@ if (keefox_org.shouldLoad)
                     // an event listener on the toolbar clears session data relating to
                     // the form filling process. ATOW only called in response to user
                     // editing form field contents.
-                    document.addEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false, true);
+                    document.addEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false, true); //ael OK
                         
                     // the improved login manager which acts (a bit) like a bridge
                     // between the user visible code and the KeeFox module / JSON-RPC    
@@ -165,29 +168,25 @@ if (keefox_org.shouldLoad)
                     keefox_org.UI = new KFUI();
                     keefox_org.UI.init(keeFoxInst, keefox_org.ILM);
                     
-                    //keeFoxInst.init(keefox_org.toolbar,currentWindow);
+                    // Set up tab change event listeners
+                    window.gBrowser.tabContainer.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
+                    window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                    
                     this.startupKeeFox(keefox_org.toolbar,currentWindow);
                     
-
-                    // Used to aid testing of various KeeFox features
-                    // (arguably is not needed in version 1.0 but I may keep it
-                    // just in case unless performance is noticably worse with it)
-                    //KFtester = new KFtests(keefox_org.ILM);
-                    
-//                    if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0)
-//                    {
-//                        var toOpen = keeFoxInst.urlToOpenOnStartup;
-//                        keeFoxInst.urlToOpenOnStartup = null;
-//                        keeFoxInst._openAndReuseOneTabPerURL(toOpen);
-//                    }
-
                     return;
                 case "unload": 
-                    KFLog.info("Window shutting down...");                    
+                    KFLog.info("Window shutting down...");   
                     
-                    window.removeEventListener("load", this, false);
+                    // Remove tab change event listeners
+                    window.gBrowser.tabContainer.removeEventListener("TabSelect", keeFoxInst._onTabSelected, false);
+                    window.gBrowser.tabContainer.removeEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                    
                     window.removeEventListener("unload", this, false);
-                    //remove://observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);
+                    var observerService = Cc["@mozilla.org/observer-service;1"].
+                                  getService(Ci.nsIObserverService);                          
+                    observerService.removeObserver(this, "sessionstore-windows-restored", false);        
+        
                     keefox_org.ILM.shutdown();
                     document.removeEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false);
                     keefox_org.toolbar.shutdown();
@@ -212,8 +211,6 @@ if (keefox_org.shouldLoad)
                 keeFoxInst._refreshKPDB();
                 //currentKFToolbar.setupButton_ready(currentWindow);
                 //currentKFToolbar.setAllLogins();
-                //currentWindow.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
-                //TODO: Move tab selected out here rather than in the module! (esp. RE FF4)
                 return;
             }       
         }
@@ -231,20 +228,10 @@ if (keefox_org.shouldLoad)
         window.addEventListener("unload", keefox_org.mainEventHandler, false);
         
         var observerService = Cc["@mozilla.org/observer-service;1"].
-                                  getService(Ci.nsIObserverService);
-        //keefox_org.mainEventHandler._kf = this;
-                //keefox_org.mainEventHandler._currentKFToolbar = currentKFToolbar;                            
-        observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);
-        
-        //observerService.addObserver(keefox_org.mainEventHandler, "quit-application", false);        
-        
+                                  getService(Ci.nsIObserverService);                          
+        observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);        
     } else
     {
         KFLog.warn("KeeFox module startup was NOT ATTEMPTED. Maybe there is a conflicting extension that prevents startup?");
     }
 }
-
-// TODO: we actually end up creating a new listener for each Firefox window and 
-// just ignoring the notifications sent by unrelated windows. I think that removing
-// the event listener after initial setup is finished will keep things more efficient
-

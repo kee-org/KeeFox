@@ -53,7 +53,7 @@
 <!ENTITY KeeFox_Install_Setup_KeeFox.label "Setup KeeFox">
 <!ENTITY KeeFox_Install_Upgrade_KeeFox.label "Upgrade KeeFox">
 <!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "Install process already started in another tab. If you cannot find the tab, you may need to restart Firefox to proceed.">
-<!ENTITY KeeFox_Install_Not_Required.label "It looks like KeeFox is already installed. TODO: direct to somewhere with troubleshooting tips RE firewalls, etc.">
+<!ENTITY KeeFox_Install_Not_Required.label "It looks like KeeFox is already installed. TODO 0.9: direct to somewhere with troubleshooting tips RE firewalls, etc.">
 <!ENTITY KeeFox_Install_Unexpected_Error.label "An unexpected error occured during KeeFox installation.">
 <!ENTITY KeeFox_Install_Download_Failed.label "The download of a required component failed.">
 <!ENTITY KeeFox_Install_Download_Canceled.label "The download of a required component was cancelled.">

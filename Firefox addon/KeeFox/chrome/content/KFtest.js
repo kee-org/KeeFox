@@ -80,10 +80,10 @@ KFtests.prototype = {
     //////////////////////////////////////////////////////
     // This is the core test procedure
     
-    // TODO: pass in other window specific objects so we can run some further, more UI orientated, tests.
+    // TODO2: pass in other window specific objects so we can run some further, more UI orientated, tests.
     // to more effectively represent real world situations
     
-    //TODO: improved test system? eg: temporary html pages created by javascript, loaded in new tabs and auto-submitted through a GET form submission.
+    //TODO2: improved test system? eg: temporary html pages created by javascript, loaded in new tabs and auto-submitted through a GET form submission.
     // results read back by javascript querystring probe
     do_tests: function() {
 

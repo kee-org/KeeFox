@@ -321,22 +321,12 @@ kfLoginInfo.prototype =
         
         return true;
     },
-    
-    
-    //CPT: had to hack this a bit. might come back to bite later. now if either
-    // httprealm is empty string we will not test for equality.
-    // It's all becuase ICE can't distinguish between null and empty string but
-    // there may be nicer ways to workaround...
-    // do we care if fields are moved around onto different pages?
-    // should we match then or not?...
-    //TODO: Review validity of comments and implementation after move from reliance on ICE
+
     // determines if this matches another supplied login object, with a number
     // of controllable definitions of "match" to support various use cases
     matches : function (aLogin, ignorePasswords, ignoreURIPaths,
          ignoreURIPathsAndSchemes, ignoreUsernames)
     {
-    //if (formLogin.matches(logins[i],false,false,false,false))
-    // test to find out which bits fail below...
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");

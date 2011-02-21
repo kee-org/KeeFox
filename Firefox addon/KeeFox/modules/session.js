@@ -228,7 +228,7 @@ session.prototype =
                         .createInstance(Components.interfaces.nsIInputStreamPump);
             this.pump.init(this.raw_istream, -1, -1, 0, 0, false);
             this.pump.asyncRead(this, null);
-            //TODO: put in a notify function... this.onNotify("transport-status-connected", null);
+            //TODO2: ?why? put in a notify function... this.onNotify("transport-status-connected", null);
         } catch(ex) {
             log.error(ex, "Session::onConnect failed: ");
             this.onNotify("connect-failed", "Unable to connect; Exception occured "+ex);
@@ -267,7 +267,7 @@ session.prototype =
         //return this.istream.readBytes(count);
     },
     
-    //TODO: try to recover from dead connections...
+    //TODO2: try to recover from dead connections...
     writeData: function(data, dataLen)
     {
         try {
@@ -350,7 +350,7 @@ session.prototype =
          
         this.certFailedReconnectTimer.initWithCallback(this.reconnectNow,
             500,
-            Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO: does the timer stay in scope?
+            Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO2: ?OK so far...? does the timer stay in scope?
         log.debug("Timer created.");
     },
     

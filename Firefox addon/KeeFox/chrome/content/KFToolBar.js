@@ -135,6 +135,7 @@ KFToolbar.prototype = {
             {
                 container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));                
                 container.setAttribute("value", login.uniqueID);
+                //container.setUserData("login", login, null);
                 container.setAttribute("context", "KeeFox-login-toolbar-context");
                 container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
@@ -151,6 +152,7 @@ KFToolbar.prototype = {
                 tempButton.setAttribute("class", "menuitem-iconic");
                 tempButton.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
                 tempButton.setAttribute("value", login.uniqueID);
+                //tempButton.setUserData("login", login, null);
                 tempButton.setAttribute("context", "KeeFox-login-context");
                 tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 tempButton.setAttribute("oncommand", "keefox_org.ILM.fill('" +
@@ -164,6 +166,7 @@ KFToolbar.prototype = {
             container.setAttribute("type", "menu-button");
             container.appendChild(menupopup);
         }
+        KFLog.debug(logins.length + " toolbar logins set!");
     },
     
     // populate the "all logins" menu with every login in this database
@@ -547,7 +550,7 @@ KFToolbar.prototype = {
                     mruArray[i].replace(/[\\]/g,'\\\\') + "',false);  event.stopPropagation();");
                 tempButton.setAttribute("class", "menuitem-iconic");
                 //tempButton.setAttribute("context", "KeeFox-login-context"); in future this could enable "set to default for this location..." etc. ?
-                tempButton.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png"); //TODO: use KeePass database icon
+                tempButton.setAttribute("image", "chrome://keefox/skin/KeeLock.png");
 
                 popupContainer.appendChild(tempButton);
 
@@ -571,10 +574,6 @@ KFToolbar.prototype = {
         if (currentPage != undefined && currentPage != null && currentPage != "")
         {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentPage");
-            /*
-            TODO:
-            Error: uncaught exception: [Exception... "'Illegal value' when calling method: [nsISessionStore::deleteTabValue]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: chrome://keefox/content/keefox.js -> resource://kfscripts/KFToolBar.js :: anonymous :: line 587"  data: no]
-            */
         }
         
         var currentStateJSON = ss.getTabValue(currentTab, "KF_recordFormCurrentStateJSON");
@@ -584,29 +583,6 @@ KFToolbar.prototype = {
             ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateJSON");
         }
         
-//        var currentStateMain = ss.getTabValue(currentTab, "KF_recordFormCurrentStateMain");
-
-//        if (currentStateMain != undefined && currentStateMain != null && currentStateMain != "")
-//        {
-//            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateMain");
-//        }
-//        
-//        var currentStatePasswords = ss.getTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
-
-//        if (currentStatePasswords != undefined && currentStatePasswords != null && currentStatePasswords != "")
-//        {
-//            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStatePasswords");
-//        }
-//        
-//        var currentStateOtherFields = ss.getTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
-
-//        if (currentStateOtherFields != undefined && currentStateOtherFields != null && currentStateOtherFields != "")
-//        {
-//            ss.deleteTabValue(currentTab, "KF_recordFormCurrentStateOtherFields");
-//        }
-        
-        
-            
     },
     
     // prepare the most recent tab for recording a login procedure
@@ -675,19 +651,18 @@ KFToolbar.prototype = {
     
     fillCurrentDocument : function ()
     {
-     KFLog.debug("fillCurrentDocument start");
+        KFLog.debug("fillCurrentDocument start");
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);
-        this._currentWindow.keefox_org.ILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
-        
+        this._currentWindow.keefox_org.ILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);        
     },
     
     generatePassword : function ()
     {
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
-        this.setLogins(null, null);
+        // no idea why I did this: this.setLogins(null, null);
         var newPassword = this._currentWindow.keeFoxInst.generatePassword();
         if (newPassword.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
         {

@@ -309,7 +309,7 @@ KeeFoxFileDownloaderListener.prototype =
 
     onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress)
     {
-        //TODO: check if user or script has cancelled download and call persist.cancelSave() if needed?
+        //TODO 0.9: check if user or script has cancelled download and call persist.cancelSave() if needed?
         var percentComplete = Math.floor((aCurTotalProgress / aMaxTotalProgress) * 100);
 
         //TODO2: only send message to main thread once per second or if it = 100%

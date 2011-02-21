@@ -36,9 +36,9 @@ var log = KFLog;
 
 function jsonrpcClient() {
     this.requestId = 1;
-    this.callbacks = {}; //TODO: does FF JS engine leak memory if I use high indexed, mostly empty arrays?
-    this.callbacksData = {}; // ditto
-    this.syncRequestResults = {}; // ditto
+    this.callbacks = {};
+    this.callbacksData = {};
+    this.syncRequestResults = {};
     this.partialData = {};
     this.parsingStringContents = false;
     this.tokenCurlyCount = 0;
@@ -81,7 +81,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     
     this.getUniqueClientId = function(clientIdSig)
     {
-        //TODO: get/create a unique private key?
+        //TODO2: get/create a unique private key?
         // encrypt public clientIdSig using private key?
         // probably no point since we can't store it securely for next session anyway :-(
         var sig = "";
@@ -105,7 +105,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     this.onNotify = function(topic, message) {
         if (topic == "transport-status-connected")
         {
-        //TODO: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
+        //TODO2: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
             this.request(this, "Authenticate",
               [this.clientVersion, "KeeFox Firefox add-on",
                 this.getClientIdSignatureBase64(), this.getUniqueClientIdBase64()],
@@ -156,7 +156,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         }
     }
 
-    //TODO: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
+    //TODO2: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
     // talk of moving it to an off-main thread back in 2009 implies it is on main so no problem
     // but worth experimenting if crashes occur? Also, should I use different UTF8 decoding
     // routines that can allow adherence to the "count" parameter rather than just reading
@@ -166,7 +166,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var data = this.readData(); // don't care about the number of bytes, we'll just read all the UTF8 characters available
         var lastPacketEndIndex = 0;
         
-        //TODO: handle whitespace between json packets? (although KeePassRPC should never send them)
+        //TODO2: handle whitespace between json packets? (although KeePassRPC should never send them)
         for (var i = 0; i < data.length; i++)
         {
             var incrementAdjacentBackslashCount = false;
@@ -219,10 +219,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     {
                         if (this.callbacks[obj.id] != null)
                             this.callbacks[obj.id](obj, this.callbacksData[obj.id]);
-                        delete this.callbacks[obj.id]; //TODO:0.9: delete callback data too?
+                        delete this.callbacks[obj.id];
+                        delete this.callbacksData[obj.id];
                     } catch (e)
                     {
                         delete this.callbacks[obj.id];
+                        delete this.callbacksData[obj.id];
                         log.warn("An error occurred when processing the result callback for JSON-RPC object id " + obj.id + ": " + e);
                     }
                 } else if ("error" in obj)
@@ -233,9 +235,11 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                         if (this.callbacks[obj.id] != null)
                             this.callbacks[obj.id](obj, this.callbacksData[obj.id]);
                         delete this.callbacks[obj.id];
+                        delete this.callbacksData[obj.id];
                     } catch (e)
                     {
                         delete this.callbacks[obj.id];
+                        delete this.callbacksData[obj.id];
                         log.warn("An error occurred when processing the error callback for JSON-RPC object id " + obj.id + ": " + e);
                     }
                 } else if ("method" in obj)
@@ -426,7 +430,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     // Functions below can be thought of as proxies to the RPC
     // methods exposed in the KeePassRPC server.
     // See KeePassRPCService.cs for more detail
-    // TODO: pull these out into a more specific prototype
+    // TODO2: pull these out into a more specific prototype
     //***************************************
 
     this.launchGroupEditor = function(uniqueID)

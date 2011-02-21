@@ -101,7 +101,7 @@ function KeeFox()
         statement.executeAsync(); // technically user could try to access table before this completes but that's implausable in practice
     }
     
-    this._keeFoxExtension.prefs = {}; // TODO: move all the pref and storage functions into a seperate prototype definition for clarity?
+    this._keeFoxExtension.prefs = {}; // TODO2: move all the pref and storage functions into a seperate prototype definition for clarity?
     this._keeFoxExtension.prefs._prefService = 
         Components.classes["@mozilla.org/preferences-service;1"]
         .getService(Ci.nsIPrefService);
@@ -212,7 +212,7 @@ function KeeFox()
     this.RegularKPRPCListenerQueueHandler, 5000,
     Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     
-    //TODO: set some/all of my tab session state to be persistent so it survives crashes/restores?
+    //TODO2: set some/all of my tab session state to be persistent so it survives crashes/restores?
     
     this.lastKeePassRPCRefresh = 0;
     this.ActiveKeePassDatabaseIndex = 0;
@@ -286,12 +286,12 @@ KeeFox.prototype = {
         return true;
     },
 
-    //TODO: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
+    //TODO2: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
     uninstallHandler: function()
     {
-    //TODO: this doesn't work. dunno how to catch the secret FUEL notifications yet...
+    //TODO2: this doesn't work. dunno how to catch the secret FUEL notifications yet...
     
-        //TODO: explain to user what will be uninstalled and offer extra
+        //TODO2: explain to user what will be uninstalled and offer extra
         // options (e.g. "Uninstall KeePass too?")
         
         // Reset prefs to pre-KeeFox settings
@@ -301,11 +301,12 @@ KeeFox.prototype = {
 
     _registerPlacesListeners: function()
     {
-        //TODO: listener for bookmark add/edit events and prompt if URL found in KeePass db...
+        //TODO2: listener for bookmark add/edit events and prompt if URL found in KeePass db...
     },
     
     shutdown: function()
     {
+        // These log messages never appear. Does this function even get executed?
         this._KFLog.debug("KeeFox module shutting down...");
         if (this.KeePassRPC != undefined && this.KeePassRPC != null)
             this.KeePassRPC.shutdown();
@@ -320,7 +321,7 @@ KeeFox.prototype = {
     _keeFoxBrowserStartup: function()//currentKFToolbar, currentWindow)
     {        
         //this._KFLog.debug("Testing to see if KeeFox has already been setup (e.g. just a second ago by a different window scope)");
-        //TODO: confirm multi-threading setup. I assume firefox has
+        //TODO2: confirm multi-threading setup. I assume firefox has
         // one event dispatcher thread so seperate windows can't be calling
         // this function concurrently. if that's wrong, need to rethink
         // or at least lock from here onwards
@@ -384,10 +385,10 @@ KeeFox.prototype = {
                     keePassRPCLocation = this._discoverKeePassRPCInstallLocation();
                     KeePassRPCfound = this._confirmKeePassRPCInstallLocation(keePassRPCLocation);
                     if (!KeePassRPCfound)
-                        this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO: set this to "not installed"?
+                        this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO2: set this to "not installed"?
                 } else
                 {
-                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO: set this to "not installed"?
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO2: set this to "not installed"?
                 }
             }
         }
@@ -472,10 +473,24 @@ KeeFox.prototype = {
                         this._KFLog.info("KeePass install location found: " + keePassLocation);
                     else
                         this._KFLog.info("KeePass install location found.");
-                } // TODO: install location not found here - try "HKEY_CLASSES_ROOT\KeePass Database\shell\open\command" and some guesses?
+                }
                 subkey.close();
             }
             wrk.close();
+            
+            // If still not found...
+            // TODO2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
+//            if (keePassLocation == "not installed")
+//            {
+//                var wrko = Components.classes["@mozilla.org/windows-registry-key;1"]
+//                                .createInstance(Components.interfaces.nsIWindowsRegKey);
+//                wrko.open(wrk.ROOT_KEY_CLASSES_ROOT,
+//                       "kdbxfile\\shell\\open",
+//                       wrko.ACCESS_READ);
+//                                       
+//                wrko.close();
+//            }
+            
         }
         return keePassLocation;
     },
@@ -603,7 +618,7 @@ KeeFox.prototype = {
     },
 
     // Temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
-    //TODO: test more thoroughly, especially multiple windows aspect
+    //TODO 0.9: test more thoroughly, especially multiple windows aspect
     _pauseKeeFox: function()
     {
         this._KFLog.debug("Pausing KeeFox.");
@@ -627,9 +642,7 @@ KeeFox.prototype = {
                 //win.keefox_org.toolbar.setupButton_loadKeePass(win);
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications(true);
-                win.gBrowser.tabContainer.removeEventListener("TabSelect", this._onTabSelected, false);
-                win.gBrowser.tabContainer.removeEventListener("TabOpen", this._onTabOpened, false);
-                //TODO: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
+                //TODO 0.9: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
             } catch (exception)
             {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
@@ -639,7 +652,7 @@ KeeFox.prototype = {
         this._KFLog.info("KeeFox paused.");
     },
     
-    //TODO: test more, especially multiple windows and multiple databases at the same time
+    //TODO 0.9: test more, especially multiple windows and multiple databases at the same time
     // This is now intended to be called on all occasions when the toolbar or UI need updating
     // If KeePass is unavailable then this will call _pauseKeeFox instead but
     // it's more efficient to just call the pause function straight away if you know KeePass is disconnected
@@ -661,12 +674,7 @@ KeeFox.prototype = {
     {
         this._KFLog.debug("Refreshing KeeFox's view of the KeePass database.");
         var dbName = this.getDatabaseName();
-        //if (dbName.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
-        //{ //TODO: Don't think this can ever happen anymore - verify that's OK then remove...
-        //    this._pauseKeeFox();
-        //    return;
-        //} 
-        if (dbName === null)
+         if (dbName === null)
         {
             this._KFLog.debug("No database is currently open.");
             this._keeFoxStorage.set("KeePassDatabaseOpen", false);
@@ -693,12 +701,10 @@ KeeFox.prototype = {
                 win.keefox_org.toolbar.setAllLogins();
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications();
-                win.gBrowser.tabContainer.addEventListener("TabSelect", this._onTabSelected, false);
-                win.gBrowser.tabContainer.addEventListener("TabOpen", this._onTabOpened, false);
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
-                    //TODO: test this with new async setup...
+                    //TODO 0.9: test this with new async setup...
                     win.keefox_org.ILM._fillDocument(win.content.document,false);
                 }
             } catch (exception)
@@ -707,7 +713,7 @@ KeeFox.prototype = {
             }
         }
         
-        //TODO:? this can be done in the getalldatabases callback surely?
+        //TODO 0.9: this can be done in the getalldatabases callback surely?
         if (this._keeFoxStorage.get("KeePassDatabaseOpen",false) 
             && this._keeFoxExtension.prefs.getValue("rememberMRUDB",false))
         {
@@ -756,7 +762,8 @@ KeeFox.prototype = {
             return;
         } else if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
-            return; // TODO: work it out, prompt user or just bomb out with notification why
+            this._KFLog.error("Could not load KeePass - no keePassInstalledLocation found!");
+            return;
         }
         
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
@@ -831,7 +838,9 @@ KeeFox.prototype = {
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeePassRPCInstalled", false);
 
-        //TODO: might need to put this elsewhere...
+        //TODO 0.9: might need to put this elsewhere...
+        // why not here?
+        //TEST: Needed if main button does not change to "install" mode during first run or upgrade run
         //this._KFLog.debug("Setting up install KeeFox button.");
         //currentKFToolbar.setupButton_install(currentWindow);
     },
@@ -1085,7 +1094,7 @@ KeeFox.prototype = {
                       .createInstance(Components.interfaces.nsIProcess);
         this._KFLog.debug("file path: " + file.path);
         process.init(file);
-        process.run(true, [], 0); //TODO: make async?
+        process.run(true, [], 0); //TODO2: make async?
         return process.exitValue;
     },
 
@@ -1366,24 +1375,27 @@ KeeFox.prototype = {
 
     },
 
-//TODO: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM
-//TODO: recent workaround for loading logins ni new tabs is fine but doesn't help when external application or other process opens a page with a login form on it
-// in that situation, the fillAllFrames call breaks the auto-login system :-( could try looking for tab open events but looks like tab selected is called many times for each load :-(
+//TODO2: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM?
     _onTabSelected: function(event)
     {
-        if (event.target.ownerDocument.defaultView.keefox_org.Logger.logSensitiveData)
-            event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabSelected:" + event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin);
-        else
-            event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabSelected.");
+        var kfo = event.target.ownerDocument.defaultView.keefox_org;
         
-        if (event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != undefined
-        && event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin != null)
+        if (kfo.Logger.logSensitiveData)
+            kfo.Logger.debug("_onTabSelected:" + kfo.ILM._loadingKeeFoxLogin);
+        else
+            kfo.Logger.debug("_onTabSelected.");
+        
+        if (kfo.ILM._loadingKeeFoxLogin != undefined
+        && kfo.ILM._loadingKeeFoxLogin != null)
         {
-            event.target.ownerDocument.defaultView.keefox_org.ILM._loadingKeeFoxLogin = null;
+            kfo.ILM._loadingKeeFoxLogin = null;
         } else
         {
-            event.target.ownerDocument.defaultView.keefox_org.toolbar.setLogins(null, null);  
-            event.target.ownerDocument.defaultView.keefox_org.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
+            if (kfo.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
+            {
+                kfo.toolbar.setLogins(null, null);
+                kfo.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
+            }
         }
     },
     
