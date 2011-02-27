@@ -1,5 +1,23 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+
+
+0.8.7
+-----
+- Instruction added to HTTP Auth (etc.) dialog box when KeePass is not logged in
+- Tidied up some event and observer listener additions and removals (possible memory leak removal?)
+- Now track JSON-RPC request Ids so temporary storage items can be removed explicitly (rather than hoping GC will do it; possible memory leak removal?)
+- Fill/submit from matched logins menu now searches all forms and finds the "best" rather than "first"
+- Matched login menu no longer cleared when generating new password
+- Log messages have current time prefixed on them
+- Fixed HTTP auth dialog box support in FF4
+- Fixed a couple of bugs related to URL matching and fixed the RegEx evaluation problem
+- URL evaluation much more strict but only when user includes a new "KPRPC Block hostname-only match" advanced string, otherwise they'll hopefully just be more accurate
+- KeePassRPC popup dialogs are now centered on parent window
+- Save entries straight into a sub group
+- Fixes #24 - Add 'Never for this site' button to the KeeFox remeber this site notification bar
+- Fixes #63 - Update KeeFox options window
+
 0.8.5
 -----
 - Target platform relaxed to include any WINNT CPU architecture
