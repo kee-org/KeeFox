@@ -5,7 +5,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox installation XUL file. It overlays all of the possible
   installation interface options (controlled by install.js based on user's
@@ -43,7 +43,7 @@
   IC7: administrator, upgrade of KeePassRPC required
   IC8: non-administrator, upgrade of KeePassRPC required
   
-  TODO: In some cases (especially IC6/8), user may not have priveledges to write
+  TODO2: In some cases (especially IC6/8), user may not have priveledges to write
   to an existing KeePass directory. If this happens, we will catch the access 
   denied exception and give the user two choices:
   a) Get an administrator to install the KeeICE files in the plugins folder
@@ -93,8 +93,7 @@ secondary:  run KeePass installer;
 IC6:
 default:    copy the KeePassRPC.plgx file to the discovered KP location.
        
-IC7 and 8: Currently same as IC3/6 but probably will change soon to display
-          different text to user            
+IC7 and 8: Currently same as IC3/6 but will display different text to user            
   -->
 
   <grid flex="1" style="overflow: auto;">
@@ -128,6 +127,7 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display
 
             <vbox id="KFInstallNotRequired" hidden="true">
               <description>&KeeFox_Install_Not_Required.label;</description>
+              <label href="http://keefox.org/help" class="text-link">&KeeFox_Install_Not_Required_Link.label;</label>
             </vbox>
 
             <vbox id="ERRORInstallButtonMain" hidden="true">
@@ -138,6 +138,9 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display
             </vbox>
             <vbox id="ERRORInstallDownloadChecksumFailed" hidden="true">
               <description>&KeeFox_Install_Download_Checksum_Failed.label;</description>
+            </vbox>
+            <vbox id="ERRORInstallDownloadCanceled" hidden="true">
+              <description>&KeeFox_Install_Download_Canceled.label;</description>
             </vbox>
 
             <vbox id="restartInstallationOption" hidden="true">
@@ -179,7 +182,7 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display
 
               <!-- IC7, IC8 -->
               <vbox id="copyKRPCToKnownKPLocationUpgradeButtonMain" hidden="true">
-                <description>Please close KeePass before continuing!</description>
+                <description class="warning">&KeeFox_Install_PleaseCloseKeePass.description;</description>
                 <button label="&KeeFox_Install_Upgrade_KeeFox.label;"
                       oncommand="copyKRPCToKnownKPLocationInstall();"/>
               </vbox>
@@ -223,10 +226,10 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display
               <!-- IC5 -->
               <vbox id="nonAdminSetupKPInstallExpander" hidden="true">
                 <description>&KeeFox_Install_nonAdminSetupKPInstallExpander.description;</description>
-                <button id="nonAdminSetupKPInstallExpanderButton" 
+                <!--<button id="nonAdminSetupKPInstallExpanderButton" 
                         label="&KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label;"
                       oncommand="expandSection('nonAdminSetupKPInstallExpandee',
-                          'nonAdminSetupKPInstallExpanderButton');"/>
+                          'nonAdminSetupKPInstallExpanderButton');"/>-->
               </vbox>
 
               <!-- IC6 -->
@@ -368,7 +371,18 @@ IC7 and 8: Currently same as IC3/6 but probably will change soon to display
             <!-- everything in this box is displayed when everything is installed correctly -->
             <vbox id="InstallFinished" hidden="true">
               <description>&KeeFox_Install_InstallFinished.description;</description>
-
+              <description id="nextStepsIntro">&KeeFox_Install_NextSteps.description;</description>
+              <hbox width="500px">
+                <description id="nextStep1" width="50px">1)</description>
+                <description width="450px">&KeeFox_Install_NextStep1.description;</description>
+              </hbox>
+              <hbox width="500px">
+                <description id="nextStep2" width="50px">2)</description>
+                <label width="450px" id="nextStepsTutorialLink" href="http://tutorial.keefox.org" class="text-link">&KeeFox_Install_NextStep2.description;</label>
+              </hbox>
+              
+              <!--<description>&KeeFox_Install_NextStep2extra.description;</description>-->
+              <description id="nextStepsFinally">&KeeFox_Install_Finally.description; <label href="http://keefox.org/help" class="text-link">http://keefox.org/help</label></description>
             </vbox>
           </vbox> <!-- end KFInstallPageContent -->
         </vbox> <!-- end KFInstallPageMain -->

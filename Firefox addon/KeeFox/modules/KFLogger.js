@@ -218,6 +218,10 @@ KeeFoxLogger.prototype = {
     configureFromPreferences : function ()
     {
         var prefLevel = 0;
+        this.levelDebug = false;
+        this.levelInfo = false;
+        this.levelWarn = false;
+        this.levelError = false;
         
         try {
             prefLevel = this.prefBranch.getIntPref("logLevel");

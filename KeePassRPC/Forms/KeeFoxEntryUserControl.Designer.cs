@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBoxAutoFill = new System.Windows.Forms.ComboBox();
             this.comboBoxAutoSubmit = new System.Windows.Forms.ComboBox();
@@ -54,9 +55,20 @@
             this.columnHeaderValue = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderMethod = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderType = new System.Windows.Forms.ColumnHeader();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.textBoxKeeFoxRealm = new System.Windows.Forms.TextBox();
+            this.labelRealm = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.toolTipRealm = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -65,9 +77,9 @@
             this.groupBox1.Controls.Add(this.comboBoxAutoSubmit);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Location = new System.Drawing.Point(3, 165);
+            this.groupBox1.Location = new System.Drawing.Point(226, 19);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(462, 50);
+            this.groupBox1.Size = new System.Drawing.Size(214, 90);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Entry behaviour";
@@ -79,7 +91,7 @@
             "Use KeeFox setting",
             "Never",
             "Always"});
-            this.comboBoxAutoFill.Location = new System.Drawing.Point(56, 20);
+            this.comboBoxAutoFill.Location = new System.Drawing.Point(75, 20);
             this.comboBoxAutoFill.Name = "comboBoxAutoFill";
             this.comboBoxAutoFill.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoFill.TabIndex = 7;
@@ -91,7 +103,7 @@
             "Use KeeFox setting",
             "Never",
             "Always"});
-            this.comboBoxAutoSubmit.Location = new System.Drawing.Point(326, 20);
+            this.comboBoxAutoSubmit.Location = new System.Drawing.Point(75, 55);
             this.comboBoxAutoSubmit.Name = "comboBoxAutoSubmit";
             this.comboBoxAutoSubmit.Size = new System.Drawing.Size(121, 21);
             this.comboBoxAutoSubmit.TabIndex = 8;
@@ -99,7 +111,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(257, 23);
+            this.label4.Location = new System.Drawing.Point(6, 58);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(65, 13);
             this.label4.TabIndex = 1;
@@ -108,7 +120,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 23);
+            this.label3.Location = new System.Drawing.Point(25, 23);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(44, 13);
             this.label3.TabIndex = 0;
@@ -117,7 +129,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(317, 11);
+            this.label1.Location = new System.Drawing.Point(12, 77);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(142, 13);
             this.label1.TabIndex = 0;
@@ -125,7 +137,7 @@
             // 
             // textBoxKeeFoxPriority
             // 
-            this.textBoxKeeFoxPriority.Location = new System.Drawing.Point(272, 7);
+            this.textBoxKeeFoxPriority.Location = new System.Drawing.Point(160, 74);
             this.textBoxKeeFoxPriority.Name = "textBoxKeeFoxPriority";
             this.textBoxKeeFoxPriority.Size = new System.Drawing.Size(39, 20);
             this.textBoxKeeFoxPriority.TabIndex = 2;
@@ -133,7 +145,7 @@
             // checkBoxHideFromKeeFox
             // 
             this.checkBoxHideFromKeeFox.AutoSize = true;
-            this.checkBoxHideFromKeeFox.Location = new System.Drawing.Point(12, 7);
+            this.checkBoxHideFromKeeFox.Location = new System.Drawing.Point(24, 19);
             this.checkBoxHideFromKeeFox.Name = "checkBoxHideFromKeeFox";
             this.checkBoxHideFromKeeFox.Size = new System.Drawing.Size(155, 17);
             this.checkBoxHideFromKeeFox.TabIndex = 1;
@@ -146,9 +158,9 @@
             this.groupBox2.Controls.Add(this.buttonFieldDelete);
             this.groupBox2.Controls.Add(this.listView2);
             this.groupBox2.Controls.Add(this.buttonFieldAdd);
-            this.groupBox2.Location = new System.Drawing.Point(3, 221);
+            this.groupBox2.Location = new System.Drawing.Point(6, 17);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(462, 127);
+            this.groupBox2.Size = new System.Drawing.Size(443, 265);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Form fields";
@@ -156,9 +168,9 @@
             // buttonFieldEdit
             // 
             this.buttonFieldEdit.Enabled = false;
-            this.buttonFieldEdit.Location = new System.Drawing.Point(396, 57);
+            this.buttonFieldEdit.Location = new System.Drawing.Point(312, 233);
             this.buttonFieldEdit.Name = "buttonFieldEdit";
-            this.buttonFieldEdit.Size = new System.Drawing.Size(60, 24);
+            this.buttonFieldEdit.Size = new System.Drawing.Size(60, 26);
             this.buttonFieldEdit.TabIndex = 11;
             this.buttonFieldEdit.Text = "Edit";
             this.buttonFieldEdit.UseVisualStyleBackColor = true;
@@ -167,9 +179,9 @@
             // buttonFieldDelete
             // 
             this.buttonFieldDelete.Enabled = false;
-            this.buttonFieldDelete.Location = new System.Drawing.Point(396, 91);
+            this.buttonFieldDelete.Location = new System.Drawing.Point(378, 233);
             this.buttonFieldDelete.Name = "buttonFieldDelete";
-            this.buttonFieldDelete.Size = new System.Drawing.Size(60, 25);
+            this.buttonFieldDelete.Size = new System.Drawing.Size(60, 26);
             this.buttonFieldDelete.TabIndex = 12;
             this.buttonFieldDelete.Text = "Delete";
             this.buttonFieldDelete.UseVisualStyleBackColor = true;
@@ -190,7 +202,7 @@
             this.listView2.MultiSelect = false;
             this.listView2.Name = "listView2";
             this.listView2.ShowItemToolTips = true;
-            this.listView2.Size = new System.Drawing.Size(380, 97);
+            this.listView2.Size = new System.Drawing.Size(428, 209);
             this.listView2.TabIndex = 9;
             this.listView2.UseCompatibleStateImageBehavior = false;
             this.listView2.View = System.Windows.Forms.View.Details;
@@ -221,7 +233,7 @@
             // 
             // buttonFieldAdd
             // 
-            this.buttonFieldAdd.Location = new System.Drawing.Point(396, 19);
+            this.buttonFieldAdd.Location = new System.Drawing.Point(246, 233);
             this.buttonFieldAdd.Name = "buttonFieldAdd";
             this.buttonFieldAdd.Size = new System.Drawing.Size(60, 26);
             this.buttonFieldAdd.TabIndex = 10;
@@ -235,9 +247,9 @@
             this.groupBox3.Controls.Add(this.buttonURLDelete);
             this.groupBox3.Controls.Add(this.buttonURLAdd);
             this.groupBox3.Controls.Add(this.listView1);
-            this.groupBox3.Location = new System.Drawing.Point(3, 30);
+            this.groupBox3.Location = new System.Drawing.Point(6, 17);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(462, 133);
+            this.groupBox3.Size = new System.Drawing.Size(442, 222);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Additional URLs";
@@ -245,9 +257,9 @@
             // buttonURLEdit
             // 
             this.buttonURLEdit.Enabled = false;
-            this.buttonURLEdit.Location = new System.Drawing.Point(396, 61);
+            this.buttonURLEdit.Location = new System.Drawing.Point(312, 190);
             this.buttonURLEdit.Name = "buttonURLEdit";
-            this.buttonURLEdit.Size = new System.Drawing.Size(60, 24);
+            this.buttonURLEdit.Size = new System.Drawing.Size(60, 26);
             this.buttonURLEdit.TabIndex = 5;
             this.buttonURLEdit.Text = "Edit";
             this.buttonURLEdit.UseVisualStyleBackColor = true;
@@ -256,9 +268,9 @@
             // buttonURLDelete
             // 
             this.buttonURLDelete.Enabled = false;
-            this.buttonURLDelete.Location = new System.Drawing.Point(396, 102);
+            this.buttonURLDelete.Location = new System.Drawing.Point(378, 190);
             this.buttonURLDelete.Name = "buttonURLDelete";
-            this.buttonURLDelete.Size = new System.Drawing.Size(60, 25);
+            this.buttonURLDelete.Size = new System.Drawing.Size(60, 26);
             this.buttonURLDelete.TabIndex = 6;
             this.buttonURLDelete.Text = "Delete";
             this.buttonURLDelete.UseVisualStyleBackColor = true;
@@ -266,7 +278,7 @@
             // 
             // buttonURLAdd
             // 
-            this.buttonURLAdd.Location = new System.Drawing.Point(396, 19);
+            this.buttonURLAdd.Location = new System.Drawing.Point(246, 190);
             this.buttonURLAdd.Name = "buttonURLAdd";
             this.buttonURLAdd.Size = new System.Drawing.Size(60, 26);
             this.buttonURLAdd.TabIndex = 4;
@@ -287,7 +299,7 @@
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(380, 108);
+            this.listView1.Size = new System.Drawing.Size(428, 165);
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -306,26 +318,97 @@
             // 
             this.columnHeaderType.Text = "Type";
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.ItemSize = new System.Drawing.Size(152, 18);
+            this.tabControl1.Location = new System.Drawing.Point(5, 3);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(460, 336);
+            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+            this.tabControl1.TabIndex = 3;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.textBoxKeeFoxRealm);
+            this.tabPage1.Controls.Add(this.labelRealm);
+            this.tabPage1.Controls.Add(this.groupBox1);
+            this.tabPage1.Controls.Add(this.checkBoxHideFromKeeFox);
+            this.tabPage1.Controls.Add(this.label1);
+            this.tabPage1.Controls.Add(this.textBoxKeeFoxPriority);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(452, 310);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "General";
+            this.tabPage1.ToolTipText = "Basic KeeFox settings for this entry";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // textBoxKeeFoxRealm
+            // 
+            this.textBoxKeeFoxRealm.Location = new System.Drawing.Point(115, 128);
+            this.textBoxKeeFoxRealm.Name = "textBoxKeeFoxRealm";
+            this.textBoxKeeFoxRealm.Size = new System.Drawing.Size(307, 20);
+            this.textBoxKeeFoxRealm.TabIndex = 4;
+            this.textBoxKeeFoxRealm.TextChanged += new System.EventHandler(this.textBoxKeeFoxRealm_TextChanged);
+            // 
+            // labelRealm
+            // 
+            this.labelRealm.AutoSize = true;
+            this.labelRealm.Location = new System.Drawing.Point(12, 131);
+            this.labelRealm.Name = "labelRealm";
+            this.labelRealm.Size = new System.Drawing.Size(97, 13);
+            this.labelRealm.TabIndex = 3;
+            this.labelRealm.Text = "HTTP Auth Realm:";
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.groupBox3);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(452, 310);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "URLs";
+            this.tabPage2.ToolTipText = "Which URLs should this entry match or be blocked from matching?";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.groupBox2);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(452, 310);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Form fields";
+            this.tabPage3.ToolTipText = "Define the web page form fields this entry applies to";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
             // KeeFoxEntryUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.checkBoxHideFromKeeFox);
-            this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBoxKeeFoxPriority);
+            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.tabControl1);
             this.Name = "KeeFoxEntryUserControl";
-            this.Size = new System.Drawing.Size(472, 353);
+            this.Size = new System.Drawing.Size(470, 351);
             this.Load += new System.EventHandler(this.KeeFoxEntryUserControl_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -357,5 +440,12 @@
         private System.Windows.Forms.ColumnHeader columnHeaderFId;
         private System.Windows.Forms.ColumnHeader columnHeaderFType;
         private System.Windows.Forms.ColumnHeader columnHeaderFPage;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TextBox textBoxKeeFoxRealm;
+        private System.Windows.Forms.Label labelRealm;
+        private System.Windows.Forms.ToolTip toolTipRealm;
     }
 }

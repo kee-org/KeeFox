@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,7);
+        public static readonly Version PluginVersion = new Version(0,8,8);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -570,7 +570,7 @@ namespace KeePassRPC
                     "KeeFox sample entry for HTTP authentication",
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
                 pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "20"));
-                pe.Strings.Set("Form HTTP realm", new ProtectedString(false, "KeeFox tutorial sample"));
+                pe.Strings.Set("KPRPC Form HTTP realm", new ProtectedString(false, "KeeFox tutorial sample"));
                 kfpg.AddEntry(pe, true);
             }
 
@@ -777,7 +777,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_SAVED);
         }
 
-        private void SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal signal)
+        internal void SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal signal)
         {
             lock (_lockRPCClientManagers)
             {

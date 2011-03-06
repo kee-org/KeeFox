@@ -95,6 +95,8 @@ namespace KeePassRPC.Forms
                 groupBox1.Enabled = false;
                 groupBox2.Enabled = false;
                 groupBox3.Enabled = false;
+                labelRealm.Enabled = false;
+                textBoxKeeFoxRealm.Enabled = false;
             }
             else
             {
@@ -104,6 +106,8 @@ namespace KeePassRPC.Forms
                 groupBox1.Enabled = true;
                 groupBox2.Enabled = true;
                 groupBox3.Enabled = true;
+                labelRealm.Enabled = true;
+                textBoxKeeFoxRealm.Enabled = true;
             }
         }
 
@@ -113,6 +117,8 @@ namespace KeePassRPC.Forms
             bool kfAlwaysAutoFill = false;
             bool kfNeverAutoSubmit = false;
             bool kfAlwaysAutoSubmit = false;
+
+            this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
 
             foreach (ListViewItem existingLi in _advancedListView.Items)
             {
@@ -191,6 +197,13 @@ namespace KeePassRPC.Forms
                     foreach (string url in existingLi.SubItems[1].Text.Split(' '))
                         listRegExBlockedURLs.Add(url);
                 }
+                else if (existingLi.Text == "Form HTTP realm" || existingLi.Text == "KPRPC HTTP realm")
+                {
+                    removeAdvancedString("Form HTTP realm");
+                    textBoxKeeFoxRealm.Text = existingLi.SubItems[1].Text;
+                }
+
+                
             }
 
             // find password... how? have to look through all fields again for ones with no value? likewise for username though could use FFTPusername type for that...
@@ -265,9 +278,12 @@ namespace KeePassRPC.Forms
             changeBehaviourState(currentBehaviour);
 
             this.comboBoxAutoSubmit.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoSubmit_SelectedIndexChanged);
-            this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);
-            this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
+            this.comboBoxAutoFill.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoFill_SelectedIndexChanged);            
             this.textBoxKeeFoxPriority.TextChanged += new System.EventHandler(this.textBoxKeeFoxPriority_TextChanged);
+
+            string realmTooltip = "Set this to the realm (what the \"site says\") in the HTTP authentication popup dialog box for a more accurate match";
+            toolTipRealm.SetToolTip(this.textBoxKeeFoxRealm, realmTooltip);
+            toolTipRealm.SetToolTip(this.labelRealm, realmTooltip);
         }
 
         private void textBoxKeeFoxPriority_TextChanged(object sender, EventArgs e)
@@ -287,6 +303,17 @@ namespace KeePassRPC.Forms
                 }
             }
             removeAdvancedString("KPRPC Priority");
+            return;
+        }
+
+        private void textBoxKeeFoxRealm_TextChanged(object sender, EventArgs e)
+        {
+            string realm = ((System.Windows.Forms.TextBoxBase)sender).Text;
+
+            if (!string.IsNullOrEmpty(realm))
+                changeAdvancedString("KPRPC HTTP realm", realm, false);
+            else
+                removeAdvancedString("KPRPC HTTP realm");
             return;
         }
 

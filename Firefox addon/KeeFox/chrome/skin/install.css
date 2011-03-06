@@ -44,7 +44,7 @@
 
 #KFInstallPageTitle description
 {
-	background-color:White;
+	background-color:#fff;
 	width: 500px !important;
 	text-align: center;
 	letter-spacing:-2px;
@@ -60,10 +60,21 @@
 
 description#setupNET35ExeInstallExpandeeKeePass,
 description#setupNET35ExeInstallExpandeeNet,
-description#setupNET35ExeInstallExpandeeManual
+description#setupNET35ExeInstallExpandeeManual,
+#adminSetupKPInstallExpandee,
+#setupNET35ExeInstallExpandee,
+#nonAdminSetupKPInstallExpandee,
+#nonAdmincopyKRPCToKnownKPLocationInstallExpandee
+
 {
-	padding: 10px 0px 0px 0px;
+	padding: 15px 0px 0px 0px;
 }
+#KPsetupExeInstallButton,
+#KPsetupExeSilentInstallButton
+{
+padding: 0px 0px 10px 0px;
+}
+/*setupNET35ExeInstallExpandee*/
 
 description#setupNET35ExeInstallExpandeeManualStep1,
 description#setupNET35ExeInstallExpandeeManualStep2,
@@ -81,7 +92,7 @@ button
 	margin: 20px 0px !important;
 	color: #174894;
 	font-weight: bold !important;
-	background: url('buttonGradient.png') repeat-x white;
+	background: #ff913f;
 	height: 53px;
 }
 
@@ -93,6 +104,32 @@ button:hover
 	margin: 20px 0px !important;
 	color: #174894;
 	font-weight: bold !important;
-	background: url('buttonGradientHover.png') repeat-x white;
+	background: #ffb15f;
 	height: 53px;
+cursor:pointer;
 }
+
+.warning
+{
+	color:#f00;
+font-size:1.2em;
+font-weight:bold;
+	padding:5px;
+text-align:center;
+	
+}
+
+.text-link 
+{
+	font-size: 20px !important;
+	color: #284898;
+	cursor: pointer;
+}
+
+#nextStepsIntro {margin:20px 0px 10px 0px;font-size:large;}
+#nextStepsTutorialLink {  }
+
+#nextStep1 {color:#D8610F;text-align:center;font-size:25px;font-weight:bold;}
+#nextStep2 {color:#D8610F;text-align:center;font-size:25px;font-weight:bold;}
+
+#nextStepsFinally {padding-top:20px;}

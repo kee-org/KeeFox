@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
 This install.js file helps manage the installation of .NET, KeePass and KeePassRPC.
 
@@ -21,14 +21,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const KF_KPZIP_DOWNLOAD_PATH = "http://kent.dl.sourceforge.net/project/keepass/KeePass%202.x/2.13/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.13.zip";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.13.zip";
-const KF_KPZIP_FILE_CHECKSUM = "83531e1268d2a1d862ffabbc0f3d7998";
-const KF_KP_DOWNLOAD_PATH = "http://kent.dl.sourceforge.net/project/keepass/KeePass%202.x/2.13/";
-const KF_KP_FILE_NAME = "KeePass-2.13-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
-const KF_KP_SAVE_NAME = "KeePass-2.13-Setup.exe";
-const KF_KP_FILE_CHECKSUM = "4a11d787d2dd10ed88d87b23a831428d";
+const KF_KPZIP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.14/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.14.zip";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.14.zip";
+const KF_KPZIP_FILE_CHECKSUM = "4c54f135e3ca10445a97ae02db7a527c";
+const KF_KP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.14/";
+const KF_KP_FILE_NAME = "KeePass-2.14-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
+const KF_KP_SAVE_NAME = "KeePass-2.14-Setup.exe";
+const KF_KP_FILE_CHECKSUM = "bae59065b24f0a6f2ed4bb9e0d6fc65f";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
 const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";
@@ -110,7 +110,7 @@ function prepareInstallPage()
         mainWindow.keeFoxInst._KFLog.debug("Install system starting in install mode");
     }
         
-    // One of 6 installation options. The user only needs to see information relevant
+    // One of 8 installation options. The user only needs to see information relevant
     // to their starting state.
     var installCase; 
     
@@ -120,13 +120,15 @@ function prepareInstallPage()
     if (mainWindow.keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
     {
         document.getElementById('KFInstallNotRequired').setAttribute('hidden', false);
+        resetInstallation();
         return;
     }
     
-    // only let this install script run once per firefox session unless user cancels
+    // only let this install script run once per firefox session unless user cancels it
     if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
     {
         document.getElementById('KFInstallAlreadyInProgress').setAttribute('hidden', false);
+        showSection('restartInstallationOption');
         return;
     }
     mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
@@ -158,11 +160,11 @@ function prepareInstallPage()
     mainWindow.KFLog.info("applying installation case " + installCase);
  
     // comment this out to enable normal operation or uncomment to specify a test case
-    //installCase = 4; mainWindow.KFLog.warn("Overriding with installation case " + installCase);
+    //installCase = 5; mainWindow.KFLog.warn("Overriding with installation case " + installCase);
 
 // configure the current installation state and trigger any relevant pre-emptive file
-// downloads to give the impression of speed to end user
-//TODO: support cancellation of pre-emptive downloading in case advanced user chooses unusual option
+// downloads to keep the end user experience as fast as possible
+//TODO 0.9: support cancellation of pre-emptive downloading in case advanced user chooses unusual option
     switch (installCase)
     {
         case 1:
@@ -220,7 +222,7 @@ function prepareInstallPage()
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
                 | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;   
-            //TODO: update 7 and 8 to show Upgrade text, etc.       
+            //TODO2:? update 7 and 8 to show Upgrade text, etc.       
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
 }
@@ -251,6 +253,7 @@ function cancelCurrentDownload()
 {
     hideSection("installProgressView");
     persist.cancelSave();
+    showSection("ERRORInstallDownloadCanceled");
     showSection('restartInstallationOption');
     resetInstallation();    
 }
@@ -273,6 +276,12 @@ function showSection(id) {
 
 function hideSection(id) {
     document.getElementById(id).setAttribute('hidden', true);
+}
+
+function checksumFailed() {
+mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+showSection("ERRORInstallDownloadChecksumFailed");
+showSection('restartInstallationOption');
 }
 
 /********************
@@ -347,17 +356,13 @@ function IC1setupKP(mainWindow)
             var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
             hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
-            
             if (checkTest)
                 mainWindow.KFLog.info("File checksum succeeded.");
             else
             {
-                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-                
-            }
-            // TODO: kick user back to start if it fails
-            
-            
+                checksumFailed();
+                return;
+            }            
             showSection('IC1setupKPdownloaded');
             
             var file = Components.classes["@mozilla.org/file/local;1"]
@@ -367,17 +372,21 @@ function IC1setupKP(mainWindow)
 
             installState |= KF_INSTALL_STATE_KP_EXECUTING;
 
-            keeFoxInst.runAnInstaller(file.path,"/silent", function () {
-                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIWebNavigation)
-                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                    .rootTreeItem
-                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIDOMWindow);
-                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
-                kth.run(); 
-            });
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"/silent",
+                {
+                    observe : function () {
+                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIWebNavigation)
+                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                            .rootTreeItem
+                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIDOMWindow);
+                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
+                        kth.run(); 
+                    }
+                }
+            );
             
         } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
         {
@@ -398,13 +407,14 @@ function IC1setupNET(mainWindow)
         {
             var checkTest = mainWindow.KFMD5checksumVerification(KF_NET_FILE_NAME,KF_NET_FILE_CHECKSUM);
             
+            hideSection('IC1setupNETdownloading');
             if (checkTest)
                 mainWindow.KFLog.info("File checksum succeeded.");
             else
-                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-            // TODO: kick user back to start if it fails
-            
-            hideSection('IC1setupNETdownloading');
+            {
+                checksumFailed();
+                return;
+            }            
             showSection('IC1setupNETdownloaded');
             
             // start the pre-download of the KeePass setup file (while user installs .Net...)
@@ -419,17 +429,21 @@ function IC1setupNET(mainWindow)
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_NET_FILE_NAME);
                                 
-            mainWindow.keeFoxInst.runAnInstaller(file.path,"", function () {
-                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIWebNavigation)
-                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                    .rootTreeItem
-                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIDOMWindow);
-                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
-                kth.run(); 
-            });           
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"", 
+                {
+                    observe : function () {
+                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIWebNavigation)
+                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                            .rootTreeItem
+                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIDOMWindow);
+                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
+                        kth.run(); 
+                    }
+                }
+            );           
         }
     } catch (err) {
         mainWindow.keeFoxInst._KFLog.error(err);
@@ -446,13 +460,14 @@ function IC1setupNET35(mainWindow)
         {
             var checkTest = mainWindow.KFMD5checksumVerification(KF_NET35_FILE_NAME,KF_NET35_FILE_CHECKSUM);
             
+            hideSection('IC1setupNET35downloading');
             if (checkTest)
                 mainWindow.KFLog.info("File checksum succeeded.");
             else
-                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-            // TODO: kick user back to start if it fails
-            
-            hideSection('IC1setupNET35downloading');
+            {
+                checksumFailed();
+                return;
+            }            
             showSection('IC1setupNET35downloaded');
             
             // start the pre-download of the KeePass setup file (while user installs .Net...)
@@ -466,17 +481,21 @@ function IC1setupNET35(mainWindow)
             .createInstance(Components.interfaces.nsILocalFile);
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_NET35_FILE_NAME);
-            mainWindow.keeFoxInst.runAnInstaller(file.path,"", function () {
-                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIWebNavigation)
-                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                    .rootTreeItem
-                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIDOMWindow);
-                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NET35SetupFinished", '', mainWindow, window);
-                kth.run(); 
-            });
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"",
+                {
+                    observe : function () {
+                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIWebNavigation)
+                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                            .rootTreeItem
+                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIDOMWindow);
+                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NET35SetupFinished", '', mainWindow, window);
+                        kth.run(); 
+                    }
+                }
+            );
         }
     } catch (err) {
         mainWindow.keeFoxInst._KFLog.error(err);
@@ -496,7 +515,7 @@ functions to support the execution of Install Case 2
 ********************/
 function IC2finished(mainWindow) {
 
-//TODO: customise this for upgrades?)
+//TODO2: customise this for upgrades?)
 
     hideSection('IC2KRPCdownloaded');
     showSection('InstallFinished');
@@ -557,13 +576,14 @@ function IC2setupKP(mainWindow)
         {
             var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
+            hideSection('IC2setupKPdownloading'); // if applicable
             if (checkTest)
                 mainWindow.KFLog.info("File checksum succeeded.");
             else
-                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-            // TODO: kick user back to start if it fails
-            
-            hideSection('IC2setupKPdownloading'); // if applicable
+            {
+                checksumFailed();
+                return;
+            }            
             showSection('IC2setupKPdownloaded');
 
             installState |= KF_INSTALL_STATE_KP_EXECUTING;
@@ -573,17 +593,21 @@ function IC2setupKP(mainWindow)
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_KP_SAVE_NAME);
             
-            mainWindow.keeFoxInst.runAnInstaller(file.path,"/silent", function () {
-                var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIWebNavigation)
-                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                    .rootTreeItem
-                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIDOMWindow);
-                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
-                kth.run(); 
-            });
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"/silent",
+                {
+                    observe : function () {
+                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIWebNavigation)
+                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                            .rootTreeItem
+                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIDOMWindow);
+                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
+                        kth.run(); 
+                    }
+                }
+            );
             
         } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
         {
@@ -603,13 +627,14 @@ function IC2setupCustomKP(mainWindow)
         {
             var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
+            hideSection('IC2setupKPdownloading'); // if applicable (probably this was never shown)
             if (checkTest)
                 mainWindow.KFLog.info("File checksum succeeded.");
             else
-                mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-            // TODO: kick user back to start if it fails
-            
-            hideSection('IC2setupKPdownloading'); // if applicable (probably this was never shown)
+            {
+                checksumFailed();
+                return;
+            }            
             showSection('IC2setupKPdownloaded');
 
             installState |= KF_INSTALL_STATE_KP_EXECUTING;
@@ -619,24 +644,21 @@ function IC2setupCustomKP(mainWindow)
             file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
             file.append(KF_KP_SAVE_NAME);
             
-//if (mainWindow.keFoxInst.versionChecker.compare(mainWindow.keFoxInst.appInfo.version, "3.7") > 0)
-//{
-//            mainWindow.keFoxInst.runAnInstaller
-//            } else
-//            {
-            
-          mainWindow.keeFoxInst.runAnInstaller(file.path,"", function () {
-            var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIWebNavigation)
-                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                    .rootTreeItem
-                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIDOMWindow);
-                var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
-                kth.run(); 
-            });
-//          }
+            mainWindow.keeFoxInst.runAnInstaller(file.path,"",
+                {
+                    observe : function () {
+                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIWebNavigation)
+                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                            .rootTreeItem
+                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIDOMWindow);
+                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
+                        kth.run(); 
+                    }
+                }
+            );
             
         } else if (installState & KF_INSTALL_STATE_KP_DOWNLOADING)
         {
@@ -664,7 +686,7 @@ functions to support the execution of IC5 (and IC2 tertiary)
  it isn't, extract the portable zip file there
  then in either case we will copy the KeeICE files into the plugin folder
  */
- //TODO: rearrange this install process so that the folder is chosen
+ //TODO2: rearrange this install process so that the folder is chosen
  // first (before download - or during?) just in case user cancels
  // first (so minimal bandwidth wasted)
 function IC5zipKP()
@@ -674,13 +696,14 @@ function IC5zipKP()
     {
         var checkTest = mainWindow.KFMD5checksumVerification(KF_KPZIP_SAVE_NAME, KF_KPZIP_FILE_CHECKSUM);
         
+        hideSection('IC5zipKPdownloading');
         if (checkTest)
             mainWindow.KFLog.info("File checksum succeeded.");
         else
-            mainWindow.KFLog.error("File checksum failed. Download corrupted?");
-        // TODO: kick user back to start if it fails
-        
-        hideSection('IC5zipKPdownloading');
+        {
+            checksumFailed()
+            return;
+        }            
         showSection('IC5installing');
 
         installState |= KF_INSTALL_STATE_KPZIP_EXECUTING;
@@ -699,22 +722,32 @@ function IC5zipKP()
             // Get the path as string. Note that you usually won't 
             // need to work with the string paths.
             var path = fp.file.path;
-                      
-            //TODO: permissions, failures, missing directories, etc. etc.
-            extractKPZip (KF_KPZIP_SAVE_NAME, folder);
-              
             var KeePassEXEfound;
             
             mainWindow.keeFoxInst._keeFoxExtension.prefs
                 .setValue("keePassInstalledLocation",path+"\\");
-                    //TODO: probably should store the file object
+                    //TODO2: probably should store the file object
                     // itself rather than string version (X-Plat)
             KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(path+"\\");
             mainWindow.KFLog.info("KeePass install location set to: " + path+"\\");
             if (!KeePassEXEfound)
             {
-                mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation","");
-            } else
+                //TODO2: permissions, failures, missing directories, etc. etc.
+                extractKPZip (KF_KPZIP_SAVE_NAME, folder);
+                       
+                mainWindow.keeFoxInst._keeFoxExtension.prefs
+                    .setValue("keePassInstalledLocation",path+"\\");
+                        //TODO2: probably should store the file object
+                        // itself rather than string version (X-Plat)
+                KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(path+"\\");
+                mainWindow.KFLog.info("KeePass install location set to: " + path+"\\");
+                if (!KeePassEXEfound)
+                {
+                    mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation","");
+                }
+            }
+            
+            if (KeePassEXEfound)
             {
                 if (!copyKeePassRPCFilesTo(path))
                 {
@@ -832,7 +865,12 @@ function copyKRPCToKnownKPLocationInstall()
  */
 function copyKPToSpecificLocationInstall()
 {
-//TODO: cancel KPsetup download
+    // Cancel any automatically started downloads
+    try {
+        persist.cancelSave();
+    }
+    catch (ex) { // being a bit lazy - don't understand what might cause this call to fail so playing it safe
+    }
     
     // start the download if it hasn't already been done
     if (!(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADING) 
@@ -865,7 +903,13 @@ function copyKPToSpecificLocationInstall()
  */
 function setupNET35ExeInstall()
 {
-//TODO: cancel net2 download
+    // Cancel any automatically started downloads
+    try {
+        persist.cancelSave();
+    }
+    catch (ex) { // being a bit lazy - don't understand what might cause this call to fail so playing it safe
+    }
+    
     installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             persist = mainWindow.KFdownloadFile("IC1SecDownload",
                 KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME,
@@ -1089,12 +1133,13 @@ function runKeePassRPCExecutableInstaller(keePassLocation)
         + mainWindow.keeFoxInst._myDepsDir() + '" "' + destFolder.path + '"');
 }
 
-// TODO: would be nice if this could go in a seperate
+// TODO2: would be nice if this could go in a seperate
 // thread but my guess is that would be masochistic
 // in the mean time I've tried sticking some
 // thread.processNextEvent calls in at strategic points...
 // TODO2: revisit threaded approach now that we can
 // rely on FF 3.5 thread workers to simplify things
+// TODO2: ... or not, if FF4 has removed the required features!
 function extractKPZip (zipFilePath, storeLocation)
 {
     var zipFile = Components.classes["@mozilla.org/file/local;1"]
@@ -1148,7 +1193,7 @@ function extractKPZip (zipFilePath, storeLocation)
         try
         {
             target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 0744);
-            //TODO: different permissions for special files on linux. e.g. 755
+            //TODO2: different permissions for special files on linux. e.g. 755
             // for main executable? not sure how it works with Mono though
             // so needs much more reading...
         }

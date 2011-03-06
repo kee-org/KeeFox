@@ -8,7 +8,8 @@
 #define IMPLEMENT_VISTA_TOOLS
 #include "VistaTools.cxx"
 
-int _tmain(int argc, _TCHAR* argv[])
+
+int detect()
 {
 	if (IsVista())
 	{
@@ -27,4 +28,17 @@ int _tmain(int argc, _TCHAR* argv[])
 			return 0;
 
 	return 0;
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	return detect();
+}
+
+int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+{
+    int ret;
+    ret = detect();
+	ExitProcess(ret);
 }

@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,7];
+    this.clientVersion = [0,8,8];
 }
 
 jsonrpcClient.prototype = new session();
@@ -143,7 +143,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     }
                     window.keeFoxInst._pauseKeeFox();
                 } 
-                //TODO: set confirmation that the connection is established and authenticated?
+                //TODO2: ? set confirmation that the connection is established and authenticated?
             }, this.requestId);
         } else if (topic == "connect-failed")
         {

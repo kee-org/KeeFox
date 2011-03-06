@@ -85,9 +85,6 @@ KFToolbar.prototype = {
         if (container.getAttribute('KFLock') == "enabled")
             return;
 
-        // TODO: merge logins into existing ones to prevent duplicates if more than
-        // one frame has same matching login
-
         if (logins == null || logins.length == 0)
         {
             this.setupButton_ready(null,this._currentWindow);
@@ -102,10 +99,20 @@ KFToolbar.prototype = {
         container.setAttribute("onpopupshowing", "this.setAttribute('KFLock','enabled');");
         container.setAttribute("onpopuphiding", "this.setAttribute('KFLock','disabled');");
         
-        // create a popup menu to hold the logins        
-        menupopup = this._currentWindow.document.createElement("menupopup");
-
-        KFLog.debug("setting " + logins.length + " toolbar logins");
+        var merging = true;
+        // find or create a popup menu to hold the logins
+        var menuPopup = this._currentWindow.document.getElementById("KeeFox_Main-ButtonPopup");
+        if (menuPopup == undefined || menuPopup == null)
+        { 
+            menupopup = this._currentWindow.document.createElement("menupopup");
+            menupopup.id = "KeeFox_Main-ButtonPopup";
+            merging = false;
+        }
+        
+        if (merging)
+            KFLog.debug("merging " + logins.length + " toolbar logins");
+        else
+            KFLog.debug("setting " + logins.length + " toolbar logins");
         
         // add every matched login to the popup menu
         for (var i = 0; i < logins.length; i++) {
@@ -131,7 +138,7 @@ KFToolbar.prototype = {
                 usernameId = field.fieldId;
             }
                         
-            if (i==0)
+            if (!merging && i==0) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
             {
                 container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));                
                 container.setAttribute("value", login.uniqueID);
@@ -144,7 +151,26 @@ KFToolbar.prototype = {
                 container.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
             }
             
-            if (logins.length > 1)
+            var addLoginToPopup = (logins.length > 1);
+            if (merging && addLoginToPopup)
+            {
+                // find any existing item in the popup menu
+                if (menupopup.childElementCount > 0)
+                {
+                    for (var i = 0, n = menupopup.children.length; i < n; i++)
+                    {
+                        var child = menupopup.children[i];
+                        valAttr = child.getAttribute("value");
+                        if (valAttr == login.uniqueID)
+                        {
+                            addLoginToPopup = false;
+                            break;
+                        }
+                    }
+                }                
+            }
+            
+            if (addLoginToPopup)
             {
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
@@ -161,12 +187,16 @@ KFToolbar.prototype = {
             }
         }
         
-        if (logins.length > 1)
+        if (!merging && logins.length > 1)
         {
             container.setAttribute("type", "menu-button");
             container.appendChild(menupopup);
         }
-        KFLog.debug(logins.length + " toolbar logins set!");
+        
+        if (merging)
+            KFLog.debug(logins.length + " toolbar logins merged!");
+        else
+            KFLog.debug(logins.length + " toolbar logins set!");
     },
     
     // populate the "all logins" menu with every login in this database

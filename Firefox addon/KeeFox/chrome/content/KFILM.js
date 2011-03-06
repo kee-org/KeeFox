@@ -460,12 +460,6 @@ KFILM.prototype = {
                 domDoc.addEventListener("DOMContentLoaded",
                                         this._domEventListener, false); //ael
                 
-                // attempt to refill the forms on the current tab in this window at a regular interval
-                // This is to enable manual form filling of sites which generate forms dynamically
-                // (i.e. after initial DOM load)
-                if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-                    this._pwmgr._refillTimer.init(this._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                
                 KFLog.debug("onStateChange: end");   
             } catch (ex)
             {
@@ -531,7 +525,7 @@ KFILM.prototype = {
                 case "timer-callback":    
                     //this._pwmgr.log("timer fired");
                     //doc = this._pwmgr._currentWindow.content.document;
-                    this._pwmgr._toolbar.setLogins(null, null);
+                    //TODO 0.9: does disabling this have nasty sideeffects? //this._pwmgr._toolbar.setLogins(null, null);
                     this._pwmgr._fillAllFrames(this._pwmgr._currentWindow.content,false);
                     //TODO2: find some ways of deciding that there is no need
                     // to call this function in some cases. E.g. DOMMutation
@@ -551,9 +545,17 @@ KFILM.prototype = {
             switch (event.type)
             {
                 case "DOMContentLoaded":
-                    doc = event.target;                    
+                    doc = event.target;   
+                    doc.removeEventListener("DOMContentLoaded", this, false);           
                     KFLog.debug("domEventListener: trying to load form filler");
                     this._pwmgr._fillDocument(doc,true);
+                    
+                    // attempt to refill the forms on the current tab in this window at a regular interval
+                    // This is to enable manual form filling of sites which generate forms dynamically
+                    // (i.e. after initial DOM load)
+                    if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
+                        this._pwmgr._refillTimer.init(this._pwmgr._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                    
                     KFLog.debug("domEventListener: form filler finished");
                     return;
                 default:

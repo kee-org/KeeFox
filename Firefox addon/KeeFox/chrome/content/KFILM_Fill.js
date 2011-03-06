@@ -659,9 +659,9 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
             
             // If user has specified, prevent automatic fill / submit due to multiple matches
             if (!findLoginDoc.wantToAutoFillFormWithMultipleMatches)
-                findLoginDoc.wantToAutoFillForm = false;
-            if (!findLoginDoc.wantToAutoSubmitFormWithMultipleMatches)
-                findLoginDoc.wantToAutoSubmitForm = false;
+                findLoginDoc.wantToAutoFillForm = false; //false by default
+            //if (!findLoginDoc.wantToAutoSubmitFormWithMultipleMatches)
+            //    findLoginDoc.wantToAutoSubmitForm = false; // wanttosubmtiforms will always be false for multiple matched entries
         }
 
         if (matchingLogin != null)
@@ -758,7 +758,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
             if (passField.DOMInputElement != null)
             {
                 passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-            }
+            } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
         }
         
         for (var i = 0; i < otherFields.length; i++)

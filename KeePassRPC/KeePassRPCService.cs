@@ -840,10 +840,10 @@ namespace KeePassRPC
                     altURLs += " " + url;
             }
             if (altURLs.Length > 0)
-                pwe.Strings.Set("Alternative URLs", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, altURLs));
+                pwe.Strings.Set("KPRPC Alternative URLs", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, altURLs));
 
             pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.FormActionURL ?? ""));
-            pwe.Strings.Set("Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm ?? ""));
+            pwe.Strings.Set("KPRPC Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm ?? ""));
 
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
@@ -1102,61 +1102,49 @@ namespace KeePassRPC
                 return;
             locationId = locationId.ToLower();
 
-            //string newDBFilesConfig = host.CustomConfig
-            //    .GetString("KeePassRPC.knownLocations." + locationId + ".DatabaseFileNames", "");
-            //string[] newDBFiles = new string[0];
-
-            //if (!string.IsNullOrEmpty(newDBFilesConfig))
-            //{
-            //    newDBFiles = newDBFilesConfig.Split(',');
-            //    foreach (string newDBFile in newDBFiles)
-            //    {
-            //        if (newDBFile != null && newDBFile.Length > 0)
-            //        {
-            //            IOConnectionInfo ioci;
-            //            ioci = new KeePassLib.Serialization.IOConnectionInfo();
-            //            ioci.Path = newDBFile;
-            //            host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
-            //        }
-            //    }
-            //}
-
             host.CustomConfig.SetString("KeePassRPC.currentLocation", locationId);
             host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
 
             UpdateKeePassRPCGroupFromLocation();
+
+            // tell all RPC clients they need to refresh their representation of the KeePass data
+            if (host.Database.IsOpen)
+                KeePassRPCPlugin.SignalAllManagedRPCClients(Signal.DATABASE_SELECTED);
 
             return;
         }
 
         public void UpdateKeePassRPCGroupFromLocation()
         {
-            if (!host.Database.IsOpen)
-                return;
+            return; // don't think we need this functionality anymore...
 
-            string locationId = host.CustomConfig
-                .GetString("KeePassRPC.currentLocation", "default");
-            // If any listed group UUID is found in this database, set it as the KeeFox home group
-            string rootGroupsConfig = host.CustomConfig
-                .GetString("KeePassRPC.knownLocations." + locationId + ".RootGroups", "");
-            string[] rootGroups = new string[0];
+            //if (!host.Database.IsOpen)
+            //    return;
 
-            if (!string.IsNullOrEmpty(rootGroupsConfig))
-            {
-                rootGroups = rootGroupsConfig.Split(',');
-                foreach (string rootGroupId in rootGroups)
-                {
-                    PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
-                    PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+            ////string locationId = host.CustomConfig
+            ////    .GetString("KeePassRPC.currentLocation", "default");
+            //// If any listed group UUID is found in this database, set it as the KeeFox home group
+            //string rootGroupsConfig = host.CustomConfig
+            //    .GetString("KeePassRPC.knownLocations." + locationId + ".RootGroups", "");
+            //string[] rootGroups = new string[0];
 
-                    if (matchedGroup == null)
-                        continue;
+            //if (!string.IsNullOrEmpty(rootGroupsConfig))
+            //{
+            //    rootGroups = rootGroupsConfig.Split(',');
+            //    foreach (string rootGroupId in rootGroups)
+            //    {
+            //        PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
+            //        PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
-                    host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID", rootGroupId);
-                    host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-                    break;
-                }
-            }
+            //        if (matchedGroup == null)
+            //            continue;
+
+            //        //TODO 0.9: Maybe it's a bit confusing to change the default when changing selected location? No "get root group" understands locations this might be un-necessary?
+            //        //host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID", rootGroupId);
+            //        //host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+            //        break;
+            //    }
+            //}
         }
 
         [JsonRpcMethod]
@@ -1493,13 +1481,38 @@ namespace KeePassRPC
         /// <summary>
         /// Return the root group of the active database
         /// </summary>
+        /// <param name="location">Selects an alternative root group based on KeePass location; null or empty string = default root group</param>
         /// <returns>the root group</returns>
-        [JsonRpcMethod]
-        public PwGroup GetRootPwGroup(PwDatabase pwd)
+        public PwGroup GetRootPwGroup(PwDatabase pwd, string location)
         {
             if (pwd == null)
                 pwd = host.Database;
 
+            if (!string.IsNullOrEmpty(location))
+            {
+                // If any listed group UUID is found in this database, set it as the KeeFox home group
+                string rootGroupsConfig = host.CustomConfig
+                    .GetString("KeePassRPC.knownLocations." + location + ".RootGroups", "");
+                string[] rootGroups = new string[0];
+
+                if (!string.IsNullOrEmpty(rootGroupsConfig))
+                {
+                    rootGroups = rootGroupsConfig.Split(',');
+                    foreach (string rootGroupId in rootGroups)
+                    {
+                        PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
+                        PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
+
+                        if (matchedGroup == null)
+                            continue;
+
+                        return matchedGroup;
+                    }
+                    // If no match found we'll just return the default root group
+                }
+                // If no locations found we'll just return the default root group
+            }
+            
             if (pwd.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length == 32)
             {
                 string uuid = pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
@@ -1517,6 +1530,18 @@ namespace KeePassRPC
             {
                 return pwd.RootGroup;
             }
+        }
+
+        /// <summary>
+        /// Return the root group of the active database for the current location
+        /// </summary>
+        /// <returns>the root group</returns>
+        [JsonRpcMethod]
+        public PwGroup GetRootPwGroup(PwDatabase pwd)
+        {
+            string locationId = host.CustomConfig
+               .GetString("KeePassRPC.currentLocation", "");
+            return GetRootPwGroup(pwd, locationId);
         }
 
         [JsonRpcMethod]

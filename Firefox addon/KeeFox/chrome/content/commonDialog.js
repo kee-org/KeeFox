@@ -452,7 +452,7 @@ var keeFoxDialogManager = {
 		if (autoSubmit)
 		{
 		    commonDialogOnAccept();
-		    window.close();
+		    close();
 		}
 		
     },
@@ -462,8 +462,8 @@ var keeFoxDialogManager = {
 		document.getElementById("loginTextbox").value = username;
 		document.getElementById("password1Textbox").value = password;		
 		commonDialogOnAccept();
-		window.close();
+		close();
 	}
 };
 
-window.addEventListener("load", keeFoxDialogManager.dialogInit, false);
+window.addEventListener("load", keeFoxDialogManager.dialogInit, false); //ael - does this need to be removed, if so where from?

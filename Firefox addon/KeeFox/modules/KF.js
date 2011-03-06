@@ -85,9 +85,9 @@ function KeeFox()
     if (!this._keeFoxExtension.db.conn.tableExists("meta"))
     {
         var statement = this._keeFoxExtension.db.conn.createStatement('CREATE TABLE "meta" ("id" INTEGER PRIMARY KEY NOT NULL UNIQUE , "schemaVersion" INTEGER NOT NULL)');
-        statement.executeAsync(); // technically user could try to access table before this completes but that's implausable in practice
+        statement.execute(); // no longer async - testing if it fixes first install bugs // technically user could try to access table before this completes but that's implausable in practice
         var statement2 = this._keeFoxExtension.db.conn.createStatement("INSERT INTO meta (id,schemaVersion) VALUES (1, 1)");
-        statement2.executeAsync(); // technically user could try to access table before this completes but that's implausable in practice
+        statement2.execute(); // no longer async - testing if it fixes first install bugs // technically user could try to access table before this completes but that's implausable in practice
     } else
     {
         //TODO2: read schema version and update if required
@@ -108,6 +108,9 @@ function KeeFox()
     this._keeFoxExtension.prefs._prefBranch = 
         this._keeFoxExtension.prefs._prefService
         .getBranch("extensions.keefox@chris.tomlinson.");
+    this._keeFoxExtension.prefs._prefBranchRoot = 
+        this._keeFoxExtension.prefs._prefService
+        .getBranch("");
     this._keeFoxExtension.prefs.has = function(name)
     {
         var prefType = this._prefBranch.getPrefType(name);
@@ -183,11 +186,11 @@ function KeeFox()
     {
         var originalPreferenceRememberSignons = false;
         try {
-            originalPreferenceRememberSignons = this._keeFoxExtension.prefs._prefService.getBranch("").getBoolPref("signon.rememberSignons");
+            originalPreferenceRememberSignons = this._keeFoxExtension.prefs._prefBranchRoot.getBoolPref("signon.rememberSignons");
             } catch (ex) {}
         this._keeFoxExtension.prefs.setValue(
             "signon.rememberSignons", originalPreferenceRememberSignons);
-        this._keeFoxExtension.prefs._prefService.getBranch("").setBoolPref("signon.rememberSignons", false);
+        this._keeFoxExtension.prefs._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
     }
     
     //this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
@@ -199,10 +202,13 @@ function KeeFox()
     this._observer._kf = this;    
     observerService.addObserver(this._observer, "quit-application", false);   
         
-           
-    this._keeFoxExtension.prefs._prefService.QueryInterface(Ci.nsIPrefBranch2);
-    this._keeFoxExtension.prefs._prefService.addObserver("signon.rememberSignons", this._observer, false);
-    this._keeFoxExtension.prefs._prefService.QueryInterface(Ci.nsIPrefBranch);
+    this._keeFoxExtension.prefs._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch2);
+    this._keeFoxExtension.prefs._prefBranchRoot.addObserver("signon.rememberSignons", this._observer, false);
+    this._keeFoxExtension.prefs._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch);
+    
+    this._keeFoxExtension.prefs._prefBranch.QueryInterface(Ci.nsIPrefBranch2);
+    this._keeFoxExtension.prefs._prefBranch.addObserver("", this._observer, false);
+    this._keeFoxExtension.prefs._prefBranch.QueryInterface(Ci.nsIPrefBranch);
         
     // Create a timer 
     this.regularKPRPCListenerQueueHandlerTimer = Components.classes["@mozilla.org/timer;1"]
@@ -244,40 +250,6 @@ KeeFox.prototype = {
     urlToOpenOnStartup: null,
     
     KeePassDatabases: null,
-
-    // notify all interested objects and functions of changes in preference settings
-    // (lots of references to preferences will not be cached so there's not lots to do here)
-    preferenceChangeHandler: function(event)
-    {    
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                           .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-
-        // get a reference to the prompt service component.
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                        .getService(Components.interfaces.nsIPromptService);
-
-        switch (event.data)
-        {
-            case "notifyBarWhenLoggedOut": break;
-            case "notifyBarWhenKeePassRPCInactive": break;
-            case "rememberMRUDB": 
-                if (this._keeFoxExtension.prefs.getValue("rememberMRUDB",false)) 
-                    keeFoxInst._keeFoxExtension.prefs.setValue("keePassMRUDB","");
-                break;
-//            case "signon.rememberSignons":
-//                if (promptService.confirm(window, "Password management",
-//                    "The KeeFox extension may not work correctly if you allow"
-//                    + " Firefox to manage your passwords. Should KeeFox disable"
-//                    + " the built-in Firefox password manager?"))
-//                {
-//                  Application.prefs.setValue("signon.rememberSignons", false);
-//                }
-//                break;
-                
-            default: break;
-        }
-    },
 
     // holding function in case there are any corrective actions we can
     // take if certain extensions cause problems in future
@@ -623,7 +595,7 @@ KeeFox.prototype = {
     {
         this._KFLog.debug("Pausing KeeFox.");
         this._keeFoxStorage.set("KeePassRPCActive", false);
-        this._keeFoxStorage.set("KeePassDatabaseOpen", false); // grrr. This was HOPEFULLY the missing statement that led to the deadlocks (actually a slowly executing infinite recursive loop that would take a long time to exhast the stack - win.keeFoxToolbar.setupButton_ready calls KF.getSatabaseName calls KF._pauseKeeFox). This note remains as a painful reminder and maybe a clue for future debugging!
+        this._keeFoxStorage.set("KeePassDatabaseOpen", false);
         this.KeePassDatabases = null;
         this.ActiveKeePassDatabaseIndex = 0;
         
@@ -704,7 +676,6 @@ KeeFox.prototype = {
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
-                    //TODO 0.9: test this with new async setup...
                     win.keefox_org.ILM._fillDocument(win.content.document,false);
                 }
             } catch (exception)
@@ -713,7 +684,7 @@ KeeFox.prototype = {
             }
         }
         
-        //TODO 0.9: this can be done in the getalldatabases callback surely?
+        //TODO2: this can be done in the getalldatabases callback surely?
         if (this._keeFoxStorage.get("KeePassDatabaseOpen",false) 
             && this._keeFoxExtension.prefs.getValue("rememberMRUDB",false))
         {
@@ -1217,8 +1188,8 @@ KeeFox.prototype = {
                                   getService(Ci.nsIObserverService);
                     observerService.removeObserver(this, "quit-application");
                     
-                    this._prefService.QueryInterface(Ci.nsIPrefBranch2);
-                    this._prefService.removeObserver("signon.rememberSignons", this);
+                    this._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch2);
+                    this._prefBranchRoot.removeObserver("signon.rememberSignons", this);
                     
                     KFLog.info("KeeFox has shut down. Sad times; come back soon!");
                     break;
@@ -1242,6 +1213,7 @@ KeeFox.prototype = {
             switch (prefName)
             {
                 case "signon.rememberSignons":
+                //TODO: Only respond if it's the root pref branch
                     var newValue = prefBranch.getBoolPref(prefName);
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
@@ -1252,8 +1224,27 @@ KeeFox.prototype = {
                         + " the built-in Firefox password manager?",
                                flags, "", "", "", null, {}) == 0)
                     {
-                      this._prefService.getBranch("").setBoolPref("signon.rememberSignons", false);
+                      this._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
                     }
+                    break;
+                case "logLevel":
+                case "logMethodAlert":
+                case "logMethodFile":
+                case "logMethodConsole":
+                case "logMethodStdOut":
+                case "logSensitiveData":
+                    KFLog.configureFromPreferences();
+                    break;
+                case "dynamicFormScanning":
+                    //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
+                    if (keeFoxInst._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
+                        window.keefox_org.ILM._refillTimer.init(window.keefox_org.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                    else
+                        window.keefox_org.ILM._refillTimer.cancel(); //TODO: is this OK to cancel even if it's not ben inited yet?
+                    break;
+                case "currentLocation":
+                    //tell KeePass this has changed
+                    keeFoxInst.changeLocation(keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation",false));
                     break;
             }
         },

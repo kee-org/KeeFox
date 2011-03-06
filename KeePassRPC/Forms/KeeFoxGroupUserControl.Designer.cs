@@ -31,12 +31,14 @@
             this.l_status = new System.Windows.Forms.Label();
             this.buttonMakeHome = new System.Windows.Forms.Button();
             this.l_homeExplanation = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.comboBoxLocation = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // l_status
             // 
             this.l_status.AutoSize = true;
-            this.l_status.Location = new System.Drawing.Point(12, 9);
+            this.l_status.Location = new System.Drawing.Point(12, 44);
             this.l_status.Name = "l_status";
             this.l_status.Size = new System.Drawing.Size(76, 13);
             this.l_status.TabIndex = 0;
@@ -45,7 +47,7 @@
             // buttonMakeHome
             // 
             this.buttonMakeHome.AutoSize = true;
-            this.buttonMakeHome.Location = new System.Drawing.Point(15, 72);
+            this.buttonMakeHome.Location = new System.Drawing.Point(15, 78);
             this.buttonMakeHome.Name = "buttonMakeHome";
             this.buttonMakeHome.Size = new System.Drawing.Size(151, 23);
             this.buttonMakeHome.TabIndex = 1;
@@ -62,11 +64,32 @@
             this.l_homeExplanation.TabIndex = 2;
             this.l_homeExplanation.Text = "home group explanation";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(16, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(164, 13);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "When KeePass is in this location:";
+            // 
+            // comboBoxLocation
+            // 
+            this.comboBoxLocation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxLocation.FormattingEnabled = true;
+            this.comboBoxLocation.Location = new System.Drawing.Point(186, 5);
+            this.comboBoxLocation.Name = "comboBoxLocation";
+            this.comboBoxLocation.Size = new System.Drawing.Size(143, 21);
+            this.comboBoxLocation.TabIndex = 4;
+            this.comboBoxLocation.SelectedIndexChanged += new System.EventHandler(this.comboBoxLocation_SelectedIndexChanged);
+            // 
             // KeeFoxGroupUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
+            this.Controls.Add(this.comboBoxLocation);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.l_homeExplanation);
             this.Controls.Add(this.buttonMakeHome);
             this.Controls.Add(this.l_status);
@@ -83,5 +106,7 @@
         private System.Windows.Forms.Label l_status;
         private System.Windows.Forms.Button buttonMakeHome;
         private System.Windows.Forms.Label l_homeExplanation;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox comboBoxLocation;
     }
 }

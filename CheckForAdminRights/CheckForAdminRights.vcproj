@@ -133,14 +133,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libcmt.lib LIBCPMT.LIB shell32.lib Advapi32.lib"
+				AdditionalDependencies="shell32.lib chkstk.obj Advapi32.lib kernel32.lib libcmt.lib LIBCPMT.LIB"
 				LinkIncremental="1"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				EntryPointSymbol="WinMain"
 				TargetMachine="1"
 			/>
 			<Tool
