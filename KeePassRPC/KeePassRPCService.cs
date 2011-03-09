@@ -327,7 +327,7 @@ namespace KeePassRPC
         {
             /*
              * I think this form would be used to choose a different file to open but haven't tried it.
-             * At least for now, the MRU file is the only option we'll tightly integrate with KeeICE
+             * At least for now, the MRU file is the only option we'll tightly integrate with KeePassRPC
              * If user is advanced enough to know about multiple databases, etc. they can quit this
              * function and open their database via usual KeePass methods
              * 
@@ -1026,26 +1026,6 @@ namespace KeePassRPC
             return currentConfig;
         }
 
-
-        //public bool SetCurrentKFConfig(Configuration config)
-        //{
-        //    host.CustomConfig.SetBool("KeeICE.KeeFox.autoCommit", config.AutoCommit);
-        //    host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
-        //    return true;
-        //}
-
-        //public bool setCurrentDBRootGroup(string uuid)
-        //{
-        //    if (!host.Database.IsOpen)
-        //        return false;
-
-        //    host.Database.CustomData.Set("KeeICE.KeeFox.rootUUID", uuid);
-        //    saveDB();
-
-        //    return true;
-        //}
-
-
         #endregion
 
         #region Retrival and manipulation of databases and the KeePass app
@@ -1324,7 +1304,7 @@ namespace KeePassRPC
         /// <summary>
         /// Add a new password/login to the active KeePass database
         /// </summary>
-        /// <param name="login">The KeeICE representation of the login to be added</param>
+        /// <param name="login">The KeePassRPC representation of the login to be added</param>
         /// <param name="parentUUID">The UUID of the parent group for the new login. If null, the root group will be used.</param>
         /// <param name="current__"></param>
         [JsonRpcMethod]

@@ -33,6 +33,9 @@
 <!ENTITY KeeFox_Help-GettingStarted-Button.tip "Visit the online getting started tutorial.">
 <!ENTITY KeeFox_Help-GettingStarted-Button.label "Getting Started">
 <!ENTITY KeeFox_Help-GettingStarted-Button.key "G">
+<!ENTITY KeeFox_Help-Centre-Button.tip "Visit the online help centre.">
+<!ENTITY KeeFox_Help-Centre-Button.label "Help Centre">
+<!ENTITY KeeFox_Help-Centre-Button.key "C">
 
 <!-- strings that may be used in more than one location -->
 <!ENTITY % KeeFox_Shared_More_Info_And_Options "More information and advanced setup options">

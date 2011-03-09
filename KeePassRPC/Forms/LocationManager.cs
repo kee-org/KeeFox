@@ -19,6 +19,7 @@ namespace KeePassRPC.Forms
             InitializeComponent();
             button1.Enabled = false;
             button2.Enabled = false;
+            Icon = global::KeePassRPC.Properties.Resources.keefox;
         }
 
         private void button3_Click(object sender, EventArgs e)

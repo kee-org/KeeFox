@@ -85,6 +85,8 @@
           <menupopup id="KeeFox_Help-Popup">
             <menuitem id="KeeFox_Help-GettingStarted-Button" tooltiptext="&KeeFox_Help-GettingStarted-Button.tip;"
                            class="" label="&KeeFox_Help-GettingStarted-Button.label;" oncommand="keeFoxInst._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="&KeeFox_Help-GettingStarted-Button.key;" />
+            <menuitem id="KeeFox_Help-Centre-Button" tooltiptext="&KeeFox_Help-Centre-Button.tip;"
+                           class="" label="&KeeFox_Help-Centre-Button.label;" oncommand="keeFoxInst._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="&KeeFox_Help-Centre-Button.key;" />
           </menupopup>
         </menu>
 
@@ -130,16 +132,6 @@
       <!--<menuitem label="Login all in tabs"/>-->
       <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.value);"/>
       <!--<menuitem label="&KeeFox_Logins-Context-Delete-Group.label;" oncommand="keeFoxInst.removeGroup(document.popupNode.value);"/>-->
-    </menupopup>
-    <menupopup id="rememberAdvancedButtonPopup">
-      <menuitem label="&KeeFox_Remember-Advanced-Popup-Group.label;"
-                oncommand='openDialog(
-               "chrome://keefox/content/groupChooser.xul",
-               "",
-               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
-              ); keefox_org.toolbar.clearTabFormRecordingData();' />
-      <menuitem label="&KeeFox_Remember-Advanced-Popup-Multi-Page.label;"
-                oncommand='keefox_org.toolbar.setTabFormRecordingData();' />
     </menupopup>
   </popupset>
 

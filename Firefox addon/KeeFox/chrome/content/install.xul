@@ -46,7 +46,7 @@
   TODO2: In some cases (especially IC6/8), user may not have priveledges to write
   to an existing KeePass directory. If this happens, we will catch the access 
   denied exception and give the user two choices:
-  a) Get an administrator to install the KeeICE files in the plugins folder
+  a) Get an administrator to install the KeePassRPC files in the plugins folder
   b) Choose a new installation directory for a seperate install of KeICE (warn
   that this may not work and could be confusing and/or against organistation's policy)
   

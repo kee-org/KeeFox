@@ -21,7 +21,7 @@ namespace KeePassRPC.Forms
         public KeeFoxURLForm(bool match, bool block, string regExURL, string url, List<string> otherKeys)
         {
             InitializeComponent();
-
+            Icon = global::KeePassRPC.Properties.Resources.keefox;
             Match = match;
             Block = block;
             OtherKeys = otherKeys;

@@ -390,6 +390,7 @@ function KFMD5checksumVerification(path, testMD5)
         ch.updateFromStream(istream, PR_UINT32_MAX);
         // pass false here to get binary data back
         var hash = ch.finish(false);
+        //istream.close();
 
         // return the two-digit hexadecimal code for a byte
         function toHexString(charCode)

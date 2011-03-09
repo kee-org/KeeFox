@@ -684,7 +684,7 @@ functions to support the execution of IC5 (and IC2 tertiary)
  IC5 (and IC2 tertiary)
  test to see if KeePass is installed in specified location, if
  it isn't, extract the portable zip file there
- then in either case we will copy the KeeICE files into the plugin folder
+ then in either case we will copy the KeePassRPC files into the plugin folder
  */
  //TODO2: rearrange this install process so that the folder is chosen
  // first (before download - or during?) just in case user cancels
@@ -804,7 +804,7 @@ function setupExeInstall()
 /*
  IC2
  run (quietly and with admin rights escalation) the keepass 2.x exe installer
- and copy the KeeICE files into place
+ and copy the KeePassRPC files into place
  */
 function KPsetupExeSilentInstall()
 {
@@ -823,7 +823,7 @@ function KPsetupExeSilentInstall()
 
 /*
  IC3 and IC6
- copy KeeICE files to the known KeePass 2.x location
+ copy KeePassRPC files to the known KeePass 2.x location
  TODO: detect access denied failures and prompt user accordingly
  (this could happen if an admin installed KeePass at an earlier time)
  */
@@ -861,7 +861,7 @@ function copyKRPCToKnownKPLocationInstall()
  IC5 (and IC2 tertiary)
  test to see if KeePass is installed in specified location,
  if it isn't, extract the portable zip file there
- then in either case we will copy the KeeICE files into the plugin folder
+ then in either case we will copy the KeePassRPC files into the plugin folder
  */
 function copyKPToSpecificLocationInstall()
 {

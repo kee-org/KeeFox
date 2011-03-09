@@ -356,20 +356,6 @@ namespace KeePassRPC
             _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
         }
 
-        //void MainWindow_Shown_NewUser(object sender, EventArgs e)
-        //{
-        //    MessageBox.Show("Welcome to KeeFox! THE FOLLOWING DIALOGS ARE EXPERIMENTAL PROTOTYPES - hopefully functional, but FAR from pretty!");
-        //    //keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown_NewUser;
-        //    WelcomeKeeFoxUser();
-        //}
-
-        //void MainWindow_Shown_ExistingUser(object sender, EventArgs e)
-        //{
-        //    MessageBox.Show("UPGRADE DETECTED - Upgrade specific information is coming soon, in the meantime, please experiment with and report back on the following EXPERIMENTAL PROTOTYPE 'new user' dialogs - they are hopefully functional, but FAR from pretty!");
-        //    //keeICEServer.m_host.MainWindow.Shown -= MainWindow_Shown_ExistingUser;
-        //    WelcomeKeeFoxUser();
-        //}
-
         private string[] getStandardIconsBase64(ImageList il)
         {
             string[] icons = new string[il.Images.Count];
