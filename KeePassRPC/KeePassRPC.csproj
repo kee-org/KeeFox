@@ -307,6 +307,7 @@
       copy "$(ProjectDir)Properties\Resources.Designer.cs" "%25KPPTempDir%25\Properties\Resources.Designer.cs"
       mkdir "%25KPPTempDir%25\Resources"
       copy "$(ProjectDir)Resources\*.png" "%25KPPTempDir%25\Resources"
+      copy "$(ProjectDir)Resources\*.ico" "%25KPPTempDir%25\Resources"
       if errorlevel 1 goto BuildEventFailed
       echo Files copied to temporary directory
 
