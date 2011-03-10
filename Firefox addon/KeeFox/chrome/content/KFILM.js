@@ -106,13 +106,13 @@ KFILM.prototype = {
             if (KFLog.logSensitiveData) KFLog.debug(loginURL);
 
             if (URL == loginURL)
-                URLscore = 22;
+                URLscore = 42;
             else if (this._getURIExcludingQS(URL) == this._getURIExcludingQS(loginURL))
-                URLscore = 15;
+                URLscore = 35;
             else if (this._getURISchemeHostAndPort(URL) == this._getURISchemeHostAndPort(loginURL))
-                URLscore = 9;
+                URLscore = 29;
             else if (this._getURIHostAndPort(URL) == this._getURIHostAndPort(loginURL))
-                URLscore = 4;
+                URLscore = 24;
             
             if (URLscore > maxURLscore)
                 maxURLscore = URLscore;
