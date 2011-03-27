@@ -89,50 +89,68 @@ namespace KeePassRPC
         public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin, bool useSSL)
         {
             _useSSL = useSSL;
-            //MessageBox.Show("dfsgdfsg0");
+            if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Starting KPRPCServer");
             Service = service;
             KeePassRPCPlugin = keePassRPCPlugin;
 
             if (_useSSL)
             {
-                _store = new X509Store();
-                _store.Open(OpenFlags.ReadWrite);
+                if (Type.GetType("Mono.Runtime") == null)
+                {
+                    _store = new X509Store();
+                    _store.Open(OpenFlags.ReadWrite);
 
-                // Find any certificates in this user's certificate store and re-use
-                // them rather than suffer the overhead of creating an entirly new
-                // certificate. Our certificates are considered "invalid" by the
-                // store (probably becuase they are self-signed)
-                X509Certificate2Collection matchingCertificates = _store.Certificates
-                    .Find(X509FindType.FindBySubjectDistinguishedName,
-                        "CN=KeePassRPC certificate for " + Environment.MachineName, false);
+                    // Find any certificates in this user's certificate store and re-use
+                    // them rather than suffer the overhead of creating an entirly new
+                    // certificate. Our certificates are considered "invalid" by the
+                    // store (probably becuase they are self-signed)
+                    X509Certificate2Collection matchingCertificates = _store.Certificates
+                        .Find(X509FindType.FindBySubjectDistinguishedName,
+                            "CN=KeePassRPC certificate for " + Environment.MachineName, false);
 
-                //foreach (X509Certificate2 temp in matchingCertificates)
-                //    _store.Remove(temp);
+                    //foreach (X509Certificate2 temp in matchingCertificates)
+                    //    _store.Remove(temp);
 
-                //matchingCertificates = _store.Certificates
-                //    .Find(X509FindType.FindBySubjectDistinguishedName,
-                //        "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
+                    //matchingCertificates = _store.Certificates
+                    //    .Find(X509FindType.FindBySubjectDistinguishedName,
+                    //        "CN=KeePassRPC TLS aaa for " + Environment.MachineName, false);
 
-                //MessageBox.Show("dfsgdfsgaaaaaa: " + matchingCertificates.Count);
-                if (matchingCertificates.Count > 0)
-                    _serverCertificate = matchingCertificates[0];
+                    if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Matching certificates from store: " + matchingCertificates.Count);
+                    if (matchingCertificates.Count > 0)
+                        _serverCertificate = matchingCertificates[0];
+                    else
+                    {
+                        //_serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12"));
+
+                        if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Generating new certificate (MS).");
+                        // We can use the MakeCert feature from Mono to generate a new
+                        // certificate for use by this user on this machine. This means
+                        // that every KeePassRPC user will establish TLS connections
+                        // that are protected by a private key held on their own
+                        // system, rather than a key that is disclosed in this open
+                        // source code. NB: The local server is assumed to be secure!
+                        byte[] cert = MakeCertKPRPC.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator", keePassRPCPlugin);
+                        _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
+                        _store.Add(_serverCertificate);
+                    }
+                }
                 else
                 {
-                    //_serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\test.p12");
+                    if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Looking for existing certificate (Mono)");
 
+                    _serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12"));
 
-                    // We can use the MakeCert feature from Mono to generate a new
-                    // certificate for use by this user on this machine. This means
-                    // that every KeePassRPC user will establish TLS connections
-                    // that are protected by a private key held on their own
-                    // system, rather than a key that is disclosed in this open
-                    // source code. NB: The local server is assumed to be secure!
-                    byte[] cert = MakeCert.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator");
-                    _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
-                    _store.Add(_serverCertificate);
+                    if (_serverCertificate == null)
+                    {
+                        if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Generating new certificate (Mono).");
+
+                        MakeCertKPRPC.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator", keePassRPCPlugin);
+                        _serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12"));
+                    }
                 }
+
             }
-           // MessageBox.Show("dfsgdfsgaaaaaa:" + _serverCertificate.HasPrivateKey);
+           if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Server certificate has private key? " + _serverCertificate.HasPrivateKey);
 
             try
             {
@@ -144,11 +162,9 @@ namespace KeePassRPC
             }
             catch (Exception e)
             {
-               // MessageBox.Show("error 190: " + e.ToString());
-                Console.Error.WriteLine(e.Message);
-                Trace.TraceError(e.ToString());
+                if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Failed to start TCP listener: " + e.ToString());
             }
-            //MessageBox.Show("dfsgdfsg1");
+            if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Started KPRPCServer");
         }
 
         /// <summary>
@@ -183,7 +199,7 @@ namespace KeePassRPC
                 catch (Exception ex)
                 {
                     this._isListening = false;
-                    //MessageBox.Show("error 226: " + ex.ToString());
+                    if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Error while listening for new connections: " + ex.ToString());
                     // attempt recovery unless we tried less than 3 seconds ago
                     // actually, when this works as describes, it just hangs KP on
                     // exit (while loop keeps this one thread open after main window has shut)
@@ -196,7 +212,7 @@ namespace KeePassRPC
             //Close the certificate store.
             if (_useSSL)
                 _store.Close();
-           // MessageBox.Show("store closed");
+            if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Cert store closed");
         }
 
         /// <summary>
@@ -224,7 +240,7 @@ namespace KeePassRPC
                 clientStream = tcpClient.GetStream();
             }
 
-           // MessageBox.Show("stream ready to be authenticated");
+            if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("stream ready to be authenticated");
             try
             {
                 if (_useSSL)
@@ -233,7 +249,7 @@ namespace KeePassRPC
                     // authenticate - we've got our own authentication requirements
                     sslStream.AuthenticateAsServer(
                         _serverCertificate, false, SslProtocols.Ssl3, false);
-                    // MessageBox.Show("stream authenticated");
+                    if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("stream authenticated");
                     sslStream.ReadTimeout = -1;
                     sslStream.WriteTimeout = -1;
                 }
@@ -275,8 +291,7 @@ namespace KeePassRPC
                     }
                     catch (Exception ex)
                     {
-                        //MessageBox.Show("error 295: " + ex.ToString());
-                        //a socket error has occured
+                        if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("a socket error has occured:" + ex.ToString());
                         break;
                     }
 
@@ -342,15 +357,15 @@ namespace KeePassRPC
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authEx.AsJSONResult());
                 keePassRPCClient.ConnectionStreamWrite(bytes);
             }
-            catch (AuthenticationException e)
+            catch (AuthenticationException ex)
             {
-            //    MessageBox.Show("error 346: " + e.ToString());
+                if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Authentication exception: " + ex.ToString());
                 // Nothing we can do about this since client can't
                 // receive messages over an invalid network stream
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-            //    MessageBox.Show("error 352: " + ex.ToString());
+                if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Unknown exception: " + e.ToString());
                 //TODO2: send a JSON message down the pipe
                 // ex.AsJSONResult(); 
             }
@@ -375,7 +390,7 @@ namespace KeePassRPC
         /// <param name="keePassRPCClient">The client we're communicating with.</param>
         private void DispatchToRPCService(string message, KeePassRPCClientConnection keePassRPCClientConnection)
         {
-            //MessageBox.Show("processing: " + message);
+            if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Preparing to dispatch: " + message);
             StringBuilder sb = new StringBuilder();
             string requiredResultRegex = "";
             long authorisationAttemptId = -1;

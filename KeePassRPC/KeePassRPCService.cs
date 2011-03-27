@@ -580,7 +580,7 @@ namespace KeePassRPC
                     }
                     else if (pweKey == "Alternative URLs" || pweKey == "KPRPC Alternative URLs")
                     {
-                        string[] urlsArray = pweValue.Split(new char[' ']);
+                        string[] urlsArray = pweValue.Split(new char[]{' '});
                         foreach (string altURL in urlsArray)
                             URLs.Add(altURL);
 
@@ -1784,7 +1784,7 @@ namespace KeePassRPC
 
             string urls = pwe.Strings.ReadSafe("Alternative URLs");
             urls = urls + (string.IsNullOrEmpty(urls) ? "" : " ") + pwe.Strings.ReadSafe("KPRPC Alternative URLs");
-            string[] urlsArray = urls.Split(new char[' ']);
+            string[] urlsArray = urls.Split(new char[]{' '});
             foreach (string altURL in urlsArray)
                 if (altURL.Contains(url) || (allowHostnameOnlyMatch && altURL.Contains(hostname)))
                     return true;
@@ -1796,7 +1796,7 @@ namespace KeePassRPC
         private bool matchesAnyBlockedURL(PwEntry pwe, string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
         {
             string urls = pwe.Strings.ReadSafe("KPRPC Blocked URLs");
-            string[] urlsArray = urls.Split(new char[' ']);
+            string[] urlsArray = urls.Split(new char[]{' '});
             foreach (string altURL in urlsArray)
                 if (altURL.Contains(url))
                     return true;

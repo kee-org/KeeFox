@@ -53,10 +53,12 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,9);
+        public static readonly Version PluginVersion = new Version(0,8,10);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
+
+        public TextWriter logger;
 
         /// <summary>
         /// Listens for requests from RPC clients such as KeeFox
@@ -142,73 +144,101 @@ namespace KeePassRPC
 		/// <returns>true if channel registered correctly, otherwise false</returns>
 		public override bool Initialize(IPluginHost host)
 		{
-            Debug.Assert(host != null);
-            if(host == null)
+            try
+            {
+
+                Debug.Assert(host != null);
+                if (host == null)
+                    return false;
+                _host = host;
+
+                string debugFileName = host.CommandLineArgs["KPRPCDebug"];
+                if (debugFileName != null)
+                {
+                    try
+                    {
+                        logger = new StreamWriter(debugFileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("KeePassRPC debug logger failed to initialise. No logging will be performed until KeePass is restarted with a valid debug log file location. Reason: " + ex.ToString());
+                    }
+                }
+                if (logger != null) logger.WriteLine("Logger initialised.");
+
+
+                CreateClientManagers();
+
+                if (logger != null) logger.WriteLine("Client managers started.");
+                //TODO2: set up language services
+
+                _RPCService = new KeePassRPCService(host,
+                    getStandardIconsBase64(host.MainWindow.ClientIcons), this);
+                if (logger != null) logger.WriteLine("RPC service started.");
+                _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService, this, FindKeePassRPCSSLEnabled(host));
+                if (logger != null) logger.WriteLine("RPC server started.");
+
+                // register to recieve events that we need to deal with
+
+                _host.MainWindow.FileOpened += OnKPDBOpen;
+                _host.MainWindow.FileClosed += OnKPDBClose;
+                _host.MainWindow.FileCreated += OnKPDBOpen; // or need a specific handler here?
+
+                //be nice to pick up when entries are edited and update the firefox URL cache imemdiately
+                //for the time being we'll have to hook onto the Save function
+                //ServerData.m_host.Database.RootGroup...
+                _host.MainWindow.FileSaving += OnKPDBSaving;
+                _host.MainWindow.FileSaved += OnKPDBSaved;
+
+                _host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
+
+                // Get a reference to the 'Tools' menu item container
+                ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
+
+                // Add menu item for options
+                _keePassRPCOptions = new ToolStripMenuItem();
+                _keePassRPCOptions.Text = "KeePassRPC (KeeFox) Options...";
+                _keePassRPCOptions.Click += OnToolsOptions;
+                _keePassRPCOptions.Enabled = true;
+                tsMenu.Add(_keePassRPCOptions);
+
+                // Add menu item for KeeFox samples
+                _keeFoxSampleEntries = new ToolStripMenuItem();
+                _keeFoxSampleEntries.Text = "Insert KeeFox tutorial samples";
+                _keeFoxSampleEntries.Click += OnToolsInstallKeeFoxSampleEntries;
+                _keeFoxSampleEntries.Enabled = true;
+                tsMenu.Add(_keeFoxSampleEntries);
+
+                // Add a seperator and menu item to the group context menu
+                ContextMenuStrip gcm = host.MainWindow.GroupContextMenu;
+                _tsSeparator1 = new ToolStripSeparator();
+                gcm.Items.Add(_tsSeparator1);
+                _keeFoxRootMenu = new ToolStripMenuItem();
+                _keeFoxRootMenu.Text = "Set as KeeFox start group";
+                _keeFoxRootMenu.Click += OnMenuSetRootGroup;
+                gcm.Items.Add(_keeFoxRootMenu);
+
+                // not acting on upgrade info just yet but we need to track it for future proofing
+                bool upgrading = refreshVersionInfo(host);
+
+                if (!_RPCServer.IsListening)
+                    MessageBox.Show("Could not start listening for RPC connections. KeePassRPC will not function and any services that rely on it will fail to connect to KeePass.");
+
+                // for debug only:
+                //WelcomeForm wf = new WelcomeForm();
+                //DialogResult dr = wf.ShowDialog();
+                //if (dr == DialogResult.Yes)
+                //    CreateNewDatabase();
+
+                GwmWindowAddedHandler = new EventHandler<GwmWindowEventArgs>(GlobalWindowManager_WindowAdded);
+                GlobalWindowManager.WindowAdded += GwmWindowAddedHandler;
+            }
+            catch (Exception ex)
+            {
+                if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
                 return false;
-            _host = host;
-
-            CreateClientManagers();
-            //TODO2: set up language services
-
-            _RPCService = new KeePassRPCService(host, 
-                getStandardIconsBase64(host.MainWindow.ClientIcons), this);
-            _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService, this, FindKeePassRPCSSLEnabled(host));
-
-            // register to recieve events that we need to deal with
-
-            _host.MainWindow.FileOpened += OnKPDBOpen;
-            _host.MainWindow.FileClosed += OnKPDBClose;
-            _host.MainWindow.FileCreated += OnKPDBOpen; // or need a specific handler here?
-            
-             //be nice to pick up when entries are edited and update the firefox URL cache imemdiately
-             //for the time being we'll have to hook onto the Save function
-             //ServerData.m_host.Database.RootGroup...
-            _host.MainWindow.FileSaving += OnKPDBSaving;
-            _host.MainWindow.FileSaved += OnKPDBSaved;
-
-            _host.MainWindow.DocumentManager.ActiveDocumentSelected += OnKPDBSelected;
-
-            // Get a reference to the 'Tools' menu item container
-            ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
-
-            // Add menu item for options
-            _keePassRPCOptions = new ToolStripMenuItem();
-            _keePassRPCOptions.Text = "KeePassRPC (KeeFox) Options...";
-            _keePassRPCOptions.Click += OnToolsOptions;
-            _keePassRPCOptions.Enabled = true;
-            tsMenu.Add(_keePassRPCOptions);
-
-            // Add menu item for KeeFox samples
-            _keeFoxSampleEntries = new ToolStripMenuItem();
-            _keeFoxSampleEntries.Text = "Insert KeeFox tutorial samples";
-            _keeFoxSampleEntries.Click += OnToolsInstallKeeFoxSampleEntries;
-            _keeFoxSampleEntries.Enabled = true;
-            tsMenu.Add(_keeFoxSampleEntries);
-
-            // Add a seperator and menu item to the group context menu
-            ContextMenuStrip gcm = host.MainWindow.GroupContextMenu;
-            _tsSeparator1 = new ToolStripSeparator();
-            gcm.Items.Add(_tsSeparator1);
-            _keeFoxRootMenu = new ToolStripMenuItem();
-            _keeFoxRootMenu.Text = "Set as KeeFox start group";
-            _keeFoxRootMenu.Click += OnMenuSetRootGroup;
-            gcm.Items.Add(_keeFoxRootMenu);
-
-            // not acting on upgrade info just yet but we need to track it for future proofing
-            bool upgrading = refreshVersionInfo(host);            
-
-            if (!_RPCServer.IsListening)
-                MessageBox.Show("Could not start listening for RPC connections. KeePassRPC will not function and any services that rely on it will fail to connect to KeePass.");
-
-            // for debug only:
-            //WelcomeForm wf = new WelcomeForm();
-            //DialogResult dr = wf.ShowDialog();
-            //if (dr == DialogResult.Yes)
-            //    CreateNewDatabase();
-
-            GwmWindowAddedHandler = new EventHandler<GwmWindowEventArgs>(GlobalWindowManager_WindowAdded);
-            GlobalWindowManager.WindowAdded += GwmWindowAddedHandler;
-			
+            }
+            if (logger != null) logger.WriteLine("KPRPC startup succeeded.");
 			return true; // Initialization successful
 		}
 
@@ -727,6 +757,9 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             ContextMenuStrip gcm = _host.MainWindow.GroupContextMenu;
             gcm.Items.Remove(_tsSeparator1);
             gcm.Items.Remove(_keeFoxRootMenu);
+
+            if (logger != null)
+                logger.Close();
         }
 
         private void OnKPDBSelected(object sender, EventArgs e)

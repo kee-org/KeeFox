@@ -35,10 +35,12 @@ using System;
 using System.Collections;
 using System.Security.Cryptography;
 using Mono.Security.X509;
+using System.IO;
+using KeePassRPC;
 
 namespace Mono.Tools
 {
-	public class MakeCert
+    public class MakeCertKPRPC
     {
         /// <summary>
         /// Generates an X509 certificate using the Mono.Security assembly.
@@ -48,7 +50,7 @@ namespace Mono.Tools
         /// <param name="subject">The subject.</param>
         /// <param name="issuer">The issuer.</param>
         /// <returns></returns>
-        public static byte[] Generate(string subject, string issuer)
+        public static byte[] Generate(string subject, string issuer, KeePassRPCExt KeePassRPCPlugin)
         {
             byte[] sn = Guid.NewGuid().ToByteArray();
             DateTime notBefore = DateTime.Now;
@@ -84,7 +86,7 @@ namespace Mono.Tools
             byte[] rawcert = cb.Sign(issuerKey);
 
             PKCS12 p12 = new PKCS12();
-            
+
             ArrayList list = new ArrayList();
             // we use a fixed array to avoid endianess issues 
             // (in case some tools requires the ID to be 1).
@@ -95,7 +97,19 @@ namespace Mono.Tools
             p12.AddCertificate(new X509Certificate(rawcert), attributes);
             p12.AddPkcs8ShroudedKeyBag(subjectKey, attributes);
 
-           // p12.SaveToFile(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\test.p12");
+            if (Type.GetType("Mono.Runtime") != null)
+            {
+                var fileName = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12");
+                if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine(fileName);
+                try
+                {
+                    p12.SaveToFile(fileName);
+                }
+                catch (Exception ex)
+                {
+                    if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Could not write to " + fileName + " security between KPRPC and clients may not be established.");
+                }
+            }
 
             return p12.GetBytes();
         }

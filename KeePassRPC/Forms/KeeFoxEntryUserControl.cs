@@ -746,9 +746,10 @@ namespace KeePassRPC.Forms
                 fields.Add(kfff.Name,new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page));
 
                 string type = Utilities.FormFieldTypeToDisplay(kfff.Type,false);
+                int page = kfff.Page;
 
                 // We know any new passwords are not the main Entry password
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Value, kfff.Id, type, kfff.Page.ToString() });
+                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Value, kfff.Id, type, page.ToString() });
                 AddFieldListItem(lvi);
 
                 //////if (kfff.Type != FormFieldType.FFTusername
@@ -773,7 +774,6 @@ namespace KeePassRPC.Forms
         private void buttonFieldEdit_Click(object sender, EventArgs e)
         {
             ListView.SelectedListViewItemCollection lvsicSel = listView2.SelectedItems;
-
             List<string> all = new List<string>();
             for (int i = 0; i < listView2.Items.Count; ++i)
                 all.Add(listView2.Items[i].Text);
@@ -796,10 +796,11 @@ namespace KeePassRPC.Forms
                     displayName = kfff.Value;
 
                 string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
+                int page = kfff.Page;
 
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Value, kfff.Id, type, kfff.Page.ToString() });
+                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Value, kfff.Id, type, page.ToString() });
                 AddFieldListItem(lvi);
-                fields.Add(kfff.Name, new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, kfff.Page));
+                fields.Add(kfff.Name, new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page));
 
 
                 UpdateFieldStrings();

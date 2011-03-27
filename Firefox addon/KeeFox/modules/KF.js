@@ -41,6 +41,9 @@ function KeeFox()
 {
     this._KFLog = KFLog;
     
+    this.os = Components.classes["@mozilla.org/xre/app-info;1"]
+            .getService(Components.interfaces.nsIXULRuntime).OS;
+        
     this._keeFoxExtension = {};
     this._keeFoxExtension.storage = {
         _storage : {},
@@ -328,9 +331,7 @@ KeeFox.prototype = {
         
     _keeFoxVariableInit : function()
     {
-        var notWindows = false;
-        
-        if (notWindows)
+        if (this.os != "WINNT")
         {
             this._keeFoxStorage.set("KeePassRPCInstalled", true);
             return;
@@ -718,23 +719,24 @@ KeeFox.prototype = {
     
     launchKeePass: function(params)
     {
-        var notWindows = false;
+        var fileName = "unknown";
         
-        if (notWindows)
+        if (this.os != "WINNT")
         {
-            var file = Components.classes["@mozilla.org/file/local;1"]
-                   .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath("mono KeePass.exe");
-
-            var process = Components.classes["@mozilla.org/process/util;1"]
-                          .createInstance(Components.interfaces.nsIProcess);
-            process.init(file);
-            process.run(false, args, args.length);
-            return;
+            //TODO: make it work with some config settings (different paths?)
+            fileName = "mono";
+            if (params != "")
+                params = "~/KeePass/" + "KeePass.exe" + " " + params;
+            else
+                params = "~/KeePass/" + "KeePass.exe";
         } else if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
             this._KFLog.error("Could not load KeePass - no keePassInstalledLocation found!");
             return;
+        } else
+        {
+            fileName = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation",
+                        "C:\\Program files\\KeePass Password Safe 2\\") + "KeePass.exe";
         }
         
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
@@ -745,8 +747,6 @@ KeeFox.prototype = {
                 this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
         }
         var args = [];
-        var fileName = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation",
-                        "C:\\Program files\\KeePass Password Safe 2\\") + "KeePass.exe";
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
@@ -808,12 +808,6 @@ KeeFox.prototype = {
         
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeePassRPCInstalled", false);
-
-        //TODO 0.9: might need to put this elsewhere...
-        // why not here?
-        //TEST: Needed if main button does not change to "install" mode during first run or upgrade run
-        //this._KFLog.debug("Setting up install KeeFox button.");
-        //currentKFToolbar.setupButton_install(currentWindow);
     },
     
     // if the MRU database is known, open that but otherwise send empty string which will cause user

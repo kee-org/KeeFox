@@ -158,13 +158,10 @@ namespace KeePassRPC.DataExchangeModel
     
     public class Entry : LightEntry
     {
-		public string[] URLs;
 		public string FormActionURL;
 		public string HTTPRealm;
-		public string Title;
 		public FormField[] FormFieldList;
 		//bool exactMatch; // URLs match exactly *THIS MAY BE REMOVED IN THE NEXT VERSION* (should be up to consumer to decide what determines an exact match - it may differ between clients or vary based on specific use cases in the client)
-		public string UniqueID;
 		
 		public bool AlwaysAutoFill;
 		public bool NeverAutoFill;
@@ -175,7 +172,6 @@ namespace KeePassRPC.DataExchangeModel
 		// bool autoTypeOnly "KeeFox config: only autoType" This is probably redundant considering feature request #19?
 
         public Group Parent;
-		public string IconImageData;
 
         public Entry() { }
 

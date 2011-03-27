@@ -11,7 +11,7 @@ namespace KeePassRPC.Forms
 {
     public partial class KeeFoxFieldForm : Form
     {
-        public string Name;
+        public new string Name;
         public string Value;
         public string Id;
         public FormFieldType Type;
