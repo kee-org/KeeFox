@@ -786,7 +786,7 @@ KeeFox.prototype = {
         else
             process.runAsync(args, 2, callback);
     },
-    
+
     _launchInstaller: function(currentKFToolbar,currentWindow, upgrade)
     {
         if (this._installerTabLoaded)
@@ -1058,8 +1058,14 @@ KeeFox.prototype = {
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess);
         this._KFLog.debug("file path: " + file.path);
-        process.init(file);
-        process.run(true, [], 0); //TODO2: make async?
+        try {
+            process.init(file);
+            process.run(true, [], 0); //TODO2: make async?
+        } catch (ex)
+        {
+            // assume failure means they are not admin
+            return false;
+        }
         return process.exitValue;
     },
 

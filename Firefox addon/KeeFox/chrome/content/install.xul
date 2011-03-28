@@ -155,6 +155,10 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
 
               <!-- these boxes can be styled to be big massive pretty "click me!" buttons -->
 
+              <vbox id="installationFoundWarning" hidden="true">
+                <description class="warning">&KeeFox_Install_Already_Installed_Warning.description;</description>
+              </vbox>
+
               <!-- IC1, IC4 -->
               <vbox id="setupExeInstallButtonMain" hidden="true">
                 <button label="&KeeFox_Install_Setup_KeeFox.label;"

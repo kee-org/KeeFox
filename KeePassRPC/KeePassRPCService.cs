@@ -675,6 +675,14 @@ namespace KeePassRPC
                     }
                     catch (Exception) { realm = ""; }
                 }
+                if (string.IsNullOrEmpty(realm))
+                {
+                    try
+                    {
+                        realm = GetPwEntryString(pwe, "KPRPC HTTP realm");
+                    }
+                    catch (Exception) { realm = ""; }
+                }
 
                 FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
                 Entry kpe = new Entry(
@@ -843,7 +851,7 @@ namespace KeePassRPC
                 pwe.Strings.Set("KPRPC Alternative URLs", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, altURLs));
 
             pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.FormActionURL ?? ""));
-            pwe.Strings.Set("KPRPC Form HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm ?? ""));
+            pwe.Strings.Set("KPRPC HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm ?? ""));
 
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));

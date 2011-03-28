@@ -197,9 +197,10 @@ namespace KeePassRPC.Forms
                     foreach (string url in existingLi.SubItems[1].Text.Split(' '))
                         listRegExBlockedURLs.Add(url);
                 }
-                else if (existingLi.Text == "Form HTTP realm" || existingLi.Text == "KPRPC HTTP realm")
+                else if (existingLi.Text == "Form HTTP realm" || existingLi.Text == "KPRPC HTTP realm" || existingLi.Text == "KPRPC form HTTP realm")
                 {
                     removeAdvancedString("Form HTTP realm");
+                    removeAdvancedString("KPRPC form HTTP realm");
                     textBoxKeeFoxRealm.Text = existingLi.SubItems[1].Text;
                 }
 

@@ -79,7 +79,7 @@
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );' accesskey="&KeeFox_Menu-Button.options.key;" />
-
+        
         <menu id="KeeFox_Help-Button" tooltiptext="&KeeFox_Menu-Button.Help.tip;"
                    class="" image="" label="&KeeFox_Menu-Button.Help.label;"  accesskey="&KeeFox_Menu-Button.Help.key;" >
           <menupopup id="KeeFox_Help-Popup">

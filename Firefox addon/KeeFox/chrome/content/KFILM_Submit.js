@@ -1,13 +1,12 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the javascript file containing functions directly used to handle submitted forms.
   It appends functions onto the KFILM object defined in KFILM.js
   
-  Some of the code is based on Mozilla's nsLoginManager.js, used under
-  GPL 2.0 terms. A few functions are currently unused and really just
-  there in case they prove useful in the future.
+  Little bits of the code is based on Mozilla's nsLoginManager.js, used under
+  GPL 2.0 terms.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -233,6 +232,88 @@ KFILM.prototype._onFormSubmit = function (form)
         this._onFormSubmitFindLoginsComplete(null,submitDocumentDataStorage);
     }
     
+};
+
+/*
+ * _onHTTPAuthSubmit
+ *
+ * Called after an HTTP auth (or similar dialog) submission.
+ * Tries to identify new passwords
+ */
+KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, schemeAndHost, realm)
+{
+    var currentGBrowser = window.gBrowser;
+    var win = window;
+    var doc = currentGBrowser.contentDocument;
+    
+    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+             .getService(Components.interfaces.nsISessionStore);
+
+    var tabIndex = currentGBrowser.getBrowserIndexForDocument(doc);
+    if (tabIndex == undefined || tabIndex == null || tabIndex < 0)
+    {
+        KFLog.error("Invalid tab index for current document.");
+        return;
+    }
+    
+    var currentTab = currentGBrowser.mTabs[tabIndex];
+    
+    //TODO2: do we actually need to do this for HTTPAuth saving?
+    // under no circumstances will we cancel the form
+    // submit so we can set this value now to help us 
+    // track when pages are being navigated without form
+    // submissions and hence aid automatic cancellation
+    // of multi-page login forms 
+    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 1);
+    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);    
+    
+    // always reset for HTTP Auth dialogs - multi-page logins not supported.
+    var currentPage = 1;
+    
+    // create a kfLoginInfo object to represent all relevant login details
+    var formLogin = newkfLoginInfo();
+    
+    var loginURLs = [];
+    loginURLs.push(schemeAndHost);
+        
+    var passwordFields = [];
+    var otherFields = [];    
+    passwordFields[0] = newkfLoginField();
+    otherFields[0] = newkfLoginField();    
+    otherFields[0].init(
+                "username", username, "", "text", currentPage);
+    passwordFields[0].init(
+                "password", password, "", "password", currentPage);
+         
+    formLogin.init(loginURLs, null, realm, 0,
+        passwordFields, null, realm, otherFields, currentPage);
+    
+    var submitDocumentDataStorage = {};
+    submitDocumentDataStorage.formLogin = formLogin;
+    submitDocumentDataStorage.formActionURL = "";
+    submitDocumentDataStorage.URL = schemeAndHost;
+    submitDocumentDataStorage.isPasswordChangeForm = false;
+    submitDocumentDataStorage.isRegistrationForm = false;
+    submitDocumentDataStorage.existingLogin = false;
+    submitDocumentDataStorage.win = win;
+    submitDocumentDataStorage.currentPage = currentPage;
+    submitDocumentDataStorage.ss = ss;
+    submitDocumentDataStorage.currentTab = currentTab;
+    submitDocumentDataStorage.doc = doc;
+    submitDocumentDataStorage.topDoc = doc;
+    submitDocumentDataStorage.savePageCountToTab = true;
+    
+    // if we still don't think this is an existing loging and the user is logged in,
+    // we might as well check to see if the dialog info they have filled in 
+    // matches any existing password and not bother showing the notification bar if that's the case.
+    if (!submitDocumentDataStorage.existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+    {
+        this.findLogins(submitDocumentDataStorage.URL, null, realm, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
+        
+    } else // no need to wait for async response from KeePassRPC
+    {
+        this._onFormSubmitFindLoginsComplete(null,submitDocumentDataStorage);
+    }
 };
 
 /*

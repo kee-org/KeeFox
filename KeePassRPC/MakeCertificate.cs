@@ -99,13 +99,13 @@ namespace Mono.Tools
 
             if (Type.GetType("Mono.Runtime") != null)
             {
-                var fileName = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12");
+                string fileName = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12");
                 if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine(fileName);
                 try
                 {
                     p12.SaveToFile(fileName);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Could not write to " + fileName + " security between KPRPC and clients may not be established.");
                 }

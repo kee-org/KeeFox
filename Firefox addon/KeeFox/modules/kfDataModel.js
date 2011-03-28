@@ -276,6 +276,7 @@ kfLoginInfo.prototype =
 
     _allPasswordsMatch : function (passwords)
     {
+        var matches = 0;
         if (this.passwords.length != passwords.length)
             return false;
             

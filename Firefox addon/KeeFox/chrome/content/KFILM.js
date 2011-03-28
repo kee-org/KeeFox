@@ -1029,7 +1029,5 @@ KFILM.prototype = {
     
    };
    
-//var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-//                       .getService(Components.interfaces.mozIJSSubScriptLoader); 
 keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM_Fill.js");
 keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM_Submit.js");

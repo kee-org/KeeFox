@@ -68,6 +68,9 @@ var keeFoxDialogManager = {
         }
     },
     
+    realm: null,
+    host: null,
+    
     prepareFill : function()
     {
         if (document.getElementById("loginTextbox") != null
@@ -77,7 +80,54 @@ var keeFoxDialogManager = {
 		    && document.getElementById("password1Container") != null
 		    && !document.getElementById("password1Container").hidden)
 		{
-			    
+            keeFoxInst._KFLog.debug("prepareFill accepted"); 
+            
+		    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var parentWindow = wm.getMostRecentWindow("navigator:browser");
+            
+            var currentGBrowser = parentWindow.gBrowser;
+            var domWin = parentWindow;
+            var domDoc = currentGBrowser.contentDocument;	                
+            var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIWebNavigation)
+                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                   .rootTreeItem
+                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIDOMWindow); 
+                       
+            var currentTab = currentGBrowser.selectedTab;
+            var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                    .getService(Components.interfaces.nsISessionStore);
+                        
+            // we always remove this - multi-page HTTP Auth forms are not supported.
+            var removeTabSessionStoreData = true;
+            
+            var mustAutoSubmit = false;
+                            
+            // see if this tab has our special attributes and promote them to session data
+            //TODO2: Some of this block is probably redundant
+            // unless we add support for multi-page logins
+            if (currentTab.hasAttribute("KF_uniqueID"))
+            {
+                keeFoxInst._KFLog.debug("has uid");                
+                ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                mustAutoSubmit = true;
+                currentTab.removeAttribute("KF_uniqueID")
+            }
+            
+            ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
+            ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
+        
+            if (removeTabSessionStoreData)
+            {
+                // remove the data that helps us track multi-page logins, etc.
+                keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
+                parentWindow.keefox_org.toolbar.clearTabFormFillData();                
+            }
+            
 			var host = "";
 			var realm = "";
 			
@@ -100,7 +150,8 @@ var keeFoxDialogManager = {
             var regEx = new RegExp(currentRealmL10nPattern);
 
             matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-            if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+            if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
+            {
                 if (realmFirst)
                 {
                     host = matches[2];
@@ -168,6 +219,9 @@ var keeFoxDialogManager = {
                         host = matches[1];
                 }
             }
+            
+            this.realm = realm;
+            this.host = host;
             
             if (host.length < 1)
                 return;
@@ -292,6 +346,7 @@ var keeFoxDialogManager = {
 		    loadingPasswords.setAttribute("value", "Loading passwords...");
 		    loadingPasswords.setAttribute("align", "start");
 		    loadingPasswords.setAttribute("flex", "1");
+		    loadingPasswords.setAttribute("id", "keefox-autoauth-box-description");
 		    box.appendChild(loadingPasswords);
 		    row.appendChild(boxLabel);
 		    row.appendChild(box);
@@ -305,6 +360,7 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.host = host;
             dialogFindLoginStorage.realm = realm;
             dialogFindLoginStorage.document = document;
+            dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
 			// find all the logins
 			var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, this.autoFill);
 		    window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
@@ -334,15 +390,18 @@ var keeFoxDialogManager = {
                 kfl.initFromEntry(logins[i]);
                 convertedResult.push(kfl);
             }
-        } else
+        }
+        
+        if (convertedResult.length == 0)
+        {
+            // set "no passwords" message
+            document.getElementById("keefox-autoauth-box-description").setAttribute("value","No matching entries found");
             return;
-        foundLogins = convertedResult;
-            
+        }        
+        
+        foundLogins = convertedResult;            
         var dialogFindLoginStorage = window.keefox_org.ILM.dialogFindLoginStorages[resultWrapper.id];
         
-        
-        
-		    
 	    // auto fill the dialog by default unless a preference or tab variable tells us otherwise
 	    var autoFill = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
         
@@ -393,7 +452,9 @@ var keeFoxDialogManager = {
                 var title = 
                     foundLogins[i].title;
                
-		        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title });
+		        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title,
+		            'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
+		            'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit });
 		        showList = true;
 		        
 
@@ -444,7 +505,15 @@ var keeFoxDialogManager = {
 		}
 
 		
-		
+		if (matchedLogins[bestMatch].alwaysAutoFill)
+		    autoFill = true;
+		if (matchedLogins[bestMatch].neverAutoFill)
+		    autoFill = false;
+		if (matchedLogins[bestMatch].alwaysAutoSubmit)
+		    autoSubmit = true;
+		if (matchedLogins[bestMatch].neverAutoSubmit)
+		    autoSubmit = false;
+		    
 		if (autoFill)
 		{
 		    // fill in the best matching login
@@ -452,9 +521,9 @@ var keeFoxDialogManager = {
 		    dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password
 		}
 		
-		if (autoSubmit)
+		if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
 		{
-		    commonDialogOnAccept();
+		    Dialog.onButton0();
 		    close();
 		}
 		
@@ -464,9 +533,27 @@ var keeFoxDialogManager = {
     {
 		document.getElementById("loginTextbox").value = username;
 		document.getElementById("password1Textbox").value = password;		
-		commonDialogOnAccept();
+		Dialog.onButton0();
 		close();
-	}
+	},
+	
+	kfCommonDialogOnAccept : function ()
+	{
+	    if (document.getElementById("loginTextbox") != null
+		    && document.getElementById("password1Textbox") != null
+		    && document.getElementById("loginContainer") != null
+		    && !document.getElementById("loginContainer").hidden
+		    && document.getElementById("password1Container") != null
+		    && !document.getElementById("password1Container").hidden)
+		{
+		    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var parentWindow = wm.getMostRecentWindow("navigator:browser");
+            parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
+                document.getElementById("password1Textbox").value, this.host, this.realm);
+            Dialog.onButton0();
+	    }
+    }
 };
 
 window.addEventListener("load", keeFoxDialogManager.dialogInit, false); //ael - does this need to be removed, if so where from?

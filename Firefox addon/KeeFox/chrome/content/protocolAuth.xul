@@ -5,7 +5,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
   Overlays all common dialogs with a bit of javascript that determines whether
   the dialog contains a username and password field and if so, links KeeFox to them
@@ -27,7 +27,7 @@
 
 <overlay id="KeeFox-Common-Dialog-Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog id="commonDialog">
+  <dialog id="commonDialog" ondialogaccept="return keeFoxDialogManager.kfCommonDialogOnAccept();">
     <script type="application/x-javascript" src="chrome://keefox/content/commonDialog.js"/>
   </dialog>
 </overlay>

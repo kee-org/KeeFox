@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,10);
+        public static readonly Version PluginVersion = new Version(0,8,11);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -369,8 +369,11 @@ namespace KeePassRPC
 
         void OnToolsInstallKeeFoxSampleEntries(object sender, EventArgs e)
         {
-            InstallKeeFoxSampleEntries(_host.Database);
-            _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
+            if (_host.Database != null && _host.Database.IsOpen)
+            {
+                InstallKeeFoxSampleEntries(_host.Database);
+                _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
+            }
         }
 
         void OnMenuSetRootGroup(object sender, EventArgs e)
@@ -541,13 +544,22 @@ namespace KeePassRPC
                 0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28});
 
-            PwGroup kfpg = RPCService.GetRootPwGroup(pd).FindGroup(groupUuid, false);
+            PwGroup kfpg = RPCService.GetRootPwGroup(pd,"").FindGroup(groupUuid, false);
             if (kfpg == null)
             {
-                kfpg = new PwGroup(false, true, "KeeFox", PwIcon.Folder);
-                kfpg.Uuid = groupUuid;
-                kfpg.CustomIconUuid = iconUuid;
-                pd.RootGroup.AddGroup(kfpg, true);
+                // check that the group doesn't exist outside of the visible home group
+                PwGroup kfpgTest = RPCService.GetRootPwGroup(pd).FindGroup(groupUuid, false);
+                if (kfpgTest == null)
+                {
+                    MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    kfpg = new PwGroup(false, true, "KeeFox", PwIcon.Folder);
+                    kfpg.Uuid = groupUuid;
+                    kfpg.CustomIconUuid = iconUuid;
+                    pd.RootGroup.AddGroup(kfpg, true);
+                }
             }
 
             if (kfpg.FindEntry(entry1Uuid, false) == null)
@@ -586,20 +598,9 @@ namespace KeePassRPC
                     "KeeFox sample entry for HTTP authentication",
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
                 pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "20"));
-                pe.Strings.Set("KPRPC Form HTTP realm", new ProtectedString(false, "KeeFox tutorial sample"));
+                pe.Strings.Set("KPRPC HTTP realm", new ProtectedString(false, "KeeFox tutorial sample"));
                 kfpg.AddEntry(pe, true);
             }
-
-            //pwe.Strings.Set("Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-            //        pwe.Strings.Set("Form field " + kpff.Name + " type", new ProtectedString(false, "select"));
-            //    }
-
-            //    pwe.Strings.Set("Form field " + kpff.Name + " page", new ProtectedString(false, kpff.Page.ToString()));
-
-            //    if (kpff.Id != null && kpff.Id.Length > 0)
-            //        pwe.Strings.Set("Form field " + kpff.Name + " id", new ProtectedString(false, kpff.Id));
-
-            //return whether change was made
 
         }
 

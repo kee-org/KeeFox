@@ -129,3 +129,4 @@
 <!ENTITY KeeFox_Install_NextStep2extra.description "You can launch the tutorial from a few other locations too such as the KeeFox toolbar or from within KeePass.">
 <!ENTITY KeeFox_Install_Finally.description "Finally, if you have any trouble getting KeeFox to work correctly, please take a look at the help resources found at">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Please close KeePass before continuing!">
+<!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass has been detected on your computer. To ensure KeeFox can be setup smoothly, please make sure that it is closed before continuing!">
