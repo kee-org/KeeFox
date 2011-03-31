@@ -523,7 +523,10 @@ var keeFoxDialogManager = {
 		
 		if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
 		{
-		    Dialog.onButton0();
+		    if (typeof Dialog != 'undefined')
+		        Dialog.onButton0();
+		    else
+		        this.legacyDialogSubmit();
 		    close();
 		}
 		
@@ -533,7 +536,10 @@ var keeFoxDialogManager = {
     {
 		document.getElementById("loginTextbox").value = username;
 		document.getElementById("password1Textbox").value = password;		
-		Dialog.onButton0();
+		if (typeof Dialog != 'undefined')
+		    Dialog.onButton0();
+		else
+		    this.legacyDialogSubmit();
 		close();
 	},
 	
@@ -551,8 +557,39 @@ var keeFoxDialogManager = {
             var parentWindow = wm.getMostRecentWindow("navigator:browser");
             parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
                 document.getElementById("password1Textbox").value, this.host, this.realm);
-            Dialog.onButton0();
+            if (typeof Dialog != 'undefined')
+		        Dialog.onButton0();
+		    else
+		        this.legacyDialogSubmit();
 	    }
+    },
+    
+    legacyDialogSubmit : function ()
+	{
+	    gCommonDialogParam.SetInt(0, 0); // say that ok was pressed
+
+      var numTextBoxes = gCommonDialogParam.GetInt(3);
+      var textboxIsPassword1 = gCommonDialogParam.GetInt(4) == 1;
+      
+      if (numTextBoxes >= 1) {
+        var editField1;
+        if (textboxIsPassword1)
+          editField1 = document.getElementById("password1Textbox");
+        else
+          editField1 = document.getElementById("loginTextbox");
+        gCommonDialogParam.SetString(6, editField1.value);
+      }
+
+      if (numTextBoxes == 2) {
+        var editField2;
+        if (textboxIsPassword1)
+          // we had two password fields
+          editField2 = document.getElementById("password2Textbox");
+        else
+          // we only had one password field (and one login field)
+          editField2 = document.getElementById("password1Textbox");
+        gCommonDialogParam.SetString(7, editField2.value);
+      }
     }
 };
 

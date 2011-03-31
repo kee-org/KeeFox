@@ -548,10 +548,11 @@ namespace KeePassRPC
             if (kfpg == null)
             {
                 // check that the group doesn't exist outside of the visible home group
-                PwGroup kfpgTest = RPCService.GetRootPwGroup(pd).FindGroup(groupUuid, false);
-                if (kfpgTest == null)
+                PwGroup kfpgTestRoot = pd.RootGroup.FindGroup(groupUuid, false);
+                if (kfpgTestRoot != null)
                 {
                     MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
                 else
                 {
