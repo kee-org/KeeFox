@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,11);
+        public static readonly Version PluginVersion = new Version(0,8,12);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -771,20 +771,19 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBOpen(object sender, FileCreatedEventArgs e)
         {
-            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting ICE thread can go ahead
+            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
 
         private void OnKPDBOpen(object sender, FileOpenedEventArgs e)
         {
-            _RPCService.UpdateKeePassRPCGroupFromLocation();
-            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting ICE thread can go ahead
+            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
 
         private void OnKPDBClose(object sender, FileClosedEventArgs e)
         {
-            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting ICE thread can go ahead
+            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_CLOSED);
         }
 

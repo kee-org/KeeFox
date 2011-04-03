@@ -501,7 +501,12 @@ namespace KeePassRPC
 
                     if ((pweKey.StartsWith("Form field ") || pweKey.StartsWith("KPRPC Form field ")) && pweKey.EndsWith(" type") && pweKey.Length > 16)
                     {
-                        string fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
+                        string fieldName = "";
+                        if (pweKey.StartsWith("Form field "))
+                            fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
+                        else
+                            fieldName = pweKey.Substring(17).Substring(0, pweKey.Length - 17 - 5);
+
                         string fieldId = "";
                         int fieldPage = 1;
 
@@ -1093,46 +1098,11 @@ namespace KeePassRPC
             host.CustomConfig.SetString("KeePassRPC.currentLocation", locationId);
             host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
 
-            UpdateKeePassRPCGroupFromLocation();
-
             // tell all RPC clients they need to refresh their representation of the KeePass data
             if (host.Database.IsOpen)
                 KeePassRPCPlugin.SignalAllManagedRPCClients(Signal.DATABASE_SELECTED);
 
             return;
-        }
-
-        public void UpdateKeePassRPCGroupFromLocation()
-        {
-            return; // don't think we need this functionality anymore...
-
-            //if (!host.Database.IsOpen)
-            //    return;
-
-            ////string locationId = host.CustomConfig
-            ////    .GetString("KeePassRPC.currentLocation", "default");
-            //// If any listed group UUID is found in this database, set it as the KeeFox home group
-            //string rootGroupsConfig = host.CustomConfig
-            //    .GetString("KeePassRPC.knownLocations." + locationId + ".RootGroups", "");
-            //string[] rootGroups = new string[0];
-
-            //if (!string.IsNullOrEmpty(rootGroupsConfig))
-            //{
-            //    rootGroups = rootGroupsConfig.Split(',');
-            //    foreach (string rootGroupId in rootGroups)
-            //    {
-            //        PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(rootGroupId));
-            //        PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
-
-            //        if (matchedGroup == null)
-            //            continue;
-
-            //        //TODO 0.9: Maybe it's a bit confusing to change the default when changing selected location? No "get root group" understands locations this might be un-necessary?
-            //        //host.Database.CustomData.Set("KeePassRPC.KeeFox.rootUUID", rootGroupId);
-            //        //host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-            //        break;
-            //    }
-            //}
         }
 
         [JsonRpcMethod]

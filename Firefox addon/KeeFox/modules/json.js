@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,11];
+    this.clientVersion = [0,8,12];
 }
 
 jsonrpcClient.prototype = new session();
@@ -274,7 +274,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         // if any data was left un-handled we store it ready for use when the next TCP packet arrives
         if (lastPacketEndIndex < data.length-1)
         {
-            log.warn("partial data received - not well tested! " + lastPacketEndIndex + ":"  + data.length);
+            log.debug("partial data received" + lastPacketEndIndex + ":"  + data.length);
             if (this.partialData[session] != undefined)
                 this.partialData[session] += data.substr(lastPacketEndIndex,data.length-lastPacketEndIndex);
             else

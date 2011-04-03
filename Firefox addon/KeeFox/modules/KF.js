@@ -713,6 +713,8 @@ KeeFox.prototype = {
         this._refreshKPDBCallback();  
     },
     
+    
+    
     /*******************************************
     / Launching and installing
     /*******************************************/    
@@ -846,22 +848,26 @@ KeeFox.prototype = {
     / KeeFox needs to take against KeePass via the KeePassRPC plugin connection.
     /*******************************************/
     
-    getDatabaseName: function()
+    getDatabaseName: function(index)
     {
+        if (index == undefined)
+            index = this.ActiveKeePassDatabaseIndex;
         if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 
-            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null 
-            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
-            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].name;
+            && this.KeePassDatabases[index] != null 
+            && this.KeePassDatabases[index].root != null)
+            return this.KeePassDatabases[index].name;
         else
             return null;
     },
     
-    getDatabaseFileName: function()
+    getDatabaseFileName: function(index)
     {
+        if (index == undefined)
+            index = this.ActiveKeePassDatabaseIndex;
         if (this.KeePassDatabases != null && this.KeePassDatabases.length > 0 
-            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex] != null 
-            && this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].root != null)
-            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex].fileName;
+            && this.KeePassDatabases[index] != null 
+            && this.KeePassDatabases[index].root != null)
+            return this.KeePassDatabases[index].fileName;
         else
             return null;
     },

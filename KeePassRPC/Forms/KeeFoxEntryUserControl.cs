@@ -672,8 +672,10 @@ namespace KeePassRPC.Forms
                 if (field.DisplayName != "KeePass username" && field.DisplayName != "KeePass password")
                     changeAdvancedString("KPRPC Form field " + field.Name +" value", field.Value, false);
                 changeAdvancedString("KPRPC Form field " + field.Name + " type", type, false);
-                if (field.Id.Length > 0)
+                if (!string.IsNullOrEmpty(field.Id))
                     changeAdvancedString("KPRPC Form field " + field.Name + " id", field.Id, false);
+                else
+                    changeAdvancedString("KPRPC Form field " + field.Name + " id", "", false);
                 if (field.Page >= 0)
                     changeAdvancedString("KPRPC Form field " + field.Name + " page", field.Page.ToString(), false);
             }

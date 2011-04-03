@@ -228,7 +228,6 @@ session.prototype =
                         .createInstance(Components.interfaces.nsIInputStreamPump);
             this.pump.init(this.raw_istream, -1, -1, 0, 0, false);
             this.pump.asyncRead(this, null);
-            //TODO2: ?why? put in a notify function... this.onNotify("transport-status-connected", null);
         } catch(ex) {
             log.error(ex, "Session::onConnect failed: ");
             this.onNotify("connect-failed", "Unable to connect; Exception occured "+ex);

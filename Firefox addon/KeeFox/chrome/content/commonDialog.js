@@ -1,14 +1,11 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
 This hooks onto every common dialog in Firefox and for any dialog that contains one
 username and one password (with the usual Firefox field IDs) it will discover
 any matching logins and depending on preferences, etc. it will fill in the
 dialog fields and/or populate a drop down box containing all of the matching logins.
-
-TODO 0.9: extend so that new passwords can be saved automatically too (at the moment
-you have to add them via KeePass)
 
 Some ideas and code snippets from AutoAuth Firefox extension:
 https://addons.mozilla.org/en-US/firefox/addon/4949

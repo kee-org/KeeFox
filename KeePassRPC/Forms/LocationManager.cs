@@ -38,7 +38,7 @@ namespace KeePassRPC.Forms
             //string rootGroupsConfig = host.CustomConfig
             //        .GetString("KeePassRPC.knownLocations." + location + ".RootGroups", "");
 
-            //TODO 0.9: remove RootGroups that no longer have an associated location... how? can't interate through config entries!
+            //TODO2: remove RootGroups that no longer have an associated location... how? can't interate through config entries!
         }
 
         private void button2_Click(object sender, EventArgs e)

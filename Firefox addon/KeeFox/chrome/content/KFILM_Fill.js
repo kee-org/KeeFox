@@ -154,24 +154,43 @@ KFILM.prototype._fillManyFormFields = function
                 // to fill with the value in this field, skip on to the next possibility...
                 if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
                     continue;
+                    
+                // if this is not a potential text field we ignore it (not so
+                // important to try to match with innacurate names for
+                // non-text fields and there are some bad side-effects so best avoided) 
+                if (!(pageFields[i].type == ""
+                        || pageFields[i].type == null 
+                        || pageFields[i].type == undefined
+                        || pageFields[i].type == "text"
+                        || pageFields[i].type == "username")) //TODO2: don't think this is possible; plus simplify logic in later if statements cos we know something about the field type now
+                    continue;
+                    
                 var matchedField = matchFields[j];
                 
-                if ((pageFields[i].type == matchedField.type && pageFields[i].type != "text")
-                    || (pageFields[i].type == "text" && matchedField.type == "username"))
+                if (
+                    ((pageFields[i].type == "" || pageFields[i].type == null 
+                            || pageFields[i].type == undefined || pageFields[i].type == "text") && matchedField.type == "username")
+                    || ((pageFields[i].type == "" || pageFields[i].type == null 
+                            || pageFields[i].type == undefined || pageFields[i].type == "username") && matchedField.type == "text"))
                 {
-                    matchedValues[j] = matchedField.value;
-                    matchedIds[j] = i;
-                    KFLog.debug("Data field "+j+" is a match for form field " + i);
-                    break;
-                }
-
-                if (backupMatchedValues[j] != undefined && backupMatchedValues[j] != null 
-                    && backupMatchedValues[j] != "" && (pageFields[i].type == matchedField.type
-                    || (pageFields[i].type == "text" && matchedField.type == "username")
-                    || (pageFields[i].type == "username" && matchedField.type == "text")
-                   ))
-                {
-
+                // all of these matches are considered backup options only...
+//                    matchedValues[j] = matchedField.value;
+//                    matchedIds[j] = i;
+//                    KFLog.debug("Data field "+j+" is a match for form field " + i);
+//                    break;
+//                }
+//                
+//                // Don't think this ever made any sense...
+//                //TODO2: Review if I'm missing a trick by skipping this code
+//                //TODO: Can we match against empty form type here too?
+//                if ((backupMatchedValues[j] == undefined || backupMatchedValues[j] == null 
+//                    || backupMatchedValues[j] == "") && (pageFields[i].type == matchedField.type
+//                    || ((pageFields[i].type == "" || pageFields[i].type == null 
+//                            || pageFields[i].type == undefined || pageFields[i].type == "text") && matchedField.type == "username")
+//                    || ((pageFields[i].type == "" || pageFields[i].type == null 
+//                            || pageFields[i].type == undefined || pageFields[i].type == "username") && matchedField.type == "text")
+//                   ))
+//                {
                     backupMatchedValues[j] = matchedField.value;
                     backupMatchedIds[j] = i;
                     KFLog.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
