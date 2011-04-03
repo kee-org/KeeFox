@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
@@ -389,14 +389,6 @@
 			</File>
 			<File
 				RelativePath=".\KeeFox\modules\KFLogger.js"
-				>
-			</File>
-			<File
-				RelativePath=".\KeeFox\chrome\content\KFtest.js"
-				>
-			</File>
-			<File
-				RelativePath=".\KeeFox\chrome\content\KFtestDefinitions.js"
 				>
 			</File>
 			<File

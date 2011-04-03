@@ -177,10 +177,11 @@ namespace KeePassRPC.Forms
                     removeAdvancedString("KeeFox Priority");
                     textBoxKeeFoxPriority.Text = existingLi.SubItems[1].Text;
                 }
-                else if (existingLi.Text == "KPRPC Alternative URLs")
+                else if (existingLi.Text == "KPRPC Alternative URLs" || existingLi.Text == "Alternative URLs")
                 {
                     foreach (string url in existingLi.SubItems[1].Text.Split(' '))
                         listNormalURLs.Add(url);
+                    removeAdvancedString("Alternative URLs");
                 }
                 else if (existingLi.Text == "KPRPC Blocked URLs")
                 {

@@ -577,7 +577,7 @@ namespace KeePassRPC
                     "KeeFox sample entry with alternative URL",
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
                 pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "5"));
-                pe.Strings.Set("Alternative URLs", new ProtectedString(false, @"http://tutorial-section-c.keefox.org/part3"));
+                pe.Strings.Set("KPRPC Alternative URLs", new ProtectedString(false, @"http://tutorial-section-c.keefox.org/part3"));
                 kfpg.AddEntry(pe, true);
             }
 

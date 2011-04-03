@@ -1756,7 +1756,7 @@ namespace KeePassRPC
         private bool matchesAnyURL(PwEntry pwe, string url, string hostname, bool allowHostnameOnlyMatch)
         {
             if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url) || (allowHostnameOnlyMatch && pwe.Strings.ReadSafe("URL").Contains(hostname)))
+                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url) || (allowHostnameOnlyMatch && pwe.Strings.ReadSafe("URL").ToLower().Contains(hostname)))
                )
                 return true;
 
@@ -1764,7 +1764,7 @@ namespace KeePassRPC
             urls = urls + (string.IsNullOrEmpty(urls) ? "" : " ") + pwe.Strings.ReadSafe("KPRPC Alternative URLs");
             string[] urlsArray = urls.Split(new char[]{' '});
             foreach (string altURL in urlsArray)
-                if (altURL.Contains(url) || (allowHostnameOnlyMatch && altURL.Contains(hostname)))
+                if (altURL.Contains(url) || (allowHostnameOnlyMatch && altURL.ToLower().Contains(hostname)))
                     return true;
 
             return false;
@@ -1783,6 +1783,16 @@ namespace KeePassRPC
 
         }
 
+        /// <summary>
+        /// Finds entries
+        /// </summary>
+        /// <param name="URLs">The URLs to search for. Host must be lower case as per the URI specs. Other parts are case sensitive.</param>
+        /// <param name="actionURL">The action URL.</param>
+        /// <param name="httpRealm">The HTTP realm.</param>
+        /// <param name="lst">The type of login search to perform. E.g. look for form matches or HTTP Auth matches.</param>
+        /// <param name="requireFullURLMatches">if set to <c>true</c> require full URL matches - host name match only is unacceptable.</param>
+        /// <param name="uniqueID">The unique ID of a particular entry we want to retrieve.</param>
+        /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
         public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, string uniqueID)
         {            
@@ -1801,10 +1811,6 @@ namespace KeePassRPC
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
-
-
-                //MessageBox.Show(KeePass.Util.Spr.SprEngine.Compile(matchedLogin.Strings.ReadSafe("Password"), false, matchedLogin, host.Database, false, false));
-       //         MessageBox.Show(KeePass.Util.Spr.SprEngine.Compile(matchedLogin.Strings.ReadSafe("Password"), false, null, host.Database, false, false));
 
                 Entry[] logins = new Entry[1];
                 logins[0] = (Entry)GetEntryFromPwEntry(matchedLogin, true, true);
