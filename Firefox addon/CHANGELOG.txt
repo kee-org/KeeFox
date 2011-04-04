@@ -1,6 +1,51 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.12
+------
+HTTPAuth logins now respect the entries auto-fill/submit preferences;
+HTTPAuth logins can be "one-click"ed from the Logins menu;
+HTTPAuth dialogs now report when 0 passwords are found;
+HTTPAuth dialogs now prompt to save password (using main domain URL only - maybe could use parent window URL in future...);
+Fixes #84 : Setup process displays a warning to close KeePass if an installation is detected on the PC (regardless of whether it's open or not);
+Installing KeeFox sample entries no longer crashes KeePass when no DB is active;
+User is now warned if KeeFox samples group already exists in a hidden part of the DB;
+fixed (actually in rev 104): another situation where entries could be incorrectly treated as different on submit when in fact they match an existing login (not convinced this particular situation arises much in the real world);
+HTTP Auth dialogs now work again in FF3.6;
+Conditional addition of KeePass sample entries actually works now;
+now only guess correct form field by type if it is a text field (other types must have been entered into the KeePass entry anyway so should have a name in most cases and this will avoid some false positives);
+field names were being sent from KeePassRPC with incorrect values, leading to innaccurate form field matching;
+hostname matching is now case-insensitive;
+Fixed: older "Alternative URLs" did not always appear in the "URLs" tab in the "edit entry" KeePass entry tab;
 
+0.8.9
+-----
+changed URL weighting in form fill algorithm;
+Added KeeFox help centre link to help menu;
+Title of login added to HTTP Auth tooltips;
+Logins with matching realm given priority for auto-filling HTTP Auth, etc.;
+KeeFox icon added to some KPRPC dialogs (in absense of KPRPC icon to use);
+tidied up a few comments
+CheckForAdminRights application now runs as a Windows app rather than DOS so there's no longer a brief flash of a command window during initial install;
+Fixed: Auto-submitting logins to HTTP Auth (etc.) dialog boxes causes parent window to close;
+KeePass 2.14 set as default download now;
+installer can be restarted now without restarting Firefox;
+Canceling a download displays a message as well as the "restart" button;
+Failed download checksum displays a message and presents a "retry" button;
+various installation stages did not proceed automatically - now they do;
+initiating the download of the KeePass ZIP file or .NET 3.5 installer now triggers the KeePass setup exe or .NET 2 installer to stop downloading;
+Extra links to help resources added to various parts of the installer (now I just need to create the resources!);
+Completed setup process now suggests two "next steps" to get new users up and running ASAP;
+Fixed: regular polling for new/changed forms caused a "flashing" effect while the matched logins menu was wiped clear and then re-populated with new matches;
+Logins from multiple subframes and dynamically created forms (if appropriate option set) now get appended to existing list of matched logins rather than replacing what was already there;
+removed some more event listeners (possible memory leak fix?);
+initial SQL setup commands no longer execute async - proved too unreliable and we do only do it the once but still it's a bit ick;
+changing log settings, dynamic form scanning and KeePass location can now be done without restarting Firefox;
+KeePass entry dialog editor KeeFox tab now split into three subtabs to make it feel less cramped;
+An entry's realm can now be set through the KeeFox tab in KeePass;
+Group settings (i.e. just whether it's the KeeFox home/root group at the moment) are now qualified by location;
+New location manager added to KeePassRPC;
+No longer overwrite default KeeFox home group with that from a specific location (maybe the underlying cause of a couple of odd bugs?);
+Installer no longer overwrites existing KeePass installations when custom (or non administrator) installation is performed;
 
 0.8.7
 -----
