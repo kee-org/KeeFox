@@ -162,7 +162,8 @@ KFILM.prototype._fillManyFormFields = function
                         || pageFields[i].type == null 
                         || pageFields[i].type == undefined
                         || pageFields[i].type == "text"
-                        || pageFields[i].type == "username")) //TODO2: don't think this is possible; plus simplify logic in later if statements cos we know something about the field type now
+                        || pageFields[i].type == "username"
+                        || pageFields[i].type == "password")) //TODO2: don't think this is possible; plus simplify logic in later if statements cos we know something about the field type now
                     continue;
                     
                 var matchedField = matchFields[j];
@@ -171,7 +172,8 @@ KFILM.prototype._fillManyFormFields = function
                     ((pageFields[i].type == "" || pageFields[i].type == null 
                             || pageFields[i].type == undefined || pageFields[i].type == "text") && matchedField.type == "username")
                     || ((pageFields[i].type == "" || pageFields[i].type == null 
-                            || pageFields[i].type == undefined || pageFields[i].type == "username") && matchedField.type == "text"))
+                            || pageFields[i].type == undefined || pageFields[i].type == "username") && matchedField.type == "text")
+                    || (pageFields[i].type == "password" && matchedField.type == "password"))
                 {
                 // all of these matches are considered backup options only...
 //                    matchedValues[j] = matchedField.value;
