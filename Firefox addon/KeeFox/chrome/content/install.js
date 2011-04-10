@@ -21,14 +21,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const KF_KPZIP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.14/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.14.zip";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.14.zip";
-const KF_KPZIP_FILE_CHECKSUM = "4c54f135e3ca10445a97ae02db7a527c";
-const KF_KP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.14/";
-const KF_KP_FILE_NAME = "KeePass-2.14-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
-const KF_KP_SAVE_NAME = "KeePass-2.14-Setup.exe";
-const KF_KP_FILE_CHECKSUM = "bae59065b24f0a6f2ed4bb9e0d6fc65f";
+const KF_KPZIP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.15/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.15.zip";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.15.zip";
+const KF_KPZIP_FILE_CHECKSUM = "3f1f8da59e410e973a4dfb2f5a5342d1";
+const KF_KP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.15/";
+const KF_KP_FILE_NAME = "KeePass-2.15-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
+const KF_KP_SAVE_NAME = "KeePass-2.15-Setup.exe";
+const KF_KP_FILE_CHECKSUM = "db105d13f7b18286b625375d435f729f";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
 const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";

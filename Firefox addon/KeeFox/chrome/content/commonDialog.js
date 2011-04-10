@@ -554,11 +554,12 @@ var keeFoxDialogManager = {
             var parentWindow = wm.getMostRecentWindow("navigator:browser");
             parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
                 document.getElementById("password1Textbox").value, this.host, this.realm);
-            if (typeof Dialog != 'undefined')
+            
+	    }
+	    if (typeof Dialog != 'undefined')
 		        Dialog.onButton0();
 		    else
 		        this.legacyDialogSubmit();
-	    }
     },
     
     legacyDialogSubmit : function ()
