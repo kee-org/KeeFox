@@ -190,6 +190,59 @@ KFILM.prototype = {
         return localDocCount;
     },
     
+    _getSaveOnSubmitForSite : function (siteURL)
+    {
+        var showSaveNotification = false;
+    
+        if (this._kf._keeFoxExtension.prefs.getValue(
+                        "notifyBarRequestPasswordSave",true) 
+                    &&  keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+        {
+            // We don't do this unless we think we have a KeePassRPC connection
+            
+            var siteHP = this._getURISchemeHostAndPort(siteURL);
+            var statement = this._kf._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE tp = 0 AND url = :siteURL AND preventSaveNotification = 1");
+            statement.params.siteURL = siteHP;
+    
+    // would like to do this but async callback may reference
+    // expired (DOM) objects and make Firefox go bang.
+    //TODO2: Maybe make this decision after page load to pre-empt
+    // interaction with any forms that might be on the page?
+//            statement.executeAsync({
+//              handleResult: function(aResultSet) {
+//                var showSaveNotification = false;
+//                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow())
+//                {
+//                  showSaveNotification = true;
+//                }
+//                if (showSaveNotification)
+//                    this._pwmgr._onFormSubmit(formElement);
+//              },
+
+//              handleError: function(aError) {
+//                KFLog.error("KeeFox site URL query cancelled or aborted: " + aError.message);
+//              },
+
+//              handleCompletion: function(aReason) {
+//                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
+//                  KFLog.error("KeeFox site URL query cancelled or aborted: " + aReason);
+//              }
+//            });
+
+            showSaveNotification = true;
+            
+            try
+            {
+                if (statement.executeStep())
+                  showSaveNotification = false;
+            } finally
+            {
+                statement.reset();
+            }
+        }
+        return showSaveNotification;
+    },
+    
     /*
      * _observer object
      *
@@ -214,59 +267,9 @@ KFILM.prototype = {
             KFLog.debug("observer notified for form submission.");
 
             try
-            {
-            
-            
-                if (this._pwmgr._kf._keeFoxExtension.prefs.getValue(
-                        "notifyBarRequestPasswordSave",true) 
-                    &&  keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
-                {
-                    // We don't do this unless we think we have a KeePassRPC connection
-                    
-                    var siteURL = this._pwmgr._getURISchemeHostAndPort(formElement.ownerDocument.documentURI);
-                    var statement = this._pwmgr._kf._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE tp = 0 AND url = :siteURL AND preventSaveNotification = 1");
-                    statement.params.siteURL = siteURL;
-            
-            // would like to do this but async callback may reference
-            // expired (DOM) objects and make Firefox go bang.
-            //TODO2: Maybe make this decision after page load to pre-empt
-            // interaction with any forms that might be on the page?
-//            statement.executeAsync({
-//              handleResult: function(aResultSet) {
-//                var showSaveNotification = false;
-//                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow())
-//                {
-//                  showSaveNotification = true;
-//                }
-//                if (showSaveNotification)
-//                    this._pwmgr._onFormSubmit(formElement);
-//              },
-
-//              handleError: function(aError) {
-//                KFLog.error("KeeFox site URL query cancelled or aborted: " + aError.message);
-//              },
-
-//              handleCompletion: function(aReason) {
-//                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
-//                  KFLog.error("KeeFox site URL query cancelled or aborted: " + aReason);
-//              }
-//            });
-
-                    var showSaveNotification = true;
-                    
-                    try
-                    {
-                        if (statement.executeStep())
-                          showSaveNotification = false;
-                    } finally
-                    {
-                        statement.reset();
-                    }
-                    
-                    if (showSaveNotification)
-                        this._pwmgr._onFormSubmit(formElement);
-                    
-                }
+            {            
+                if (this._pwmgr._getSaveOnSubmitForSite(formElement.ownerDocument.documentURI))
+                    this._pwmgr._onFormSubmit(formElement);
             } catch (e)
             {
                 try
