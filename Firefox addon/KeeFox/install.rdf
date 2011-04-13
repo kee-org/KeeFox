@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.8.15</em:version>
+    <em:version>0.8.16</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -26,7 +26,7 @@
 
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
-    <em:description>Simple and secure password management for KeePass Password Safe users</em:description>
+    <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
     <em:creator>Chris Tomlinson</em:creator>
     <em:contributor>Ben Roberts</em:contributor>
     <em:homepageURL>http://keefox.org</em:homepageURL>
