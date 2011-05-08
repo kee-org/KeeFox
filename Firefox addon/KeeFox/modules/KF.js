@@ -139,7 +139,7 @@ function KeeFox()
     };
     this._keeFoxExtension.prefs._getStringValue = function(name)
     {
-        try { return this._prefBranch.getCharPref(name);
+        try { return this._prefBranch.getComplexValue(name, Components.interfaces.nsISupportsString).data;
         } catch (ex) { return null; }
     };
     this._keeFoxExtension.prefs._getIntValue = function(name)
@@ -163,7 +163,12 @@ function KeeFox()
     };
     this._keeFoxExtension.prefs._setStringValue = function(name, value)
     {
-        try { this._prefBranch.setCharPref(name, value);
+        try { 
+            var str = Components.classes["@mozilla.org/supports-string;1"]
+                .createInstance(Components.interfaces.nsISupportsString);
+            str.data = value;
+            this._prefBranch.setComplexValue(name, 
+                Components.interfaces.nsISupportsString, str);
         } catch (ex) {}
     };
     this._keeFoxExtension.prefs._setIntValue = function(name, value)
@@ -819,7 +824,7 @@ KeeFox.prototype = {
         var databaseFileName = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (databaseFileName == "")
             databaseFileName = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
-            
+
         this.changeDatabase(databaseFileName, true);
     },    
     

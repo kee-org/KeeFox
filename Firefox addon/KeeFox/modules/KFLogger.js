@@ -148,15 +148,15 @@ KeeFoxLogger.prototype = {
     _log : function (message)
     {
         // Don't log anything if user is in private browsing mode, just in case!
-        try
-        {
-            var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
-                        .getService(Components.interfaces.nsIPrivateBrowsingService);
-            if (pbs.privateBrowsingEnabled)
-                return;
-        } catch (nothing) {
-        // log if private browsing feature is unavailable
-        }
+//        try
+//        {
+//            var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
+//                        .getService(Components.interfaces.nsIPrivateBrowsingService);
+//            if (pbs.privateBrowsingEnabled)
+//                return;
+//        } catch (nothing) {
+//        // log if private browsing feature is unavailable
+//        }
         
         //timestamp the message
         var ts = Date();

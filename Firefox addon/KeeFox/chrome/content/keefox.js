@@ -87,7 +87,6 @@ if (keefox_org.shouldLoad)
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUI.js"); 
     Components.utils.import("resource://kfmod/KF.js");
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUtils.js"); 
-    keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFtest.js"); 
 
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window

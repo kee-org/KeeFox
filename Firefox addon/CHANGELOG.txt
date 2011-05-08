@@ -1,5 +1,14 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.17
+------
+Disabled check for private browsing mode while logging - Firefox says that KeeFox isn't allowed to do this
+Double clicking on a form field or url entry in the KeeFox tab in the KeePass "edit entry" dialog now opens the appropriate edit window
+Password fields created through the form field editor were never stored with in-memory protection and existing protected fields could not be edited
+KPRPC: No longer try to close databases that are already closed when changing database via KeeFox
+HTTP Auth dialogs now read URL from parent window for more accurate entry matching
+Unicode characters now stored and read in Firefox preferences system correctly. Fixes #88
+
 0.8.15
 ------
 Fixed: Some other Firefox dialogs were broken when KeeFox was installed

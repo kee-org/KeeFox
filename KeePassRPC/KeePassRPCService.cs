@@ -1066,7 +1066,7 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public void ChangeDatabase(string fileName, bool closeCurrent)
         {
-            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null)
+            if (closeCurrent && host.MainWindow.DocumentManager.ActiveDatabase != null && host.MainWindow.DocumentManager.ActiveDatabase.IsOpen)
             {
                 host.MainWindow.DocumentManager.CloseDatabase(host.MainWindow.DocumentManager.ActiveDatabase);
             }

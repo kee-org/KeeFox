@@ -82,7 +82,7 @@ namespace KeePassRPC.Forms
 
             UIUtil.SetTopVisibleItem(_advancedListView, iTopVisible);
 
-            _strings.Set(name, new ProtectedString(false, value));
+            _strings.Set(name, new ProtectedString(protect, value));
         }
 
         private void checkBoxHideFromKeeFox_CheckedChanged(object sender, EventArgs e)
@@ -671,7 +671,13 @@ namespace KeePassRPC.Forms
                 string type = Utilities.FormFieldTypeToDisplay(field.Type,false);
 
                 if (field.DisplayName != "KeePass username" && field.DisplayName != "KeePass password")
-                    changeAdvancedString("KPRPC Form field " + field.Name +" value", field.Value, false);
+                {
+                    if (field.Type == FormFieldType.FFTpassword)
+                        changeAdvancedString("KPRPC Form field " + field.Name + " value", field.Value, KeePassRPCPlugin._host.Database.MemoryProtection.ProtectPassword);
+                    else
+                        changeAdvancedString("KPRPC Form field " + field.Name + " value", field.Value, false);
+                }
+
                 changeAdvancedString("KPRPC Form field " + field.Name + " type", type, false);
                 if (!string.IsNullOrEmpty(field.Id))
                     changeAdvancedString("KPRPC Form field " + field.Name + " id", field.Id, false);
@@ -753,7 +759,7 @@ namespace KeePassRPC.Forms
                 int page = kfff.Page;
 
                 // We know any new passwords are not the main Entry password
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Value, kfff.Id, type, page.ToString() });
+                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type, page.ToString() });
                 AddFieldListItem(lvi);
 
                 //////if (kfff.Type != FormFieldType.FFTusername
@@ -787,7 +793,7 @@ namespace KeePassRPC.Forms
 
             FormFieldType fft = Utilities.FormFieldTypeFromDisplay(lvsicSel[0].SubItems[3].Text);
 
-            KeeFoxFieldForm kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, lvsicSel[0].SubItems[1].Text, lvsicSel[0].SubItems[2].Text, fft, int.Parse(lvsicSel[0].SubItems[4].Text), others);
+            KeeFoxFieldForm kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, _strings.Get("KPRPC Form field " + lvsicSel[0].SubItems[0].Text + " value").ReadString(), lvsicSel[0].SubItems[2].Text, fft, int.Parse(lvsicSel[0].SubItems[4].Text), others);
 
             if (kfff.ShowDialog() == DialogResult.OK)
             {
@@ -802,7 +808,7 @@ namespace KeePassRPC.Forms
                 string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
                 int page = kfff.Page;
 
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Value, kfff.Id, type, page.ToString() });
+                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type, page.ToString() });
                 AddFieldListItem(lvi);
                 fields.Add(kfff.Name, new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page));
 
@@ -851,6 +857,22 @@ namespace KeePassRPC.Forms
             {
                 buttonFieldEdit.Enabled = false;
                 buttonFieldDelete.Enabled = false;
+            }
+        }
+
+        private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (listView1.SelectedItems.Count > 0)
+            {
+                buttonURLEdit_Click(sender, e);
+            }
+        }
+
+        private void listView2_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (listView2.SelectedItems.Count > 0)
+            {
+                buttonFieldEdit_Click(sender, e);
             }
         }
 
