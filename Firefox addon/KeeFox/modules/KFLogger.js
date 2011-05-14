@@ -148,15 +148,19 @@ KeeFoxLogger.prototype = {
     _log : function (message)
     {
         // Don't log anything if user is in private browsing mode, just in case!
-//        try
-//        {
-//            var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
-//                        .getService(Components.interfaces.nsIPrivateBrowsingService);
-//            if (pbs.privateBrowsingEnabled)
-//                return;
-//        } catch (nothing) {
-//        // log if private browsing feature is unavailable
-//        }
+        
+        // I don't understand why Firefox complains about this check for private
+        // browsing mode but I will ignore its complaints becuase I'm
+        // uncomfortable leaving users with a risk of recording URL data unexpectedly
+        try
+        {
+            var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
+                        .getService(Components.interfaces.nsIPrivateBrowsingService);
+            if (pbs.privateBrowsingEnabled)
+                return;
+        } catch (nothing) {
+        // log if private browsing feature is unavailable
+        }
         
         //timestamp the message
         var ts = Date();

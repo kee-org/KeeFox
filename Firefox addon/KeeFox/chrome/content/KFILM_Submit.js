@@ -36,6 +36,13 @@ Components.utils.import("resource://kfmod/kfDataModel.js");
 KFILM.prototype._onFormSubmit = function (form)
 {
     KFLog.info("Form submit handler started");
+    
+    //do nothing if KeePass is not connected
+    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+    {
+        KFLog.info("Form submit handler skipped (no KeePass connection available)");
+        return;
+    }
 
     var doc = form.ownerDocument;
     var win = doc.defaultView;
