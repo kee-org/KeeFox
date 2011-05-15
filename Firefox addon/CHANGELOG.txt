@@ -2,7 +2,8 @@ This information will often be disseminated onto the official KeeFox website in 
 
 0.8.17
 ------
-Disabled check for private browsing mode while logging - Firefox says that KeeFox isn't allowed to do this
+HTML5 form input types no longer ignored
+No longer prompts to save password if KeePass is not connected (still does when logged out... at least for now)
 Double clicking on a form field or url entry in the KeeFox tab in the KeePass "edit entry" dialog now opens the appropriate edit window
 Password fields created through the form field editor were never stored with in-memory protection and existing protected fields could not be edited
 KPRPC: No longer try to close databases that are already closed when changing database via KeeFox

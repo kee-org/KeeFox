@@ -792,8 +792,13 @@ namespace KeePassRPC.Forms
             others.Remove(lvsicSel[0].Text);
 
             FormFieldType fft = Utilities.FormFieldTypeFromDisplay(lvsicSel[0].SubItems[3].Text);
+            string existingValue = "";
+            if (lvsicSel[0].SubItems[1].Text == "KeePass password" || lvsicSel[0].SubItems[1].Text == "KeePass username")
+                existingValue = lvsicSel[0].SubItems[1].Text;
+            else
+                _strings.Get("KPRPC Form field " + lvsicSel[0].SubItems[0].Text + " value").ReadString();
 
-            KeeFoxFieldForm kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, _strings.Get("KPRPC Form field " + lvsicSel[0].SubItems[0].Text + " value").ReadString(), lvsicSel[0].SubItems[2].Text, fft, int.Parse(lvsicSel[0].SubItems[4].Text), others);
+            KeeFoxFieldForm kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, existingValue, lvsicSel[0].SubItems[2].Text, fft, int.Parse(lvsicSel[0].SubItems[4].Text), others);
 
             if (kfff.ShowDialog() == DialogResult.OK)
             {

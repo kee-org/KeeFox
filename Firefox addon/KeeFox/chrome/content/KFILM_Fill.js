@@ -85,12 +85,10 @@ KFILM.prototype._fillManyFormFields = function
                 )
                 && (!validTabPage || matchedField.formFieldPage == currentTabPage)
                 && (pageFields[i].type == matchedField.type
-                        || ((pageFields[i].type == "text" || pageFields[i].type == "username" 
-                            || pageFields[i].type == "" || pageFields[i].type == null 
-                            || pageFields[i].type == undefined)
-                                && (matchedField.type == "username" 
-                                    || matchedField.type == "text"))
+                    || (this.isATextFormFieldType(pageFields[i].type)
+                            && (matchedField.type == "username" || matchedField.type == "text")
                        )
+                   )
                )
             {
                 matchedValues[j] = matchedField.value;
@@ -124,11 +122,9 @@ KFILM.prototype._fillManyFormFields = function
                     )
                     && (!validTabPage || matchedField.formFieldPage == currentTabPage)
                     && (pageFields[i].type == matchedField.type
-                        || ((pageFields[i].type == "text" || pageFields[i].type == "username" 
-                            || pageFields[i].type == "" || pageFields[i].type == null 
-                            || pageFields[i].type == undefined)
-                                && (matchedField.type == "username" 
-                                    || matchedField.type == "text"))
+                        || (this.isATextFormFieldType(pageFields[i].type)
+                                && (matchedField.type == "username" || matchedField.type == "text")
+                           )
                        )
                    )
                 {

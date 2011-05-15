@@ -608,16 +608,17 @@ KFILM.prototype = {
         // search the DOM for any form fields we might be interested in
         for (var i = 0; i < form.elements.length; i++)
         {        
-            if (form.elements[i].type == undefined || form.elements[i].type == null)
+            if (form.elements[i].localName.toLowerCase() != "input" 
+                && (form.elements[i].type == undefined || form.elements[i].type == null))
                 continue; // maybe it's a fieldset or something else un-interesting
-                
+ 
             var DOMtype = form.elements[i].type.toLowerCase();
             
             KFLog.debug("domtype: "+ DOMtype );
             
-            if (DOMtype != "password" && DOMtype != "text" && DOMtype != "checkbox" 
+            if (DOMtype != "password" && !this.isATextFormFieldType(DOMtype) && DOMtype != "checkbox" 
                 && DOMtype != "radio" && DOMtype != "select-one")
-                continue; // ignoring other form types at the moment
+                continue; // ignoring other form types
             
             if (DOMtype == "checkbox" && isSubmission && form.elements[i].checked == false) continue;
             if (DOMtype == "radio" && isSubmission && form.elements[i].checked == false) continue;            
@@ -640,7 +641,7 @@ KFILM.prototype = {
             
             if (DOMtype == "password" && firstPasswordIndex == -1)
                 firstPasswordIndex = allFields.length-1;
-            if (DOMtype == "text" && firstPossibleUsernameIndex == -1 
+            if (this.isATextFormFieldType(DOMtype) && firstPossibleUsernameIndex == -1 
                 && this._isAKnownUsernameString(form.elements[i].name))
                 firstPossibleUsernameIndex = allFields.length-1;
         }
@@ -660,7 +661,7 @@ KFILM.prototype = {
         {            
             if (allFields[i].type == "password")
                 pwFields[pwFields.length] = allFields[i].element;
-            else if (allFields[i].type == "text" || allFields[i].type == "checkbox"
+            else if (this.isATextFormFieldType(allFields[i].type) || allFields[i].type == "checkbox"
                 || allFields[i].type == "radio"  || allFields[i].type == "select-one")
             {
                 otherFields[otherFields.length] = allFields[i].element;
@@ -668,7 +669,7 @@ KFILM.prototype = {
                     actualUsernameIndex = otherCount;
                 else
                     otherCount++;
-            }                
+            }
         }
         
         KFLog.debug("actualUsernameIndex: "+ actualUsernameIndex );
@@ -1028,7 +1029,17 @@ KFILM.prototype = {
         tab.setAttribute("KF_autoSubmit", "yes");
         }
         
+    },
+    
+    isATextFormFieldType : function (type)
+    {
+        if (type=="checkbox" || type=="select-one" || type=="radio" || type=="password" || type=="hidden"
+            || type=="submit" || type=="button" || type=="file" || type=="image" || type=="reset")
+            return false;
+        else
+            return true;
     }
+    
     
    };
    

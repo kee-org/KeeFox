@@ -220,7 +220,7 @@ kfLoginInfo.prototype =
 
 	            switch (kpff.type)
 	            {
-		            case kfFormFieldType.username: usernameIndex = otherLength; type = "username"; break; // may 2010: should be "text"?
+		            case kfFormFieldType.username: usernameIndex = otherLength; type = "text"; break; // may 2010: should be "text"? // may 2011: trying it out...
 		            case kfFormFieldType.text: type = "text"; break;
 		            case kfFormFieldType.radio: type = "radio"; break;
 		            case kfFormFieldType.checkbox: type = "checkbox"; break;
@@ -536,11 +536,11 @@ kfLoginField.prototype = {
         
         switch (this.type)
         {
-            case "password": formField.type = kfFormFieldType.password; break;
-            case "text": formField.type = isUsername ? kfFormFieldType.username : kfFormFieldType.text; break;
+            case "password": formField.type = kfFormFieldType.password; break;            
             case "radio": formField.type = kfFormFieldType.radio; break;
             case "checkbox": formField.type = kfFormFieldType.checkbox; break;
             case "select-one": formField.type = kfFormFieldType.select; break;
+            default: formField.type = isUsername ? kfFormFieldType.username : kfFormFieldType.text; break;
         }
     
 		return formField;
