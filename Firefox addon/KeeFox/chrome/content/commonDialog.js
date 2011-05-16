@@ -359,7 +359,7 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.document = document;
             dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
 			// find all the logins
-			var requestId = keeFoxInst.findLogins(parentWindow.gLastValidURLStr, null, realm, null, this.autoFill);
+			var requestId = keeFoxInst.findLogins(parentWindow.gURLBar.value, null, realm, null, this.autoFill);
 		    window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
 		}
     

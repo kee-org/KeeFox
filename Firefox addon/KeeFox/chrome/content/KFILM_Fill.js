@@ -154,22 +154,17 @@ KFILM.prototype._fillManyFormFields = function
                 // if this is not a potential text field we ignore it (not so
                 // important to try to match with innacurate names for
                 // non-text fields and there are some bad side-effects so best avoided) 
-                if (!(pageFields[i].type == ""
-                        || pageFields[i].type == null 
-                        || pageFields[i].type == undefined
-                        || pageFields[i].type == "text"
-                        || pageFields[i].type == "username"
+                if (!(this.isATextFormFieldType(pageFields[i].type)
                         || pageFields[i].type == "password")) //TODO2: don't think this is possible; plus simplify logic in later if statements cos we know something about the field type now
                     continue;
                     
                 var matchedField = matchFields[j];
                 
                 if (
-                    ((pageFields[i].type == "" || pageFields[i].type == null 
-                            || pageFields[i].type == undefined || pageFields[i].type == "text") && matchedField.type == "username")
-                    || ((pageFields[i].type == "" || pageFields[i].type == null 
-                            || pageFields[i].type == undefined || pageFields[i].type == "username") && matchedField.type == "text")
-                    || (pageFields[i].type == "password" && matchedField.type == "password"))
+                    (this.isATextFormFieldType(pageFields[i].type)
+                          && (matchedField.type == "username" || matchedField.type == "text"))
+                    || (pageFields[i].type == "password" && matchedField.type == "password")
+                    )
                 {
                 // all of these matches are considered backup options only...
 //                    matchedValues[j] = matchedField.value;
