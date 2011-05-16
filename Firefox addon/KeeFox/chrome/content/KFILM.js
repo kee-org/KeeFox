@@ -610,11 +610,14 @@ KFILM.prototype = {
         {        
             if (form.elements[i].localName.toLowerCase() != "input" 
                 && (form.elements[i].type == undefined || form.elements[i].type == null))
-                continue; // maybe it's a fieldset or something else un-interesting
+                continue; // maybe it's something un-interesting
  
             var DOMtype = form.elements[i].type.toLowerCase();
             
             KFLog.debug("domtype: "+ DOMtype );
+            
+            if (DOMtype == "fieldset")
+                continue; // not interested in fieldsets
             
             if (DOMtype != "password" && !this.isATextFormFieldType(DOMtype) && DOMtype != "checkbox" 
                 && DOMtype != "radio" && DOMtype != "select-one")

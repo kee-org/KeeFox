@@ -1,5 +1,9 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.18
+------
+Fix for forms with fieldset elements
+
 0.8.17
 ------
 HTML5 form input types no longer ignored
