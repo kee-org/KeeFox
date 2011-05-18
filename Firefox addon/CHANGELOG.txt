@@ -1,5 +1,9 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.20
+------
+Reverted HTTP Auth change from 0.8.18 - it just doesn't work reliably :-(
+
 0.8.19
 ------
 Fix for filling entries with missing or inaccurate ids and names

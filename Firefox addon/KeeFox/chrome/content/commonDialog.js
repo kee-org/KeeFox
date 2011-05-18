@@ -359,7 +359,7 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.document = document;
             dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
 			// find all the logins
-			var requestId = keeFoxInst.findLogins(parentWindow.gURLBar.value, null, realm, null, this.autoFill);
+			var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, this.autoFill);
 		    window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
 		}
     
@@ -451,7 +451,7 @@ var keeFoxDialogManager = {
                
 		        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title,
 		            'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
-		            'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit });
+		            'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit, 'httpRealm' : foundLogins[i].httpRealm });
 		        showList = true;
 		        
 
