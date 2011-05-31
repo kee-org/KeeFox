@@ -71,11 +71,11 @@
   <ItemGroup>
     <Reference Include="Jayrock, Version=0.9.12210.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Jayrock.dll</HintPath>
+      <HintPath>..\Jayrock\bin\net-2.0\release\Jayrock.dll</HintPath>
     </Reference>
     <Reference Include="Jayrock.Json, Version=0.9.12210.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Jayrock.Json.dll</HintPath>
+      <HintPath>..\Jayrock\bin\net-2.0\release\Jayrock.Json.dll</HintPath>
     </Reference>
     <Reference Include="KeePass, Version=2.1.0.28189, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -83,7 +83,7 @@
     </Reference>
     <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Mono.Security.dll</HintPath>
+      <HintPath>.\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
