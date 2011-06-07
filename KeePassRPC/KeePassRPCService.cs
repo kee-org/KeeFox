@@ -55,7 +55,8 @@ namespace KeePassRPC
         // no way to make use of this yet: bool permitUnencryptedURLs = false;
 
         // naive way to block synchronous operations until user responds to a database login dialog - likely to require more sophistication when more than one RPC client connects at the same time.
-        internal static EventWaitHandle ensureDBisOpenEWH = new AutoResetEvent(false);
+        //TODO2: Verify it was safe to remove this: don't think we have any significant syncronous action anymore.
+        //internal static EventWaitHandle ensureDBisOpenEWH = new AutoResetEvent(false);
 
         private string[] _standardIconsBase64;
 
@@ -311,19 +312,19 @@ namespace KeePassRPC
 
             if (!host.Database.IsOpen)
             {
-                ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
+                //ensureDBisOpenEWH.Reset(); // ensures we will wait even if DB has been opened previously.
                 // maybe tiny opportunity for deadlock if user opens DB exactly between DB.IsOpen and this statement?
                 // TODO2: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
-                host.MainWindow.BeginInvoke(new MethodInvoker(promptUserToOpenDB));
-                ensureDBisOpenEWH.WaitOne(15000, false); // wait until DB has been opened
-
+                host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null); });
+                //ensureDBisOpenEWH.WaitOne(15000, false); // wait until DB has been opened
+                
                 if (!host.Database.IsOpen)
                     return false;
             }
             return true;
         }
 
-        void promptUserToOpenDB()
+        void promptUserToOpenDB(IOConnectionInfo ioci)
         {
             /*
              * I think this form would be used to choose a different file to open but haven't tried it.
@@ -336,10 +337,22 @@ namespace KeePassRPC
             
             */
 
-            KeePass.Program.MainForm.OpenDatabase(KeePass.Program.Config.Application.LastUsedFile, null, false);
+            if (ioci == null)
+                ioci = KeePass.Program.Config.Application.LastUsedFile;
 
-            if (!host.Database.IsOpen)
-                ensureDBisOpenEWH.Set(); // signal that any waiting RPC client thread can go ahead
+            KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
+
+            // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
+            if (KeePass.Program.MainForm.UIIsInteractionBlocked()) { return; }
+
+            // Make sure the login dialog (or options and other windows) are not already visible. Same behaviour as KP.
+            if (KeePass.UI.GlobalWindowManager.WindowCount != 0) return;
+
+            // Prompt user to open database
+            KeePass.Program.MainForm.OpenDatabase(ioci, null, false);
+
+            //if (!host.Database.IsOpen)
+            //    ensureDBisOpenEWH.Set(); // signal that any waiting RPC client thread can go ahead
         }
 
         void saveDB()
@@ -1079,7 +1092,7 @@ namespace KeePassRPC
                 ioci.Path = fileName;
             }
 
-            host.MainWindow.BeginInvoke((MethodInvoker)delegate { host.MainWindow.OpenDatabase(ioci, null, false); });
+            host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null); });
             return;
         }
 

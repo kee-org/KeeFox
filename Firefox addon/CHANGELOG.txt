@@ -1,5 +1,13 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.8.21
+------
+1st July expiry time removed (update security now provided by automatic update facility on addons.mozilla.org);
+More reliable KeePass window focussing when KeeFox tells KeePass to prompt user for master key;
+Unnecessary 'alert' popup when cancelling "save to a group" has been removed;
+KeePassRPC unexpected exception error messages improved to possibly aid later diagnosis through the forums;
+Synchronous locks in KeePassRPC removed - don't think they are needed now that most communication is async;
+
 0.8.20
 ------
 Reverted HTTP Auth change from 0.8.18 - it just doesn't work reliably :-(

@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,17);
+        public static readonly Version PluginVersion = new Version(0,8,21);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -739,7 +739,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
             // Tell any waiting RPC threads to just go ahead (and not wait for the user to finish interacting
             // with the KP UI.
-            KeePassRPCService.ensureDBisOpenEWH.Set();
+            //KeePassRPCService.ensureDBisOpenEWH.Set();
 
             // remove event listeners
             _host.MainWindow.FileOpened -= OnKPDBOpen;
@@ -771,19 +771,19 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBOpen(object sender, FileCreatedEventArgs e)
         {
-            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
+            //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
 
         private void OnKPDBOpen(object sender, FileOpenedEventArgs e)
         {
-            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
+            //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
 
         private void OnKPDBClose(object sender, FileClosedEventArgs e)
         {
-            KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
+            //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_CLOSED);
         }
 

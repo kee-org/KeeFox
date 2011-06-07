@@ -444,7 +444,7 @@ namespace KeePassRPC
                     if (!Regex.IsMatch(output,
                         "^\\{\\\"id\\\"\\:(\\d+),\\\"result\\\"\\:\\{\\\"result\\\"\\:(\\d+),\\\"name\\\"\\:\\\".*\\\"\\}\\}$"))
                     {
-                        MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (there's a link at http://keefox.org/help). Doing this will help other people to use KeeFox without any unexpected error messages like this. Thanks! Technical detail follows: " + output);
+                        MessageBox.Show("ERROR! Please click on this box, press CTRL-C on your keyboard and paste into a new post on the KeeFox forum (http://keefox.org/help/forum). Doing this will help other people to use KeeFox without any unexpected error messages like this. Please briefly describe what you were doing when the problem occurred, which version of KeeFox, KeePass and Firefox you use and what other security software you run on your machine. Thanks! Technical detail follows: " + output);
                         return; // maybe could return a proper result indicating failure
                         //but user might get annoyed with this popup appearing every 10 seconds!
                     }

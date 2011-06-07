@@ -214,7 +214,7 @@ KFUI.prototype = {
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
                     function onCancel() {
-                      alert("Operation canceled!");
+                      //alert("Operation canceled!");
                     };
                     
                     function onOK(uuid) {

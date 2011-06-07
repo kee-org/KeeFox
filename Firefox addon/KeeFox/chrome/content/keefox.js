@@ -65,11 +65,6 @@ if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0)
     }
 }
 
-// also prevent startup if this version is too old        
-if (((new Date()).getMonth() > 6 && (new Date()).getFullYear == 2011) || (new Date()).getFullYear > 2011)
-//if ((new Date()).getMonth() > 9 || (new Date()).getFullYear > 2010)
-    keefox_org.shouldLoad = false;
-
 
 if (keefox_org.shouldLoad)
 {
