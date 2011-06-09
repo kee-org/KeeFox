@@ -342,6 +342,9 @@ namespace KeePassRPC
 
             KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
 
+            //Native.ActivateApplication(KeePass.Program.MainForm.Handle);
+            //Native.EnsureForegroundWindow(KeePass.Program.MainForm.Handle);
+
             // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
             if (KeePass.Program.MainForm.UIIsInteractionBlocked()) { return; }
 
@@ -1092,7 +1095,7 @@ namespace KeePassRPC
                 ioci.Path = fileName;
             }
 
-            host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null); });
+            host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(ioci); });
             return;
         }
 
