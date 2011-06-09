@@ -3,10 +3,10 @@ This information will often be disseminated onto the official KeeFox website in 
 0.8.21
 ------
 1st July expiry time removed (update security now provided by automatic update facility on addons.mozilla.org);
-More reliable KeePass window focussing when KeeFox tells KeePass to prompt user for master key;
+More reliable KeePass window focussing when KeeFox tells KeePass to prompt user for master key (probably an unnoticable improvement at the moment);
 Unnecessary 'alert' popup when cancelling "save to a group" has been removed;
 KeePassRPC unexpected exception error messages improved to possibly aid later diagnosis through the forums;
-Synchronous locks in KeePassRPC removed - don't think they are needed now that most communication is async;
+Some synchronous locks in KeePassRPC removed - don't think they are needed now that most communication is async;
 
 0.8.20
 ------
