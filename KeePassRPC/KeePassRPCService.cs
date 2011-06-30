@@ -337,25 +337,61 @@ namespace KeePassRPC
             
             */
 
+            //TODO: if we're minimised, minimise again at the end of all this
+            //TODO: if we're trayed, tray again at the end of all this
+            //TODO: find out z-index of firefox and push keepass just behind it rather than right to the back
+            //TODO: focus open DB dialog box if it's there
+
+            IntPtr ffWindow = Native.GetForegroundWindow();
+            bool minimised = KeePass.Program.MainForm.WindowState == FormWindowState.Minimized;
+            bool trayed = KeePass.Program.MainForm.IsTrayed();
+
             if (ioci == null)
                 ioci = KeePass.Program.Config.Application.LastUsedFile;
 
-            KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
+            //KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
 
             //Native.ActivateApplication(KeePass.Program.MainForm.Handle);
             //Native.EnsureForegroundWindow(KeePass.Program.MainForm.Handle);
+            Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);//KeePass.UI.GlobalWindowManager.TopWindow.Handle);
+            //KeePass.Program.MainForm.WindowState = FormWindowState.Minimized;
+            //KeePass.Program.MainForm.WindowState = FormWindowState.Normal;
+            KeePass.Program.MainForm.Activate();
+            //KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
 
-            // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
-            if (KeePass.Program.MainForm.UIIsInteractionBlocked()) { return; }
+            // if user cancels login dialog, leave KeePass as the focussed App otherwise set things back how they were
+            if (showOpenDB(ioci))
+            {
+                KeePass.Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
 
-            // Make sure the login dialog (or options and other windows) are not already visible. Same behaviour as KP.
-            if (KeePass.UI.GlobalWindowManager.WindowCount != 0) return;
+                if (trayed)
+                {
+                    KeePass.Program.MainForm.Visible = false;
+                    KeePass.Program.MainForm.UpdateTrayIcon();
+                }
 
-            // Prompt user to open database
-            KeePass.Program.MainForm.OpenDatabase(ioci, null, false);
+                //Native.EnsureBackgroundWindow(KeePass.Program.MainForm.Handle);
+
+                // Make Firefox active again
+                Native.EnsureForegroundWindow(ffWindow);
+            }
+
 
             //if (!host.Database.IsOpen)
             //    ensureDBisOpenEWH.Set(); // signal that any waiting RPC client thread can go ahead
+        }
+
+        bool showOpenDB(IOConnectionInfo ioci)
+        {
+            // KeePass does this on "show window" keypress. Not sure what it does but most likely does no harm to check here too
+            if (KeePass.Program.MainForm.UIIsInteractionBlocked()) { return false; }
+
+            // Make sure the login dialog (or options and other windows) are not already visible. Same behaviour as KP.
+            if (KeePass.UI.GlobalWindowManager.WindowCount != 0) return false;
+
+            // Prompt user to open database
+            KeePass.Program.MainForm.OpenDatabase(ioci, null, false);
+            return true;
         }
 
         void saveDB()

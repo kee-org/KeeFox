@@ -160,10 +160,12 @@ KFILM.prototype._fillManyFormFields = function
                     
                 var matchedField = matchFields[j];
                 
-                if (
+                if ((
                     (this.isATextFormFieldType(pageFields[i].type)
                           && (matchedField.type == "username" || matchedField.type == "text"))
                     || (pageFields[i].type == "password" && matchedField.type == "password")
+                    )
+                    && (backupMatchedValues[j] == undefined || backupMatchedValues[j] == null )
                     )
                 {
                 // all of these matches are considered backup options only...
