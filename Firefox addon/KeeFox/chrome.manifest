@@ -5,3 +5,5 @@ skin keefox classic/1.0 chrome/skin/
 resource kfmod modules/
 resource kfscripts chrome/content/
 locale keefox en-US chrome/locale/en-US/
+locale keefox ru-RU chrome/locale/ru-RU/
+locale keefox sv-SE chrome/locale/sv-SE/

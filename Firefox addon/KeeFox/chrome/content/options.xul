@@ -141,7 +141,8 @@
             <description>&KeeFox-pref-excludedSaveSites.desc;:</description>
             <hbox>
               <listbox id="excludedSitesList" rows="4" seltype="multiple" class="itemEnd"/>
-              <button label="Remove" oncommand="removeExcludedItem();" class="itemEnd"/>
+              <vbox><button id="excludedSitesRemoveButton" label="&KeeFox-pref-excludedSaveSites.remove;" oncommand="removeExcludedItem();" class="itemEnd"/>
+              </vbox>
             </hbox>
 
             <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
@@ -168,6 +169,7 @@
             <description>&KeeFox-pref-logLevel.desc;</description>
             <menulist id="KeeFox-pref-logLevel-list" preference="KeeFox-pref-logLevel" onsyncfrompreference="return onsyncfrompreferenceLogLevel();" onsynctopreference="return onsynctopreferenceLogLevel();" class="itemEnd kfMenu">
               <menupopup>
+                <!-- TODO2: verify changing label doesn't break functionality and then localise them -->
                 <menuitem id="KeeFox-pref-logLevel-debug" label="Debugging" value="Debugging"/>
                 <menuitem id="KeeFox-pref-logLevel-info" label="Information" value="Information"/>
                 <menuitem id="KeeFox-pref-logLevel-warn" label="Warnings" value="Warnings"/>

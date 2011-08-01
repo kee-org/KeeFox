@@ -20,15 +20,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-const KF_KPZIP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.15/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.15.zip";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.15.zip";
-const KF_KPZIP_FILE_CHECKSUM = "3f1f8da59e410e973a4dfb2f5a5342d1";
-const KF_KP_DOWNLOAD_PATH = "http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.15/";
-const KF_KP_FILE_NAME = "KeePass-2.15-Setup.exe";//KeePass-2.10-Setup.exe?use_mirror=kent
-const KF_KP_SAVE_NAME = "KeePass-2.15-Setup.exe";
-const KF_KP_FILE_CHECKSUM = "db105d13f7b18286b625375d435f729f";
+//Math.round((d.getTime()/1000)-10)
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.16.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.16.zip";
+const KF_KPZIP_FILE_CHECKSUM = "3c3077af6f563f77d30967daacca4465";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.16/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
+const KF_KP_FILE_NAME = "KeePass-2.16-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
+const KF_KP_SAVE_NAME = "KeePass-2.16-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "a47fa8902f4d5da473c99e2501076021";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
 const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";
@@ -85,6 +85,9 @@ var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIDOMWindow);
 
 var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+
+// localisation string bundle
+var strbundle = mainWin.document.getElementById("KeeFox-strings");
 
 function prepareInstallPage()
 {
@@ -181,8 +184,9 @@ function prepareInstallPage()
             showSection('adminSetupKPInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED 
                 | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+                var d = new Date();
             persist = mainWindow.KFdownloadFile("IC2PriDownload",
-                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
+                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 3: 
             showSection('copyKRPCToKnownKPLocationInstallButtonMain');            
@@ -203,8 +207,9 @@ function prepareInstallPage()
             showSection('nonAdminSetupKPInstallExpander');
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING 
                 | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+            var d = new Date();
             persist = mainWindow.KFdownloadFile("IC5PriDownload",
-                KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME, KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
+                KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 6: 
             showSection('copyKRPCToKnownKPLocationInstallButtonMain');
@@ -421,8 +426,9 @@ function IC1setupNET(mainWindow)
             
             // start the pre-download of the KeePass setup file (while user installs .Net...)
             installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
+            var d = new Date();
             persist = mainWindow.KFdownloadFile("IC1PriDownload",
-                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
+                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
             
             installState |= KF_INSTALL_STATE_NET_EXECUTING;
 
@@ -474,8 +480,9 @@ function IC1setupNET35(mainWindow)
             
             // start the pre-download of the KeePass setup file (while user installs .Net...)
             installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
+            var d = new Date();
             persist = mainWindow.KFdownloadFile("IC1SecDownload",
-                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME, KF_KP_SAVE_NAME, mainWindow, window, persist);
+                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
             
             installState |= KF_INSTALL_STATE_NET_EXECUTING;
 
@@ -879,8 +886,9 @@ function copyKPToSpecificLocationInstall()
         && !(installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED))
     {
         installState |= KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
+        var d = new Date();
         persist = mainWindow.KFdownloadFile("IC5PriDownload",
-            KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME,
+            KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME + Math.round((d.getTime()/1000)-10),
             KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
     }
     
@@ -1107,12 +1115,7 @@ function copyKeePassRPCFilesTo(keePassLocation)
             mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
             var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                         .getService(Components.interfaces.nsIPromptService);
-            promptService.alert(mainWindow,"Something went wrong","Sorry, KeeFox could not automatically install the KeePassRPC"
-                + " plugin for KeePass Password Safe 2, which is required for KeeFox to function."
-                + " This is usually becuase you are trying to install to a location into which you are"
-                + " not permitted to add new files. You may be able to restart Firefox and"
-                + " try the installation again choosing different options or you could ask your"
-                + " computer administrator for assistance."); 
+            promptService.alert(mainWindow, strbundle.getString("install.somethingsWrong"),strbundle.getString("install.KPRPCNotInstalled")); 
             return false;          
         }
     }

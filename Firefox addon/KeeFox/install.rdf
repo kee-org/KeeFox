@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.8.22b</em:version>
+    <em:version>0.9.0b</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -17,7 +17,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>5.*</em:maxVersion>
+        <em:maxVersion>7.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -44,16 +44,18 @@
         <em:iconURL>chrome://keefox/skin/icon.png</em:iconURL>
       </Description>
     </em:localized>
-    <!--<em:localized>
+    <em:localized>
       <Description>
-        <em:locale>es-ES</em:locale>
-        <em:name>KeeFox</em:name>
-        <em:description>KeePass password manager integration (spanish)</em:description>
-        <em:creator>Chris Tomlinson</em:creator>
-        <em:translator>Luckyrato</em:translator>
-        <em:homepageURL>http://christomlinson.name</em:homepageURL>
+        <em:locale>sv-SE</em:locale>
+        <em:translator>Mikael Hiort af Ornäs</em:translator>
       </Description>
-    </em:localized>-->
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>ru-RU</em:locale>
+        <em:translator>Degit</em:translator>
+      </Description>
+    </em:localized>
 
   </Description>
 </RDF>

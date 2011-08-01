@@ -57,6 +57,9 @@ var keeFoxDialogManager = {
         return this.__cdBundle;
     },
     
+    // localisation string bundle
+    strbundle: null,
+    
     dialogInit : function(e) {
         try {
             keeFoxDialogManager.prepareFill();
@@ -97,6 +100,8 @@ var keeFoxDialogManager = {
             var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                     .getService(Components.interfaces.nsISessionStore);
                         
+            this.strbundle = parentWindow.document.getElementById("KeeFox-strings");
+            
             // we always remove this - multi-page HTTP Auth forms are not supported.
             var removeTabSessionStoreData = true;
             
@@ -240,11 +245,11 @@ var keeFoxDialogManager = {
             }    
 								
 		    // if we're not logged in to KeePass then we can't go on
-            if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+            if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)
+            ||  !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
                 //TODO2: be more helpful: have button to load database and then refresh the dialog?                
-                //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?    
-                //TODO2: Refactor to remove duplication
+                //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?
                 
                 var row = document.createElement("row");
                 row.setAttribute("id","keefox-autoauth-row");
@@ -268,49 +273,13 @@ var keeFoxDialogManager = {
                 box.setAttribute("pack", "start");
 		    
 		        var loadingPasswords = document.createElement("description");
-		        loadingPasswords.setAttribute("value", "To log in using KeeFox please cancel this dialog box, login to KeePass and then refresh this page.");
+		        loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.default"));
 		        loadingPasswords.setAttribute("align", "start");
 		        loadingPasswords.setAttribute("flex", "1");
 		        box.appendChild(loadingPasswords);
 		        row.appendChild(boxLabel);
 		        row.appendChild(box);
                 document.getElementById("loginContainer").parentNode.appendChild(row);
-                return;
-            } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
-            {
-                //TODO2: be more helpful: have button to load database and then refresh the dialog?                
-                //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?    
-                //TODO2: Refactor to remove duplication
-                
-                var row = document.createElement("row");
-                row.setAttribute("id","keefox-autoauth-row");
-                row.setAttribute("flex", "1");
-                var boxLabel = document.createElement("hbox");
-                boxLabel.setAttribute("id","keefox-autoauth-label");
-                boxLabel.setAttribute("align", "end");
-                boxLabel.setAttribute("flex", "1");
-                boxLabel.setAttribute("pack", "end");
-                var label = document.createElement("description");
-		        label.setAttribute("value", "");
-		        label.setAttribute("align", "end");
-		        label.setAttribute("pack", "end");
-		        label.setAttribute("flex", "1");
-		        boxLabel.appendChild(label);
-	        
-		        var box = document.createElement("hbox");
-                box.setAttribute("id","keefox-autoauth-box");
-                box.setAttribute("align", "start");
-                box.setAttribute("flex", "1");
-                box.setAttribute("pack", "start");
-		    
-		        var loadingPasswords = document.createElement("description");
-		        loadingPasswords.setAttribute("value", "To log in using KeeFox please cancel this dialog box, login to KeePass and then refresh this page.");
-		        loadingPasswords.setAttribute("align", "start");
-		        loadingPasswords.setAttribute("flex", "1");
-		        box.appendChild(loadingPasswords);
-		        row.appendChild(boxLabel);
-		        row.appendChild(box);
-                document.getElementById("loginContainer").parentNode.appendChild(row);                           
                 return;
             }
             
@@ -340,7 +309,7 @@ var keeFoxDialogManager = {
             box.setAttribute("pack", "start");
 		    
 		    var loadingPasswords = document.createElement("description");
-		    loadingPasswords.setAttribute("value", "Loading passwords...");
+		    loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.loadingPasswords") + "...");
 		    loadingPasswords.setAttribute("align", "start");
 		    loadingPasswords.setAttribute("flex", "1");
 		    loadingPasswords.setAttribute("id", "keefox-autoauth-box-description");
@@ -392,7 +361,7 @@ var keeFoxDialogManager = {
         if (convertedResult.length == 0)
         {
             // set "no passwords" message
-            document.getElementById("keefox-autoauth-box-description").setAttribute("value","No matching entries found");
+            document.getElementById("keefox-autoauth-box-description").setAttribute("value",this.strbundle.getString("httpAuth.noMatches"));
             return;
         }        
         

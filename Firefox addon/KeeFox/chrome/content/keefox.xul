@@ -59,20 +59,6 @@
 
         <menuseparator />
 
-        <!--<menuitem id="KeeFox_UpdateAllFavicons-Button" tooltiptext="&KeeFox_Menu-Button.updateAllFavicons.tip;"
-                                   class="" label="&KeeFox_Menu-Button.updateAllFavicons.label;" oncommand="keeFoxInst.updateAllFavicons()" accesskey="&KeeFox_Menu-Button.updateAllFavicons.key;" />
-
-        <menuseparator />-->
-        
-
-        <!--
-        <menuitem label="Save to a folder..."
-                oncommand='openDialog(
-               "chrome://keefox/content/groupChooser.xul",
-               "",
-               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
-              );' />
--->
         <menuitem id="KeeFox_Options-Button" tooltiptext="&KeeFox_Menu-Button.options.tip;"
                    class="" label="&KeeFox_Menu-Button.options.label;" oncommand='openDialog(
                "chrome://keefox/content/options.xul",
@@ -136,7 +122,7 @@
   </popupset>
 
   <menupopup id="menu_ToolsPopup">
-    <menuitem label="KeeFox Options..."
+    <menuitem label="&KeeFox_Tools-Menu.options.label;..."
               insertafter="devToolsSeparator"
               oncommand='openDialog(
                "chrome://keefox/content/options.xul",

@@ -1,0 +1,35 @@
+<!ENTITY KeeFox-Options.title "Inställningar för KeeFox">
+
+<!ENTITY KeeFox-pref-General.heading "Allmänt">
+<!ENTITY KeeFox-pref-Notifications.heading "Aviseringar">
+<!ENTITY KeeFox-pref-Advanced.heading "Avancerat">
+<!ENTITY KeeFox-pref-General.description "Det här är de viktigaste inställningarna som styr beteendet för KeeFox">
+<!ENTITY KeeFox-pref-Notifications.description "Ändra dessa inställningar för att ställa in hur KeeFox får din uppmärksamhet">
+<!ENTITY KeeFox-pref-Advanced.description "Dessa inställningar kan hjälpa dig att felsöka ett problem eller konfigurera avancerade inställningar, men de flesta användare kan ignorera dem">
+<!ENTITY KeeFox-pref-General.tooltip "Huvudinställningar">
+<!ENTITY KeeFox-pref-Notifications.tooltip "Meddelandeinställningar">
+<!ENTITY KeeFox-pref-Advanced.tooltip "Avancerade inställningar">
+
+<!ENTITY KeeFox-pref-dynamicFormScanning.label "Aktivera identifiering av avancerade formulär">
+<!ENTITY KeeFox-pref-autoFillForms.label "Fyll i formulär automatiskt när ett matchande lösenord hittas">
+<!ENTITY KeeFox-pref-autoSubmitForms.label "Skicka in formulär automatiskt när ett matchande lösenord hittas">
+<!ENTITY KeeFox-pref-autoFillDialogs.label "Fyll in autentiseringsdialoger automatiskt när ett matchande lösenord hittas">
+<!ENTITY KeeFox-pref-autoSubmitDialogs.label "Skicka in autentiseringsdialoger automatiskt när ett matchande lösenord hittas">
+<!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Ersätt innehållet i alla matchande icke-tomma formulär och autentiseringsdialoger">
+<!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Skicka in formulär när du väljer ett matchande lösenord">
+<!ENTITY KeeFox-pref-rememberMRUDB.label "Kom ihåg den senast använda KeePass-databasen">
+<!ENTITY KeeFox-pref-saveFavicons.label "Spara webbplatsernas logotyp/ikon (sajtikon)">
+
+<!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Erbjud att spara lösenord">
+<!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Visa ett meddelandefält när KeePass måste öppnas">
+<!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Visa ett meddelandefält när du måste logga in på en KeePass-databas">
+<!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Blinka med KeeFox inloggningsikon när KeePass måste öppnas">
+<!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Blinka med KeeFox inloggningsikon när du måste logga in på en KeePass-databas">
+
+<!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "Installationsplats för insticksmodulen KeePassRPC">
+<!ENTITY KeeFox-pref-keePassInstalledLocation.label "Installationsplats för KeePass">
+<!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Använder KeePass Portable (kom ihåg inställningar)">
+<!ENTITY KeeFox-pref-keePassDBToOpen.label "Vid öppning av eller inloggning på KeePass, använd denna databasfil">
+<!--<!ENTITY KeeFox-pref-keePassMRUDB.label "Plats för den senast använda KeePass-databasen">
+<!ENTITY KeeFox-pref-debugToConsole.label "Skriv felsökningsinformation till Firefox felkonsol">-->
+

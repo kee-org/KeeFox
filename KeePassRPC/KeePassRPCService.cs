@@ -326,19 +326,6 @@ namespace KeePassRPC
 
         void promptUserToOpenDB(IOConnectionInfo ioci)
         {
-            /*
-             * I think this form would be used to choose a different file to open but haven't tried it.
-             * At least for now, the MRU file is the only option we'll tightly integrate with KeePassRPC
-             * If user is advanced enough to know about multiple databases, etc. they can quit this
-             * function and open their database via usual KeePass methods
-             * 
-            KeePass.Forms.IOConnectionForm form1 = new IOConnectionForm();
-            form1.InitEx();
-            
-            */
-
-            //TODO: if we're minimised, minimise again at the end of all this
-            //TODO: if we're trayed, tray again at the end of all this
             //TODO: find out z-index of firefox and push keepass just behind it rather than right to the back
             //TODO: focus open DB dialog box if it's there
 
@@ -349,15 +336,8 @@ namespace KeePassRPC
             if (ioci == null)
                 ioci = KeePass.Program.Config.Application.LastUsedFile;
 
-            //KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
-
-            //Native.ActivateApplication(KeePass.Program.MainForm.Handle);
-            //Native.EnsureForegroundWindow(KeePass.Program.MainForm.Handle);
-            Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);//KeePass.UI.GlobalWindowManager.TopWindow.Handle);
-            //KeePass.Program.MainForm.WindowState = FormWindowState.Minimized;
-            //KeePass.Program.MainForm.WindowState = FormWindowState.Normal;
+            Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);            
             KeePass.Program.MainForm.Activate();
-            //KeePass.Program.MainForm.EnsureVisibleForegroundWindow(true, true);
 
             // if user cancels login dialog, leave KeePass as the focussed App otherwise set things back how they were
             if (showOpenDB(ioci))
@@ -370,15 +350,9 @@ namespace KeePassRPC
                     KeePass.Program.MainForm.UpdateTrayIcon();
                 }
 
-                //Native.EnsureBackgroundWindow(KeePass.Program.MainForm.Handle);
-
                 // Make Firefox active again
                 Native.EnsureForegroundWindow(ffWindow);
             }
-
-
-            //if (!host.Database.IsOpen)
-            //    ensureDBisOpenEWH.Set(); // signal that any waiting RPC client thread can go ahead
         }
 
         bool showOpenDB(IOConnectionInfo ioci)

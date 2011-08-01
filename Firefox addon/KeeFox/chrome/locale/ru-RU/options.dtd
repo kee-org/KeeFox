@@ -1,0 +1,34 @@
+<!ENTITY KeeFox-Options.title "Настройки KeeFox">
+
+<!ENTITY KeeFox-pref-General.heading "Основные">
+<!ENTITY KeeFox-pref-Notifications.heading "Уведомления">
+<!ENTITY KeeFox-pref-Advanced.heading "Дополнительные">
+<!ENTITY KeeFox-pref-General.description "Это наиболее важные параметры, которые регулируют поведение KeeFox">
+<!ENTITY KeeFox-pref-Notifications.description "Изменение этих параметров влияет на то, как KeeFox привлекает ваше внимание">
+<!ENTITY KeeFox-pref-Advanced.description "Эти опции могут помочь вам устранить проблемы или настроить дополнительные параметры, но большинство пользователей могут игнорировать их">
+<!ENTITY KeeFox-pref-General.tooltip "Основные настройки">
+<!ENTITY KeeFox-pref-Notifications.tooltip "Настройки уведомлений">
+<!ENTITY KeeFox-pref-Advanced.tooltip "Дополнительные настройки">
+
+<!ENTITY KeeFox-pref-dynamicFormScanning.label "Включить обнаружение дополнительных форм">
+<!ENTITY KeeFox-pref-autoFillForms.label "Заполнять формы автоматически, когда соответствующий пароль найден">
+<!ENTITY KeeFox-pref-autoSubmitForms.label "Отправлять формы автоматически, когда соответствующий пароль найден">
+<!ENTITY KeeFox-pref-autoFillDialogs.label "Заполнять диалоги аутентификации автоматически, когда соответствующий пароль найден">
+<!ENTITY KeeFox-pref-autoSubmitDialogs.label "Отправлять диалоги аутентификации автоматически, когда соответствующий пароль найден">
+<!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Переписывать содержимое любой непустой формы и диалогов аутентификации">
+<!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Отправлять формы, когда вы выбираете соответствующий пароль">
+<!ENTITY KeeFox-pref-rememberMRUDB.label "Запоминать наиболее часто используемые KeePass базы данных">
+<!ENTITY KeeFox-pref-saveFavicons.label "Сохранять иконку сайта (favicon)">
+
+<!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Предлагать сохранение паролей">
+<!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Показать панель уведомлений, когда KeePass должна быть открыта">
+<!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Показать панель уведомлений, когда вам нужно войти в базу данных KeePass">
+<!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Мигать иконкой KeeFox, когда KeePass должна быть открыта">
+<!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Мигать иконкой KeeFox, когда вам нужно войти в базу данных KeePass">
+
+<!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "Место установки плагинов KeePassRPC">
+<!ENTITY KeeFox-pref-keePassInstalledLocation.label "Место установки KeePass">
+<!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Использовать портативный KeePass (запомнить настройки)">
+<!ENTITY KeeFox-pref-keePassDBToOpen.label "При открытии или при входе в KeePass, использовать этот файл базы данных">
+<!--<!ENTITY KeeFox-pref-keePassMRUDB.label "Расположение наиболее часто используемых KeePass базы данных">
+<!ENTITY KeeFox-pref-debugToConsole.label "Выводит отладочную информацию в консоле Firefox">-->

@@ -40,6 +40,7 @@
 
 <!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Offer to save passwords">
 <!ENTITY KeeFox-pref-excludedSaveSites.desc "These sites will never prompt you to save a new password">
+<!ENTITY KeeFox-pref-excludedSaveSites.remove "Remove">
 <!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Display a notification bar when KeePass needs to be opened">
 <!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Display a notification bar when you need to log in to a KeePass database">
 <!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Flash the KeeFox login icon when KeePass needs to be opened">
@@ -66,6 +67,3 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installation location">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Remember above settings (e.g. when using KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Use this location">
-
-
-

@@ -950,6 +950,8 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
             KFLog.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
         }
         
+        //TODO: form should be considered more relevant if it actually had a password field... extend to comparing correct quantity of fields?
+        
         // Find the most relevant form
         var mostRelevantFormIndex = 0;
         formRelevanceScores.forEach(function(c, index) {

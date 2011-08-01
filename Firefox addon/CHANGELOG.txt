@@ -1,5 +1,22 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+0.9
+---
+
+Removed a few un-needed KPRPC code comments
+Added preliminary Swedish and Russian translations
+KeePass default version incremented to 2.16
+Updated sourceforge download method - it's getting fragile but should be OK for most people
+A few remaining strings replaced by localised equivelants
+"Remove" blocked URL button made smaller
+
+0.8.22
+------
+
+FIXED: Editing passwords with KeePassRPC GUI sometimes showed an empty password;
+trying to get master key entry dialog to focus correctly on all versions of Windows;
+Improved form filling for some types of form
+
 0.8.21
 ------
 1st July expiry time removed (update security now provided by automatic update facility on addons.mozilla.org);

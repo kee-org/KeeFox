@@ -696,7 +696,7 @@ KFToolbar.prototype = {
         var newPassword = this._currentWindow.keeFoxInst.generatePassword();
         if (newPassword.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
         {
-            this._currentWindow.alert("Please launch KeePass first.");
+            this._currentWindow.alert(this.strbundle.getString("generatePassword.launch"));
         }            
         else
         {
@@ -704,7 +704,7 @@ KFToolbar.prototype = {
             getService(Components.interfaces.nsIClipboardHelper);
             gClipboardHelper.copyString(newPassword);
             
-            this._currentWindow.alert("A new password has been copied to your clipboard.");//TODO2: replace with a growl if FF supports such a thing
+            this._currentWindow.alert(this.strbundle.getString("generatePassword.copied"));//TODO2: replace with a growl if FF supports such a thing
         }
     }    
 

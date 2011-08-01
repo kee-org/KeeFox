@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
@@ -461,6 +461,30 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\locale\ru-RU\keefox.dtd"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\sv-SE\keefox.dtd"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"
 			>
 			<FileConfiguration
@@ -473,11 +497,43 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\locale\ru-RU\keefox.properties"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\sv-SE\keefox.properties"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.properties"
 			>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\content\keefox.xul"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\sv-SE\options.dtd"
+			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\ru-RU\options.dtd"
 			>
 			<FileConfiguration
 				Name="Release|Win32"

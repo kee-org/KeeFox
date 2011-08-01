@@ -81,7 +81,7 @@ KFILM.prototype = {
 
         var score = 0;
         var actionURL = this._getActionOrigin(form);
-        var URL = form.baseURI;
+        var URL = form.baseURI; //TODO: BUG?: This does not always refer to the URL of the page. <base> tag in head can override. Confusuing for users? even if technically accurate?
         
         // NB: action url on 2nd page will not match. This is probably OK but will review if required.
         if (actionURL == login.formActionURL)
