@@ -278,3 +278,5 @@ Installer no longer overwrites existing KeePass installations when custom (or no
 ----------
 
 See the historic posts on http://keefox.org or http://christomlinson.name for earlier change logs.
+
+SVN test
