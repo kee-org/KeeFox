@@ -388,6 +388,7 @@ KFToolbar.prototype = {
         //mainButton.setAttribute("value", "");
         //mainButton.removeAttribute("context");
         
+        //TODO1.0: apparently this (And other IDs) are not always available (e.g. when buttons are removed from all toolbars)
         var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
         
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
