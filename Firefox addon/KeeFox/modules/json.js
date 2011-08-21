@@ -44,7 +44,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,22];
+    this.clientVersion = [0,9,1];
 }
 
 jsonrpcClient.prototype = new session();
@@ -481,20 +481,35 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
+    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, dbRootId, freeText, callback, callbackData)
     {
-    // now returns ID of async JSON-RPC request so calling functions can track if desired
-    
+        // returns ID of async JSON-RPC request so calling functions can track if desired
+        
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+            
         var lst = "LSTall";
         if (httpRealm == undefined || httpRealm == null || httpRealm == "")
             lst = "LSTnoRealms";
         else if (formSubmitURL == undefined || formSubmitURL == null || formSubmitURL == "")
-            lst = "LSTnoForms";       
+            lst = "LSTnoForms";     
+            
+        if (dbRootId == undefined || dbRootId == null || dbRootId == "")
+        {
+            //if (window.keeFoxInst._keeFoxExtension.prefs.has("searchAllOpenDatabases"))
+            //    sig = ;
+            
+            if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("searchAllOpenDatabases",false))
+                dbRootId = window.keeFoxInst.KeePassDatabases[window.keeFoxInst.ActiveKeePassDatabaseIndex].root.uniqueId;
+            else
+                dbRootId = "";
+        }
         
         var newId = ++this.requestId;
         // slight chance IDs may be sent out of order but at least this way
         // they are consistent for any given request/response cycle
-        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID], callback, newId, callbackData);        
+        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID, dbRootId, freeText], callback, newId, callbackData);        
         return newId;
     }
 

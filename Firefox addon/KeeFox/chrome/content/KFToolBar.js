@@ -121,7 +121,7 @@ KFToolbar.prototype = {
             var usernameDisplayValue = "["+this.strbundle.getString("noUsername.partial-tip")+"]";
             var usernameName = "";
             var usernameId = "";
-            var displayGroupPath = login.parentGroup.path;
+            var displayGroupPath = login.database.name + '/' + login.parentGroup.path;
 //            var groupDivider = this.strbundle.getString("groupDividerCharacter");
 //            if (groupDivider != ".")
 //                displayGroupPath = displayGroupPath.replace(/\./g,groupDivider);
@@ -138,7 +138,7 @@ KFToolbar.prototype = {
                 usernameId = field.fieldId;
             }
                         
-            if (!merging && i==0) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
+            if (!merging && i==0) // we don't re-assess which should be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
             {
                 container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label",[usernameDisplayValue, login.title]));                
                 container.setAttribute("value", login.uniqueID);
@@ -146,7 +146,7 @@ KFToolbar.prototype = {
                 container.setAttribute("context", "KeeFox-login-toolbar-context");
                 container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
-                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"',null,'" + login.uniqueID + "','" + doc.documentURI + "','" + login.database.root.uniqueID + "'); event.stopPropagation();");
                 container.setAttribute("class", "menuitem-iconic");
                 container.setAttribute("image", "data:image/png;base64,"+login.iconImageData);
             }
@@ -182,7 +182,7 @@ KFToolbar.prototype = {
                 tempButton.setAttribute("context", "KeeFox-login-context");
                 tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip",[login.title, displayGroupPath, usernameDisplayValue]));
                 tempButton.setAttribute("oncommand", "keefox_org.ILM.fill('" +
-                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
+                    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','"+usernameId+"','null','" + login.uniqueID + "','" + doc.documentURI + "','" + login.database.root.uniqueID + "'); event.stopPropagation();");
                 menupopup.appendChild(tempButton);
             }
         }
@@ -419,23 +419,21 @@ KFToolbar.prototype = {
             mainButton.setAttribute("oncommand", "keeFoxInst.loginToKeePass()");
         }
 
-            
-        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
-        {    
-            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
-            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
-            changeDBButton.setAttribute("onpopupshowing", "keefox_org.toolbar.setMRUdatabases(); event.stopPropagation();");
-            changeDBButton.setAttribute("disabled", "false");
-            //changeDBButton.setAttribute("onpopuphiding", "keefox_org.toolbar.detachMRUpopup(); event.stopPropagation();");
-            
-            
-        } else
+        if (changeDBButton != undefined && changeDBButton != null)
         {
-            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
-            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
-            changeDBButton.setAttribute("onpopupshowing", "");
-            //changeDBButton.setAttribute("onpopuphiding", "");
-            changeDBButton.setAttribute("disabled", "true");
+            if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+            {    
+                changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
+                changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
+                changeDBButton.setAttribute("onpopupshowing", "keefox_org.toolbar.setMRUdatabases(); event.stopPropagation();");
+                changeDBButton.setAttribute("disabled", "false");
+            } else
+            {
+                changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
+                changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
+                changeDBButton.setAttribute("onpopupshowing", "");
+                changeDBButton.setAttribute("disabled", "true");
+            }
         }
         KFLog.debug("setupButton_ready end");
     },

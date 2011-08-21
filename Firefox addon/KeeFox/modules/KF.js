@@ -999,11 +999,11 @@ KeeFox.prototype = {
         }
     },
     
-    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
+    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData)
     {
         try
         {
-            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, callback, callbackData);
+            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -1015,7 +1015,9 @@ KeeFox.prototype = {
     {
         try
         {
+            //this.KeePassRPC.findLogins(null, null, null, null, null, "pizzahut", null, null);
             this.KeePassRPC.launchLoginEditor(uuid);
+            
             //var thread = Components.classes["@mozilla.org/thread-manager;1"]
             //                        .getService(Components.interfaces.nsIThreadManager)
             //                        .newThread(0);

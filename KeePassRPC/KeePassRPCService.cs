@@ -491,7 +491,7 @@ namespace KeePassRPC
             return result;
         }
 
-        private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails)
+        private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails, PwDatabase db)
         {
             //Debug.Indent();
             //Stopwatch sw = Stopwatch.StartNew();
@@ -722,7 +722,7 @@ namespace KeePassRPC
                 pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
-                GetGroupFromPwGroup(pwe.ParentGroup), imageData);
+                GetGroupFromPwGroup(pwe.ParentGroup), imageData, GetDatabaseFromPwDatabase(db, false, true));
                 return kpe;
             }
             else
@@ -795,18 +795,22 @@ namespace KeePassRPC
             return kpg;
         }
 
-        private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail)
+        private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail)
         {
             //Debug.Indent();
            // Stopwatch sw = Stopwatch.StartNew();
+            if (fullDetail && noDetail)
+                throw new ArgumentException("Don't be silly");
 
             PwGroup pwg = GetRootPwGroup(pwd);
             Group rt = GetGroupFromPwGroup(pwg);
             if (fullDetail)
                 rt.ChildEntries = (Entry[])GetChildEntries(pwd, pwg, fullDetail);
-            else
+            else if (!noDetail)
                 rt.ChildLightEntries = GetChildEntries(pwd, pwg, fullDetail);
-            rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
+
+            if (!noDetail)
+                rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
             //host.Database.RootGroup.
 
             Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.GetDisplayName(), rt, (pwd == host.Database) ? true : false);
@@ -1337,7 +1341,7 @@ namespace KeePassRPC
 
             host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
 
-            Entry output = (Entry)GetEntryFromPwEntry(newLogin, true, true);
+            Entry output = (Entry)GetEntryFromPwEntry(newLogin, true, true, host.Database);
 
             return output;
         }
@@ -1539,7 +1543,7 @@ namespace KeePassRPC
 
             foreach (PwDatabase db in dbs)
             {
-                output.Add(GetDatabaseFromPwDatabase(db, fullDetails));
+                output.Add(GetDatabaseFromPwDatabase(db, fullDetails, false));
             }
             Database[] dbarray = output.ToArray();
             sw.Stop();
@@ -1574,7 +1578,7 @@ namespace KeePassRPC
                 if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                     continue;
 
-                Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true);
+                Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true, host.Database);
                 allEntries.Add(kpe);
                 count++;
 
@@ -1641,12 +1645,12 @@ namespace KeePassRPC
                         continue;
                     if (fullDetails)
                     {
-                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true);
+                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true, pwd);
                         allEntries.Add(kpe);
                     }
                     else
                     {
-                        LightEntry kpe = GetEntryFromPwEntry(pwe, false, false);
+                        LightEntry kpe = GetEntryFromPwEntry(pwe, false, false, pwd);
                         allLightEntries.Add(kpe);
                     }
                 }
@@ -1810,7 +1814,7 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Finds entries
+        /// Finds entries. Presence of certain parameters dictates type of search performed in the following priority order: uniqueId; freeTextSearch; URL, realm, etc.. Searching stops as soon as one of the different types of search results in a successful match.
         /// </summary>
         /// <param name="URLs">The URLs to search for. Host must be lower case as per the URI specs. Other parts are case sensitive.</param>
         /// <param name="actionURL">The action URL.</param>
@@ -1818,205 +1822,281 @@ namespace KeePassRPC
         /// <param name="lst">The type of login search to perform. E.g. look for form matches or HTTP Auth matches.</param>
         /// <param name="requireFullURLMatches">if set to <c>true</c> require full URL matches - host name match only is unacceptable.</param>
         /// <param name="uniqueID">The unique ID of a particular entry we want to retrieve.</param>
+        /// <param name="dbRootID">The unique ID of the root group of the database we want to search. Empty string = search all DBs</param>
+        /// <param name="freeTextSearch">A string to search for in all entries. E.g. title, username (may change)</param>
         /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
-        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, string uniqueID)
-        {            
+        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, string uniqueID, string dbRootID, string freeTextSearch)
+        {
+            List<PwDatabase> dbs = null;
+            int count = 0;
+            List<Entry> allEntries = new List<Entry>();
+
+            if (!string.IsNullOrEmpty(dbRootID))
+            {
+                // Look up selected database by UUID. A "root" id is the same as the root we usually use to identify keefox home folder.
+                // I think this will be fine because any change to this root will require state update in Fierfox anyway.
+                // Main uncertaintanty is with the current location. It's not a widely used feature at the moment
+                // so we'll watch out for problems in future.
+
+                try
+                {
+                    List<PwDatabase> allDBs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                    foreach (PwDatabase db in allDBs)
+                        if (KeePassLib.Utility.MemUtil.ByteArrayToHexString(GetRootPwGroup(db).Uuid.UuidBytes) == dbRootID)
+                        {
+                            dbs = new List<PwDatabase>();
+                            dbs.Add(db);
+                            break;
+                        }
+                }
+                catch (Exception)
+                {
+                    // If we fail to find a suitable DB for any reason we'll just continue as if no restriction had been requested
+                }
+            }
+
+            // if DB list is not populated, look in all open DBs
+            if (dbs == null)
+                dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+
             //string hostname = URLs[0];
             string actionHost = actionURL;
             
             // Make sure there is an active database
             if (!ensureDBisOpen()) { return null; }
 
+
+            
+
             // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
             if (uniqueID != null && uniqueID.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uniqueID));
 
-                PwEntry matchedLogin = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
-
-                if (matchedLogin == null)
-                    throw new Exception("Could not find requested entry.");
-
-                Entry[] logins = new Entry[1];
-                logins[0] = (Entry)GetEntryFromPwEntry(matchedLogin, true, true);
-                if (logins[0] != null)
-                    return logins;
-            }
-            
-            int protocolIndex = -1;
-            Dictionary<string, string> URLHostnames = new Dictionary<string, string>();
-
-            // make sure that hostname and actionURL always represent only the hostname portion
-            // of the URL
-            // It's tempting to demand that the protocol must match too (e.g. http forms won't
-            // match a stored https login) but best not to define such a restriction in KeePassRPC
-            // - the RPC client (e.g. KeeFox) can decide to penalise protocol mismatches, 
-            // potentially dependant on user configuration options in the client.
-            for (int i = 0; i < URLs.Length; i++)
-            {
-                string URL = URLs[i];
-                string newURL = URL;
-                protocolIndex = URL.IndexOf("://");
-                string hostAndPort = "";
-                if (URL.IndexOf("file://") > -1)
+                //foreach DB...
+                foreach (PwDatabase db in dbs)
                 {
-                    // the "host and port" of a file is the actual file name (i.e. just not the query string)
+                    PwEntry matchedLogin = GetRootPwGroup(db).FindEntry(pwuuid, true);
 
-                    int qsIndex = URL.IndexOf("?");
-                    if (qsIndex > -1)
-                        newURL = URL.Substring(8, qsIndex - 8);
-                    else
-                        newURL = URL.Substring(8);
+                    if (matchedLogin == null)
+                        continue;
+
+                    Entry[] logins = new Entry[1];
+                    logins[0] = (Entry)GetEntryFromPwEntry(matchedLogin, true, true, db);
+                    if (logins[0] != null)
+                        return logins;
                 }
-                else if (protocolIndex > -1)
+            }
+
+            if (!string.IsNullOrEmpty(freeTextSearch))
+            {
+                //foreach DB...
+                foreach (PwDatabase db in dbs)
                 {
-                    string URLExcludingProt = URL.Substring(protocolIndex + 3);
-                    int pathStart = URLExcludingProt.IndexOf("/", 0);
-                    
-                    if (pathStart > -1 && URLExcludingProt.Length > pathStart)
+                    KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+
+                    PwGroup searchGroup = GetRootPwGroup(db);
+                    //output = searchGroup.GetEntries(true);
+                    SearchParameters sp = new SearchParameters();
+                    sp.ComparisonMode = StringComparison.InvariantCultureIgnoreCase;
+                    sp.SearchString = freeTextSearch;
+                    sp.SearchInUserNames = true;
+                    sp.SearchInTitles = true;
+                    sp.SearchInTags = true;
+                    searchGroup.SearchEntries(sp, output, false);
+
+                    foreach (PwEntry pwe in output)
                     {
-                        hostAndPort = URL.Substring(protocolIndex+3, pathStart);
-                        newURL = URL.Substring(0, pathStart + protocolIndex + 3);
-                    }
-                    else if (pathStart == -1) // it's already just a hostname
-                    {
-                        hostAndPort = URLExcludingProt;
+                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, true, true, db);
+                        allEntries.Add(kpe);
+                        count++;
                     }
                 }
-                else
-                {
-                    // we havn't received a protocol but may still have a query string 
-                    // we'd like to remove from the URL (e.g. especially if we're dealing with an unknown file:///)
-                    int qsIndex = URL.IndexOf("?");
-                    if (qsIndex > -1)
-                        newURL = URL.Substring(1, qsIndex - 1);
-                }
+               
 
-                URLHostnames.Add(URLs[i], hostAndPort);
+
             }
+            // else we search for the URLs
 
-            protocolIndex = (actionURL == null) ? -1 : actionURL.IndexOf("://");
-            if (protocolIndex > -1)
+            if (count == 0 && URLs.Length > 0 && !string.IsNullOrEmpty(URLs[0]))
             {
-                string actionURLAndPort = actionURL.Substring(protocolIndex + 3);
-                int pathStart = actionURLAndPort.IndexOf("/", 0);
-                if (pathStart > -1 && actionURLAndPort.Length > pathStart)
+                int protocolIndex = -1;
+                Dictionary<string, string> URLHostnames = new Dictionary<string, string>();
+
+                // make sure that hostname and actionURL always represent only the hostname portion
+                // of the URL
+                // It's tempting to demand that the protocol must match too (e.g. http forms won't
+                // match a stored https login) but best not to define such a restriction in KeePassRPC
+                // - the RPC client (e.g. KeeFox) can decide to penalise protocol mismatches, 
+                // potentially dependant on user configuration options in the client.
+                for (int i = 0; i < URLs.Length; i++)
                 {
-                    actionHost = actionURL.Substring(0, pathStart + protocolIndex + 3);
-                }
-            }
+                    string URL = URLs[i];
+                    string newURL = URL;
+                    protocolIndex = URL.IndexOf("://");
+                    string hostAndPort = "";
+                    if (URL.IndexOf("file://") > -1)
+                    {
+                        // the "host and port" of a file is the actual file name (i.e. just not the query string)
 
-            int count = 0;
-            List<Entry> allEntries = new List<Entry>();
+                        int qsIndex = URL.IndexOf("?");
+                        if (qsIndex > -1)
+                            newURL = URL.Substring(8, qsIndex - 8);
+                        else
+                            newURL = URL.Substring(8);
+                    }
+                    else if (protocolIndex > -1)
+                    {
+                        string URLExcludingProt = URL.Substring(protocolIndex + 3);
+                        int pathStart = URLExcludingProt.IndexOf("/", 0);
 
-            KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-
-            PwGroup searchGroup = GetRootPwGroup(host.Database);
-            output = searchGroup.GetEntries(true);
-
-            // Search every entry in the DB
-            foreach (PwEntry pwe in output)
-            {
-                if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
-                    continue; // ignore if it's in the recycle bin
-
-                if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-                    continue; // entries must have a standard URL entry
-
-                bool allowHostnameOnlyMatch = true;
-                if (pwe.Strings.Exists("KPRPC Block hostname-only match"))
-                {
-                    allowHostnameOnlyMatch = false;
-                }
-
-                bool entryIsAMatch = false;
-                bool entryIsAnExactMatch = false;
-
-                string regexPatterns = null;
-                if (pwe.Strings.Exists("KeeFox URL Regex match"))
-                    regexPatterns = pwe.Strings.ReadSafe("KeeFox URL Regex match");
-                if (pwe.Strings.Exists("KPRPC URL Regex match"))
-                    regexPatterns = pwe.Strings.ReadSafe("KPRPC URL Regex match");
-                if (!string.IsNullOrEmpty(regexPatterns))
-                    foreach (string URL in URLs)
-                        foreach (string regexPattern in regexPatterns.Split(' '))
+                        if (pathStart > -1 && URLExcludingProt.Length > pathStart)
                         {
-                            if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
+                            hostAndPort = URL.Substring(protocolIndex + 3, pathStart);
+                            newURL = URL.Substring(0, pathStart + protocolIndex + 3);
+                        }
+                        else if (pathStart == -1) // it's already just a hostname
+                        {
+                            hostAndPort = URLExcludingProt;
+                        }
+                    }
+                    else
+                    {
+                        // we havn't received a protocol but may still have a query string 
+                        // we'd like to remove from the URL (e.g. especially if we're dealing with an unknown file:///)
+                        int qsIndex = URL.IndexOf("?");
+                        if (qsIndex > -1)
+                            newURL = URL.Substring(1, qsIndex - 1);
+                    }
+
+                    URLHostnames.Add(URLs[i], hostAndPort);
+                }
+
+                protocolIndex = (actionURL == null) ? -1 : actionURL.IndexOf("://");
+                if (protocolIndex > -1)
+                {
+                    string actionURLAndPort = actionURL.Substring(protocolIndex + 3);
+                    int pathStart = actionURLAndPort.IndexOf("/", 0);
+                    if (pathStart > -1 && actionURLAndPort.Length > pathStart)
+                    {
+                        actionHost = actionURL.Substring(0, pathStart + protocolIndex + 3);
+                    }
+                }
+
+
+                //foreach DB...
+                foreach (PwDatabase db in dbs)
+                {
+                    KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+
+                    PwGroup searchGroup = GetRootPwGroup(db);
+                    output = searchGroup.GetEntries(true);
+
+                    // Search every entry in the DB
+                    foreach (PwEntry pwe in output)
+                    {
+                        if (db.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                            continue; // ignore if it's in the recycle bin
+
+                        if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                            continue; // entries must have a standard URL entry
+
+                        bool allowHostnameOnlyMatch = true;
+                        if (pwe.Strings.Exists("KPRPC Block hostname-only match"))
+                        {
+                            allowHostnameOnlyMatch = false;
+                        }
+
+                        bool entryIsAMatch = false;
+                        bool entryIsAnExactMatch = false;
+
+                        string regexPatterns = null;
+                        if (pwe.Strings.Exists("KeeFox URL Regex match"))
+                            regexPatterns = pwe.Strings.ReadSafe("KeeFox URL Regex match");
+                        if (pwe.Strings.Exists("KPRPC URL Regex match"))
+                            regexPatterns = pwe.Strings.ReadSafe("KPRPC URL Regex match");
+                        if (!string.IsNullOrEmpty(regexPatterns))
+                            foreach (string URL in URLs)
+                                foreach (string regexPattern in regexPatterns.Split(' '))
+                                {
+                                    if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
+                                    {
+                                        entryIsAMatch = true;
+                                        break;
+                                    }
+                                }
+
+                        foreach (string URL in URLs)
+                        {
+                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
                             {
-                                entryIsAMatch = true;
-                                break;
+                                if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
+                                {
+                                    entryIsAnExactMatch = true;
+                                    entryIsAMatch = true;
+                                }
+                                else if (!requireFullURLMatches)
+                                    entryIsAMatch = true;
                             }
                         }
 
-                foreach (string URL in URLs)
-                {
-                    if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
-                    {
-                        if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
+                        foreach (string URL in URLs)
                         {
-                            entryIsAnExactMatch = true;
-                            entryIsAMatch = true;
+                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
+                            {
+                                if ((
+                                    (pwe.Strings.Exists("Form HTTP realm")
+                                    && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
+                                    && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
+                                    )
+                                    ||
+                                    (pwe.Strings.Exists("KPRPC HTTP realm")
+                                    && pwe.Strings.ReadSafe("KPRPC HTTP realm").Length > 0
+                                    && (httpRealm == "" || pwe.Strings.ReadSafe("KPRPC HTTP realm") == httpRealm)
+                                    ))
+                                    && pwe.Strings.ReadSafe("URL") == URL)
+                                {
+                                    entryIsAnExactMatch = true;
+                                    entryIsAMatch = true;
+                                }
+                                else if (!requireFullURLMatches)
+                                    entryIsAMatch = true;
+                            }
                         }
-                        else if (!requireFullURLMatches)
-                            entryIsAMatch = true;
-                    }
-                }
 
-                foreach (string URL in URLs)
-                {
-                    if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
-                    {
-                        if ((
-                            (pwe.Strings.Exists("Form HTTP realm") 
-                            && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
-                            && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
-                            )
-                            ||
-                            (pwe.Strings.Exists("KPRPC HTTP realm") 
-                            && pwe.Strings.ReadSafe("KPRPC HTTP realm").Length > 0
-                            && (httpRealm == "" || pwe.Strings.ReadSafe("KPRPC HTTP realm") == httpRealm)
-                            ))
-                            && pwe.Strings.ReadSafe("URL") == URL)
+                        foreach (string URL in URLs)
                         {
-                            entryIsAnExactMatch = true;
-                            entryIsAMatch = true;
-                        }
-                        else if (!requireFullURLMatches)
-                            entryIsAMatch = true;
-                    }
-                }
-
-                foreach (string URL in URLs)
-                {
-                    // If we think we found a match, check it's not on a block list
-                    if (entryIsAMatch && matchesAnyBlockedURL(pwe, URL))
-                    {
-                        entryIsAMatch = false;
-                        break;
-                    }
-                    if (entryIsAMatch && pwe.Strings.Exists("KPRPC URL Regex block"))
-                    {
-                        string patterns = pwe.Strings.ReadSafe("KPRPC URL Regex block");
-                        foreach (string pattern in patterns.Split(' '))
-                        {
-                            if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                            // If we think we found a match, check it's not on a block list
+                            if (entryIsAMatch && matchesAnyBlockedURL(pwe, URL))
                             {
                                 entryIsAMatch = false;
                                 break;
                             }
+                            if (entryIsAMatch && pwe.Strings.Exists("KPRPC URL Regex block"))
+                            {
+                                string patterns = pwe.Strings.ReadSafe("KPRPC URL Regex block");
+                                foreach (string pattern in patterns.Split(' '))
+                                {
+                                    if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                                    {
+                                        entryIsAMatch = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (entryIsAMatch)
+                        {
+                            Entry kpe = (Entry)GetEntryFromPwEntry(pwe, entryIsAnExactMatch, true, db);
+                            allEntries.Add(kpe);
+                            count++;
                         }
                     }
                 }
-
-                if (entryIsAMatch)
-                {
-                    Entry kpe = (Entry)GetEntryFromPwEntry(pwe, entryIsAnExactMatch, true);
-                    allEntries.Add(kpe);
-                    count++;
-                }
-
             }
+
             allEntries.Sort(delegate(Entry e1, Entry e2)
                 {
                     return e1.Title.CompareTo(e2.Title);

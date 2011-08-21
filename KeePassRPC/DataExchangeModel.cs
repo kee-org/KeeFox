@@ -172,6 +172,7 @@ namespace KeePassRPC.DataExchangeModel
 		// bool autoTypeOnly "KeeFox config: only autoType" This is probably redundant considering feature request #19?
 
         public Group Parent;
+        public Database Db;
 
         public Entry() { }
 
@@ -188,7 +189,8 @@ namespace KeePassRPC.DataExchangeModel
             bool neverAutoSubmit,
             int priority,
             Group parent,
-            string iconImageData)
+            string iconImageData,
+            Database db)
         {
             URLs = urls;
             FormActionURL = formActionURL;
@@ -203,6 +205,7 @@ namespace KeePassRPC.DataExchangeModel
             Priority = priority;
             Parent = parent;
             IconImageData = iconImageData;
+            Db = db;
         }
     }
 

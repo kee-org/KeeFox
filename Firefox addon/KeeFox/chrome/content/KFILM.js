@@ -791,7 +791,7 @@ KFILM.prototype = {
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, callback, callbackData)
+    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData)
     {
         if (KFLog.logSensitiveData)
             KFLog.info("Searching for logins matching URL: " + url +
@@ -800,7 +800,7 @@ KFILM.prototype = {
         else
             KFLog.info("Searching for logins");
 
-        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, callback, callbackData);
+        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData);
     },
     
     /*

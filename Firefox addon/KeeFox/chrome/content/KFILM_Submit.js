@@ -38,9 +38,9 @@ KFILM.prototype._onFormSubmit = function (form)
     KFLog.info("Form submit handler started");
     
     //do nothing if KeePass is not connected
-    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false) || !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        KFLog.info("Form submit handler skipped (no KeePass connection available)");
+        KFLog.info("Form submit handler skipped (no active KeePass database available)");
         return;
     }
 
@@ -232,7 +232,7 @@ KFILM.prototype._onFormSubmit = function (form)
     //  multi-page logins so the uniqueID will be set
     if (!submitDocumentDataStorage.existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        this.findLogins(submitDocumentDataStorage.URL, submitDocumentDataStorage.formActionURL, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
+        this.findLogins(submitDocumentDataStorage.URL, submitDocumentDataStorage.formActionURL, null, null, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
         
     } else // no need to wait for async response from KeePassRPC
     {
@@ -315,7 +315,7 @@ KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, scheme
     // matches any existing password and not bother showing the notification bar if that's the case.
     if (!submitDocumentDataStorage.existingLogin && keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        this.findLogins(submitDocumentDataStorage.URL, null, realm, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
+        this.findLogins(submitDocumentDataStorage.URL, null, realm, null, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
         
     } else // no need to wait for async response from KeePassRPC
     {

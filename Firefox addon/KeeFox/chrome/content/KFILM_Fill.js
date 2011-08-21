@@ -592,7 +592,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             findLoginDoc.wrappers[i] = findLoginOp;
             findLoginDoc.requestCount++;
             
-            var requestId = this.findLogins(findLoginDoc.formOrigin, actionOrigin, null, null, findLoginOp.callback);
+            var requestId = this.findLogins(findLoginDoc.formOrigin, actionOrigin, null, null, null, null, findLoginOp.callback);
             findLoginDoc.requestIds.push(requestId);
             this.findLoginOps[requestId] = findLoginOp;
             this.findLoginDocs[requestId] = findLoginDoc;
@@ -847,7 +847,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
 // TODO2: extend so more than one form can be filled, with option to automatically submit
 // form that matches most accuratly (currently we just pick the first match - this may not be ideal)
 KFILM.prototype.fill = function (usernameName,usernameValue,
-    actionURL,usernameID,formID,uniqueID,docURI)
+    actionURL,usernameID,formID,uniqueID,docURI,rootDbId)
 {
     var fillDocumentDataStorage = {};
     fillDocumentDataStorage.usernameName = usernameName;
@@ -860,9 +860,10 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
     fillDocumentDataStorage.gBrowser = keefox_org.toolbar._currentWindow.gBrowser;
     fillDocumentDataStorage.doc = this._findDocumentByURI(
             gBrowser.contentDocument.defaultView, docURI);
+    fillDocumentDataStorage.rootDbId = rootDbId;
             
     this.findLogins(fillDocumentDataStorage.URL, fillDocumentDataStorage.actionURL, null,
-     fillDocumentDataStorage.uniqueID, this.fillFindLoginsComplete, fillDocumentDataStorage);
+     fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.rootDbId, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
 };
 
 KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)

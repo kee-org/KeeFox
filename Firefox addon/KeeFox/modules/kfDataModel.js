@@ -108,6 +108,8 @@ kfLoginInfo.prototype =
 	alwaysAutoSubmit : false,
 	neverAutoFill : false,
 	neverAutoSubmit : false,
+	
+	database : null,
 		
 	toJSON : function ()
     {
@@ -129,6 +131,7 @@ kfLoginInfo.prototype =
         intermediateObject.alwaysAutoSubmit = this.alwaysAutoSubmit;
         intermediateObject.neverAutoFill = this.neverAutoFill;
         intermediateObject.neverAutoSubmit = this.neverAutoSubmit;
+        intermediateObject.database = this.database;
         
         //var json = JSON.stringify(intermediateObject);
         return intermediateObject;
@@ -154,6 +157,7 @@ kfLoginInfo.prototype =
         this.alwaysAutoSubmit = intermediateObject.alwaysAutoSubmit;
         this.neverAutoFill = intermediateObject.neverAutoFill;
         this.neverAutoSubmit = intermediateObject.neverAutoSubmit;
+        this.database = intermediateObject.database;
     },
     
     // assists with serialisation of this object to a string
@@ -245,6 +249,7 @@ kfLoginInfo.prototype =
         this.neverAutoFill = entry.neverAutoFill;
         this.neverAutoSubmit = entry.neverAutoSubmit;
         this.priority = entry.priority;
+        this.database = entry.db;
     },
         
     _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
@@ -414,6 +419,7 @@ kfLoginInfo.prototype =
     {
         var entry = {};
         
+        entry.db = this.database;
         entry.parent = this.parentGroup;
         entry.iconImageData = this.iconImageData;
         entry.alwaysAutoFill = this.alwaysAutoFill;
@@ -511,7 +517,7 @@ kfLoginField.prototype = {
     init : function ( aName, aValue, aID, aType, aFormFieldPage )
     {
         var logService = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
-        //logService.logStringMessage("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]");
+        logService.logStringMessage("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]");
         
         //dump("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]\n");
         
