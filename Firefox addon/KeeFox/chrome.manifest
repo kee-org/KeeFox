@@ -7,3 +7,5 @@ resource kfscripts chrome/content/
 locale keefox en-US chrome/locale/en-US/
 locale keefox ru-RU chrome/locale/ru-RU/
 locale keefox sv-SE chrome/locale/sv-SE/
+locale keefox cs chrome/locale/cs/
+locale keefox zh-CN chrome/locale/zh-CN/

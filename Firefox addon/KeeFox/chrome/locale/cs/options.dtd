@@ -1,0 +1,59 @@
+<!ENTITY KeeFox-Options.title "Nastavení KeeFox">
+<!ENTITY KeeFox-pref-FillForm.desc "Vyplnit formuláře">
+<!ENTITY KeeFox-pref-FillAndSubmitForm.desc "Vyplnit formuláře a potvrdit">
+<!ENTITY KeeFox-pref-DoNothing.desc "Nedělej nic">
+<!ENTITY KeeFox-pref-FillPrompt.desc "Vyplnit přihlašovací údaje">
+<!ENTITY KeeFox-pref-FillAndSubmitPrompt.desc "Vyplnit a potvrdit přihlašovací údaje">
+<!ENTITY KeeFox-pref-KeeFoxShould.desc "KeeFox by měl">
+<!ENTITY KeeFox-pref-FillNote.desc "Poznámka: Toto chování můžete pro vybrané položky přebít nastavením, které provedete přes dialog &quot;editovat položku&quot; v programu KeePass.">
+<!ENTITY KeeFox-pref-when-user-chooses.desc "Když zvolím pasující heslo, KeeFox by měl">
+<!ENTITY KeeFox-pref-when-keefox-chooses.desc "Když KeeFox zvolí pasující přihlašovací jméno pro">
+<!ENTITY KeeFox-pref-a-standard-form.desc "Standardní formulář">
+<!ENTITY KeeFox-pref-a-prompt.desc "HTTPAuth, NTLM nebo proxy přihlášení">
+<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Formuláře s vícerem shodami by měly být automaticky vyplněny a potvrzeny">
+<!ENTITY KeeFox-pref-FindingEntries.heading "Hledání položek">
+<!ENTITY KeeFox-pref-Notifications.heading "Notifikace">
+<!ENTITY KeeFox-pref-Logging.heading "Logování">
+<!ENTITY KeeFox-pref-Advanced.heading "Pokročilé">
+<!ENTITY KeeFox-pref-KeePass.heading "KeePass">
+<!ENTITY KeeFox-pref-FindingEntries.description "Zde jsou nejdůležitější nastavení ovládající chování programu KeeFox">
+<!ENTITY KeeFox-pref-Notifications.description "Změňte si tato nastavení tak, abyste se upravili KeeFox k obrazu svému">
+<!ENTITY KeeFox-pref-Advanced.description "Tato nastavení mají pomoci k debugování problému nebo jako pokročilé nastavení, ale většina bežných uživatelů je může s klidným svědomím ignorovat.">
+<!ENTITY KeeFox-pref-KeePass.description "Tato nastavení ovlivňují chovaní aplikace KeePass">
+<!ENTITY KeeFox-pref-FindingEntries.tooltip "Jak se KeeFox zachová, když jsou nalezeny vstupy">
+<!ENTITY KeeFox-pref-Notifications.tooltip "Nastavení notifikací">
+<!ENTITY KeeFox-pref-Advanced.tooltip "Pokročilé nastavení">
+<!ENTITY KeeFox-pref-KeePass.tooltip "KeePass nastavení">
+<!ENTITY KeeFox-pref-autoFillForms.label "Automaticky vyplňovat formuláře, pokud je nalezeno odpovídající heslo">
+<!ENTITY KeeFox-pref-autoSubmitForms.label "Automaticky potvrzovat formuláře, pokud je nalezeno odpovídající heslo">
+<!ENTITY KeeFox-pref-autoFillDialogs.label "Automaticky vyplňovat autentikační dialogy, pokud je nalezeno odpovídající heslo">
+<!ENTITY KeeFox-pref-autoSubmitDialogs.label "Automaticky potvrzovat autentikační dialogy, pokud je nalezeno odpovídající heslo">
+<!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Přepisovat obsah neprázdných formulářů a autentikačních dialogů">
+<!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Potvrdit formulář, pokud zvolím odpovídající heslo">
+<!ENTITY KeeFox-pref-loggingLevel.label "Úroveň logování">
+<!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Nabízet uložení hesel">
+<!ENTITY KeeFox-pref-excludedSaveSites.desc "Tyto weby nebudou nikdy uživateli nabízet uložení nového hesla">
+<!ENTITY KeeFox-pref-excludedSaveSites.remove "Odstranit">
+<!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Zobrazit notifikační lištu, když je třeba spustit KeePass">
+<!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Zobrazit notifikační lištu, když je nutné přihlásit se do KeePass databáze">
+<!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Blikající ikona KeeFoxu, když je třeba spustit KeePass">
+<!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Blikající ikona KeeFoxu, když je nutné přihlásit se do KeePass databáze">
+<!ENTITY KeeFox-pref-logMethod.desc "Zvolte položky, které si přejete, aby KeeFox zaznamenával.">
+<!ENTITY KeeFox-pref-logMethodAlert "Upozorňovací vyskakovací okna (není doporučeno)">
+<!ENTITY KeeFox-pref-logMethodConsole "Javascript konzola">
+<!ENTITY KeeFox-pref-logMethodStdOut "Standardní systémový výstup">
+<!ENTITY KeeFox-pref-logMethodFile "Soubor (nacházející se v adresáři 'keefox' uvnitř Firefox profilu)">
+<!ENTITY KeeFox-pref-logLevel.desc "Volba, jak moc má být log podrobný. Každá vyšší úroveň logování produkuje více výstupních informací.">
+<!ENTITY KeeFox-pref-logSensitiveData.desc "Volba níže by měla být používána s velkou obezřetností, obecně je pouze pro účely vývoje a debuggingu.">
+<!ENTITY KeeFox-pref-logSensitiveData.label "Zaznamenat hesla a jiné citlivé údaje">
+<!ENTITY KeeFox-pref-dynamicFormScanning.label "Monitoruj každý web na nové formuláře">
+<!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "Poznámka: Tato volba umožní KeeFoxu rozpoznávat více formulářů, ale cenou za to je větší vytížení systému">
+<!ENTITY KeeFox-pref-keePassRPCPort.label "Komunikuj s aplikací KeePass použitím tohoto TCP/IP portu">
+<!ENTITY KeeFox-pref-keePassRPCPortWarning.label "Poznámka: změnou nastavení v souboru KeePass.config nebo jinde, může vést k přerušení spojení mezi KeeFox a KeePass">
+<!ENTITY KeeFox-pref-saveFavicons.label "Uložit logo/ikonu webu (favicon)">
+<!ENTITY KeeFox-pref-keePassDBToOpen.label "Když otevírám nebo se přihlašuji do KeePass, použij soubor s touto databází">
+<!ENTITY KeeFox-pref-rememberMRUDB.label "Pamatuj si nejvíce používané KeePass databáze">
+<!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC plugin instalační adresář">
+<!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass instalační adresář">
+<!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Remember above settings (e.g. when using KeePass Portable)">
+<!ENTITY KeeFox-pref-keePassLocation.label "Použít toto umístění">

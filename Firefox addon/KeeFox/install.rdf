@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.9.0</em:version>
+    <em:version>0.9.1b</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -17,7 +17,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>7.*</em:maxVersion>
+        <em:maxVersion>9.0a1</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -46,6 +46,17 @@
     </em:localized>
     <em:localized>
       <Description>
+        <em:locale>en-US</em:locale>
+        <em:name>KeeFox</em:name>
+        <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:contributor>Ben Roberts</em:contributor>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:iconURL>chrome://keefox/skin/icon.png</em:iconURL>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
         <em:locale>sv-SE</em:locale>
         <em:translator>Mikael Hiort af Ornäs</em:translator>
       </Description>
@@ -56,6 +67,17 @@
         <em:translator>Degit</em:translator>
       </Description>
     </em:localized>
-
+    <em:localized>
+      <Description>
+        <em:locale>cs</em:locale>
+        <em:translator>ramesses</em:translator>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>zh-CN</em:locale>
+        <em:translator>yfdyh000</em:translator>
+      </Description>
+    </em:localized>
   </Description>
 </RDF>
