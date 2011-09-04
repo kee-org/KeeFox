@@ -65,18 +65,20 @@
       <Description>
         <em:locale>ru-RU</em:locale>
         <em:translator>Degit</em:translator>
+        <em:description>Простое и защищённое управление паролями. Автоматическая авторизация, никогда не забывает ни один из паролей, не теряет контроля над ними и увеличивает их защищённость. Использует всемирно известный KeePass Password Safe.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>cs</em:locale>
         <em:translator>ramesses</em:translator>
+        <em:description>Jednoduchý a bezpečný správce hesel, který umožňuje automatické přihlašování, takže již nikdy nezapomenete heslo. Zároveň vám dává více kontroly nad vašimi hesly a vylepšuje jejich zabezpečení. Založeno na proslulém programu KeePass Password Safe.</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>zh-CN</em:locale>
-        <em:translator>yfdyh000</em:translator>
+        <em:translator>yfdyh000</em:translator>        
       </Description>
     </em:localized>
   </Description>

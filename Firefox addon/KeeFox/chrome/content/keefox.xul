@@ -80,7 +80,7 @@
     </toolbarbutton>
 
     <toolbarbutton id="KeeFox_Main-Button" tooltiptext="&KeeFox_Main-Button.loading.tip;"
-                 label="&KeeFox_Main-Button.loading.label;" accesskey="&KeeFox_Main-Button.loading.key;"
+                 label="&KeeFox_Main-Button.loading.label;" accesskey=""
                    KFLock="disabled" disabled="true" maxwidth="200"/>
       
     <toolbarbutton id="KeeFox_Logins-Button" disabled="true" tooltiptext="&KeeFox_Logins-Button.tip;"
