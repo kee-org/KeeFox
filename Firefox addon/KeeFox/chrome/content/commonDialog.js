@@ -114,9 +114,11 @@ var keeFoxDialogManager = {
             {
                 keeFoxInst._KFLog.debug("has uid");                
                 ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                ss.setTabValue(currentTab, "KF_dbRootId", currentTab.getAttribute("KF_dbRootId"));
                 ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
                 mustAutoSubmit = true;
-                currentTab.removeAttribute("KF_uniqueID")
+                currentTab.removeAttribute("KF_uniqueID");
+                currentTab.removeAttribute("KF_dbRootId");
             }
             
             ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);

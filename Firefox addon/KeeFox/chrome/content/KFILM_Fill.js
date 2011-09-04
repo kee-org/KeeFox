@@ -336,6 +336,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 
     findLoginDoc.currentTab = findLoginDoc.currentGBrowser.mTabs[findLoginDoc.currentGBrowser.getBrowserIndexForDocument(findLoginDoc.topDoc)];
     findLoginDoc.currentTabUniqueID = ss.getTabValue(findLoginDoc.currentTab, "KF_uniqueID");
+    findLoginDoc.currentTabDbRootId = ss.getTabValue(findLoginDoc.currentTab, "KF_dbRootId");
     findLoginDoc.numberOfTabFillsRemaining = ss.getTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining");
     findLoginDoc.numberOfTabFillsTarget = ss.getTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget");
     findLoginDoc.currentTabPage = null;    
@@ -343,7 +344,9 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     if (findLoginDoc.currentTabUniqueID != undefined && findLoginDoc.currentTabUniqueID != null && findLoginDoc.currentTabUniqueID != "")
     {
         KFLog.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
+        KFLog.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbRootId);
         findLoginDoc.uniqueID = findLoginDoc.currentTabUniqueID;
+        findLoginDoc.dbRootId = findLoginDoc.currentTabDbRootId;
         
         // we want to fill the form with this data
         findLoginDoc.mustAutoFillForm = true;
@@ -372,6 +375,13 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         if (SSuniqueID != undefined && SSuniqueID != null && SSuniqueID != "")
         {
             ss.deleteTabValue(findLoginDoc.currentTab, "KF_uniqueID");
+        }
+        
+        var SSdbRootId = ss.getTabValue(findLoginDoc.currentTab, "KF_dbRootId");
+
+        if (SSdbRootId != undefined && SSdbRootId != null && SSdbRootId != "")
+        {
+            ss.deleteTabValue(findLoginDoc.currentTab, "KF_dbRootId");
         }
         
         KFLog.debug("deleted some tab values");
@@ -799,6 +809,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     {
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
         KFLog.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbRootId", findLoginDoc.dbRootId);
+        KFLog.debug("Set KF_dbRootId to: " + findLoginDoc.dbRootId);
         
         // only auto fill / submit if we expect another page for this login.
         // This may fail in some cases, not sure yet but it should reduce
@@ -1032,10 +1044,12 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
     ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
+    ss.setTabValue(currentTab, "KF_dbRootId", fillDocumentDataStorage.dbRootId);
     KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
     KFLog.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
     KFLog.debug("Set KF_autoSubmit to: yes");
     KFLog.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
+    KFLog.debug("Set KF_dbRootId to: " + fillDocumentDataStorage.dbRootId);
     
     // now we can submit the form if desired    
     if (autoSubmitForm)

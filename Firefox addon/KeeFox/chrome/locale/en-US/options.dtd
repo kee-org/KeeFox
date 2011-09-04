@@ -1,19 +1,16 @@
 <!ENTITY KeeFox-Options.title "KeeFox Options">
-
-<!ENTITY KeeFox-pref-FillForm.desc "Fill in the form" >
-<!ENTITY KeeFox-pref-FillAndSubmitForm.desc "Fill in and submit the form" >
-<!ENTITY KeeFox-pref-DoNothing.desc "Do nothing" >
-<!ENTITY KeeFox-pref-FillPrompt.desc "Fill in the login prompt" >
-<!ENTITY KeeFox-pref-FillAndSubmitPrompt.desc "Fill in and submit the login prompt" >
-<!ENTITY KeeFox-pref-KeeFoxShould.desc "KeeFox should" >
-<!ENTITY KeeFox-pref-FillNote.desc "NB: You can override this behaviour for individual entries in the KeePass &quot;edit entry&quot; dialog." >
-
+<!ENTITY KeeFox-pref-FillForm.desc "Fill in the form">
+<!ENTITY KeeFox-pref-FillAndSubmitForm.desc "Fill in and submit the form">
+<!ENTITY KeeFox-pref-DoNothing.desc "Do nothing">
+<!ENTITY KeeFox-pref-FillPrompt.desc "Fill in the login prompt">
+<!ENTITY KeeFox-pref-FillAndSubmitPrompt.desc "Fill in and submit the login prompt">
+<!ENTITY KeeFox-pref-KeeFoxShould.desc "KeeFox should">
+<!ENTITY KeeFox-pref-FillNote.desc "NB: You can override this behaviour for individual entries in the KeePass &quot;edit entry&quot; dialog.">
 <!ENTITY KeeFox-pref-when-user-chooses.desc "When I choose a matched password, KeeFox should">
-<!ENTITY KeeFox-pref-when-keefox-chooses.desc "When KeeFox chooses a matching login for" >
-<!ENTITY KeeFox-pref-a-standard-form.desc "A standard form" >
-<!ENTITY KeeFox-pref-a-prompt.desc "An HTTPAuth, NTLM or proxy prompt" >
-<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Forms with multiple matches should be automatically filled and submitted" >
-
+<!ENTITY KeeFox-pref-when-keefox-chooses.desc "When KeeFox chooses a matching login for">
+<!ENTITY KeeFox-pref-a-standard-form.desc "A standard form">
+<!ENTITY KeeFox-pref-a-prompt.desc "An HTTPAuth, NTLM or proxy prompt">
+<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Forms with multiple matches should be automatically filled and submitted">
 <!ENTITY KeeFox-pref-FindingEntries.heading "Finding entries">
 <!ENTITY KeeFox-pref-Notifications.heading "Notifications">
 <!ENTITY KeeFox-pref-Logging.heading "Logging">
@@ -27,17 +24,13 @@
 <!ENTITY KeeFox-pref-Notifications.tooltip "Notification options">
 <!ENTITY KeeFox-pref-Advanced.tooltip "Advanced options">
 <!ENTITY KeeFox-pref-KeePass.tooltip "KeePass options">
-
-
 <!ENTITY KeeFox-pref-autoFillForms.label "Fill in forms automatically when a matching password is found">
 <!ENTITY KeeFox-pref-autoSubmitForms.label "Submit forms automatically when a matching password is found">
 <!ENTITY KeeFox-pref-autoFillDialogs.label "Fill in authentication dialogs automatically when a matching password is found">
 <!ENTITY KeeFox-pref-autoSubmitDialogs.label "Submit authentication dialogs automatically when a matching password is found">
 <!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Overwrite the contents of any matching non-empty forms and authentication dialogs">
 <!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Submit forms when you choose a matching password">
-
-<!--<!ENTITY KeeFox-pref-loggingLevel.label "Logging level">-->
-
+<!ENTITY KeeFox-pref-loggingLevel.label "Logging level">
 <!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Offer to save passwords">
 <!ENTITY KeeFox-pref-excludedSaveSites.desc "These sites will never prompt you to save a new password">
 <!ENTITY KeeFox-pref-excludedSaveSites.remove "Remove">
@@ -45,7 +38,6 @@
 <!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Display a notification bar when you need to log in to a KeePass database">
 <!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Flash the KeeFox login icon when KeePass needs to be opened">
 <!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Flash the KeeFox login icon when you need to log in to a KeePass database">
-
 <!ENTITY KeeFox-pref-logMethod.desc "Select where you would like KeeFox to record a log of its activity.">
 <!ENTITY KeeFox-pref-logMethodAlert "Alert popups (not reccomended)">
 <!ENTITY KeeFox-pref-logMethodConsole "Javascript console">
@@ -54,7 +46,6 @@
 <!ENTITY KeeFox-pref-logLevel.desc "Choose how verbose you want the log to be. Each higher log level produces more output.">
 <!ENTITY KeeFox-pref-logSensitiveData.desc "The option below should be used with extreme caution, generally only for development and debugging purposes.">
 <!ENTITY KeeFox-pref-logSensitiveData.label "Record passwords and other sensitive information">
-
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Monitor each web page for new forms">
 <!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "NB: This option may enable KeeFox to recognise more forms at the expense of performance">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "Communicate with KeePass using this TCP/IP port">
@@ -62,8 +53,10 @@
 <!ENTITY KeeFox-pref-saveFavicons.label "Save website logo/icon (favicon)">
 <!ENTITY KeeFox-pref-keePassDBToOpen.label "When opening or logging in to KeePass, use this database file">
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Remember the most recently used KeePass database">
-
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC plugin installation location">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installation location">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Remember above settings (e.g. when using KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Use this location">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "Search all open KeePass databases">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "List logins from all open KeePass databases">
+<!ENTITY KeeFox-pref-AllOpenDBsNote.desc "NB: New passwords are always saved to the currently active database in KeePass">

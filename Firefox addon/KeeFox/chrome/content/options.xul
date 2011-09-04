@@ -44,7 +44,9 @@
       <preference id="KeeFox-pref-autoFillDialogs" name="extensions.keefox@chris.tomlinson.autoFillDialogs" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.keefox@chris.tomlinson.autoSubmitDialogs" type="bool"/>
       <preference id="KeeFox-pref-autoFillFormsWithMultipleMatches" name="extensions.keefox@chris.tomlinson.autoFillFormsWithMultipleMatches" type="bool"/>
-
+      <preference id="KeeFox-pref-searchAllOpenDBs" name="extensions.keefox@chris.tomlinson.searchAllOpenDBs" type="bool"/>
+      <preference id="KeeFox-pref-listAllOpenDBs" name="extensions.keefox@chris.tomlinson.listAllOpenDBs" type="bool"/>
+      
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.notifyBarWhenKeePassRPCInactive" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyBarWhenLoggedOut" type="bool"/>
@@ -123,7 +125,10 @@
                   </menulist>
                 </row>
                 <description class="itemEnd note">&KeeFox-pref-FillNote.desc;</description>
-                <checkbox preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="&KeeFox-pref-autoFillFormsWithMultipleMatches.label;" />
+                <checkbox preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="&KeeFox-pref-autoFillFormsWithMultipleMatches.label;" class="itemEnd" />
+                <checkbox preference="KeeFox-pref-searchAllOpenDBs" label="&KeeFox-pref-searchAllOpenDBs.label;" />
+                <checkbox preference="KeeFox-pref-listAllOpenDBs" label="&KeeFox-pref-listAllOpenDBs.label;" />
+                <description class="itemEnd note">&KeeFox-pref-AllOpenDBsNote.desc;</description>
               </rows>
 
             </grid>

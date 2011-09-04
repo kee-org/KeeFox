@@ -373,8 +373,10 @@ KFILM.prototype = {
                 {
                     KFLog.debug("has uid");                
                     ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                    ss.setTabValue(currentTab, "KF_dbRootId", currentTab.getAttribute("KF_dbRootId"));
                     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-                    currentTab.removeAttribute("KF_uniqueID")
+                    currentTab.removeAttribute("KF_uniqueID");
+                    currentTab.removeAttribute("KF_dbRootId");
                 } else
                 {
                     KFLog.debug("nouid");
@@ -1001,7 +1003,7 @@ KFILM.prototype = {
     },    
     
     loadAndAutoSubmit : function (button, ctrlClick, usernameName,usernameValue,
-                        actionURL,usernameID,formID,uniqueID)
+                        actionURL,usernameID,formID,uniqueID,dbRootId)
     {
         if (KFLog.logSensitiveData)
             KFLog.debug("loading and auto submitting button " + button + ctrlClick + ":" + actionURL); 
@@ -1016,20 +1018,24 @@ KFILM.prototype = {
         
         if (button == 1 || (button == 0 && ctrlClick))
         {
-        this._loadingKeeFoxLogin = uniqueID;
+            this._loadingKeeFoxLogin = uniqueID;
             tab = b.loadOneTab( actionURL, null, null, null, false, null ); 
             tab = b.selectedTab; // loadOneTab does not seem to return the correct tab (or type of object) not sure why it worked 6 months ago.
             tab.setAttribute("KF_uniqueID", uniqueID);
+            tab.setAttribute("KF_dbRootId", dbRootId);
             tab.setAttribute("KF_autoSubmit", "yes");       
         }
         else
         {
+            //TODO2: Why do I have to set these attributes twice?! Explain or remove.
             tab = b.selectedTab;
             tab.setAttribute("KF_uniqueID", uniqueID);
-        tab.setAttribute("KF_autoSubmit", "yes");
+            tab.setAttribute("KF_dbRootId", dbRootId);
+            tab.setAttribute("KF_autoSubmit", "yes");
             b.loadURI( actionURL, null, null);
             tab.setAttribute("KF_uniqueID", uniqueID);
-        tab.setAttribute("KF_autoSubmit", "yes");
+            tab.setAttribute("KF_dbRootId", dbRootId);
+            tab.setAttribute("KF_autoSubmit", "yes");
         }
         
     },

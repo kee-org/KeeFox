@@ -207,21 +207,63 @@ KFToolbar.prototype = {
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
         if (loginButton === undefined || loginButton == null)
             return;
-
+            
+        // get and reset the popup menu for the complete list of logins
+        var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
+        if (container === undefined || container == null)
+            return;
+            
+        // Remove all of the existing buttons
+        for (i = container.childNodes.length; i > 0; i--)
+            container.removeChild(container.childNodes[0]);
+            
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
             // start with the current root group uniqueID
             try
             {
-                var rootGroup = keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].root;
-                
-                if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
+                if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("listAllOpenDBs",false))
                 {
-                    // get the popup menu for this list of logins and subgroups
-                    var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
-                    if (container === undefined || container == null)
-                        return;
-                    this.setOneLoginsMenu(container, rootGroup);
+                    var rootGroup = keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].root;
+                    if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
+                    {
+                        var dbRootId = rootGroup.uniqueID;
+                        this.setOneLoginsMenu(container, rootGroup, dbRootId);
+                    }
+                } else
+                {
+                    for (var i=0; i<keeFoxInst.KeePassDatabases.length; i++)
+                    {
+                        var rootGroup = keeFoxInst.KeePassDatabases[i].root;
+                        if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
+                        {
+                            var dbRootId = rootGroup.uniqueID;
+                            
+                            if (keeFoxInst.KeePassDatabases.length > 1)
+                            {
+                                var dbName = keeFoxInst.KeePassDatabases[i].name;
+                                
+                                var newMenu = null;
+                                newMenu = this._currentWindow.document.createElement("menu");
+                                newMenu.setAttribute("label", dbName + ' / ' + rootGroup.title);
+                                newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
+                                newMenu.setAttribute("class", "menu-iconic");
+                                newMenu.setAttribute("value", rootGroup.uniqueID);
+                                newMenu.setAttribute("context", "KeeFox-group-context");
+                                newMenu.setAttribute("image", "data:image/png;base64,"+rootGroup.iconImageData);
+                                container.appendChild(newMenu);
+                                
+                                var newMenuPopup = null;
+                                newMenuPopup = this._currentWindow.document.createElement("menupopup");
+                                newMenuPopup.setAttribute("id", "KeeFox_Group-" + rootGroup.uniqueID);
+                                this.setOneLoginsMenu(newMenuPopup,rootGroup, dbRootId);
+                                newMenu.appendChild(newMenuPopup);
+                            } else
+                            {
+                                this.setOneLoginsMenu(container, rootGroup, dbRootId);
+                            }
+                        }
+                    }
                 }
             } catch (e)
             {
@@ -232,20 +274,13 @@ KFToolbar.prototype = {
         } else
         {
             loginButton.setAttribute("disabled","true");
-            //loginButton.setAttribute("disabled","false");
-            var container = this._currentWindow.document.getElementById("KeeFox_Logins-Button-root");
-
-            // Remove all of the existing buttons
-            for (i = container.childNodes.length; i > 0; i--) {
-                container.removeChild(container.childNodes[0]);
-            }
         }
         KFLog.debug("setAllLogins end");
         return;
     },
     
     // add all the logins and subgroups for one KeePass group
-    setOneLoginsMenu: function(container, group)
+    setOneLoginsMenu: function(container, group, dbRootId)
     {
         //KFLog.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
     
@@ -289,7 +324,7 @@ KFToolbar.prototype = {
             var newMenuPopup = null;
             newMenuPopup = this._currentWindow.document.createElement("menupopup");
             newMenuPopup.setAttribute("id", "KeeFox_Group-" + group.uniqueID);
-            this.setOneLoginsMenu(newMenuPopup,group);
+            this.setOneLoginsMenu(newMenuPopup,group,dbRootId);
             newMenu.appendChild(newMenuPopup);
 
         }
@@ -313,10 +348,10 @@ KFToolbar.prototype = {
                 "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue]));
             tempButton.setAttribute("oncommand", "keefox_org.ILM.loadAndAutoSubmit(0,event.ctrlKey,'" +
                 usernameName + "','" + usernameValue + "','" + login.uRLs[0] 
-                + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
+                + "',null,null,'" + login.uniqueID + "','" + dbRootId + "');  event.stopPropagation();");
             tempButton.setAttribute("onclick", "if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
                 usernameName + "','" + usernameValue + "','" + login.uRLs[0] 
-                + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation(); if (event.button == 1) keefox_org.UI.closeMenus(event.target);");// var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
+                + "',null,null,'" + login.uniqueID + "','" + dbRootId + "'); } event.stopPropagation(); if (event.button == 1) keefox_org.UI.closeMenus(event.target);");// var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute("value", login.uniqueID);
             tempButton.setAttribute("context", "KeeFox-login-context");
@@ -657,6 +692,13 @@ KFToolbar.prototype = {
         if (uniqueID != undefined && uniqueID != null && uniqueID != "")
         {
             ss.deleteTabValue(currentTab, "KF_uniqueID");
+        }
+        
+        var dbRootId = ss.getTabValue(currentTab, "KF_dbRootId");
+
+        if (dbRootId != undefined && dbRootId != null && dbRootId != "")
+        {
+            ss.deleteTabValue(currentTab, "KF_dbRootId");
         }
         
         var numberOfTabFillsTarget = ss.getTabValue(currentTab, "KF_numberOfTabFillsTarget");

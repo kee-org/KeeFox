@@ -500,8 +500,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             //if (window.keeFoxInst._keeFoxExtension.prefs.has("searchAllOpenDatabases"))
             //    sig = ;
             
-            if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("searchAllOpenDatabases",false))
-                dbRootId = window.keeFoxInst.KeePassDatabases[window.keeFoxInst.ActiveKeePassDatabaseIndex].root.uniqueId;
+            if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("searchAllOpenDBs",false))
+                dbRootId = window.keeFoxInst.KeePassDatabases[window.keeFoxInst.ActiveKeePassDatabaseIndex].root.uniqueID;
             else
                 dbRootId = "";
         }
