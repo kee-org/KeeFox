@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox 正在加载...">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox 正在加载并做一些启动测试。这不会花费太多时间…">
 <!ENTITY KeeFox_Menu-Button.tip "点击查看 KeeFox 菜单">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">

@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox loading...">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox is loading and doing a few startup tests. It shouldn't take long...">
 <!ENTITY KeeFox_Menu-Button.tip "Click to see the KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">

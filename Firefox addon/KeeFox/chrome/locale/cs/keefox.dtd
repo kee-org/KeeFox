@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox se spouští...">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox se spouští a provádí několik spouštěcích testů. Nemělo by to trvat dlouho ...">
 <!ENTITY KeeFox_Menu-Button.tip "Kliknout pro zobrazení KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">

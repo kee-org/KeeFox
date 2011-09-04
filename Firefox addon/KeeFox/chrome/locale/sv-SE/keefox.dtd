@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox läses in…">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox läses in och utför några starttester. Det bör inte ta lång tid…">
 <!ENTITY KeeFox_Menu-Button.tip "Klicka för att se KeeFox-menyn">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
