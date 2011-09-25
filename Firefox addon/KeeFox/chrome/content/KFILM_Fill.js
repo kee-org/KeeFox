@@ -336,7 +336,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 
     findLoginDoc.currentTab = findLoginDoc.currentGBrowser.mTabs[findLoginDoc.currentGBrowser.getBrowserIndexForDocument(findLoginDoc.topDoc)];
     findLoginDoc.currentTabUniqueID = ss.getTabValue(findLoginDoc.currentTab, "KF_uniqueID");
-    findLoginDoc.currentTabDbRootId = ss.getTabValue(findLoginDoc.currentTab, "KF_dbRootId");
+    findLoginDoc.currentTabDbFileName = ss.getTabValue(findLoginDoc.currentTab, "KF_dbFileName");
     findLoginDoc.numberOfTabFillsRemaining = ss.getTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining");
     findLoginDoc.numberOfTabFillsTarget = ss.getTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget");
     findLoginDoc.currentTabPage = null;    
@@ -344,9 +344,9 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     if (findLoginDoc.currentTabUniqueID != undefined && findLoginDoc.currentTabUniqueID != null && findLoginDoc.currentTabUniqueID != "")
     {
         KFLog.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
-        KFLog.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbRootId);
+        KFLog.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbFileName);
         findLoginDoc.uniqueID = findLoginDoc.currentTabUniqueID;
-        findLoginDoc.dbRootId = findLoginDoc.currentTabDbRootId;
+        findLoginDoc.dbFileName = findLoginDoc.currentTabDbFileName;
         
         // we want to fill the form with this data
         findLoginDoc.mustAutoFillForm = true;
@@ -377,11 +377,11 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             ss.deleteTabValue(findLoginDoc.currentTab, "KF_uniqueID");
         }
         
-        var SSdbRootId = ss.getTabValue(findLoginDoc.currentTab, "KF_dbRootId");
+        var SSdbFileName = ss.getTabValue(findLoginDoc.currentTab, "KF_dbFileName");
 
-        if (SSdbRootId != undefined && SSdbRootId != null && SSdbRootId != "")
+        if (SSdbFileName != undefined && SSdbFileName != null && SSdbFileName != "")
         {
-            ss.deleteTabValue(findLoginDoc.currentTab, "KF_dbRootId");
+            ss.deleteTabValue(findLoginDoc.currentTab, "KF_dbFileName");
         }
         
         KFLog.debug("deleted some tab values");
@@ -809,8 +809,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     {
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
         KFLog.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
-        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbRootId", findLoginDoc.dbRootId);
-        KFLog.debug("Set KF_dbRootId to: " + findLoginDoc.dbRootId);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName);
+        KFLog.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
         
         // only auto fill / submit if we expect another page for this login.
         // This may fail in some cases, not sure yet but it should reduce
@@ -859,7 +859,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
 // TODO2: extend so more than one form can be filled, with option to automatically submit
 // form that matches most accuratly (currently we just pick the first match - this may not be ideal)
 KFILM.prototype.fill = function (usernameName,usernameValue,
-    actionURL,usernameID,formID,uniqueID,docURI,rootDbId)
+    actionURL,usernameID,formID,uniqueID,docURI,dbFileName)
 {
     var fillDocumentDataStorage = {};
     fillDocumentDataStorage.usernameName = usernameName;
@@ -872,10 +872,10 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
     fillDocumentDataStorage.gBrowser = keefox_org.toolbar._currentWindow.gBrowser;
     fillDocumentDataStorage.doc = this._findDocumentByURI(
             gBrowser.contentDocument.defaultView, docURI);
-    fillDocumentDataStorage.rootDbId = rootDbId;
+    fillDocumentDataStorage.dbFileName = dbFileName;
             
     this.findLogins(fillDocumentDataStorage.URL, fillDocumentDataStorage.actionURL, null,
-     fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.rootDbId, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
+     fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.dbFileName, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
 };
 
 KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
@@ -1044,12 +1044,12 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
     ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
-    ss.setTabValue(currentTab, "KF_dbRootId", fillDocumentDataStorage.dbRootId);
+    ss.setTabValue(currentTab, "KF_dbFileName", fillDocumentDataStorage.dbFileName);
     KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
     KFLog.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
     KFLog.debug("Set KF_autoSubmit to: yes");
     KFLog.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
-    KFLog.debug("Set KF_dbRootId to: " + fillDocumentDataStorage.dbRootId);
+    KFLog.debug("Set KF_dbFileName to: " + fillDocumentDataStorage.dbFileName);
     
     // now we can submit the form if desired    
     if (autoSubmitForm)

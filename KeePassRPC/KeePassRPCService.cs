@@ -39,6 +39,7 @@ using System.Security.Cryptography;
 using KeePassLib.Cryptography.PasswordGenerator;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
+using KeePass.UI;
 
 namespace KeePassRPC
 {
@@ -368,20 +369,33 @@ namespace KeePassRPC
             return true;
         }
 
-        void saveDB()
+        private delegate void dlgSaveDB(PwDatabase databaseToSave);
+
+        void saveDB(PwDatabase databaseToSave)
         {
+            // store current active tab/db
+            PwDocument currentActiveDoc = host.MainWindow.DocumentManager.ActiveDocument;
+            
+            // change active tab
+            PwDocument doc = host.MainWindow.DocumentManager.FindDocument(databaseToSave);
+            host.MainWindow.DocumentManager.ActiveDocument = doc;
+
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
             {
+                // save active database & update UI appearance
                 if (host.MainWindow.UIFileSave(true))
                     host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
             }
             else
-            {
+            {                
+                // update ui with "changed" flag                
                 host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
             }
+            // change tab back
+            host.MainWindow.DocumentManager.ActiveDocument = currentActiveDoc;
         }
 
-        void openGroupEditorWindow(PwGroup pg)
+        void openGroupEditorWindow(PwGroup pg, PwDatabase db)
         {
             GroupForm gf = new GroupForm();
             gf.InitEx(pg, host.MainWindow.ClientIcons, host.Database);
@@ -394,36 +408,39 @@ namespace KeePassRPC
             gf.Focus();
             gf.Activate();
             if (gf.ShowDialog() == DialogResult.OK)
-                saveDB();
+                saveDB(db);
         }
 
-        private delegate void dlgOpenGroupEditorWindow(PwGroup pg);
+        private delegate void dlgOpenGroupEditorWindow(PwGroup pg, PwDatabase db);
 
         /// <summary>
         /// Launches the group editor.
         /// </summary>
         /// <param name="uuid">The UUID of the group to edit.</param>
         [JsonRpcMethod]
-        public void LaunchGroupEditor(string uuid)
+        public void LaunchGroupEditor(string uuid, string dbFileName)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return;
+
+            // find the database
+            PwDatabase db = SelectDatabase(dbFileName);
 
             if (uuid != null && uuid.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwGroup matchedGroup = GetRootPwGroup(host.Database).FindGroup(pwuuid, true);
+                PwGroup matchedGroup = GetRootPwGroup(db).FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
                     throw new Exception("Could not find requested entry.");
 
-                host.MainWindow.Invoke(new dlgOpenGroupEditorWindow(openGroupEditorWindow), matchedGroup);
+                host.MainWindow.BeginInvoke(new dlgOpenGroupEditorWindow(openGroupEditorWindow), matchedGroup, db);
             }
 
         }
 
-        void OpenLoginEditorWindow(PwEntry pe)
+        void OpenLoginEditorWindow(PwEntry pe, PwDatabase db)
         {
             PwEntryForm ef = new PwEntryForm();
             ef.InitEx(pe, PwEditMode.EditExistingEntry, host.Database, host.MainWindow.ClientIcons, false, false);
@@ -437,31 +454,34 @@ namespace KeePassRPC
             ef.Activate();
 
             if (ef.ShowDialog() == DialogResult.OK)
-                saveDB();
+                saveDB(db);
         }
 
-        private delegate void dlgOpenLoginEditorWindow(PwEntry pg);
+        private delegate void dlgOpenLoginEditorWindow(PwEntry pg, PwDatabase db);
 
         /// <summary>
         /// Launches the login editor.
         /// </summary>
         /// <param name="uuid">The UUID of the entry to edit.</param>
         [JsonRpcMethod]
-        public void LaunchLoginEditor(string uuid)
+        public void LaunchLoginEditor(string uuid, string dbFileName)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return;
+
+            // find the database
+            PwDatabase db = SelectDatabase(dbFileName);
 
             if (uuid != null && uuid.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(uuid));
 
-                PwEntry matchedLogin = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
+                PwEntry matchedLogin = GetRootPwGroup(db).FindEntry(pwuuid, true);
 
                 if (matchedLogin == null)
                     throw new Exception("Could not find requested entry.");
 
-                host.MainWindow.Invoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), matchedLogin);
+                host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), matchedLogin, db);
             }
 
         }
@@ -1242,8 +1262,7 @@ namespace KeePassRPC
                 }
 
                 //matchedLogin.ParentGroup.Entries.Remove(matchedLogin);
-                host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
-
+                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
                 return true;
             }
             return false;
@@ -1302,11 +1321,34 @@ namespace KeePassRPC
                     matchedGroup.Touch(false);
                 }
 
-                host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
+                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
 
                 return true;
             }
             return false;
+        }
+
+        private PwDatabase SelectDatabase(string dbFileName)
+        {
+            PwDatabase chosenDB = host.Database;
+            if (!string.IsNullOrEmpty(dbFileName))
+            {
+                try
+                {
+                    List<PwDatabase> allDBs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                    foreach (PwDatabase db in allDBs)
+                        if (db.IOConnectionInfo.GetDisplayName() == dbFileName)
+                        {
+                            chosenDB = db;
+                            break;
+                        }
+                }
+                catch (Exception)
+                {
+                    // If we fail to find a suitable DB for any reason we'll just continue as if no restriction had been requested
+                }
+            }
+            return chosenDB;
         }
 
         /// <summary>
@@ -1314,9 +1356,10 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="login">The KeePassRPC representation of the login to be added</param>
         /// <param name="parentUUID">The UUID of the parent group for the new login. If null, the root group will be used.</param>
-        /// <param name="current__"></param>
+        /// <param name="dbFileName">The file name of the database we want to save this entry to;
+        ///                         if empty or null, the currently active database is used</param>
         [JsonRpcMethod]
-        public Entry AddLogin(Entry login, string parentUUID)
+        public Entry AddLogin(Entry login, string parentUUID, string dbFileName)
         {
             // Make sure there is an active database
             if (!ensureDBisOpen()) return null;
@@ -1325,13 +1368,16 @@ namespace KeePassRPC
 
             setPwEntryFromEntry(newLogin, login);
 
-            PwGroup parentGroup = GetRootPwGroup(host.Database); // if in doubt we'll stick it in the root folder
+            // find the database
+            PwDatabase chosenDB = SelectDatabase(dbFileName);
+
+            PwGroup parentGroup = GetRootPwGroup(chosenDB); // if in doubt we'll stick it in the root folder
 
             if (parentUUID != null && parentUUID.Length > 0)
             {
                 PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(parentUUID));
 
-                PwGroup matchedGroup = GetRootPwGroup(host.Database).FindGroup(pwuuid, true);
+                PwGroup matchedGroup = GetRootPwGroup(chosenDB).FindGroup(pwuuid, true);
 
                 if (matchedGroup != null)
                     parentGroup = matchedGroup;
@@ -1339,9 +1385,9 @@ namespace KeePassRPC
 
             parentGroup.AddEntry(newLogin, true);
 
-            host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
+            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
 
-            Entry output = (Entry)GetEntryFromPwEntry(newLogin, true, true, host.Database);
+            Entry output = (Entry)GetEntryFromPwEntry(newLogin, true, true, chosenDB);
 
             return output;
         }
@@ -1375,7 +1421,7 @@ namespace KeePassRPC
 
             parentGroup.AddGroup(newGroup, true);
 
-            host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
+            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
 
             Group output = GetGroupFromPwGroup(newGroup);
 
@@ -1410,7 +1456,7 @@ namespace KeePassRPC
 
             setPwEntryFromEntry(modificationTarget, newLogin);
 
-            host.MainWindow.BeginInvoke(new MethodInvoker(saveDB));
+            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
         }
 
         /// <summary>
@@ -1826,38 +1872,20 @@ namespace KeePassRPC
         /// <param name="freeTextSearch">A string to search for in all entries. E.g. title, username (may change)</param>
         /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
-        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, string uniqueID, string dbRootID, string freeTextSearch)
+        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, string uniqueID, string dbFileName, string freeTextSearch)
         {
             List<PwDatabase> dbs = null;
             int count = 0;
             List<Entry> allEntries = new List<Entry>();
 
-            if (!string.IsNullOrEmpty(dbRootID))
+            if (!string.IsNullOrEmpty(dbFileName))
             {
-                // Look up selected database by UUID. A "root" id is the same as the root we usually use to identify keefox home folder.
-                // I think this will be fine because any change to this root will require state update in Fierfox anyway.
-                // Main uncertaintanty is with the current location. It's not a widely used feature at the moment
-                // so we'll watch out for problems in future.
-
-                try
-                {
-                    List<PwDatabase> allDBs = host.MainWindow.DocumentManager.GetOpenDatabases();
-                    foreach (PwDatabase db in allDBs)
-                        if (KeePassLib.Utility.MemUtil.ByteArrayToHexString(GetRootPwGroup(db).Uuid.UuidBytes) == dbRootID)
-                        {
-                            dbs = new List<PwDatabase>();
-                            dbs.Add(db);
-                            break;
-                        }
-                }
-                catch (Exception)
-                {
-                    // If we fail to find a suitable DB for any reason we'll just continue as if no restriction had been requested
-                }
-            }
-
-            // if DB list is not populated, look in all open DBs
-            if (dbs == null)
+                // find the database
+                PwDatabase db = SelectDatabase(dbFileName);
+                dbs = new List<PwDatabase>();
+                dbs.Add(db);
+            } else
+                // if DB list is not populated, look in all open DBs
                 dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
 
             //string hostname = URLs[0];
@@ -1865,9 +1893,6 @@ namespace KeePassRPC
             
             // Make sure there is an active database
             if (!ensureDBisOpen()) { return null; }
-
-
-            
 
             // if uniqueID is supplied, match just that one login. if not found, move on to search the content of the logins...
             if (uniqueID != null && uniqueID.Length > 0)

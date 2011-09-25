@@ -102,7 +102,110 @@ KFUI.prototype = {
         else
             this._showSaveLoginDialog(aLogin);
     },
+    
+    removeNotification : function (nb, name)
+    {
+        //var nb = this._getNotifyBox();
+        //alert('blah');
+        var n = nb.getNotificationWithValue(name);
+        if(n){n.close();}
+        //alert('blah2');
+    },
 
+
+    _showKeeFoxNotification : function (notifyBox, name, notificationText, buttons)
+    {
+        this._showLoginNotification(notifyBox, name,
+             notificationText, []);
+             
+        // improve the notification bar
+        var bar = notifyBox.getNotificationWithValue(name);
+        var p = bar.ownerDocument.getAnonymousElementByAttribute(bar, 'anonid', 'details');
+
+        var b = bar.ownerDocument.createElement("hbox"); // create a new XUL menuitem
+        b.setAttribute('flex', '1');
+        b.setAttribute('align', 'center');
+        var img = bar.ownerDocument.createElement('image');
+        img.setAttribute('src', 'chrome://keefox/skin/KeeFox24.png'); //16??
+        img.setAttribute('class', 'keetest');
+        b.appendChild(img);
+
+        var bx = bar.ownerDocument.createElement('hbox');
+        bx.setAttribute('flex', '1');
+
+        for(var bi=0; bi < buttons.length; bi++)
+        {
+            var butDef = buttons[bi];
+            var newMenu = null;
+            newMenu = bar.ownerDocument.createElement("toolbarbutton");
+            newMenu = this._prepareNotificationBarMenuItem(newMenu, butDef, notifyBox, name);
+            
+            if (butDef.popup != null)
+            {
+                newMenu.setAttribute("type", "menu-button");
+                
+                var newMenuPopup = null;
+                    newMenuPopup = bar.ownerDocument.createElement("menupopup");
+                    
+                // cycle through all popup button definitions to set up and attach the popup menu and convert class into drop down button style
+                for(var pi=0; pi < butDef.popup.length; pi++)
+                {
+                    var popDef = butDef.popup[pi];
+                    var nmi = bar.ownerDocument.createElement("menuitem");
+                    nmi = this._prepareNotificationBarMenuItem(nmi, popDef, notifyBox, name);
+                    newMenuPopup.appendChild(nmi);                    
+                }
+                newMenu.appendChild(newMenuPopup);
+                
+            }
+
+            bx.appendChild(newMenu);
+        }
+        
+        b.appendChild(bx);
+        p.parentNode.replaceChild(b, p);   
+    },
+    
+    _prepareNotificationBarMenuItem : function (nmi, itemDef, notifyBox, name)
+    {
+        nmi.setAttribute("label", itemDef.label);
+        nmi.setAttribute("accesskey", itemDef.accessKey);
+        nmi.setAttribute("tooltiptext", itemDef.tooltip);
+        nmi.setAttribute("class", "menu-iconic");
+        nmi.setAttribute("image", itemDef.image);
+        var callbackWrapper = function(fn, name){
+            return function() {
+                try
+                {
+                    var returnValue = 0;
+                    if (fn != null)
+                        returnValue = fn.apply(this, arguments);
+                    
+                    //TODO: remove all event listeners from menu items
+                    keefox_org.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
+                } catch(ex)
+                {
+                    KFLog.error("Exception occurred in menu item callback: " + ex);
+                }
+            };
+        };
+
+        var callback = callbackWrapper(itemDef.callback, name);
+        nmi.addEventListener('command', callback, false);
+        if (itemDef.id != null)
+            nmi.setAttribute("id", itemDef.id);
+        if (itemDef.values != null)
+        {
+            for(var pi=0; pi < itemDef.values.length; pi++)
+            {
+                var key = itemDef.values[pi].key;
+                var val = itemDef.values[pi].value;
+                nmi.setUserData(key, val, null);
+            }                  
+        }
+        nmi.setUserData('notificationbox',notifyBox,null); //TODO: some way to reference top menu rather than attach to all nodes? or would that be slower anyway?
+        return nmi;    
+    },
 
     /*
      * _showLoginNotification
@@ -151,10 +254,6 @@ KFUI.prototype = {
 
         var notificationText = "";
             
-        // Ugh. We can't use the strings from the popup window, because they
-        // have the access key marked in the string (eg "Mo&zilla"), along
-        // with some weird rules for handling access keys that do not occur
-        // in the string, for L10N. See commonDialog.js's setLabelForNode().
         var neverButtonText =
               this._getLocalizedString("notifyBarNeverForSiteButton.label");
         var neverButtonAccessKey =
@@ -171,10 +270,24 @@ KFUI.prototype = {
               this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
               this._getLocalizedString("notifyBarNotNowButton.key");
+        //var rememberButtonDBText =
+        //      this._getLocalizedString("notifyBarRememberDBButton.label");
+        var rememberAdvancedDBButtonText =
+              this._getLocalizedString("notifyBarRememberAdvancedDBButton.label");       
+        
+        var neverButtonTooltip =
+              this._getLocalizedString("notifyBarNeverForSiteButton.tooltip");
+        var rememberButtonTooltip =
+              this._getLocalizedString("notifyBarRememberButton.tooltip");
+        var rememberAdvancedButtonTooltip =
+              this._getLocalizedString("notifyBarRememberAdvancedButton.tooltip");
+        var notNowButtonTooltip =
+              this._getLocalizedString("notifyBarNotNowButton.tooltip");        
+        var rememberButtonDBTooltip =
+              this._getLocalizedString("notifyBarRememberDBButton.tooltip");
+        var rememberAdvancedDBButtonTooltip =
+              this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip");
 
-        // The callbacks in |buttons| have a closure to access the variables
-        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
-        // without a getService() call.
         var kfilm = this._kfilm;
         var url=aLogin.URLs[0];
         var urlSchemeHostPort=this._kfilm._getURISchemeHostAndPort(aLogin.URLs[0]);
@@ -188,85 +301,135 @@ KFUI.prototype = {
         {
             notificationText = this._getLocalizedString("savePasswordText");
         }
+        
+        var popupSave = [];        
+        for (var dbi = 0; dbi < keeFoxInst.KeePassDatabases.length; dbi++)
+        {
+            var db = keeFoxInst.KeePassDatabases[dbi];
+            popupSave[dbi] = {
+                label:     this._getLocalizedString("notifyBarRememberDBButton.label", [db.name]),
+                accessKey: "",
+                popup:     null,
+                callback:  function(evt) { evt.stopPropagation(); keefox_org.ILM.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename')); keefox_org.toolbar.clearTabFormRecordingData();}, // this line is broken?????
+                tooltip: this._getLocalizedString("notifyBarRememberDBButton.tooltip", [db.name]),
+                image: "data:image/png;base64,"+db.root.iconImageData,
+                values: [ { key: "login", value: aLogin }, { key: "filename", value: keeFoxInst.KeePassDatabases[dbi].fileName } ]
+            };
+            alert(keeFoxInst.KeePassDatabases[dbi].fileName);
+        }        
+        if (popupSave.length == 0)
+            popupSave = null;
+            
+        var popupSaveToGroup = [];        
+        for (var dbi = 0; dbi < keeFoxInst.KeePassDatabases.length; dbi++)
+        {
+            var db = keeFoxInst.KeePassDatabases[dbi];
+            popupSaveToGroup[dbi] = {
+                label:     this._getLocalizedString("notifyBarRememberAdvancedDBButton.label", [db.name]),
+                accessKey: "",
+                popup:     null,
+                callback:  function(evt) { 
+                        function onCancel() {
+                        };
+                        
+                        function onOK(uuid, filename) {
+                            var result = keefox_org.ILM.addLogin(aLogin, uuid, filename);
+                            if (result == "This login already exists.")
+                            {
+                                //TODO2: create a new notification bar for 2 seconds with an error message?
+                            }
+                        };
+                        
+                        keefox_org.toolbar.clearTabFormRecordingData();
+                        window.openDialog("chrome://keefox/content/groupChooser.xul",
+                          "group", "chrome,centerscreen", 
+                          onOK,
+                          onCancel,
+                          evt.currentTarget.getUserData('filename'));
+                    
+                        evt.stopPropagation();
+                    },
+                tooltip: this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip", [db.name]),
+                image: "data:image/png;base64,"+db.root.iconImageData,
+                values: [ { key: "login", value: aLogin }, { key: "filename", value: keeFoxInst.KeePassDatabases[dbi].fileName } ]
+            };
+        }        
+        if (popupSaveToGroup.length == 0)
+            popupSaveToGroup = null;
 
         var buttons = [
-            // "Remember" button
+            // "Save" button
             {
                 label:     rememberButtonText,
                 accessKey: rememberButtonAccessKey,
-                popup:     null,
-                callback: function(aNotificationBar, aButton) {
-                    var result = kfilm.addLogin(aLogin, null);
-                    if (result == "This login already exists.")
-                    {
-                        //TODO2: create a new notification bar for 2 seconds with an error message?
-                    }
-                    //TODO2: copy completed to multi-page menu, etc.
-                
-                    keefox_org.toolbar.clearTabFormRecordingData();
-                    //aNotificationBar.parentNode.removeCurrentNotification();
-                }
+                popup: popupSave,
+                callback: function(evt) { var result = keefox_org.ILM.addLogin(evt.currentTarget.getUserData('login'), null, null);
+                         keefox_org.toolbar.clearTabFormRecordingData(); evt.stopPropagation(); },
+                tooltip: rememberButtonTooltip,
+                image: "chrome://keefox/skin/KeeLock.png",
+                values: [ { key: "login", value: aLogin } ]
             },
-            // "Remember (advanced)" button
             {
                 label:     rememberAdvancedButtonText,
                 accessKey: rememberAdvancedButtonAccessKey,
-                popup:     null,
-                callback: function(aNotificationBar, aButton) {
-                    function onCancel() {
-                      //alert("Operation canceled!");
-                    };
+                popup: popupSaveToGroup,
+                callback: function(evt) { 
+                        function onCancel() {
+                        };
+                        
+                        function onOK(uuid) {
+                            var result = keefox_org.ILM.addLogin(aLogin, uuid, null);
+                            if (result == "This login already exists.")
+                            {
+                                //TODO2: create a new notification bar for 2 seconds with an error message?
+                            }
+                        };
+                        
+                        keefox_org.toolbar.clearTabFormRecordingData();
+                        window.openDialog("chrome://keefox/content/groupChooser.xul",
+                          "group", "chrome,centerscreen", 
+                          onOK,
+                          onCancel,
+                          null);                  
                     
-                    function onOK(uuid) {
-                        var result = kfilm.addLogin(aLogin, uuid);
-                        if (result == "This login already exists.")
-                        {
-                            //TODO2: create a new notification bar for 2 seconds with an error message?
-                        }
-                    };
-                    
-                    keefox_org.toolbar.clearTabFormRecordingData();
-                    window.openDialog("chrome://keefox/content/groupChooser.xul",
-                  "group", "chrome,centerscreen", 
-                  onOK,
-                  onCancel);
-                  
-                }
+                        evt.stopPropagation();
+                    },
+                tooltip: rememberAdvancedButtonTooltip,
+                image: "chrome://keefox/skin/KeeLock.png",
+                values: [ { key: "login", value: aLogin } ]
             },
             
-            
-            // "Not now" button
+            // Not now
             {
                 label:     notNowButtonText,
                 accessKey: notNowButtonAccessKey,
-                popup:     null,
-                callback:  function() { 
-                    keefox_org.toolbar.clearTabFormRecordingData();
-                } 
+                callback: function(evt) { keefox_org.toolbar.clearTabFormRecordingData(); },
+                tooltip: notNowButtonTooltip,
+                image: "chrome://keefox/skin/KeeLock.png"          
             },
-            
+                
             // "Never" button
             {
                 label:     neverButtonText,
                 accessKey: neverButtonAccessKey,
                 popup:     null,
+                tooltip: neverButtonTooltip,
                 callback:  function() {
-                try {
-                //kfilm._kf.
-                
-                //var url = ;
-                var statement = kfilm._kf._keeFoxExtension.db.conn.createStatement("INSERT OR REPLACE INTO sites (id,url,tp,preventSaveNotification) VALUES ( (select id from sites where url = :url), :url, coalesce((select tp from sites where url = :url),0), 1  )");
-                statement.params.url = urlSchemeHostPort;
-                statement.executeAsync();
-        
-                } finally {
-                    keefox_org.toolbar.clearTabFormRecordingData();
+                    try 
+                    {
+                        var statement = kfilm._kf._keeFoxExtension.db.conn.createStatement("INSERT OR REPLACE INTO sites (id,url,tp,preventSaveNotification) VALUES ( (select id from sites where url = :url), :url, coalesce((select tp from sites where url = :url),0), 1  )");
+                        statement.params.url = urlSchemeHostPort;
+                        statement.executeAsync();        
+                    } finally
+                    {
+                        keefox_org.toolbar.clearTabFormRecordingData();
                     }
                 } 
             }
         ];
         
-         this._showLoginNotification(aNotifyBox, "password-save",
+        
+         this._showKeeFoxNotification(aNotifyBox, "password-save",
              notificationText, buttons);
     },
 
@@ -425,27 +588,39 @@ KFUI.prototype = {
         var kf = this._kf;
 
         var buttons = [
-            // "Remember" button
             {
                 label:     loginButtonText,
                 accessKey: loginButtonAccessKey,
                 popup:     null,
-                callback: function(aNotificationBar, aButton) {
-                    kf.loginToKeePass();
-                }
-            },
+                callback: function(evt) { keeFoxInst.loginToKeePass(); },
+                tooltip: "L10n: Login to your KeePass database.",
+                image: "chrome://keefox/skin/KeeLock.png"
+            }//,
 
             // "Not now" button
-            {
-                label:     notNowButtonText,
-                accessKey: notNowButtonAccessKey,
-                popup:     null,
-                callback:  function() { /* NOP */ } 
-            }
+//            {
+//                label:     notNowButtonText,
+//                accessKey: notNowButtonAccessKey,
+//                popup:     [
+//                {
+//                    label:     "L10n: Never for this site",
+//                    accessKey: "s",
+//                    popup:     null,
+//                    callback:  function(evt) { alert('unimplemented'); },
+//                    tooltip: "L10n: Never prompt when you are visiting this website.",
+//                    image: "chrome://keefox/skin/KeeLock.png"
+//                }
+//                ],
+//                callback: null,
+//                tooltip: "L10n: dismiss this window without logging in to KeePass (same as clicking the cross).",
+//                image: "chrome://keefox/skin/KeeLock.png"
+//            }
         ];
 
-        this._showLoginNotification(notifyBox, "keefox-login",
+//TODO: fix before next release
+        this._showKeeFoxNotification(notifyBox, "keefox-login",
              notificationText, buttons);
+             
     },
     
     _removeOLDKFNotifications : function (keepLaunchBar)
@@ -551,8 +726,7 @@ KFUI.prototype = {
 
         return null;
     },
-
-
+    
     /*
      * _getLocalizedString
      *

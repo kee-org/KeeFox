@@ -5,7 +5,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the main KeeFox XUL file. It overlays the key parts of the KeeFox
   interface such as the KeeFox toolbar and associated popup menus.
@@ -37,8 +37,6 @@
     <toolbarbutton id="KeeFox_Menu-Button" tooltiptext="&KeeFox_Menu-Button.tip;"
            class="" type="menu" label="&KeeFox_Menu-Button.label;" >
       <menupopup>
-        <!--<menuitem id="KeeFox_RunSelfTests-Button" tooltiptext="&KeeFox_Menu-Button.test.tip;"
-                   class="" label="&KeeFox_Menu-Button.test.label;" oncommand="keefox_org.toolbar.KeeFox_RunSelfTests(event, KFtester)" accesskey="&KeeFox_Menu-Button.test.key;" />-->
 
         <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
                    class="" image="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
@@ -106,18 +104,15 @@
   <popupset>
     <menupopup id="KeeFox-login-toolbar-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('value'));"/>
-      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Login.label;" oncommand="keeFoxInst.removeLogin(document.popupNode.value);"/>-->
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getUserData('uuid'), document.getElementById('KeeFox_Main-Button').getUserData('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-login-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.value);"/>
-      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Login.label;" oncommand="keeFoxInst.removeLogin(document.popupNode.value);"/>-->
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.getUserData('uuid'),document.popupNode.getUserData('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
       <!--<menuitem label="Login all in tabs"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.value);"/>
-      <!--<menuitem label="&KeeFox_Logins-Context-Delete-Group.label;" oncommand="keeFoxInst.removeGroup(document.popupNode.value);"/>-->
+      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.getUserData('uuid'),document.popupNode.getUserData('fileName'));"/>
     </menupopup>
   </popupset>
 

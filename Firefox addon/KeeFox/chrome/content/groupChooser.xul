@@ -51,29 +51,28 @@
 
     function setTreeViewGroupChooser ()
     {
-      var tree = document.getElementById("keePassGroupTree");
-      keePassGroupTreeView = new ClassTreeView(this.getObjectChildren);
-      var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-        .getService(Components.interfaces.nsIWindowMediator);
-      var window = wm.getMostRecentWindow("navigator:browser");
-      var rootGroup = window.keefox_org.ILM._kf.KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
-      keePassGroupTreeView.addTopObject(rootGroup, true);
-      tree.view = keePassGroupTreeView;
+    var tree = document.getElementById("keePassGroupTree");
+    keePassGroupTreeView = new ClassTreeView(this.getObjectChildren);
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+    .getService(Components.interfaces.nsIWindowMediator);
+    var mainWindow = wm.getMostRecentWindow("navigator:browser");
+    var rootGroup = mainWindow.keefox_org.ILM._kf.getDBbyFilename(window.arguments[2]).root; //KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
+    keePassGroupTreeView.addTopObject(rootGroup, true);
+    tree.view = keePassGroupTreeView;
     }
-    
+
     function getObjectChildren (aObject)
     {
-      return aObject.childGroups;
+    return aObject.childGroups;
     }
 
     function onTreeSelected ()
     {
-      var tree = document.getElementById("keePassGroupTree");
-      var cellIndex = 1;
-      var cellText = tree.view.getCellText(tree.currentIndex, tree.columns.getColumnAt(cellIndex));
-      dump(cellText);
-      window.arguments[0](cellText);
-      close();
+    var tree = document.getElementById("keePassGroupTree");
+    var groupUuid = tree.view.getCellText(tree.currentIndex, tree.columns.getColumnAt(1));
+    //dump(groupUuid);
+    window.arguments[0](groupUuid, window.arguments[2]); // onOK(groupUuid, databaseFilename);
+    close();
     }
   </script>
 </window>

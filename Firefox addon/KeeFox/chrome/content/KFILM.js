@@ -373,10 +373,10 @@ KFILM.prototype = {
                 {
                     KFLog.debug("has uid");                
                     ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                    ss.setTabValue(currentTab, "KF_dbRootId", currentTab.getAttribute("KF_dbRootId"));
+                    ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
                     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
                     currentTab.removeAttribute("KF_uniqueID");
-                    currentTab.removeAttribute("KF_dbRootId");
+                    currentTab.removeAttribute("KF_dbFileName");
                 } else
                 {
                     KFLog.debug("nouid");
@@ -688,7 +688,7 @@ KFILM.prototype = {
      *
      * Add a new login to login storage.
      */
-    addLogin : function (login, parentUUID)
+    addLogin : function (login, parentUUID, dbFileName)
     {
         // Sanity check the login
         if (login.URLs == null || login.URLs.length == 0)
@@ -730,8 +730,8 @@ KFILM.prototype = {
             }
         }
         
-        KFLog.info("Adding login to group: " + parentUUID);
-        return this._kf.addLogin(login, parentUUID);
+        KFLog.info("Adding login to group: " + parentUUID + " in DB: " + dbFileName);
+        return this._kf.addLogin(login, parentUUID, dbFileName);
     },
     
     /*
@@ -793,7 +793,7 @@ KFILM.prototype = {
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData)
+    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
     {
         if (KFLog.logSensitiveData)
             KFLog.info("Searching for logins matching URL: " + url +
@@ -802,7 +802,7 @@ KFILM.prototype = {
         else
             KFLog.info("Searching for logins");
 
-        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData);
+        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData);
     },
     
     /*
@@ -1003,7 +1003,7 @@ KFILM.prototype = {
     },    
     
     loadAndAutoSubmit : function (button, ctrlClick, usernameName,usernameValue,
-                        actionURL,usernameID,formID,uniqueID,dbRootId)
+                        actionURL,usernameID,formID,uniqueID,dbFileName)
     {
         if (KFLog.logSensitiveData)
             KFLog.debug("loading and auto submitting button " + button + ctrlClick + ":" + actionURL); 
@@ -1022,7 +1022,7 @@ KFILM.prototype = {
             tab = b.loadOneTab( actionURL, null, null, null, false, null ); 
             tab = b.selectedTab; // loadOneTab does not seem to return the correct tab (or type of object) not sure why it worked 6 months ago.
             tab.setAttribute("KF_uniqueID", uniqueID);
-            tab.setAttribute("KF_dbRootId", dbRootId);
+            tab.setAttribute("KF_dbFileName", dbFileName);
             tab.setAttribute("KF_autoSubmit", "yes");       
         }
         else
@@ -1030,11 +1030,11 @@ KFILM.prototype = {
             //TODO2: Why do I have to set these attributes twice?! Explain or remove.
             tab = b.selectedTab;
             tab.setAttribute("KF_uniqueID", uniqueID);
-            tab.setAttribute("KF_dbRootId", dbRootId);
+            tab.setAttribute("KF_dbFileName", dbFileName);
             tab.setAttribute("KF_autoSubmit", "yes");
             b.loadURI( actionURL, null, null);
             tab.setAttribute("KF_uniqueID", uniqueID);
-            tab.setAttribute("KF_dbRootId", dbRootId);
+            tab.setAttribute("KF_dbFileName", dbFileName);
             tab.setAttribute("KF_autoSubmit", "yes");
         }
         

@@ -433,17 +433,17 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     // TODO2: pull these out into a more specific prototype
     //***************************************
 
-    this.launchGroupEditor = function(uniqueID)
+    this.launchGroupEditor = function(uniqueID, dbFileName)
     {
         // fire and forget
-        this.request(this, "LaunchGroupEditor", [uniqueID], null, ++this.requestId);
+        this.request(this, "LaunchGroupEditor", [uniqueID, dbFileName], null, ++this.requestId);
         return;
     }
 
-    this.launchLoginEditor = function(uniqueID)
+    this.launchLoginEditor = function(uniqueID, dbFileName)
     {
         // fire and forget
-        this.request(this, "LaunchLoginEditor", [uniqueID], null, ++this.requestId);
+        this.request(this, "LaunchLoginEditor", [uniqueID, dbFileName], null, ++this.requestId);
         return;
     }
 
@@ -473,15 +473,15 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return result.knownDatabases;
     }
 
-    this.addLogin = function(login, parentUUID)
+    this.addLogin = function(login, parentUUID, dbFileName)
     {
         var jslogin = login.asEntry();
         // fire and forget
-        this.request(this, "AddLogin", [jslogin, parentUUID], null, ++this.requestId);        
+        this.request(this, "AddLogin", [jslogin, parentUUID, dbFileName], null, ++this.requestId);        
         return;
     }
 
-    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, dbRootId, freeText, callback, callbackData)
+    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
     {
         // returns ID of async JSON-RPC request so calling functions can track if desired
         
@@ -495,21 +495,21 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         else if (formSubmitURL == undefined || formSubmitURL == null || formSubmitURL == "")
             lst = "LSTnoForms";     
             
-        if (dbRootId == undefined || dbRootId == null || dbRootId == "")
+        if (dbFileName == undefined || dbFileName == null || dbFileName == "")
         {
             //if (window.keeFoxInst._keeFoxExtension.prefs.has("searchAllOpenDatabases"))
             //    sig = ;
             
             if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("searchAllOpenDBs",false))
-                dbRootId = window.keeFoxInst.KeePassDatabases[window.keeFoxInst.ActiveKeePassDatabaseIndex].root.uniqueID;
+                dbFileName = window.keeFoxInst.KeePassDatabases[window.keeFoxInst.ActiveKeePassDatabaseIndex].fileName;
             else
-                dbRootId = "";
+                dbFileName = "";
         }
         
         var newId = ++this.requestId;
         // slight chance IDs may be sent out of order but at least this way
         // they are consistent for any given request/response cycle
-        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID, dbRootId, freeText], callback, newId, callbackData);        
+        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID, dbFileName, freeText], callback, newId, callbackData);        
         return newId;
     }
 

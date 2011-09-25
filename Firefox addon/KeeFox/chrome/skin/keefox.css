@@ -62,3 +62,9 @@ toolbar[iconsize="small"] toolbarbutton.login-found
 }
 
 /* .toolbarbuttonmenu-text */
+
+.keetest
+{
+	background-color: #000000 !important;
+	border: 5px solid #000000 !important;
+}

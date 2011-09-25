@@ -258,6 +258,19 @@ KeeFox.prototype = {
     urlToOpenOnStartup: null,
     
     KeePassDatabases: null,
+    
+    getDBbyFilename: function(fileName)
+    {
+        this._KFLog.debug("Getting database for filename: " + fileName);
+        if (fileName == undefined || fileName == null || fileName.length == 0)
+            return this.KeePassDatabases[this.ActiveKeePassDatabaseIndex];
+            
+        for (var i=0; i < this.KeePassDatabases.length; i++)
+        {
+            if (this.KeePassDatabases[i].fileName == fileName)
+                return this.KeePassDatabases[i];
+        }
+    },
 
     // holding function in case there are any corrective actions we can
     // take if certain extensions cause problems in future
@@ -915,11 +928,11 @@ KeeFox.prototype = {
         }
     },
     
-    addLogin: function(login, parentUUID)
+    addLogin: function(login, parentUUID, dbFileName)
     {
         try
         {
-            return this.KeePassRPC.addLogin(login, parentUUID);
+            return this.KeePassRPC.addLogin(login, parentUUID, dbFileName);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -999,11 +1012,11 @@ KeeFox.prototype = {
         }
     },
     
-    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData)
+    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
     {
         try
         {
-            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, rootDbId, freeText, callback, callbackData);
+            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -1011,12 +1024,12 @@ KeeFox.prototype = {
         }
     },
     
-    launchLoginEditor: function(uuid)
+    launchLoginEditor: function(uuid, dbFileName)
     {
         try
         {
             //this.KeePassRPC.findLogins(null, null, null, null, null, "pizzahut", null, null);
-            this.KeePassRPC.launchLoginEditor(uuid);
+            this.KeePassRPC.launchLoginEditor(uuid, dbFileName);
             
             //var thread = Components.classes["@mozilla.org/thread-manager;1"]
             //                        .getService(Components.interfaces.nsIThreadManager)
@@ -1029,11 +1042,11 @@ KeeFox.prototype = {
         }
     },
 
-    launchGroupEditor: function(uuid)
+    launchGroupEditor: function(uuid, dbFileName)
     {
         try
         {
-        this.KeePassRPC.launchGroupEditor(uuid);
+        this.KeePassRPC.launchGroupEditor(uuid, dbFileName);
              //var thread = Components.classes["@mozilla.org/thread-manager;1"]
             //                        .getService(Components.interfaces.nsIThreadManager)
              //                       .newThread(0);
