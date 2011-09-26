@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.9.1</em:version>
+    <em:version>0.9.2a</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -59,6 +59,7 @@
       <Description>
         <em:locale>sv-SE</em:locale>
         <em:translator>Mikael Hiort af Ornäs</em:translator>
+        <em:description>Enkel och säker lösenordshantering. Logga in automatiskt, glöm aldrig mer bort ett lösenord, håll reda på dina lösenord och stärk deras säkerhet. Att användas tillsammans med den världsberömda lösenordshanteraren KeePass Password Safe.</em:description>
       </Description>
     </em:localized>
     <em:localized>
@@ -79,6 +80,12 @@
       <Description>
         <em:locale>zh-CN</em:locale>
         <em:translator>yfdyh000</em:translator>        
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>de</em:locale>
+        <em:translator>Christian Arnold aka meilon</em:translator>
       </Description>
     </em:localized>
   </Description>
