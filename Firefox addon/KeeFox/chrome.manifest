@@ -9,3 +9,4 @@ locale keefox ru-RU chrome/locale/ru-RU/
 locale keefox sv-SE chrome/locale/sv-SE/
 locale keefox cs chrome/locale/cs/
 locale keefox zh-CN chrome/locale/zh-CN/
+locale keefox de chrome/locale/de/

@@ -388,8 +388,9 @@ KFToolbar.prototype = {
         //mainButton.setAttribute("value", "");
         //mainButton.removeAttribute("context");
         
-        //TODO1.0: apparently this (And other IDs) are not always available (e.g. when buttons are removed from all toolbars)
+        // apparently this (And other IDs) are not always available (e.g. when buttons are removed from all toolbars)
         var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
+        var generatePasswordButton = mainWindow.document.getElementById("KeeFox_CopyNewPasswordToClipboard-Button");
         
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
@@ -422,20 +423,37 @@ KFToolbar.prototype = {
             
         if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
         {    
-            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
-            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
-            changeDBButton.setAttribute("onpopupshowing", "keefox_org.toolbar.setMRUdatabases(); event.stopPropagation();");
-            changeDBButton.setAttribute("disabled", "false");
-            //changeDBButton.setAttribute("onpopuphiding", "keefox_org.toolbar.detachMRUpopup(); event.stopPropagation();");
-            
-            
+            if (changeDBButton !== undefined && changeDBButton != null)
+            {
+                changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
+                changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
+                changeDBButton.setAttribute("onpopupshowing", "keefox_org.toolbar.setMRUdatabases(); event.stopPropagation();");
+                changeDBButton.setAttribute("disabled", "false");
+                //changeDBButton.setAttribute("onpopuphiding", "keefox_org.toolbar.detachMRUpopup(); event.stopPropagation();");
+            }
+            if (generatePasswordButton !== undefined && generatePasswordButton != null)
+            {
+                //generatePasswordButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
+                //generatePasswordButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip") );
+                generatePasswordButton.setAttribute("onpopupshowing", "keefox_org.toolbar.generatePassword(); event.stopPropagation();");
+                generatePasswordButton.setAttribute("disabled", "false");
+            }
         } else
         {
-            changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
-            changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
-            changeDBButton.setAttribute("onpopupshowing", "");
-            //changeDBButton.setAttribute("onpopuphiding", "");
-            changeDBButton.setAttribute("disabled", "true");
+            if (changeDBButton !== undefined && changeDBButton != null)
+            {
+                changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
+                changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
+                changeDBButton.setAttribute("onpopupshowing", "");
+                changeDBButton.setAttribute("disabled", "true");
+            }
+            if (generatePasswordButton !== undefined && generatePasswordButton != null)
+            {
+                //generatePasswordButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
+                //generatePasswordButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
+                generatePasswordButton.setAttribute("onpopupshowing", "");
+                generatePasswordButton.setAttribute("disabled", "true");
+            }
         }
         KFLog.debug("setupButton_ready end");
     },
@@ -465,24 +483,24 @@ KFToolbar.prototype = {
         mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
         mainButton.setAttribute("oncommand", "keeFoxInst.launchKeePass('')");
     },
-    
-    KeeFox_RunSelfTests: function(event, KFtester) {
- 
-        this._alert("Please load KeePass and create a new empty database (no sample data). Then click OK and wait for the tests to complete. Follow the test progress in the Firefox error console. WARNING: While running these tests do not load any KeePass database which contains data you want to keep.");
-        var outMsg = "";
-        try {
-            KFtester._KeeFoxTestErrorOccurred = false;
-            outMsg = KFtester.do_tests();
-        }
-        catch (err) {
-            KFLog.error(err);
-            KFLog._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
-            return;
-        }
+//    
+//    KeeFox_RunSelfTests: function(event, KFtester) {
+// 
+//        this._alert("Please load KeePass and create a new empty database (no sample data). Then click OK and wait for the tests to complete. Follow the test progress in the Firefox error console. WARNING: While running these tests do not load any KeePass database which contains data you want to keep.");
+//        var outMsg = "";
+//        try {
+//            KFtester._KeeFoxTestErrorOccurred = false;
+//            outMsg = KFtester.do_tests();
+//        }
+//        catch (err) {
+//            KFLog.error(err);
+//            KFLog._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
+//            return;
+//        }
 
-        KFLog.info(outMsg);
-        KFLog._alert(outMsg);
-    },
+//        KFLog.info(outMsg);
+//        KFLog._alert(outMsg);
+//    },
     
     flashItem: function (flashyItem, numberOfTimes, theWindow)
     {
@@ -515,12 +533,7 @@ KFToolbar.prototype = {
         
     },
     
-    setMRUdatabases: function() {
-    //return;
-   //     alert("set");
-        // get the popup menu for this list of logins and subgroups
-   //     var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
-
+    setMRUdatabases: function() {    
         var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
         if (popupContainer === undefined || popupContainer == null)
             return;
@@ -530,10 +543,29 @@ KFToolbar.prototype = {
             popupContainer.removeChild(popupContainer.childNodes[0]);
         }
         
-        var mruArray = this._currentWindow.keeFoxInst.getAllDatabaseFileNames();
+        // Set up a loading message while we wait
+        var noItemsButton = null;
+        noItemsButton = this._currentWindow.document.createElement("menuitem");
+        noItemsButton.setAttribute("label", this.strbundle.getString("loading") + '...');
+        noItemsButton.setAttribute("disabled", "true");
+        popupContainer.appendChild(noItemsButton);            
         
+        // calls setMRUdatabasesCallback after KeePassRPC responds
+        this._currentWindow.keeFoxInst.getAllDatabaseFileNames();
+    },
+    
+    setMRUdatabasesCallback: function(result) {
+   
+        var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+        if (popupContainer === undefined || popupContainer == null)
+            return;
+
+        // Remove the loading message
+        for (i = popupContainer.childNodes.length; i > 0; i--) {
+            popupContainer.removeChild(popupContainer.childNodes[0]);
+        }
         
-           
+        var mruArray = result.knownDatabases;
         if (mruArray == null || mruArray.length == 0)
         {
             var noItemsButton = null;
@@ -584,8 +616,6 @@ KFToolbar.prototype = {
                 tempButton.setAttribute("image", "chrome://keefox/skin/KeeLock.png");
 
                 popupContainer.appendChild(tempButton);
-
-
             }
         }
         
@@ -691,22 +721,7 @@ KFToolbar.prototype = {
     
     generatePassword : function ()
     {
-        var currentGBrowser = this._currentWindow.gBrowser;
-        //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
-        // no idea why I did this: this.setLogins(null, null);
-        var newPassword = this._currentWindow.keeFoxInst.generatePassword();
-        if (newPassword.constructor.name == "Error") // Can't use instanceof here becuase the Error object was created in a different scope
-        {
-            this._currentWindow.alert(this.strbundle.getString("generatePassword.launch"));
-        }            
-        else
-        {
-            const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
-            getService(Components.interfaces.nsIClipboardHelper);
-            gClipboardHelper.copyString(newPassword);
-            
-            this._currentWindow.alert(this.strbundle.getString("generatePassword.copied"));//TODO2: replace with a growl if FF supports such a thing
-        }
+        this._currentWindow.keeFoxInst.generatePassword();
     }    
 
 };

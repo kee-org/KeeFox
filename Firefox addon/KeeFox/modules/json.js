@@ -463,14 +463,18 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.getMRUdatabases = function()
     {
-        /*ASYNC review: called only in response to popup menu showing on MRU menu
-        
-        need to add support for "please wait" in menu drop down/out but otherwise
-        straightforward
+        this.request(this, "GetCurrentKFConfig", null, function rpc_callback(resultWrapper) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+            
+            if ("result" in resultWrapper && resultWrapper.result !== false)
+            {
+                if (resultWrapper.result !== null)
+                    window.keefox_org.toolbar.setMRUdatabasesCallback(resultWrapper.result);
                 
-        */
-        var result = this.syncRequest(this, "GetCurrentKFConfig");
-        return result.knownDatabases;
+            } 
+        }, ++this.requestId); 
     }
 
     this.addLogin = function(login, parentUUID)
@@ -521,14 +525,32 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
 
     this.generatePassword = function()
     {
-        /*ASYNC review: 
-        could easily make async but might be better for user to see a slight pause
-         rather than risk dodgy connections causing clipboard to be overwritten
-          long after user thinks operation failed.
-          hmmm... a valid concern but probably outweighed by sync disadvantages if this ends up being the only thing we need sync requests for.
-        */
-        var result = this.syncRequest(this, "GeneratePassword", [""]);
-        return result; // a string
+        this.request(this, "GeneratePassword", [""], function rpc_callback(resultWrapper) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+            
+            passwordGenerated = false;
+            var tb = window.keefox_org.toolbar;
+            
+            if ("result" in resultWrapper && resultWrapper.result !== false)
+            {
+                if (resultWrapper.result !== null)
+                {
+                    passwordGenerated = true;
+                    
+                    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
+                    getService(Components.interfaces.nsIClipboardHelper);
+                    gClipboardHelper.copyString(resultWrapper.result);
+                    
+                    window.keefox_org.UI.growl(tb.strbundle.getString("generatePassword.copied"));
+                }
+            }
+            if (!passwordGenerated)
+            {
+                window.keefox_org.UI.growl(tb.strbundle.getString("generatePassword.launch"));
+            }
+        }, ++this.requestId);
     }
     
     /*
