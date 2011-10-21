@@ -180,6 +180,73 @@ function onsynctopreferenceLogLevel()
     }
 }
 
+//TODO2: allow users to choose seperate plugins folder OR automatically detect from a few standard locations
+function browseForKeePassLocation(currentLocationPath)
+{
+    var location = browseForLocation(currentLocationPath, 
+        Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation');
+    document.getElementById("keePassInstalledLocation").value = location;
+    document.getElementById("KeeFox-pref-keePassInstalledLocation").value = location;
+}
+
+function browseForKPRPCLocation(currentLocationPath)
+{
+    var location = browseForLocation(currentLocationPath, 
+        Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation');
+    document.getElementById("keePassRPCInstalledLocation").value = location;
+    document.getElementById("KeeFox-pref-keePassRPCInstalledLocation").value = location;
+}
+
+function browseForDefaultKDBXLocation(currentLocationPath)
+{
+    var location = browseForLocation(currentLocationPath, 
+        Components.interfaces.nsIFilePicker.modeOpen, 'selectDefaultKDBXLocation');
+    document.getElementById("keePassDBToOpen").value = location;
+    document.getElementById("KeeFox-pref-keePassDBToOpen").value = location;
+}
+
+function browseForLocation(currentLocationPath, pickerMode, captionStringKey)
+{
+    const nsIFilePicker = Components.interfaces.nsIFilePicker;
+
+    var fp = Components.classes["@mozilla.org/filepicker;1"]
+                   .createInstance(nsIFilePicker);                   
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
+            
+    var dialogName = window.keefox_org.toolbar.strbundle.getString(captionStringKey);
+    
+    fp.init(window, dialogName, pickerMode);
+    
+    if (pickerMode == nsIFilePicker.modeOpen)
+    {
+        fp.appendFilter("KeePass databases","*.kdbx");
+        fp.appendFilters(nsIFilePicker.filterAll);
+    }
+    
+    if (currentLocationPath != null && currentLocationPath.length > 0)
+    {
+        try {
+            var currentLocation = Components.classes["@mozilla.org/file/local;1"]
+                .createInstance(Components.interfaces.nsILocalFile);
+            currentLocation.initWithPath(currentLocationPath);
+            if (currentLocation.exists())
+                fp.displayDirectory = currentLocation; //TODO: does this work if a file rather than dir is passed in?
+        } catch (ex) {
+        // ignore
+        }
+    }
+    
+    var rv = fp.show();
+    if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace)
+    {
+        var path = fp.file.path;
+        return path;
+    }
+    return currentLocationPath;
+}
+
 // This section allows selection of the root group of the currently active
 // KeePass database. It may be useful to aid selecting root group status per
 // location? Though I would prefer to leave that in the hands of KeePass

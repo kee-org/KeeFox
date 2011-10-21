@@ -195,7 +195,11 @@
                       label="&KeeFox-pref-saveFavicons.label;" class="itemEnd" />
 
             <label control="keePassDBToOpen" value="&KeeFox-pref-keePassDBToOpen.label;:"/>
-            <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80" class="itemEnd"/>
+            <hbox class="itemEnd">
+              <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80" />
+              <button id="keePassDBToOpenBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForDefaultKDBXLocation(document.getElementById('keePassDBToOpen').value);"/>
+            </hbox>
+            
             <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                       label="&KeeFox-pref-rememberMRUDB.label;"  class="itemEnd"/>
 
@@ -205,10 +209,18 @@
 
         <tabpanel>
           <vbox align="left">
-            <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;:"/>
-            <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80" class="itemEnd"/>
+            <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;:"/>            
+            <hbox class="itemEnd">
+              <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80" />
+              <button id="keePassRPCInstalledLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForKPRPCLocation(document.getElementById('keePassRPCInstalledLocation').value);"/>
+            </hbox>
+            
             <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;:"/>
-            <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80" class="itemEnd"/>
+            <hbox class="itemEnd">
+              <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80" />
+              <button id="keePassInstalledLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
+            </hbox>
+            
             <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" class="itemEnd" />
             <label control="keePassLocation" value="&KeeFox-pref-keePassLocation.label;:"/>
             <textbox preference="KeeFox-pref-keePassLocation" id="keePassLocation" maxlength="128" size="40" class="itemEnd"/>

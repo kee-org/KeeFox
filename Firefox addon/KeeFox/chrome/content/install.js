@@ -21,14 +21,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //Math.round((d.getTime()/1000)-10)
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.16.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.16.zip";
-const KF_KPZIP_FILE_CHECKSUM = "3c3077af6f563f77d30967daacca4465";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.16/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KP_FILE_NAME = "KeePass-2.16-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
-const KF_KP_SAVE_NAME = "KeePass-2.16-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "a47fa8902f4d5da473c99e2501076021";
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.17/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.17.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.17.zip";
+const KF_KPZIP_FILE_CHECKSUM = "eb7d09c71b4d78f0832f145ca9e377c7";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.17/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
+const KF_KP_FILE_NAME = "KeePass-2.17-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
+const KF_KP_SAVE_NAME = "KeePass-2.17-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "64b0c6faa36484a4940153052d4295df";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
 const KF_NET_FILE_NAME = "dotnetfx.exe"
 const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";
@@ -1139,9 +1139,7 @@ function runKeePassRPCExecutableInstaller(keePassLocation)
 }
 
 // TODO2: would be nice if this could go in a seperate
-// thread but my guess is that would be masochistic
-// in the mean time I've tried sticking some
-// thread.processNextEvent calls in at strategic points...
+// thread
 // TODO2: revisit threaded approach now that we can
 // rely on FF 3.5 thread workers to simplify things
 // TODO2: ... or not, if FF4 has removed the required features!
@@ -1165,7 +1163,6 @@ function extractKPZip (zipFilePath, storeLocation)
     var entries = zipReader.findEntries("*/");
     while (entries.hasMore())
     {
-        thread.processNextEvent(true); // should this be false instead?
         var entryName = entries.getNext();
         var target = getItemFile(entryName);
         if (!target.exists())
@@ -1192,8 +1189,6 @@ function extractKPZip (zipFilePath, storeLocation)
         target = getItemFile(entryName);
         if (target.exists())
             continue;
-
-        thread.processNextEvent(true); // should this be false instead?
 
         try
         {

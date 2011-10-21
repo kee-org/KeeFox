@@ -38,9 +38,9 @@ KFILM.prototype._onFormSubmit = function (form)
     KFLog.info("Form submit handler started");
     
     //do nothing if KeePass is not connected
-    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false) || !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        KFLog.info("Form submit handler skipped (no KeePass connection available)");
+        KFLog.info("Form submit handler skipped (no active KeePass database available)");
         return;
     }
 

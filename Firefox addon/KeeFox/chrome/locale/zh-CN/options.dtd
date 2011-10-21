@@ -57,3 +57,4 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass 安装位置">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "记住上面的设置（例如，当使用 KeePass 便携版时）">
 <!ENTITY KeeFox-pref-keePassLocation.label "使用这个位置">
+<!ENTITY KeeFox-browse.label "NOT TRANSLATED">

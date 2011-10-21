@@ -38,13 +38,12 @@ function jsonrpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.syncRequestResults = {};
     this.partialData = {};
     this.parsingStringContents = false;
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,8,22];
+    this.clientVersion = [0,9,0];
 }
 
 jsonrpcClient.prototype = new session();
@@ -55,9 +54,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     this.shutdown = function()
     {
         log.debug("Shutting down JSON-RPC...");
-        // Make sure any synchronous communications with KeePass are cancelled
-        for (var i = 0; i < this.syncRequestResults.length; i++)
-            this.syncRequestResults[i] = new Error("JSON-RPC client shutting down");
         if (this.reconnectTimer)
             this.reconnectTimer.cancel();
         if (this.certFailedReconnectTimer)
@@ -307,7 +303,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             log.warn("JSON-RPC request could not be sent.");
             delete this.callbacks[requestId];
             delete this.callbacksData[requestId];
-            this.syncRequestResults[requestId] = new Error("JSON-RPC request could not be sent");
         }
     }
 
@@ -341,74 +336,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         // RPC server versions
         if (method=="KPRPCListener" || method=="callBackToKeeFoxJS")
             this.KPRPCListener(data);
-    }
-
-    // send a synchronous request to the JSON server
-    this.syncRequest = function(session, method, params)
-    {
-        if (log.logSensitiveData)
-            log.debug("Preparing a synchronous request to the JSON-RPC server:" + method + ":" + params);
-        else
-            log.debug("Preparing a synchronous request to the JSON-RPC server.");
-        
-        //ASSUMPTION: this operation is atomic (if not, very unfortunate
-        // multi-thread timing could lead to two requests with the same ID)
-        var myRequestId = ++this.requestId;
-        
-        this.syncRequestResults[myRequestId] = null;
-
-        this.request(session, method, params, function rpc_callback(resultWrapper) {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
-            
-            if ("result" in resultWrapper && resultWrapper.result !== false)
-            {
-                if (resultWrapper.result !== null)
-                    window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = resultWrapper.result;
-                else
-                    window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error("Null return result received");
-            } else
-                window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error(resultWrapper.error);    
-        }, myRequestId);
-        
-        var startTime = Date.now();
-        
-        if (log.logSensitiveData)
-            log.debug("Waiting for the synchronous request (at " + startTime + ") to the JSON-RPC server to end:" + method + ":" + params);
-        else
-            log.debug("Waiting for the synchronous request (at " + startTime + ") to the JSON-RPC server to end.");
-        
-        var thread = Components.classes["@mozilla.org/thread-manager;1"]
-                     .getService(Components.interfaces.nsIThreadManager)
-                     .currentThread;
-
-        var timeout = false;
-        var timeoutTime = startTime + 10000;                          
-        while (this.syncRequestResults[myRequestId] == null)
-        {
-            thread.processNextEvent(true);
-            var currentTime = Date.now();
-            if (currentTime > timeoutTime)
-            {
-                timeout = true;
-                this.syncRequestResults[myRequestId] = new Error("Synchronous request timed out");
-                break;
-            }
-        }
-        
-        if (!timeout && log.logSensitiveData)    
-            log.debug("Synchronous request to the JSON-RPC server has returned:" + method + ":" + params);                  
-        else if (!timeout)
-            log.debug("Synchronous request to the JSON-RPC server has returned."); 
-        
-        var result = this.syncRequestResults[myRequestId];
-        
-        // we won't ever use this array slot again but I
-        // suspect clearing it will help with JS memory recovery  
-        this.syncRequestResults[myRequestId] = null;
-                    
-        return result;
     }
 
     this.KPRPCListener = function (signal)
@@ -517,7 +444,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 //else
                 //    log something? window.keeFoxInst.rror("Null return result received");
             } //else
-              //log something?  window.keeFoxInst.KeePassRPC.syncRequestResults[resultWrapper.id] = new Error(resultWrapper.error);    
+              //log something?    
         }, ++this.requestId);
         
         return;

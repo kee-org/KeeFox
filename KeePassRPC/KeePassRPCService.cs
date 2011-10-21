@@ -39,6 +39,7 @@ using System.Security.Cryptography;
 using KeePassLib.Cryptography.PasswordGenerator;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace KeePassRPC
 {
@@ -2099,7 +2100,25 @@ namespace KeePassRPC
             output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 
             PwGroup searchGroup = GetRootPwGroup(host.Database);
-            searchGroup.SearchEntries(sp, output, false);
+            MethodInfo mi;
+
+            // SearchEntries method signature changed in KP 2.17 so we use
+            // reflection to enable support for both 2.17 and earlier versions
+            try
+            {
+                mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>) });
+                mi.Invoke(searchGroup, new object[] { sp, output });
+            }
+            catch (AmbiguousMatchException ex)
+            {
+                // can't find the 2.17 method definition so try for an earlier version
+                mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>), typeof(bool) });
+                mi.Invoke(searchGroup, new object[] { sp, output, false });
+
+                // If an exception is thrown here it would be unexpected and
+                // require a new version of the application to be released
+            }
+
             foreach (PwEntry pwe in output)
             {
                 if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))

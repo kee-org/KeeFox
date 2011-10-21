@@ -497,7 +497,10 @@ KeeFox.prototype = {
             && this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","") != "")
         {
             keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-            keePassRPCLocation = keePassLocation + "plugins\\";
+            if (keePassLocation.substr(-1) === "\\")
+                keePassRPCLocation = keePassLocation + "plugins\\";
+            else
+                keePassRPCLocation = keePassLocation + "\\plugins\\";
             this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",keePassRPCLocation);
             if (this._KFLog.logSensitiveData)
                 this._KFLog.debug("KeePassRPC install location inferred: " + keePassRPCLocation);
@@ -742,8 +745,12 @@ KeeFox.prototype = {
             return;
         } else
         {
-            fileName = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation",
-                        "C:\\Program files\\KeePass Password Safe 2\\") + "KeePass.exe";
+            var directory = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation",
+                        "C:\\Program files\\KeePass Password Safe 2\\");
+            if (directory.substr(-1) === "\\")
+                fileName = directory + "KeePass.exe";
+            else
+                fileName = directory + "\\KeePass.exe";
         }
         
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))

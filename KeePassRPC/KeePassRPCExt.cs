@@ -2,7 +2,7 @@
   KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2011 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,8,22);
+        public static readonly Version PluginVersion = new Version(0,9,0);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -629,8 +629,10 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 pd.MemoryProtection.ProtectPassword, password));
             pe.Strings.Set(PwDefs.NotesField, new ProtectedString(
                 pd.MemoryProtection.ProtectNotes, notes));
-            pe.AutoType.Set(KPRes.TargetWindow, 
-                @"{USERNAME}{TAB}{PASSWORD}{TAB}{ENTER}");
+            
+            //TODO2: get autotype example working again following 2.17 API change?
+            //pe.AutoType.Set(KPRes.TargetWindow, 
+            //    @"{USERNAME}{TAB}{PASSWORD}{TAB}{ENTER}");
             return pe;
         }
 

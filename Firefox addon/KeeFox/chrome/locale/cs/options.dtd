@@ -57,3 +57,4 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass instalační adresář">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Remember above settings (e.g. when using KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Použít toto umístění">
+<!ENTITY KeeFox-browse.label "NOT TRANSLATED">

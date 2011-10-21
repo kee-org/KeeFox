@@ -57,3 +57,4 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass Installationsverzeichnis">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Obere Einstellungen speichern (z.B. bei Verwendung von KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Verwende diesen Ort">
+<!ENTITY KeeFox-browse.label "NOT TRANSLATED">
