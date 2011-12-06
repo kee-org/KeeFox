@@ -373,7 +373,7 @@ namespace KeePassRPC
         {
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
             {
-                if (host.MainWindow.UIFileSave(true))
+                if (host.MainWindow.UIFileSave(false))
                     host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
             }
             else
@@ -1943,11 +1943,19 @@ namespace KeePassRPC
                     foreach (string URL in URLs)
                         foreach (string regexPattern in regexPatterns.Split(' '))
                         {
-                            if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
+                            try
                             {
-                                entryIsAMatch = true;
-                                break;
+                                if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
+                                {
+                                    entryIsAMatch = true;
+                                    break;
+                                }
                             }
+                            catch (ArgumentException)
+                            {
+                                MessageBox.Show("'" + regexPattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + pwe.Strings.ReadSafe(PwDefs.TitleField) + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+                            }                            
                         }
 
                 foreach (string URL in URLs)
@@ -2001,9 +2009,17 @@ namespace KeePassRPC
                         string patterns = pwe.Strings.ReadSafe("KPRPC URL Regex block");
                         foreach (string pattern in patterns.Split(' '))
                         {
-                            if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                            try
                             {
-                                entryIsAMatch = false;
+                                if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                                {
+                                    entryIsAMatch = false;
+                                    break;
+                                }
+                            }
+                            catch (ArgumentException)
+                            {
+                                MessageBox.Show("'" + pattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 break;
                             }
                         }

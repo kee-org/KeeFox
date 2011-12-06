@@ -53,7 +53,7 @@ namespace KeePassRPC
 	public sealed class KeePassRPCExt : Plugin
 	{
         // version information
-        public static readonly Version PluginVersion = new Version(0,9,0);
+        public static readonly Version PluginVersion = new Version(0,9,4);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;

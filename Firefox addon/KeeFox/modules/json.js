@@ -43,7 +43,7 @@ function jsonrpcClient() {
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [0,9,0];
+    this.clientVersion = [0,9,4];
 }
 
 jsonrpcClient.prototype = new session();

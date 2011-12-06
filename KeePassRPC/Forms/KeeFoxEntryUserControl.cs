@@ -173,15 +173,23 @@ namespace KeePassRPC.Forms
                     fields.Add(name, new FormField(name, displayName, value, fft, id, page));
                 }
                 else if (existingLi.Text == "KeeFox Priority" || existingLi.Text == "KPRPC Priority")
-                { 
-                    removeAdvancedString("KeeFox Priority");
+                {
+                    if (existingLi.Text == "KeeFox Priority")
+                    {
+                        changeAdvancedString("KPRPC Priority", existingLi.SubItems[1].Text, false);
+                        removeAdvancedString("KeeFox Priority");
+                    }
                     textBoxKeeFoxPriority.Text = existingLi.SubItems[1].Text;
                 }
                 else if (existingLi.Text == "KPRPC Alternative URLs" || existingLi.Text == "Alternative URLs")
                 {
                     foreach (string url in existingLi.SubItems[1].Text.Split(' '))
                         listNormalURLs.Add(url);
-                    removeAdvancedString("Alternative URLs");
+                    if (existingLi.Text == "Alternative URLs")
+                    {
+                        changeAdvancedString("KPRPC Alternative URLs", existingLi.SubItems[1].Text, false);
+                        removeAdvancedString("Alternative URLs");
+                    }
                 }
                 else if (existingLi.Text == "KPRPC Blocked URLs")
                 {
@@ -200,8 +208,16 @@ namespace KeePassRPC.Forms
                 }
                 else if (existingLi.Text == "Form HTTP realm" || existingLi.Text == "KPRPC HTTP realm" || existingLi.Text == "KPRPC form HTTP realm")
                 {
-                    removeAdvancedString("Form HTTP realm");
-                    removeAdvancedString("KPRPC form HTTP realm");
+                    if (existingLi.Text == "Form HTTP realm")
+                    {
+                        changeAdvancedString("KPRPC HTTP realm", existingLi.SubItems[1].Text, false);
+                        removeAdvancedString("Form HTTP realm");
+                    }
+                    if (existingLi.Text == "KPRPC form HTTP realm")
+                    {
+                        changeAdvancedString("KPRPC HTTP realm", existingLi.SubItems[1].Text, false);
+                        removeAdvancedString("KPRPC form HTTP realm");
+                    }
                     textBoxKeeFoxRealm.Text = existingLi.SubItems[1].Text;
                 }
 
