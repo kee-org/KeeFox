@@ -33,7 +33,7 @@
       windowtype="Browser:Preferences"
           onload="onLoad(); window.sizeToContent();"
           xmlns:html="http://www.w3.org/1999/xhtml"
-          height="400"
+          height="420"
         >
 
   <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
@@ -153,7 +153,11 @@
                     label="&KeeFox-pref-flashIconWhenKeePassRPCInactive.label;" />
             <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
                     label="&KeeFox-pref-flashIconWhenLoggedOut.label;" class="itemEnd"/>
-
+            <button id="famsOptionsButton" label="&KeeFox-FAMS-Options.label;..." oncommand='openDialog(
+               "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              );'/>
           </vbox>
         </tabpanel>
 

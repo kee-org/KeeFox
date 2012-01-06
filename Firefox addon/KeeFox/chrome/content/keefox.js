@@ -83,6 +83,8 @@ if (keefox_org.shouldLoad)
     Components.utils.import("resource://kfmod/KF.js");
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUtils.js"); 
 
+    Components.utils.import("resource://kfmod/FAMS.js");
+
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window
     keefox_org.mainEventHandler =
@@ -167,6 +169,10 @@ if (keefox_org.shouldLoad)
                     window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
                     
                     this.startupKeeFox(keefox_org.toolbar,currentWindow);
+                    
+                    keefox_org.FAMS = new FirefoxAddonMessageService();
+                    keefox_org.FAMS.initConfig("KeeFox",keefox_org.FAMS.defaultConfiguration);
+                    keefox_org.FAMS.init(KFLog.info);
                     
                     return;
                 case "unload": 

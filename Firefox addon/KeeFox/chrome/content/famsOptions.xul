@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://keefox/skin/keefox.css" type="text/css"?>
+
+<!--
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2012 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is the FAMS options XUL file which describes the interface for 
+  viewing and editing the various preferences which FAMS understands.
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<dialog id="famsOptions" title="Message download and notification options"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,cancel"
+        ondialogaccept="return FAMS.setConfiguration(config);"
+        ondialogcancel="return;"
+        onload="onLoad();">
+  <script type="application/x-javascript" src="chrome://keefox/content/famsOptions.js"/>
+  <grid flex="1" >
+    <columns>
+      <column flex="1" />
+      <column width="600px" />
+      <column flex="1" />
+    </columns>
+
+    <rows>
+      <row>
+        <spacer flex="1"/>
+          <vbox align="left" id="msgGroupContainer">
+          </vbox>
+        <spacer flex="1"/>
+      </row>
+    </rows>
+  </grid>
+</dialog>

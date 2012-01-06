@@ -61,4 +61,37 @@ toolbar[iconsize="small"] toolbarbutton.login-found
 	padding: 0px 3px !important;
 }
 
-/* .toolbarbuttonmenu-text */
+.FAMSmessageGroup
+{
+	border: solid 1px #000 !important;
+	padding: 5px !important;
+	margin: 5px !important;
+}
+
+.FAMSdisabled
+{
+	color: gray !important;
+	border-color: gray !important;
+}
+
+.FAMScheckLabelControl
+{
+	padding: 0px;
+}
+
+.FAMSdescription
+{
+	padding: 0px;
+}
+
+.FAMStitle
+{
+	padding: 0px;
+	text-decoration: underline !important;
+}
+
+.FAMSnote
+{
+	padding: 10px;
+	font-style:italic;
+}

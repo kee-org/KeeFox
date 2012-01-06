@@ -58,3 +58,4 @@
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Remember above settings (e.g. when using KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Use this location">
 <!ENTITY KeeFox-browse.label "Browse">
+<!ENTITY KeeFox-FAMS-Options.label "Message/tip notification options">

@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\icon.png"
+				RelativePath=".\KeeFox\chrome\skin\icon.png"
 				>
 			</File>
 			<File
-				RelativePath=".\KeeFox\chrome\skin\icon.png"
+				RelativePath=".\KeeFox\icon.png"
 				>
 			</File>
 			<File
@@ -348,6 +348,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\KeeFox\modules\FAMS.js"
+				>
+			</File>
+			<File
+				RelativePath=".\KeeFox\chrome\content\famsOptions.js"
+				>
+			</File>
+			<File
 				RelativePath=".\KeeFox\chrome\content\install.js"
 				>
 			</File>
@@ -433,6 +441,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\KeeFox\chrome\content\famsOptions.xul"
+			>
+		</File>
+		<File
 			RelativePath=".\KeeFox\chrome\content\groupChooser.xul"
 			>
 			<FileConfiguration
@@ -461,7 +473,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\ru-RU\keefox.dtd"
+			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
@@ -485,7 +497,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\en-US\keefox.dtd"
+			RelativePath=".\KeeFox\chrome\locale\ru-RU\keefox.dtd"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
@@ -497,10 +509,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\zh-CN\keefox.dtd"
-			>
-		</File>
-		<File
 			RelativePath=".\KeeFox\chrome\locale\cs\keefox.dtd"
 			>
 		</File>
@@ -509,7 +517,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\cs\keefox.properties"
+			RelativePath=".\KeeFox\chrome\locale\zh-CN\keefox.dtd"
 			>
 		</File>
 		<File
@@ -517,7 +525,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\sv-SE\keefox.properties"
+			RelativePath=".\KeeFox\chrome\locale\cs\keefox.properties"
 			>
 		</File>
 		<File
@@ -533,19 +541,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\content\keefox.xul"
+			RelativePath=".\KeeFox\chrome\locale\sv-SE\keefox.properties"
 			>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\ru-RU\options.dtd"
+			RelativePath=".\KeeFox\chrome\content\keefox.xul"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
@@ -585,11 +585,23 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\KeeFox\chrome\locale\zh-CN\options.dtd"
+			RelativePath=".\KeeFox\chrome\locale\ru-RU\options.dtd"
 			>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\KeeFox\chrome\locale\de\options.dtd"
+			>
+		</File>
+		<File
+			RelativePath=".\KeeFox\chrome\locale\zh-CN\options.dtd"
 			>
 		</File>
 		<File
