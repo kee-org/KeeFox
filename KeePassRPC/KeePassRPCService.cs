@@ -1161,32 +1161,35 @@ namespace KeePassRPC
 
             // Generate method signature changed in KP 2.18 so we use
             // reflection to enable support for both 2.18 and earlier versions
+            Type[] mitypes218 = new Type[] { typeof(ProtectedString).MakeByRefType(), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
+
             try
             {
                 mi = typeof(PwGenerator).GetMethod(
                     "Generate",
                     BindingFlags.Public | BindingFlags.Static,
                     Type.DefaultBinder,
-                    new[] { typeof(ProtectedString).MakeByRefType(), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) },
+                    mitypes218,
                     null
                 );
 
-                var inputParameters = new object[] { null, profile, null, null };
+                object[] inputParameters = new object[] { null, profile, null, null };
                 result = (PwgError)mi.Invoke(null, inputParameters);
                 newPassword = (ProtectedString)inputParameters[0];
             }
             catch (AmbiguousMatchException)
             {
+                Type[] mitypes217 = new Type[] { typeof(ProtectedString), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
                 // can't find the 2.18 method definition so try for an earlier version
                 mi = typeof(PwGenerator).GetMethod(
                     "Generate",
                     BindingFlags.Public | BindingFlags.Static,
                     Type.DefaultBinder,
-                    new[] { typeof(ProtectedString), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) },
+                    mitypes217,
                     null
                 );
 
-                var inputParameters = new object[] { newPassword, profile, null, null };
+                object[] inputParameters = new object[] { newPassword, profile, null, null };
                 result = (PwgError)mi.Invoke(null, inputParameters);
                 
                 // If an exception is thrown here it would be unexpected and

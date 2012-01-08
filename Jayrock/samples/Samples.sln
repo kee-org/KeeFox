@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TidyJson", "TidyJson\TidyJson.csproj", "{F3ACEE61-71C7-4ACB-8A76-7F5225A9FB14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonImportDemo", "JsonImportDemo\JsonImportDemo.csproj", "{D34A9F1C-3F7C-414E-84F3-9927FD6B8BED}"
@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "..\src\Jayrock\J
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "AspNetDemo", "AspNetDemo\", "{32FF78A9-0829-426E-80B4-861A0EA783E8}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFramework = "2.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
 		ProjectReferences = "{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}|Jayrock.dll;{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}|Jayrock.Json.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/AspNetDemo"
 		Debug.AspNetCompiler.PhysicalPath = "AspNetDemo\"

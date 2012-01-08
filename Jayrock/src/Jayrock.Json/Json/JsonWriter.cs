@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -105,6 +105,25 @@ namespace Jayrock.Json
         /// </summary>
 
         public abstract void WriteString(string value);
+
+        /// <summary>
+        /// Writes a JSON string from an array of characters.
+        /// </summary>
+
+        public void WriteString(char[] chars)
+        {
+            WriteString(chars, 0, chars.Length);
+        }
+
+        /// <summary>
+        /// Writes a JSON string from an array of characters, given a
+        /// starting position and length.
+        /// </summary>
+
+        public virtual void WriteString(char[] chars, int offset, int length)
+        {
+            WriteString(new string(chars, offset, length));
+        }
 
         /// <summary>
         /// When overridden in a derived class, writes out a JSON number 

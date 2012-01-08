@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -26,27 +26,14 @@ namespace Jayrock
 
     using System;
     using System.Reflection;
+    using Jayrock.Tests;
     using NUnit.Framework;
 
     #endregion
 
     [ TestFixture ]
-    public class TestInternetDate
+    public class TestInternetDate : TestUtilityBase
     {
-        [ Test ]
-        public void CannotBeCreated()
-        {
-            try
-            {
-                Activator.CreateInstance(typeof(InternetDate), true);
-                Assert.Fail();
-            }
-            catch (TargetInvocationException e)
-            {
-                Assert.IsTrue(e.InnerException is NotSupportedException);
-            }
-        }
-
         [ Test ]
         public void ParseMinimal()
         {

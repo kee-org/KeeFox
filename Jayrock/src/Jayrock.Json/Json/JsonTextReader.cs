@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -44,6 +44,9 @@ namespace Jayrock.Json
 
         private BufferedCharReader _reader;
         private Stack _stack;
+        private int _endLineNumber;
+        private int _endLinePosition;
+        private int _endCharCount;
 
         private delegate JsonToken Continuation();
 
@@ -63,8 +66,9 @@ namespace Jayrock.Json
             Push(ParseMethod);
         }
 
-        public int LineNumber { get { return _reader.LineNumber; } }
-        public int LinePosition { get { return _reader.LinePosition; } }
+        public int LineNumber   { get { return _reader != null ? _reader.LineNumber   : _endLineNumber; } }
+        public int LinePosition { get { return _reader != null ? _reader.LinePosition : _endLinePosition; } }
+        public int CharCount    { get { return _reader != null ? _reader.CharCount    : _endCharCount; } }
 
         /// <summary>
         /// Reads the next token and returns it.
@@ -79,6 +83,9 @@ namespace Jayrock.Json
             else if (_stack.Count == 0)
             {
                 _stack = null;
+                _endLineNumber = _reader.LineNumber;
+                _endLinePosition = _reader.LinePosition;
+                _endCharCount = _reader.CharCount;
                 _reader = null;
                 return JsonToken.EOF();
             }

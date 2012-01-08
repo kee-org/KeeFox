@@ -1,13 +1,18 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{31369F69-D034-446C-B0E1-A01E6FD0CE97}"
+	ProjectSection(SolutionItems) = preProject
+		..\nant.build = ..\nant.build
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock.Json", "Jayrock.Json\Jayrock.Json.csproj", "{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "Jayrock\Jayrock.csproj", "{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "www", "..\www\", "{0416EE40-4E90-4235-8584-A3CD10CA3354}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFramework = "2.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
 		ProjectReferences = ""
 		Debug.AspNetCompiler.VirtualPath = "/www"
 		Debug.AspNetCompiler.PhysicalPath = "..\www\"
@@ -24,11 +29,6 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "www", "..\www\", "{0416EE40
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "33013"
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{31369F69-D034-446C-B0E1-A01E6FD0CE97}"
-	ProjectSection(SolutionItems) = preProject
-		..\nant.build = ..\nant.build
 	EndProjectSection
 EndProject
 Global

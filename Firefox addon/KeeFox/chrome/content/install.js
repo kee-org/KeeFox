@@ -29,9 +29,9 @@ const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/K
 const KF_KP_FILE_NAME = "KeePass-2.17-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
 const KF_KP_SAVE_NAME = "KeePass-2.17-Setup.exe"; 
 const KF_KP_FILE_CHECKSUM = "64b0c6faa36484a4940153052d4295df";
-const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
-const KF_NET_FILE_NAME = "dotnetfx.exe"
-const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";
+const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
+const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
+const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
 const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
 const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
 const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
@@ -1005,6 +1005,7 @@ function userHasAdminRights(mainWindow)
     }
 }
 
+// determine if .NET framework version 2 or 4 is installed
 function checkDotNetFramework(mainWindow)
 {
     var dotNetFrameworkFound;
@@ -1016,24 +1017,66 @@ function checkDotNetFramework(mainWindow)
     {
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
             .createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft",
+        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE, "",
             wrk.ACCESS_READ);
-        if (wrk.hasChild(".NETFramework"))
+             
+        if (wrk.hasChild("Software"))
         {
-            var subkey = wrk.openChild(".NETFramework", wrk.ACCESS_READ);
-            if (subkey.hasChild("policy"))
+            var subkey = wrk.openChild("Software", wrk.ACCESS_READ);
+            if (subkey.hasChild("Microsoft"))
             {
-                var subkey2 = subkey.openChild("policy", subkey.ACCESS_READ);
-                if (subkey2.hasChild("v2.0"))
+                var subkey2 = subkey.openChild("Microsoft", subkey.ACCESS_READ);
+                if (subkey2.hasChild("NET Framework Setup"))
                 {
-                    var subkey3 = subkey2.openChild("v2.0", subkey2.ACCESS_READ);
-                    if (subkey3.hasValue("50727"))
+                    var subkey3 = subkey2.openChild("NET Framework Setup", subkey2.ACCESS_READ);
+                    if (subkey3.hasChild("NDP"))
                     {
-                        if (subkey3.readStringValue("50727") == "50727-50727")
+                        var subkey4 = subkey3.openChild("NDP", subkey3.ACCESS_READ);
+                        if (subkey4.hasChild("v2.0.50727"))
                         {
-                            dotNetFrameworkFound = true;
-                            mainWindow.KFLog.info(".NET framework has been found");
+                            var subkey4a = subkey4.openChild("v2.0.50727", subkey4.ACCESS_READ);
+                            if (subkey4a.hasValue("Install"))
+                            {
+                                if (subkey4a.readIntValue("Install") == 1)
+                                {
+                                    dotNetFrameworkFound = true;
+                                    mainWindow.KFLog.info(".NET framework has been found");
+                                }
+                            }
+                            subkey4a.close();
                         }
+                        if (subkey4.hasChild("v4"))
+                        {
+                            var subkey4b = subkey4.openChild("v4", subkey4.ACCESS_READ);
+                            if (subkey4b.hasChild("Client"))
+                            {
+                                var subkey4b1 = subkey4b.openChild("Client", subkey4b.ACCESS_READ);
+                                if (subkey4b1.hasValue("Install"))
+                                {
+                                    if (subkey4b1.readIntValue("Install") == 1)
+                                    {
+                                        dotNetFrameworkFound = true;
+                                        mainWindow.KFLog.info(".NET framework has been found");
+                                    }
+                                }
+                                subkey4b1.close();
+                            }
+                            if (subkey4b.hasChild("Full"))
+                            {
+                                var subkey4b2 = subkey4b.openChild("Full", subkey4b.ACCESS_READ);
+                                if (subkey4b2.hasValue("Install"))
+                                {
+                                    if (subkey4b2.readIntValue("Install") == 1)
+                                    {
+                                        dotNetFrameworkFound = true;
+                                        mainWindow.KFLog.info(".NET framework has been found");
+                                    }
+                                }
+                                subkey4b2.close();
+                            }
+                            subkey4b.close();
+                        }
+                        subkey4.close();
                     }
                     subkey3.close();
                 }

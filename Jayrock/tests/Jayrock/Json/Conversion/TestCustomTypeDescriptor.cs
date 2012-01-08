@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -232,6 +232,16 @@ namespace Jayrock.Json.Conversion
             Assert.IsTrue(property.IsReadOnly);
         }
 
+        [ Test ]
+        public void ImmutableClassPropertiesExpected()
+        {
+            CustomTypeDescriptor descriptor = new CustomTypeDescriptor(typeof(ImmutableThing));
+            PropertyDescriptorCollection properties = descriptor.GetProperties();
+            Assert.AreEqual(2, properties.Count);
+            Assert.IsNotNull(properties["field"]);
+            Assert.IsNotNull(properties["property"]);
+        }
+
         private static void AddServiceToServiceContainer(IServiceContainer sc) 
         {
             object service = new object();
@@ -261,12 +271,26 @@ namespace Jayrock.Json.Conversion
             Assert.IsNull(sc.GetService(serviceType));
         }
 
+        public sealed class ImmutableThing
+        {
+            public readonly object Field;
+            
+            private object _property;
+            public object Property { get { return _property; } }
+
+            public ImmutableThing(object field, object property)
+            {
+                Field = field;
+                _property = property;
+            }
+        }
+
         public sealed class Thing
         {
+            public readonly object ReadOnlyField = null;
             public object Field1;
             [ JsonIgnore ] public object Field2;
             public object Field3;
-            public readonly object ReadOnlyField = null;
 
             public object Property1 { get { return null; } set { } }
             [ JsonIgnore ] public object Property2 { get { return null; } set { } }

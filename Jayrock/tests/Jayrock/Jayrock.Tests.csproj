@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -24,9 +25,11 @@
     </StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>0.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -39,18 +42,18 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\bin\tests\net-2.0\</OutputPath>
+    <OutputPath>..\..\bin\tests\net-4.0\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;DEBUG;TEST;NET_2_0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TEST;NET_4_0</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
@@ -65,9 +68,11 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>ISO-2</LangVersion>
+    <LangVersion>default</LangVersion>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="nunit.framework">
       <Name>nunit.framework</Name>
       <HintPath>..\..\tools\NUnit\nunit.framework.dll</HintPath>
@@ -78,6 +83,7 @@
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Web">
       <Name>System.Web</Name>
     </Reference>
@@ -99,6 +105,21 @@
     <Compile Include="Collections\TestKeyedCollection.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\Conversion\Converters\TestExpandoObjectExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestExpandoObjectImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestNullableExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestNullableImporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestTupleExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TestTupleImporter.cs" />
+    <Compile Include="Json\Conversion\TestJsonConvert.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\TestObjectConstructor.cs" />
+    <Compile Include="Json\TestFreeJsonMemberReadingHelper.cs" />
+    <Compile Include="Json\TestJsonText.cs" />
+    <Compile Include="Json\TestObjectSurrogateConstructor.cs" />
+    <Compile Include="Json\TestObjectSurrogateConstructorBase.cs" />
+    <Compile Include="Reflection\TestReflector.cs" />
     <Compile Include="TestTypeResolution.cs" />
     <Compile Include="JsonML\TestJsonMLCodec.cs" />
     <Compile Include="JsonRpc\TestJsonRpcDispatcher.cs">
@@ -132,9 +153,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\Conversion\Converters\TestComponentImporter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Json\Conversion\Converters\TestControlExporter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\Conversion\Converters\TestDataSetExporter.cs" />
@@ -301,11 +319,12 @@
     <Compile Include="TestUnixTime.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TestUtilityBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
-      <ProductName>.NET Framework Client Profile</ProductName>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

@@ -795,16 +795,20 @@ KeeFox.prototype = {
         this._KFLog.info("about to execute: " + file.path + " " + args.join(' '));
         process.init(file);
         
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                .getService(Components.interfaces.nsIWindowMediator);
+        var win = wm.getMostRecentWindow("navigator:browser");
+        
         // Run the application (including support for Unicode characters in the path for FF4+ users)
         if (callback == undefined || callback == null)
         {
-            if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0)
+            if (win.keefox_org.versionChecker.compare(win.keefox_org.appInfo.version, "3.7") < 0)
                 process.run(true,args,2);
             else
                 process.runw(true,args,2);
         } else
         {
-            if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0)
+            if (win.keefox_org.versionChecker.compare(win.keefox_org.appInfo.version, "3.7") < 0)
                 process.runAsync(args, 2, callback);
             else
                 process.runwAsync(args, 2, callback);

@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -59,9 +59,9 @@ namespace Jayrock.Json
                 .Write(JsonToken.EndArray())
                 .ToBuffer();
 
-            _null = buffer.Slice(1, 2);
-            _true = buffer.Slice(2, 3);
-            _false = buffer.Slice(3, 4);
+            _null = buffer.SliceImpl(1, 2);
+            _true = buffer.SliceImpl(2, 3);
+            _false = buffer.SliceImpl(3, 4);
         }
 
         internal JsonBuffer(JsonBufferStorage storage, int start, int end)
@@ -415,6 +415,13 @@ namespace Jayrock.Json
         }
 
         internal JsonBuffer Slice(int start, int end)
+        {
+            return IsStructured
+                 ? SliceImpl(_start + start, _start + end)
+                 : SliceImpl(start, end);
+        }
+
+        private JsonBuffer SliceImpl(int start, int end)
         {
             Debug.Assert(start >= _start);
             Debug.Assert(end <= _end);

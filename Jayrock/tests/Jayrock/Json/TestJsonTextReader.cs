@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -764,6 +764,34 @@ namespace Jayrock.Json
             // http://code.google.com/p/jayrock/issues/detail?id=17
             CreateReader("1.79769313486232e+308");
             AssertTokenText(JsonTokenClass.Number, "1.79769313486232e+308");
+            AssertEOF();
+        }
+        [ Test ]
+        public void ReadPositionsAfterEof()
+        {
+            JsonTextReader reader = new JsonTextReader(new StringReader("[ \nhello ]"));
+            while (reader.Read()) { /* NOP */ }
+            Assert.AreEqual(2, reader.LineNumber, "Line number");
+            Assert.AreEqual(7, reader.LinePosition, "Line position");
+            Assert.AreEqual(10, reader.CharCount, "Character count");
+        }
+
+        [ Test ]
+        public void ReadTwoJsonTextsFromSameString()
+        {
+            const string json = @"{foo:bar/*baz*/}[foo,bar]";
+            JsonTextReader reader = _reader = new JsonTextReader(new StringReader(json));
+            AssertToken(JsonTokenClass.Object);
+            AssertTokenText(JsonTokenClass.Member, "foo");
+            AssertTokenText(JsonTokenClass.String, "bar");
+            AssertToken(JsonTokenClass.EndObject);
+            AssertEOF();
+            Assert.AreEqual(16, reader.CharCount);
+            _reader = new JsonTextReader(new StringReader(json.Substring(reader.CharCount)));
+            AssertToken(JsonTokenClass.Array);
+            AssertTokenText(JsonTokenClass.String, "foo");
+            AssertTokenText(JsonTokenClass.String, "bar");
+            AssertToken(JsonTokenClass.EndArray);
             AssertEOF();
         }
 

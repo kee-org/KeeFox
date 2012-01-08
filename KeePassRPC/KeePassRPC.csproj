@@ -69,11 +69,11 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Jayrock, Version=0.9.12210.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Jayrock, Version=0.9.12915.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Jayrock.dll</HintPath>
     </Reference>
-    <Reference Include="Jayrock.Json, Version=0.9.12210.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Jayrock.Json, Version=0.9.12915.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Jayrock.Json.dll</HintPath>
     </Reference>

@@ -613,6 +613,8 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 // this happens after each findLogins call has run its callback so we can see if we have received all the answers we need to fill the form now
 KFILM.prototype.allSearchesComplete = function (findLoginDoc)
 {
+//return; // test mem leak 2
+    
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
     var window = wm.getMostRecentWindow("navigator:browser");
@@ -771,25 +773,27 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         // these form fields and compare against them when submitted - can't 
         // just compare against enitre login objects becuase we can't be certain
         // if we are just on one particular page in a multi-page login sequence)
-        for (var i = 0; i < passwordFields.length; i++)
-        {
-            var passField = passwordFields[i];
-            //KFLog.debug("testi:"+passField.DOMInputElement);
-            if (passField.DOMInputElement != null)
-            {
-                passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-            } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
-        }
-        
-        for (var i = 0; i < otherFields.length; i++)
-        {
-            var otherField = otherFields[i];
-            //KFLog.debug("testi:"+otherField.DOMInputElement);
-            if (otherField.DOMInputElement != null)
-                otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-            else if (otherField.DOMSelectElement != null)
-                otherField.DOMSelectElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-        }
+//        for (var i = 0; i < passwordFields.length; i++)
+//        {
+//            var passField = passwordFields[i];
+//            //KFLog.debug("testi:"+passField.DOMInputElement);
+//            if (passField.DOMInputElement != null)
+//            {
+//            //TODO: test mem leak 3 // skip event listener registration
+//    
+//                passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+//            } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
+//        }
+//        
+//        for (var i = 0; i < otherFields.length; i++)
+//        {
+//            var otherField = otherFields[i];
+//            //KFLog.debug("testi:"+otherField.DOMInputElement);
+//            if (otherField.DOMInputElement != null)
+//                otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+//            else if (otherField.DOMSelectElement != null)
+//                otherField.DOMSelectElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+//        }
     }                
     
     // if we know we are only interested in filling one specific uniqueID or that
@@ -819,8 +823,10 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         keefox_org.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
-        KFLog.info("Using toolbar password fill.");
-        keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
+    //TODO: test mem leak 4 // comment out this toolbar fill
+    
+        //KFLog.info("Using toolbar password fill.");
+        //keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 
     {
         KFLog.info("Nothing to fill.");

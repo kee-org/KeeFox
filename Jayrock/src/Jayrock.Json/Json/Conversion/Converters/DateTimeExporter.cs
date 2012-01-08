@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -43,17 +43,78 @@ namespace Jayrock.Json.Conversion.Converters
 
         protected override void ExportValue(ExportContext context, object value, JsonWriter writer)
         {
-            Debug.Assert(value != null);
-            Debug.Assert(writer != null);
-            
+            if (context == null) throw new ArgumentNullException("context");
+            if (value == null) throw new ArgumentNullException("value");
+            if (writer == null) throw new ArgumentNullException("writer");
+
             ExportTime((DateTime) value, writer);
         }
- 
-        private void ExportTime(DateTime localTime, JsonWriter writer)
-        {
-            Debug.Assert(writer != null);
 
-            writer.WriteString(localTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzzzzz", CultureInfo.InvariantCulture));
+        protected virtual void ExportTime(DateTime time, JsonWriter writer)
+        {
+            if (writer == null) throw new ArgumentNullException("writer");
+
+            writer.WriteString(FormatDateTime(time));
+        }
+
+        static char[] FormatDateTime(DateTime when)
+        {
+            // http://stackoverflow.com/questions/1176276/how-do-i-improve-the-performance-of-code-using-datetime-tostring/1176350#1176350
+
+            char[] chars = new char["yyyy-MM-ddTHH:mm:ss.fffffffzzzzzz".Length];
+
+            // Separators
+
+            chars[4]  = chars[7]  = '-';
+            chars[10] = 'T';
+            chars[13] = chars[16] = chars[30] = ':';
+            chars[19] = '.';
+
+            // Date
+            
+            Digits4(chars, when.Year,  0);
+            Digits2(chars, when.Month, 5);
+            Digits2(chars, when.Day,   8);
+
+            // Time
+
+            Digits2(chars, when.Hour,   11);
+            Digits2(chars, when.Minute, 14);
+            Digits2(chars, when.Second, 17);
+            Digits7(chars, (int) (when.Ticks % 10000000L), 20);
+
+            // UTC offset
+
+            TimeSpan offset = TimeZone.CurrentTimeZone.GetUtcOffset(when);
+            chars[27] = offset.Ticks >= 0 ? '+' : '-';
+            Digits2(chars, Math.Abs(offset.Hours),   28);
+            Digits2(chars, offset.Minutes, 31);
+            
+            return chars;
+        }
+
+        static void Digits2(char[] buffer, int value, int offset)
+        {
+            buffer[offset++] = (char) ('0' + (value / 10));
+            buffer[offset]   = (char) ('0' + (value % 10));
+        }
+        
+        static void Digits3(char[] buffer, int value, int offset)
+        {
+            buffer[offset++] = (char) ('0' + (value / 100));
+            Digits2(buffer, value % 100, offset);
+        }
+        
+        static void Digits4(char[] buffer, int value, int offset)
+        {
+            buffer[offset++] = (char) ('0' + (value / 1000));
+            Digits3(buffer, value % 1000, offset);
+        }
+
+        static void Digits7(char[] buffer, int value, int offset)
+        {
+            Digits4(buffer, value / 1000, offset);
+            Digits3(buffer, value % 1000, offset + 4);
         }
     }
 }

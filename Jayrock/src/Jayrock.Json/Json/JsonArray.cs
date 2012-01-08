@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -30,6 +30,10 @@ namespace Jayrock.Json
     using System.IO;
     using Jayrock.Json.Conversion;
 
+    #if !NET_1_0 && !NET_1_1
+    using System.Collections.Generic;
+    #endif
+
     #endregion
 
     /// <summary>
@@ -44,6 +48,9 @@ namespace Jayrock.Json
 
     [ Serializable ]
     public class JsonArray : CollectionBase, IJsonImportable, IJsonExportable
+        #if !NET_1_0 && !NET_1_1
+        , IList<object>
+        #endif
     {
         public JsonArray() {}
 
@@ -417,5 +424,49 @@ namespace Jayrock.Json
         {
             // NOP other base implementation does not allow null values.
         }
+
+        #if !NET_1_0 && !NET_1_1
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the elements
+        /// of the array.
+        /// </summary>
+
+        public new IEnumerator<object> GetEnumerator()
+        {
+            foreach (object item in InnerList)
+                yield return item;
+        }
+
+        /// <summary>
+        /// Copies the elements to an <see cref="T:System.Array"/>, 
+        /// starting at a particular given index.
+        /// </summary>
+
+        public void CopyTo(object[] array, int arrayIndex)
+        {
+            InnerList.CopyTo(array, arrayIndex);
+        }
+
+        bool ICollection<object>.Remove(object item)
+        {
+            int index = IndexOf(item);
+            if (index < 0)
+                return false;
+            RemoveAt(index);
+            return true;
+        }
+
+        bool ICollection<object>.IsReadOnly
+        {
+            get { return InnerList.IsReadOnly; }
+        }
+
+        void IList<object>.Insert(int index, object item)
+        {
+            List.Insert(index, item);
+        }
+        
+        #endif // !NET_1_0 && !NET_1_1
     }
 }

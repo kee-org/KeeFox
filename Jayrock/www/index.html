@@ -44,11 +44,11 @@
             The methods can be called synchronously or asynchronously.
         </p>
         <ul>
-            <li><a href="http://developer.berlios.de/project/showfiles.php?group_id=4638">Download
-                Jayrock 0.9 now!</a></li>
+            <li><a href="http://code.google.com/p/jayrock/downloads/list">Download
+                Jayrock now!</a> (see also <a href="http://nuget.org/List/Search?packageType=Packages&searchTerm=jayrock">NuGet packages</a>)</li>
             <li><a href="http://groups.google.com/group/jayrock">Discuss Jayrock</a></li>
             <li><a href="ftp://ftp.berlios.de/pub/jayrock">Latest daily/developer build</a></li>
-            <li><a href="http://code.google.com/feeds/p/jayrock/svnchanges/basic">Commits Feed</a>, <a href="http://jayrock.berlios.de/coverage-report.html">Code coverage report</a></li>
+            <li><a href="http://code.google.com/feeds/p/jayrock/hgchanges/basic">Commits Feed</a>, <a href="http://jayrock.berlios.de/coverage-report.html">Code coverage report</a></li>
             <li><a href="http://code.google.com/p/jayrock/">Project foundry @ Google Code</a>, <a href="http://www.ohloh.net/projects/jayrock">Ohloh Metrics</a></li>
         </ul>
         <p>
@@ -75,32 +75,34 @@
             Delicious.BlogBadge.writeBadge("delicious-blogbadge-"+Math.random(), "http://jayrock.berlios.de/", document.title, {});
             Delicious.BlogBadge.onload();                
         </script>
-        <p>Updated: $Date: 2009-04-04 18:08:17 +0100 (Sat, 04 Apr 2009) $</p>
         <h1>
             <a id="get-source" name="get-source">Where is the Source, Luke?</a></h1>
         <p>
-            You can obtain the latest source of code of Jayrock from the <a href="http://subversion.tigris.org/">
-                Subversion</a> repository <a href="http://code.google.com/hosting/">hosted at Google Code</a>.
-            Needless to say, you will need a <a href="http://subversion.tigris.org/project_packages.html">
-                Subversion client</a> for your platform (Windows users may also want to check
-            out <a href="http://tortoisesvn.tigris.org/">TortoiseSVN</a>, which is a Windows
-            Shell Extension for Subversion) to access the repository. If you don't have a Subversion
+            You can obtain the latest source of code of Jayrock from the 
+            <a href="http://mercurial.selenic.com/">Mercurial</a> repository <a href="http://code.google.com/hosting/">hosted at Google Code</a>.
+            Needless to say, you will need a <a href="http://mercurial.selenic.com/downloads/">Mercurial 
+            client</a> for your platform to access the repository. If you don't have a Mercurial
             client handy and just wish to <a href="http://code.google.com/p/jayrock/source/browse/">browse 
             the source code, you can do so online</a>.</p>
         <p>
-            For anonymous access to the respository trunk, use 
-            <code><a href="http://jayrock.googlecode.com/svn/trunk/">http://jayrock.googlecode.com/svn/trunk/</a></code>.
-            The command-line for the Subversion client would therefore be:</p>
+            The respository is located at
+            <code><a href="http://jayrock.googlecode.com/hg/">http://jayrock.googlecode.com/hg/</a></code>.
+            The command-line for the Mercurial client would therefore be:</p>
         <p>
-            <code>svn checkout http://jayrock.googlecode.com/svn/trunk/ jayrock</code></p>
+            <code>hg clone http://jayrock.googlecode.com/hg/ jayrock</code></p>
         <p>
             The third argument, <code>jayrock</code>, is the directory name where the local
             working copy will be downloaded so this can be another name if you like.</p>
         <p>
             If you want a snapshot of the latest files without bothering to go through the source
-            repository then you can simply download them from the <a href="http://developer.berlios.de/project/showfiles.php?group_id=4638">
-                Files</a> section of the project.
+            repository then you can simply download them from the <a href="http://code.google.com/p/jayrock/downloads/list">Files</a> 
+            section of the project.
         </p>
+        <p>
+            Jayrock was originally maintained in a <a href="http://jayrock.googlecode.com/svn/">Subversion repository</a>
+            that is still available in case you want to consult its earlier history
+            using <a href="http://subversion.apache.org/packages.html">Subversion clients</a>.
+        </p>        
         <h2>
             <a id="search" name="search">Search the Source</a></h2>
         <form method="get" action="http://www.google.com/codesearch">
@@ -114,7 +116,7 @@
         <p>
             Bear in mind that search engine(s) maintain a periodically crawled and cached copy of the source 
             code so results may be inaccurate sometimes due to differences from 
-            <a href="http://jayrock.googlecode.com/svn/trunk/">the original</a>.
+            <a href="http://jayrock.googlecode.com/hg/">the original</a>.
         </p>
         <h1>
             <a id="compiling" name="compiling">Compiling</a></h1>
@@ -135,7 +137,7 @@
             <a href="http://www.nunit.org/">NUnit</a>, <a href="http://ncover.org/">NCover</a> and 
             <a href="http://www.kiwidude.com/blog/2006/01/ncoverexplorer-debut.html">NCoverExplorer</a>)
             is already included under the <code>tools</code> directory. If you
-            are on the Windows platform, you can simply run the <code>build.bat</code> batch script
+            are on the Windows platform, you can simply run the <code>build.cmd</code> batch script
             to invoke NAnt and have it build all the targets. To invoke NAnt explicitly, otherwise,
             use the following command (assuming you are in the root of the working directory):</p>
         <p>
@@ -147,15 +149,15 @@
         <ul>
             <li>Microsoft .NET Framework 1.x</li>
             <li>Microsoft .NET Framework 2.0</li>
-            <li>Microsoft .NET Framework 3.5</li>
+            <li>Microsoft .NET Framework 4.0</li>
             <li>Mono 2.0</li>
         </ul>
         <h2>
             Compiling with Microsoft Visual Studio</h2>
         <p>
             Jayrock comes with <a href="http://msdn.microsoft.com/vstudio">Microsoft
-                Visual Studio 2008</a> project and solution files that compile assemblies for
-            Microsoft .NET Framework 2.0. There is little to know except open the desired solution
+                Visual Studio 2010</a> project and solution files that compile assemblies for
+            Microsoft .NET Framework 4.0. There is little to know except open the desired solution
             in Visual Studio and build away! The two solutions that you will find under <code>src</code> 
             and <code>tests</code> are:</p>
         <dl>
@@ -168,7 +170,7 @@
                 for unit tests.</dd>
         </dl>
         <p>
-            The Visual Studio solutions target .NET Framework 2.0 only. To compile for other
+            The Visual Studio solutions target .NET Framework 4.0 only. To compile for other
             versions, use the NAnt as described in the previous section.</p>
         <h1>
             <a id="contributing" name="contributing">Contributing to the Project</a></h1>
@@ -585,10 +587,8 @@ WScript.Echo(s.greetings());
                     Dojo toolkit</a>, <a href="http://ajax.asp.net/">Microsoft ASP.NET AJAX</a>, <a href="http://developer.yahoo.com/yui/">
                         Yahoo! UI Library</a> or <a href="http://ajaxpatterns.org/Ajax_Frameworks">many others</a>.</dd>
             <dt>Which versions of the Microsoft .NET Framework are supported?</dt><dd>Jayrock
-      is compiled and delivered for Microsoft .NET Framework 1.1, but it can
-      be run against any version of Microsoft .NET Framework, including 1.0 and 2.0. For
-      version 1.0, you will have to recompile the binaries. For version 2.0, on the other
-      hand, you don't need to do anything. Just toss the assemblies at your application
+      is compiled and delivered for Microsoft .NET Framework 1.x, 2.0 and 4.0. 
+      Just toss the corresponding assemblies at your application
       and you are good to go.</dd><dt>What is JSON?</dt><dd><a href="http://www.json.org/"><acronym title="JavaScript Object Notation">JSON</acronym></a> stands for JavaScript Object Notation. It is a simple, human-readable,
                 text-based and portable data format that is ideal for representing and exchanging
                 application data. It has only 5 data types (Boolean, Number, String, Object

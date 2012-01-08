@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -63,6 +63,41 @@ namespace Jayrock.Json.Conversion
             AssertInStock(typeof(NameValueCollectionImporter), typeof(NameValueCollection));
             AssertInStock(typeof(ComponentImporter), typeof(ValueThing));
             AssertInStock(typeof(UriImporter), typeof(Uri));
+            AssertInStock(typeof(JsonBufferImporter), typeof(JsonBuffer));
+
+            #if !NET_1_0 && !NET_1_1 
+
+            AssertInStock(typeof(NullableImporter), typeof(int?));
+            AssertInStock(typeof(DictionaryImporter<string, string>), typeof(System.Collections.Generic.IDictionary<string, string>));
+            AssertInStock(typeof(DictionaryImporter<int, object>), typeof(System.Collections.Generic.IDictionary<int, object>));
+            AssertInStock(typeof(DictionaryImporter<Guid, string>), typeof(SubDictionaryThing));
+
+            // TODO Use AssertInStock once CollectionImporter is public
+            Assert.IsNotNull(new ImportContext().FindImporter(typeof(System.Collections.Generic.IList<string>)));
+            Assert.IsNotNull(new ImportContext().FindImporter(typeof(System.Collections.Generic.ICollection<string>)));
+            Assert.IsNotNull(new ImportContext().FindImporter(typeof(System.Collections.Generic.IEnumerable<string>)));
+            Assert.IsNotNull(new ImportContext().FindImporter(typeof(IEnumerable)));
+
+            #endif // !NET_1_0 && !NET_1_1
+
+            #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+            // TODO Use AssertInStock once CollectionImporter is public
+            Assert.IsNotNull(new ImportContext().FindImporter(typeof(System.Collections.Generic.ISet<string>)));
+            
+            AssertInStock(typeof(BigIntegerImporter), typeof(System.Numerics.BigInteger));
+            AssertInStock(typeof(ExpandoObjectImporter), typeof(System.Dynamic.ExpandoObject));
+
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int, int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int, int, int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int, int, int, int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int, int, int, int, int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int, int, int, int, int, int>));
+            AssertInStock(typeof(TupleImporter), typeof(Tuple<int, int, int, int, int, int, int, int>));
+
+            #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
         }
 
         [ Test ]
@@ -126,5 +161,109 @@ namespace Jayrock.Json.Conversion
             public int Field1;
             public int Field2;
         }
+
+        #if !NET_1_0 && !NET_1_1 
+
+        internal class DictionaryThing : System.Collections.Generic.IDictionary<Guid, string>
+        {
+            #region Implementation of IEnumerable
+
+            public System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<Guid, string>> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            #endregion
+
+            #region Implementation of ICollection<KeyValuePair<Guid,string>>
+
+            public void Add(System.Collections.Generic.KeyValuePair<Guid, string> item)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Clear()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Contains(System.Collections.Generic.KeyValuePair<Guid, string> item)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void CopyTo(System.Collections.Generic.KeyValuePair<Guid, string>[] array, int arrayIndex)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Remove(System.Collections.Generic.KeyValuePair<Guid, string> item)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int Count
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public bool IsReadOnly
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            #endregion
+
+            #region Implementation of IDictionary<Guid,string>
+
+            public bool ContainsKey(Guid key)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Add(Guid key, string value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Remove(Guid key)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool TryGetValue(Guid key, out string value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string this[Guid key]
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
+
+            public System.Collections.Generic.ICollection<Guid> Keys
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public System.Collections.Generic.ICollection<string> Values
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            #endregion
+        }
+
+        private sealed class SubDictionaryThing : DictionaryThing
+        {
+        }
+
+        #endif // !NET_1_0 && !NET_1_1
     }
 }

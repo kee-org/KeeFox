@@ -45,6 +45,9 @@ using KeePassRPC.Forms;
 using System.Reflection;
 using KeePassLib.Collections;
 
+using System.Runtime.Remoting.Lifetime;
+//using System.Web;
+
 namespace KeePassRPC
 {
 	/// <summary>
@@ -52,6 +55,8 @@ namespace KeePassRPC
 	/// </summary>
 	public sealed class KeePassRPCExt : Plugin
 	{
+        //private static LifetimeServices fakeHack = new LifetimeServices();
+
         // version information
         public static readonly Version PluginVersion = new Version(0,9,4);
                 
@@ -166,6 +171,10 @@ namespace KeePassRPC
                 }
                 if (logger != null) logger.WriteLine("Logger initialised.");
 
+                //AppDomain.CurrentDomain.AssemblyResolve += 
+                //new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+        
+
 
                 CreateClientManagers();
 
@@ -242,6 +251,17 @@ namespace KeePassRPC
 			return true; // Initialization successful
 		}
 
+        //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        //{
+        //    MessageBox.Show("assembly: " + args.Name);
+        //    AssemblyName name = new AssemblyName(args.Name);
+        //    if (name.Name == "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
+        //    {
+        //        return typeof(System.Web.HttpApplication).Assembly;
+        //    }
+        //    return null;
+        //}
+        
 		void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
 		{
             //return; // not in 0.8 (soon after hopefully...)
@@ -675,7 +695,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
                 //foreach (PwCustomIcon item in _host.Database.CustomIcons)
                 //{
-                //    var t = item.Image.[1][2];
+                //    *var* t = item.Image.[1][2];
                 //    // re-use existing custom icon if it's already in the database
                 //    // (This will probably fail if database is used on 
                 //    // both 32 bit and 64 bit machines - not sure why...)

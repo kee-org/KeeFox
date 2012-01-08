@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -35,11 +35,18 @@ namespace Jayrock.Json.Conversion.Converters
     {
         private readonly PropertyDescriptorCollection _properties; // TODO: Review thread-safety of PropertyDescriptorCollection
         private readonly IObjectMemberImporter[] _importers;
+        private readonly IObjectConstructor _constructor;
 
         public ComponentImporter(Type type) :
-            this(type, null) {}
+            this(type, null, null) {}
 
-        public ComponentImporter(Type type, ICustomTypeDescriptor typeDescriptor) :
+        public ComponentImporter(Type type, ICustomTypeDescriptor typeDescriptor) : 
+            this(type, typeDescriptor, null) {}
+
+        public ComponentImporter(Type type, IObjectConstructor constructor) : 
+            this(type, null, constructor) {}
+
+        public ComponentImporter(Type type, ICustomTypeDescriptor typeDescriptor, IObjectConstructor constructor) :
             base(type)
         {
             if (typeDescriptor == null)
@@ -61,7 +68,7 @@ namespace Jayrock.Json.Conversion.Converters
                 if (importer == null)
                     continue;
                 
-                importers[i++] = importer;
+                importers[i] = importer;
                 count++;
             }
 
@@ -69,6 +76,8 @@ namespace Jayrock.Json.Conversion.Converters
 
             if (count > 0)
                 _importers = importers;
+
+            _constructor = constructor;
         }
 
         protected override object ImportFromObject(ImportContext context, JsonReader reader)
@@ -76,9 +85,22 @@ namespace Jayrock.Json.Conversion.Converters
             Debug.Assert(context != null);
             Debug.Assert(reader != null);
 
-            reader.Read();
-            
-            object obj = Activator.CreateInstance(OutputType);
+            object obj;
+
+            if (_constructor != null)
+            {
+                ObjectConstructionResult result = _constructor.CreateObject(context, reader);
+                obj = result.Object;
+                reader = result.TailReader;
+                reader.MoveToContent();
+                reader.Read();
+            }
+            else
+            {
+                reader.Read();
+                obj = Activator.CreateInstance(OutputType);
+            }
+
             INonObjectMemberImporter otherImporter = obj as INonObjectMemberImporter;
             
             while (reader.TokenClass != JsonTokenClass.EndObject)

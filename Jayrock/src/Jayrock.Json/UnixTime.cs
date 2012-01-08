@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -76,8 +76,21 @@ namespace Jayrock
 
         public static DateTime ToDateTime(long time, int ms)
         {
-            if (ms < 0 || ms > 999)
-                throw new ArgumentOutOfRangeException("ms");
+            if (time > 0)
+            {
+                if (ms < 0 || ms > 999)
+                    throw new ArgumentOutOfRangeException("ms");
+            }
+            else if (time < 0)
+            {
+                if (ms < -999 || ms > 0)
+                    throw new ArgumentOutOfRangeException("ms");
+            }
+            else
+            {
+                if (ms < -999 || ms > 999)
+                    throw new ArgumentOutOfRangeException("ms");
+            }
 
             return EpochUtc.AddSeconds(time).AddMilliseconds(ms).ToLocalTime();
         }

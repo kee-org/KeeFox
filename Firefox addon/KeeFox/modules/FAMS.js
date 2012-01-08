@@ -108,10 +108,16 @@ FirefoxAddonMessageService.prototype = {
         
         
         this.configuration = this.getConfiguration();
-        var startupInfo = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                              .getService(Components.interfaces.nsIAppStartup).getStartupInfo();
-  
-        this.startUpTime = startupInfo['main']; 
+        try 
+        {
+            var startupInfo = Components.classes["@mozilla.org/toolkit/app-startup;1"]
+                                  .getService(Components.interfaces.nsIAppStartup).getStartupInfo();      
+            this.startUpTime = startupInfo['main']; 
+        } catch (ex)
+        {
+            // Assume Firefox started 10 seconds ago
+            this.startUpTime = (new Date()).getTime() - 10000;
+        }
                      
         // Record the first time this init function is run so we know when
         // the service was first installed

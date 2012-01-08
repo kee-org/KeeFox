@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -24,9 +25,12 @@
     </StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>0.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -39,12 +43,13 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\bin\net-2.0\debug\</OutputPath>
+    <OutputPath>..\..\bin\net-4.0\debug\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -65,9 +70,10 @@
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <LangVersion>default</LangVersion>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\bin\net-2.0\release\</OutputPath>
+    <OutputPath>..\..\bin\net-4.0\release\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -87,6 +93,7 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
@@ -94,9 +101,6 @@
     </Reference>
     <Reference Include="System.Data">
       <Name>System.Data</Name>
-    </Reference>
-    <Reference Include="System.Web">
-      <Name>System.Web</Name>
     </Reference>
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
@@ -161,54 +165,6 @@
     <Compile Include="JsonRpc\JsonRpcTrace.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="JsonRpc\Web\AppVars.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\HttpRequestSecurity.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcDispatchScope.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcExecutive.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcFeaturesSectionHandler.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcGetProtocol.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcHandler.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcHelp.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcMonadProxyGenerator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcPage.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcProxyGenerator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcProxyGeneratorBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcPythonProxyGenerator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcServiceFeature.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcTester.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="JsonRpc\Web\JsonRpcWebTraceAdapter.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Services\DuplicateMethodException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -265,7 +221,7 @@
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
-      <ProductName>.NET Framework Client Profile</ProductName>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -288,6 +244,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

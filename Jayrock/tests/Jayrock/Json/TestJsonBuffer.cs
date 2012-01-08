@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -392,6 +392,29 @@ namespace Jayrock.Json
         public void StringRepresentationForFalse()
         {
             Assert.AreEqual("false", JsonBuffer.From(JsonToken.False()).ToString());
+        }
+
+        [Test(Description = @"http://code.google.com/p/jayrock/issues/detail?id=26")]
+        public void Issue26()
+        {
+            // 1. Create JsonBuffer from array with objects
+            JsonBuffer buffer = JsonBuffer.From(@"[{},{a:{},b:{}}]");
+            // 2. Create reader from the buffer...
+            JsonBufferReader reader = buffer.CreateReader();
+            //    ...read in the first object
+            while (reader.TokenClass != JsonTokenClass.Object)
+                reader.Read();
+            reader.Read(); // Read Object token
+            reader.Read(); // Read EndObject token
+
+            //    ...create a subbuffer to buffer the next object
+            JsonBuffer subBuffer = JsonBuffer.From(reader);
+            //    ...create reader from the subbuffer
+            JsonBufferReader reader2 = subBuffer.CreateReader();
+            
+            // 3. Call reader.BufferValue() this should break
+            JsonBuffer buffer2 = reader2.BufferValue();
+            Assert.IsTrue(buffer2.IsObject);
         }
 
         private static void AssertBufferedValueScalarOrNull(JsonToken expected, JsonBufferWriter writer) 

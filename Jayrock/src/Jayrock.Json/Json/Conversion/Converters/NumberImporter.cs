@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -33,6 +33,11 @@ namespace Jayrock.Json.Conversion.Converters
     {
         protected NumberImporterBase(Type type) :
             base(type) {}
+
+        protected override object ImportNull(ImportContext context, JsonReader reader)
+        {
+            throw new JsonException(string.Format("JSON null cannot be imported as {0}.", OutputType.FullName));
+        }
 
         protected override object ImportFromString(ImportContext context, JsonReader reader)
         {
@@ -149,7 +154,32 @@ namespace Jayrock.Json.Conversion.Converters
 
         protected override object ConvertFromString(string s)
         {
-            return decimal.Parse(s, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
+            return decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
         }
     }
 }
+
+#if NET_4_0
+
+namespace Jayrock.Json.Conversion.Converters
+{
+    #region Imports
+
+    using System.Globalization;
+    using System.Numerics;
+
+    #endregion
+
+    public sealed class BigIntegerImporter : NumberImporterBase
+    {
+        public BigIntegerImporter() :
+            base(typeof(BigInteger)) { }
+
+        protected override object ConvertFromString(string s)
+        {
+            return BigInteger.Parse(s, CultureInfo.InvariantCulture);
+        }
+    }
+}
+
+#endif
