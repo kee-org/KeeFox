@@ -3,3 +3,18 @@
 /KeeFox.ncb
 *.user
 /Jayrock/src/Jayrock.suo
+/XPIs
+/CheckForAdminRights/Release
+/Firefox addon/KeeFox/deps/CheckForAdminRights.exe
+/Firefox addon/KeeFox/deps/KeeFoxElevate.exe
+/Firefox addon/KeeFox/deps/KeePassRPC.plgx
+/Firefox addon/KeeFox/deps/KeePassRPCCopier.exe
+/Firefox addon/Release/BuildLog.htm
+/Jayrock/bin
+/Jayrock/src/Jayrock.Json/obj
+/Jayrock/src/Jayrock/obj
+/KeePassRPC/bin
+/KeePassRPC/obj
+/Release
+/KeeFoxElevate/Release
+/KeePassRPCCopier/Release
