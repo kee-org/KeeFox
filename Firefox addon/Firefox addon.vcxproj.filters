@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Test Pages">
+      <UniqueIdentifier>{674c3f81-c92b-4e46-85f2-35639cdcec07}</UniqueIdentifier>
+      <Extensions>Test Pages</Extensions>
+    </Filter>
+    <Filter Include="CSS">
+      <UniqueIdentifier>{ec275bb9-c1b9-491d-bef3-d11a116146ba}</UniqueIdentifier>
+      <Extensions>css</Extensions>
+    </Filter>
+    <Filter Include="JS">
+      <UniqueIdentifier>{23841bae-a5f9-49a2-815d-4a7dfc01ac67}</UniqueIdentifier>
+      <Extensions>js</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KeeFox\chrome\skin\buttonGradient.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\buttonGradientHover.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\install\header.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox16.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox24.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeGrey.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeGrey24.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeLock.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeLock24.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeLockGrey.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeLockGrey24.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeOrange.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeOrange24.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\key-highlighted.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\main.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Test Pages\LeftFrameContents.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\MultiPage1Other1PasswordPage2.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\MultiPage1Username1PasswordPage1.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\SimpleFormInFrame.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\SimpleFormInFrameContents.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\SimpleFormInIFrame.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\SimpleFormInIFrameContents.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\SimpleFormInRightFrame.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\SimpleFormInRightFrameContents.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\StandardUsernamePassword.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\StandardUsernamePasswordUnusualFields.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\testResults.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\Username2Passwords1Checkbox1Radio.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\Username2Passwords1Checkbox1Radio1Select.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\Username2Passwords1Text.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="Test Pages\Username3Passwords.htm">
+      <Filter>Test Pages</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\install.css">
+      <Filter>CSS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\keefox.css">
+      <Filter>CSS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\options.css">
+      <Filter>CSS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\commonDialog.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\FAMS.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\famsOptions.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\install.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\json.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\keefox.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\KF.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\kfDataModel.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\KFILM.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\KFILM_Fill.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\KFILM_Submit.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\KFLogger.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\KFToolBar.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\KFUI.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\KFUtils.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\options.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\defaults\preferences\prefs.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\session.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="CHANGELOG.txt" />
+    <None Include="KeeFox\modules\ClassTreeView.jsm" />
+    <None Include="debugXPIPackageExclusions.txt" />
+    <None Include="KeeFox\chrome\content\famsOptions.xul" />
+    <None Include="KeeFox\chrome\content\groupChooser.xul" />
+    <None Include="KeeFox\install.rdf" />
+    <None Include="KeeFox\chrome\content\install.xul" />
+    <None Include="KeeFox\chrome\locale\en-US\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\sv-SE\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\ru-RU\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\cs\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\de\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\zh-CN\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\en-US\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\cs\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ru-RU\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\zh-CN\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\de\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\sv-SE\keefox.properties" />
+    <None Include="KeeFox\chrome\content\keefox.xul" />
+    <None Include="KeeFox\chrome\locale\cs\options.dtd" />
+    <None Include="KeeFox\chrome\locale\sv-SE\options.dtd" />
+    <None Include="KeeFox\chrome\locale\en-US\options.dtd" />
+    <None Include="KeeFox\chrome\locale\ru-RU\options.dtd" />
+    <None Include="KeeFox\chrome\locale\de\options.dtd" />
+    <None Include="KeeFox\chrome\locale\zh-CN\options.dtd" />
+    <None Include="KeeFox\chrome\content\protocolAuth.xul" />
+    <None Include="XPIPackageExclusions.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="KeeFox\chrome.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="KeeFox\chrome\content\options.xul" />
+  </ItemGroup>
+</Project>

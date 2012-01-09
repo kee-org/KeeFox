@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Analyse|Win32">
+      <Configuration>Analyse</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="teast|Win32">
+      <Configuration>teast</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}</ProjectGuid>
+    <RootNamespace>Firefoxaddon</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='teast|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='teast|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'">$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='teast|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='teast|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PostBuildEvent>
+      <Command>echo POSTBUILDSTEP for $(ProjectName)
+
+xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\debug\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\debugXPIPackageExclusions.txt
+if errorlevel 1 goto BuildEventFailed
+
+REM compress the files into the complete XPI
+cd $(SolutionDir)XPIs\debug
+del ..\debug.xpi
+"c:\Program Files\ZipGenius 6\zg.exe" -add "..\debug.xpi" R1 K0 C5 +"*"
+if errorlevel 1 goto BuildEventFailed
+
+REM xcopy "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)$(OutDir)" /i /d /y
+REM if errorlevel 1 goto BuildEventFailed
+
+
+REM Exit properly because the build will not fail
+REM unless the final step exits with an error code
+
+goto BuildEventOK
+
+:BuildEventFailed
+echo POSTBUILDSTEP for $(ProjectName) FAILED
+exit 1
+
+:BuildEventOK
+echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PostBuildEvent>
+      <Command>echo POSTBUILDSTEP for $(ProjectName)
+
+xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
+if errorlevel 1 goto BuildEventFailed
+
+REM compress the files into the complete XPI
+cd $(SolutionDir)XPIs\current
+del ..\current.xpi
+"c:\Program Files (x86)\ZipGenius 6\zg.exe" -add "..\current.xpi" R1 K0 C5 +"*"
+if errorlevel 1 goto BuildEventFailed
+
+REM xcopy "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)$(OutDir)" /i /d /y
+REM if errorlevel 1 goto BuildEventFailed
+
+
+REM Exit properly because the build will not fail
+REM unless the final step exits with an error code
+
+goto BuildEventOK
+
+:BuildEventFailed
+echo POSTBUILDSTEP for $(ProjectName) FAILED
+exit 1
+
+:BuildEventOK
+echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'">
+    <PostBuildEvent>
+      <Command>echo POSTBUILDSTEP for $(ProjectName)
+
+xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
+if errorlevel 1 goto BuildEventFailed
+
+REM compress the files into the complete XPI
+cd $(SolutionDir)XPIs\current
+del ..\current.xpi
+"c:\Program Files\ZipGenius 6\zg.exe" -add "..\current.xpi" R1 K0 C5 +"*"
+if errorlevel 1 goto BuildEventFailed
+
+REM xcopy "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)$(OutDir)" /i /d /y
+REM if errorlevel 1 goto BuildEventFailed
+
+
+REM Exit properly because the build will not fail
+REM unless the final step exits with an error code
+
+goto BuildEventOK
+
+:BuildEventFailed
+echo POSTBUILDSTEP for $(ProjectName) FAILED
+exit 1
+
+:BuildEventOK
+echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="KeeFox\chrome\skin\buttonGradient.png" />
+    <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
+    <None Include="KeeFox\chrome\skin\install\header.png" />
+    <None Include="KeeFox\chrome\skin\icon.png" />
+    <None Include="KeeFox\icon.png" />
+    <None Include="KeeFox\chrome\skin\KeeFox16.png" />
+    <None Include="KeeFox\chrome\skin\KeeFox24.png" />
+    <None Include="KeeFox\chrome\skin\KeeGrey.png" />
+    <None Include="KeeFox\chrome\skin\KeeGrey24.png" />
+    <None Include="KeeFox\chrome\skin\KeeLock.png" />
+    <None Include="KeeFox\chrome\skin\KeeLock24.png" />
+    <None Include="KeeFox\chrome\skin\KeeLockGrey.png" />
+    <None Include="KeeFox\chrome\skin\KeeLockGrey24.png" />
+    <None Include="KeeFox\chrome\skin\KeeOrange.png" />
+    <None Include="KeeFox\chrome\skin\KeeOrange24.png" />
+    <None Include="KeeFox\chrome\skin\key-highlighted.png" />
+    <None Include="KeeFox\chrome\skin\main.png" />
+    <None Include="Test Pages\LeftFrameContents.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\MultiPage1Other1PasswordPage2.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\MultiPage1Username1PasswordPage1.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\SimpleFormInFrame.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\SimpleFormInFrameContents.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\SimpleFormInIFrame.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\SimpleFormInIFrameContents.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\SimpleFormInRightFrame.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\SimpleFormInRightFrameContents.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\StandardUsernamePassword.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\StandardUsernamePasswordUnusualFields.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\testResults.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\Username2Passwords1Checkbox1Radio.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\Username2Passwords1Checkbox1Radio1Select.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\Username2Passwords1Text.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Test Pages\Username3Passwords.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="KeeFox\chrome\skin\install.css" />
+    <None Include="KeeFox\chrome\skin\keefox.css" />
+    <None Include="KeeFox\chrome\skin\options.css" />
+    <None Include="KeeFox\chrome\content\commonDialog.js" />
+    <None Include="KeeFox\modules\FAMS.js" />
+    <None Include="KeeFox\chrome\content\famsOptions.js" />
+    <None Include="KeeFox\chrome\content\install.js" />
+    <None Include="KeeFox\modules\json.js" />
+    <None Include="KeeFox\chrome\content\keefox.js" />
+    <None Include="KeeFox\modules\KF.js">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\modules\kfDataModel.js" />
+    <None Include="KeeFox\chrome\content\KFILM.js" />
+    <None Include="KeeFox\chrome\content\KFILM_Fill.js" />
+    <None Include="KeeFox\chrome\content\KFILM_Submit.js" />
+    <None Include="KeeFox\modules\KFLogger.js" />
+    <None Include="KeeFox\chrome\content\KFToolBar.js" />
+    <None Include="KeeFox\chrome\content\KFUI.js" />
+    <None Include="KeeFox\chrome\content\KFUtils.js" />
+    <None Include="KeeFox\chrome\content\options.js" />
+    <None Include="KeeFox\defaults\preferences\prefs.js" />
+    <None Include="KeeFox\modules\session.js" />
+    <None Include="CHANGELOG.txt" />
+    <None Include="KeeFox\modules\ClassTreeView.jsm" />
+    <None Include="debugXPIPackageExclusions.txt" />
+    <None Include="KeeFox\chrome\content\famsOptions.xul" />
+    <None Include="KeeFox\chrome\content\groupChooser.xul">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\install.rdf" />
+    <None Include="KeeFox\chrome\content\install.xul">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\en-US\keefox.dtd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\sv-SE\keefox.dtd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\ru-RU\keefox.dtd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\cs\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\de\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\zh-CN\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\en-US\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\cs\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ru-RU\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\zh-CN\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\de\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\sv-SE\keefox.properties" />
+    <None Include="KeeFox\chrome\content\keefox.xul">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\cs\options.dtd" />
+    <None Include="KeeFox\chrome\locale\sv-SE\options.dtd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\en-US\options.dtd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\ru-RU\options.dtd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="KeeFox\chrome\locale\de\options.dtd" />
+    <None Include="KeeFox\chrome\locale\zh-CN\options.dtd" />
+    <CustomBuildStep Include="KeeFox\chrome\content\options.xul">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+    <None Include="KeeFox\chrome\content\protocolAuth.xul">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="XPIPackageExclusions.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="KeeFox\chrome.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KeePassRPCCopier\KeePassRPCCopier.vcxproj">
+      <Project>{0bdcb786-3ad0-458d-9850-9baf04223ff7}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\KeePassRPC\KeePassRPC.csproj">
+      <Project>{4c1bb6f8-d2cd-49c2-9053-21705681356c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

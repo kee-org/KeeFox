@@ -18,3 +18,13 @@
 /Release
 /KeeFoxElevate/Release
 /KeePassRPCCopier/Release
+/_UpgradeReport_Files
+/Firefox addon/Debug/ResolveAssemblyReference.cache
+/Firefox addon/Release/ResolveAssemblyReference.cache
+*.opensdf
+/KeePassRPCTest/obj/Release/ResolveAssemblyReference.cache
+/KeePassRPCTest/obj/Release/DesignTimeResolveAssemblyReferencesInput.cache
+/KeePassRPCTest/obj/Release/build.force
+/UpgradeLog.XML
+*.sdf
+/Firefox addon/Release/Firefox addon.lastbuildstate

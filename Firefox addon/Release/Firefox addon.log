@@ -1,0 +1,44 @@
+﻿Build started 09/01/2012 00:35:46.
+     1>Project "C:\development\keefox\Firefox addon\Firefox addon.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\Firefox addon.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       PostBuildEvent:
+         echo POSTBUILDSTEP for Firefox addon
+         
+         xcopy "C:\development\keefox\Firefox addon\KeeFox\*" "C:\development\keefox\XPIs\current\" /i /d /y /e /EXCLUDE:C:\development\keefox\Firefo~1\XPIPackageExclusions.txt
+         if errorlevel 1 goto BuildEventFailed
+         
+         REM compress the files into the complete XPI
+         cd C:\development\keefox\XPIs\current
+         del ..\current.xpi
+         "c:\Program Files (x86)\ZipGenius 6\zg.exe" -add "..\current.xpi" R1 K0 C5 +"*"
+         if errorlevel 1 goto BuildEventFailed
+         
+         REM xcopy "C:\development\keefox\Release\Firefox addon.pdb" "C:\development\keefox\C:\development\keefox\Release\" /i /d /y
+         REM if errorlevel 1 goto BuildEventFailed
+         
+         
+         REM Exit properly because the build will not fail
+         REM unless the final step exits with an error code
+         
+         goto BuildEventOK
+         
+         :BuildEventFailed
+         echo POSTBUILDSTEP for Firefox addon FAILED
+         exit 1
+         
+         :BuildEventOK
+         echo POSTBUILDSTEP for Firefox addon COMPLETED OK
+         
+         :VCEnd
+         POSTBUILDSTEP for Firefox addon
+         0 File(s) copied
+         POSTBUILDSTEP for Firefox addon COMPLETED OK
+       FinalizeBuildStatus:
+         Deleting file "Release\Firefox addon.unsuccessfulbuild".
+         Touching "Release\Firefox addon.lastbuildstate".
+     1>Done Building Project "C:\development\keefox\Firefox addon\Firefox addon.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.50
