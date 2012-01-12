@@ -25,7 +25,7 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+*/ 
 
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService"];
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -226,10 +226,10 @@ FirefoxAddonMessageService.prototype.canDisplayGroupNow = function(messageGroup)
     this._log("evaluating whether to display message group: " + messageGroup.id);
     var sharedResult = this.canDisplayNowShared(messageGroup);    
     if (!sharedResult)
-        return false;   
-        
-    // If it's too soon to display this message again
-    if (new Date(message.lastMessageDisplayedTime).getTime() > (new Date()).getTime() - message.minTimeBetweenMessages)
+        return false;
+
+    // If it's too soon to display this messageGroup again
+    if (new Date(messageGroup.lastMessageDisplayedTime).getTime() > (new Date()).getTime() - messageGroup.minTimeBetweenMessages)
         return false;
     
     // It's OK to display it if nothing above said otherwise

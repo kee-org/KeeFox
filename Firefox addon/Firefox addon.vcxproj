@@ -70,6 +70,7 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='teast|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='teast|Win32'" />
+    <PostBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PostBuildEvent>
@@ -132,11 +133,14 @@ exit 1
 echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
 </Command>
     </PostBuildEvent>
+    <ClCompile>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='teast|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>

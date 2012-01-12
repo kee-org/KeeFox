@@ -773,27 +773,27 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         // these form fields and compare against them when submitted - can't 
         // just compare against enitre login objects becuase we can't be certain
         // if we are just on one particular page in a multi-page login sequence)
-//        for (var i = 0; i < passwordFields.length; i++)
-//        {
-//            var passField = passwordFields[i];
-//            //KFLog.debug("testi:"+passField.DOMInputElement);
-//            if (passField.DOMInputElement != null)
-//            {
-//            //TODO: test mem leak 3 // skip event listener registration
-//    
-//                passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-//            } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
-//        }
-//        
-//        for (var i = 0; i < otherFields.length; i++)
-//        {
-//            var otherField = otherFields[i];
-//            //KFLog.debug("testi:"+otherField.DOMInputElement);
-//            if (otherField.DOMInputElement != null)
-//                otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-//            else if (otherField.DOMSelectElement != null)
-//                otherField.DOMSelectElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
-//        }
+        for (var i = 0; i < passwordFields.length; i++)
+        {
+            var passField = passwordFields[i];
+            //KFLog.debug("testi:"+passField.DOMInputElement);
+            if (passField.DOMInputElement != null)
+            {
+            //TODO: test mem leak 3 // skip event listener registration
+    
+                passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+            } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
+        }
+        
+        for (var i = 0; i < otherFields.length; i++)
+        {
+            var otherField = otherFields[i];
+            //KFLog.debug("testi:"+otherField.DOMInputElement);
+            if (otherField.DOMInputElement != null)
+                otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+            else if (otherField.DOMSelectElement != null)
+                otherField.DOMSelectElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
+        }
     }                
     
     // if we know we are only interested in filling one specific uniqueID or that
@@ -825,8 +825,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     {
     //TODO: test mem leak 4 // comment out this toolbar fill
     
-        //KFLog.info("Using toolbar password fill.");
-        //keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
+        KFLog.info("Using toolbar password fill.");
+        keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 
     {
         KFLog.info("Nothing to fill.");

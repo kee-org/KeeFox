@@ -28,3 +28,6 @@
 /UpgradeLog.XML
 *.sdf
 /Firefox addon/Release/Firefox addon.lastbuildstate
+/Firefox addon/Release/Firefox addon.log
+/Firefox addon/Release/Firefox addon.Build.CppClean.log
+*.bak

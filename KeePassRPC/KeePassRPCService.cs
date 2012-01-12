@@ -1177,7 +1177,7 @@ namespace KeePassRPC
                 result = (PwgError)mi.Invoke(null, inputParameters);
                 newPassword = (ProtectedString)inputParameters[0];
             }
-            catch (AmbiguousMatchException)
+            catch (Exception)
             {
                 Type[] mitypes217 = new Type[] { typeof(ProtectedString), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
                 // can't find the 2.18 method definition so try for an earlier version
