@@ -58,9 +58,9 @@ FirefoxAddonMessageService.prototype = {
     timeFactorDisplay: 86400000, // display values displayed to user in days
     strbundle: null,
     
-    _log : function(message) { var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-                                getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message); }, // stub logger logs everything to console
-                                //TODO: log to nowhere
+    _log : function(message) {  //var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+                                //getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message); }, // stub logger logs everything to console
+                                 }, // stub logger logs nothing
     
     runMessageProcessesHandler: {  
       notify: function(timer) {        

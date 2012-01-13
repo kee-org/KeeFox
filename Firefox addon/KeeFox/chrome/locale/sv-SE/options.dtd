@@ -1,60 +1,59 @@
 <!ENTITY KeeFox-Options.title "Inställningar för KeeFox">
-<!ENTITY KeeFox-pref-FillForm.desc "Fyll i formuläret">
-<!ENTITY KeeFox-pref-FillAndSubmitForm.desc "Fyll i och skicka formuläret">
-<!ENTITY KeeFox-pref-DoNothing.desc "Gör ingenting">
-<!ENTITY KeeFox-pref-FillPrompt.desc "Fyll i inloggningsuppgifterna">
-<!ENTITY KeeFox-pref-FillAndSubmitPrompt.desc "Fyll i och skicka inloggningsuppgifterna">
-<!ENTITY KeeFox-pref-KeeFoxShould.desc "KeeFox skall">
-<!ENTITY KeeFox-pref-FillNote.desc "OBS: Du kan åsidosätta detta beteende för enskilda poster i KeePass dialogruta &quot;Redigera post&quot;.">
-<!ENTITY KeeFox-pref-when-user-chooses.desc "När jag väljer ett matchande lösenord skall KeeFox">
-<!ENTITY KeeFox-pref-when-keefox-chooses.desc "När KeeFox väljer en matchande inloggning för">
-<!ENTITY KeeFox-pref-a-standard-form.desc "Ett standardformulär">
-<!ENTITY KeeFox-pref-a-prompt.desc "En HTTP-autentiserings-, NTLM- eller proxyruta">
-<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Formulär med flera matchningar skall automatiskt fyllas i och skickas">
-<!ENTITY KeeFox-pref-FindingEntries.heading "Att hitta poster">
+<!ENTITY KeeFox-pref-FillForm.desc "Fill in the form">
+<!ENTITY KeeFox-pref-FillAndSubmitForm.desc "Fill in and submit the form">
+<!ENTITY KeeFox-pref-DoNothing.desc "Do nothing">
+<!ENTITY KeeFox-pref-FillPrompt.desc "Fill in the login prompt">
+<!ENTITY KeeFox-pref-FillAndSubmitPrompt.desc "Fill in and submit the login prompt">
+<!ENTITY KeeFox-pref-KeeFoxShould.desc "KeeFox should">
+<!ENTITY KeeFox-pref-FillNote.desc "NB: You can override this behaviour for individual entries in the KeePass &quot;edit entry&quot; dialog.">
+<!ENTITY KeeFox-pref-when-user-chooses.desc "When I choose a matched password, KeeFox should">
+<!ENTITY KeeFox-pref-when-keefox-chooses.desc "When KeeFox chooses a matching login for">
+<!ENTITY KeeFox-pref-a-standard-form.desc "A standard form">
+<!ENTITY KeeFox-pref-a-prompt.desc "An HTTPAuth, NTLM or proxy prompt">
+<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Forms with multiple matches should be automatically filled and submitted">
+<!ENTITY KeeFox-pref-FindingEntries.heading "Finding entries">
 <!ENTITY KeeFox-pref-Notifications.heading "Aviseringar">
-<!ENTITY KeeFox-pref-Logging.heading "Loggning">
+<!ENTITY KeeFox-pref-Logging.heading "Logging">
 <!ENTITY KeeFox-pref-Advanced.heading "Avancerat">
 <!ENTITY KeeFox-pref-KeePass.heading "KeePass">
-<!ENTITY KeeFox-pref-FindingEntries.description "Dessa är de viktigaste inställningarna som styr KeeFox beteende">
+<!ENTITY KeeFox-pref-FindingEntries.description "These are the most important options that govern the behaviour of KeeFox">
 <!ENTITY KeeFox-pref-Notifications.description "Ändra dessa inställningar för att ställa in hur KeeFox får din uppmärksamhet">
 <!ENTITY KeeFox-pref-Advanced.description "Dessa inställningar kan hjälpa dig att felsöka ett problem eller konfigurera avancerade inställningar, men de flesta användare kan ignorera dem">
-<!ENTITY KeeFox-pref-KeePass.description "Dessa inställningar påverkar KeePass beteende">
-<!ENTITY KeeFox-pref-FindingEntries.tooltip "Hur KeeFox beter sig när KeePass-poster hittas">
+<!ENTITY KeeFox-pref-KeePass.description "These options affect the behaviour of KeePass">
+<!ENTITY KeeFox-pref-FindingEntries.tooltip "How KeeFox behaves when KeePass entries are found">
 <!ENTITY KeeFox-pref-Notifications.tooltip "Meddelandeinställningar">
 <!ENTITY KeeFox-pref-Advanced.tooltip "Avancerade inställningar">
-<!ENTITY KeeFox-pref-KeePass.tooltip "Inställningar för KeePass">
+<!ENTITY KeeFox-pref-KeePass.tooltip "KeePass options">
 <!ENTITY KeeFox-pref-autoFillForms.label "Fyll i formulär automatiskt när ett matchande lösenord hittas">
 <!ENTITY KeeFox-pref-autoSubmitForms.label "Skicka in formulär automatiskt när ett matchande lösenord hittas">
 <!ENTITY KeeFox-pref-autoFillDialogs.label "Fyll in autentiseringsdialoger automatiskt när ett matchande lösenord hittas">
 <!ENTITY KeeFox-pref-autoSubmitDialogs.label "Skicka in autentiseringsdialoger automatiskt när ett matchande lösenord hittas">
 <!ENTITY KeeFox-pref-overWriteFieldsAutomatically.label "Ersätt innehållet i alla matchande icke-tomma formulär och autentiseringsdialoger">
 <!ENTITY KeeFox-pref-autoSubmitMatchedForms.label "Skicka in formulär när du väljer ett matchande lösenord">
-<!ENTITY KeeFox-pref-loggingLevel.label "Loggningsnivå">
+<!ENTITY KeeFox-pref-loggingLevel.label "Logging level">
 <!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Erbjud att spara lösenord">
-<!ENTITY KeeFox-pref-excludedSaveSites.desc "Dessa webbplatser kommer aldrig att fråga om du vill spara ett nytt lösenord">
-<!ENTITY KeeFox-pref-excludedSaveSites.remove "Ta bort">
+<!ENTITY KeeFox-pref-excludedSaveSites.desc "These sites will never prompt you to save a new password">
+<!ENTITY KeeFox-pref-excludedSaveSites.remove "Remove">
 <!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Visa ett meddelandefält när KeePass måste öppnas">
 <!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Visa ett meddelandefält när du måste logga in på en KeePass-databas">
 <!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Blinka med KeeFox inloggningsikon när KeePass måste öppnas">
 <!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Blinka med KeeFox inloggningsikon när du måste logga in på en KeePass-databas">
-<!ENTITY KeeFox-pref-logMethod.desc "Välj var du vill att KeeFox skall föra en logg över sina aktiviteter.">
-<!ENTITY KeeFox-pref-logMethodAlert "Popup-meddelanden (rekommenderas inte)">
-<!ENTITY KeeFox-pref-logMethodConsole "JavaScript-konsolen">
-<!ENTITY KeeFox-pref-logMethodStdOut "Systemets standardutdataplats">
-<!ENTITY KeeFox-pref-logMethodFile "Fil (sparad i en &quot;keefox&quot;-mapp i din Firefox-profil)">
-<!ENTITY KeeFox-pref-logLevel.desc "Välj hur utförlig du vill att loggen skall vara. Ju högre loggningsnivå, desto mer utdata.">
-<!ENTITY KeeFox-pref-logSensitiveData.desc "Alternativet nedan skall användas med största försiktighet och som regel endast för utvecklings- och felsökningsändamål.">
-<!ENTITY KeeFox-pref-logSensitiveData.label "Logga lösenord och annan känslig information">
-<!ENTITY KeeFox-pref-dynamicFormScanning.label "Sök igenom alla webbsidor efter nya formulär">
-<!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "OBS: Detta alternativ kan göra att KeeFox identifierar fler formulär, men på bekostnad av prestandan">
-<!ENTITY KeeFox-pref-keePassRPCPort.label "Kommunicera med KeePass via denna TCP/IP-port">
-<!ENTITY KeeFox-pref-keePassRPCPortWarning.label "OBS: Ändra denna inställning i KeePass.config. Annars kommer KeeFox inte alltid att kunna kommunicera med KeePass">
+<!ENTITY KeeFox-pref-logMethod.desc "Select where you would like KeeFox to record a log of its activity.">
+<!ENTITY KeeFox-pref-logMethodAlert "Alert popups (not reccomended)">
+<!ENTITY KeeFox-pref-logMethodConsole "Javascript console">
+<!ENTITY KeeFox-pref-logMethodStdOut "System standard output">
+<!ENTITY KeeFox-pref-logMethodFile "File (located in a 'keefox' folder inside your Firefox profile)">
+<!ENTITY KeeFox-pref-logLevel.desc "Choose how verbose you want the log to be. Each higher log level produces more output.">
+<!ENTITY KeeFox-pref-logSensitiveData.desc "The option below should be used with extreme caution, generally only for development and debugging purposes.">
+<!ENTITY KeeFox-pref-logSensitiveData.label "Record passwords and other sensitive information">
+<!ENTITY KeeFox-pref-dynamicFormScanning.label "Aktivera identifiering av avancerade formulär">
+<!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "NB: This option may enable KeeFox to recognise more forms at the expense of performance">
+<!ENTITY KeeFox-pref-keePassRPCPort.label "Communicate with KeePass using this TCP/IP port">
+<!ENTITY KeeFox-pref-keePassRPCPortWarning.label "NB: change the setting in KeePass.config or else KeeFox will not always be able to communicate with KeePass">
 <!ENTITY KeeFox-pref-saveFavicons.label "Spara webbplatsernas logotyp/ikon (sajtikon)">
 <!ENTITY KeeFox-pref-keePassDBToOpen.label "Vid öppning av eller inloggning på KeePass, använd denna databasfil">
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Kom ihåg den senast använda KeePass-databasen">
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "Installationsplats för insticksmodulen KeePassRPC">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "Installationsplats för KeePass">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Använder KeePass Portable (kom ihåg inställningar)">
-<!ENTITY KeeFox-pref-keePassLocation.label "Använd denna plats">
-<!ENTITY KeeFox-browse.label "NOT TRANSLATED">
+<!ENTITY KeeFox-pref-keePassLocation.label "Use this location">

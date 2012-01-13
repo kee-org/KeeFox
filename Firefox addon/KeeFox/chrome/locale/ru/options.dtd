@@ -5,12 +5,12 @@
 <!ENTITY KeeFox-pref-FillPrompt.desc "Заполнить запрос">
 <!ENTITY KeeFox-pref-FillAndSubmitPrompt.desc "Заполнить и отправить запрос">
 <!ENTITY KeeFox-pref-KeeFoxShould.desc "KeeFox должен">
-<!ENTITY KeeFox-pref-FillNote.desc "Обрати внимание: Вы можете переопределить это поведение для отдельных записей в диалоге KeePass &quot;редактировать запись&quot;.">
+<!ENTITY KeeFox-pref-FillNote.desc "Обрати внимание: Вы можете переопределить это поведение для отдельных записей в диалоговом окне KeePass «Изменение записи».">
 <!ENTITY KeeFox-pref-when-user-chooses.desc "Когда я выбираю соответствующий пароль, KeeFox должен">
 <!ENTITY KeeFox-pref-when-keefox-chooses.desc "Когда KeeFox выбирает соответствующий логин для">
 <!ENTITY KeeFox-pref-a-standard-form.desc "Стандартная форма">
 <!ENTITY KeeFox-pref-a-prompt.desc "HTTPAuth, NTLM или запрос прокси-сервера">
-<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Формы с несколькими совпадений должны быть автоматически заполнены и отправлены">
+<!ENTITY KeeFox-pref-autoFillFormsWithMultipleMatches.label "Формы с несколькими совпадениями должны быть автоматически заполнены и отправлены">
 <!ENTITY KeeFox-pref-FindingEntries.heading "Поиск записей">
 <!ENTITY KeeFox-pref-Notifications.heading "Уведомления">
 <!ENTITY KeeFox-pref-Logging.heading "Журналирование">
@@ -34,20 +34,20 @@
 <!ENTITY KeeFox-pref-notifyBarRequestPasswordSave.label "Предлагать сохранение паролей">
 <!ENTITY KeeFox-pref-excludedSaveSites.desc "Никогда не предлагать вам сохранять новые пароли на этих сайтах">
 <!ENTITY KeeFox-pref-excludedSaveSites.remove "Удалить">
-<!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Показать панель уведомлений, когда KeePass должна быть открыта">
+<!ENTITY KeeFox-pref-notifyBarWhenKeePassRPCInactive.label "Показать панель уведомлений, когда KeePass должен быть открыт">
 <!ENTITY KeeFox-pref-notifyBarWhenLoggedOut.label "Показать панель уведомлений, когда вам нужно войти в базу данных KeePass">
-<!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Мигать иконкой KeeFox, когда KeePass должна быть открыта">
+<!ENTITY KeeFox-pref-flashIconWhenKeePassRPCInactive.label "Мигать иконкой KeeFox, когда KeePass должен быть открыт">
 <!ENTITY KeeFox-pref-flashIconWhenLoggedOut.label "Мигать иконкой KeeFox, когда вам нужно войти в базу данных KeePass">
 <!ENTITY KeeFox-pref-logMethod.desc "Выберите куда вы хотите чтобы KeeFox записывал лог своей деятельности.">
 <!ENTITY KeeFox-pref-logMethodAlert "Оповещать всплывающими окнами (не рекомендуется)">
 <!ENTITY KeeFox-pref-logMethodConsole "JavaScript консоль">
 <!ENTITY KeeFox-pref-logMethodStdOut "Стандартный системный вывод">
-<!ENTITY KeeFox-pref-logMethodFile "Файл (расположеный в папке «keefox» внутри вашего профиля Firefox)">
-<!ENTITY KeeFox-pref-logLevel.desc "Выберите, насколько подробный журнал вы хотите. Каждый более высокий уровень ведения журнала выадёт больше информации.">
+<!ENTITY KeeFox-pref-logMethodFile "Файл (расположеный в папке «KeeFox» внутри вашего профиля Firefox)">
+<!ENTITY KeeFox-pref-logLevel.desc "Выберите, насколько подробный журнал вы хотите. Каждый более высокий уровень ведения журнала выдаёт больше информации.">
 <!ENTITY KeeFox-pref-logSensitiveData.desc "Следующую опцию следует использовать с особой осторожностью, как правило, только для разработки и отладки.">
 <!ENTITY KeeFox-pref-logSensitiveData.label "Запись паролей и другой конфиденциальной информации в журнал">
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Включить обнаружение дополнительных форм">
-<!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "Обрати внимание: Эта опция может позволить KeeFox распозновать несколько форм за счет производительности">
+<!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "Обрати внимание: Эта опция может позволить KeeFox распознавать несколько форм за счет производительности">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "Соединяться с KeePass с помощью этого TCP/IP-порта">
 <!ENTITY KeeFox-pref-keePassRPCPortWarning.label "Обрати внимание: изменения настроек в KeePass.config или же в KeeFox могут нарушить соединение с KeePass">
 <!ENTITY KeeFox-pref-saveFavicons.label "Сохранять иконку сайта (favicon)">
@@ -57,4 +57,3 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "Место установки KeePass">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Запомнить предыдущие настройки (например, при использовании KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Используйте это место">
-<!ENTITY KeeFox-browse.label "NOT TRANSLATED">
