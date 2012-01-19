@@ -1,0 +1,36 @@
+@import url(chrome://keefox/skin/install.css);
+
+.text-link 
+{
+  font-size: 1.0em !important;
+  color: #284898;
+  cursor: pointer;
+  padding: 5px 5px 5px 5px;
+}
+
+.mono-header
+{
+/*  color:#f00; */
+  font-size:1.2em;
+  font-weight:bold;
+  padding:15px;
+  text-align:center;
+	
+}
+
+.mono-file
+{
+  font-weight:bold;
+  padding:0px 0px 0px 20px;
+}
+
+description#monoManualStep1_description,
+description#monoManualStep2_description,
+description#monoManualStep3_description,
+description#monoManualStep4_description,
+description#monoManualStep5_description,
+description#monoManualTest1_description,
+description#monoManualTest2_description
+{ 
+  padding: 5px 5px 5px 5px;
+}
