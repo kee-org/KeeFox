@@ -42,6 +42,11 @@ namespace Mono.Tools
 {
     public class MakeCertKPRPC
     {
+        public static PKCS12 Generate(string subject, string issuer, KeePassRPCExt KeePassRPCPlugin)
+        {
+			return Generate(subject, issuer, (string)null, KeePassRPCPlugin);
+		}
+		
         /// <summary>
         /// Generates an X509 certificate using the Mono.Security assembly.
         /// Potentially could prise out the relevant classes from the Mono
@@ -50,7 +55,7 @@ namespace Mono.Tools
         /// <param name="subject">The subject.</param>
         /// <param name="issuer">The issuer.</param>
         /// <returns></returns>
-        public static byte[] Generate(string subject, string issuer, KeePassRPCExt KeePassRPCPlugin)
+        public static PKCS12 Generate(string subject, string issuer, string password, KeePassRPCExt KeePassRPCPlugin)
         {
             byte[] sn = Guid.NewGuid().ToByteArray();
             DateTime notBefore = DateTime.Now;
@@ -86,7 +91,8 @@ namespace Mono.Tools
             byte[] rawcert = cb.Sign(issuerKey);
 
             PKCS12 p12 = new PKCS12();
-
+			p12.Password = password;
+			
             ArrayList list = new ArrayList();
             // we use a fixed array to avoid endianess issues 
             // (in case some tools requires the ID to be 1).
@@ -96,7 +102,8 @@ namespace Mono.Tools
 
             p12.AddCertificate(new X509Certificate(rawcert), attributes);
             p12.AddPkcs8ShroudedKeyBag(subjectKey, attributes);
-
+			
+/*
             if (Type.GetType("Mono.Runtime") != null)
             {
                 string fileName = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12");
@@ -110,8 +117,10 @@ namespace Mono.Tools
                     if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Could not write to " + fileName + " security between KPRPC and clients may not be established.");
                 }
             }
-
+			
             return p12.GetBytes();
+*/
+			return p12;
         }
     }
 }

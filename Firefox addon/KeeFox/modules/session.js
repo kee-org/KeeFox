@@ -220,6 +220,26 @@ session.prototype =
     
     onConnect: function()
     {
+
+      // KRB begin
+        try
+        {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                         .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser");
+  
+            var rpc = window.keeFoxInst.KeePassRPC;
+          
+            log.debug("Session::onConnect - Sending Idle");
+            var num_written = this.ostream.writeString('{"params":null,"method":"Idle","id":0}');
+        } catch(ex) {
+            log.error(ex, "Session::onConnect failed: ");
+            this.onNotify("connect-failed", "Unable to connect; Exception occured "+ex);
+            this.disconnect();
+            return;
+        }
+        // KRB end
+      
         try
         {
             log.debug("Setting up the async reading pump");
