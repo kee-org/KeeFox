@@ -226,15 +226,15 @@
               <button id="keePassInstalledLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
             </hbox>
             
-            <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" class="itemEnd" />
-            <label control="keePassLocation" value="&KeeFox-pref-keePassLocation.label;:"/>
-            <textbox preference="KeeFox-pref-keePassLocation" id="keePassLocation" maxlength="128" size="40" class="itemEnd"/>
-
             <label control="monoLocation" value="&KeeFox-pref-monoLocation.label;:"/>
             <hbox class="itemEnd">
               <textbox preference="KeeFox-pref-monoLocation" id="monoLocation" maxlength="255" size="80" />
               <button id="monoLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForMonoLocation(document.getElementById('monoLocation').value);"/>
             </hbox>
+
+            <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" class="itemEnd" />
+            <label control="keePassLocation" value="&KeeFox-pref-keePassLocation.label;:"/>
+            <textbox preference="KeeFox-pref-keePassLocation" id="keePassLocation" maxlength="128" size="40" class="itemEnd"/>
 
           </vbox>
         </tabpanel>
