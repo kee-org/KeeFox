@@ -313,6 +313,34 @@ KeeFox.prototype = {
 //            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
 //            return;
 //        }
+
+        // Default Mono executable set here rather than hard coding elsewhere
+        this.defaultMonoExec = '/usr/bin/mono';
+        
+        // Centralize this check.
+        // Checking only the OS does not allow running Mono under Windows.
+        // Therefore, if the user has set a Mono executable location in the prefs, we will
+        // assume that they want to run under mono.
+        userHasSetMonoLocation = this._keeFoxExtension.prefs.getValue("monoLocation", "");
+        
+        if ((this.os != "WINNT") || (userHasSetMonoLocation != ""))
+        {
+          this.useMono = true;
+        }
+        else
+        {
+          this.useMono = false;
+        }
+
+        // Set the baseRUL to use for Mono vs Windows
+        if (!this.useMono)
+        {
+          this.baseInstallURL = 'chrome://keefox/content/install.xul';
+        }
+        else
+        {
+          this.baseInstallURL = 'chrome://keefox/content/install_mono.xul';
+        }
         
         this._KFLog.info("KeeFox initialising");
         
@@ -335,13 +363,7 @@ KeeFox.prototype = {
     },
         
     _keeFoxVariableInit : function()
-    {
-        if (this.os != "WINNT")
-        {
-            this._keeFoxStorage.set("KeePassRPCInstalled", true);
-            return;
-        }
-        
+    {        
         var KeePassEXEfound;
         var KeePassRPCfound;
         
@@ -349,6 +371,8 @@ KeeFox.prototype = {
         keePassLocation = "not installed";
         var keePassRPCLocation;
         keePassRPCLocation = "not installed";        
+        var monoLocation;
+        monoLocation = "not installed";        
         
         var keePassRememberInstalledLocation = 
             this._keeFoxExtension.prefs.getValue("keePassRememberInstalledLocation",false);
@@ -369,22 +393,44 @@ KeeFox.prototype = {
                     this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO2: set this to "not installed"?
                 }
             }
-        }
 
+            if (this.useMono)
+            {
+              monoLocation = this._discoverMonoLocation();
+              if (monoLocation != "not installed")
+              {
+                monoExecFound = this._confirmMonoLocation(monoLocation);
+                if (!monoExecFound)
+                {
+                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
+                }
+              }
+              else
+              {
+                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
+              }
+            }
+        }
+        
         if (keePassRememberInstalledLocation)
         {
             this._keeFoxStorage.set("KeePassRPCInstalled", true);
         } else
         { 
             this._KFLog.info("Checking and updating KeePassRPC installation settings");
-            
+
             if (keePassRPCLocation == "not installed")
             {
                 this._KFLog.info("KeePassRPC location was not found");
                 this._launchInstaller();
             } else
             {
-                if (!KeePassEXEfound)
+                if ((this.useMono) && (monoLocation == "not installed"))
+                {
+                  this._KFLog.info("Mono executable not present in expected location");
+                  this._launchInstaller();                    
+                }
+                else if (!KeePassEXEfound)
                 {
                     this._KFLog.info("KeePass EXE not present in expected location");
                     this._launchInstaller();
@@ -420,6 +466,8 @@ KeeFox.prototype = {
 
         if (keePassLocation == "not installed")
         {
+          if (!this.useMono)
+          {
             this._KFLog.debug("Reading KeePass installation location from Windows registry");
 
             var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
@@ -469,7 +517,31 @@ KeeFox.prototype = {
 //                wrko.close();
 //            }
             
+          }
+          else
+          {
+            this._KFLog.debug("Checking KeePass installation location from filesystem");
+
+            // Get the users home directory
+            var dirService = Components.classes["@mozilla.org/file/directory_service;1"].  
+              getService(Components.interfaces.nsIProperties);   
+            var keePassFolder = dirService.get("Home", Components.interfaces.nsIFile); // returns an nsIFile object
+            keePassFolder.append("KeePass");
+            var keePassFile = keePassFolder.clone();
+            keePassFile.append("KeePass.exe");
+            if (keePassFile.exists())
+            {
+              keePassLocation = keePassFolder.path;
+              this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);              
+              this._KFLog.debug("***Found "+keePassFolder.path);
+            }
+            else
+            {
+              this._KFLog.debug("Did not find "+keePassFile.path);
+            }
+          }
         }
+        
         return keePassLocation;
     },
     
@@ -497,10 +569,12 @@ KeeFox.prototype = {
             && this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","") != "")
         {
             keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-            if (keePassLocation.substr(-1) === "\\")
-                keePassRPCLocation = keePassLocation + "plugins\\";
-            else
-                keePassRPCLocation = keePassLocation + "\\plugins\\";
+
+            var folder = Components.classes["@mozilla.org/file/local;1"]
+                        .createInstance(Components.interfaces.nsILocalFile);
+            folder.initWithPath(keePassLocation);
+            folder.append("plugins");
+            keePassRPCLocation = folder.path;
             this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",keePassRPCLocation);
             if (this._KFLog.logSensitiveData)
                 this._KFLog.debug("KeePassRPC install location inferred: " + keePassRPCLocation);
@@ -598,6 +672,64 @@ KeeFox.prototype = {
         return KeePassRPCfound;
     },
 
+    // works out where Mono is installed and records it in a Firefox preference
+    // As far as I know, Mono is typically installed at /usr/bin/mono for Fedora, Debian, Ubuntu, etc.
+    _discoverMonoLocation: function()
+    {
+        var monoLocation = "not installed";
+        
+        if (this._keeFoxExtension.prefs.has("monoLocation"))
+        {
+            monoLocation = this._keeFoxExtension.prefs.getValue("monoLocation", "not installed");
+            if (monoLocation != "")
+              this._KFLog.info("Mono install location found in preferences: " + monoLocation);
+            else
+              monoLocation = "not installed";
+        }
+        
+        if (monoLocation == "not installed")
+        {
+            var mono_exec = Components.classes["@mozilla.org/file/local;1"]
+                             .createInstance(Components.interfaces.nsILocalFile);
+            mono_exec.initWithPath(this.defaultMonoExec);
+            if (mono_exec.exists())
+            {
+              monoLocation = mono_exec.path;            
+              this._keeFoxExtension.prefs.setValue("monoLocation",monoLocation);
+              this._KFLog.debug("Mono install location inferred: " + monoLocation);
+            }
+            else
+            {
+              this._KFLog.debug("Mono install location "+this.defaultMonoExec+ " does not exist!");
+            }
+        }        
+        return monoLocation;
+    },
+    
+    _confirmMonoLocation: function(monoLocation)
+    {
+        var monoExecFound;
+        monoExecFound = false;
+
+        this._KFLog.debug("Looking for the Mono executable in " + monoLocation);
+
+        var file = Components.classes["@mozilla.org/file/local;1"]
+                    .createInstance(Components.interfaces.nsILocalFile);
+        try
+        {
+            file.initWithPath(monoLocation);
+            if (file.isFile())
+            {
+              monoExecFound = true;
+              this._KFLog.info("Mono executable found in correct location.");
+            }
+        } catch (ex)
+        {
+            /* no need to do anything */
+        }
+        return monoExecFound;
+    },
+    
     // Temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
     //TODO 0.9: test more thoroughly, especially multiple windows aspect
     _pauseKeeFox: function()
@@ -731,14 +863,33 @@ KeeFox.prototype = {
     {
         var fileName = "unknown";
         
-        if (this.os != "WINNT")
+        if (this.useMono)
         {
-            //TODO: make it work with some config settings (different paths?)
-            fileName = "mono";
-            if (params != "")
-                params = "~/KeePass/" + "KeePass.exe" + " " + params;
+            // Get location of the mono executable, defaults location of /usr/bin/mono
+            fileName = this._keeFoxExtension.prefs.getValue("monoLocation",
+                                                            this.defaultMonoExec);
+
+            // Get the users home directory
+            var dirService = Components.classes["@mozilla.org/file/directory_service;1"].  
+              getService(Components.interfaces.nsIProperties);   
+            var homeDirFile = dirService.get("Home", Components.interfaces.nsIFile); // returns an nsIFile object  
+            var homeDir = homeDirFile.path;  
+
+            var keepassLoc = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation", "");
+            if (keepassLoc == "")
+            {
+              keepass_exec = homeDir+"/KeePass/KeePass.exe";
+            }
             else
-                params = "~/KeePass/" + "KeePass.exe";
+            {
+              keepass_exec = keepassLoc+"/KeePass.exe";
+            }
+            
+            if (params != "")
+                params = keepass_exec+'' + params;
+            else
+                params = keepass_exec;
+            
         } else if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
             this._KFLog.error("Could not load KeePass - no keePassInstalledLocation found!");
@@ -764,18 +915,20 @@ KeeFox.prototype = {
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
-            
+
         if (params != "" && mruparam != "")
             args = [params, '' + mruparam + ''];
         else if (params != "")
             args = [params];
         else if (mruparam != "")
             args = ['' + mruparam + ''];
-        
+
         var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
         file.initWithPath(fileName);
 
+        this._KFLog.info("About to execute: " + file.path + " " + args.join(' '));
+        
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess);
         process.init(file);
@@ -825,11 +978,11 @@ KeeFox.prototype = {
         if (upgrade)
         {
             this._KFLog.info("KeeFox not installed correctly. Going to try to launch the upgrade page.");
-            installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul?upgrade=1");
+            installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL+"?upgrade=1");
         } else
         {
             this._KFLog.info("KeeFox not installed correctly. Going to try to launch the install page.");
-            installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
+            installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
         }
         
         //NB: FF < 3.0.5 may fail to open the tab due to bug where "session loaded" event fires too soon.
@@ -851,7 +1004,7 @@ KeeFox.prototype = {
     
     KeeFox_MainButtonClick_install: function(event, temp) {
         this._KFLog.debug("install button clicked. Loading (and focusing) install page.");
-        installTab = this._openAndReuseOneTabPerURL("chrome://keefox/content/install.xul");
+        installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeePassRPCInstalled", false);
     },

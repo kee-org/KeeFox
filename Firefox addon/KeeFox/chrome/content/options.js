@@ -184,7 +184,7 @@ function onsynctopreferenceLogLevel()
 function browseForKeePassLocation(currentLocationPath)
 {
     var location = browseForLocation(currentLocationPath, 
-        Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation');
+                                     Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation', 'NoFilter');
     document.getElementById("keePassInstalledLocation").value = location;
     document.getElementById("KeeFox-pref-keePassInstalledLocation").value = location;
 }
@@ -192,20 +192,28 @@ function browseForKeePassLocation(currentLocationPath)
 function browseForKPRPCLocation(currentLocationPath)
 {
     var location = browseForLocation(currentLocationPath, 
-        Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation');
+                                     Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation', 'NoFilter');
     document.getElementById("keePassRPCInstalledLocation").value = location;
     document.getElementById("KeeFox-pref-keePassRPCInstalledLocation").value = location;
+}
+
+function browseForMonoLocation(currentLocationPath)
+{
+    var location = browseForLocation(currentLocationPath, 
+                                     Components.interfaces.nsIFilePicker.modeOpen, 'selectMonoLocation', 'NoFilter');
+    document.getElementById("monoLocation").value = location;
+    document.getElementById("KeeFox-pref-monoLocation").value = location;
 }
 
 function browseForDefaultKDBXLocation(currentLocationPath)
 {
     var location = browseForLocation(currentLocationPath, 
-        Components.interfaces.nsIFilePicker.modeOpen, 'selectDefaultKDBXLocation');
+                                     Components.interfaces.nsIFilePicker.modeOpen, 'selectDefaultKDBXLocation', 'DBFilter');
     document.getElementById("keePassDBToOpen").value = location;
     document.getElementById("KeeFox-pref-keePassDBToOpen").value = location;
 }
 
-function browseForLocation(currentLocationPath, pickerMode, captionStringKey)
+function browseForLocation(currentLocationPath, pickerMode, captionStringKey, filterMode)
 {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
 
@@ -219,7 +227,7 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey)
     
     fp.init(window, dialogName, pickerMode);
     
-    if (pickerMode == nsIFilePicker.modeOpen)
+    if ((filterMode == "DBFilter") && (pickerMode == nsIFilePicker.modeOpen))
     {
         fp.appendFilter("KeePass databases","*.kdbx");
         fp.appendFilters(nsIFilePicker.filterAll);

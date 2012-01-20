@@ -55,6 +55,7 @@
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Remember the most recently used KeePass database">
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC plugin installation location">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installation location">
+<!ENTITY KeeFox-pref-monoLocation.label "Mono executable location (e.g. /usr/bin/mono)">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Remember above settings (e.g. when using KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Use this location">
 <!ENTITY KeeFox-browse.label "Browse">

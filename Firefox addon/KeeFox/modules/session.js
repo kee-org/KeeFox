@@ -220,6 +220,40 @@ session.prototype =
     
     onConnect: function()
     {
+
+      /*
+       * This code was added in order to support Mono.
+       *
+       * What I found is that on the KeePassRPC side, when a client connects,
+       * Mono does not continue executing until the client sends data to the server.
+       * So I added this 'Idle' command that will be ignored by the server.
+       * 
+       * This seems like a mono bug to me. There is no rule that a client must
+       * communicate first in a client/server relationship. Perhaps it has to
+       * do with the connection being TLS/SSL3. That Mono code is not as well
+       * developed as the other stuff.
+       *
+       * It should be okay to include this Idle command on both Mono and .NET,
+       * but I don't want to take any chances of breaking .NET
+       */
+      var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+      var window = wm.getMostRecentWindow("navigator:browser");
+      
+      if (window.keeFoxInst.useMono)
+      {
+        try
+        {
+          log.debug("Session::onConnect - Sending Idle");
+          var num_written = this.ostream.writeString('{"params":null,"method":"Idle","id":0}');
+        } catch(ex) {
+          log.error(ex, "Session::onConnect failed: ");
+          this.onNotify("connect-failed", "Unable to connect; Exception occured "+ex);
+          this.disconnect();
+          return;
+        }
+      }
+      
         try
         {
             log.debug("Setting up the async reading pump");
