@@ -316,7 +316,7 @@ KeeFox.prototype = {
 
         // Default Mono executable set here rather than hard coding elsewhere
         this.defaultMonoExec = '/usr/bin/mono';
-
+        
         // Centralize this check.
         // Checking only the OS does not allow running Mono under Windows.
         // Therefore, if the user has set a Mono executable location in the prefs, we will
@@ -400,8 +400,12 @@ KeeFox.prototype = {
                 monoExecFound = this._confirmMonoLocation(monoLocation);
                 if (!monoExecFound)
                 {
-                  this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO2: set this to "not installed"?
+                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
                 }
+              }
+              else
+              {
+                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
               }
             }
         }
@@ -419,7 +423,12 @@ KeeFox.prototype = {
                 this._launchInstaller();
             } else
             {
-                if (!KeePassEXEfound)
+                if ((this.useMono) && (monoLocation == "not installed"))
+                {
+                  this._KFLog.info("Mono executable not present in expected location");
+                  this._launchInstaller();                    
+                }
+                else if (!KeePassEXEfound)
                 {
                     this._KFLog.info("KeePass EXE not present in expected location");
                     this._launchInstaller();

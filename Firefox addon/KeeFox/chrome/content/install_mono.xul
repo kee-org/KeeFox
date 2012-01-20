@@ -92,6 +92,7 @@
                 <description id="monoManualTest1_description">&KeeFox_Install_monoManualTest1.description;</description>
                 <description class="mono-file" id="monoManualTest1a_description"></description>
                 <description id="monoManualTest2_description">&KeeFox_Install_monoManualTest2.description;</description>
+                <description class="mono-file" id="monoManualTest2a_description"></description>
                 <description id="monoManualTest3_description">&KeeFox_Install_monoManualTest3.description;</description>
               </vbox>
 

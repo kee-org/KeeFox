@@ -34,25 +34,7 @@ var mainWindow = mainWin.keefox_org.ILM._currentWindow;
 var strbundle = mainWin.document.getElementById("KeeFox-strings");
   
 function prepareMonoInstallPage()
-{
-
-  /*
-   * Show the user the path to the 'deps' folder of their keefox extension
-   */
-  var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
-    getService(Components.interfaces.nsIProperties);
-  var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-  dir.append("extensions");
-  dir.append("keefox@chris.tomlinson");
-  dir.append("deps");
-  document.getElementById('monoManualStep5a_description').textContent = dir.path;
-
-  var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
-    getService(Components.interfaces.nsIProperties);
-  var dir = directoryService.get("Home", Components.interfaces.nsIFile);
-  dir.append("KeePass");
-  document.getElementById('monoManualTest1a_description').textContent = dir.path;
-  
+{  
   var qs = "";
   var args = new Object();
   var query = location.search.substring(1);
@@ -91,6 +73,26 @@ function prepareMonoInstallPage()
     return;
   }
 
+  /*
+   * Show the user the path to the 'deps' folder of their keefox extension
+   */
+  var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
+    getService(Components.interfaces.nsIProperties);
+  var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+  dir.append("extensions");
+  dir.append("keefox@chris.tomlinson");
+  dir.append("deps");
+  document.getElementById('monoManualStep5a_description').textContent = dir.path;
+
+  var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
+    getService(Components.interfaces.nsIProperties);
+  var dir = directoryService.get("Home", Components.interfaces.nsIFile);
+  dir.append("KeePass");
+  document.getElementById('monoManualTest1a_description').textContent = dir.path;
+
+  document.getElementById('monoManualTest2a_description').textContent = mainWindow.keeFoxInst.defaultMonoExec;
+
+  
 }
 
 
