@@ -371,6 +371,8 @@ KeeFox.prototype = {
         keePassLocation = "not installed";
         var keePassRPCLocation;
         keePassRPCLocation = "not installed";        
+        var monoLocation;
+        monoLocation = "not installed";        
         
         var keePassRememberInstalledLocation = 
             this._keeFoxExtension.prefs.getValue("keePassRememberInstalledLocation",false);
@@ -416,7 +418,7 @@ KeeFox.prototype = {
         } else
         { 
             this._KFLog.info("Checking and updating KeePassRPC installation settings");
-            
+
             if (keePassRPCLocation == "not installed")
             {
                 this._KFLog.info("KeePassRPC location was not found");
@@ -914,8 +916,6 @@ KeeFox.prototype = {
         if (mruparam == "")
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
 
-        this._KFLog.info("parms = [" + params + "] mruparam = [" + mruparam + "]");
-        
         if (params != "" && mruparam != "")
             args = [params, '' + mruparam + ''];
         else if (params != "")
