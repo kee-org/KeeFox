@@ -10,7 +10,3 @@ locale keefox sv-SE chrome/locale/sv-SE/
 locale keefox cs chrome/locale/cs/
 locale keefox zh-CN chrome/locale/zh-CN/
 locale keefox de chrome/locale/de/
-locale keefox es-ES chrome/locale/es-ES/
-locale keefox fr chrome/locale/fr/
-locale keefox nb-NO chrome/locale/nb-NO/
-locale keefox nl chrome/locale/nl/

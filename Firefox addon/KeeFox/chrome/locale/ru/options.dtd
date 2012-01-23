@@ -57,3 +57,5 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "Место установки KeePass">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Запомнить предыдущие настройки (например, при использовании KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Используйте это место">
+<!ENTITY KeeFox-browse.label "Обзор">
+<!ENTITY KeeFox-FAMS-Options.label "Настройки уведомлений о сообщениях и подсказках">

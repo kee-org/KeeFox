@@ -39,6 +39,7 @@
 <!ENTITY KeeFox_Dialog-SelectAGroup.title "选择一个群组">
 <!ENTITY KeeFox_Dialog_OK_Button.label "确定">
 <!ENTITY KeeFox_Dialog_Cancel_Button.label "取消">
+<!-- General installation / setup strings -->
 <!ENTITY KeeFox_Install_Setup_KeeFox.label "安装 KeeFox">
 <!ENTITY KeeFox_Install_Upgrade_KeeFox.label "升级 KeeFox">
 <!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "KeeFox 安装已经在另一个浏览器标签页中运行。如果您能找到那个标签页，请关闭本标签页，然后去那个标签页继续。如果您无法在现有的标签页中找到它，您可以试试点击下面的按钮重新启动安装程序。如果不起作用，您可能需要重新启动 Firefox，然后重试。">
@@ -49,17 +50,19 @@
 <!ENTITY KeeFox_Install_Download_Canceled.label "下载必须的组件已被取消。">
 <!ENTITY KeeFox_Install_Download_Checksum_Failed.label "下载的组件已损坏，请重试。如果继续收到此消息，请去支持论坛询问以获得帮助 http://keefox.org/help/forum 。">
 <!ENTITY KeeFox_Install_Try_Again_Button.label "重试">
-<!ENTITY KeeFox_Install_Cancel_Button.label "&#37;KeeFox_Shared_Cancel_Button.label;">
-<!ENTITY KeeFox_Install_adminNETInstallExpander.description "&#37;KeeFox_Shared_Must_Install_Two_Components;。">
-<!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "&#37;KeeFox_Shared_Must_Install_KeePass;。点击上面的按钮使用标准设置快速、简单的安装。如果您已经有了一个 KeePass Password Safe 2 的副本，或想使用 KeePass 便携式版本，或者想要控制安装过程，请点击下面的按钮。">
-<!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "&#37;KeeFox_Shared_Must_Install_Two_Components;。&#37;KeeFox_Shared_IF_Do_Not_Know_Admin_Password;，您需要询问您的系统管理员来帮助您。">
-<!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "&#37;KeeFox_Shared_Must_Install_KeePass;。您将被询问要安装 KeePass Password Safe 2 到哪里，或者您也可以选择一个已存在的 KeePass Password Safe 2 安装目录的位置（KeeFox 无法自动找到它）。">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox 使用 KeePass Password Safe 2 来安全地存储您的密码。它在您的计算机上已经安装，但您可能需要一个一个管理密码以启用 KeeFox 正确地链接 KeePass Password Safe 2 和 Firefox。&#37;KeeFox_Shared_IF_Do_Not_Know_Admin_Password;，点击下面的另一个选项。">
-<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
+<!ENTITY KeeFox_Install_Cancel_Button.label "取消">
+<!-- strings describing each possible default setup state -->
+<!ENTITY KeeFox_Install_adminNETInstallExpander.description "KeeFox 必须安装两个其他组件 - 只要按一下上面的按钮就可以开始。">
+<!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "更多的信息和初始设置选项">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "KeeFox 必须安装 KeePass Password Safe 2 才能安全地储存您的密码。点击上面的按钮使用标准设置快速、简单的安装。如果您已经有了一个 KeePass Password Safe 2 的副本，或者想使用 KeePass 便携式版本，再或者想要控制安装过程，请点击下面的按钮。">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "更多的信息和初始设置选项">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox 必须安装两个其他组件。如果您不能提供这台计算机的一个管理员密码，您将需要请求您的系统管理员来帮助您。">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "更多的信息和初始设置选项">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox 必须安装 KeePass Password Safe 2 才能安全地储存您的密码。您将被询问要安装 KeePass Password Safe 2 到哪里，或者您也可以选择一个已存在的 KeePass Password Safe 2 安装目录的位置（KeeFox 无法自动找到它）。">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "更多的信息和初始设置选项">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox 使用 KeePass Password Safe 2 来安全地存储您的密码。它在您的计算机上已经安装，但您可能需要一个一个管理密码以启用 KeeFox 正确地链接 KeePass Password Safe 2 和 Firefox。如果您不能提供这台计算机的一个管理员密码，请点击下面的另一个选项。">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "更多的信息和初始设置选项">
+<!-- strings providing further setup information to the user and advanced options -->
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox 将安装 Microsoft .NET framework 和 KeePass Password Safe 2。">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 是一个密码管理器应用程序，KeeFox 使用它来安全地存储您的密码。如果您想选择 KeePass Password Safe 2 的安装位置、语言或高级选项，请从微软的网站下载并安装 .NET，然后重新启动 Firefox。">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 需要 .NET Framework 2.0 或更高版本。上面的主安装按钮将安装2.0版。Microsoft .NET Framework 是很多应用软件建立的平台，是必须的。如果您想要运行的应用程序需要较新的 .NET Framework 版本，点击下面的按钮安装3.5版。这将需要更长的时间下载和安装。KeeFox 和 KeePass Password Safe 2 在两种版本上都可以正常地工作。">
@@ -78,20 +81,21 @@
 <!ENTITY KeeFox_Install_KPsetupExeSilentInstallButton.label "对所有用户安装 KeeFox">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description "您可以在一个便携式 USB 驱动器（或者您的计算机上的第二个位置）上安装 KeePass Password Safe 2。只需点击下面的按钮，但考虑可能出现的混乱，您可能会在未来遇到您的计算机安装了两个独立的 KeePass Password Safe 2。如果可能的话，您应该使用上面的按钮安装 KeeFox。如果提示，请提供本计算机的管理密码。">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "在第二个位置安装 KeePass/KeePassRPC">
-<!ENTITY KeeFox_Install_IC1setupNETdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;，安装即将开始…请遵循 .NET 安装程序中的指示。">
-<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;，安装即将开始…请遵循 .NET 安装程序中的指示。">
+<!-- strings describing the download and install progress for KeeFox dependancies -->
+<!ENTITY KeeFox_Install_IC1setupNETdownloading.description "安装 KeeFox 所必需的文件已下载...">
+<!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "下载完成，安装即将开始…请遵循 .NET 安装程序中的指示。">
+<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "安装 KeeFox 所必需的文件已下载...">
+<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "下载完成，安装即将开始…请遵循 .NET 安装程序中的指示。">
 <!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 正在下载…">
-<!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;，安装即将开始。请遵循安装程序中的指示…">
-<!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "&#37;KeeFox_Shared_Nearly_Finished;">
-<!ENTITY KeeFox_Install_IC2setupKPdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC2setupKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;。请稍候…">
-<!ENTITY KeeFox_Install_IC2KRPCdownloaded.description "&#37;KeeFox_Shared_Nearly_Finished;">
-<!ENTITY KeeFox_Install_IC3installing.description "&#37;KeeFox_Shared_Nearly_Finished;您可能会被提示要运行一个可执行文件调用 KeePassRPCCopier.exe，这将自动进行最后的安装步骤。">
-<!ENTITY KeeFox_Install_IC5zipKPdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;。请稍候…">
-<!ENTITY KeeFox_Install_IC5installing.description "&#37;KeeFox_Shared_Nearly_Finished;">
+<!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "下载完成，安装即将开始。请遵循安装程序中的指示…">
+<!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "即将完成...">
+<!ENTITY KeeFox_Install_IC2setupKPdownloading.description "安装 KeeFox 所必需的文件已下载...">
+<!ENTITY KeeFox_Install_IC2setupKPdownloaded.description "下载完成，请稍候…">
+<!ENTITY KeeFox_Install_IC2KRPCdownloaded.description "即将完成...">
+<!ENTITY KeeFox_Install_IC3installing.description "即将完成...您可能会被提示要运行一个可执行文件调用 KeePassRPCCopier.exe，这将自动进行最后的安装步骤。">
+<!ENTITY KeeFox_Install_IC5zipKPdownloading.description "安装 KeeFox 所必需的文件已下载...">
+<!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "下载完成，请稍候…">
+<!ENTITY KeeFox_Install_IC5installing.description "即将完成...">
 <!ENTITY KeeFox_Install_InstallFinished.description "KeeFox 现在已准备好使用。它最多可能需要20秒 Firefox 来检测安装是否已成功。当它完成时，主按钮文字会说“登出”或者“登录”。">
 <!ENTITY KeeFox_Install_NextSteps.description "尝试下列步骤以开始使用 KeeFox：">
 <!ENTITY KeeFox_Install_NextStep1.description "按照“KeePass 启动助手”中的指示以创建一个新的数据库来存储您的密码，或者打开一个您使用的 KeePass 数据库。">

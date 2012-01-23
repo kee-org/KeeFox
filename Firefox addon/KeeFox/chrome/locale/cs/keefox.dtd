@@ -1,6 +1,6 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox se spouští...">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox se spouští a provádí několik spouštěcích testů. Nemělo by to trvat dlouho ...">
-<!ENTITY KeeFox_Menu-Button.tip "Kliknout pro zobrazení KeeFox menu">
+<!ENTITY KeeFox_Menu-Button.tip "Kliknutím se zobrazí KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
 <!ENTITY KeeFox_Menu-Button.test.label "Otestovat KeeFox">
 <!ENTITY KeeFox_Menu-Button.test.tip "Spustit kontrolu instalace KeeFox a prověření správné funkce.">

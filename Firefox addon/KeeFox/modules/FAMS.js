@@ -27,8 +27,20 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
 
-var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService"];
+var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","getFamsInst"];
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+
+_famsInst = null;
+function getFamsInst (id, config, log) {
+    if (!_famsInst) {
+        _famsInst = new FirefoxAddonMessageService();
+        _famsInst.initConfig(id, config);
+        _famsInst.init(log);
+    }
+    return _famsInst;
+};
+
 
 // constructor
 function FirefoxAddonMessageService()
@@ -50,83 +62,80 @@ function FirefoxAddonMessageService()
                    .createBundle("chrome://keefox/locale/keefox.properties"); //TODO2: KeeFox specific
     this._log("constructed at " + Date());
 }
-    
+
 FirefoxAddonMessageService.prototype = {
 
     configuration: null,
     timeFactorDownload: 3600000, // download values displayed to user in hours
     timeFactorDisplay: 86400000, // display values displayed to user in days
     strbundle: null,
-    
-    _log : function(message) {  //var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-                                //getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message); }, // stub logger logs everything to console
-                                 }, // stub logger logs nothing
-    
-    runMessageProcessesHandler: {  
-      notify: function(timer) {        
-        // I hate this, it's a horrible hack but I can't find any other way to
-        // get access to this module object through a nsITimer callback
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+
+    _log: function (message) { 
+        var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+        getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message); }, // stub logger logs everything to console
+    //}, // stub logger logs nothing
+
+    runMessageProcessesHandler: {
+        notify: function (timer) {
+            // I hate this, it's a horrible hack but I can't find any other way to
+            // get access to this module object through a nsITimer callback
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-        var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
-        fams.runMessageProcesses();
-      }  
+            var window = wm.getMostRecentWindow("navigator:browser");
+            var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
+            fams.runMessageProcesses();
+        }
     },
 
-    downloadNewMessagesHandler: {  
-      notify: function(timer) {  
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+    downloadNewMessagesHandler: {
+        notify: function (timer) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-        var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
-        fams.downloadNewMessages();
-      }  
+            var window = wm.getMostRecentWindow("navigator:browser");
+            var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
+            fams.downloadNewMessages();
+        }
     },
 
-    init : function(logger) 
-    {
-    // Overriding the logging method doesn't work some reason.
-//this._log("startttttttt at " + Date());
-//    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                           .getService(Components.interfaces.nsIWindowMediator);
-//        var window2 = wm.getMostRecentWindow("navigator:browser");
+    init: function (logger) {
+        // Overriding the logging method doesn't work some reason.
+        //this._log("startttttttt at " + Date());
+        //    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+        //                           .getService(Components.interfaces.nsIWindowMediator);
+        //        var window2 = wm.getMostRecentWindow("navigator:browser");
 
-//        // get a reference to the prompt service component.
-//        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-//                            .getService(Components.interfaces.nsIPromptService);
+        //        // get a reference to the prompt service component.
+        //        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+        //                            .getService(Components.interfaces.nsIPromptService);
 
-//        promptService.alert(window2,"Alert",logger);
-//        promptService.alert(window2,"Alert",typeof(logger));
-//    
-//    
-//    if (logger != undefined && typeof(logger) == "function")
-//        this._log = logger;
+        //        promptService.alert(window2,"Alert",logger);
+        //        promptService.alert(window2,"Alert",typeof(logger));
+        //    
+        //    
+        //    if (logger != undefined && typeof(logger) == "function")
+        //        this._log = logger;
 
         this._log("init started at " + Date());
-        
-        
-        
+
+
+
         this.configuration = this.getConfiguration();
-        try 
-        {
+        try {
             var startupInfo = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                                  .getService(Components.interfaces.nsIAppStartup).getStartupInfo();      
-            this.startUpTime = startupInfo['main']; 
-        } catch (ex)
-        {
+                                  .getService(Components.interfaces.nsIAppStartup).getStartupInfo();
+            this.startUpTime = startupInfo['main'];
+        } catch (ex) {
             // Assume Firefox started 10 seconds ago
             this.startUpTime = (new Date()).getTime() - 10000;
         }
-                     
+
         // Record the first time this init function is run so we know when
         // the service was first installed
         try {
             installTimeString = this.prefBranch.getCharPref("installTime." + this.configuration.id);
         } catch (ex) { this.prefBranch.setCharPref("installTime." + this.configuration.id, (new Date()).toUTCString()); }
-                
-        if (this.isEnabled())
-        {
+
+        if (this.isEnabled()) {
             this._initialEvaluationTimer.initWithCallback(this.runMessageProcessesHandler, this.configuration.minTimeAfterStartup, Components.interfaces.nsITimer.TYPE_ONE_SHOT); // technically could trigger this a bit earlier to take account of time between app startup and this init being called but best to err on the side of caution
             this.setupRegularMessageProcesses();
         }
@@ -540,7 +549,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
         var conf = JSON.parse(prefData);
         if (conf.version < this.defaultConfiguration.version)
         {
-            var newConf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO: clone needed?
+            var newConf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO: clone needed? Don't want to risk changing the default
             for (var i=0; i < newConf.messageGroups.length; i++)
             {
                 newConf.messageGroups[i].messages = conf.messageGroups[i].messages;
@@ -551,7 +560,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
         return conf;
     } catch (ex) {
         this._log(ex);
-        var conf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO: clone needed?
+        var conf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO: clone needed? Don't want to risk changing the default
         this.setConfiguration(conf);
         return conf;
     }
@@ -602,7 +611,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
 };
 
 
-
+//var famsInst = new FirefoxAddonMessageService;
 
 
 
@@ -712,7 +721,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
 
             // Minimum time (ms) between considering whether we should
             // display a message from this group (for end user UI)
-            minTimeBetweenMessages: 86400000, // 1 day
+            minTimeBetweenMessages: 30000, //86400000, // 1 day
 
             // The earliest time that this message group will be displayed to the user
             earliestDisplayTime: "8 Jul, 2005 23:34:54 UTC",
@@ -780,7 +789,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -852,7 +861,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -924,7 +933,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -996,7 +1005,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1068,7 +1077,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1140,7 +1149,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1212,7 +1221,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1284,7 +1293,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1356,7 +1365,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1428,7 +1437,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1500,7 +1509,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1572,7 +1581,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1644,7 +1653,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1716,7 +1725,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1788,7 +1797,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
@@ -1860,7 +1869,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 5,
+                maxDisplayTimes: 3,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,

@@ -92,7 +92,7 @@ if (keefox_org.shouldLoad)
         // a reference to this scope's KF object
         _kf: null,
         
-        //???
+        //TODO:???
         _currentKFToolbar : null,
         
         // the window we are interested in (see below for performance improvement option)
@@ -169,10 +169,8 @@ if (keefox_org.shouldLoad)
                     window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
                     
                     this.startupKeeFox(keefox_org.toolbar,currentWindow);
-                    
-                    keefox_org.FAMS = new FirefoxAddonMessageService();
-                    keefox_org.FAMS.initConfig("KeeFox",keefox_org.FAMS.defaultConfiguration);
-                    keefox_org.FAMS.init(KFLog.info);
+
+                    keefox_org.FAMS = getFamsInst("KeeFox", FirefoxAddonMessageService.defaultConfiguration, KFLog.info);
                     
                     return;
                 case "unload": 

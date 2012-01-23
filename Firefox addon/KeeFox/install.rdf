@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.9.4a</em:version>
+    <em:version>0.9.4b</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -39,8 +39,8 @@
         <em:name>KeeFox</em:name>
         <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
         <em:creator>Chris Tomlinson</em:creator>
-        <em:contributor>Ben Roberts</em:contributor>
         <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
         <em:iconURL>chrome://keefox/skin/icon.png</em:iconURL>
       </Description>
     </em:localized>
@@ -50,8 +50,8 @@
         <em:name>KeeFox</em:name>
         <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
         <em:creator>Chris Tomlinson</em:creator>
-        <em:contributor>Ben Roberts</em:contributor>
         <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
         <em:iconURL>chrome://keefox/skin/icon.png</em:iconURL>
       </Description>
     </em:localized>
@@ -59,33 +59,55 @@
       <Description>
         <em:locale>sv-SE</em:locale>
         <em:translator>Mikael Hiort af Ornäs</em:translator>
+        <em:name>KeeFox</em:name>
         <em:description>Enkel och säker lösenordshantering. Logga in automatiskt, glöm aldrig mer bort ett lösenord, håll reda på dina lösenord och stärk deras säkerhet. Att användas tillsammans med den världsberömda lösenordshanteraren KeePass Password Safe.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>ru-RU</em:locale>
         <em:translator>Degit</em:translator>
+        <em:name>KeeFox</em:name>
         <em:description>Простое и защищённое управление паролями. Автоматическая авторизация, никогда не забывает ни один из паролей, не теряет контроля над ними и увеличивает их защищённость. Использует всемирно известный KeePass Password Safe.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>cs</em:locale>
         <em:translator>ramesses</em:translator>
+        <em:name>KeeFox</em:name>
         <em:description>Jednoduchý a bezpečný správce hesel, který umožňuje automatické přihlašování, takže již nikdy nezapomenete heslo. Zároveň vám dává více kontroly nad vašimi hesly a vylepšuje jejich zabezpečení. Založeno na proslulém programu KeePass Password Safe.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>zh-CN</em:locale>
-        <em:translator>yfdyh000</em:translator>        
+        <em:translator>yfdyh000</em:translator>
+        <em:name>KeeFox</em:name>
+        <em:description>简单且安全的密码管理方式。自动登录，永远不会忘记储存的密码，密码总是掌控在您的手下，以及改善了安全性。技术采用世界知名的 KeePass Password Safe。</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>de</em:locale>
         <em:translator>Christian Arnold aka meilon</em:translator>
+        <em:name>KeeFox</em:name>
+        <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
       </Description>
     </em:localized>
   </Description>

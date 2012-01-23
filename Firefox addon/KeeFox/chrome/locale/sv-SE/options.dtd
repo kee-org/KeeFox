@@ -57,3 +57,5 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "Installationsplats för KeePass">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Använder KeePass Portable (kom ihåg inställningar)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Use this location">
+<!ENTITY KeeFox-browse.label "Bläddra">
+<!ENTITY KeeFox-FAMS-Options.label "Aviseringsinställningar">
