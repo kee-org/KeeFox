@@ -103,8 +103,9 @@
       <Description>
         <em:locale>de</em:locale>
         <em:translator>Christian Arnold aka meilon</em:translator>
+        <em:translator>Mario Siegmann - Siggi0904</em:translator>
         <em:name>KeeFox</em:name>
-        <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
+        <em:description>Die einfache und sichere Passwort-Verwaltung. Automatisch anmelden und nie ein Passwort vergessen. Behalten Sie die Kontrolle über Ihre Passwörter und erhöhen Sie die Sicherheit. Nutzt das weltbekannte Programm KeePass - Password Safe.</em:description>
         <em:creator>Chris Tomlinson</em:creator>
         <em:homepageURL>http://keefox.org</em:homepageURL>
         <em:contributor>Ben Roberts</em:contributor>
