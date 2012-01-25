@@ -70,10 +70,11 @@ FirefoxAddonMessageService.prototype = {
     timeFactorDisplay: 86400000, // display values displayed to user in days
     strbundle: null,
 
-    _log: function (message) { 
-        var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-        getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message); }, // stub logger logs everything to console
-    //}, // stub logger logs nothing
+    _log: function (message) {
+    //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+    //    getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
+    //}, // stub logger logs everything to console
+    }, // stub logger logs nothing
 
     runMessageProcessesHandler: {
         notify: function (timer) {
@@ -113,9 +114,9 @@ FirefoxAddonMessageService.prototype = {
         //    
         //    
         //    if (logger != undefined && typeof(logger) == "function")
-        //        this._log = logger;
+        //this._log = logger;// function (msg) { logger.call(this, msg); };
 
-        this._log("init started at " + Date());
+        //this._log("init started at " + Date());
 
 
 
@@ -332,6 +333,7 @@ FirefoxAddonMessageService.prototype.displayNextMessage = function(messageGroup)
         if (result)
         {
             messageGroup.lastMessageDisplayedTime = new Date().toUTCString();
+            this.setConfiguration(this.configuration);
             return true;
         }
     }
@@ -363,6 +365,7 @@ FirefoxAddonMessageService.prototype.showMessageHandler = function(message)
     {
         message.lastDisplayedTime = new Date().toUTCString();
         message.displayCount++;
+        //handled by next function up the stack: this.setConfiguration(this.configuration);
     }
     return result;
 };
@@ -450,6 +453,9 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
                 callback:  function(aNotificationBar, aButton) { 
                     fams._log("loading action link: " + moreInfoLink);
                     fams.openActionLink(moreInfoLink);
+                    //TODO: Would be nice if we knew which message had been 
+                    //displayed so the call to action button could set it to 
+                    //stop appearing again in future. Not sure how to do that yet.
                 } 
             },
             {
@@ -657,7 +663,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
         minTimeAfterStartup: 15000, // 15 seconds
         
         // Time (ms) between considering whether we should display a message from any group
-        timeBetweenMessages: 3600000, // 1 hour
+        timeBetweenMessages: 300000,//3600000, // 1 hour
         
         // Time (ms) between contacting the remote server to find new messages
         //NB: Total time between new message being posted on server and
