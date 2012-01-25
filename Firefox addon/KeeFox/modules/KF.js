@@ -886,7 +886,7 @@ KeeFox.prototype = {
             }
             
             if (params != "")
-                params = keepass_exec+'' + params;
+                params = keepass_exec+' '+ params;
             else
                 params = keepass_exec;
             
