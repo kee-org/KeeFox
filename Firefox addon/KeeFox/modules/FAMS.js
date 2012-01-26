@@ -660,10 +660,10 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
         
         // A minimum amount of time to wait after application startup
         // before any message can be displayed
-        minTimeAfterStartup: 15000, // 15 seconds
+        minTimeAfterStartup: 45000, // 45 seconds
         
         // Time (ms) between considering whether we should display a message from any group
-        timeBetweenMessages: 300000,//3600000, // 1 hour
+        timeBetweenMessages: 600000, // 10 minutes
         
         // Time (ms) between contacting the remote server to find new messages
         //NB: Total time between new message being posted on server and
@@ -727,7 +727,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
 
             // Minimum time (ms) between considering whether we should
             // display a message from this group (for end user UI)
-            minTimeBetweenMessages: 30000, //86400000, // 1 day
+            minTimeBetweenMessages: 86400000, // 1 day
 
             // The earliest time that this message group will be displayed to the user
             earliestDisplayTime: "8 Jul, 2005 23:34:54 UTC",
