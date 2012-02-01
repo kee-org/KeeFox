@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.9.4b</em:version>
+    <em:version>0.9.4</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
