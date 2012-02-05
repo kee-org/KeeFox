@@ -371,7 +371,7 @@ function IC1setupKP(mainWindow)
             
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithPath(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_KP_SAVE_NAME);            
 
             installState |= KF_INSTALL_STATE_KP_EXECUTING;
@@ -431,7 +431,7 @@ function IC1setupNET(mainWindow)
 
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithPath(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_NET_FILE_NAME);
                                 
             mainWindow.keeFoxInst.runAnInstaller(file.path,"", 
@@ -544,7 +544,7 @@ function IC2setupKP(mainWindow)
 
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithPath(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_KP_SAVE_NAME);
             
             mainWindow.keeFoxInst.runAnInstaller(file.path,"/silent",
@@ -595,7 +595,7 @@ function IC2setupCustomKP(mainWindow)
 
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithPath(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_KP_SAVE_NAME);
             
             mainWindow.keeFoxInst.runAnInstaller(file.path,"",
