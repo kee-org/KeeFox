@@ -19,8 +19,8 @@
 
 Components.utils.import("resource://kfmod/FAMS.js");
 
-var FAMS = new FirefoxAddonMessageService();
-
+var FAMS = null;
+var config = null;
 
 var prefService =  
         Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
@@ -46,11 +46,13 @@ function onLoad()
 {
     var o = getQS();
     var id = o['famsConfigId'];
-    
-    FAMS.initConfig(id,FAMS.defaultConfiguration); // for now, the default FAMS config is the default KeeFox config, in future need to pass it in to this function
+    FAMS = getFamsInst(id,
+    FirefoxAddonMessageService.defaultConfiguration, null); // this shouldn't be the first instance of this singleton becuase this is in an options window
+
+    //FAMS.initConfig(id,FAMS.defaultConfiguration); // for now, the default FAMS config is the default KeeFox config, in future need to pass it in to this function
     // we don't init this time cos we just want to use some of the utility methods
-    FAMS.configuration = FAMS.getConfiguration();
-    config = JSON.parse(JSON.stringify(FAMS.getConfiguration())); //TODO: less hacky clone
+    //FAMS.configuration = FAMS.getConfiguration();
+    config = JSON.parse(JSON.stringify(FAMS.configuration)); //TODO: less hacky clone
     window.title = FAMS.getLocalisedString("Options.title");
     go();
 }
@@ -63,7 +65,7 @@ function go() {
     // Create the reset config button
     var resetConfigButton = window.document.createElement("button");
     resetConfigButton.setAttribute("label",FAMS.getLocalisedString("Reset-Configuration.label"));
-    var resetConfigWarningMessage = FAMS.getLocalisedString("Reset-Configuration.confirm",config.name);
+    var resetConfigWarningMessage = FAMS.getLocalisedString("Reset-Configuration.confirm", config.name, config.name);
     resetConfigButton.setAttribute("oncommand","javascript: if (window.confirm('" + resetConfigWarningMessage + "')) { resetConfiguration('" + config.name +"'); }");
     resetConfigButton.setAttribute("style","width: 200px;");
     resetConfigButton.setAttribute("width","200px");
@@ -225,7 +227,7 @@ function onMessageGroupAppearanceFreqChange(msgGroupIndex, freq)
 
 function onMessageGroupEnableChange(msgGroupIndex, enabled)
 {
-    var kgs = config.knownGroups.split(',');
+    var kgs = config.knownMessageGroups;//.split(',');
     for (var i = 0; i < kgs.length; i++)
     {
         if (kgs[i] == config.messageGroups[msgGroupIndex].id)
@@ -242,8 +244,8 @@ function onMessageGroupEnableChange(msgGroupIndex, enabled)
     }
     if (enabled)
         kgs.splice(kgs.length,0,config.messageGroups[msgGroupIndex].id);
-        
-    config.knownGroups = kgs.join();
+
+    config.knownMessageGroups = kgs;//.join();
 }
 
 function resetConfiguration()

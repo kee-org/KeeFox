@@ -57,3 +57,5 @@
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass instalační adresář">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Pamatovat výše uvedená nastavení adresářů (např. pokud používáte KeePass Portable verzi)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Použít toto umístění">
+<!ENTITY KeeFox-browse.label "Procházet">
+<!ENTITY KeeFox-FAMS-Options.label "Nastavení notifikace zpráv/tipů">

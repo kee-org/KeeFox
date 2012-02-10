@@ -21,20 +21,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //Math.round((d.getTime()/1000)-10)
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.17/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.17.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.17.zip";
-const KF_KPZIP_FILE_CHECKSUM = "eb7d09c71b4d78f0832f145ca9e377c7";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.17/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KP_FILE_NAME = "KeePass-2.17-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
-const KF_KP_SAVE_NAME = "KeePass-2.17-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "64b0c6faa36484a4940153052d4295df";
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.18/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.18.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.18.zip";
+const KF_KPZIP_FILE_CHECKSUM = "54e25b1a240ddfdaa1f0af80a79beb17";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.18/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
+const KF_KP_FILE_NAME = "KeePass-2.18-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
+const KF_KP_SAVE_NAME = "KeePass-2.18-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "07a1444329162b7a634cbe66bc32f528";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
 const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
 const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
-const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
-const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
-const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
+//const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
+//const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
+//const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
 const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
 
 
@@ -54,10 +54,10 @@ const KF_INSTALL_STATE_KRPC_EXECUTED = 4096;  // KeePassRPC files have been copi
 
 const KF_INSTALL_STATE_SELECTED_SEC = 8192; // user has asked to run secondary installation routine
 const KF_INSTALL_STATE_SELECTED_TER = 16384; // user has asked to run tertiary installation routine
-const KF_INSTALL_STATE_NET35_DOWNLOADING = 32768;
-const KF_INSTALL_STATE_NET35_DOWNLOADED = 65536;
-const KF_INSTALL_STATE_NET35_EXECUTING = 131072;
-const KF_INSTALL_STATE_NET35_EXECUTED = 262144; // .NET35 installer has been executed
+//const KF_INSTALL_STATE_NET35_DOWNLOADING = 32768;
+//const KF_INSTALL_STATE_NET35_DOWNLOADED = 65536;
+//const KF_INSTALL_STATE_NET35_EXECUTING = 131072;
+//const KF_INSTALL_STATE_NET35_EXECUTED = 262144; // .NET35 installer has been executed
 const KF_INSTALL_STATE_KPZIP_DOWNLOADING = 524288;
 const KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
 const KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;
@@ -174,7 +174,7 @@ function prepareInstallPage()
     {
         case 1:
             showSection('setupExeInstallButtonMain');
-            showSection('adminNETInstallExpander');
+            showSection('setupNET35ExeInstallExpandee');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             persist = mainWindow.KFdownloadFile("IC1PriDownload",
                 KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
@@ -196,7 +196,7 @@ function prepareInstallPage()
             break;
         case 4: 
             showSection('setupExeInstallButtonMain');
-            showSection('nonAdminNETInstallExpander');
+            //showSection('nonAdminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             persist = mainWindow.KFdownloadFile("IC1PriDownload",
                 KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
@@ -352,13 +352,10 @@ function IC1setupKP(mainWindow)
     try
     {
         if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) 
-            && (installState & KF_INSTALL_STATE_NET_EXECUTED 
-                || installState & KF_INSTALL_STATE_NET35_EXECUTED))
+            && (installState & KF_INSTALL_STATE_NET_EXECUTED))
         {
             if (installState & KF_INSTALL_STATE_NET_EXECUTED)
                 hideSection('IC1setupNETdownloaded');
-            else if (installState & KF_INSTALL_STATE_NET35_EXECUTED)
-                hideSection('IC1setupNET35downloaded');
                 
             var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
@@ -458,58 +455,6 @@ function IC1setupNET(mainWindow)
     }
 }
 
-
-function IC1setupNET35(mainWindow)
-{
-    try
-    {
-        if ((installState & KF_INSTALL_STATE_NET35_DOWNLOADED) 
-            && (installState & KF_INSTALL_STATE_SELECTED_SEC))
-        {
-            var checkTest = mainWindow.KFMD5checksumVerification(KF_NET35_FILE_NAME,KF_NET35_FILE_CHECKSUM);
-            
-            hideSection('IC1setupNET35downloading');
-            if (checkTest)
-                mainWindow.KFLog.info("File checksum succeeded.");
-            else
-            {
-                checksumFailed();
-                return;
-            }            
-            showSection('IC1setupNET35downloaded');
-            
-            // start the pre-download of the KeePass setup file (while user installs .Net...)
-            installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
-            var d = new Date();
-            persist = mainWindow.KFdownloadFile("IC1SecDownload",
-                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
-            
-            installState |= KF_INSTALL_STATE_NET_EXECUTING;
-
-            var file = Components.classes["@mozilla.org/file/local;1"]
-            .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-            file.append(KF_NET35_FILE_NAME);
-            mainWindow.keeFoxInst.runAnInstaller(file.path,"",
-                {
-                    observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                            .getInterface(Components.interfaces.nsIWebNavigation)
-                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                            .rootTreeItem
-                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                            .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NET35SetupFinished", '', mainWindow, window);
-                        kth.run(); 
-                    }
-                }
-            );
-        }
-    } catch (err) {
-        mainWindow.keeFoxInst._KFLog.error(err);
-    }
-}
 /********************
 END:
 functions to support the execution of Install Case 1
@@ -905,39 +850,6 @@ function copyKPToSpecificLocationInstall()
     
     IC5zipKP(mainWindow);
 }
-
-
-/*
- IC1 and IC4
- run (with admin rights escalation) the .NET 3.5 installer 
- */
-function setupNET35ExeInstall()
-{
-    // Cancel any automatically started downloads
-    try {
-        persist.cancelSave();
-    }
-    catch (ex) { // being a bit lazy - don't understand what might cause this call to fail so playing it safe
-    }
-    
-    installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1SecDownload",
-                KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME,
-                KF_NET35_FILE_NAME, mainWindow, window, persist);
-    hideInstallView();
-    showProgressView();
-    
-    showSection('IC1setupNET35downloading');
- 
-    // call this now and let it decide if it is the right time to run
-    // the installer or wait until it's called again by progress listener
-    installState |= KF_INSTALL_STATE_SELECTED_SEC;
-    
-    // we just call IC1 straight away since we currently treat
-    // IC1 and IC4 as the same situation
-    IC1setupNET35(mainWindow);
-}
-
 
 /*
  (IC2 secondary and IC5 secondary)
