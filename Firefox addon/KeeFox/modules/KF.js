@@ -62,17 +62,8 @@ function KeeFox()
     
     //TODO2: abstract database access away from main KeeFox features in order to provide cached representation of critical and oft-requested data?
     this._keeFoxExtension.db = {};
-    var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
-                getService(Components.interfaces.nsIProperties);
-    var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
     
-    var folder = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    folder.initWithPath(dir.path);
-    folder.append("keefox");
-
-    if (!folder.exists())
-        folder.create(folder.DIRECTORY_TYPE, 0775);
+    var folder = this._myProfileDir();
         
     this._keeFoxExtension.db.file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
@@ -752,7 +743,6 @@ KeeFox.prototype = {
                 var win = enumerator.getNext();
                 win.keefox_org.toolbar.removeLogins(); // remove matched logins           
                 win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
-                //win.keefox_org.toolbar.setupButton_loadKeePass(win);
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications(true);
                 //TODO 0.9: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
@@ -1351,6 +1341,23 @@ KeeFox.prototype = {
         else
             this._KFLog.debug("Found installation directory");
         return dir.path;
+    },
+
+    _myProfileDir: function()
+    {
+        var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
+                    getService(Components.interfaces.nsIProperties);
+        var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
+    
+        var folder = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+        folder.initWithPath(dir.path);
+        folder.append("keefox");
+
+        if (!folder.exists())
+            folder.create(folder.DIRECTORY_TYPE, 0775);
+
+        return folder;
     },
 
     _observer :

@@ -61,12 +61,12 @@ KFILM.prototype._fillManyFormFields = function
     // we are flexible RE text and username fields because that's an artificial difference
     // for the sake of the KeeFox password management software. However, usernames will be chosen above
     // text fields if all else is equal
-    for (i = 0; i < pageFields.length; i++)
+    for (var i = 0; i < pageFields.length; i++)
     {
         var foundADefiniteMatch = false;
         KFLog.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
         
-        for (j = 0; j < matchFields.length; j++)
+        for (var j = 0; j < matchFields.length; j++)
         {
             // if we have already identified a form field that we want
             // to fill with the value in this field, skip on to the next possibility...
