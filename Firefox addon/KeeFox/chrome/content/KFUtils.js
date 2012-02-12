@@ -322,7 +322,7 @@ function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow,
         .createInstance(Components.interfaces.nsIWebBrowserPersist);
     var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-    file.initWithPath(keeFoxInst._myDepsDir());
+    file.initWithFile(keeFoxInst._myProfileDir());
 
     file.append(destinationFile);
 
@@ -343,7 +343,7 @@ function KFMD5checksumVerification(path, testMD5)
     {
         var f = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-        f.initWithPath(keeFoxInst._myDepsDir());
+        f.initWithFile(keeFoxInst._myProfileDir());
         f.append(path);
         //KFLog.debug(keeFoxInst._myDepsDir());
         //KFLog.debug(path);

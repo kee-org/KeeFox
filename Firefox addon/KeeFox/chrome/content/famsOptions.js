@@ -66,8 +66,8 @@ function go() {
     var resetConfigButton = window.document.createElement("button");
     resetConfigButton.setAttribute("label",FAMS.getLocalisedString("Reset-Configuration.label"));
     var resetConfigWarningMessage = FAMS.getLocalisedString("Reset-Configuration.confirm", config.name, config.name);
-    resetConfigButton.setAttribute("oncommand","javascript: if (window.confirm('" + resetConfigWarningMessage + "')) { resetConfiguration('" + config.name +"'); }");
-    resetConfigButton.setAttribute("style","width: 200px;");
+    resetConfigButton.addEventListener("command", function (event) { if (window.confirm(resetConfigWarningMessage)) { resetConfiguration(config.name); } }, false);    
+    resetConfigButton.setAttribute("style", "width: 200px;");
     resetConfigButton.setAttribute("width","200px");
     resetConfigButton.setAttribute("class","resetConfigButton");
     resetConfigButton.setAttribute("icon","clear");
@@ -117,7 +117,7 @@ function renderDownloadOptions()
     downloadSlider.setAttribute("max", config.maxTimeBetweenDownloadingMessages / FAMS.timeFactorDownload);
     downloadSlider.setAttribute("value", config.timeBetweenDownloadingMessages / FAMS.timeFactorDownload);
     downloadSlider.setAttribute("style","width:250px;");     
-    downloadSlider.setAttribute("onchange","javascript:onDownloadFreqChange(this.value, 'downloadSliderLabel');");
+    downloadSlider.addEventListener("change", function (event) { onDownloadFreqChange(this.value, 'downloadSliderLabel'); }, false);   
 
     downloadLabelNote.setAttribute("class","FAMSnote");
     downloadLabelExplanation.setAttribute("class","FAMStitle");
@@ -173,8 +173,8 @@ function renderMessageGroup(msgGroupIndex)
         enabledCheckbox.setAttribute("checked",true);
 
     enabledCheckbox.setAttribute("label", FAMS.getLocalisedString("Options-Show-Message-Group", config.name, msgGroup.name));
-    enabledCheckbox.setAttribute("oncommand","javascript:onMessageGroupEnableChange(this.id.substr(31,1), this.checked);");
-    enabledCheckbox.setAttribute("id","enabledCheckboxForMessageGroup_" + msgGroupIndex);
+    enabledCheckbox.addEventListener("command", function (event) { onMessageGroupEnableChange(this.id.substr(31, 1), this.checked); }, false);
+    enabledCheckbox.setAttribute("id", "enabledCheckboxForMessageGroup_" + msgGroupIndex);
 
 
 
@@ -186,8 +186,8 @@ function renderMessageGroup(msgGroupIndex)
     appearanceSlider.setAttribute("max", msgGroup.maxTimeBetweenMessages / FAMS.timeFactorDisplay);
     appearanceSlider.setAttribute("value", msgGroup.timeBetweenMessages / FAMS.timeFactorDisplay);
     appearanceSlider.setAttribute("id","appearanceSliderForMessageGroup_" + msgGroupIndex);
-    appearanceSlider.setAttribute("onchange","javascript:onMessageGroupAppearanceFreqChange(this.id.substr(32,1), this.value);"); //TODO2: Support more than 10 message groups... but surely this UI won't be useable with that number anyway?!
-    appearanceSlider.setAttribute("style","width:250px;");
+    appearanceSlider.addEventListener("change", function (event) { onMessageGroupAppearanceFreqChange(this.id.substr(32, 1), this.value); }, false); //TODO2: Support more than 10 message groups... but surely this UI won't be useable with that number anyway?!
+    appearanceSlider.setAttribute("style", "width:250px;");
 
     appearanceLabel.setAttribute("value", msgGroup.timeBetweenMessages / FAMS.timeFactorDisplay);
     appearanceLabel.setAttribute("id","appearanceLabelForMessageGroup_" + msgGroupIndex);

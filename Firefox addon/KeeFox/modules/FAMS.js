@@ -71,10 +71,10 @@ FirefoxAddonMessageService.prototype = {
     strbundle: null,
 
     _log: function (message) {
-    //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-    //    getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
-    //}, // stub logger logs everything to console
-    }, // stub logger logs nothing
+        var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+        getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
+    }, // stub logger logs everything to console
+    //}, // stub logger logs nothing
 
     runMessageProcessesHandler: {
         notify: function (timer) {
@@ -152,40 +152,46 @@ FirefoxAddonMessageService.prototype.isEnabled = function()
 
 
 // Work out which message group we should display a message from
-FirefoxAddonMessageService.prototype.runMessageProcesses = function()
-{
+FirefoxAddonMessageService.prototype.runMessageProcesses = function () {
     var groupsToDisplay = [];
-    
+
+    //Debug: uncomment to force display of first message of security group found
+//    var messageGroup = this.findMessageGroup("security");
+//    var result = this.showMessageHandler(messageGroup.messages[0], "security");
+//    if (result) {
+//        this._log("message true");
+//        messageGroup.lastMessageDisplayedTime = new Date().toUTCString();
+//        this.setConfiguration(this.configuration);
+//        return true;
+//    }
+//    return;
+
     //NB: Groups are disabled by removing them from the list of known Message Groups
-    for (var i=0; i < this.configuration.knownMessageGroups.length; i++)
-    {
+    for (var i = 0; i < this.configuration.knownMessageGroups.length; i++) {
         var messageGroupId = this.configuration.knownMessageGroups[i];
         this._log("evaluating message group: " + messageGroupId);
         var messageGroup = this.findMessageGroup(messageGroupId);
-        
-        if (!messageGroup)
-        {
+
+        if (!messageGroup) {
             this._log("WARNING: known message group not found: " + messageGroupId);
             continue;
         }
-        
+
         // Skip if this group should not be displayed at this time
         if (!this.canDisplayGroupNow(messageGroup))
             continue;
-        
+
         groupsToDisplay.push(messageGroup);
     }
-    
+
     // Make sure that high priority groups are considered first (but not exclusively)
-    groupsToDisplay.sort(function (a,b)
-        {
-            return b.priority - a.priority;
-        }
+    groupsToDisplay.sort(function (a, b) {
+        return b.priority - a.priority;
+    }
     );
-    
+
     // Try every group until we have found a message to display
-    for (var j=0; j < groupsToDisplay.length; j++)
-    {
+    for (var j = 0; j < groupsToDisplay.length; j++) {
         var result = this.displayNextMessage(groupsToDisplay[j]);
         if (result)
             break;
@@ -194,12 +200,13 @@ FirefoxAddonMessageService.prototype.runMessageProcesses = function()
 };
 
 //TODO2: What about people that always close Firefox within an hour? Maybe have a maximum wait measured in days that forces a process run within 30 seconds of app start?
-FirefoxAddonMessageService.prototype.setupRegularMessageProcesses = function()
-{
+FirefoxAddonMessageService.prototype.setupRegularMessageProcesses = function () {
+    //Debug: force display frequency to 30 seconds
+//    this.configuration.timeBetweenMessages = 30000;
     this._log("configuring runMessageProcessesHandler call every " + this.configuration.timeBetweenMessages + "ms");
     this._evaluationTimer.initWithCallback(this.runMessageProcessesHandler, this.configuration.timeBetweenMessages, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-//    this._log("configuring downloadNewMessagesHandler call every " + this.configuration.timeBetweenDownloadingMessages + "ms");
-//    this._downloadTimer.initWithCallback(this.downloadNewMessagesHandler, this.configuration.timeBetweenDownloadingMessages, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    //    this._log("configuring downloadNewMessagesHandler call every " + this.configuration.timeBetweenDownloadingMessages + "ms");
+    //    this._downloadTimer.initWithCallback(this.downloadNewMessagesHandler, this.configuration.timeBetweenDownloadingMessages, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
 };
 
 FirefoxAddonMessageService.prototype.downloadNewMessages = function()
@@ -327,11 +334,10 @@ FirefoxAddonMessageService.prototype.displayNextMessage = function(messageGroup)
     );
     
     // Try every message until we have found one to display (if one fails to validate we can try others)
-    for (var j=0; j < messagesToDisplay.length; j++)
-    {
-        var result = this.showMessageHandler(messagesToDisplay[j]);
-        if (result)
-        {
+    for (var j=0; j < messagesToDisplay.length; j++) {
+        var result = this.showMessageHandler(messagesToDisplay[j],messageGroup.id);
+        if (result) {
+            this._log("message true");
             messageGroup.lastMessageDisplayedTime = new Date().toUTCString();
             this.setConfiguration(this.configuration);
             return true;
@@ -342,7 +348,7 @@ FirefoxAddonMessageService.prototype.displayNextMessage = function(messageGroup)
     return false;
 };
 
-FirefoxAddonMessageService.prototype.showMessageHandler = function(message)
+FirefoxAddonMessageService.prototype.showMessageHandler = function(message, groupId)
 {
     this._log("preparing to display a message");
     var lTitle = this.getOneLocalisedMessage(message.title);
@@ -357,14 +363,15 @@ FirefoxAddonMessageService.prototype.showMessageHandler = function(message)
     if (!this.verifySignature(lMoreInfoLink.value,lMoreInfoLink.sig))
         return false;
     
-    this._log("message contents verified for message with title: " + lTitle.value);    
+    this._log("message contents verified for message with title: " + lTitle.value);
     var result = this.showMessage(lTitle.value, lBody.value, lMoreInfoLink.value,
-                message.displayPriorityName, message.displayPersistence, message.actionButtonName);
-    
+                message.displayPriorityName, message.displayPersistence, message.actionButtonName, message, groupId);
+    this._log("message ended: " + message.displayCount);
     if (result)
     {
         message.lastDisplayedTime = new Date().toUTCString();
         message.displayCount++;
+        this._log("message count: " + message.displayCount);
         //handled by next function up the stack: this.setConfiguration(this.configuration);
     }
     return result;
@@ -384,9 +391,9 @@ FirefoxAddonMessageService.prototype.getOneLocalisedMessage = function(strings)
     return strings[0];
 };
 
-FirefoxAddonMessageService.prototype.showMessage = function(title, body, moreInfoLink, priorityName, persistence, actionButtonName)
+FirefoxAddonMessageService.prototype.showMessage = function (title, body, moreInfoLink, priorityName, persistence, actionButtonName, completeMessage, groupId)
 {
-    this.showMessageNotification("FAMS", title + ": " + body, moreInfoLink, priorityName, persistence, actionButtonName);
+    this.showMessageNotification("FAMS", title + ": " + body, moreInfoLink, priorityName, persistence, actionButtonName, completeMessage, groupId);
     return true;
 };
 
@@ -405,6 +412,40 @@ FirefoxAddonMessageService.prototype.findMessageGroup = function (id) {
 	}
 	return null;
 };
+
+FirefoxAddonMessageService.prototype.findMessage = function (id, groupId) {
+    var mg = this.findMessageGroup(groupId);
+    var n = mg.messages.length;
+    for (var i = 0; i < n; i++) {
+        if (mg.messages[i].id == id) {
+            return mg.messages[i];
+        }
+    }
+    return null;
+};
+
+FirefoxAddonMessageService.prototype.findMessageGroupIndex = function (id) {
+    var n = this.configuration.messageGroups.length;
+    for (var i = 0; i < n; i++) {
+        if (this.configuration.messageGroups[i].id == id) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+FirefoxAddonMessageService.prototype.findMessageIndex = function (id, groupIndex) {
+    var mg = this.configuration.messageGroups[groupIndex];
+    var n = mg.messages.length;
+    for (var i = 0; i < n; i++) {
+        if (mg.messages[i].id == id) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+
 
 FirefoxAddonMessageService.prototype.getLocalisedString = function (key, formatArgs)
 {
@@ -429,40 +470,57 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
     var newTab = b.loadOneTab( link, null, null, null, false, null );
 };
 
-FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, aText, moreInfoLink, priorityName, persistence, actionName)
-    {
-        aNotifyBox = this.getNotifyBox();
-        if (!aNotifyBox)
-            return false;
-            
-        var actionButtonText =
+FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
+    aNotifyBox = this.getNotifyBox();
+    if (!aNotifyBox)
+        return false;
+
+    var actionButtonText =
               this.getLocalisedString("NotifyBar-A-" + actionName + "-Button.label");
-        var actionButtonAccessKey =
-              this.getLocalisedString("NotifyBar-A-" + actionName + "-Button.key");              
-        var optionsButtonText =
+    var actionButtonAccessKey =
+              this.getLocalisedString("NotifyBar-A-" + actionName + "-Button.key");
+    var optionsButtonText =
               this.getLocalisedString("NotifyBar-Options-Button.label");
-        var optionsButtonAccessKey =
+    var optionsButtonAccessKey =
               this.getLocalisedString("NotifyBar-Options-Button.key");
-        var fams = this;
-              
-        var buttons = [
+    var banMessageButtonText =
+              this.getLocalisedString("NotifyBar-DoNotShowAgain-Button.label");
+    var banMessageButtonAccessKey =
+              this.getLocalisedString("NotifyBar-DoNotShowAgain-Button.key");
+    var fams = this;
+
+    var buttons = [
             {
-                label:     actionButtonText,
+                label: actionButtonText,
                 accessKey: actionButtonAccessKey,
-                popup:     null,
-                callback:  function(aNotificationBar, aButton) { 
+                popup: null,
+                callback: function (aNotificationBar, aButton) {
                     fams._log("loading action link: " + moreInfoLink);
                     fams.openActionLink(moreInfoLink);
-                    //TODO: Would be nice if we knew which message had been 
-                    //displayed so the call to action button could set it to 
-                    //stop appearing again in future. Not sure how to do that yet.
-                } 
+                    fams._log("preventing this message from showing again");
+                    // We have to find the same instance of the message that is associated with the main configuration of this FAMS instance
+                    var message = fams.findMessage(completeMessage.id, groupId);
+                    message.displayCount = message.maxDisplayTimes;
+                    fams.setConfiguration(fams.configuration);
+                }
             },
             {
-                label:     optionsButtonText,
+                label: banMessageButtonText,
+                accessKey: banMessageButtonAccessKey,
+                popup: null,
+                callback: function (aNotificationBar, aButton) {
+                    fams._log("preventing this message from showing again");
+                    // We have to find the same instance of the message that is associated with the main configuration of this FAMS instance
+                    var message = fams.findMessage(completeMessage.id, groupId);
+                    message.displayCount = message.maxDisplayTimes;
+                    fams.setConfiguration(fams.configuration);
+                }
+            },
+            {
+                label: optionsButtonText,
                 accessKey: optionsButtonAccessKey,
-                popup:     null,
-                callback: function(aNotificationBar, aButton) {
+                popup: null,
+                callback: function (aNotificationBar, aButton) {
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
                     var win = wm.getMostRecentWindow("navigator:browser");
@@ -473,34 +531,34 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
                       );
                 }
             }
-        ];      
-              
-        var oldBar = aNotifyBox.getNotificationWithValue(aName);
-        var priority;
-        
-        if (priorityName == "high")
-            priority = aNotifyBox.PRIORITY_WARNING_HIGH;
-        else if (priorityName == "low")
-            priority = aNotifyBox.PRIORITY_INFO_LOW;
-        else
-            priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
-            
-            
-        this._log("Adding new " + aName + " notification bar");
-        var newBar = aNotifyBox.appendNotification(
+        ];
+
+    var oldBar = aNotifyBox.getNotificationWithValue(aName);
+    var priority;
+
+    if (priorityName == "high")
+        priority = aNotifyBox.PRIORITY_WARNING_HIGH;
+    else if (priorityName == "low")
+        priority = aNotifyBox.PRIORITY_INFO_LOW;
+    else
+        priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
+
+
+    this._log("Adding new " + aName + " notification bar");
+    var newBar = aNotifyBox.appendNotification(
                                 aText, aName,
                                 "chrome://keefox/skin/KeeFox16.png", //TODO2: KeeFox specific
                                 priority, buttons);
 
-        if (!persistence)
-            newBar.persistence = persistence;
+    if (!persistence)
+        newBar.persistence = persistence;
 
-        if (oldBar) {
-            this._log("(...and removing old " + aName + " notification bar)");
-            aNotifyBox.removeNotification(oldBar);
-        }
-        return newBar;
-    };
+    if (oldBar) {
+        this._log("(...and removing old " + aName + " notification bar)");
+        aNotifyBox.removeNotification(oldBar);
+    }
+    return newBar;
+};
 
 /*
      * _getNotifyBox

@@ -611,7 +611,6 @@ KeeFox.prototype = {
                 var win = enumerator.getNext();
                 win.keefox_org.toolbar.removeLogins(); // remove matched logins           
                 win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
-                //win.keefox_org.toolbar.setupButton_loadKeePass(win);
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications(true);
                 //TODO 0.9: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
