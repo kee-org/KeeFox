@@ -163,6 +163,7 @@ namespace KeePassRPC
                     try
                     {
                         logger = new StreamWriter(debugFileName);
+						((StreamWriter)logger).AutoFlush = true;
                     }
                     catch (Exception ex)
                     {

@@ -33,7 +33,7 @@
       windowtype="Browser:Preferences"
           onload="onLoad(); window.sizeToContent();"
           xmlns:html="http://www.w3.org/1999/xhtml"
-          height="420"
+          height="480"
         >
 
   <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
@@ -68,6 +68,7 @@
       <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRememberInstalledLocation" type="bool"/>
       <preference id="KeeFox-pref-keePassLocation" name="extensions.keefox@chris.tomlinson.currentLocation" type="string"/>
+      <preference id="KeeFox-pref-monoLocation" name="extensions.keefox@chris.tomlinson.monoLocation" type="string"/>
     </preferences>
 
     <tabbox flex="1">
@@ -225,6 +226,12 @@
               <button id="keePassInstalledLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
             </hbox>
             
+            <label control="monoLocation" value="&KeeFox-pref-monoLocation.label;:"/>
+            <hbox class="itemEnd">
+              <textbox preference="KeeFox-pref-monoLocation" id="monoLocation" maxlength="255" size="80" />
+              <button id="monoLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForMonoLocation(document.getElementById('monoLocation').value);"/>
+            </hbox>
+
             <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" class="itemEnd" />
             <label control="keePassLocation" value="&KeeFox-pref-keePassLocation.label;:"/>
             <textbox preference="KeeFox-pref-keePassLocation" id="keePassLocation" maxlength="128" size="40" class="itemEnd"/>
