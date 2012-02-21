@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -24,9 +25,15 @@
     </StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>0.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -39,12 +46,11 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\bin\net-2.0\debug\</OutputPath>
+    <OutputPath>..\..\bin\net-4.0\debug\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -64,9 +70,10 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\bin\net-2.0\release\</OutputPath>
+    <OutputPath>..\..\bin\net-4.0\release\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -86,6 +93,7 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
@@ -93,9 +101,6 @@
     </Reference>
     <Reference Include="System.Data">
       <Name>System.Data</Name>
-    </Reference>
-    <Reference Include="System.Web">
-      <Name>System.Web</Name>
     </Reference>
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
@@ -131,6 +136,7 @@
     <Compile Include="DictionaryHelper.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Dynamic\DynamicMetaObject.cs" />
     <Compile Include="IAttributeAttachment.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -153,6 +159,7 @@
     <Compile Include="Json\Conversion\AnyType.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Comparers.cs" />
     <Compile Include="Json\Conversion\Converters\AnyImporter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -175,9 +182,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\Conversion\Converters\ComponentImporter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Json\Conversion\Converters\ControlExporter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\Conversion\Converters\DataRowExporter.cs">
@@ -216,6 +220,8 @@
     <Compile Include="Json\Conversion\Converters\EnumImporter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\Conversion\Converters\ExpandoObjectExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\ExpandoObjectImporter.cs" />
     <Compile Include="Json\Conversion\Converters\ExportAwareExporter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -245,6 +251,8 @@
     <Compile Include="Json\Conversion\Converters\NameValueCollectionImporter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\Conversion\Converters\NullableExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\NullableImporter.cs" />
     <Compile Include="Json\Conversion\Converters\NumberExporter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -257,6 +265,8 @@
     <Compile Include="Json\Conversion\Converters\StringImporter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\Conversion\Converters\TupleExporter.cs" />
+    <Compile Include="Json\Conversion\Converters\TupleImporter.cs" />
     <Compile Include="Json\Conversion\Converters\UriImporter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -293,6 +303,7 @@
     <Compile Include="Json\Conversion\ImporterListSectionHandler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\Conversion\IObjectConstructor.cs" />
     <Compile Include="Json\Conversion\IObjectMemberExporter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -300,6 +311,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\Conversion\INonObjectMemberImporter.cs" />
+    <Compile Include="Json\Conversion\IObjectSurrogateConstructor.cs" />
     <Compile Include="Json\Conversion\JsonConvert.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -318,12 +330,21 @@
     <Compile Include="Json\Conversion\JsonMemberNamingConventionAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\Conversion\ObjectSurrogateConstructor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Json\Conversion\ObjectConstructionResult.cs" />
+    <Compile Include="Json\Conversion\ObjectConstructor.cs" />
+    <Compile Include="Json\Conversion\ObjectSurrogateConstructorBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Json\Conversion\PropertyCustomization.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\EmptyJsonWriter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Json\FreeJsonMemberReadingHelper.cs" />
     <Compile Include="Json\InvalidMemberException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -389,6 +410,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Json\NamedJsonBuffer.cs" />
+    <Compile Include="Json\StockJsonBuffers.cs" />
+    <Compile Include="Reflection\Reflector.cs" />
     <Compile Include="TypeResolution.cs" />
     <Compile Include="UnixTime.cs">
       <SubType>Code</SubType>
@@ -397,7 +420,7 @@
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
-      <ProductName>.NET Framework Client Profile</ProductName>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -420,6 +443,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

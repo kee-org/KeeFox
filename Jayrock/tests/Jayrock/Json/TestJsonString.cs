@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -24,12 +24,14 @@ namespace Jayrock.Json
 {
     #region Imports
 
+    using System;
+    using Jayrock.Tests;
     using NUnit.Framework;
 
     #endregion
 
     [ TestFixture ]
-    public class TestJsonString
+    public class TestJsonString : TestUtilityBase
     {
         [ Test ]
         public void NullInputYieldsQuotedEmpty()
@@ -135,6 +137,40 @@ namespace Jayrock.Json
         public void NullStringWithNullStringBuilderYieldsQuotedEmpty()
         {
             Assert.AreEqual("\"\"", JsonString.Enquote(null, null).ToString());
+        }
+
+        [ Test, ExpectedException(typeof(ArgumentNullException)) ]
+        public void CannotEnquoteWithNullCharBuffer()
+        {
+            JsonString.Enquote(null, 0, 0);
+        }
+
+        [ Test, ExpectedException(typeof(ArgumentOutOfRangeException)) ]
+        public void CannotEnquoteWithNegativeOffset()
+        {
+            JsonString.Enquote(new char[0], -1, 0);
+        }
+
+        [ Test, ExpectedException(typeof(ArgumentOutOfRangeException)) ]
+        public void CannotEnquoteWithNegativeLength()
+        {
+            JsonString.Enquote(new char[0], 0, -1);
+        }
+
+        [ Test, ExpectedException(typeof(ArgumentOutOfRangeException)) ]
+        public void CannotEnquoteWithBadRange()
+        {
+            JsonString.Enquote(new char[10], 5, 10);
+        }
+
+        [ Test ]
+        public void Chars()
+        {
+            char[] chars = "\"foo\" \"bar\" \"baz\"".ToCharArray();
+            Assert.AreEqual("\"\\\"foo\\\" \\\"bar\\\" \\\"baz\\\"\"", JsonString.Enquote(chars, 0, chars.Length));
+            Assert.AreEqual("\"\\\"foo\\\"\"", JsonString.Enquote(chars, 0, 5));
+            Assert.AreEqual("\"\\\"bar\\\"\"", JsonString.Enquote(chars, 6, 5));
+            Assert.AreEqual("\"\\\"baz\\\"\"", JsonString.Enquote(chars, 12, 5));
         }
     }
 }

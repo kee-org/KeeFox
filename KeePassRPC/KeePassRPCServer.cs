@@ -38,6 +38,7 @@ using Mono.Tools;
 using System.Text.RegularExpressions;
 using Jayrock.Json;
 using System.Windows.Forms;
+using Mono.Security.X509;
 
 namespace KeePassRPC
 {
@@ -56,11 +57,12 @@ namespace KeePassRPC
         private bool _isListening = false;
         private bool _authorisationRequired = true;
         private static X509Certificate2 _serverCertificate = null;
-        private X509Store _store;
+        private System.Security.Cryptography.X509Certificates.X509Store _store = null;
         KeePassRPCExt KeePassRPCPlugin;
         private bool _useSSL = true;
-        
-
+        private string pkcs12_password = "private"; // Really doesn't matter, but required for Mono
+		private AutoResetEvent wait_event = null;
+		
         /// <summary>
         /// Gets a value indicating whether this server is listening for connection requests from clients.
         /// </summary>
@@ -76,8 +78,22 @@ namespace KeePassRPC
         /// Terminates this server.
         /// </summary>
         public void Terminate()
-        {
+        {			
             this._tcpListener.Stop();
+			// KRB - there appears to be a race condition here (at least under Mono).
+			// The above Stop will signal AcceptTcpClient() in ListenForClients() to exit.
+			// However, the thread may not exit until AFTER the main KeePass program
+			// has cleaned up its plugins. At that time, our ListenForClientS() thread
+			// will still be running and try to access invalid memory causing crashes/fatal exceptions
+			
+			// The solution is to signal wait for the thread to exit here before we continue.
+			// The above Stop() should already trigger an exception in ListenForClients() / AcceptTcpClient(),
+			
+			// A waitHandle is one method to handle this synchronization.
+			if (wait_event != null)
+			{
+				wait_event.WaitOne();
+			}
         }
 
         /// <summary>
@@ -95,9 +111,10 @@ namespace KeePassRPC
 
             if (_useSSL)
             {
+//                if (true)
                 if (Type.GetType("Mono.Runtime") == null)
                 {
-                    _store = new X509Store();
+                    _store = new System.Security.Cryptography.X509Certificates.X509Store();
                     _store.Open(OpenFlags.ReadWrite);
 
                     // Find any certificates in this user's certificate store and re-use
@@ -129,27 +146,64 @@ namespace KeePassRPC
                         // that are protected by a private key held on their own
                         // system, rather than a key that is disclosed in this open
                         // source code. NB: The local server is assumed to be secure!
-                        byte[] cert = MakeCertKPRPC.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator", keePassRPCPlugin);
+                        PKCS12 p12 = MakeCertKPRPC.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator", keePassRPCPlugin);					
+						byte[] cert = p12.GetBytes();
                         _serverCertificate = new X509Certificate2(cert, (string)null, X509KeyStorageFlags.PersistKeySet);
                         _store.Add(_serverCertificate);
                     }
                 }
                 else
-                {
-                    if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Looking for existing certificate (Mono)");
+                {					
+					/*
+					 * Problem 1:
+					 *   For Linux/Mono, we cannot use the X509Store. It appears that only a .cer file is saved. That certificate does not include
+					 *   the private key that we need for SSL. So we will need to save the key ourselves.
+					 * 
+					 * Problem 2:
+					 *   When using PKCS12 SaveToFile to save the key ourselves, it appears that it is not possible to save a private key that is not
+					 *   password protected.
+					 *
+					 */
+					string certdir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC");
+					string certfile = Path.Combine(certdir, "cert.p12");
+					_serverCertificate = null;
+					
+					// Check if cert directory exists, if not, we need to create it
+					if (!System.IO.Directory.Exists(certdir))
+					{
+						if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Cert directory does not exist, creating "+certdir);					
+						
+						System.IO.Directory.CreateDirectory(certdir);
 
-                    _serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12"));
-
+						if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Cert directory created");										
+					}
+					else 
+					{
+						// Attempt to load cert			
+						try {
+		                    if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Looking for existing certificate (Mono)");											
+	                    	_serverCertificate = new X509Certificate2();
+							_serverCertificate.Import (certfile, pkcs12_password, X509KeyStorageFlags.PersistKeySet);
+		                    if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Existing certificate loaded(Mono) : "+certfile);																		
+						}
+						catch (Exception ex) {
+							_serverCertificate = null;
+						}
+					}
+					// If we didn't load a cert, create one and save it
                     if (_serverCertificate == null)
                     {
                         if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Generating new certificate (Mono).");
-
-                        MakeCertKPRPC.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator", keePassRPCPlugin);
-                        _serverCertificate = (X509Certificate2)X509Certificate2.CreateFromCertFile(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "KeePassRPC"), "cert.p12"));
-                    }
+					
+	                	PKCS12 p12 = MakeCertKPRPC.Generate("KeePassRPC certificate for " + Environment.MachineName, "KeePassRPC Automated Self-Signed Key Generator", pkcs12_password, keePassRPCPlugin);					
+                    	p12.SaveToFile(certfile);								
+						byte[] cert = p12.GetBytes();
+                    	_serverCertificate = new X509Certificate2(cert, pkcs12_password, X509KeyStorageFlags.PersistKeySet);					
+                        if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Generated new certificate (Mono) : "+certfile);
+					}
                 }
-
             }
+				
            if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Server certificate has private key? " + _serverCertificate.HasPrivateKey);
 
             try
@@ -174,6 +228,7 @@ namespace KeePassRPC
         {
             bool tryToListen = true;
             long lastListenAttempt = 0;
+			this.wait_event = new AutoResetEvent(false);
 
             // Keep listening even if the connection drops out occasionally
             while (tryToListen)
@@ -188,6 +243,7 @@ namespace KeePassRPC
                     while (true)
                     {
                         //blocks until a client has connected to the server
+                        
                         TcpClient client = this._tcpListener.AcceptTcpClient();
 
                         //create a thread to handle communication with connected client
@@ -205,14 +261,20 @@ namespace KeePassRPC
                     // exit (while loop keeps this one thread open after main window has shut)
                     // so more work needed if we want to auto-recover reliably.
                     //if (DateTime.UtcNow.Ticks < lastListenAttempt+(10*1000*1000*3))
-                        tryToListen = false;
+                        tryToListen = false;								
                 }
             }
-
+			
+			
             //Close the certificate store.
-            if (_useSSL)
+            if (_useSSL && (_store != null))
+			{
                 _store.Close();
-            if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Cert store closed");
+            	if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Cert store closed");
+			}
+			
+			// Signal that this thread is done. This must be the last statement of this function
+			this.wait_event.Set();
         }
 
         /// <summary>
@@ -225,7 +287,9 @@ namespace KeePassRPC
             TcpClient tcpClient = null;
             NetworkStream clientStream = null;
             SslStream sslStream = null;
-
+			
+            if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("HandleClientComm: ");
+			
             if (_useSSL)
             {                
                 // A client has connected. Create the 
@@ -248,7 +312,7 @@ namespace KeePassRPC
                     // Authenticate the server but don't require the client to
                     // authenticate - we've got our own authentication requirements
                     sslStream.AuthenticateAsServer(
-                        _serverCertificate, false, SslProtocols.Ssl3, false);
+                        _serverCertificate, false, SslProtocols.Ssl3|SslProtocols.Tls, false);
                     if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("stream authenticated");
                     sslStream.ReadTimeout = -1;
                     sslStream.WriteTimeout = -1;
@@ -371,14 +435,25 @@ namespace KeePassRPC
             }
             finally
             {
+                if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("!!!Hit finally");
                 if (keePassRPCClient != null)
                 {
                     KeePassRPCPlugin.RemoveRPCClientConnection(keePassRPCClient);
                 }
                 if (_useSSL)
-                    sslStream.Close();
-                else
+				{
+					try {
+                    	sslStream.Close();
+					}
+					catch (IOException ioex)
+					{
+						// This is okay
+					}
+				}
+                else 
+				{
                     clientStream.Close();
+				}
             }
         }
 
@@ -395,6 +470,20 @@ namespace KeePassRPC
             string requiredResultRegex = "";
             long authorisationAttemptId = -1;
 
+            if (!keePassRPCClientConnection.Authorised && _authorisationRequired)
+            {
+                Match match = Regex.Match(message,
+                    "^\\{.*?\\\"method\\\"\\:\\\"Idle\\\".*?,.*?\\\"id\\\"\\:(\\d+).*?\\}$");
+                if (match.Success)
+                {
+
+					if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Got Idle method- ignoring.");
+					
+					// Do nothing
+					return;
+                }
+			}
+			
             if (!keePassRPCClientConnection.Authorised && _authorisationRequired)
             {
                 // We only accept one type of request if the client has not

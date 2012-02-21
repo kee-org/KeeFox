@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -46,7 +46,13 @@ namespace Jayrock.Json
         public static readonly JsonTokenClass BOF = new JsonTokenClass("BOF", Superclass.Terminator);
         public static readonly JsonTokenClass EOF = new JsonTokenClass("EOF", Superclass.Terminator);
             
-        public static readonly ICollection All = new JsonTokenClass[] { BOF, EOF, Null, Boolean, Number, String, Array, EndArray, Object, EndObject, Member };
+        public static readonly ICollection All = ArrayList.ReadOnly(new JsonTokenClass[]
+        {
+            BOF, EOF, 
+            Null, Boolean, Number, String, 
+            Array, EndArray, 
+            Object, EndObject, Member
+        });
             
         private readonly string _name;
         [ NonSerialized ] private readonly Superclass _superclass;

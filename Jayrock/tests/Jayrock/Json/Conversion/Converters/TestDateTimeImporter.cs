@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -53,9 +53,21 @@ namespace Jayrock.Json.Conversion.Converters
         }
 
         [ Test ]
+        public void ImportNegativeNumber()
+        {
+            AssertImport(new DateTime(1098, 7, 6, 5, 43, 21), "-27501531399", true);
+        }
+
+        [ Test ]
         public void ImportFractionalNumber()
         {
             AssertImport(new DateTime(2006, 7, 17, 10, 56, 56, 456), "1153133816.456", true);
+        }
+
+        [ Test ]
+        public void ImportNegativeFractionalNumber()
+        {
+            AssertImport(new DateTime(1098, 7, 6, 5, 43, 21, 234), "-27501531398.766", true);
         }
 
         [ Test, ExpectedException(typeof(JsonException)) ]
@@ -92,6 +104,32 @@ namespace Jayrock.Json.Conversion.Converters
         public void CannotImportBadIsoDate()
         {
             Import("'1999-12=31T23:30:59'");
+        }
+
+        [ Test ]
+        public void ImportMicrosoftAjaxFormat()
+        {
+            AssertImport(new DateTime(2006, 7, 17, 10, 56, 56, 456), @"'\/Date(1153133816456)\/'", true);
+            AssertImport(new DateTime(1098, 7, 06, 05, 43, 21, 234), @"'\/Date(-27501531398766)\/'", true);
+        }
+
+        [ Test ]
+        public void ImportMicrosoftAjaxFormatWithUpperCase()
+        {
+            AssertImport(new DateTime(2006, 7, 17, 10, 56, 56, 456), @"'\/DATE(1153133816456)\/'", true);
+            AssertImport(new DateTime(1098, 7, 06, 05, 43, 21, 234), @"'\/DATE(-27501531398766)\/'", true);
+        }
+
+        [ Test, ExpectedException(typeof(JsonException)) ]
+        public void CannotImportBadMicrosoftAjaxFormat()
+        {
+            Import(@"'/Date[1285511729000]/'");
+        }
+
+        [ Test, ExpectedException(typeof(JsonException)) ]
+        public void CannotImportMicrosoftAjaxFormatCausingOverflow()
+        {
+            Import(@"'\/Date(9999999999999999999)\/'");
         }
 
         private static void AssertImport(DateTime expected, string input)

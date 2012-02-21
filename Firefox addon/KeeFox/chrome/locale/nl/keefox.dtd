@@ -1,0 +1,48 @@
+<!ENTITY KeeFox_Main-Button.loading.label "KeeFox wordt geladen...">
+<!ENTITY KeeFox_Main-Button.loading.tip "KeeFox wordt geladen en voert een aantal opstart testen uit. Dit hoort maar even te duren...">
+<!ENTITY KeeFox_Menu-Button.tip "Klik om het KeeFox menu te openen">
+<!ENTITY KeeFox_Menu-Button.test.tip "Voer KeeFox interne testen uit, om the verifiëren dat de installatie naar behoren werkt.">
+<!ENTITY KeeFox_Menu-Button.changeDB.label "Wissel van database">
+<!ENTITY KeeFox_Menu-Button.changeDB.tip "Kies een andere KeePass wachtwoord database.">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.label "Vind invoervelden">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.tip "Dwing KeeFox om invoervelden op deze pagina om te leiden. Dit is slecht nodig voor een klein deel van de webpagina's.">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.label "Genereer een nieuw wachtwoord">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.tip "Haalt een nieuw wachtwoord uit KeePass, waarbij gebruik wordt gemaakt van de laatst gebruikte instellingen van de wachtwoordgenerator en stopt dit wachtwoord in het klembord.">
+<!ENTITY KeeFox_Menu-Button.options.label "Voorkeuren">
+<!ENTITY KeeFox_Menu-Button.options.tip "Bekijk en verander uw KeeFox voorkeuren.">
+<!ENTITY KeeFox_Logins-Button.tip "Blader door uw opgeslagen inloggegevens en gebruik ze als bladwijzers.">
+<!ENTITY KeeFox_Logins-Button.label "Inloggegevens">
+<!ENTITY KeeFox_Logins-Context-Edit-Login.label "Bewerk inloggegevens">
+<!ENTITY KeeFox_Logins-Context-Delete-Login.label "Verwijder inloggegevens">
+<!ENTITY KeeFox_Logins-Context-Delete-Group.label "Verwijder groep">
+<!ENTITY KeeFox_Logins-Context-Edit-Group.label "Bewerk groep">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "Bewaar in een groep...">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Multi-Page.label "Dit is een onderdeel van een inlogscherm die uit meerdere pagina's bestaat">
+<!ENTITY KeeFox_Help-GettingStarted-Button.tip "Bezoek de online beginners handleiding.">
+<!ENTITY KeeFox_Help-GettingStarted-Button.label "Beginnen">
+<!ENTITY KeeFox_Help-Centre-Button.tip "Bezoek de online help pagina.">
+<!ENTITY KeeFox_Help-Centre-Button.label "Help pagina">
+<!ENTITY KeeFox_Tools-Menu.options.label "KeeFox voorkeuren">
+<!ENTITY KeeFox_Dialog-SelectAGroup.title "Selecteer een groep">
+<!ENTITY KeeFox_Dialog_OK_Button.label "Ok">
+<!ENTITY KeeFox_Dialog_Cancel_Button.label "Annuleer">
+<!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "KeeFox setup is al actief op een ander tabblad. Ziet u het tabblad, sluit dan dit tabblad af en volg de instructies op het andere tabblad. Ziet u het andere tabblad niet, probeer dan de installatie opnieuw te starten door op de knop hieronder te drukken. Als ook dat niet werkt, sluit dan alle open schermen van Firefox af en begin opnieuw.">
+<!ENTITY KeeFox_Install_Not_Required.label "Het lijkt erop dat KeeFox al geïnstalleerd is. Als je problemen ondervindt met KeeFox, bijvoorbeeld dat deze uw ingelogde KeePass database niet herkent, schakel dan voorzichtig (en tijdelijk!) uw beveiligingsprogramma's (firewall, anti-spyware, etc.) uit. Deze voorkomen namelijk soms dat KeeFox kan communiceren met KeePass.">
+<!ENTITY KeeFox_Install_Not_Required_Link.label "Bezoek de KeeFox webpagina voor meer hulp.">
+<!ENTITY KeeFox_Install_Unexpected_Error.label "Er is een onverwachte fout opgetreden tijdens de installatie van KeeFox.">
+<!ENTITY KeeFox_Install_Download_Failed.label "Het downloaden van een vereist component is mislukt.">
+<!ENTITY KeeFox_Install_Download_Canceled.label "Het downloaden van een vereist component is geannuleerd.">
+<!ENTITY KeeFox_Install_Download_Checksum_Failed.label "Een gedownload component is stuk. Probeer het nog eens. Als deze foutmelding zich blijft voordoen, meldt dit dan op het support forum: http://keefox.org/help/forum">
+<!ENTITY KeeFox_Install_Try_Again_Button.label "Probeer het nog eens.">
+<!ENTITY KeeFox_Install_Cancel_Button.label "Annuleren">
+<!ENTITY KeeFox_Install_adminNETInstallExpander.description "KeeFox moet nog twee andere componenten installeren. Klik op de knop hierboven om te beginnen.">
+<!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. Klik op de knop hierboven om dit programma met de standaard instellingen te installeren. Klik op de knop hieronder als u de portable versie van KeePass wilt gebruiken of als u zelf de installatie van KeePass wilt uitvoeren.">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox moet nog twee andere componenten installeren. Klik op de knop hierboven om te beginnen. Als u geen administrator rechten hebt op deze PC, vraag dan uw beheerder om hulp.">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. U wordt verzocht om KeePass Password Safe 2 te installeren of de locatie op te geven van een reeds geïnstalleerde versie van KeePass Password Safe 2. (KeeFox kon geen geïnstalleerde versie vinden)">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. Dit programma staat reeds op uw computer, u wordt zo dadelijk waarschijnlijk gevraagd om uw administrator wachtwoord, zodat KeeFox een verbinding tot stand kan brengen tussen KeePass en Firefox. Als u dit wachtwoord niet heeft, klik dan op een andere optie hieronder.">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox installeert Microsoft .NET framework en KeePass Password Safe 2.">

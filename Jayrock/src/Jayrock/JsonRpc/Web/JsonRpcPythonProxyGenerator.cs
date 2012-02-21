@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -61,7 +61,7 @@ namespace Jayrock.JsonRpc.Web
 
         private static void WriteProlog(IndentedTextWriter writer)
         {
-            writer.WriteLine("import simplejson");
+            writer.WriteLine("import json");
             writer.WriteLine("import urllib");
             writer.WriteLine();
         }
@@ -155,7 +155,7 @@ namespace Jayrock.JsonRpc.Web
         {
             writer.WriteLine(@"def __call(self, method, params):
         self.__id = self.__id + 1
-        response = simplejson.loads(urllib.urlopen(self.url, urllib.urlencode([('JSON-RPC', simplejson.dumps({ 'id' : self.__id, 'method' : method, 'params' : params }))])).read())
+        response = json.loads(urllib.urlopen(self.url, urllib.urlencode([('JSON-RPC', json.dumps({ 'id' : self.__id, 'method' : method, 'params' : params }))])).read())
         if response.has_key('error'): raise Error(None, response)
         return response['result']
 ");

@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -141,11 +141,30 @@ namespace Jayrock.Json
             return decimal.Parse(Value, NumberStyles.Float, CultureInfo.InvariantCulture);
         }
 
+        #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+        public System.Numerics.BigInteger ToBigInteger()
+        {
+            return ToBigInteger(CultureInfo.InvariantCulture);
+        }
+
+        private System.Numerics.BigInteger ToBigInteger(IFormatProvider provider)
+        {
+            return System.Numerics.BigInteger.Parse(Value, NumberStyles.Integer, provider);
+        }
+
+        public static explicit operator System.Numerics.BigInteger(JsonNumber number)
+        {
+            return number.ToBigInteger();
+        }
+
+        #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
+
         public DateTime ToDateTime()
         {
             return UnixTime.ToDateTime(ToInt64());
         }
-        
+
         #region IConvertible implementation
 
         TypeCode IConvertible.GetTypeCode()
@@ -230,6 +249,13 @@ namespace Jayrock.Json
 
         object IConvertible.ToType(Type conversionType, IFormatProvider provider)
         {
+            #if !NET_1_0 && !NET_1_1 && !NET_2_0
+            
+            if (conversionType == typeof(System.Numerics.BigInteger))
+                return ToBigInteger(provider);
+            
+            #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
+
             return Convert.ChangeType(this, conversionType, provider);
         }
 

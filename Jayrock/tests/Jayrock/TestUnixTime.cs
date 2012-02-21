@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -26,27 +26,14 @@ namespace Jayrock
 
     using System;
     using System.Reflection;
+    using Jayrock.Tests;
     using NUnit.Framework;
 
     #endregion
 
     [ TestFixture ]
-    public class TestUnixTime
+    public class TestUnixTime : TestUtilityBase
     {
-        [ Test ]
-        public void CannotBeCreated()
-        {
-            try
-            {
-                Activator.CreateInstance(typeof(UnixTime), true);
-                Assert.Fail();
-            }
-            catch (TargetInvocationException e)
-            {
-                Assert.IsTrue(e.InnerException is NotSupportedException);
-            }
-        }
-        
         [ Test ]
         public void IntegralConversions()
         {
@@ -80,21 +67,43 @@ namespace Jayrock
 
             Assert.AreEqual(u1, UnixTime.ToDouble(t1.ToLocalTime()), 0.0001);
             Assert.AreEqual(u2, UnixTime.ToDouble(t2.ToLocalTime()), 0.0001);
+
+            Assert.AreEqual(new DateTime(1098, 7, 6, 5, 43, 21, 234), UnixTime.ToDateTime(-27501531398.766).ToUniversalTime());
+            Assert.AreEqual(UnixTime.EpochUtc.AddMilliseconds(+123), UnixTime.ToDateTime(0, +123).ToUniversalTime());
+            Assert.AreEqual(UnixTime.EpochUtc.AddMilliseconds(-123), UnixTime.ToDateTime(0, -123).ToUniversalTime());
         }
 
         [ Test, ExpectedException(typeof(ArgumentOutOfRangeException)) ]
-        public void CannotSpecifyNegativeMilliseconds()
+        public void CannotSpecifyPositiveTimeWithNegativeMilliseconds()
         {
-            UnixTime.ToDateTime(0, -1);
+            UnixTime.ToDateTime(123, -456);
         }
- 
+
         [ Test, ExpectedException(typeof(ArgumentOutOfRangeException)) ]
+        public void CannotSpecifyNegativeTimeWithPositiveMilliseconds()
+        {
+            UnixTime.ToDateTime(-123, 456);
+        }
+
+        [ Test ]
+        public void Negative()
+        {
+            Assert.AreEqual(new DateTime(1098, 7, 6, 5, 43, 21, 234), UnixTime.ToDateTime(-27501531398, -766).ToUniversalTime());
+        }
+
+        [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void CannotOverflowMilliseconds()
         {
             UnixTime.ToDateTime(0, 1000);
         }
 
-        [ Test ]
+        [ Test, ExpectedException(typeof(ArgumentOutOfRangeException)) ]
+        public void CannotOverflowNegativeMilliseconds()
+        {
+            UnixTime.ToDateTime(0, -1000);
+        }
+
+        [Test]
         public void Maximum()
         {
             Assert.AreEqual(new DateTime(3000, 12, 31, 23, 59, 59),

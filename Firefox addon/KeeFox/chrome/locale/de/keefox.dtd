@@ -1,0 +1,106 @@
+<!ENTITY KeeFox_Main-Button.loading.label "KeeFox lädt...">
+<!ENTITY KeeFox_Main-Button.loading.tip "KeeFox lädt und führt ein paar Tests durch. Es wird nicht lange dauern...">
+<!ENTITY KeeFox_Menu-Button.tip "Klicke um das KeeFox Menü zu öffnen">
+<!ENTITY KeeFox_Menu-Button.label "KeeFox">
+<!ENTITY KeeFox_Menu-Button.test.label "KeeFox Testen">
+<!ENTITY KeeFox_Menu-Button.test.tip "KeeFox Selbsttest durchführen, um die Installation zu überprüfen.">
+<!ENTITY KeeFox_Menu-Button.test.key "T">
+<!ENTITY KeeFox_Menu-Button.changeDB.label "Datenbank wechseln">
+<!ENTITY KeeFox_Menu-Button.changeDB.tip "Eine andere KeePass Datenbank auswählen.">
+<!ENTITY KeeFox_Menu-Button.changeDB.key "W">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.label "Formulare erkennen">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.tip "KeeFox zwingen Formulare erneut auf dieser Seite zu erkennen. Dies ist für vereinzelte Webseiten notwendig.">
+<!ENTITY KeeFox_Menu-Button.fillCurrentDocument.key "F">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.label "Neues Kennwort generieren">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.tip "Generiert ein Passwort durch KeePass mit dem zuletzt verwendeten Passwort Generator Profil und legt es in der Zwischenablage ab.">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.key "G">
+<!ENTITY KeeFox_Menu-Button.options.label "Einstellungen">
+<!ENTITY KeeFox_Menu-Button.options.tip "KeeFox Einstellungen ansehen und verändern.">
+<!ENTITY KeeFox_Menu-Button.options.key "E">
+<!ENTITY KeeFox_Logins-Button.tip "Alle Logins ansehen und schnell auf Webseiten einloggen.">
+<!ENTITY KeeFox_Logins-Button.label "Logins">
+<!ENTITY KeeFox_Logins-Button.key "L">
+<!ENTITY KeeFox_Logins-Context-Edit-Login.label "Login bearbeiten">
+<!ENTITY KeeFox_Logins-Context-Delete-Login.label "Login löschen">
+<!ENTITY KeeFox_Logins-Context-Delete-Group.label "Gruppe löschen">
+<!ENTITY KeeFox_Logins-Context-Edit-Group.label "Gruppe bearbeiten">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "In einer Gruppe speichern...">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Multi-Page.label "Dies ist Teil eines mehrseitigen Logins">
+<!ENTITY KeeFox_Menu-Button.Help.tip "KeeFox Hilfe.">
+<!ENTITY KeeFox_Menu-Button.Help.label "Hilfe">
+<!ENTITY KeeFox_Menu-Button.Help.key "H">
+<!ENTITY KeeFox_Help-GettingStarted-Button.tip "Besuche das online Erste Schritte Tutorial.">
+<!ENTITY KeeFox_Help-GettingStarted-Button.label "Erste Schritte">
+<!ENTITY KeeFox_Help-GettingStarted-Button.key "S">
+<!ENTITY KeeFox_Help-Centre-Button.tip "Besuche das Online Hilfe Zentrum.">
+<!ENTITY KeeFox_Help-Centre-Button.label "Hilfe Zentrum">
+<!ENTITY KeeFox_Help-Centre-Button.key "Z">
+<!ENTITY KeeFox_Tools-Menu.options.label "KeeFox Einstellungen">
+<!ENTITY KeeFox_Dialog-SelectAGroup.title "Eine Gruppe auswählen">
+<!ENTITY KeeFox_Dialog_OK_Button.label "OK">
+<!ENTITY KeeFox_Dialog_Cancel_Button.label "Abbrechen">
+<!-- General installation / setup strings -->
+<!ENTITY KeeFox_Install_Setup_KeeFox.label "KeeFox installieren">
+<!ENTITY KeeFox_Install_Upgrade_KeeFox.label "KeeFox aktualisieren">
+<!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "Die KeeFox Installation läuft bereits in einem anderen Browser Tab. Wenn du das Tab wiederfinden kannst, dann schließe dieses hier und folge den Anweisungen im anderen Tab. Wenn du das Tab nicht wiederfinden kannst, kannst du über den Button hierunter den Installationsprozess neu starten. Wenn das nicht funktioniert, musst du Firefox neu starten.">
+<!ENTITY KeeFox_Install_Not_Required.label "Es sieht so aus als wäre KeeFox bereits installiert. Wenn KeeFox Probleme hat zu erkennen, dass du in eine KeePass Datenbank angemeldet bist, dann deaktiviere kurzzeitig jede Sicherheitssoftware auf deinem PC (zum Beispiel Firewall, Anti-Spyware, etc.), da diese mit KeeFox in Konflikt geraten kann.">
+<!ENTITY KeeFox_Install_Not_Required_Link.label "Besuche die KeeFox Webseite für mehr Unterstützung">
+<!ENTITY KeeFox_Install_Unexpected_Error.label "Ein unerwarteter Fehler ist während der Installation von KeeFox aufgetreten.">
+<!ENTITY KeeFox_Install_Download_Failed.label "Der Download einer benötigten Komponente ist fehlgeschlagen.">
+<!ENTITY KeeFox_Install_Download_Canceled.label "Der Download einer benötigten Komponente wurde abgebrochen.">
+<!ENTITY KeeFox_Install_Download_Checksum_Failed.label "Eine heruntergeladene Komponente ist defekt, bitte versuche es noch einmal. Sollte der Fehler bestehen bleiben, bitte um Hilfe im Support Forum bei http://keefox.org/help/forum.">
+<!ENTITY KeeFox_Install_Try_Again_Button.label "Nochmal versuchen">
+<!ENTITY KeeFox_Install_Cancel_Button.label "Abbrechen">
+<!-- strings describing each possible default setup state -->
+<!ENTITY KeeFox_Install_adminNETInstallExpander.description "KeeFox muss zwei weitere Komponenten installieren - klicke einfach den obigen Button um zu starten.">
+<!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "Mehr Informationen und erweiterte Installationsoptionen">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "KeeFox muss KeePass Password Safe 2 installieren um die Passwörter sicher zu speichern. Klicke den Button oben um es schnell und einfach mit den Standardeinstellungen zu installieren. Klicke den Button unten wenn du bereits eine Version von KeePass Password Safe 2 hast, eine portable Version von KeePass installieren oder einfach die volle Kontrolle über den Installationsprozess haben möchtest.">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "Mehr Informationen und erweiterte Installationsoptionen">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox muss zwei weitere Komponenten installieren - klicke einfach den obigen Button um zu starten. Wenn du kein Administrator Kennwort angeben kannst, musst du einen Systemadministrator um Hilfe bitten.">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "Mehr Informationen und erweiterte Installationsoptionen">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox muss KeePass Password Safe 2 installieren um die Passwörter sicher zu speichern. Du wirst gefragt, wo KeePass Password Safe 2 installiert werden soll oder ob eine existierende KeePass Password Safe 2 Installation genutzt werden soll (in diesem Fall konnte KeeFox diese Installation nicht finden).">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "Mehr Informationen und erweiterte Installationsoptionen">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox nutzt KeePass Password Safe 2 um die Kennwörter sicher zu speichern. Wenn es bereits auf deinem Computer installiert ist benötigst du evtl. das Administratorkennwort um KeeFox korrekt mit KeePass Password Safe 2 und Firefox zu verbinden. Wenn du kein Administrator Kennwort angeben kannst, klicke unten für eine weitere Option.">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Mehr Informationen und erweiterte Installationsoptionen">
+<!-- strings providing further setup information to the user and advanced options -->
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox wird Microsoft .NET Framework und KeePass Password Safe 2 installieren.">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 ist eine Passwort Manager Anwendung welche KeeFox benutzt, um Passwörter sicher abzuspeichern. Wenn du den Installationsort von KeePass Password Safe 2, die Sprache und erweiterte Optionen auswählen möchtest, bitte installiere .NET von Microsofts Webseite und starte Firefox neu.">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 benötigt .NET Framework 2.0 oder höher. Das Hauptsetup wird die Version 2.0 installieren. Das Microsoft .NET Framework ist eine etablierte Plattform welche für viele Anwendungen benötigt wird. Wenn du Anwendungen starten möchtest, die eine neuere Version des .NET Frameworks benötigt, dann klicke unten um die Version 3.5 zu installieren. Der Download wird etwas länger dauern aber KeeFox und KeePass Password Safe 2 funktionieren mit beiden Versionen.">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallButton.label "Installiere KeeFox mit Microsoft .NET Framework 3.5">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManual.description "Alternativ könntest du eine manuelle Installation mit den folgenden Schritten durchführen:">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Lade .NET von Microsoft herunter und installiere es">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Lade KeePass Password Safe 2 Setup oder ZIP von http://keepass.info herunter und installiere es">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description "3a) Entweder starte Firefox neu, um zu dieser Installationsseite zurückzukehren damit der letzte Schritt abgeschlossen werden kann">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description "3b) Oder kopiere manuell die KeePassRPC.plgx Datei aus dem Firefox Extension Verzeichnis (schau in einen Unterordner Namens deps) in das KeePass Password Safe 2 Plugins Verzeichnis.">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpandee.description "Wenn du den Installationsort, die Sprache oder erweiterte Optionen für KeePass Password Safe 2 auswählen möchtest, dann klicke diesen Button.">
+<!ENTITY KeeFox_Install_KPsetupExeInstallButton.label "Installiere KeePass für alle Benutzer mit voller Kontrolle über den Vorgang">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpandeePortable.description "Wenn du die portable Version von KeePass an einen bestimmten Ort (wie einen USB Stick) speichern möchtest, dann wähle hier unter einen Ort aus. Wenn du bereits KeePass Password Safe 2 installiert hast, dann verwende die Box hierunter um KeeFox zu sagen, wo es sich befindet.">
+<!ENTITY KeeFox_Install_copyKPToSpecificLocationInstallButton.label "Setze Installationsverzeichnis für KeePass Password Safe 2">
+<!ENTITY KeeFox_Install_admincopyKRPCToKnownKPLocationInstallExpander.description "Klicke den obigen Button um KeeFox mit KeePass Password Safe 2 zu verbinden. (Technisch gesehen installiert dies das KeePassRPC Plugin für KeePass Password Safe 2).">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpandee.description "Wenn du das Administrator Kennwort für diesen Computer kennst kannst du KeePass für alle Benutzer mit den unteren Optionen installieren. Click den untersten Button wenn du einen ausgewählten Installationsort vorgeben, eine andere Sprache als Englisch haben oder andere erweiterte Optionen angeben möchtest.">
+<!ENTITY KeeFox_Install_KPsetupExeSilentInstallButton.label "Installiere KeeFox für alle Benutzer">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description "Du kannst KeePass Password Safe 2 auf einem portablen / USB Laufwerk (oder wo anders auf deinem Computer) installieren. Wähle einfach den Button hierunter aus aber bedenke die potentielle Verwirrung die entstehen kann, wenn zwei separate Installationen von KeePass Password Safe 2 vorhanden sind. Wenn möglich solltest du KeeFox mit dem Button oben installieren und das Administratorkennwort eingeben sobald gefordert.">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "Installiere KeePadd/KeePassRPC an einer zweiten Stelle">
+<!-- strings describing the download and install progress for KeeFox dependancies -->
+<!ENTITY KeeFox_Install_IC1setupNETdownloading.description "Die für die Installation von KeeFox benötigten Dateien werden heruntergeladen…">
+<!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "Download abgeschlossen. Bitte folge den Anweisungen des .NET Setups, welcher gleich starten wird…">
+<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "Die für die Installation von KeeFox benötigten Dateien werden heruntergeladen…">
+<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "Download abgeschlossen. Bitte folge den Anweisungen des .NET Setups, welcher gleich starten wird…">
+<!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 wird heruntergeladen…">
+<!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "Download abgeschlossen. Bitte folge den Anweisungen des Setups, welcher gleich starten wird…">
+<!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "So gut wie abgeschlossen…">
+<!ENTITY KeeFox_Install_IC2setupKPdownloading.description "Die für die Installation von KeeFox benötigten Dateien werden heruntergeladen…">
+<!ENTITY KeeFox_Install_IC2setupKPdownloaded.description "Download abgeschlossen. Bitte warten…">
+<!ENTITY KeeFox_Install_IC2KRPCdownloaded.description "So gut wie abgeschlossen…">
+<!ENTITY KeeFox_Install_IC3installing.description "So gut wie abgeschlossen… Du wirst evtl. gefragt eine Ausführbare Datei namens KeePassRPCCopier.exe auszuführen, welche den letzten Installationsschritt automatisch ausführen wird.">
+<!ENTITY KeeFox_Install_IC5zipKPdownloading.description "Die für die Installation von KeeFox benötigten Dateien werden heruntergeladen…">
+<!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "Download abgeschlossen. Bitte warten…">
+<!ENTITY KeeFox_Install_IC5installing.description "So gut wie abgeschlossen…">
+<!ENTITY KeeFox_Install_InstallFinished.description "KeeFox ist nun bereit zur Nutzung. Es wird etwa bis zu 20 Sekunden dauern bis Firefox die Installation als Erfolgreich erkennt. Sobald dies abgeschlossen ist, wird der Hauptbutton Text entweder 'Eingeloggt' oder 'Nicht eingeloggt' anzeigen.">
+<!ENTITY KeeFox_Install_NextSteps.description "Probiere diese Schritte um mit KeeFox loszulegen:">
+<!ENTITY KeeFox_Install_NextStep1.description "Folge diesen Anweisungen um">
+<!ENTITY KeeFox_Install_NextStep2.description "Klicke hier um das Einstiegstutorial auszuprobieren.">
+<!ENTITY KeeFox_Install_NextStep2extra.description "Du kannst das tutorial auch von ein paar anderen Orten starten wie die KeeFox Toolbar oder aus KeePass heraus.">
+<!ENTITY KeeFox_Install_Finally.description "Wenn du irgendwelche Probleme hast KeeFox richtig ans laufen zu bekommen, bitte wirf einen Blick auf die Hilfen welche du hier finden kannst:">
+<!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Bitte schhließe KeePass bevor du weiter machst!">
+<!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass wurde auf deinem Computer gefunden. Um sicher zu gehen dass KeeFox richtig installiert wird, gehe bitte sicher das KeePass beendet ist bevor es weiter geht!">

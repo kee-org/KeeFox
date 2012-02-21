@@ -783,17 +783,26 @@ KFUI.prototype = {
         return hostname;
     },
 
-// Closes all popups that are ancestors of the node.
-closeMenus : function(node)
-{
-  if ("tagName" in node) {
-    if (node.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    && (node.tagName == "menupopup" || node.tagName == "popup"))
-      node.hidePopup();
+    // Closes all popups that are ancestors of the node.
+    closeMenus : function(node)
+    {
+        if ("tagName" in node) {
+            if (node.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            && (node.tagName == "menupopup" || node.tagName == "popup"))
+              node.hidePopup();
 
-    closeMenus(node.parentNode);
-  }
-}
+            closeMenus(node.parentNode);
+        }
+    },
 
+    growl : function(title, text) {
+        try {
+            Components.classes['@mozilla.org/alerts-service;1'].
+                      getService(Components.interfaces.nsIAlertsService).
+                      showAlertNotification("chrome://keefox/skin/KeeFox24.png", title, text, false, '', null);
+        } catch(e) {
+            // prevents runtime error on platforms that don't implement nsIAlertsService
+        }
+    }
 
 };

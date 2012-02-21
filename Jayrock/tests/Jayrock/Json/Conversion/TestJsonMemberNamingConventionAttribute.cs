@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -54,15 +54,31 @@ namespace Jayrock.Json.Conversion
         }
 
         [ Test ]
-        public void SetConvention()
+        public void InitializeUnderscores()
+        {
+            JsonMemberNamingConventionAttribute attribute = new JsonMemberNamingConventionAttribute(NamingConvention.Pascal, UnderscoreConvention.Separate);
+            Assert.AreEqual(UnderscoreConvention.Separate, attribute.Underscores);
+        }
+
+        [Test]
+        public void SetConvention() 
         {
             JsonMemberNamingConventionAttribute attribute = new JsonMemberNamingConventionAttribute();
             Assert.AreEqual(NamingConvention.None, attribute.Convention);
-            attribute.Convention = NamingConvention.Pascal; 
+            attribute.Convention = NamingConvention.Pascal;
             Assert.AreEqual(NamingConvention.Pascal, attribute.Convention);
         }
 
-        [ Test ]
+        [Test]
+        public void SetUnderscores() 
+        {
+            JsonMemberNamingConventionAttribute attribute = new JsonMemberNamingConventionAttribute();
+            Assert.AreEqual(UnderscoreConvention.None, attribute.Underscores);
+            attribute.Underscores = UnderscoreConvention.Separate;
+            Assert.AreEqual(UnderscoreConvention.Separate, attribute.Underscores);
+        }
+
+        [Test]
         public void CustomizationSkippedWhenNoneConvention()
         {
             TestPropertyDescriptor property = CreateTestProperty("foo");
@@ -82,56 +98,75 @@ namespace Jayrock.Json.Conversion
         [ Test ]
         public void PascalCaseApplication()
         {
-            TestNamingCase("pascalCase", NamingConvention.Pascal, "PascalCase");
+            TestNamingCase("pascalCase", NamingConvention.Pascal, UnderscoreConvention.None, "PascalCase");
         }
 
         [ Test ]
         public void SingleLetterPascalCaseApplication()
         {
-            TestNamingCase("p", NamingConvention.Pascal, "P");
+            TestNamingCase("p", NamingConvention.Pascal, UnderscoreConvention.None, "P");
         }
 
         [ Test ]
         public void CamelCaseApplication()
         {
-            TestNamingCase("CamelCase", NamingConvention.Camel, "camelCase");
-            TestNamingCase("C", NamingConvention.Camel, "c");
+            TestNamingCase("CamelCase", NamingConvention.Camel, UnderscoreConvention.None, "camelCase");
+            TestNamingCase("C", NamingConvention.Camel, UnderscoreConvention.None, "c");
         }
 
         [ Test ]
         public void SingleLetterCamelCaseApplication()
         {
-            TestNamingCase("C", NamingConvention.Camel, "c");
+            TestNamingCase("C", NamingConvention.Camel, UnderscoreConvention.None, "c");
         }
 
         [ Test ]
         public void UpperCaseApplication()
         {
-            TestNamingCase("upper", NamingConvention.Upper, "UPPER");
+            TestNamingCase("upper", NamingConvention.Upper, UnderscoreConvention.None, "UPPER");
         }
 
         [ Test ]
-        public void SinlgleLetterUpperCaseApplication()
+        public void SingleLetterUpperCaseApplication()
         {
-            TestNamingCase("u", NamingConvention.Upper, "U");
+            TestNamingCase("u", NamingConvention.Upper, UnderscoreConvention.None, "U");
         }
 
         [ Test ]
         public void LowerCaseApplication()
         {
-            TestNamingCase("LOWER", NamingConvention.Lower, "lower");
+            TestNamingCase("LOWER", NamingConvention.Lower, UnderscoreConvention.None, "lower");
         }
 
         [ Test ]
         public void SingleLetterLowerCaseApplication()
         {
-            TestNamingCase("LOWER", NamingConvention.Lower, "lower");
-            TestNamingCase("L", NamingConvention.Lower, "l");
+            TestNamingCase("LOWER", NamingConvention.Lower, UnderscoreConvention.None, "lower");
+            TestNamingCase("L", NamingConvention.Lower, UnderscoreConvention.None, "l");
         }
 
-        private static void TestNamingCase(string baseName, NamingConvention testCase, string expected) 
+        [Test]
+        public void UnderscorePrefixApplication() 
         {
-            JsonMemberNamingConventionAttribute attribute = new JsonMemberNamingConventionAttribute(testCase);
+            TestNamingCase("FooBarBaz", NamingConvention.Camel, UnderscoreConvention.Prefix, "_FooBarBaz");
+            TestNamingCase("FooBarBaz", NamingConvention.Pascal, UnderscoreConvention.Prefix, "_FooBarBaz");
+            TestNamingCase("FooBarBaz", NamingConvention.Upper, UnderscoreConvention.Prefix, "_FOOBARBAZ");
+            TestNamingCase("FooBarBaz", NamingConvention.Lower, UnderscoreConvention.Prefix, "_foobarbaz");
+        }
+
+        [Test]
+        public void UnderscoreSeparatorApplication() 
+        {
+            TestNamingCase("FooBarBaz", NamingConvention.Camel, UnderscoreConvention.Separate, "foo_Bar_Baz");
+            TestNamingCase("FooBarBaz", NamingConvention.Pascal, UnderscoreConvention.Separate, "Foo_Bar_Baz");
+            TestNamingCase("FooBarBaz", NamingConvention.Upper, UnderscoreConvention.Separate, "FOO_BAR_BAZ");
+            TestNamingCase("FooBarBaz", NamingConvention.Lower, UnderscoreConvention.Separate, "foo_bar_baz");
+            TestNamingCase("foobarbaz", NamingConvention.None, UnderscoreConvention.Separate, "foobarbaz");
+        }
+
+        private static void TestNamingCase(string baseName, NamingConvention testCase, UnderscoreConvention testUnder, string expected) 
+        {
+            JsonMemberNamingConventionAttribute attribute = new JsonMemberNamingConventionAttribute(testCase, testUnder);
             TestPropertyDescriptor property = CreateTestProperty(baseName);
             IPropertyDescriptorCustomization customization = attribute;
             

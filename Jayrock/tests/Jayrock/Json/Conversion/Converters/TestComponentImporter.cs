@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -200,17 +200,25 @@ namespace Jayrock.Json.Conversion.Converters
         [ Test ]
         public void MemberImportCustomization()
         {
-            ArrayList calls = new ArrayList();
-
             TestTypeDescriptor logicalType = new TestTypeDescriptor();
             PropertyDescriptorCollection properties = logicalType.GetProperties();
 
             properties.Add(new TestPropertyDescriptor("prop1", typeof(object), new Hashtable()));
 
-            TestObjectMemberImporter memberImporter = new TestObjectMemberImporter(calls);
-            Hashtable services = new Hashtable();
-            services.Add(typeof(IObjectMemberImporter), memberImporter);
-            properties.Add(new TestPropertyDescriptor("prop2", typeof(object), services));
+            ArrayList calls2 = new ArrayList();
+            TestObjectMemberImporter memberImporter2 = new TestObjectMemberImporter(calls2);
+            Hashtable services2 = new Hashtable();
+            services2.Add(typeof(IObjectMemberImporter), memberImporter2);
+            properties.Add(new TestPropertyDescriptor("prop2", typeof(object), services2));
+
+            // Third property added to exercise issue #27:
+            // http://code.google.com/p/jayrock/issues/detail?id=27
+
+            ArrayList calls3 = new ArrayList();
+            TestObjectMemberImporter memberImporter3 = new TestObjectMemberImporter(calls3);
+            Hashtable services3 = new Hashtable();
+            services3.Add(typeof(IObjectMemberImporter), memberImporter3);
+            properties.Add(new TestPropertyDescriptor("prop3", typeof(object), services3));
 
             ComponentImporter importer = new ComponentImporter(typeof(Thing), logicalType);
             ImportContext context = new ImportContext();
@@ -222,16 +230,24 @@ namespace Jayrock.Json.Conversion.Converters
             writer.WriteString("value1");
             writer.WriteMember("prop2");
             writer.WriteString("value2");
+            writer.WriteMember("prop3");
+            writer.WriteString("value3");
             writer.WriteEndObject();
 
             JsonReader reader = writer.CreatePlayer();
             Thing thing = (Thing) context.Import(typeof(Thing), reader);
 
-            Assert.AreEqual(1, calls.Count);
+            Assert.AreEqual(1, calls2.Count);
 
-            Assert.AreSame(memberImporter, calls[0]);
-            Assert.AreEqual(new object[] { context, reader, thing }, memberImporter.ImportArgs);
-            Assert.AreEqual("value2", memberImporter.ImportedValue);
+            Assert.AreSame(memberImporter2, calls2[0]);
+            Assert.AreEqual(new object[] { context, reader, thing }, memberImporter2.ImportArgs);
+            Assert.AreEqual("value2", memberImporter2.ImportedValue);
+
+            Assert.AreEqual(1, calls3.Count);
+
+            Assert.AreSame(memberImporter3, calls3[0]);
+            Assert.AreEqual(new object[] { context, reader, thing }, memberImporter3.ImportArgs);
+            Assert.AreEqual("value3", memberImporter3.ImportedValue);
         }
 
         [ Test ]

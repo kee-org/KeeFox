@@ -39,6 +39,7 @@ using System.Security.Cryptography;
 using KeePassLib.Cryptography.PasswordGenerator;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
+using System.Reflection;
 using KeePass.UI;
 
 namespace KeePassRPC
@@ -1178,7 +1179,47 @@ namespace KeePassRPC
                 return "";
 
             ProtectedString newPassword = new ProtectedString();
-            PwgError result = PwGenerator.Generate(newPassword, profile, null, null);
+            PwgError result = PwgError.Unknown; // PwGenerator.Generate(out newPassword, profile, null, null);
+
+            MethodInfo mi;
+
+            // Generate method signature changed in KP 2.18 so we use
+            // reflection to enable support for both 2.18 and earlier versions
+            Type[] mitypes218 = new Type[] { typeof(ProtectedString).MakeByRefType(), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
+
+            try
+            {
+                mi = typeof(PwGenerator).GetMethod(
+                    "Generate",
+                    BindingFlags.Public | BindingFlags.Static,
+                    Type.DefaultBinder,
+                    mitypes218,
+                    null
+                );
+
+                object[] inputParameters = new object[] { null, profile, null, null };
+                result = (PwgError)mi.Invoke(null, inputParameters);
+                newPassword = (ProtectedString)inputParameters[0];
+            }
+            catch (Exception)
+            {
+                Type[] mitypes217 = new Type[] { typeof(ProtectedString), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
+                // can't find the 2.18 method definition so try for an earlier version
+                mi = typeof(PwGenerator).GetMethod(
+                    "Generate",
+                    BindingFlags.Public | BindingFlags.Static,
+                    Type.DefaultBinder,
+                    mitypes217,
+                    null
+                );
+
+                object[] inputParameters = new object[] { newPassword, profile, null, null };
+                result = (PwgError)mi.Invoke(null, inputParameters);
+                
+                // If an exception is thrown here it would be unexpected and
+                // require a new version of the application to be released
+            }
+
 
             if (result == PwgError.Success)
                 return newPassword.ReadString();
@@ -2055,15 +2096,19 @@ namespace KeePassRPC
                         foreach (string URL in URLs)
                         {
                             if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
+                            try
                             {
-                                if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
+                                if (!string.IsNullOrEmpty(regexPattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, regexPattern))
                                 {
-                                    entryIsAnExactMatch = true;
                                     entryIsAMatch = true;
+                                    break;
                                 }
-                                else if (!requireFullURLMatches)
-                                    entryIsAMatch = true;
                             }
+                            catch (ArgumentException)
+                            {
+                                MessageBox.Show("'" + regexPattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + pwe.Strings.ReadSafe(PwDefs.TitleField) + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+                            }                            
                         }
 
                         foreach (string URL in URLs)
@@ -2096,6 +2141,15 @@ namespace KeePassRPC
                             if (entryIsAMatch && matchesAnyBlockedURL(pwe, URL))
                             {
                                 entryIsAMatch = false;
+                                if (!string.IsNullOrEmpty(pattern) && System.Text.RegularExpressions.Regex.IsMatch(URL, pattern))
+                                {
+                                    entryIsAMatch = false;
+                                    break;
+                                }
+                            }
+                            catch (ArgumentException)
+                            {
+                                MessageBox.Show("'" + pattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 break;
                             }
                             if (entryIsAMatch && pwe.Strings.Exists("KPRPC URL Regex block"))
@@ -2204,7 +2258,25 @@ namespace KeePassRPC
             output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 
             PwGroup searchGroup = GetRootPwGroup(host.Database);
-            searchGroup.SearchEntries(sp, output, false);
+            MethodInfo mi;
+
+            // SearchEntries method signature changed in KP 2.17 so we use
+            // reflection to enable support for both 2.17 and earlier versions
+            try
+            {
+                mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>) });
+                mi.Invoke(searchGroup, new object[] { sp, output });
+            }
+            catch (AmbiguousMatchException ex)
+            {
+                // can't find the 2.17 method definition so try for an earlier version
+                mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>), typeof(bool) });
+                mi.Invoke(searchGroup, new object[] { sp, output, false });
+
+                // If an exception is thrown here it would be unexpected and
+                // require a new version of the application to be released
+            }
+
             foreach (PwEntry pwe in output)
             {
                 if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))

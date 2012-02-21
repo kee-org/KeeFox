@@ -1,7 +1,6 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox se spouští...">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox se spouští a provádí několik spouštěcích testů. Nemělo by to trvat dlouho ...">
-<!ENTITY KeeFox_Menu-Button.tip "Kliknout pro zobrazení KeeFox menu">
+<!ENTITY KeeFox_Menu-Button.tip "Kliknutím se zobrazí KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
 <!ENTITY KeeFox_Menu-Button.test.label "Otestovat KeeFox">
 <!ENTITY KeeFox_Menu-Button.test.tip "Spustit kontrolu instalace KeeFox a prověření správné funkce.">
@@ -45,7 +44,7 @@
 <!ENTITY KeeFox_Install_Upgrade_KeeFox.label "Aktualizovat KeeFox">
 <!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "Instalace KeeFox již probíhá na jiné záložce. Pokud víte na které, zavřete tuto záložku a postupujte podle instrukci na původni záložce. Pokud nemůžete najít existující záložku, zkuste restartovat instalační proces kliknutím na tlačítko níže. Pokud toto nefunguje, musíte restartovat Firefox a začít znovu.">
 <!ENTITY KeeFox_Install_Not_Required.label "Vypadá to, že KeeFox je již nainstalován. Pokud má KeeFox problémy s detekcí přihlášení do KeePass databáze, pak prosím opatrně (a dočasně!) zakažte všechen běžící bezpečnostní software na vašem počítači (například firewally, anti-spyware, atd.) abyste prověřili, že KeeFox není v konfliktu s některým z nich.">
-<!ENTITY KeeFox_Install_Not_Required_Link.label "Please visit the KeeFox website for more help">
+<!ENTITY KeeFox_Install_Not_Required_Link.label "Pro podrobnější nápovědu navštivte stránky rozšíření KeeFox">
 <!ENTITY KeeFox_Install_Unexpected_Error.label "Během instalace KeeFox nastala neočekávaná chyba.">
 <!ENTITY KeeFox_Install_Download_Failed.label "Stahování požadované komponenty selhalo.">
 <!ENTITY KeeFox_Install_Download_Canceled.label "Stahování požadované komponenty bylo přerušeno.">
@@ -71,7 +70,7 @@
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManual.description "Případně se můžete pokusit o ruční instalaci podle následujících instrukcí:">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Stáhnout .NET od firmy Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Stáhnout a nainstalovat KeePass Password Safe 2 instalaci nebo ZIP na http://keepass.info">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description "3a) Either restart Firefox to get back to this setup page so it can complete the last step">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description "3a) Nebo restartovat Firefox, ocitnete se znovu na této instalační stránce a dokončíte instalaci">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description "3b) Nebo ručně zkopírováním KeePassRPC.plgx souboru z extensions adresáře Firefoxu (podívejte se do podadresáře s názvem deps) do plugins addresáře aplikace KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpandee.description "Pokud chcete zvolit umístění instalace KeePass Password Safe 2, jazyk nebo jiné pokročilé nastavení, klikněte na tlačítko níže.">
 <!ENTITY KeeFox_Install_KPsetupExeInstallButton.label "Nastavit KeePass pro všechny uživatele s plným přístupem procesů">
@@ -87,7 +86,7 @@
 <!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Prosím, pokračujte podle instrukcí v .NET instalátoru, který se zanedlouho spustí...">
 <!ENTITY KeeFox_Install_IC1setupNET35downloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
 <!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Prosím, pokračujte podle instrukcí v .NET instalátoru, který se zanedlouho spustí...">
-<!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 is being downloaded...">
+<!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 se právě stahuje...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Prosím, pokračujte podle instrukcí v instalátoru, který se právě spouští...">
 <!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "&#37;KeeFox_Shared_Nearly_Finished;">
 <!ENTITY KeeFox_Install_IC2setupKPdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">

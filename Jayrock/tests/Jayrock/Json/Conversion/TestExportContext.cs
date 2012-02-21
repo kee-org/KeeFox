@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -60,9 +60,6 @@ namespace Jayrock.Json.Conversion
             AssertInStock(typeof(ExportAwareExporter), typeof(JsonArray));
             AssertInStock(typeof(EnumerableExporter), typeof(ArrayList));
             AssertInStock(typeof(ExportAwareExporter), typeof(ExportableThing));
-            AssertInStock(typeof(ControlExporter), typeof(Control));
-            AssertInStock(typeof(ControlExporter), typeof(HtmlControl));
-            AssertInStock(typeof(ControlExporter), typeof(HtmlImage));
             AssertInStock(typeof(DataSetExporter), typeof(DataSet));
             AssertInStock(typeof(DataSetExporter), typeof(MyDataSet));
             AssertInStock(typeof(DataTableExporter), typeof(DataTable));
@@ -77,6 +74,29 @@ namespace Jayrock.Json.Conversion
             AssertInStock(typeof(StringExporter), typeof(Uri));
             AssertInStock(typeof(JsonNumberExporter), typeof(JsonNumber));
             AssertInStock(typeof(JsonBufferExporter), typeof(JsonBuffer));
+            AssertInStock(typeof(ComponentExporter), typeof(ThingWithConstructor));
+            
+            #if !NET_1_0 && !NET_1_1 
+
+            AssertInStock(typeof(NullableExporter), typeof(int?));
+
+            #endif
+
+            #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+            AssertInStock(typeof(BigIntegerExporter), typeof(System.Numerics.BigInteger));
+            AssertInStock(typeof(ExpandoObjectExporter), typeof(System.Dynamic.ExpandoObject));
+
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int, int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int, int, int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int, int, int, int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int, int, int, int, int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int, int, int, int, int, int>));
+            AssertInStock(typeof(TupleExporter), typeof(Tuple<int, int, int, int, int, int, int, int>));
+
+            #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
         }
 
         [ Test ]
@@ -165,6 +185,11 @@ namespace Jayrock.Json.Conversion
         {
             public int Field1;
             public int Field2;
+        }
+
+        public class ThingWithConstructor
+        {
+            public ThingWithConstructor(object arg) { }
         }
     }
 }

@@ -1,5 +1,22 @@
 This information will often be disseminated onto the official KeeFox website in a more readable form but it serves as a useful reference to remind me what needs mentioning or if you are getting the latest SVN source code.
 
+Fixed bug that caused old style HTTP realm data, priority selection and alternative URL data to be lost under some circumstances during migration to the current advanced string formatting scheme
+Users of FF4 and above can now setup KeeFox automatically even if they have non-latin characters in their profile path
+Fixes #116 (bad regexp in any entry breaks keefox) - KeeFox no longer breaks and also notifies the user of the problematic regular expression
+
+0.9.3
+-----
+
+KeePass 2.17 is now the default version for new users;
+Calls to thread.processNextEvent() in zip file extraction routine for installation have been removed (this may lead to a noticeable Firefox freeze but shouldn't last for more than a second or two at most);
+Fixes #104. (Do not prompt to save password if not logged into database) - backported from trunk;
+Graphical file Browsers are now attached to the options dialog to aid selection of default KDBX file and location of KeePass and KPRPC;
+new (but fake) localised strings - correct ones will be slotted in ASAP;
+redundant sync request code removed from jsonRPC client code;
+KeePass installation path is now tolerant of directory with and without trailing slash;
+Demo tutorial entries no longer bother setting AutoType information (due to change in 2.17 internal API);
+KPRPC CountLogins method uses reflection to perform the search for matching entries due to a change in the KP 2.17 internal API; 
+
 0.9
 ---
 

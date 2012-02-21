@@ -7,7 +7,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -83,6 +83,7 @@
     <target name="rebuild" depends="clean all" />
 
     <target name="platforms" depends="config">
+        <call target="platform-net-4.0" />
         <call target="platform-net-2.0" />
         <call target="platform-net-1.1" />
         <call target="platform-net-1.0" />
@@ -141,6 +142,14 @@
         <property name="global.build.defines" value="TRACE" />
     </target>
 
+    <target name="config-platform-net-4.0">
+        <property name="nant.settings.currentframework" value="net-4.0" />
+        <property name="build.platform" value="net-4.0" />
+        <property name="build.defines" value="${global.build.defines},NET_4_0" />
+        <property name="output.dir.path" value="${bin.dir.path}/net-4.0/${build.config}" />
+        <property name="output.tests.dir.path" value="${bin.tests.dir.path}/net-4.0" />
+    </target>
+
     <target name="config-platform-net-2.0">
         <property name="nant.settings.currentframework" value="net-2.0" />
         <property name="build.platform" value="net-2.0" />
@@ -168,7 +177,7 @@
     <target name="config-platform-mono">
         <property name="nant.settings.currentframework" value="mono-2.0" />
         <property name="build.platform" value="mono" />
-        <property name="build.defines" value="${global.build.defines},NET_2_0" />
+        <property name="build.defines" value="${global.build.defines},NET_2_0,MONO" />
         <property name="output.dir.path" value="${bin.dir.path}/mono/${build.config}" />
         <property name="output.tests.dir.path" value="${bin.tests.dir.path}/mono" />
     </target>
@@ -176,6 +185,18 @@
     <target name="default-platform">
         <if test="${not(property::exists('build.platform'))}">
             <call target="config-platform-net-2.0" />
+        </if>
+    </target>
+
+    <target name="platform-net-4.0" depends="config">
+        <if test="${framework::exists('net-4.0')}">
+            <echo message="Building ${project.name} for .NET Framework 4.0." />
+            <call target="config-platform-net-4.0" />
+            <call target="test" />
+            <call target="jayrock.sandbox" />
+        </if>
+        <if test="${not(framework::exists('net-4.0'))}">
+            <echo message=".NET Framework 4.0 is not available. Skipping platform." />
         </if>
     </target>
 
@@ -238,8 +259,8 @@
             <references>
                 <include name="System.dll" />
                 <include name="System.Data.dll" />
+                <include name="System.Numerics.dll" />
                 <include name="System.Xml.dll" />
-                <include name="System.Web.dll" />
             </references>
             <nowarn>
                 <warning number="618" />
@@ -318,8 +339,8 @@
             <references>
                 <include name="System.dll" />
                 <include name="System.Data.dll" />
+                <include name="System.Numerics.dll" />
                 <include name="System.Xml.dll" />
-                <include name="System.Web.dll" />
                 <include name="System.Web.dll" />
                 <include name="${jayrock.json.dll.path}" />
                 <include name="${jayrock.dll.path}" />
@@ -335,10 +356,16 @@
     </target>
 
     <target name="test" depends="compile-tests">
-        <nunit2 unless="${tests.skip}">
+        <nunit2 unless="${tests.skip}" if="${framework::get-target-framework() == 'mono-2.0'}">
             <formatter type="Plain" />
             <test assemblyname="${output.testassembly.path}" />
         </nunit2>
+        <exec 
+            unless="${tests.skip}" if="${framework::get-target-framework() != 'mono-2.0'}"
+            program="${nunit.console.exe.path}" 
+            commandline='"${output.testassembly.path}" /noshadow'
+            managed="strict">
+        </exec>
     </target>
 
     <target name="cover" depends="config" if="${platform::is-win32()}">
@@ -380,32 +407,36 @@
         <mkdir dir="${build.dir.path}" />
 
         <zip zipfile="${path::combine(build.dir.path, 'jayrock.zip')}" ziplevel="9">
-            <fileset basedir="..">
+            <fileset>
                 <include name="**/*" />
                 <exclude name="build/**/*" />
             </fileset>
         </zip>
         <zip zipfile="${path::combine(build.dir.path, 'jayrock-bin.zip')}" ziplevel="9">
-            <fileset basedir="..">
+            <fileset>
                 <include name="*" />
+                <exclude name="build*.cmd" />
+                <exclude name="*.build" />
                 <include name="bin/**/*" />
-                <exclude name="bin/Test/**/*" />
+                <exclude name="bin/tests/**/*" />
                 <include name="samples/**/*" />
                 <include name="www/**/*" />
             </fileset>
         </zip>
 
         <tar destfile="${path::combine(build.dir.path, 'jayrock.tar.gz')}" compression="GZip">
-            <fileset basedir="..">
+            <fileset>
                 <include name="**/*" />
                 <exclude name="build/**/*" />
             </fileset>
         </tar>
         <tar destfile="${path::combine(build.dir.path, 'jayrock-bin.tar.gz')}" compression="GZip">
-            <fileset basedir="..">
+            <fileset>
                 <include name="*" />
+                <exclude name="build*.cmd" />
+                <exclude name="*.build" />
                 <include name="bin/**/*" />
-                <exclude name="bin/Test/**/*" />
+                <exclude name="bin/tests/**/*" />
                 <include name="samples/**/*" />
                 <include name="www/**/*" />
             </fileset>

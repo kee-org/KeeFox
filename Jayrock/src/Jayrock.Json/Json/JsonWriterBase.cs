@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -108,16 +108,35 @@ namespace Jayrock.Json
             ExitBracket();
         }
 
+        public sealed override void WriteString(char[] chars, int offset, int length)
+        {
+            if (chars == null) throw new ArgumentNullException("chars");
+            WriteStringOrChars(null, chars, offset, length);
+        }
+
         public sealed override void WriteString(string value)
+        {
+            WriteStringOrChars(value, null, 0, 0);
+        }
+
+        private void WriteStringOrChars(string value, char[] chars, int offset, int length)
         {
             if (Depth == 0)
             {
-                WriteStartArray(); WriteString(value); WriteEndArray();
+                WriteStartArray();
+                if (chars != null) 
+                    WriteString(chars, offset, length);
+                else
+                    WriteString(value);
+                WriteEndArray();
             }
             else
             {
                 EnsureMemberOnObjectBracket();
-                WriteStringImpl(value);
+                if (chars != null)
+                    WriteStringImpl(chars, offset, length);
+                else
+                    WriteStringImpl(value);
                 OnValueWritten();
             }
         }
@@ -175,7 +194,8 @@ namespace Jayrock.Json
         protected abstract void WriteMemberImpl(string name);
         protected abstract void WriteStartArrayImpl();
         protected abstract void WriteEndArrayImpl();
-        protected abstract void WriteStringImpl(string value);
+        protected abstract void WriteStringImpl(string value);        
+        protected virtual  void WriteStringImpl(char[] buffers, int offset, int length) { WriteStringImpl(new string(buffers, offset, length)); }
         protected abstract void WriteNumberImpl(string value);
         protected abstract void WriteBooleanImpl(bool value);
         protected abstract void WriteNullImpl();

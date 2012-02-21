@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://keefox/skin/install_mono.css" type="text/css"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://keefox/locale/keefox.dtd">
+
+<!--
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is the KeeFox installation XUL file. It overlays all of the possible
+  installation interface options (controlled by install.js based on user's
+  existing setup.)
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+
+<window id="KeeFoxInstallWizard" title="&KeeFox_Install_Setup_KeeFox.label;" 
+        xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" onload="prepareMonoInstallPage();">
+
+  <script type="application/x-javascript" src="chrome://keefox/content/install_mono.js" />
+  
+  <!-- 
+
+      Manual Mono Installation
+  
+  -->
+
+  <grid flex="1" style="overflow: auto;">
+
+    <!-- centre the installation window -->
+    <columns>
+      <column flex="1" />
+      <column width="600px" />
+      <column flex="1" />
+    </columns>
+
+    <rows>
+      <row>
+        <spacer flex="1"/>
+        
+        <vbox id="KFInstallPageMain" width="600px"  >
+
+          <vbox id="KFInstallHeader">
+            <image src='chrome://keefox/skin/install/header.png' width='580' height='116'/>
+          </vbox>
+
+          <vbox id="KFInstallPageTitle" width="590px" >
+            <description>&KeeFox_Install_Setup_KeeFox.label;</description>
+          </vbox>
+
+          <vbox id="KFInstallPageContent" width="590px" >
+
+            <vbox id="KFInstallAlreadyInProgress" hidden="true">
+              <description>&KeeFox_Install_Process_Running_In_Other_Tab.label;</description>
+            </vbox>
+
+            <vbox id="KFInstallNotRequired" hidden="true">
+              <description>&KeeFox_Install_Not_Required.label;</description>
+              <label href="http://keefox.org/help" class="text-link">&KeeFox_Install_Not_Required_Link.label;</label>
+            </vbox>
+
+            <!-- everything in this box is displayed on first page load and hidden
+                after installation has started -->
+            <vbox style="width:600px;" id="installationStartView" hidden="false">
+
+              <vbox id="Install_monoManual" hidden="false">
+                <description class="mono-header">&KeeFox_Install_monoManual.description;</description>
+                <description id="monoManualStep1_description">&KeeFox_Install_monoManualStep1.description;</description>
+                <description id="monoManualStep2_description">&KeeFox_Install_monoManualStep2.description;</description>
+		<label href="http://keepass.info/" class="text-link">http://keepass.info/</label>
+                <description id="monoManualStep3_description">&KeeFox_Install_monoManualStep3.description;</description>
+                <description id="monoManualStep4_description">&KeeFox_Install_monoManualStep4.description;</description>
+                <description id="monoManualStep5_description">&KeeFox_Install_monoManualStep5.description;</description>
+                <description id="monoManualStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
+                <description id="monoManualStep5a_description" class="text-link"></description>
+              </vbox>
+
+              <vbox id="Install_monoManual2" hidden="false">
+                <description class="mono-header">&KeeFox_Install_monoManual2.description;</description>
+                <description id="monoManualTest1_description">&KeeFox_Install_monoManualTest1.description;</description>
+                <description class="mono-file" id="monoManualTest1a_description"></description>
+                <description id="monoManualTest2_description">&KeeFox_Install_monoManualTest2.description;</description>
+                <description class="mono-file" id="monoManualTest2a_description"></description>
+                <description id="monoManualTest3_description">&KeeFox_Install_monoManualTest3.description;</description>
+              </vbox>
+
+            </vbox>
+
+          </vbox> <!-- end KFInstallPageContent -->
+        </vbox> <!-- end KFInstallPageMain -->
+
+        <spacer flex="1"/>
+      </row>
+    </rows>
+
+  </grid>
+</window>

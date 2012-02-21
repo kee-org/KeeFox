@@ -61,12 +61,12 @@ KFILM.prototype._fillManyFormFields = function
     // we are flexible RE text and username fields because that's an artificial difference
     // for the sake of the KeeFox password management software. However, usernames will be chosen above
     // text fields if all else is equal
-    for (i = 0; i < pageFields.length; i++)
+    for (var i = 0; i < pageFields.length; i++)
     {
         var foundADefiniteMatch = false;
         KFLog.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
         
-        for (j = 0; j < matchFields.length; j++)
+        for (var j = 0; j < matchFields.length; j++)
         {
             // if we have already identified a form field that we want
             // to fill with the value in this field, skip on to the next possibility...
@@ -623,6 +623,8 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 // this happens after each findLogins call has run its callback so we can see if we have received all the answers we need to fill the form now
 KFILM.prototype.allSearchesComplete = function (findLoginDoc)
 {
+//return; // test mem leak 2
+    
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
     var window = wm.getMostRecentWindow("navigator:browser");
@@ -787,6 +789,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
             //KFLog.debug("testi:"+passField.DOMInputElement);
             if (passField.DOMInputElement != null)
             {
+            //TODO: test mem leak 3 // skip event listener registration
+    
                 passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
             } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
         }
@@ -831,6 +835,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         keefox_org.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
+    //TODO: test mem leak 4 // comment out this toolbar fill
+    
         KFLog.info("Using toolbar password fill.");
         keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 

@@ -1,10 +1,6 @@
-E:\development\KeeFox\Jayrock\bin\net-2.0\release\Jayrock.Json.dll
-E:\development\KeeFox\Jayrock\bin\net-2.0\release\Jayrock.Json.pdb
-E:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\ResolveAssemblyReference.cache
-E:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.dll
-E:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.pdb
-C:\development\KeeFox\Jayrock\bin\net-2.0\release\Jayrock.Json.dll
-C:\development\KeeFox\Jayrock\bin\net-2.0\release\Jayrock.Json.pdb
 C:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\ResolveAssemblyReference.cache
+C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.Json.dll.config
+C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.Json.dll
+C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.Json.pdb
 C:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.dll
 C:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.pdb

@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -29,6 +29,7 @@ namespace Jayrock.Json.Conversion
     using System.Configuration;
     using System.Diagnostics;
     using Jayrock.Json.Conversion.Converters;
+    using Jayrock.Reflection;
 
     #endregion
     
@@ -110,6 +111,20 @@ namespace Jayrock.Json.Conversion
             if (typeof(IJsonExportable).IsAssignableFrom(type))
                 return new ExportAwareExporter(type);
 
+            #if !NET_1_0 && !NET_1_1 
+
+            if (Reflector.IsConstructionOfNullable(type))
+                return new NullableExporter(type);
+
+            #endif
+
+            #if !NET_1_0 && !NET_1_1 && !NET_2_0 
+            
+            if (Reflector.IsTupleFamily(type))
+                return new TupleExporter(type);
+            
+            #endif
+
             if (type.IsClass && type != typeof(object))
             {
                 IExporter exporter = FindBaseExporter(type.BaseType, type);
@@ -125,19 +140,9 @@ namespace Jayrock.Json.Conversion
             
             if ((type.IsPublic || type.IsNestedPublic) &&
                 !type.IsPrimitive && !type.IsEnum &&
-                (type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null))
+                (type.IsValueType || type.GetConstructors().Length > 0))
             {
-                if (type.IsValueType)
-                {
-                    CustomTypeDescriptor descriptor = new CustomTypeDescriptor(type);
-                
-                    if (descriptor.GetProperties().Count > 0)
-                        return new ComponentExporter(type, descriptor);
-                }
-                else
-                {
-                    return new ComponentExporter(type);
-                }
+                return new ComponentExporter(type);
             }
 
             CustomTypeDescriptor anonymousClass = CustomTypeDescriptor.TryCreateForAnonymousClass(type);
@@ -206,9 +211,17 @@ namespace Jayrock.Json.Conversion
                     exporters.Add(new DataTableExporter());
                     exporters.Add(new DataRowExporter());
                     exporters.Add(new DbDataRecordExporter());
-                    exporters.Add(new ControlExporter());
+                    exporters.Add(new StringExporter(typeof(Uri)));
+                    exporters.Add(new StringExporter(typeof(Guid)));
 
-                    IList typeList = (IList) ConfigurationSettings.GetConfig("jayrock/json.conversion.exporters");
+                    #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+                    exporters.Add(new BigIntegerExporter());
+                    exporters.Add(new ExpandoObjectExporter());
+                    
+                    #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
+
+                    IList typeList = (IList)ConfigurationSettings.GetConfig("jayrock/json.conversion.exporters");
 
                     if (typeList != null && typeList.Count > 0)
                     {

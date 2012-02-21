@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox loading...">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox is loading and doing a few startup tests. It shouldn't take long...">
 <!ENTITY KeeFox_Menu-Button.tip "Click to see the KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
@@ -105,3 +104,16 @@
 <!ENTITY KeeFox_Install_Finally.description "Finally, if you have any trouble getting KeeFox to work correctly, please take a look at the help resources found at">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Please close KeePass before continuing!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass has been detected on your computer. To ensure KeeFox can be setup smoothly, please make sure that it is closed before continuing!">
+
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox can run under Mono, but requires manual installation by following these steps:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download and install Mono for your distribution">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) Download Portable KeePass Password Safe 2 (ZIP Package) from:">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass to ~/KeePass (this default can be customised)">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) Copy the KeePassRPC.plgx file to ~/KeePass/plugins ">
+<!ENTITY KeeFox_Install_monoManualStep5.description "5) Restart Firefox">
+<!ENTITY KeeFox_Install_monoManualStep6.description "The KeePassRPC.plgx file you need to manually copy is at:">
+
+<!ENTITY KeeFox_Install_monoManual2.description "Customisation instructions:">
+<!ENTITY KeeFox_Install_monoManualTest1.description "1) It is assumed KeePass is installed to: ">
+<!ENTITY KeeFox_Install_monoManualTest2.description "2) It is assumed Mono is installed to: ">
+<!ENTITY KeeFox_Install_monoManualTest3.description "To override these defaults, under KeeFox->Options->KeePass, change 'KeePass installation location' and 'Mono executable location'">

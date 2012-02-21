@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -82,6 +82,16 @@ namespace Jayrock.Json.Conversion.Converters
             AssertImport(0, "false");
         }
 
+        #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+        [ Test ]
+        public void ImportBigInteger()
+        {
+            AssertImport(System.Numerics.BigInteger.Pow(long.MaxValue, 3), "784637716923335095224261902710254454442933591094742482943");
+        }
+
+        #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
+
         [ Test ]
         public void ImportDecimalUsingExponentialNotation()
         {
@@ -91,6 +101,14 @@ namespace Jayrock.Json.Conversion.Converters
             //
 
             AssertImport(7.25e-5m, "7.25e-005");
+        }
+
+        [ Test, ExpectedException(typeof(JsonException)) ]
+        public void CannotImportNull()
+        {
+            ImportContext importContext = new ImportContext();
+            JsonTextReader reader = new JsonTextReader(new StringReader("null"));
+            new Int32Importer().Import(importContext, reader);
         }
 
         private static void AssertImport(object expected, string input)

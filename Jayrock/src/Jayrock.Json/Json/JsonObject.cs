@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -28,11 +28,23 @@ namespace Jayrock.Json
     using System.Collections;
     using System.Diagnostics;
     using System.IO;
+   
+    using Jayrock.Dynamic;
     using Jayrock.Json.Conversion;
 
-#if !NET_1_0 && !NET_1_1
-    using System.Collections.Generic;    
-#endif
+    #if !NET_1_0 && !NET_1_1
+    
+    using System.Collections.Generic;
+
+    #endif
+
+    #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+    using System.Dynamic;
+    using System.Linq;
+    using System.Linq.Expressions;
+
+    #endif
 
     #endregion
 
@@ -52,13 +64,35 @@ namespace Jayrock.Json
 
     [ Serializable ]
     public class JsonObject : DictionaryBase, IJsonImportable, IJsonExportable, IEnumerable
-#if !NET_1_0 && !NET_1_1
+        #if !NET_1_0 && !NET_1_1
         /* ... */ , 
-        IEnumerable<JsonMember>
-#endif
+        IEnumerable<JsonMember>,
+        System.Collections.Generic.IDictionary<string, object>
+        #endif
+        #if !NET_1_0 && !NET_1_1 && !NET_2_0
+        /* ... */ , 
+        System.Dynamic.IDynamicMetaObjectProvider
+        #endif
     {
         private ArrayList _nameIndexList;
         [ NonSerialized ] private IList _readOnlyNameIndexList;
+        
+        #if !NET_1_0 && !NET_1_1
+        
+        [ NonSerialized ] string[] _keys;
+        [ NonSerialized ] object[] _values;
+
+        private void OnUpdating()
+        {
+            _keys = null;
+            _values = null;
+        }
+        
+        #else
+        
+        private void OnUpdating() { /* NOP */ }
+        
+        #endif
 
         public JsonObject() {}
 
@@ -106,18 +140,29 @@ namespace Jayrock.Json
             return GetEnumerator();
         }
 
-#if !NET_1_0 && !NET_1_1
+        #if !NET_1_0 && !NET_1_1
+
+        public JsonObject(IEnumerable<JsonMember> members)
+        {
+            if (members == null)
+                return;
+
+            foreach (JsonMember member in members)
+                Accumulate(member.Name, member.Value);
+        }
+
         IEnumerator<JsonMember> IEnumerable<JsonMember>.GetEnumerator()
         {
             return GetEnumerator();
         }
-#endif
+        
+        #endif
 
         [Serializable]
         public sealed class JsonMemberEnumerator : IEnumerator, IDisposable
-#if !NET_1_0 && !NET_1_1
+            #if !NET_1_0 && !NET_1_1
             , IEnumerator<JsonMember>
-#endif
+            #endif
         {
             private JsonObject _obj;
             private IEnumerator _enumerator;
@@ -332,7 +377,7 @@ namespace Jayrock.Json
             Export(JsonText.CreateWriter(writer));
             return writer.ToString();
         }
-        
+
         public void Export(JsonWriter writer)
         {
             Export(JsonConvert.CreateExportContext(), writer);
@@ -412,6 +457,8 @@ namespace Jayrock.Json
 
         protected override void OnInsert(object key, object value)
         {
+            OnUpdating();
+            
             //
             // NOTE: OnInsert leads one to believe that keys are ordered in the
             // base dictionary in that they can be inserted somewhere in the
@@ -425,6 +472,8 @@ namespace Jayrock.Json
 
         protected override void OnSet(object key, object oldValue, object newValue)
         {
+            OnUpdating();
+
             //
             // NOTE: OnSet is called when the base dictionary is modified via
             // the indexer. We need to trap this and detect when a new key is
@@ -442,12 +491,163 @@ namespace Jayrock.Json
 
         protected override void OnRemove(object key, object value)
         {
+            OnUpdating();
             NameIndexList.Remove(key);
         }
 
         protected override void OnClear()
         {
+            OnUpdating();
             NameIndexList.Clear();
         }
+
+        #if !NET_1_0 && !NET_1_1
+
+        bool IDictionary<string, object>.TryGetValue(string key, out object value)
+        {
+            if (!Contains(key))
+            {
+                value = null;
+                return false;
+            }
+            
+            value = this[key];
+            return true;
+        }
+
+        ICollection<string> IDictionary<string, object>.Keys
+        {
+            get { return _keys ?? (_keys = GetMembers<string>(delegate(JsonMember m) { return m.Name; })); }
+        }
+
+        private T[] GetMembers<T>(Converter<JsonMember, T> selector)
+        {
+            T[] arr = new T[Count];
+            int i = 0;
+            foreach (JsonMember member in this)
+                arr[i++] = selector(member);
+            return arr;
+        }
+
+        ICollection<object> IDictionary<string, object>.Values
+        {
+            get { return _values ?? (_values = GetMembers<object>(delegate(JsonMember m) { return m.Value; })); }
+        }
+
+        bool IDictionary<string, object>.ContainsKey(string key)
+        {
+            return Contains(key);
+        }
+
+        bool IDictionary<string, object>.Remove(string key)
+        {
+            if (!Contains(key))
+                return false;
+            Remove(key);
+            return true;
+        }
+
+        IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
+        {
+            foreach (JsonMember member in this)
+                yield return new KeyValuePair<string, object>(member.Name, member.Value);
+        }
+
+        void ICollection<KeyValuePair<string, object>>.Add(KeyValuePair<string, object> item)
+        {
+            Add(item.Key, item.Value);
+        }
+        
+        bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
+        {
+            return Contains(item);
+        }
+
+        private bool Contains(KeyValuePair<string, object> item)
+        {
+            object value;
+            return ((IDictionary<string, object>) this).TryGetValue(item.Key, out value)
+                && EqualityComparer<object>.Default.Equals(item.Value, value);
+        }
+
+        void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        {
+            if (array == null) 
+                throw new ArgumentNullException("array");
+            if (arrayIndex < 0)
+                throw new ArgumentOutOfRangeException("arrayIndex", arrayIndex, null);
+            if (Count > array.Length - arrayIndex)
+                throw new ArgumentException(null, "arrayIndex");
+
+            int i = arrayIndex;
+            foreach (JsonMember member in this)
+                array[i++] = new KeyValuePair<string, object>(member.Name, member.Value);
+        }
+
+        bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
+        {
+            if (!Contains(item))
+                return false;
+            Remove(item.Key);
+            return true;
+        }
+
+        bool ICollection<KeyValuePair<string, object>>.IsReadOnly
+        {
+            get { return InnerHashtable.IsReadOnly; }
+        }
+
+        #endif // !NET_1_0 && !NET_1_1
+
+        #if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+        DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
+        {
+            return new DynamicMetaObject<JsonObject>(parameter, this, _runtime, /* dontFallbackFirst */ true);
+        }
+
+        private readonly DynamicObjectRuntime<JsonObject> _runtime = new DynamicObjectRuntime<JsonObject>
+        {
+            TryGetMember = TryGetMember,
+            TrySetMember = TrySetMember,
+            TryInvokeMember = TryInvokeMember,
+            TryDeleteMember = TryDeleteMember,
+            GetDynamicMemberNames = o => o.Names.Cast<string>()
+        };
+
+        private static Option<object> TryInvokeMember(JsonObject obj, InvokeMemberBinder arg2, object[] arg3)
+        {
+            return Option<object>.None; // TryGetMember(arg1, arg2)
+        }
+
+        private static bool TryDeleteMember(JsonObject obj, DeleteMemberBinder binder)
+        {
+            if (!obj.Contains(binder.Name))
+                return false;
+            obj.Remove(binder.Name);
+            return true;
+        }
+
+        private static bool TrySetMember(JsonObject obj, SetMemberBinder binder, object value)
+        {
+            obj[binder.Name] = value; 
+            return true;
+        }
+
+        private static Option<object> TryGetMember(JsonObject obj, GetMemberBinder binder)
+        {
+            if (!obj.HasMembers)
+                return Option<object>.None;
+            var name = binder.Name;
+            var value = obj[name];
+            if (value == null && !obj.Contains(name))
+            {
+                // TODO support case-insensitive bindings
+                return Option<object>.None;
+            }
+            return Option.Value(value);
+        }
+
+        #endif // !NET_1_0 && !NET_1_1 && !NET_2_0
     }
 }

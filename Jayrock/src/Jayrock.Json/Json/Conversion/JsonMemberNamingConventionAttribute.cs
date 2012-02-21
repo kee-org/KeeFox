@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -28,6 +28,7 @@ namespace Jayrock.Json.Conversion
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Text;
 
     #endregion
 
@@ -40,18 +41,31 @@ namespace Jayrock.Json.Conversion
         Upper,      // WORLDWIDEWEB
         Lower       // worldwideweb
     }
+    [ Serializable ]
+    public enum UnderscoreConvention
+    {
+        None,
+        Prefix,     // _WorldWideWeb   (if Pascal)
+        Separate    // World_Wide_Web  (if Pascal)
+    }
 
     [ Serializable ]
     [ AttributeUsage(AttributeTargets.Property | AttributeTargets.Field) ]
     public sealed class JsonMemberNamingConventionAttribute : Attribute, IPropertyDescriptorCustomization
     {
         private NamingConvention _convention;
+        private UnderscoreConvention _underscores;
 
-        public JsonMemberNamingConventionAttribute() {}
+        public JsonMemberNamingConventionAttribute() :
+            this(NamingConvention.None) {}
 
-        public JsonMemberNamingConventionAttribute(NamingConvention convention)
+        public JsonMemberNamingConventionAttribute(NamingConvention convention) :
+            this(convention, UnderscoreConvention.None) {}
+
+        public JsonMemberNamingConventionAttribute(NamingConvention naming, UnderscoreConvention underscores)
         {
-            _convention = convention;
+            _convention = naming;
+            _underscores = underscores;
         }
 
         public NamingConvention Convention
@@ -60,23 +74,67 @@ namespace Jayrock.Json.Conversion
             set { _convention = value; }
         }
 
+        public UnderscoreConvention Underscores 
+        {
+            get { return _underscores; }
+            set { _underscores = value; }
+        }
+
         void IPropertyDescriptorCustomization.Apply(PropertyDescriptor property)
         {
             if (property == null) 
                 throw new ArgumentNullException("property");
 
-            string name = property.Name;
+            NamingConvention naming = Convention;
+            UnderscoreConvention underscoring = Underscores;
+            if (naming == NamingConvention.None && underscoring == UnderscoreConvention.None)
+                return;
+            SetName(property, FormatName(FormatName(property.Name, underscoring), naming));
+        }
 
-            switch (Convention)
+        private static string FormatName(string name, UnderscoreConvention underscoring)
+        {
+            switch (underscoring)
+            {
+                case UnderscoreConvention.Prefix:
+                    return name.Length > 0 && name[0] != '_'
+                         ? '_' + name : name;
+                case UnderscoreConvention.Separate:
+                    StringBuilder sb = null;
+                    for (int i = 1; i < name.Length; ++i)
+                    {
+                        char ch = name[i];
+                        if (char.IsUpper(ch))
+                        {
+                            if (sb == null)
+                            {
+                                sb = new StringBuilder();
+                                sb.Append(name, 0, i);
+                            }
+                            sb.Append('_');
+                        }
+                        if (sb != null) sb.Append(ch);
+                    }
+                    return sb != null ? sb.ToString() : name;
+                default:
+                    return name;
+            }
+        }
+
+        private static string FormatName(string name, NamingConvention naming)
+        {
+            switch (naming)
             {
                 case NamingConvention.Pascal:
-                    SetName(property, char.ToUpper(name[0], CultureInfo.InvariantCulture) + name.Substring(1)); break;
+                    return char.ToUpper(name[0], CultureInfo.InvariantCulture) + name.Substring(1);
                 case NamingConvention.Camel:
-                    SetName(property, char.ToLower(name[0], CultureInfo.InvariantCulture) + name.Substring(1)); break;
+                    return char.ToLower(name[0], CultureInfo.InvariantCulture) + name.Substring(1);
                 case NamingConvention.Upper:
-                    SetName(property, name.ToUpper(CultureInfo.InvariantCulture)); break;
+                    return name.ToUpper(CultureInfo.InvariantCulture);
                 case NamingConvention.Lower:
-                    SetName(property, name.ToLower(CultureInfo.InvariantCulture)); break;
+                    return name.ToLower(CultureInfo.InvariantCulture);
+                default:
+                    return name;
             }
         }
 

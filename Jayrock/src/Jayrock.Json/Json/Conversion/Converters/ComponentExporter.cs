@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -41,8 +41,9 @@ namespace Jayrock.Json.Conversion.Converters
             this(inputType, (ICustomTypeDescriptor) null) {}
 
         public ComponentExporter(Type inputType, ICustomTypeDescriptor typeDescriptor) :
-            this(inputType, typeDescriptor != null ? 
-                            typeDescriptor.GetProperties() : (new CustomTypeDescriptor(inputType)).GetProperties()) {}
+            this(inputType, typeDescriptor != null 
+                            ? typeDescriptor.GetProperties() 
+                            : (new CustomTypeDescriptor(inputType)).GetProperties()) {}
 
         private ComponentExporter(Type inputType, PropertyDescriptorCollection properties) : 
             base(inputType)
@@ -52,7 +53,7 @@ namespace Jayrock.Json.Conversion.Converters
             _properties = properties;
 
             int count = 0;
-            IObjectMemberExporter[] exporters = new IObjectMemberExporter[properties.Count];
+            IObjectMemberExporter[] exporters = null;
 
             for (int i = 0; i < properties.Count; i++)
             {
@@ -65,6 +66,9 @@ namespace Jayrock.Json.Conversion.Converters
 
                 if (exporter == null)
                     continue;
+
+                if (exporters == null) // fault
+                    exporters = new IObjectMemberExporter[properties.Count];
 
                 exporters[i] = exporter;
                 count++;

@@ -1,15 +1,17 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPC", "KeePassRPC\KeePassRPC.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firefox addon", "Firefox addon\Firefox addon.vcproj", "{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0BDCB786-3AD0-458D-9850-9BAF04223FF7} = {0BDCB786-3AD0-458D-9850-9BAF04223FF7}
-		{4C1BB6F8-D2CD-49C2-9053-21705681356C} = {4C1BB6F8-D2CD-49C2-9053-21705681356C}
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B0C7A3B-64E0-4A3C-A3E3-49178249EC46}"
+	ProjectSection(SolutionItems) = preProject
+		KeeFox.vsmdi = KeeFox.vsmdi
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeePassRPCCopier", "KeePassRPCCopier\KeePassRPCCopier.vcproj", "{0BDCB786-3AD0-458D-9850-9BAF04223FF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPC", "KeePassRPC\KeePassRPC.csproj", "{4C1BB6F8-D2CD-49C2-9053-21705681356C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Firefox addon", "Firefox addon\Firefox addon.vcxproj", "{FA35AEBD-B80E-489D-BF97-CD34FFDB5622}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeePassRPCCopier", "KeePassRPCCopier\KeePassRPCCopier.vcxproj", "{0BDCB786-3AD0-458D-9850-9BAF04223FF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "Jayrock\src\Jayrock\Jayrock.csproj", "{A178A4BB-CE12-4BF3-8B17-6DF0D82120C8}"
 EndProject
@@ -17,15 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock.Json", "Jayrock\src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPCTest", "KeePassRPCTest\KeePassRPCTest.csproj", "{08A61455-B0C4-49D0-9973-B776B73572B0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B0C7A3B-64E0-4A3C-A3E3-49178249EC46}"
-	ProjectSection(SolutionItems) = preProject
-		KeeFox.vsmdi = KeeFox.vsmdi
-		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckForAdminRights", "CheckForAdminRights\CheckForAdminRights.vcxproj", "{8EAC7277-0259-426A-BC92-8E20C2637150}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckForAdminRights", "CheckForAdminRights\CheckForAdminRights.vcproj", "{8EAC7277-0259-426A-BC92-8E20C2637150}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFoxElevate", "KeeFoxElevate\KeeFoxElevate.vcproj", "{89548631-4274-4226-AF0E-3A8F90650683}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFoxElevate", "KeeFoxElevate\KeeFoxElevate.vcxproj", "{89548631-4274-4226-AF0E-3A8F90650683}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

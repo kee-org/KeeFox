@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System;
 using System.Windows.Forms;
 
 namespace KeePassRPC

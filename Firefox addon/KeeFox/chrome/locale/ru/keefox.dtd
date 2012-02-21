@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox загружается...">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox загружается и делает несколько тестов при запуске. Это не должно занять много времени...">
 <!ENTITY KeeFox_Menu-Button.tip "Нажмите, чтобы увидеть меню KeeFox">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
@@ -33,7 +32,7 @@
 <!ENTITY KeeFox_Help-GettingStarted-Button.tip "Посетить онлайн руководство начинающего.">
 <!ENTITY KeeFox_Help-GettingStarted-Button.label "Начало работы">
 <!ENTITY KeeFox_Help-GettingStarted-Button.key "р">
-<!ENTITY KeeFox_Help-Centre-Button.tip "Посетите справочный центр.">
+<!ENTITY KeeFox_Help-Centre-Button.tip "Посетить справочный центр.">
 <!ENTITY KeeFox_Help-Centre-Button.label "Справочный центр">
 <!ENTITY KeeFox_Help-Centre-Button.key "С">
 <!ENTITY KeeFox_Tools-Menu.options.label "Настройки KeeFox">
@@ -59,7 +58,7 @@
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "Более подробная информация и дополнительные настройки">
 <!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox необходимо установить два других компонента - просто нажмите на кнопку выше, чтобы начать. Если вы не можете предоставить пароль администратора на этом компьютере, вы должны попросить вашего системного администратора помочь вам.">
 <!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "Более подробная информация и дополнительные настройки">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox необходимо установить KeePass Password Safe 2 для безопасного хранения ваших паролей. Вам будет предложено место установки KeePass Password Safe 2 или вы можете выбрать расположение установленной KeePass Password Safe 2 (KeeFox не смог найти автоматически). Если вы можете предоставить пароль администратора для данного компьютера вы можете установить KeePass Password Safe 2 для всех пользователей на этом компьютере, нажав ниже.">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox необходимо установить KeePass Password Safe 2 для безопасного хранения ваших паролей. Вам будет предложено место установки KeePass Password Safe 2 или вы можете выбрать расположение установленной KeePass Password Safe 2 (KeeFox не смог найти автоматически).">
 <!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "Более подробная информация и дополнительные настройки">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox использует KeePass Password Safe 2 для безопасного хранения ваших паролей. Он уже установлен на вашем компьютере, но вам, возможно, потребуется предоставить пароль администратора для включения KeeFox правильно ссылку на KeePass Password Safe 2 и Firefox. Если вы не можете предоставить пароль администратора на этом компьютере, нажмите ниже на другой вариант.">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Более подробная информация и дополнительные настройки">
@@ -81,7 +80,7 @@
 <!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpandee.description "Если вы знаете пароль администратора для данного компьютера вы можете установить KeePass для всех пользователей с помощью одного из предложенных ниже способов. Нажмите на нижнюю кнопку, если вы хотите установить в конкретном месте, не на английском языке или другие дополнительные опции.">
 <!ENTITY KeeFox_Install_KPsetupExeSilentInstallButton.label "Установка KeeFox для всех пользователей">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description "Вы можете установить портативную KeePass Password Safe 2 на USB диск (или в другое место на вашем компьютере). Просто нажмите на кнопку ниже, но учитывайте возможную путаницу в будущем, потому что вашем компьютере будет установлено две копии KeePass Password Safe 2. Если это возможно, вы должны установить KeeFox с помощью кнопки выше, предоставив пароль администратора если появится запрос.">
-<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "Установить KeePass / KeePassRPC в другое место">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "Установить KeePass/KeePassRPC в другое место">
 <!-- strings describing the download and install progress for KeeFox dependancies -->
 <!ENTITY KeeFox_Install_IC1setupNETdownloading.description "Осуществляется скачивание файлов необходимых для установки KeeFox...">
 <!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "Скачивание завершено. Пожалуйста, следуйте инструкциям в установщике .NET, которые скоро появятся...">
@@ -97,7 +96,7 @@
 <!ENTITY KeeFox_Install_IC5zipKPdownloading.description "Осуществляется скачивание файлов необходимых для установки KeeFox...">
 <!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "Скачивание завершено. Пожалуйста, подождите...">
 <!ENTITY KeeFox_Install_IC5installing.description "Почти завершено...">
-<!ENTITY KeeFox_Install_InstallFinished.description "Теперь KeeFox готов к использованию. Вы должны следовать инструкциям в «помощнике KeePass», создать новую базу данных для хранения паролей или открыть базу данных, которую вы уже используете. Проверка Firefox, что установка прошла успешно может занять до 20 секунд. Когда всё будет сделано, текст основной кнопки отобразит «Не авторизован» или «Авторизован». Вы можете ознакомиться с онлайн руководством начинающего. Запустить его можно из нескольких мест - попробуйте поискать сверху на панели инструментов кнопку KeeFox.">
+<!ENTITY KeeFox_Install_InstallFinished.description "Теперь KeeFox готов к использованию. Проверка Firefox, что установка прошла успешно может занять до 20 секунд. Когда всё будет сделано, текст основной кнопки отобразит «Не авторизован» или «Авторизован».">
 <!ENTITY KeeFox_Install_NextSteps.description "Попробуйте эти шаги, чтобы начать использовать KeeFox:">
 <!ENTITY KeeFox_Install_NextStep1.description "Следуйте инструкциям в «помощнике KeePass», либо создайте новую базу данных для хранения паролей или откройте уже используемую базу данных KeePass.">
 <!ENTITY KeeFox_Install_NextStep2.description "Нажмите здесь, чтобы воспользоваться учебником для начинающих.">

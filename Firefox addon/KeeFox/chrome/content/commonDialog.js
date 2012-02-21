@@ -344,7 +344,8 @@ var keeFoxDialogManager = {
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser");
          window.keeFoxInst._KFLog.info("callback fired!");
-         
+        this.strbundle = window.document.getElementById("KeeFox-strings");
+        
         var foundLogins = null;
         var convertedResult = [];
         
@@ -452,7 +453,12 @@ var keeFoxDialogManager = {
 			for (var i = 0; i < matchedLogins.length; i++){
 				var item = dialogFindLoginStorage.document.createElement("menuitem");
 				item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
-				item.setAttribute("oncommand",'keeFoxDialogManager.fill(this.username, this.password);');
+				// original
+//                item.setAttribute("oncommand",'keeFoxDialogManager.fill(this.username, this.password);');
+//				item.username = matchedLogins[i].username;
+//				item.password = matchedLogins[i].password;
+                // new (maybe need to change this.username stuff to use attributes instead?
+                item.addEventListener("command", function (event) { keeFoxDialogManager.fill(this.username, this.password); }, false);  
 				item.username = matchedLogins[i].username;
 				item.password = matchedLogins[i].password;
 				item.setAttribute("tooltiptext", matchedLogins[i].title);

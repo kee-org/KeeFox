@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -46,18 +46,38 @@ namespace Jayrock.Json
         /// (teleplan.no) and nearly re-written by Atif Aziz (www.raboof.com)
         /// </remarks>
     
-        public static string Enquote(string s)
+        public static string Enquote(string str)
         {
-            if (s == null || s.Length == 0)
+            if (str == null || str.Length == 0)
                 return "\"\"";
 
-            return Enquote(s, null).ToString();
+            return Enquote(str, null).ToString();
         }
         
-        public static StringBuilder Enquote(string s, StringBuilder sb)
+        public static StringBuilder Enquote(string str, StringBuilder sb)
         {
-            int length = Mask.NullString(s).Length;
-            
+            return EnquoteStringOrChars(str, null, 0, Mask.NullString(str).Length, sb);
+        }
+
+        public static string Enquote(char[] chars, int offset, int length)
+        {
+            return Enquote(chars, offset, length, null).ToString();
+        }
+
+        public static StringBuilder Enquote(char[] chars, int offset, int length, StringBuilder sb)
+        {
+            if (chars == null) throw new ArgumentNullException("chars");
+            return EnquoteStringOrChars(null, chars, offset, length, sb);
+        }
+
+        private static StringBuilder EnquoteStringOrChars(string str, char[] chars, int offset, int length, StringBuilder sb)
+        {
+            if (chars != null)
+            {
+                if (offset < 0) throw new ArgumentOutOfRangeException("offset", offset, null);
+                if (length < 0) throw new ArgumentOutOfRangeException("length", offset, null);
+            }
+
             if (sb == null)
                 sb = new StringBuilder(length + 4);
             
@@ -65,54 +85,62 @@ namespace Jayrock.Json
             
             char last;
             char ch = '\0';
-            
-            for (int index = 0; index < length; index++)
+
+            int end = offset + length;
+            if (chars != null && end > chars.Length)
+                throw new ArgumentOutOfRangeException();
+
+            for (int index = offset; index < end; index++)
             {
                 last = ch;
-                ch = s[index];
-
-                switch (ch)
-                {
-                    case '\\':
-                    case '"':
-                    {
-                        sb.Append('\\');
-                        sb.Append(ch);
-                        break;
-                    }
-                        
-                    case '/':
-                    {
-                        if (last == '<')
-                            sb.Append('\\');
-                        sb.Append(ch);
-                        break;
-                    }
-                    
-                    case '\b': sb.Append("\\b"); break;
-                    case '\t': sb.Append("\\t"); break;
-                    case '\n': sb.Append("\\n"); break;
-                    case '\f': sb.Append("\\f"); break;
-                    case '\r': sb.Append("\\r"); break;
-                    
-                    default:
-                    {
-                        if (ch < ' ')
-                        {
-                            sb.Append("\\u");
-                            sb.Append(((int) ch).ToString("x4", CultureInfo.InvariantCulture));
-                        }
-                        else
-                        {
-                            sb.Append(ch);
-                        }
-                    
-                        break;
-                    }
-                }
+                ch = chars != null ? chars[index] : str[index];
+                Enquote(sb, last, ch);
             }
 
             return sb.Append('"');
+        }
+
+        private static void Enquote(StringBuilder sb, char last, char ch)
+        {
+            switch (ch)
+            {
+                case '\\':
+                case '"':
+                {
+                    sb.Append('\\');
+                    sb.Append(ch);
+                    break;
+                }
+                        
+                case '/':
+                {
+                    if (last == '<')
+                        sb.Append('\\');
+                    sb.Append(ch);
+                    break;
+                }
+                    
+                case '\b': sb.Append("\\b"); break;
+                case '\t': sb.Append("\\t"); break;
+                case '\n': sb.Append("\\n"); break;
+                case '\f': sb.Append("\\f"); break;
+                case '\r': sb.Append("\\r"); break;
+                    
+                default:
+                {
+                    if (ch < ' ')
+                    {
+                        sb.Append("\\u");
+                        sb.Append(((int) ch).ToString("x4", CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        sb.Append(ch);
+                    }
+                    
+                    break;
+                }
+            }
         }
 
         /// <summary>

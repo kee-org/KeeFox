@@ -1,5 +1,4 @@
 <!ENTITY KeeFox_Main-Button.loading.label "KeeFox läses in…">
-<!ENTITY KeeFox_Main-Button.loading.key "K">
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox läses in och utför några starttester. Det bör inte ta lång tid…">
 <!ENTITY KeeFox_Menu-Button.tip "Klicka för att se KeeFox-menyn">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
@@ -40,7 +39,7 @@
 <!ENTITY KeeFox_Dialog-SelectAGroup.title "Välj en grupp">
 <!ENTITY KeeFox_Dialog_OK_Button.label "OK">
 <!ENTITY KeeFox_Dialog_Cancel_Button.label "Avbryt">
-<!-- General installation / setup strings -->
+<!-- strings that may be used in more than one location -->
 <!ENTITY KeeFox_Install_Setup_KeeFox.label "Installera KeeFox">
 <!ENTITY KeeFox_Install_Upgrade_KeeFox.label "Uppgradera KeeFox">
 <!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "Installationsprocessen har redan påbörjats i en annan flik. Om du inte kan hitta fliken, så kan du behöva starta om Firefox för att fortsätta.">
@@ -52,7 +51,7 @@
 <!ENTITY KeeFox_Install_Download_Checksum_Failed.label "En nerladdad komponent är skadad. Försök igen och om du fortsätter att få detta meddelande, fråga efter hjälp i tilläggets supportforum.">
 <!ENTITY KeeFox_Install_Try_Again_Button.label "Försök igen">
 <!ENTITY KeeFox_Install_Cancel_Button.label "Avbryt">
-<!-- strings describing each possible default setup state -->
+<!-- General installation / setup strings -->
 <!ENTITY KeeFox_Install_adminNETInstallExpander.description "KeeFox måste installera två andra komponenter - klicka bara på knappen ovan för att komma igång.">
 <!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "KeeFox måste installera KeePass Password Safe 2 för att på ett säkert sätt kunna lagra dina lösenord. Klicka på knappen ovan för en snabb och enkel installation med standardinställningar. Klicka på knappen nedan om du redan har en installerad kopia av KeePass Password Safe 2, vill använda den flyttbara versionen av KeePass eller vill ha kontroll över installationsprocessen.">
@@ -63,7 +62,7 @@
 <!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox använder KeePass Password Safe 2 för att på ett säkert sätt kunna lagra dina lösenord. Det är redan installerat på din dator, men du kan behöva tillhandahålla ett administrativt lösenord för att möjliggöra för KeeFox att på korrekt sätt sammanlänka KeePass Password Safe 2 och Firefox. Om du inte kan tillhandahålla ett administrativt lösenord för denna dator, klicka nedan för annat alternativ.">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
-<!-- strings providing further setup information to the user and advanced options -->
+<!-- strings describing each possible default setup state -->
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox kommer att installera ramverket Microsoft .NET Framework och KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 är det lösenordshanteringsprogram som KeeFox använder för att på ett säkert sätt kunna lagra dina lösenord. Om du vill välja installationsplats, språk eller avancerade inställningar för KeePass Password Safe 2, var vänlig ladda ner och installera .NET från Microsofts webbplats och starta sedan om Firefox.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 kräver .NET Framework-versionen 2.0 eller högre. Huvudinstallationsknappen ovan kommer att installera version 2.0. Microsoft .NET Framework är en etablerad plattform som krävs av många tillämpningsprogramvaror. Om du vill kunna köra program som behöver nyare versioner av .NET Framework, klicka på knappen nedan för att installera version 3.5. Det kommer att ta längre tid att ladda ner och installera, men KeeFox och KeePass Password Safe 2 kommer att fungera korrekt med båda dessa versioner.">
@@ -72,7 +71,7 @@
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Hämta och installera .NET från Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Hämta och installera installationsfilen (eller ZIP-filen) för KeePass Password Safe 2 från http://keepass.info">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description "3a) Starta antingen om Firefox för att komma tillbaka till denna installationssida så den kan slutföra det sista steget…">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description "3b) … eller kopiera filen KeePassRPC.plgx manuellt från Firefox tilläggsmapp (titta i undermappen &quot;deps&quot;) till KeePass Password Safe 2:s insticksmodulmapp.">
+<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description "3b) …eller kopiera filen KeePassRPC.plgx manuellt från Firefox tilläggsmapp (titta i undermappen &quot;deps&quot;) till KeePass Password Safe 2:s insticksmodulmapp.">
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpandee.description "Om du vill välja installationsplats, språk eller avancerade inställningar för KeePass Password Safe 2, klicka på knappen nedan.">
 <!ENTITY KeeFox_Install_KPsetupExeInstallButton.label "Installera KeePass för alla användare med fullständig kontroll över processen">
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpandeePortable.description "Om du vill installera den flyttbara versionen av KeePass till en specifik plats (t.ex. en minnespinne), så kan du välja en plats nedan. Om du redan har installerat KeePass Password Safe 2, var vänlig använd rutan nedan för att berätta för KeeFox var det hittas.">

@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -128,6 +128,36 @@ namespace Jayrock.Json
             Assert.AreEqual(new DateTime(2006, 7, 17, 10, 56, 56), Number("1153133816").ToDateTime().ToUniversalTime());
         }
 
+        #if NET_4_0
+
+        [ Test ]
+        public void ToBigInteger()
+        {
+            JsonNumber number = Number("784637716923335095224261902710254454442933591094742482943");
+            Assert.AreEqual(System.Numerics.BigInteger.Pow(long.MaxValue, 3), number.ToBigInteger());
+        }
+
+        [Test, ExpectedException(typeof(FormatException)) ]
+        public void CannotToBigIntegerOnFloat()
+        {
+            Number("1.5").ToBigInteger();
+        }
+
+        [ Test ]
+        public void ConvertToBigInteger()
+        {
+            JsonNumber number = Number("784637716923335095224261902710254454442933591094742482943");
+            Assert.AreEqual(System.Numerics.BigInteger.Pow(long.MaxValue, 3), Convert.ChangeType(number, typeof(System.Numerics.BigInteger)));
+        }
+
+        [Test, ExpectedException(typeof(FormatException)) ]
+        public void CannotConvertToBigIntegerOnFloat()
+        {
+            Convert.ChangeType(Number("1.5"), typeof(System.Numerics.BigInteger));
+        }
+        
+        #endif
+        
         [ Test ]
         public void LogicalEquality()
         {

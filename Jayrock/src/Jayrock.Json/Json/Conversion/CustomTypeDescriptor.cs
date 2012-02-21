@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -70,6 +70,9 @@ namespace Jayrock.Json.Conversion
             if (type == null) 
                 throw new ArgumentNullException("type");
 
+            // TODO Remove dependency on JsonIgnore & JsonExport
+            // This class should not have any JSON specifics.
+
             //
             // No members supplied? Get all public, instance-level fields and 
             // properties of the type that are not marked with the JsonIgnore
@@ -104,7 +107,7 @@ namespace Jayrock.Json.Conversion
             }
                         
             PropertyDescriptorCollection logicalProperties = new PropertyDescriptorCollection(null);
-            
+            bool immutable = true;
             int index = 0;
             
             foreach (MemberInfo member in members)
@@ -112,6 +115,7 @@ namespace Jayrock.Json.Conversion
                 FieldInfo field = member as FieldInfo;
                 string name = names != null && index < names.Length ? names[index] : null;
                 TypeMemberDescriptor descriptor = null;
+                bool writable;
 
                 if (field != null)
                 {
@@ -122,9 +126,12 @@ namespace Jayrock.Json.Conversion
             
                     if (field.DeclaringType != type && field.ReflectedType != type)
                         throw new ArgumentException(null, "members");
-                
-                    if (!field.IsInitOnly && !field.IsLiteral)
+
+                    writable = !field.IsInitOnly;
+                    if ((writable || immutable) && !field.IsLiteral)
+                    {
                         descriptor = new TypeFieldDescriptor(field, name);
+                    }
                 }
                 else
                 {
@@ -132,7 +139,7 @@ namespace Jayrock.Json.Conversion
                     
                     if (property == null)
                         throw new ArgumentException(null, "members");
-                    
+
                     //
                     // Add public properties that can be read and modified.
                     // If property is read-only yet has the JsonExport 
@@ -147,8 +154,10 @@ namespace Jayrock.Json.Conversion
                     if (property.DeclaringType != type && property.ReflectedType != type)
                         throw new ArgumentException(null, "members");
 
+                    writable = property.CanWrite;
+
                     if ((property.CanRead) &&
-                        (isAnonymousClass || property.CanWrite || property.IsDefined(typeof(JsonExportAttribute), true)) &&
+                        (writable || immutable || property.IsDefined(typeof(JsonExportAttribute), true)) &&
                         property.GetIndexParameters().Length == 0)
                     {
                         //
@@ -170,6 +179,13 @@ namespace Jayrock.Json.Conversion
                 if (descriptor != null)
                 {
                     descriptor.ApplyCustomizations();
+
+                    if (immutable && writable)
+                    {
+                        immutable = false;
+                        logicalProperties.Clear();
+                    }
+
                     logicalProperties.Add(descriptor);
                 }
                 
@@ -224,7 +240,7 @@ namespace Jayrock.Json.Conversion
         /// Note also that we take a "duck" approach to look for the 
         /// CompilerGenerated attribute under .NET Framework 1.x, which does 
         /// not seem like an appaling idea considering that the C# compiler 
-        /// does the with ExtensionAttribute when it comes to extension 
+        /// does the same with ExtensionAttribute when it comes to extension 
         /// methods.
         /// </remarks>
         ///

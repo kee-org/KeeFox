@@ -21,20 +21,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //Math.round((d.getTime()/1000)-10)
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.16.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.16.zip";
-const KF_KPZIP_FILE_CHECKSUM = "3c3077af6f563f77d30967daacca4465";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.16/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KP_FILE_NAME = "KeePass-2.16-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
-const KF_KP_SAVE_NAME = "KeePass-2.16-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "a47fa8902f4d5da473c99e2501076021";
-const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/";
-const KF_NET_FILE_NAME = "dotnetfx.exe"
-const KF_NET_FILE_CHECKSUM = "93a13358898a54643adbca67d1533462";
-const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
-const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
-const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.18/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.18.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.18.zip";
+const KF_KPZIP_FILE_CHECKSUM = "54e25b1a240ddfdaa1f0af80a79beb17";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.18/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
+const KF_KP_FILE_NAME = "KeePass-2.18-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
+const KF_KP_SAVE_NAME = "KeePass-2.18-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "07a1444329162b7a634cbe66bc32f528";
+const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
+const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
+const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
+//const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
+//const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
+//const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
 const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
 
 
@@ -54,10 +54,10 @@ const KF_INSTALL_STATE_KRPC_EXECUTED = 4096;  // KeePassRPC files have been copi
 
 const KF_INSTALL_STATE_SELECTED_SEC = 8192; // user has asked to run secondary installation routine
 const KF_INSTALL_STATE_SELECTED_TER = 16384; // user has asked to run tertiary installation routine
-const KF_INSTALL_STATE_NET35_DOWNLOADING = 32768;
-const KF_INSTALL_STATE_NET35_DOWNLOADED = 65536;
-const KF_INSTALL_STATE_NET35_EXECUTING = 131072;
-const KF_INSTALL_STATE_NET35_EXECUTED = 262144; // .NET35 installer has been executed
+//const KF_INSTALL_STATE_NET35_DOWNLOADING = 32768;
+//const KF_INSTALL_STATE_NET35_DOWNLOADED = 65536;
+//const KF_INSTALL_STATE_NET35_EXECUTING = 131072;
+//const KF_INSTALL_STATE_NET35_EXECUTED = 262144; // .NET35 installer has been executed
 const KF_INSTALL_STATE_KPZIP_DOWNLOADING = 524288;
 const KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
 const KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;
@@ -174,7 +174,7 @@ function prepareInstallPage()
     {
         case 1:
             showSection('setupExeInstallButtonMain');
-            showSection('adminNETInstallExpander');
+            showSection('setupNET35ExeInstallExpandee');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             persist = mainWindow.KFdownloadFile("IC1PriDownload",
                 KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
@@ -196,7 +196,7 @@ function prepareInstallPage()
             break;
         case 4: 
             showSection('setupExeInstallButtonMain');
-            showSection('nonAdminNETInstallExpander');
+            //showSection('nonAdminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             persist = mainWindow.KFdownloadFile("IC1PriDownload",
                 KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
@@ -352,13 +352,10 @@ function IC1setupKP(mainWindow)
     try
     {
         if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED) 
-            && (installState & KF_INSTALL_STATE_NET_EXECUTED 
-                || installState & KF_INSTALL_STATE_NET35_EXECUTED))
+            && (installState & KF_INSTALL_STATE_NET_EXECUTED))
         {
             if (installState & KF_INSTALL_STATE_NET_EXECUTED)
                 hideSection('IC1setupNETdownloaded');
-            else if (installState & KF_INSTALL_STATE_NET35_EXECUTED)
-                hideSection('IC1setupNET35downloaded');
                 
             var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
@@ -374,7 +371,7 @@ function IC1setupKP(mainWindow)
             
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithFile(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_KP_SAVE_NAME);            
 
             installState |= KF_INSTALL_STATE_KP_EXECUTING;
@@ -434,7 +431,7 @@ function IC1setupNET(mainWindow)
 
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithFile(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_NET_FILE_NAME);
                                 
             mainWindow.keeFoxInst.runAnInstaller(file.path,"", 
@@ -458,58 +455,6 @@ function IC1setupNET(mainWindow)
     }
 }
 
-
-function IC1setupNET35(mainWindow)
-{
-    try
-    {
-        if ((installState & KF_INSTALL_STATE_NET35_DOWNLOADED) 
-            && (installState & KF_INSTALL_STATE_SELECTED_SEC))
-        {
-            var checkTest = mainWindow.KFMD5checksumVerification(KF_NET35_FILE_NAME,KF_NET35_FILE_CHECKSUM);
-            
-            hideSection('IC1setupNET35downloading');
-            if (checkTest)
-                mainWindow.KFLog.info("File checksum succeeded.");
-            else
-            {
-                checksumFailed();
-                return;
-            }            
-            showSection('IC1setupNET35downloaded');
-            
-            // start the pre-download of the KeePass setup file (while user installs .Net...)
-            installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
-            var d = new Date();
-            persist = mainWindow.KFdownloadFile("IC1SecDownload",
-                KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
-            
-            installState |= KF_INSTALL_STATE_NET_EXECUTING;
-
-            var file = Components.classes["@mozilla.org/file/local;1"]
-            .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
-            file.append(KF_NET35_FILE_NAME);
-            mainWindow.keeFoxInst.runAnInstaller(file.path,"",
-                {
-                    observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                            .getInterface(Components.interfaces.nsIWebNavigation)
-                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                            .rootTreeItem
-                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                            .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NET35SetupFinished", '', mainWindow, window);
-                        kth.run(); 
-                    }
-                }
-            );
-        }
-    } catch (err) {
-        mainWindow.keeFoxInst._KFLog.error(err);
-    }
-}
 /********************
 END:
 functions to support the execution of Install Case 1
@@ -599,7 +544,7 @@ function IC2setupKP(mainWindow)
 
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithFile(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_KP_SAVE_NAME);
             
             mainWindow.keeFoxInst.runAnInstaller(file.path,"/silent",
@@ -650,7 +595,7 @@ function IC2setupCustomKP(mainWindow)
 
             var file = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
-            file.initWithPath(mainWindow.keeFoxInst._myDepsDir());
+            file.initWithFile(mainWindow.keeFoxInst._myProfileDir());
             file.append(KF_KP_SAVE_NAME);
             
             mainWindow.keeFoxInst.runAnInstaller(file.path,"",
@@ -906,39 +851,6 @@ function copyKPToSpecificLocationInstall()
     IC5zipKP(mainWindow);
 }
 
-
-/*
- IC1 and IC4
- run (with admin rights escalation) the .NET 3.5 installer 
- */
-function setupNET35ExeInstall()
-{
-    // Cancel any automatically started downloads
-    try {
-        persist.cancelSave();
-    }
-    catch (ex) { // being a bit lazy - don't understand what might cause this call to fail so playing it safe
-    }
-    
-    installState = KF_INSTALL_STATE_NET35_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1SecDownload",
-                KF_NET35_DOWNLOAD_PATH + KF_NET35_FILE_NAME,
-                KF_NET35_FILE_NAME, mainWindow, window, persist);
-    hideInstallView();
-    showProgressView();
-    
-    showSection('IC1setupNET35downloading');
- 
-    // call this now and let it decide if it is the right time to run
-    // the installer or wait until it's called again by progress listener
-    installState |= KF_INSTALL_STATE_SELECTED_SEC;
-    
-    // we just call IC1 straight away since we currently treat
-    // IC1 and IC4 as the same situation
-    IC1setupNET35(mainWindow);
-}
-
-
 /*
  (IC2 secondary and IC5 secondary)
  run (with admin rights escalation) the keepass 2.x exe installer
@@ -1005,6 +917,7 @@ function userHasAdminRights(mainWindow)
     }
 }
 
+// determine if .NET framework version 2 or 4 is installed
 function checkDotNetFramework(mainWindow)
 {
     var dotNetFrameworkFound;
@@ -1016,24 +929,66 @@ function checkDotNetFramework(mainWindow)
     {
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
             .createInstance(Components.interfaces.nsIWindowsRegKey);
-        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft",
+        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE, "",
             wrk.ACCESS_READ);
-        if (wrk.hasChild(".NETFramework"))
+             
+        if (wrk.hasChild("Software"))
         {
-            var subkey = wrk.openChild(".NETFramework", wrk.ACCESS_READ);
-            if (subkey.hasChild("policy"))
+            var subkey = wrk.openChild("Software", wrk.ACCESS_READ);
+            if (subkey.hasChild("Microsoft"))
             {
-                var subkey2 = subkey.openChild("policy", subkey.ACCESS_READ);
-                if (subkey2.hasChild("v2.0"))
+                var subkey2 = subkey.openChild("Microsoft", subkey.ACCESS_READ);
+                if (subkey2.hasChild("NET Framework Setup"))
                 {
-                    var subkey3 = subkey2.openChild("v2.0", subkey2.ACCESS_READ);
-                    if (subkey3.hasValue("50727"))
+                    var subkey3 = subkey2.openChild("NET Framework Setup", subkey2.ACCESS_READ);
+                    if (subkey3.hasChild("NDP"))
                     {
-                        if (subkey3.readStringValue("50727") == "50727-50727")
+                        var subkey4 = subkey3.openChild("NDP", subkey3.ACCESS_READ);
+                        if (subkey4.hasChild("v2.0.50727"))
                         {
-                            dotNetFrameworkFound = true;
-                            mainWindow.KFLog.info(".NET framework has been found");
+                            var subkey4a = subkey4.openChild("v2.0.50727", subkey4.ACCESS_READ);
+                            if (subkey4a.hasValue("Install"))
+                            {
+                                if (subkey4a.readIntValue("Install") == 1)
+                                {
+                                    dotNetFrameworkFound = true;
+                                    mainWindow.KFLog.info(".NET framework has been found");
+                                }
+                            }
+                            subkey4a.close();
                         }
+                        if (subkey4.hasChild("v4"))
+                        {
+                            var subkey4b = subkey4.openChild("v4", subkey4.ACCESS_READ);
+                            if (subkey4b.hasChild("Client"))
+                            {
+                                var subkey4b1 = subkey4b.openChild("Client", subkey4b.ACCESS_READ);
+                                if (subkey4b1.hasValue("Install"))
+                                {
+                                    if (subkey4b1.readIntValue("Install") == 1)
+                                    {
+                                        dotNetFrameworkFound = true;
+                                        mainWindow.KFLog.info(".NET framework has been found");
+                                    }
+                                }
+                                subkey4b1.close();
+                            }
+                            if (subkey4b.hasChild("Full"))
+                            {
+                                var subkey4b2 = subkey4b.openChild("Full", subkey4b.ACCESS_READ);
+                                if (subkey4b2.hasValue("Install"))
+                                {
+                                    if (subkey4b2.readIntValue("Install") == 1)
+                                    {
+                                        dotNetFrameworkFound = true;
+                                        mainWindow.KFLog.info(".NET framework has been found");
+                                    }
+                                }
+                                subkey4b2.close();
+                            }
+                            subkey4b.close();
+                        }
+                        subkey4.close();
                     }
                     subkey3.close();
                 }
@@ -1139,9 +1094,7 @@ function runKeePassRPCExecutableInstaller(keePassLocation)
 }
 
 // TODO2: would be nice if this could go in a seperate
-// thread but my guess is that would be masochistic
-// in the mean time I've tried sticking some
-// thread.processNextEvent calls in at strategic points...
+// thread
 // TODO2: revisit threaded approach now that we can
 // rely on FF 3.5 thread workers to simplify things
 // TODO2: ... or not, if FF4 has removed the required features!
@@ -1165,7 +1118,6 @@ function extractKPZip (zipFilePath, storeLocation)
     var entries = zipReader.findEntries("*/");
     while (entries.hasMore())
     {
-        thread.processNextEvent(true); // should this be false instead?
         var entryName = entries.getNext();
         var target = getItemFile(entryName);
         if (!target.exists())
@@ -1192,8 +1144,6 @@ function extractKPZip (zipFilePath, storeLocation)
         target = getItemFile(entryName);
         if (target.exists())
             continue;
-
-        thread.processNextEvent(true); // should this be false instead?
 
         try
         {

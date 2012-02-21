@@ -19,7 +19,7 @@ namespace JsonOutputDemo
 
     internal static class Program
     {
-        private const string newsSourceUrl = "http://msdn.microsoft.com/rss.xml";
+        private const string newsSourceUrl = "http://feeds.bbci.co.uk/news/rss.xml";
 
         private delegate void Demo();
 

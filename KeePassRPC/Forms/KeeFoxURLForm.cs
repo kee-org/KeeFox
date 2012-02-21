@@ -84,6 +84,21 @@ namespace KeePassRPC.Forms
             RegEx = checkBoxRegEx.Checked;
             Block = radioButtonBlock.Checked;
             Match = radioButtonMatch.Checked;
+
+            // Tell the user straight away if their Regex is bad
+            if (RegEx)
+            {
+                try
+                {
+                    System.Text.RegularExpressions.Regex test = new System.Text.RegularExpressions.Regex(URL);
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show(this, "'" + URL + "' is not a valid regular expression. Details: " + ex.Message, "Invalid regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    this.DialogResult = DialogResult.None;
+                    return;
+                }
+            }
         }
     }
 }

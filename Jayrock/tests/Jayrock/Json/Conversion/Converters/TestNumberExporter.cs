@@ -6,7 +6,7 @@
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
-// Software Foundation; either version 2.1 of the License, or (at your option)
+// Software Foundation; either version 3 of the License, or (at your option)
 // any later version.
 //
 // This library is distributed in the hope that it will be useful, but WITHOUT
@@ -144,3 +144,31 @@ namespace Jayrock.Json.Conversion.Converters
         }
     }
 }
+
+#if !NET_1_0 && !NET_1_1 && !NET_2_0
+
+namespace Jayrock.Json.Conversion.Converters
+{
+    #region Imports
+
+    using System.Numerics;
+    using NUnit.Framework;
+
+    #endregion
+
+    [ TestFixture ]
+    public class TestBigIntegerExporter : TestNumberExporter
+    {
+        protected override object SampleValue
+        {
+            get { return BigInteger.Pow(long.MaxValue, 3); }
+        }
+
+        protected override IExporter CreateExporter()
+        {
+            return new BigIntegerExporter();
+        }
+    }
+}
+
+#endif // !NET_1_0 && !NET_1_1 && !NET_2_0

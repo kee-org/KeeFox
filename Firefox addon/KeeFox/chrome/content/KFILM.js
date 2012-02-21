@@ -98,7 +98,7 @@ KFILM.prototype = {
             
         var maxURLscore = 0;
         
-        for (i = 0; i < login.URLs.length; i++)
+        for (var i = 0; i < login.URLs.length; i++)
         {
             var URLscore=0;
             var loginURL = login.URLs[i];
