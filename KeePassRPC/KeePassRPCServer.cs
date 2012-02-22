@@ -476,11 +476,19 @@ namespace KeePassRPC
                     "^\\{.*?\\\"method\\\"\\:\\\"Idle\\\".*?,.*?\\\"id\\\"\\:(\\d+).*?\\}$");
                 if (match.Success)
                 {
-
-					if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Got Idle method- ignoring.");
-					
-					// Do nothing
-					return;
+                    if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Got Idle method- ignoring.");
+                    // Do nothing
+                    return;
+                } else // Check for alternative Idle message structure
+                {
+                    match = Regex.Match(message,
+                        "^\\{.*?\\\"id\\\"\\:(\\d+).*?,.*?\\\"method\\\"\\:\\\"Idle\\\".*?\\}$");
+                    if (match.Success)
+                    {
+                        if (KeePassRPCPlugin.logger != null) KeePassRPCPlugin.logger.WriteLine("Got Idle method- ignoring.");
+                        // Do nothing
+                        return;
+                    }
                 }
 			}
 			
