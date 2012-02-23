@@ -61,7 +61,6 @@ function prepareMonoInstallPage()
   if (mainWindow.keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
   {
     document.getElementById('KFInstallNotRequired').setAttribute('hidden', false);
-    resetInstallation();
     return;
   }
     

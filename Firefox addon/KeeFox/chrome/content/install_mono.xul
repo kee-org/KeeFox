@@ -84,6 +84,7 @@
                 <description id="monoManualStep3_description">&KeeFox_Install_monoManualStep3.description;</description>
                 <description id="monoManualStep4_description">&KeeFox_Install_monoManualStep4.description;</description>
                 <description id="monoManualStep5_description">&KeeFox_Install_monoManualStep5.description;</description>
+                <description id="monoManualStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
                 <description id="monoManualStep5a_description" class="text-link"></description>
               </vbox>
 

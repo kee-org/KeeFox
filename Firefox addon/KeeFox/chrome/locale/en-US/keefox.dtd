@@ -110,7 +110,8 @@
 <!ENTITY KeeFox_Install_monoManualStep2.description "2) Download Portable KeePass Password Safe 2 (ZIP Package) from:">
 <!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass to ~/KeePass (this default can be customised)">
 <!ENTITY KeeFox_Install_monoManualStep4.description "4) Copy the KeePassRPC.plgx file to ~/KeePass/plugins ">
-<!ENTITY KeeFox_Install_monoManualStep5.description "The KeePassRPC.plgx file you need to manually copy is at:">
+<!ENTITY KeeFox_Install_monoManualStep5.description "5) Restart Firefox">
+<!ENTITY KeeFox_Install_monoManualStep6.description "The KeePassRPC.plgx file you need to manually copy is at:">
 
 <!ENTITY KeeFox_Install_monoManual2.description "Customisation instructions:">
 <!ENTITY KeeFox_Install_monoManualTest1.description "1) It is assumed KeePass is installed to: ">

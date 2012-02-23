@@ -23,6 +23,7 @@
 
     <em:targetPlatform>WINNT</em:targetPlatform>
     <em:targetPlatform>Linux</em:targetPlatform>
+    <em:targetPlatform>Darwin</em:targetPlatform>    
 
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
