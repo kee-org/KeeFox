@@ -51,6 +51,8 @@ function prepareMonoInstallPage()
   {
     KFupgradeMode = true;
     mainWindow.keeFoxInst._KFLog.debug("Install system starting in upgrade mode");
+    document.getElementById('Install_monoManualUpgrade').setAttribute('hidden', false);
+    document.getElementById('Install_monoManual').setAttribute('hidden', true);
   }
   else
   {
@@ -63,14 +65,6 @@ function prepareMonoInstallPage()
     document.getElementById('KFInstallNotRequired').setAttribute('hidden', false);
     return;
   }
-    
-  // only let this install script run once per firefox session unless user cancels it
-  if (mainWindow.keeFoxInst._keeFoxStorage.get("KFinstallProcessStarted", false))
-  {
-    document.getElementById('KFInstallAlreadyInProgress').setAttribute('hidden', false);
-    showSection('restartInstallationOption');
-    return;
-  }
 
   /*
    * Show the user the path to the 'deps' folder of their keefox extension
@@ -81,7 +75,10 @@ function prepareMonoInstallPage()
   dir.append("extensions");
   dir.append("keefox@chris.tomlinson");
   dir.append("deps");
-  document.getElementById('monoManualStep5a_description').textContent = dir.path;
+  if (KFupgradeMode)
+    document.getElementById('monoManualUpgradeStep5a_description').textContent = dir.path;
+  else
+    document.getElementById('monoManualStep5a_description').textContent = dir.path;
 
   var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
     getService(Components.interfaces.nsIProperties);
