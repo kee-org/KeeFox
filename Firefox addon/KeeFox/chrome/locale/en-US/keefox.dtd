@@ -117,3 +117,7 @@
 <!ENTITY KeeFox_Install_monoManualTest1.description "1) It is assumed KeePass is installed to: ">
 <!ENTITY KeeFox_Install_monoManualTest2.description "2) It is assumed Mono is installed to: ">
 <!ENTITY KeeFox_Install_monoManualTest3.description "To override these defaults, under KeeFox->Options->KeePass, change 'KeePass installation location' and 'Mono executable location'">
+
+<!ENTITY KeeFox_Install_monoManualUpgrade.description "To upgrade KeeFox:">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Copy the KeePassRPC.plgx file to ~/KeePass/plugins ">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) Restart Firefox">
