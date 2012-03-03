@@ -186,6 +186,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\content\install_mono.js" />
     <None Include="KeeFox\chrome\content\install_mono.xul">
       <SubType>Designer</SubType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
     <None Include="KeeFox\chrome\skin\buttonGradient.png" />
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
@@ -298,7 +299,9 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
     <None Include="KeeFox\chrome\locale\cs\keefox.dtd" />
-    <None Include="KeeFox\chrome\locale\de\keefox.dtd" />
+    <None Include="KeeFox\chrome\locale\de\keefox.dtd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="KeeFox\chrome\locale\zh-CN\keefox.dtd" />
     <None Include="KeeFox\chrome\locale\en-US\keefox.properties" />
     <None Include="KeeFox\chrome\locale\cs\keefox.properties" />

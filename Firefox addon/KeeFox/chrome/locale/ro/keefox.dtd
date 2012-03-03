@@ -1,0 +1,14 @@
+<!ENTITY KeeFox_Menu-Button.label "KeeFox">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.label "Generează o parolă nouă">
+<!ENTITY KeeFox_Menu-Button.copyNewPasswordToClipboard.key "P">
+<!ENTITY KeeFox_Menu-Button.options.label "Opțiuni">
+<!ENTITY KeeFox_Menu-Button.options.key "O">
+<!ENTITY KeeFox_Logins-Context-Edit-Group.label "Editează grup">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "Salvează într-un grup...">
+<!ENTITY KeeFox_Menu-Button.Help.tip "Ajutor KeeFox.">
+<!ENTITY KeeFox_Menu-Button.Help.label "Ajutor">
+<!ENTITY KeeFox_Menu-Button.Help.key "A">
+<!ENTITY KeeFox_Tools-Menu.options.label "Opțiuni KeeFox">
+<!ENTITY KeeFox_Dialog_Cancel_Button.label "Anulează">
+<!ENTITY KeeFox_Install_IC2setupKPdownloaded.description "Descărcare completă. Așteptați...">
+<!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "Descărcare completă. Așteptați...">

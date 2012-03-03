@@ -106,7 +106,7 @@
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass has been detected on your computer. To ensure KeeFox can be setup smoothly, please make sure that it is closed before continuing!">
 
 <!ENTITY KeeFox_Install_monoManual.description "KeeFox can run under Mono, but requires manual installation by following these steps:">
-<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download and install Mono for your distribution">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download and install Mono">
 <!ENTITY KeeFox_Install_monoManualStep2.description "2) Download Portable KeePass Password Safe 2 (ZIP Package) from:">
 <!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass to ~/KeePass (this default can be customised)">
 <!ENTITY KeeFox_Install_monoManualStep4.description "4) Copy the KeePassRPC.plgx file to ~/KeePass/plugins ">
