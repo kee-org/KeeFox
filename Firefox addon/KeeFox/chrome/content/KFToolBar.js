@@ -159,7 +159,6 @@ KFToolbar.prototype = {
                 container.setAttribute('usernameValue', usernameValue);
                 container.setAttribute('formActionURL', login.formActionURL);
                 container.setAttribute('usernameId', usernameId);
-                container.setAttribute('uniqueId', login.uniqueID);
                 container.setAttribute('documentURI', doc.documentURI);
                 container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
 
@@ -198,7 +197,6 @@ KFToolbar.prototype = {
                 tempButton.setAttribute('usernameValue', usernameValue);
                 tempButton.setAttribute('formActionURL', login.formActionURL);
                 tempButton.setAttribute('usernameId', usernameId);
-                tempButton.setAttribute('uniqueId', login.uniqueID);
                 tempButton.setAttribute('documentURI', doc.documentURI);
                 tempButton.addEventListener("command", this.mainButtonCommandMatchHandler, false);
                 menupopup.appendChild(tempButton);
@@ -772,8 +770,9 @@ KFToolbar.prototype = {
             this.hasAttribute('formActionURL') ? this.getAttribute('formActionURL') : null,
             this.hasAttribute('usernameId') ? this.getAttribute('usernameId') : null,
             this.hasAttribute('formId') ? this.getAttribute('formId') : null,
-            this.hasAttribute('uniqueId') ? this.getAttribute('uniqueId') : null,
-            this.hasAttribute('documentURI') ? this.getAttribute('documentURI') : null
+            this.hasAttribute('uuid') ? this.getAttribute('uuid') : null,
+            this.hasAttribute('documentURI') ? this.getAttribute('documentURI') : null,
+            this.hasAttribute('fileName') ? this.getAttribute('fileName') : null
         );
         event.stopPropagation();
     }
