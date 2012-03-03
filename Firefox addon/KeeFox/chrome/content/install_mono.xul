@@ -72,8 +72,6 @@
               <label href="http://keefox.org/help" class="text-link">&KeeFox_Install_Not_Required_Link.label;</label>
             </vbox>
 
-            <!-- everything in this box is displayed on first page load and hidden
-                after installation has started -->
             <vbox style="width:600px;" id="installationStartView" hidden="false">
 
               <vbox id="Install_monoManual" hidden="false">
@@ -86,6 +84,14 @@
                 <description id="monoManualStep5_description">&KeeFox_Install_monoManualStep5.description;</description>
                 <description id="monoManualStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
                 <description id="monoManualStep5a_description" class="text-link"></description>
+              </vbox>
+              
+              <vbox id="Install_monoManualUpgrade" hidden="true">
+                <description class="mono-header">&KeeFox_Install_monoManualUpgrade.description;</description>
+                <description id="monoManualUpgradeStep1_description">&KeeFox_Install_monoManualUpgradeStep1.description;</description>
+                <description id="monoManualUpgradeStep2_description">&KeeFox_Install_monoManualUpgradeStep2.description;</description>
+                <description id="monoManualUpgradeStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
+                <description id="monoManualUpgradeStep5a_description" class="text-link"></description>
               </vbox>
 
               <vbox id="Install_monoManual2" hidden="false">

@@ -1872,8 +1872,11 @@ namespace KeePassRPC
 
         private bool matchesAnyURL(PwEntry pwe, string url, string hostname, bool allowHostnameOnlyMatch)
         {
+            string pattern = @"(^|^/|https?\://|ftp\://)" + System.Text.RegularExpressions.Regex.Escape(hostname) + @"(/|$|\:)";
+
             if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url) || (allowHostnameOnlyMatch && pwe.Strings.ReadSafe("URL").ToLower().Contains(hostname)))
+                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url) || 
+                    (allowHostnameOnlyMatch && System.Text.RegularExpressions.Regex.IsMatch(pwe.Strings.ReadSafe("URL").ToLower(), pattern)))
                )
                 return true;
 

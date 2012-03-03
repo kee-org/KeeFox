@@ -163,7 +163,6 @@ if (keefox_org.shouldLoad)
                     window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
 
                     this.startupKeeFox(keefox_org.toolbar, currentWindow);
-                    KFLog.warn(FirefoxAddonMessageService.prototype.defaultConfiguration.description);
                     keefox_org.FAMS = getFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { KFLog.info.call(this, msg); } );
                                                             
                     return;

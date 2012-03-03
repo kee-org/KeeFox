@@ -322,8 +322,6 @@ KFToolbar.prototype = {
             newMenu = this._currentWindow.document.createElement("menu");
             newMenu.setAttribute("label", group.title);
             newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
-            //newMenu.setAttribute("onpopupshowing", "keefox_org.toolbar.setOneLoginsMenu('KeeFox_Group-" +
-            //    group.uniqueID + "','" + group.uniqueID + "'); event.stopPropagation();");
             newMenu.setAttribute("class", "menu-iconic");
             newMenu.setUserData('uuid', group.uniqueID, null);
             newMenu.setUserData('fileName', dbFileName, null);
@@ -356,22 +354,17 @@ KFToolbar.prototype = {
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
                 "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue]));
-            //tempButton.setAttribute("oncommand", "keefox_org.ILM.loadAndAutoSubmit(0,event.ctrlKey,'" +
-            //    usernameName + "','" + usernameValue + "','" + login.uRLs[0] 
-            //    + "',null,null,'" + login.uniqueID + "');  event.stopPropagation();");
-            tempButton.addEventListener("command", function (event) { keefox_org.ILM.loadAndAutoSubmit(0, event.ctrlKey, usernameName, usernameValue, login.uRLs[0], null, null, login.uniqueID, dbFileName); event.stopPropagation(); }, false); //ael: works
-
-            //tempButton.setAttribute("onclick", "if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button,event.ctrlKey,'" +
-            //    usernameName + "','" + usernameValue + "','" + login.uRLs[0]
-            //    + "',null,null,'" + login.uniqueID + "'); } event.stopPropagation(); if (event.button == 1) keefox_org.UI.closeMenus(event.target);"); // var container = this._currentWindow.document.getElementById('KeeFox_Logins-Button-root'); container.setAttribute('visible', 'false');");
-            tempButton.addEventListener("click", function (event) { if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button, event.ctrlKey, usernameName, usernameValue, login.uRLs[0], null, null, login.uniqueID, dbFileName); event.stopPropagation(); if (event.button == 1) keefox_org.UI.closeMenus(event.target); } }, false); //ael: works
+            tempButton.addEventListener("command", function (event) { keefox_org.ILM.loadAndAutoSubmit(0, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); }, false); //ael: works
+            tempButton.addEventListener("click", function (event) { if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); keefox_org.UI.closeMenus(event.target); } }, false); //ael: works
 
             tempButton.setAttribute("class", "menuitem-iconic");
-            //tempButton.setAttribute("value", login.uniqueID);
-            tempButton.setUserData('uuid', login.uniqueID, null);
             tempButton.setUserData('fileName', dbFileName, null);
             tempButton.setAttribute("context", "KeeFox-login-context");
             tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
+            tempButton.setAttribute("uuid", login.uniqueID);
+            tempButton.setAttribute("usernameName", usernameName);
+            tempButton.setAttribute("usernameValue", usernameValue);
+            tempButton.setAttribute("url", login.uRLs[0]);
 
             container.appendChild(tempButton);
         }
@@ -396,12 +389,9 @@ KFToolbar.prototype = {
         }
         mainButton.setAttribute("class", "");
         mainButton.removeAttribute("type");
-        //mainButton.setAttribute("value", "");
-        //mainButton.removeAttribute("context");
         mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
         mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
-        //mainButton.setAttribute("oncommand", "keeFoxInst.KeeFox_MainButtonClick_install()");
         this.removeNonMatchingEventHandlers(mainButton);
         this.removeMatchingEventHandlers(mainButton);
         mainButton.addEventListener("command", this.mainButtonCommandInstallHandler, false);

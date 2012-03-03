@@ -2188,7 +2188,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
                 priority: 0,
                 
                 // The maximum number of times that this message can be displayed to the end-user
-                maxDisplayTimes: 3,
+                maxDisplayTimes: 5,
 
                 // The number of times this message has been displayed to the user [A]
                 displayCount: 0,
