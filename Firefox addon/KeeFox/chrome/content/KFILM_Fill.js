@@ -168,24 +168,7 @@ KFILM.prototype._fillManyFormFields = function
                     && (backupMatchedValues[j] == undefined || backupMatchedValues[j] == null )
                     )
                 {
-                // all of these matches are considered backup options only...
-//                    matchedValues[j] = matchedField.value;
-//                    matchedIds[j] = i;
-//                    KFLog.debug("Data field "+j+" is a match for form field " + i);
-//                    break;
-//                }
-//                
-//                // Don't think this ever made any sense...
-//                //TODO2: Review if I'm missing a trick by skipping this code
-//                //TODO: Can we match against empty form type here too?
-//                if ((backupMatchedValues[j] == undefined || backupMatchedValues[j] == null 
-//                    || backupMatchedValues[j] == "") && (pageFields[i].type == matchedField.type
-//                    || ((pageFields[i].type == "" || pageFields[i].type == null 
-//                            || pageFields[i].type == undefined || pageFields[i].type == "text") && matchedField.type == "username")
-//                    || ((pageFields[i].type == "" || pageFields[i].type == null 
-//                            || pageFields[i].type == undefined || pageFields[i].type == "username") && matchedField.type == "text")
-//                   ))
-//                {
+                    // all of these matches are considered backup options only...
                     backupMatchedValues[j] = matchedField.value;
                     backupMatchedIds[j] = i;
                     KFLog.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
@@ -969,7 +952,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
             KFLog.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
         }
         
-        //TODO: form should be considered more relevant if it actually had a password field... extend to comparing correct quantity of fields?
+        //TODO2: form should be considered more relevant if it actually had a password field... extend to comparing correct quantity of fields?
         
         // Find the most relevant form
         var mostRelevantFormIndex = 0;

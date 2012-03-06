@@ -735,7 +735,6 @@ KeeFox.prototype = {
     },
     
     // Temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
-    //TODO 0.9: test more thoroughly, especially multiple windows aspect
     _pauseKeeFox: function()
     {
         this._KFLog.debug("Pausing KeeFox.");
@@ -758,7 +757,6 @@ KeeFox.prototype = {
                 win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
                 win.keefox_org.toolbar.setupButton_ready(win);
                 win.keefox_org.UI._removeOLDKFNotifications(true);
-                //TODO 0.9: try this. will it know the DB is offline already? win.keefox_org.toolbar.setAllLogins();
             } catch (exception)
             {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
@@ -768,7 +766,6 @@ KeeFox.prototype = {
         this._KFLog.info("KeeFox paused.");
     },
     
-    //TODO 0.9: test more, especially multiple windows and multiple databases at the same time
     // This is now intended to be called on all occasions when the toolbar or UI need updating
     // If KeePass is unavailable then this will call _pauseKeeFox instead but
     // it's more efficient to just call the pause function straight away if you know KeePass is disconnected
@@ -1420,7 +1417,7 @@ KeeFox.prototype = {
             switch (prefName)
             {
                 case "signon.rememberSignons":
-                //TODO: Only respond if it's the root pref branch
+                //TODO2: Only respond if it's the root pref branch
                     var newValue = prefBranch.getBoolPref(prefName);
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
@@ -1447,7 +1444,7 @@ KeeFox.prototype = {
                     if (keeFoxInst._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                         window.keefox_org.ILM._refillTimer.init(window.keefox_org.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                     else
-                        window.keefox_org.ILM._refillTimer.cancel(); //TODO: is this OK to cancel even if it's not ben inited yet?
+                        window.keefox_org.ILM._refillTimer.cancel();
                     break;
                 case "currentLocation":
                     //tell KeePass this has changed

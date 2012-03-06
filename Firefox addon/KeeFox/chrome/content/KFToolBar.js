@@ -148,9 +148,9 @@ KFToolbar.prototype = {
             if (!merging && i == 0) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
             {
                 container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label", [usernameDisplayValue, login.title]));
-                container.setUserData('uuid', login.uniqueID, null);
-                container.setUserData('fileName', login.database.fileName, null);
-                //container.setUserData("login", login, null);
+                container.setAttribute('uuid', login.uniqueID, null);
+                container.setAttribute('fileName', login.database.fileName, null);
+                //container.setAttribute("login", login, null);
                 container.setAttribute("context", "KeeFox-login-toolbar-context");
                 container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
                 //container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
@@ -187,9 +187,9 @@ KFToolbar.prototype = {
                 tempButton.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label", [usernameDisplayValue, login.title]));
                 tempButton.setAttribute("class", "menuitem-iconic");
                 tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
-                tempButton.setUserData('uuid', login.uniqueID, null);
-                tempButton.setUserData('fileName', login.database.fileName, null);
-                //tempButton.setUserData("login", login, null);
+                tempButton.setAttribute('uuid', login.uniqueID, null);
+                tempButton.setAttribute('fileName', login.database.fileName, null);
+                //tempButton.setAttribute("login", login, null);
                 tempButton.setAttribute("context", "KeeFox-login-context");
                 tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
 
@@ -261,8 +261,8 @@ KFToolbar.prototype = {
                                 newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
                                 newMenu.setAttribute("class", "menu-iconic");
                                 //newMenu.setAttribute("value", rootGroup.uniqueID);
-                                newMenu.setUserData('uuid', rootGroup.uniqueID, null);
-                                newMenu.setUserData('fileName', dbFileName, null);
+                                newMenu.setAttribute('uuid', rootGroup.uniqueID, null);
+                                newMenu.setAttribute('fileName', dbFileName, null);
                                 newMenu.setAttribute("context", "KeeFox-group-context");
                                 newMenu.setAttribute("image", "data:image/png;base64,"+rootGroup.iconImageData);
                                 container.appendChild(newMenu);
@@ -323,8 +323,8 @@ KFToolbar.prototype = {
             newMenu.setAttribute("label", group.title);
             newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
             newMenu.setAttribute("class", "menu-iconic");
-            newMenu.setUserData('uuid', group.uniqueID, null);
-            newMenu.setUserData('fileName', dbFileName, null);
+            newMenu.setAttribute('uuid', group.uniqueID, null);
+            newMenu.setAttribute('fileName', dbFileName, null);
             newMenu.setAttribute("context", "KeeFox-group-context");
             //newMenu.setAttribute("image", "chrome://mozapps/skin/passwordmgr/key.png");
             newMenu.setAttribute("image", "data:image/png;base64," + group.iconImageData);
@@ -358,7 +358,7 @@ KFToolbar.prototype = {
             tempButton.addEventListener("click", function (event) { if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); keefox_org.UI.closeMenus(event.target); } }, false); //ael: works
 
             tempButton.setAttribute("class", "menuitem-iconic");
-            tempButton.setUserData('fileName', dbFileName, null);
+            tempButton.setAttribute('fileName', dbFileName, null);
             tempButton.setAttribute("context", "KeeFox-login-context");
             tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
             tempButton.setAttribute("uuid", login.uniqueID);

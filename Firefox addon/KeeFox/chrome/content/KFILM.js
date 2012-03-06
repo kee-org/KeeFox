@@ -81,7 +81,7 @@ KFILM.prototype = {
 
         var score = 0;
         var actionURL = this._getActionOrigin(form);
-        var URL = form.baseURI; //TODO: BUG?: This does not always refer to the URL of the page. <base> tag in head can override. Confusuing for users? even if technically accurate?
+        var URL = form.baseURI; //TODO2: BUG?: This does not always refer to the URL of the page. <base> tag in head can override. Confusuing for users? even if technically accurate?
         
         // NB: action url on 2nd page will not match. This is probably OK but will review if required.
         if (actionURL == login.formActionURL)
@@ -527,10 +527,7 @@ KFILM.prototype = {
             {
                 case "sessionstore-windows-restored":
                     break;
-                case "timer-callback":    
-                    //this._pwmgr.log("timer fired");
-                    //doc = this._pwmgr._currentWindow.content.document;
-                    //TODO 0.9: does disabling this have nasty sideeffects? //this._pwmgr._toolbar.setLogins(null, null);
+                case "timer-callback":
                     this._pwmgr._fillAllFrames(this._pwmgr._currentWindow.content,false);
                     //TODO2: find some ways of deciding that there is no need
                     // to call this function in some cases. E.g. DOMMutation

@@ -124,14 +124,28 @@ KFUI.prototype = {
 
         var b = bar.ownerDocument.createElement("hbox"); // create a new XUL menuitem
         b.setAttribute('flex', '1');
-        b.setAttribute('align', 'center');
+        //b.setAttribute('align', 'right');
+        b.setAttribute('pack', 'end');
+        
         var img = bar.ownerDocument.createElement('image');
         img.setAttribute('src', 'chrome://keefox/skin/KeeFox24.png'); //16??
-        img.setAttribute('class', 'keetest');
+        img.setAttribute('class', 'keeFoxNotificationImage messageImage');
         b.appendChild(img);
+
+        var text = bar.ownerDocument.createElement('description');
+        text.setAttribute('value', notificationText);
+        text.setAttribute('class', 'messageText');
+        text.setAttribute('flex', '1');
+        b.appendChild(text);
+
+        var spacer = bar.ownerDocument.createElement('spacer');
+        spacer.setAttribute('flex', '1');
+        b.appendChild(spacer);
 
         var bx = bar.ownerDocument.createElement('hbox');
         bx.setAttribute('flex', '1');
+        bx.setAttribute('pack', 'end');
+        bx.setAttribute('class', 'keeFoxNotificationBar');
 
         for(var bi=0; bi < buttons.length; bi++)
         {
@@ -164,6 +178,7 @@ KFUI.prototype = {
         
         b.appendChild(bx);
         p.parentNode.replaceChild(b, p);   
+        p.parentNode.setAttribute('flex', '1');
     },
     
     _prepareNotificationBarMenuItem : function (nmi, itemDef, notifyBox, name)

@@ -104,15 +104,15 @@
   <popupset>
     <menupopup id="KeeFox-login-toolbar-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getUserData('uuid'), document.getElementById('KeeFox_Main-Button').getUserData('fileName'));"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-login-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.getUserData('uuid'),document.popupNode.getUserData('fileName'));"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
       <!--<menuitem label="Login all in tabs"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.getUserData('uuid'),document.popupNode.getUserData('fileName'));"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
     </menupopup>
   </popupset>
 

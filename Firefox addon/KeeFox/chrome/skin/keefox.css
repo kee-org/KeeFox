@@ -96,8 +96,36 @@ toolbar[iconsize="small"] toolbarbutton.login-found
 	font-style:italic;
 }
 
-.keetest
+.keeFoxNotificationImage
 {
-	background-color: #000000 !important;
-	border: 5px solid #000000 !important;
+	padding: 2px 0px !important;
+	margin: 0px 10px !important;
+	width:24px;
+	height:24px;
+}
+
+.keeFoxNotificationBar
+{
+	padding: 0px !important;
+	margin: 0px !important;
+}
+
+.keeFoxNotificationBar toolbarbutton {
+  -moz-appearance: button;
+  margin: 1px 5px 2px 5px;
+  min-width: 6.3em;
+  border: 3px solid;
+  -moz-border-top-colors: transparent ThreeDHighlight ThreeDLightShadow;
+  -moz-border-right-colors: transparent ThreeDDarkShadow ThreeDShadow;
+  -moz-border-bottom-colors: transparent ThreeDDarkShadow ThreeDShadow;
+  -moz-border-left-colors: transparent ThreeDHighlight ThreeDLightShadow;
+  background-color: ThreeDFace;
+  color: ButtonText;
+  text-shadow: none;
+}
+
+.keeFoxNotificationBar .messageText 
+{
+	margin: 8px 5px 2px 5px !important;
+	background-color: red;
 }

@@ -169,7 +169,6 @@ function prepareInstallPage()
 
 // configure the current installation state and trigger any relevant pre-emptive file
 // downloads to keep the end user experience as fast as possible
-//TODO 0.9: support cancellation of pre-emptive downloading in case advanced user chooses unusual option
     switch (installCase)
     {
         case 1:
@@ -778,7 +777,7 @@ function KPsetupExeSilentInstall()
 /*
  IC3 and IC6
  copy KeePassRPC files to the known KeePass 2.x location
- TODO: detect access denied failures and prompt user accordingly
+ TODO2: detect access denied failures and prompt user accordingly
  (this could happen if an admin installed KeePass at an earlier time)
  */
 function copyKRPCToKnownKPLocationInstall()

@@ -92,7 +92,7 @@ if (keefox_org.shouldLoad)
         // a reference to this scope's KF object
         _kf: null,
 
-        //TODO:???
+        //TODO2:???
         _currentKFToolbar: null,
 
         // the window we are interested in (see below for performance improvement option)

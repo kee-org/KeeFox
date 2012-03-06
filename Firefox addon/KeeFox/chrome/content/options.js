@@ -240,7 +240,7 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
                 .createInstance(Components.interfaces.nsILocalFile);
             currentLocation.initWithPath(currentLocationPath);
             if (currentLocation.exists())
-                fp.displayDirectory = currentLocation; //TODO: does this work if a file rather than dir is passed in?
+                fp.displayDirectory = currentLocation;
         } catch (ex) {
         // ignore
         }
