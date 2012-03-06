@@ -55,6 +55,7 @@
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Onthoudt de meest recent gebruikte wachtwoordendatabase">
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC plugin installatie locatie">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass installatie locatie">
+<!ENTITY KeeFox-pref-monoLocation.label "Mono installatie locatie (bv. /usr/bin/mono)">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Onthoudt de bovenstaande instellingen (bij gebruik van KeePass Portable)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Gebruik deze locatie">
 <!ENTITY KeeFox-browse.label "Blader">

@@ -100,3 +100,17 @@
 <!ENTITY KeeFox_Install_Finally.description "Наконец, если у вас возникли проблемы при работе с KeeFox, пожалуйста, взгляните на ресурсы помощи, находящиеся в">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Пожалуйста, закройте KeePass перед тем как продолжить!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "На вашем компьютере был обнаружен KeePass. Для корректной установки KeeFox, пожалуйста, убедитесь, что он закрыт, прежде чем продолжать!">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox может работать под Mono, но требует ручной установки, выполните следующие действия:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Скачайте и установите Mono">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) Загрузите портативный KeePass Password Safe 2 (ZIP-архив) из:">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) Распаковать KeePass в ~/KeePass (это по умолчанию, можно настроить)">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) Скопировать файл KeePassRPC.plgx в ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualStep5.description "5) Перезапустите Firefox">
+<!ENTITY KeeFox_Install_monoManualStep6.description "Файл KeePassRPC.plgx вам необходимо вручную скопировать по адресу:">
+<!ENTITY KeeFox_Install_monoManual2.description "Подгонка инструкции:">
+<!ENTITY KeeFox_Install_monoManualTest1.description "1) Предполагается, что KeePass установлен в:">
+<!ENTITY KeeFox_Install_monoManualTest2.description "2) Предполагается, что Mono установлен в:">
+<!ENTITY KeeFox_Install_monoManualTest3.description "Чтобы изменить настройки по умолчанию зайдите в KeeFox-&gt;Настройки-&gt;KeePass, измените 'Место установки KeePass' и 'Путь к исполняемому файлу Mono'">
+<!ENTITY KeeFox_Install_monoManualUpgrade.description "Для обновления KeeFox:">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Скопируйте KeePassRPC.plgx файла ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) Перезапустите Firefox">

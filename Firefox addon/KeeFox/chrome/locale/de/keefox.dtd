@@ -100,3 +100,17 @@
 <!ENTITY KeeFox_Install_Finally.description "Wenn du irgendwelche Probleme hast KeeFox richtig ans laufen zu bekommen, bitte wirf einen Blick auf die Hilfen welche du hier finden kannst:">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Bitte schhließe KeePass bevor du weiter machst!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass wurde auf deinem Computer gefunden. Um sicher zu gehen dass KeeFox richtig installiert wird, gehe bitte sicher das KeePass beendet ist bevor es weiter geht!">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox kann unter Mono ausgeführt werden, dies erfordert jedoch eine manuelle Installation. Gehen Sie folgendermaßen vor:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "Mono herunterladen und installieren">
+<!ENTITY KeeFox_Install_monoManualStep2.description "Portablen KeePass Password Safe 2 (ZIP-Paket) herunterladen von:">
+<!ENTITY KeeFox_Install_monoManualStep3.description "KeePass nach ~/KeePass (diese Vorgabe entsprechend anpassen) entpacken">
+<!ENTITY KeeFox_Install_monoManualStep4.description "KeePassRPC.plgx Datei nach ~/KeePass/plugins kopieren">
+<!ENTITY KeeFox_Install_monoManualStep5.description "Firefox neu starten">
+<!ENTITY KeeFox_Install_monoManualStep6.description "Die KeePassRPC.plgx Datei muss kopiert werden nach:">
+<!ENTITY KeeFox_Install_monoManual2.description "Anleitung zur Anpassung:">
+<!ENTITY KeeFox_Install_monoManualTest1.description "KeePass wahrscheinlich installiert unter:">
+<!ENTITY KeeFox_Install_monoManualTest2.description "Mono wahrscheinlich installiert unter:">
+<!ENTITY KeeFox_Install_monoManualTest3.description "Um diese Vorgaben zu ändern muss unter KeeFox-&gt;Optionen-&gt;KeePass der 'KeePass-Installationsort' und der 'Mono-Ausführungsort' geändert werden.">
+<!ENTITY KeeFox_Install_monoManualUpgrade.description "Um KeeFox zu aktualisieren:">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "KeePassRPC.plgx Datei nach ~/KeePass/plugins kopieren">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "Firefox neu starten">
