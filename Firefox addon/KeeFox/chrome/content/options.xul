@@ -56,7 +56,6 @@
       <preference id="KeeFox-pref-logMethodStdOut" name="extensions.keefox@chris.tomlinson.logMethodStdOut" type="bool"/>
       <preference id="KeeFox-pref-logMethodFile" name="extensions.keefox@chris.tomlinson.logMethodFile" type="bool"/>
       <preference id="KeeFox-pref-logLevel" name="extensions.keefox@chris.tomlinson.logLevel" type="int"/>
-      <preference id="KeeFox-pref-logSensitiveData" name="extensions.keefox@chris.tomlinson.logSensitiveData" type="bool"/>
 
       <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.keefox@chris.tomlinson.dynamicFormScanning" type="bool"/>
       <preference id="KeeFox-pref-keePassRPCPort" name="extensions.keefox@chris.tomlinson.KeePassRPC.port" type="int"/>
@@ -181,9 +180,6 @@
                 <menuitem id="KeeFox-pref-logLevel-error" label="Errors" value="Errors"/>
               </menupopup>
             </menulist>
-
-            <description>&KeeFox-pref-logSensitiveData.desc;</description>
-            <checkbox preference="KeeFox-pref-logSensitiveData" label="&KeeFox-pref-logSensitiveData.label;" class="itemEnd danger"/>
 
           </vbox>
         </tabpanel>

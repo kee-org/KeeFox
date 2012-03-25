@@ -110,10 +110,10 @@ KFUI.prototype = {
      * Displays a notification bar.
      *
      */
-    _showLoginNotification : function (aNotifyBox, aName, aText, aButtons)
+    _showLoginNotification : function (aNotifyBox, aName, aText, aButtons, priority)
     {
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
-        const priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
+        priority = priority || aNotifyBox.PRIORITY_INFO_MEDIUM;
 
         KFLog.debug("Adding new " + aName + " notification bar");
         var newBar = aNotifyBox.appendNotification(
@@ -446,6 +446,30 @@ KFUI.prototype = {
 
         this._showLoginNotification(notifyBox, "keefox-login",
              notificationText, buttons);
+    },
+
+    _showSensitiveLogEnabledNotification : function ()
+    {
+        var notifyBox = this._getNotifyBox();
+        var notificationText  = 
+            this._getLocalizedString("notifyBarLogSensitiveData.label");
+
+            var buttons = [
+            // "More info" button
+            {
+                label:     this._getLocalizedString("KeeFox-FAMS-NotifyBar-A-LearnMore-Button.label"),
+                accessKey: this._getLocalizedString("KeeFox-FAMS-NotifyBar-A-LearnMore-Button.key"),
+                popup:     null,
+                callback: function(aNotificationBar, aButton) {
+                    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                             .getService(Components.interfaces.nsIWindowMediator);
+                    var newWindow = wm.getMostRecentWindow("navigator:browser");
+                    var b = newWindow.getBrowser();
+                    var newTab = b.loadOneTab( "https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive", null, null, null, false, null );
+                }
+            }];
+        this._showLoginNotification(notifyBox, "keefox-sensitivelog",
+             notificationText, buttons, notifyBox.PRIORITY_WARNING_HIGH);
     },
     
     _removeOLDKFNotifications : function (keepLaunchBar)
