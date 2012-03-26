@@ -353,7 +353,7 @@ var keeFoxDialogManager = {
             
             for (var i in logins)
             {
-                var kfl = window.newkfLoginInfo();
+                var kfl = window.keeFoxLoginInfo();
                 kfl.initFromEntry(logins[i]);
                 convertedResult.push(kfl);
             }

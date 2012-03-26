@@ -366,7 +366,7 @@ KFILM.prototype = {
                         .getService(Components.interfaces.nsISessionStore);
 
 
-                removeTabSessionStoreData = false;
+                var removeTabSessionStoreData = false;
                 
                 // see if this tab has our special attributes and promote them to session data
                 if (currentTab.hasAttribute("KF_uniqueID"))
@@ -603,7 +603,7 @@ KFILM.prototype = {
         var firstPossibleUsernameIndex = -1;
         var usernameIndex = -1;
         var usernameField = null;        
-        var kfLoginField = newkfLoginField();
+        var kfLoginField = keeFoxLoginField();
 
         // search the DOM for any form fields we might be interested in
         for (var i = 0; i < form.elements.length; i++)
@@ -632,7 +632,7 @@ KFILM.prototype = {
             allFields[allFields.length] =
             {
                 index   : i,
-                element : newkfLoginField(),
+                element : keeFoxLoginField(),
                 type    : DOMtype
             };
             allFields[allFields.length-1].element.init(

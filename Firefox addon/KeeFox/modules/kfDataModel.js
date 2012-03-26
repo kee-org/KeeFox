@@ -2,15 +2,15 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
   
-  kfLoginInfo:
+  keeFoxLoginInfo:
   This was loosly based on the LoginInfo object that Mozilla provided with Firefox 3.0
   but it has been heavily modified to support some of the extra features
   that KeeFox can support compared to the built-in Firefox login manager.
   
-  kfLoginField:
+  keeFoxLoginField:
   Represents an individual form field
   
-  kfFormFieldType:
+  keeFoxFormFieldType:
   enumeration of form field type (e.g. text, checkbox, password, etc.)
   
   This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
 
-var EXPORTED_SYMBOLS = ["newkfLoginInfo","newkfLoginField","kfFormFieldType"];
+var EXPORTED_SYMBOLS = ["keeFoxLoginInfo","keeFoxLoginField","keeFoxFormFieldType"];
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://kfmod/KFLogger.js");
 
@@ -40,7 +40,7 @@ var log = KFLog;
 
 
 
-kfFormFieldType =
+keeFoxFormFieldType =
 {
     radio   : "FFTradio",
     username: "FFTusername",
@@ -52,8 +52,8 @@ kfFormFieldType =
 
 // this feels a bit odd but I can't seem to export class
 // constructors any other way and it seems to work...
-function newkfLoginInfo() { return new kfLoginInfo();}
-function newkfLoginField() { return new kfLoginField();}
+function keeFoxLoginInfo() { return new kfLoginInfo();}
+function keeFoxLoginField() { return new kfLoginField();}
 
 function kfLoginInfo() {}
 
@@ -202,7 +202,7 @@ kfLoginInfo.prototype =
         for (var j = 0; j < entry.formFieldList.length; j++) 
         {
             var kpff = entry.formFieldList[j];
-            if (kpff.type == kfFormFieldType.password)
+            if (kpff.type == keeFoxFormFieldType.password)
             {
 	            if (kpff.page > maximumPage)
 		            maximumPage = kpff.page;
@@ -211,20 +211,20 @@ kfLoginInfo.prototype =
 	            newField.init(kpff.name, kpff.value, kpff.id, "password", kpff.page);
 	            passwords.push(newField);
 
-            } else if (kpff.type == kfFormFieldType.text || kpff.type == kfFormFieldType.username
-	             || kpff.type == kfFormFieldType.select || kpff.type == kfFormFieldType.radio
-	              || kpff.type == kfFormFieldType.checkbox)
+            } else if (kpff.type == keeFoxFormFieldType.text || kpff.type == keeFoxFormFieldType.username
+	             || kpff.type == keeFoxFormFieldType.select || kpff.type == keeFoxFormFieldType.radio
+	              || kpff.type == keeFoxFormFieldType.checkbox)
             {
 	            var otherLength = otherFields.length;
 	            var type = "unknown";
 
 	            switch (kpff.type)
 	            {
-		            case kfFormFieldType.username: usernameIndex = otherLength; type = "text"; break; // may 2010: should be "text"? // may 2011: trying it out...
-		            case kfFormFieldType.text: type = "text"; break;
-		            case kfFormFieldType.radio: type = "radio"; break;
-		            case kfFormFieldType.checkbox: type = "checkbox"; break;
-		            case kfFormFieldType.select: type = "select-one"; break;
+		            case keeFoxFormFieldType.username: usernameIndex = otherLength; type = "text"; break; // may 2010: should be "text"? // may 2011: trying it out...
+		            case keeFoxFormFieldType.text: type = "text"; break;
+		            case keeFoxFormFieldType.radio: type = "radio"; break;
+		            case keeFoxFormFieldType.checkbox: type = "checkbox"; break;
+		            case keeFoxFormFieldType.select: type = "select-one"; break;
 	            }
 
 	            if (kpff.page > maximumPage)
@@ -536,11 +536,11 @@ kfLoginField.prototype = {
         
         switch (this.type)
         {
-            case "password": formField.type = kfFormFieldType.password; break;            
-            case "radio": formField.type = kfFormFieldType.radio; break;
-            case "checkbox": formField.type = kfFormFieldType.checkbox; break;
-            case "select-one": formField.type = kfFormFieldType.select; break;
-            default: formField.type = isUsername ? kfFormFieldType.username : kfFormFieldType.text; break;
+            case "password": formField.type = keeFoxFormFieldType.password; break;            
+            case "radio": formField.type = keeFoxFormFieldType.radio; break;
+            case "checkbox": formField.type = keeFoxFormFieldType.checkbox; break;
+            case "select-one": formField.type = keeFoxFormFieldType.select; break;
+            default: formField.type = isUsername ? keeFoxFormFieldType.username : keeFoxFormFieldType.text; break;
         }
     
 		return formField;

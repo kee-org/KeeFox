@@ -27,12 +27,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
 
-var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","getFamsInst"];
+var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
 _famsInst = null;
-function getFamsInst (id, config, log) {
+function keeFoxGetFamsInst(id, config, log) {
     if (!_famsInst) {
         _famsInst = new FirefoxAddonMessageService();
         _famsInst.initConfig(id, config);
@@ -71,10 +71,10 @@ FirefoxAddonMessageService.prototype = {
     strbundle: null,
 
     _log: function (message) {
-        var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-        getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
-    }, // stub logger logs everything to console
-    //}, // stub logger logs nothing
+    //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+    //    getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
+    //}, // stub logger logs everything to console
+    }, // stub logger logs nothing
 
     runMessageProcessesHandler: {
         notify: function (timer) {

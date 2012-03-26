@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the main KeeFox javascript file. It is executed once for each firefox
   window (with a different scope each time). javascript files included using 
@@ -163,7 +163,7 @@ if (keefox_org.shouldLoad)
                     window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
 
                     this.startupKeeFox(keefox_org.toolbar, currentWindow);
-                    keefox_org.FAMS = getFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { KFLog.info.call(this, msg); } );
+                    keefox_org.FAMS = keeFoxGetFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { KFLog.info.call(this, msg); });
                                                             
                     return;
                 case "unload":
@@ -216,7 +216,7 @@ if (keefox_org.shouldLoad)
         window.addEventListener("load", keefox_org.mainEventHandler, false);
         window.addEventListener("unload", keefox_org.mainEventHandler, false);
         
-        var observerService = Cc["@mozilla.org/observer-service;1"].
+        let observerService = Cc["@mozilla.org/observer-service;1"].
                                   getService(Ci.nsIObserverService);                          
         observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);        
     } else
