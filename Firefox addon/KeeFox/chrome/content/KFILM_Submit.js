@@ -198,7 +198,7 @@ KFILM.prototype._onFormSubmit = function (form)
     // be a new registration form or password change form
 
     // create a kfLoginInfo object to represent all relevant form elements
-    var formLogin = newkfLoginInfo();
+    var formLogin = keeFoxLoginInfo();
     
     var loginURLs = [];
     loginURLs.push(URL);
@@ -278,15 +278,15 @@ KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, scheme
     var currentPage = 1;
     
     // create a kfLoginInfo object to represent all relevant login details
-    var formLogin = newkfLoginInfo();
+    var formLogin = keeFoxLoginInfo();
     
     var loginURLs = [];
     loginURLs.push(schemeAndHost);
         
     var passwordFields = [];
     var otherFields = [];    
-    passwordFields[0] = newkfLoginField();
-    otherFields[0] = newkfLoginField();    
+    passwordFields[0] = keeFoxLoginField();
+    otherFields[0] = keeFoxLoginField();    
     otherFields[0].init(
                 "username", username, "", "text", currentPage);
     passwordFields[0].init(
@@ -345,7 +345,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
         
         for (var i in logins)
         {
-            var kfl = newkfLoginInfo();
+            var kfl = keeFoxLoginInfo();
             kfl.initFromEntry(logins[i]);
             convertedResult.push(kfl);
         }
@@ -422,7 +422,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
         KFLog.info("This form submission is part of a multi-page login process.");
         
         var previousStageLoginJSON = submitDocumentDataStorage.ss.getTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentStateJSON");
-        var previousStageLogin = newkfLoginInfo();
+        var previousStageLogin = keeFoxLoginInfo();
         previousStageLogin.fromJSON(previousStageLoginJSON);
         
         // set the tab value ready for the next time the page loads

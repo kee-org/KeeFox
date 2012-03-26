@@ -166,6 +166,10 @@ KeeFoxLogger.prototype = {
         var ts = Date();
         message = ts + ":" + message;
         
+        // prefix logs in sensitive mode
+        if (this.logSensitiveData)
+            message = "!! " + message;
+
         try
         {
             if (this.methodFile)

@@ -46,7 +46,7 @@ function onLoad()
 {
     var o = getQS();
     var id = o['famsConfigId'];
-    FAMS = getFamsInst(id,
+    FAMS = keeFoxGetFamsInst(id,
     FirefoxAddonMessageService.defaultConfiguration, null); // this shouldn't be the first instance of this singleton becuase this is in an options window
 
     //FAMS.initConfig(id,FAMS.defaultConfiguration); // for now, the default FAMS config is the default KeeFox config, in future need to pass it in to this function

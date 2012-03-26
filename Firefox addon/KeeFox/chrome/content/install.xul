@@ -198,13 +198,13 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
                 <vbox id="setupNET35ExeInstallButton">
                   <button label="&KeeFox_Install_setupNET35ExeInstallButton.label;"
                         oncommand="setupNET35ExeInstall();"/>
-                </vbox>
+                </vbox>-->
                 <description id="setupNET35ExeInstallExpandeeManual">&KeeFox_Install_setupNET35ExeInstallExpandeeManual.description;</description>
                 <description id="setupNET35ExeInstallExpandeeManualStep1">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description;</description>
                 <description id="setupNET35ExeInstallExpandeeManualStep2">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description;</description>
                 <description id="setupNET35ExeInstallExpandeeManualStep3">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description;</description>
                 <description id="setupNET35ExeInstallExpandeeManualStep4">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description;</description>
-              -->
+              
               </vbox>
               
               <!-- IC2 -->

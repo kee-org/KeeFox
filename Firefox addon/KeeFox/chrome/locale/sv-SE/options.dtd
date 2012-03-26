@@ -55,6 +55,7 @@
 <!ENTITY KeeFox-pref-rememberMRUDB.label "Kom ihåg den senast använda KeePass-databasen">
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "Installationsplats för insticksmodulen KeePassRPC">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "Installationsplats för KeePass">
+<!ENTITY KeeFox-pref-monoLocation.label "Plats för Monos körbara fil (t.ex. /usr/bin/mono)">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "Använder KeePass Portable (kom ihåg inställningar)">
 <!ENTITY KeeFox-pref-keePassLocation.label "Använd denna plats">
 <!ENTITY KeeFox-browse.label "Bläddra">

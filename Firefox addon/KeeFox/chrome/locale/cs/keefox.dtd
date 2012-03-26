@@ -104,3 +104,17 @@
 <!ENTITY KeeFox_Install_Finally.description "Nakonec, pokud máte potíže se správnou funkčností KeeFox, prosím hledejte pomoc na">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Před pokračováním prosím zavřete KeePass!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass byl na vašem počítači úspěšně detekován. Aby instalace KeeFox proběhla hladce, před pokračováním se přesvědčte, že není spuštěný!">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox je možné spustit v rámci projektu Mono, ale je nutné provést ručně následující instalační kroky:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Stáhnout a nainstalovat Mono">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) Stáhnout portable verzi KeePass Password Safe 2 (ZIP archív) z:">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) Rozbalit KeePass do ~/KeePass (toto standardní nastavení lze změnit)">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) Zkopírovat soubor KeePassRPC.plgx do ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualStep5.description "5) Restartovat Firefox">
+<!ENTITY KeeFox_Install_monoManualStep6.description "Soubor KeePassRPC.plgx, který musíte ručně zkopírovat je v:">
+<!ENTITY KeeFox_Install_monoManual2.description "Instrukce k přizpůsobení:">
+<!ENTITY KeeFox_Install_monoManualTest1.description "1) Předpokládá se, že KeePass je nainstalován v:">
+<!ENTITY KeeFox_Install_monoManualTest2.description "2) Předpokládá se, že Mono je nainstalováno v:">
+<!ENTITY KeeFox_Install_monoManualTest3.description "Pro změnu těchto výchozích hodnot, modifikujte 'KeePass instalační adresář' a 'Umístění spustitelných souborů Mono' v menu KeeFox-&gt;Nastavení-&gt;KeePass">
+<!ENTITY KeeFox_Install_monoManualUpgrade.description "Pro upgrade KeeFoxu:">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Zkopírovat soubor KeePassRPC.plgx do ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) Restartovat Firefox">

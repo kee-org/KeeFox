@@ -55,6 +55,7 @@
 <!ENTITY KeeFox-pref-rememberMRUDB.label "记住最近使用的 KeePass 数据库">
 <!ENTITY KeeFox-pref-keePassRPCInstalledLocation.label "KeePassRPC 插件安装位置">
 <!ENTITY KeeFox-pref-keePassInstalledLocation.label "KeePass 安装位置">
+<!ENTITY KeeFox-pref-monoLocation.label "Mono 可执行文件位置（例如 /usr/bin/mono）">
 <!ENTITY KeeFox-pref-keePassRememberInstalledLocation.label "记住上面的设置（例如，当使用 KeePass 便携版时）">
 <!ENTITY KeeFox-pref-keePassLocation.label "使用这个位置">
 <!ENTITY KeeFox-browse.label "浏览">

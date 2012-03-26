@@ -529,7 +529,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
                     
                     for (var i in foundLogins)
                     {
-                        var kfl = newkfLoginInfo();
+                        var kfl = keeFoxLoginInfo();
                         kfl.initFromEntry(foundLogins[i]);
                         convertedResult.push(kfl);
                     }
@@ -892,7 +892,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
         
         for (var i in logins)
         {
-            var kfl = newkfLoginInfo();
+            var kfl = keeFoxLoginInfo();
             kfl.initFromEntry(logins[i]);
             convertedResult.push(kfl);
         }

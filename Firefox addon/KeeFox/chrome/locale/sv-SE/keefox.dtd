@@ -32,11 +32,11 @@
 <!ENTITY KeeFox_Help-GettingStarted-Button.tip "Gå till vägledningen &quot;Komma igång&quot; på KeeFox webbplats. (På engelska)">
 <!ENTITY KeeFox_Help-GettingStarted-Button.label "Komma igång">
 <!ENTITY KeeFox_Help-GettingStarted-Button.key "K">
-<!ENTITY KeeFox_Help-Centre-Button.tip "Visit the online help centre.">
-<!ENTITY KeeFox_Help-Centre-Button.label "Help Centre">
-<!ENTITY KeeFox_Help-Centre-Button.key "C">
-<!ENTITY KeeFox_Tools-Menu.options.label "KeeFox options">
-<!ENTITY KeeFox_Dialog-SelectAGroup.title "Select A Group">
+<!ENTITY KeeFox_Help-Centre-Button.tip "Gå till KeeFox onlinehjälpsidor.">
+<!ENTITY KeeFox_Help-Centre-Button.label "Hjälp om KeeFox (online)">
+<!ENTITY KeeFox_Help-Centre-Button.key "H">
+<!ENTITY KeeFox_Tools-Menu.options.label "Inställningar för KeeFox">
+<!ENTITY KeeFox_Dialog-SelectAGroup.title "Välj en grupp">
 <!ENTITY KeeFox_Dialog_OK_Button.label "&#37;KeeFox_Shared_OK_Button.label;">
 <!ENTITY KeeFox_Dialog_Cancel_Button.label "&#37;KeeFox_Shared_Cancel_Button.label;">
 <!-- strings that may be used in more than one location -->
@@ -44,11 +44,11 @@
 <!ENTITY KeeFox_Install_Upgrade_KeeFox.label "Uppgradera KeeFox">
 <!ENTITY KeeFox_Install_Process_Running_In_Other_Tab.label "Installationsprocessen har redan påbörjats i en annan flik. Om du inte kan hitta fliken, så kan du behöva starta om Firefox för att fortsätta.">
 <!ENTITY KeeFox_Install_Not_Required.label "Det verkar som att KeeFox redan är installerat. ATT GÖRA: Gå någonstans där du kan hitta felsökningstips om brandväggar o.s.v.">
-<!ENTITY KeeFox_Install_Not_Required_Link.label "Please visit the KeeFox website for more help">
+<!ENTITY KeeFox_Install_Not_Required_Link.label "Gå till KeeFox webbplats för mer hjälp">
 <!ENTITY KeeFox_Install_Unexpected_Error.label "Ett oväntat fel inträffade under installationen av KeeFox.">
 <!ENTITY KeeFox_Install_Download_Failed.label "Hämtningen av en nödvändig komponent misslyckades.">
 <!ENTITY KeeFox_Install_Download_Canceled.label "Hämtningen av en nödvändig komponent avbröts.">
-<!ENTITY KeeFox_Install_Download_Checksum_Failed.label "En nerladdad komponent är skadad. Försök igen och om du fortsätter att få detta meddelande, fråga efter hjälp i tilläggets supportforum.">
+<!ENTITY KeeFox_Install_Download_Checksum_Failed.label "En hämtad komponent är skadad. Försök igen och om du fortsätter att få detta meddelande, fråga efter hjälp i tilläggets supportforum.">
 <!ENTITY KeeFox_Install_Try_Again_Button.label "Försök igen">
 <!ENTITY KeeFox_Install_Cancel_Button.label "Avbryt">
 <!-- General installation / setup strings -->
@@ -98,9 +98,23 @@
 <!ENTITY KeeFox_Install_IC5installing.description "&#37;KeeFox_Shared_Nearly_Finished;">
 <!ENTITY KeeFox_Install_InstallFinished.description "KeeFox är nu redo att användas. Du måste följa instruktionerna i KeePass installationsguide för att antingen skapa en ny databas att lagra dina lösenord i eller öppna en databas som du redan använder. Det kan ta uppemot 20 sekunder för Firefox att verifiera att installationen lyckades. När det är gjort, så kommer huvudknappens text att säga antingen &quot;Utloggad&quot; eller &quot;Inloggad&quot;. Du kanske vill läsa självstudievägledningen &quot;Komma igång&quot;. Du når den från en handfull platser - leta med början i KeeFox verktygsfältsknapp ovan.">
 <!ENTITY KeeFox_Install_NextSteps.description "Try these steps to start using KeeFox:">
-<!ENTITY KeeFox_Install_NextStep1.description "Follow the instructions in the 'KeePass startup helper' to either create a new database to store your passwords or open a KeePass database that you already use.">
-<!ENTITY KeeFox_Install_NextStep2.description "Click here to try the getting started tutorial.">
-<!ENTITY KeeFox_Install_NextStep2extra.description "You can launch the tutorial from a few other locations too such as the KeeFox toolbar or from within KeePass.">
-<!ENTITY KeeFox_Install_Finally.description "Finally, if you have any trouble getting KeeFox to work correctly, please take a look at the help resources found at">
-<!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Please close KeePass before continuing!">
-<!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass has been detected on your computer. To ensure KeeFox can be setup smoothly, please make sure that it is closed before continuing!">
+<!ENTITY KeeFox_Install_NextStep1.description "Följ instruktionerna i KeePass programstartshjälp för att antingen skapa en ny lösenordsdatabas eller öppna en KeePass-databas som du redan använder.">
+<!ENTITY KeeFox_Install_NextStep2.description "Klicka här för att starta självstudien &quot;Komma igång&quot;.">
+<!ENTITY KeeFox_Install_NextStep2extra.description "Du kan även starta självstudien från några andra platser, bl.a. KeeFox verktygsfält och inifrån KeePass.">
+<!ENTITY KeeFox_Install_Finally.description "Slutligen, om du har problem med att få KeeFox att fungera korrekt, ta en titt på hjälpdokumentationen som finns på">
+<!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Stäng KeePass innan du fortsätter!">
+<!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass har identifierats på din dator. För att säkerställa att KeeFox kan installeras korrekt, se till att KeePass avslutas innan du fortsätter!">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox kan köras under Mono, men kräver manuell installation i följande steg:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Hämta och installera Mono">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) Hämta Portable KeePass Password Safe 2 (ZIP-fil) från">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) Packa upp KeePass till ~/KeePass (denna standardinställning kan anpassas)">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) Kopiera filen KeePassRPC.plgx till ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualStep5.description "5) Starta om Firefox">
+<!ENTITY KeeFox_Install_monoManualStep6.description "Filen KeePassRPC.plgx, som du måste kopiera manuellt, finns på:">
+<!ENTITY KeeFox_Install_monoManual2.description "Instruktioner för anpassning:">
+<!ENTITY KeeFox_Install_monoManualTest1.description "1) Det förutsätts att KeePass är installerat till:">
+<!ENTITY KeeFox_Install_monoManualTest2.description "2) Det förutsätts att Mono är installerat till:">
+<!ENTITY KeeFox_Install_monoManualTest3.description "För att åsidosätta dessa standardinställningar, gå till KeeFox &gt; Inställningar &gt; KeePass och ändra alternativen &quot;Installationsplats för KeePass&quot; samt &quot;Plats för Monos körbara fil&quot;">
+<!ENTITY KeeFox_Install_monoManualUpgrade.description "För att uppdatera KeeFox:">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Kopiera filen KeePassRPC.plgx till ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) Starta om Firefox">

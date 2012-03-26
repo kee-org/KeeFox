@@ -13,7 +13,7 @@ pref("extensions.keefox@chris.tomlinson.logMethodAlert", false);
 pref("extensions.keefox@chris.tomlinson.logMethodConsole", false);
 pref("extensions.keefox@chris.tomlinson.logMethodStdOut", false);
 pref("extensions.keefox@chris.tomlinson.logMethodFile", false);
-pref("extensions.keefox@chris.tomlinson.logLevel", 3);
+pref("extensions.keefox@chris.tomlinson.logLevel", 2);
 pref("extensions.keefox@chris.tomlinson.logSensitiveData", false);
 pref("extensions.keefox@chris.tomlinson.dynamicFormScanning", false);
 pref("extensions.keefox@chris.tomlinson.saveFavicons", true);

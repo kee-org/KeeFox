@@ -209,13 +209,22 @@ function KeeFox()
     this._keeFoxExtension.prefs._prefBranch.addObserver("", this._observer, false);
     this._keeFoxExtension.prefs._prefBranch.QueryInterface(Ci.nsIPrefBranch);
         
-    // Create a timer 
+    // Create a timer for KPRPC connection establishment
     this.regularKPRPCListenerQueueHandlerTimer = Components.classes["@mozilla.org/timer;1"]
             .createInstance(Components.interfaces.nsITimer);
 
     this.regularKPRPCListenerQueueHandlerTimer.initWithCallback(
     this.RegularKPRPCListenerQueueHandler, 5000,
     Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+
+    // Create a timer for checking whether user is logging sensitive data
+    this.oneOffSensitiveLogCheckTimer = Components.classes["@mozilla.org/timer;1"]
+            .createInstance(Components.interfaces.nsITimer);
+
+    this.oneOffSensitiveLogCheckTimer.initWithCallback(
+    this.oneOffSensitiveLogCheckHandler, 45000,
+    Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+    
     
     //TODO2: set some/all of my tab session state to be persistent so it survives crashes/restores?
     
@@ -229,6 +238,7 @@ KeeFox.prototype = {
     _keeFoxExtension: null,
 
     regularKPRPCListenerQueueHandlerTimer: null,
+    oneOffSensitiveLogCheckTimer: null,
 
     // localisation string bundle
     strbundle: null,
@@ -268,6 +278,17 @@ KeeFox.prototype = {
     _checkForConflictingExtensions: function()
     {
         return true;
+    },
+
+    // Checks whether the user's sensitive data is being logged for debugging purposes
+    oneOffSensitiveLogCheckHandler: function()
+    {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser");
+        sensistiveLoggingEnabled = window.keeFoxInst._keeFoxExtension.prefs.getValue("logSensitiveData", false);
+        if (sensistiveLoggingEnabled)
+            window.keefox_org.UI._showSensitiveLogEnabledNotification();
     },
 
     //TODO2: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
@@ -1437,7 +1458,9 @@ KeeFox.prototype = {
                 case "logMethodConsole":
                 case "logMethodStdOut":
                 case "logSensitiveData":
+                    // Allow the change to go ahead but warn the user (in case they did not understand the change that was made)
                     KFLog.configureFromPreferences();
+                    _kf.oneOffSensitiveLogCheckHandler();
                     break;
                 case "dynamicFormScanning":
                     //cancel any current refresh timer (should we be doing this at other times too such as changing tab?

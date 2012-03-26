@@ -2,9 +2,6 @@
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox is loading and doing a few startup tests. It shouldn't take long...">
 <!ENTITY KeeFox_Menu-Button.tip "Click to see the KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.label "Test KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.tip "Execute KeeFox self tests to verify instalation is working as expected.">
-<!ENTITY KeeFox_Menu-Button.test.key "T">
 <!ENTITY KeeFox_Menu-Button.changeDB.label "Change database">
 <!ENTITY KeeFox_Menu-Button.changeDB.tip "Choose a different KeePass password database.">
 <!ENTITY KeeFox_Menu-Button.changeDB.key "C">
@@ -65,8 +62,6 @@
 <!-- strings providing further setup information to the user and advanced options -->
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox will install the Microsoft .NET framework and KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 is the password manager application which KeeFox uses to securely store your passwords. If you want to choose the KeePass Password Safe 2 installation location, language or advanced options, please download and install .NET from Microsoft's website and then restart Firefox.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 requires the .NET Framework version 2.0 or greater. The main setup button above will install version 2.0. The Microsoft .NET Framework is an established platform which is required by many software applications. If you want to be able to run applications which need newer versions of the .NET Framework, click the button below to install version 3.5. It will take longer to download and install but KeeFox and KeePass Password Safe 2 will work correctly with either version.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallButton.label "Setup KeeFox with Microsoft .NET Framework 3.5">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManual.description "Alternatively, you could attempt a manual installation by following these steps:">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Download and install .NET from Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Download and install KeePass Password Safe 2 setup or ZIP from http://keepass.info">
@@ -84,8 +79,6 @@
 <!-- strings describing the download and install progress for KeeFox dependancies -->
 <!ENTITY KeeFox_Install_IC1setupNETdownloading.description "The files required to setup KeeFox are being downloaded...">
 <!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "Download complete. Please follow the instructions in the .NET installer which will start soon...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "The files required to setup KeeFox are being downloaded...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "Download complete. Please follow the instructions in the .NET installer which will start soon...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 is being downloaded...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "Download complete. Please follow the instructions in the installer which is starting now...">
 <!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "Nearly finished...">
