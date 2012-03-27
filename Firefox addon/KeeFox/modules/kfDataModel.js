@@ -256,10 +256,10 @@ kfLoginInfo.prototype =
         if (this.URLs.length != URLs.length)
             return false;
             //window.keefox_org.Logger.debug("ab");
-        for (i = 0; i < URLs.length; i++)
+        for (let i = 0; i < URLs.length; i++)
         {
             var url1 = URLs[i];
-            for (j = 0; j < this.URLs.length; j++)
+            for (let j = 0; j < this.URLs.length; j++)
             {
                 var url2 = this.URLs[j];
             //window.keefox_org.Logger.debug("ac:"+url1+":"+url2);
@@ -280,8 +280,8 @@ kfLoginInfo.prototype =
         if (this.passwords.length != passwords.length)
             return false;
             
-        for (i = 0; i < this.passwords.length; i++)
-            for (j = 0; j < passwords.length; j++)
+        for (let i = 0; i < this.passwords.length; i++)
+            for (let j = 0; j < passwords.length; j++)
                 if (passwords[i].value == this.passwords[i].value)
                 {
                     matches++;
@@ -374,7 +374,7 @@ kfLoginInfo.prototype =
             if (this.URLs == undefined || this.URLs == null)
                 this.URLs = [];
                         
-            for (i = 0; i < previousStageLogin.URLs.length; i++)
+            for (let i = 0; i < previousStageLogin.URLs.length; i++)
             {
                 var URL = previousStageLogin.URLs[i];
                 this.URLs.push(URL);
@@ -387,7 +387,7 @@ kfLoginInfo.prototype =
             if (this.passwords == undefined || this.passwords == null)
                 this.passwords = [];
                         
-            for (i = 0; i < previousStageLogin.passwords.length; i++)
+            for (let i = 0; i < previousStageLogin.passwords.length; i++)
             {
                 var passField = previousStageLogin.passwords[i];
                 this.passwords.push(passField);
@@ -400,7 +400,7 @@ kfLoginInfo.prototype =
             if (this.otherFields == undefined || this.otherFields == null)
                 this.otherFields = [];
                         
-            for (i = 0; i < previousStageLogin.otherFields.length; i++)
+            for (let i = 0; i < previousStageLogin.otherFields.length; i++)
             {
                 var otherField = previousStageLogin.otherFields[i];
                 this.otherFields.push(otherField);

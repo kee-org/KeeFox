@@ -58,6 +58,8 @@ function KeeFoxLogger()
     this.prefBranch = this._prefService.getBranch("extensions.keefox@chris.tomlinson.");
     this.configureFromPreferences();
     this._log("Logging system initialised at " + Date());
+    if (this.logSensitiveData)
+        this._log("WARNING: KeeFox Sensitive logging ENABLED. See: https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive");
 }
 
 KeeFoxLogger.prototype = {
