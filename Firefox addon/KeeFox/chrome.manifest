@@ -10,12 +10,12 @@ resource kfscripts chrome/content/
 locale keefox cs chrome/locale/cs/
 locale keefox de chrome/locale/de/
 locale keefox en-US chrome/locale/en-US/
-locale keefox es-ES chrome/locale/es-ES/
-locale keefox fr chrome/locale/fr/
-locale keefox nb-NO chrome/locale/nb-NO/
+#locale keefox es-ES chrome/locale/es-ES/
+#locale keefox fr chrome/locale/fr/
+#locale keefox nb-NO chrome/locale/nb-NO/
 locale keefox nl chrome/locale/nl/
-locale keefox pl chrome/locale/pl/
-locale keefox ro chrome/locale/ro/
+#locale keefox pl chrome/locale/pl/
+#locale keefox ro chrome/locale/ro/
 locale keefox ru chrome/locale/ru/
 locale keefox sv-SE chrome/locale/sv-SE/
 locale keefox zh-CN chrome/locale/zh-CN/
