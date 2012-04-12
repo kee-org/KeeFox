@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.9.6a</em:version>
+    <em:version>0.9.6b</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -54,7 +54,7 @@
         <em:translator>Christian Arnold aka meilon</em:translator>
         <em:translator>Mario Siegmann - Siggi0904</em:translator>
         <em:name>KeeFox</em:name>
-        <em:description>Einfaches und sicheres Passwort-Management. Automatisch anmelden, niemals ein Passwort vergessen und immer zur Erhöhung der Sicherheit die Kontrolle über die eigenen Passwörter haben. Präsentiert vom weltbekannten KeePass Password Safe.</em:description>
+        <em:description>Einfaches und sicheres Passwort-Management. Automatisch anmelden, niemals ein Passwort vergessen und immer, zur Erhöhung der Sicherheit, Kontrolle über die eigenen Passwörter haben. All dies wird durch den weltweit bekannten KeePass Password Safe ermöglicht.</em:description>
         <em:creator>Chris Tomlinson</em:creator>
         <em:homepageURL>http://keefox.org</em:homepageURL>
         <em:contributor>Ben Roberts</em:contributor>

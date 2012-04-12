@@ -44,8 +44,6 @@
 <!ENTITY KeeFox-pref-logMethodStdOut "System Standard Output">
 <!ENTITY KeeFox-pref-logMethodFile "Datei (im 'keefox' Verzeichnis innerhalb deines Firefox Profils)">
 <!ENTITY KeeFox-pref-logLevel.desc "Wähle, wie ausgiebig das Log sein soll. Ein höherer Level produziert mehr Ausgaben.">
-<!ENTITY KeeFox-pref-logSensitiveData.desc "Diese unteren Optionen sollten mit extremer Vorsicht genutzt werden, generell nur für Entwicklung und Fehlersuche.">
-<!ENTITY KeeFox-pref-logSensitiveData.label "Zeichne Kennwörter und andere sensitive Informationen auf">
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Überwache jede Webseite auf neue Formulare">
 <!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "Info: Diese Option ermöglicht KeeFox evtl. mehr Formulare auf kosten der Performance zu erkennen">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "Mit KeePass über diesen TCP/IP Port kommunizieren">

@@ -2,9 +2,6 @@
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox загружается и делает несколько тестов при запуске. Это не должно занять много времени...">
 <!ENTITY KeeFox_Menu-Button.tip "Нажмите, чтобы увидеть меню KeeFox">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.label "Тест KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.tip "Протестировать KeeFox для проверки работы инсталляции.">
-<!ENTITY KeeFox_Menu-Button.test.key "Т">
 <!ENTITY KeeFox_Menu-Button.changeDB.label "Сменить базу данных">
 <!ENTITY KeeFox_Menu-Button.changeDB.tip "Выбрать другую базу данных KeePass.">
 <!ENTITY KeeFox_Menu-Button.changeDB.key "м">
@@ -62,8 +59,6 @@
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Более подробная информация и дополнительные настройки">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox будет устанавливать Microsoft .NET Framework и KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 менеджер паролей, который использует KeeFox, чтобы безопасно хранить ваши пароли. Если вы хотите выбрать место установки KeePass Password Safe 2, язык или дополнительные параметры, пожалуйста, скачайте и установите .NET Framework с сайта Microsoft, а затем перезапустите Firefox.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 требует .NET Framework версии 2.0 или выше. Главная кнопка установки выше установит версию 2.0. Microsoft .NET Framework - платформа, которая требуется во многих приложениях. Если вы хотите, чтобы иметь возможность запускать приложения, требующие новые версий .NET Framework, нажмите кнопку ниже, чтобы установить версию 3.5. Загрузка и установка займет больше времени, но KeeFox и KeePass Password Safe 2 будут корректно работать с этой версией.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallButton.label "Установка KeeFox с Microsoft .NET Framework 3.5">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManual.description "Вы можете воспользоваться альтернативной инструкцией по установке, выполните следующие действия:">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Скачать и установить .NET Framework от Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Скачать установщик KeePass Password Safe 2 или ZIP архив с сайта http://keepass.info и установить">
@@ -80,8 +75,6 @@
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "Установить KeePass/KeePassRPC в другое место">
 <!ENTITY KeeFox_Install_IC1setupNETdownloading.description "Осуществляется скачивание файлов необходимых для установки KeeFox...">
 <!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "Скачивание завершено. Пожалуйста, следуйте инструкциям в установщике .NET, которые скоро появятся...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "Осуществляется скачивание файлов необходимых для установки KeeFox...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "Скачивание завершено. Пожалуйста, следуйте инструкциям в установщике .NET, которые скоро появятся...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2, загружается...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "Скачивание завершено. Пожалуйста, следуйте инструкциям в установщике, которые появятся сейчас...">
 <!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "Почти завершено...">

@@ -44,8 +44,6 @@
 <!ENTITY KeeFox-pref-logMethodStdOut "系统标准输出">
 <!ENTITY KeeFox-pref-logMethodFile "文件（位于您的 Firefox 配置文件中的“keefox”文件夹里面）">
 <!ENTITY KeeFox-pref-logLevel.desc "选择您想要要的日志详细程度。越高的日志级别会产生更多输出量。">
-<!ENTITY KeeFox-pref-logSensitiveData.desc "下面的选项应该慎用，一般只用于开发和调试目的。">
-<!ENTITY KeeFox-pref-logSensitiveData.label "记录密码和其他敏感信息">
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "检测每个网页的新表单">
 <!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "注意：此选项可以让 KeeFox 在牺牲性能的情况下识别更多表单">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "使用这个 TCP/IP 端口与 KeePass 通讯">

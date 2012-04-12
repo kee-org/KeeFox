@@ -44,8 +44,6 @@
 <!ENTITY KeeFox-pref-logMethodStdOut "Systeem uitvoer">
 <!ENTITY KeeFox-pref-logMethodFile "Bestand (in de 'keefox' map in uw Firefox profiel)">
 <!ENTITY KeeFox-pref-logLevel.desc "Kies hoeveel u wilt loggen. Elk hoger log niveau genereert meer informatie.">
-<!ENTITY KeeFox-pref-logSensitiveData.desc "PASOP: De onderstaande optie dient alleen gebruikt te worden voor ontwikkel en debug doeleinden. De wachtwoorden worden namelijk leesbaar (in platte tekst) opgeslagen.">
-<!ENTITY KeeFox-pref-logSensitiveData.label "Sla wachtwoorden en andere gevoelige informatie op in de logs">
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Zoek op iedere webpagina naar nieuwe formulieren">
 <!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "NB: Deze optie staat KeeFox toe om meer formulieren te herkennen dan normaal, maar dit gaat ten koste van de snelheid">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "Communiceer met KeePass via deze TCP/IP poort">
