@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>0.9.6b</em:version>
+    <em:version>1.0.2</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -17,13 +17,11 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>11.*</em:maxVersion>
+        <em:maxVersion>14.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
-    <em:targetPlatform>WINNT</em:targetPlatform>
-    <em:targetPlatform>Linux</em:targetPlatform>
-    <em:targetPlatform>Darwin</em:targetPlatform>    
+    <em:targetPlatform>WINNT</em:targetPlatform>   
 
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
