@@ -44,8 +44,6 @@
 <!ENTITY KeeFox-pref-logMethodStdOut "Standardní systémový výstup">
 <!ENTITY KeeFox-pref-logMethodFile "Soubor (nacházející se v adresáři 'keefox' uvnitř Firefox profilu)">
 <!ENTITY KeeFox-pref-logLevel.desc "Volba, jak moc má být log podrobný. Každá vyšší úroveň logování produkuje více výstupních informací.">
-<!ENTITY KeeFox-pref-logSensitiveData.desc "Volba níže by měla být používána s velkou obezřetností, obecně je pouze pro účely vývoje a debuggingu.">
-<!ENTITY KeeFox-pref-logSensitiveData.label "Zaznamenat hesla a jiné citlivé údaje">
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Monitoruj každý web na nové formuláře">
 <!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "Poznámka: Tato volba umožní KeeFoxu rozpoznávat více formulářů, ale cenou za to je větší vytížení systému">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "Komunikuj s aplikací KeePass použitím tohoto TCP/IP portu">

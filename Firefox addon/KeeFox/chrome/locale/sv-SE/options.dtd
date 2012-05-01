@@ -44,8 +44,6 @@
 <!ENTITY KeeFox-pref-logMethodStdOut "Systemets standardutdataplats">
 <!ENTITY KeeFox-pref-logMethodFile "Fil (sparad i en &quot;keefox&quot;-mapp i din Firefox-profil)">
 <!ENTITY KeeFox-pref-logLevel.desc "Välj hur utförlig du vill att loggen skall vara. Ju högre loggningsnivå, desto mer utdata.">
-<!ENTITY KeeFox-pref-logSensitiveData.desc "Alternativet nedan skall användas med största försiktighet och som regel endast för utvecklings- och felsökningsändamål.">
-<!ENTITY KeeFox-pref-logSensitiveData.label "Logga lösenord och annan känslig information">
 <!ENTITY KeeFox-pref-dynamicFormScanning.label "Sök igenom alla webbsidor efter nya formulär">
 <!ENTITY KeeFox-pref-dynamicFormScanningExplanation.label "OBS: Detta alternativ kan göra att KeeFox identifierar fler formulär, men på bekostnad av prestandan">
 <!ENTITY KeeFox-pref-keePassRPCPort.label "Kommunicera med KeePass via denna TCP/IP-port">

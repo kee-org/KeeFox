@@ -2,9 +2,6 @@
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox wordt geladen en voert een aantal opstart testen uit. Dit hoort maar even te duren...">
 <!ENTITY KeeFox_Menu-Button.tip "Klik om het KeeFox menu te openen">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.label "Test KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.tip "Voer KeeFox interne testen uit, om the verifiëren dat de installatie naar behoren werkt.">
-<!ENTITY KeeFox_Menu-Button.test.key "T">
 <!ENTITY KeeFox_Menu-Button.changeDB.label "Wissel van database">
 <!ENTITY KeeFox_Menu-Button.changeDB.tip "Kies een andere KeePass wachtwoord database.">
 <!ENTITY KeeFox_Menu-Button.changeDB.key "C">
@@ -62,8 +59,6 @@
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox installeert Microsoft .NET framework en KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. Wanneer u de installatie locatie, taalvoorkeur, of andere geavanceerde opties van KeePass wilt instellen, download en installeer dan .NET van de Microsoft webpagina en herstart Firefox.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 heeft het .NET Framework versie 2.0 of hoger nodig. De setup knop hierboven installeert versie 2.0. Het Microsoft .NET Framework is een platform dat ook door veel andere programma's vereist wordt. Als u andere programma's gebruikt die een nieuwere versie van het .NET Framework vereisen, klik dan op de knop hieronder om .NET versie 3.5 te installeren. Het duurt iets langer om deze versie te downloaden en installeren. Voor de werking van KeeFox en KeePass Password Safe 2 maakt het niet uit welke versie u gebruikt.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallButton.label "Installeer KeeFox met Microsoft .NET Framework 3.5">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManual.description "U kunt ook proberen om het installatie proces handmatig te doorlopen via deze stappen:">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Download en installeer .NET van Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Download en installeer KeePass Password Safe 2 van http://keepass.info">
@@ -80,8 +75,6 @@
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "Installeer KeePass/KeePassRPC op een tweede locatie">
 <!ENTITY KeeFox_Install_IC1setupNETdownloading.description "De benodigde bestanden voor de installatie van KeeFox worden gedownload...">
 <!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "Downloaden gereed. Volg de aanwijzingen op uw scherm van de .NET installatie, die spoedig gestart wordt...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "De benodigde bestanden voor de installatie van KeeFox worden gedownload...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "Downloaden gereed. Volg de aanwijzingen op uw scherm van de .NET installatie, die spoedig gestart wordt...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 wordt gedownload...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "Downloaden gereed. Volg de aanwijzingen op uw scherm van het installatie proces dat nu gestart wordt...">
 <!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "Bijna klaar...">

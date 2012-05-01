@@ -2,9 +2,6 @@
 <!ENTITY KeeFox_Main-Button.loading.tip "KeeFox se spouští a provádí několik spouštěcích testů. Nemělo by to trvat dlouho ...">
 <!ENTITY KeeFox_Menu-Button.tip "Kliknutím se zobrazí KeeFox menu">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.label "Otestovat KeeFox">
-<!ENTITY KeeFox_Menu-Button.test.tip "Spustit kontrolu instalace KeeFox a prověření správné funkce.">
-<!ENTITY KeeFox_Menu-Button.test.key "T">
 <!ENTITY KeeFox_Menu-Button.changeDB.label "Změnit databázi">
 <!ENTITY KeeFox_Menu-Button.changeDB.tip "Zvolit jinou databázi hesel KeePass.">
 <!ENTITY KeeFox_Menu-Button.changeDB.key "Z">
@@ -65,8 +62,6 @@
 <!-- strings describing each possible default setup state -->
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox naistaluje Microsoft .NET framework a KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 je správce hesel, který KeeFox používá k bezpečnému uchovávání vašich hesel. Pokud chcete zvolit umístění instalace programu KeePass Password Safe 2, jazyk nebo jiná pokročilá nastavení, prosím stáhněte a naistalujte .NET ze stránek Microsoftu a restartujte Firefox.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeNet.description "KeePass Password Safe 2 vyžaduje .NET Framework version 2.0 nebo vyšší. Hlavní nastavovací tlačítko výše nainstaluje verzi 2.0. Microsoft .NET Framework je zavedená platforma, která je vyžadováná mnoha dalšími aplikacemi. Jestliže chcete spouštět aplikace, které vyžadují novější verze .NET Framework, klikněte na tlačítko níže a nainstalujte verzi 3.5. Stažení a instalace bude trvat déle, ale KeeFox a KeePass Password Safe 2 budou fungovat i s touto novější verzí.">
-<!ENTITY KeeFox_Install_setupNET35ExeInstallButton.label "Nastavit KeeFox s Microsoft .NET Framework 3.5">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManual.description "Případně se můžete pokusit o ruční instalaci podle následujících instrukcí:">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description "1) Stáhnout .NET od firmy Microsoft">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description "2) Stáhnout a nainstalovat KeePass Password Safe 2 instalaci nebo ZIP na http://keepass.info">
@@ -84,8 +79,6 @@
 <!-- strings providing further setup information to the user and advanced options -->
 <!ENTITY KeeFox_Install_IC1setupNETdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
 <!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Prosím, pokračujte podle instrukcí v .NET instalátoru, který se zanedlouho spustí...">
-<!ENTITY KeeFox_Install_IC1setupNET35downloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC1setupNET35downloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Prosím, pokračujte podle instrukcí v .NET instalátoru, který se zanedlouho spustí...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 se právě stahuje...">
 <!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Prosím, pokračujte podle instrukcí v instalátoru, který se právě spouští...">
 <!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "&#37;KeeFox_Shared_Nearly_Finished;">

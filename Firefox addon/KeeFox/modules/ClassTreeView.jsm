@@ -331,7 +331,7 @@ ClassTreeView.prototype = {
     if (this.treeBox)
       this.treeBox.rowCountChanged(aIndex + 1, changeCount);
     if (shouldAddChildren) {
-      for (i = 0; i < childRows.length; i++) {
+      for (let i = 0; i < childRows.length; i++) {
         this._addChildrenRows(childRows[i]);
       }
     }

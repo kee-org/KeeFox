@@ -121,7 +121,7 @@ namespace KeePassRPC
         {
             lock (streamAccessLock)
             {
-                this.ConnectionStream.Write(bytes, 0, bytes.Length);
+                this.ConnectionStream.Read(bytes, 0, bytes.Length);
             }
         }
 
@@ -166,6 +166,21 @@ namespace KeePassRPC
                 Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
                 this.ConnectionStreamWrite(bytes);
+            }
+            catch (System.IO.IOException)
+            {
+                // Sometimes a connection is unexpectedly closed e.g. by Firefox
+                // or (more likely) dodgy security "protection". From one year's
+                // worth of bug reports (35) 100% of unexpected application
+                // exceptions were IOExceptions.
+                //
+                // We will now ignore this type of exception and allow KeeFox to
+                // re-establish the link to KeePass as part of its regular polling loop.
+                //
+                // The requested KPRPC signal will never be recieved by KeeFox
+                // but this should be OK in practice becuase KeeFox will 
+                // re-establish the relevant state information as soon as it reconnects.
+                return;
             }
             catch (Exception ex)
             {

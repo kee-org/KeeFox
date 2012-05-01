@@ -69,7 +69,7 @@ KFToolbar.prototype = {
             return;
 
         // Remove all of the existing buttons
-        for (i = container.childNodes.length; i > 0; i--) {
+        for (var i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
         this.setupButton_ready(null, this._currentWindow);
@@ -297,7 +297,7 @@ KFToolbar.prototype = {
         //KFLog.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
 
         // Remove all of the existing buttons
-        for (i = container.childNodes.length; i > 0; i--) {
+        for (var i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
 
@@ -384,7 +384,7 @@ KFToolbar.prototype = {
             return;
 
         // Remove all of the existing buttons
-        for (i = mainButton.childNodes.length; i > 0; i--) {
+        for (var i = mainButton.childNodes.length; i > 0; i--) {
             mainButton.removeChild(mainButton.childNodes[0]);
         }
         mainButton.setAttribute("class", "");
@@ -542,7 +542,7 @@ KFToolbar.prototype = {
 
         //var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
         // Remove all of the existing popup containers
-        for (i = container.childNodes.length; i > 0; i--) {
+        for (var i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
 
@@ -555,7 +555,7 @@ KFToolbar.prototype = {
             return;
 
         // Remove all of the existing buttons
-        for (i = popupContainer.childNodes.length; i > 0; i--) {
+        for (var i = popupContainer.childNodes.length; i > 0; i--) {
             popupContainer.removeChild(popupContainer.childNodes[0]);
         }
 
@@ -577,7 +577,7 @@ KFToolbar.prototype = {
             return;
 
         // Remove the loading message
-        for (i = popupContainer.childNodes.length; i > 0; i--) {
+        for (var i = popupContainer.childNodes.length; i > 0; i--) {
             popupContainer.removeChild(popupContainer.childNodes[0]);
         }
 
@@ -592,7 +592,7 @@ KFToolbar.prototype = {
             return;
         } else {
 
-            for (i = 0; i < mruArray.length; i++) {
+            for (let i = 0; i < mruArray.length; i++) {
                 var displayName = mruArray[i];
                 if (displayName.length > 50) {
                     var fileNameStartLocation = displayName.lastIndexOf('\\');

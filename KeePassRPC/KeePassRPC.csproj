@@ -88,9 +88,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Jayrock.Json.dll</HintPath>
     </Reference>
-    <Reference Include="KeePass, Version=2.1.0.28189, Culture=neutral, PublicKeyToken=fed2ed7716aecf5c, processorArchitecture=MSIL">
+    <Reference Include="KeePass, Version=2.1.8.29009, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\KeePass Password Safe 2\KeePass.exe</HintPath>
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
     </Reference>
     <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

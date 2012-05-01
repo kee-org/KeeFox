@@ -138,15 +138,15 @@ KFILM.prototype._onFormSubmit = function (form)
     {
         // naive duplicate finder - more than sufficient for the number of passwords per domain
         twoPasswordsMatchIndex=-1;
-        for(i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
-            for(j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
+        for(let i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
+            for(let j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
                 if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
             
         if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
         {    
             KFLog.debug("multiple passwords found (with no identical values)");
                     
-            for (i=0; i < passwords.length; i++)
+            for (let i=0; i < passwords.length; i++)
                 passwordFields.push(passwords[i]);
                 
             //TODO2: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
@@ -183,7 +183,7 @@ KFILM.prototype._onFormSubmit = function (form)
                 passwordFields.push(passwords[twoPasswordsMatchIndex]);
                 
                 // find the first password that is different from the one that has been typed twice
-                for(i=0;i<passwords.length;i++)
+                for(let i=0;i<passwords.length;i++)
                     if(passwordFields[0].value != passwords[i].value)
                         oldPasswordField = passwords[i];
             }
