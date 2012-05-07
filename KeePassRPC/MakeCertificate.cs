@@ -35,6 +35,8 @@ using System;
 using System.Collections;
 using System.Security.Cryptography;
 using Mono.Security.X509;
+using Mono.Security.X509.Extensions;
+using Mono.Security;
 using System.IO;
 using KeePassRPC;
 
@@ -64,6 +66,8 @@ namespace Mono.Tools
             issuer = "CN=" + issuer;
             RSA subjectKey = (RSA)RSA.Create();
             RSA issuerKey = (RSA)RSA.Create();
+            subjectKey.KeySize = 2048;
+            issuerKey.KeySize = 2048;
 
             string hashName = "SHA1";
 
@@ -88,6 +92,15 @@ namespace Mono.Tools
             cb.SubjectName = subject;
             cb.SubjectPublicKey = subjectKey;
             cb.Hash = hashName;
+            
+            //X509 extensions
+			KeyUsageExtension keyUsage = new KeyUsageExtension();
+			keyUsage.KeyUsage = KeyUsages.keyEncipherment | KeyUsages.digitalSignature;
+			cb.Extensions.Add(keyUsage);
+
+			ExtendedKeyUsageExtension extendedKeyUsage = new ExtendedKeyUsageExtension();
+			extendedKeyUsage.KeyPurpose.Add("1.3.6.1.5.5.7.3.1");
+			cb.Extensions.Add(extendedKeyUsage);
             byte[] rawcert = cb.Sign(issuerKey);
 
             PKCS12 p12 = new PKCS12();
