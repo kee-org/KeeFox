@@ -831,11 +831,22 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     // hoping it is OK to delete the underlying array property while still referencing
     // it from this function. Assuming normal OO reference GC but don't know the JS
     // internals well enough to be sure so this is a potential crash cause
-    for (var ridc = 0, l = findLoginDoc.requestIds.length; ridc < l; ridc++)
+
+    // the code below appears to enable cleanup of these resources ONE window load
+    // after they are finished with (assuming the window has a form on it). FAR
+    // from ideal but a vast improvement on leaking the resources forever as was
+    // happening with earlier versions so it will do suffice until more detailed
+    // help from Firefox can tell me what is going on (e.g. bug #722749)
+
+    var rids = findLoginDoc.requestIds.slice(0);
+    findLoginDoc = null;
+    KFLog.debug("Deleting login data for recently completed async find logins call.");
+    for (var ridc = 0, l = rids.length; ridc < l; ridc++)
     {
-        delete window.keefox_org.ILM.findLoginOps[ridc];
-        delete window.keefox_org.ILM.findLoginDocs[ridc];
-    }     
+        KFLog.debug("Deleting for request #" + ridc + " (id: " + rids[ridc] + ")");
+        delete window.keefox_org.ILM.findLoginOps[rids[ridc]];
+        delete window.keefox_org.ILM.findLoginDocs[rids[ridc]];
+    }
 };
 
 // login to be used is indentified via KeePass uniqueID (GUID)

@@ -500,25 +500,6 @@ KFToolbar.prototype = {
         KFLog.debug("setupButton_ready end");
     },
 
-    //    
-    //    KeeFox_RunSelfTests: function(event, KFtester) {
-    // 
-    //        this._alert("Please load KeePass and create a new empty database (no sample data). Then click OK and wait for the tests to complete. Follow the test progress in the Firefox error console. WARNING: While running these tests do not load any KeePass database which contains data you want to keep.");
-    //        var outMsg = "";
-    //        try {
-    //            KFtester._KeeFoxTestErrorOccurred = false;
-    //            outMsg = KFtester.do_tests();
-    //        }
-    //        catch (err) {
-    //            KFLog.error(err);
-    //            KFLog._alert("Tests failed. View the Firefox error console for further details. This may be a clue: " + err);
-    //            return;
-    //        }
-
-    //        KFLog.info(outMsg);
-    //        KFLog._alert(outMsg);
-    //    },
-
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
         if (flashyItem === undefined || flashyItem == null)
             return;
