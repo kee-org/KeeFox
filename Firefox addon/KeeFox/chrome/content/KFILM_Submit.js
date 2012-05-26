@@ -332,7 +332,8 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
 {                
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
     window.keeFoxInst._KFLog.info("callback fired!");
      
     var logins = null;

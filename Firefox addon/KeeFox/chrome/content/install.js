@@ -884,8 +884,18 @@ function launchAndConnectToKeePass()
 {
     // Tell KeeFox that KeePassRPC has been installed so it will reguarly
     // attempt to connect to KeePass when the timer goes off.
-    var Application = Components.classes["@mozilla.org/fuel/application;1"]
-        .getService(Components.interfaces.fuelIApplication);
+    var Application;
+    if (keefox_org.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+        // This is Firefox
+        Application = Components.classes["@mozilla.org/fuel/application;1"]
+            .getService(Components.interfaces.fuelIApplication);
+    }
+    if (keefox_org.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
+    // This is Thunderbird
+        Application = Components.classes["@mozilla.org/steel/application;1"]
+            .getService(Components.interfaces.steelIApplication);
+    }
+
     var keeFoxStorage = mainWindow.keeFoxInst._keeFoxExtension.storage;
 
     keeFoxStorage.set("KeePassRPCInstalled", true);

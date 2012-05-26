@@ -517,8 +517,9 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser");
-                 window.keeFoxInst._KFLog.info("callback fired!");
+                var window = wm.getMostRecentWindow("navigator:browser") ||
+                    wm.getMostRecentWindow("mail:3pane");
+                window.keeFoxInst._KFLog.info("callback fired!");
                  
                 var foundLogins = null;
                 var convertedResult = [];
@@ -610,7 +611,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
     
     // ensure we only assess the best matching form once all async callbacks have been received
     if (findLoginDoc.responseCount != findLoginDoc.requestCount)
@@ -871,8 +873,9 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
 {                
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
-     window.keeFoxInst._KFLog.info("callback fired!");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
+    window.keeFoxInst._KFLog.info("callback fired!");
      
     var logins = null;
     var convertedResult = [];

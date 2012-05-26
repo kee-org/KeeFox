@@ -72,123 +72,95 @@ var keeFoxDialogManager = {
     host: null,
     
     prepareFill : function()
-    {
+    {               
         if (document.getElementById("loginTextbox") != null
-		    && document.getElementById("password1Textbox") != null
-		    && document.getElementById("loginContainer") != null
-		    && !document.getElementById("loginContainer").hidden
-		    && document.getElementById("password1Container") != null
-		    && !document.getElementById("password1Container").hidden)
-		{
+            && document.getElementById("password1Textbox") != null
+            && document.getElementById("loginContainer") != null
+            // Thunderbird only shows password1Container - could add to if Firefox below if needed
+            //&& !document.getElementById("loginContainer").hidden 
+            && document.getElementById("password1Container") != null
+            && !document.getElementById("password1Container").hidden)
+        {
             keeFoxInst._KFLog.debug("prepareFill accepted"); 
             
-		    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var parentWindow = wm.getMostRecentWindow("navigator:browser");
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                .getService(Components.interfaces.nsIWindowMediator);
+            var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             
-            var currentGBrowser = parentWindow.gBrowser;
-            var domWin = parentWindow;
-            var domDoc = currentGBrowser.contentDocument;	                
-            var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                   .rootTreeItem
-                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIDOMWindow); 
-                       
-            var currentTab = currentGBrowser.selectedTab;
-            var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                    .getService(Components.interfaces.nsISessionStore);
-                        
             this.strbundle = parentWindow.document.getElementById("KeeFox-strings");
             
-            // we always remove this - multi-page HTTP Auth forms are not supported.
-            var removeTabSessionStoreData = true;
-            
             var mustAutoSubmit = false;
-                            
-            // see if this tab has our special attributes and promote them to session data
-            //TODO2: Some of this block is probably redundant
-            // unless we add support for multi-page logins
-            if (currentTab.hasAttribute("KF_uniqueID"))
-            {
-                keeFoxInst._KFLog.debug("has uid");                
-                ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
-                ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-                mustAutoSubmit = true;
-                currentTab.removeAttribute("KF_uniqueID");
-                currentTab.removeAttribute("KF_dbFileName");
-            }
             
-            ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
-            ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
-        
-            if (removeTabSessionStoreData)
-            {
-                // remove the data that helps us track multi-page logins, etc.
-                keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
-                parentWindow.keefox_org.toolbar.clearTabFormFillData();                
-            }
-            
-			var host = "";
-			var realm = "";
-			
-			// e.g. en-US:
-			// A username and password are being requested by %2$S. The site says: "%1$S"
-			var currentRealmL10nPattern = "";			
-			try 
-			{
-			    currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
-			} catch (exception)
-			{
-			    currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
-			}
-
-            var realmFirst = false;
-            if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
-                realmFirst = true;
-
-            currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-            var regEx = new RegExp(currentRealmL10nPattern);
-
-            matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-            if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
-            {
-                if (realmFirst)
+            if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+                // This is Firefox         
+                var currentGBrowser = parentWindow.gBrowser;
+                var domWin = parentWindow;
+                var domDoc = currentGBrowser.contentDocument;                    
+                var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                       .getInterface(Components.interfaces.nsIWebNavigation)
+                       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                       .rootTreeItem
+                       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                       .getInterface(Components.interfaces.nsIDOMWindow); 
+                           
+                var currentTab = currentGBrowser.selectedTab;
+                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                        .getService(Components.interfaces.nsISessionStore);
+                
+                // we always remove this - multi-page HTTP Auth forms are not supported.
+                var removeTabSessionStoreData = true;
+                        
+                                
+                // see if this tab has our special attributes and promote them to session data
+                //TODO2: Some of this block is probably redundant
+                // unless we add support for multi-page logins
+                if (currentTab.hasAttribute("KF_uniqueID"))
                 {
-                    host = matches[2];
-                    realm = matches[1];
-                } else
-                {
-                    host = matches[1];
-                    realm = matches[2];
+                    keeFoxInst._KFLog.debug("has uid");                
+                    ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                    ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
+                    ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                    mustAutoSubmit = true;
+                    currentTab.removeAttribute("KF_uniqueID");
+                    currentTab.removeAttribute("KF_dbFileName");
                 }
-            }
+                
+                ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
+                ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
             
-            if (host.length < 1)
-            {
+                if (removeTabSessionStoreData)
+                {
+                    // remove the data that helps us track multi-page logins, etc.
+                    keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                    parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
+                    parentWindow.keefox_org.toolbar.clearTabFormFillData();                
+                }
+                
+                var host = "";
+                var realm = "";
+                
                 // e.g. en-US:
-			    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
-			    var currentProxyL10nPattern = "";			
-			    try 
-			    {
-			        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
-			    } catch (exception)
-			    {
-			        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
-			    }
+                // A username and password are being requested by %2$S. The site says: "%1$S"
+                var currentRealmL10nPattern = "";            
+                try 
+                {
+                    currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
+                } catch (exception)
+                {
+                    currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                }
 
-                realmFirst = false;
-                if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
+                var realmFirst = false;
+                if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
                     realmFirst = true;
 
-                currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                var regEx = new RegExp(currentProxyL10nPattern);
+                currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                var regEx = new RegExp(currentRealmL10nPattern);
 
                 matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
+                {
                     if (realmFirst)
                     {
                         host = matches[2];
@@ -199,54 +171,106 @@ var keeFoxDialogManager = {
                         realm = matches[2];
                     }
                 }
-            }
-            
-            // check for NTLM auth dialog
-            if (host.length < 1) 
-            {
-                // e.g. en-US:
-			    // Enter username and password for %1$S
-			    var currentProxyL10nPattern = "";			
-			    try 
-			    {
-			        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
-			    } catch (exception)
-			    {
-			        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
-			    }
+                
+                if (host.length < 1)
+                {
+                    // e.g. en-US:
+                    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
+                    var currentProxyL10nPattern = "";            
+                    try 
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                    } catch (exception)
+                    {
+                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
+                    }
 
-                currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                var regEx = new RegExp(currentProxyL10nPattern);
+                    realmFirst = false;
+                    if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
+                        realmFirst = true;
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                if (matches !== null && typeof matches[1] !== "undefined")  {
-                        host = matches[1];
+                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                    var regEx = new RegExp(currentProxyL10nPattern);
+
+                    matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                        if (realmFirst)
+                        {
+                            host = matches[2];
+                            realm = matches[1];
+                        } else
+                        {
+                            host = matches[1];
+                            realm = matches[2];
+                        }
+                    }
                 }
-            }
-            
-            this.realm = realm;
-            this.host = host;
+                
+                // check for NTLM auth dialog
+                if (host.length < 1) 
+                {
+                    // e.g. en-US:
+                    // Enter username and password for %1$S
+                    var currentProxyL10nPattern = "";            
+                    try 
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                    } catch (exception)
+                    {
+                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
+                    }
+
+                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
+                    var regEx = new RegExp(currentProxyL10nPattern);
+
+                    matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                    if (matches !== null && typeof matches[1] !== "undefined")  {
+                            host = matches[1];
+                    }
+                }
+                
+                this.realm = realm;
+                this.host = host;
+            } // end if Firefox
+            if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
+            // This is Thunderbird
+                // extract password from dialog
+                var promptText = Dialog.args.text;
+                var lastSpace = promptText.lastIndexOf(" ");
+                var lastAtSym = promptText.lastIndexOf("@");
+                var realm = promptText.substring(lastSpace + 1, lastAtSym); // username
+                var host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+                
+                // fake protocol
+                //TODO can we get actual imap, smpt, etc. from Thunderbird?
+                host = "mail://" + host; 
+                
+                this.realm = realm;
+                this.host = host;
+            } // end if Thunderbird
             
             if (host.length < 1)
-                return;
-                
+                return;                
                 
             // try to pick out the host from the full protocol, host and port
             var originalHost = host;
-            try
-            {
-                var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                               getService(Components.interfaces.nsIIOService);
-                var uri = ioService.newURI(host, null, null);
-                host = uri.host;            
-            } catch (exception) {
-                if (keeFoxInst._KFLog.logSensitiveData)
-                    keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
-                else
-                    keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from a string");
-            }    
-								
-		    // if we're not logged in to KeePass then we can't go on
+            if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+                // This is Firefox            
+                try
+                {
+                    var ioService = Components.classes["@mozilla.org/network/io-service;1"].
+                                   getService(Components.interfaces.nsIIOService);
+                    var uri = ioService.newURI(host, null, null);
+                    host = uri.host;            
+                } catch (exception) {
+                    if (keeFoxInst._KFLog.logSensitiveData)
+                        keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
+                    else
+                        keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from a string");
+                }    
+            }
+                            
+            // if we're not logged in to KeePass then we can't go on
             if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)
             ||  !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
@@ -262,25 +286,25 @@ var keeFoxDialogManager = {
                 boxLabel.setAttribute("flex", "1");
                 boxLabel.setAttribute("pack", "end");
                 var label = document.createElement("description");
-		        label.setAttribute("value", "");
-		        label.setAttribute("align", "end");
-		        label.setAttribute("pack", "end");
-		        label.setAttribute("flex", "1");
-		        boxLabel.appendChild(label);
-	        
-		        var box = document.createElement("hbox");
+                label.setAttribute("value", "");
+                label.setAttribute("align", "end");
+                label.setAttribute("pack", "end");
+                label.setAttribute("flex", "1");
+                boxLabel.appendChild(label);
+            
+                var box = document.createElement("hbox");
                 box.setAttribute("id","keefox-autoauth-box");
                 box.setAttribute("align", "start");
                 box.setAttribute("flex", "1");
                 box.setAttribute("pack", "start");
-		    
-		        var loadingPasswords = document.createElement("description");
-		        loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.default"));
-		        loadingPasswords.setAttribute("align", "start");
-		        loadingPasswords.setAttribute("flex", "1");
-		        box.appendChild(loadingPasswords);
-		        row.appendChild(boxLabel);
-		        row.appendChild(box);
+            
+                var loadingPasswords = document.createElement("description");
+                loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.default"));
+                loadingPasswords.setAttribute("align", "start");
+                loadingPasswords.setAttribute("flex", "1");
+                box.appendChild(loadingPasswords);
+                row.appendChild(boxLabel);
+                row.appendChild(box);
                 document.getElementById("loginContainer").parentNode.appendChild(row);
                 return;
             }
@@ -298,41 +322,42 @@ var keeFoxDialogManager = {
             boxLabel.setAttribute("pack", "end");
             
             var label = document.createElement("description");
-		    label.setAttribute("value", "KeeFox:");
-		    label.setAttribute("align", "end");
-		    label.setAttribute("pack", "end");
-		    label.setAttribute("flex", "1");
-		    boxLabel.appendChild(label);
-		    
-		    var box = document.createElement("hbox");
+            label.setAttribute("value", "KeeFox:");
+            label.setAttribute("align", "end");
+            label.setAttribute("pack", "end");
+            label.setAttribute("flex", "1");
+            boxLabel.appendChild(label);
+            
+            var box = document.createElement("hbox");
             box.setAttribute("id","keefox-autoauth-box");
             box.setAttribute("align", "start");
             box.setAttribute("flex", "1");
             box.setAttribute("pack", "start");
-		    
-		    var loadingPasswords = document.createElement("description");
-		    loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.loadingPasswords") + "...");
-		    loadingPasswords.setAttribute("align", "start");
-		    loadingPasswords.setAttribute("flex", "1");
-		    loadingPasswords.setAttribute("id", "keefox-autoauth-box-description");
-		    box.appendChild(loadingPasswords);
-		    row.appendChild(boxLabel);
-		    row.appendChild(box);
-		    document.getElementById("loginContainer").parentNode.appendChild(row);
+            
+            var loadingPasswords = document.createElement("description");
+            loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.loadingPasswords") + "...");
+            loadingPasswords.setAttribute("align", "start");
+            loadingPasswords.setAttribute("flex", "1");
+            loadingPasswords.setAttribute("id", "keefox-autoauth-box-description");
+            box.appendChild(loadingPasswords);
+            row.appendChild(boxLabel);
+            row.appendChild(box);
+            document.getElementById("loginContainer").parentNode.appendChild(row);
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+                .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
         
             var dialogFindLoginStorage = {};
             dialogFindLoginStorage.host = host;
             dialogFindLoginStorage.realm = realm;
             dialogFindLoginStorage.document = document;
             dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
-			// find all the logins
-			var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, null, null, this.autoFill);
-		    window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
-		}
+            // find all the logins
+            var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, null, null, this.autoFill);
+            window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
+        }
     
     },
     
@@ -342,8 +367,9 @@ var keeFoxDialogManager = {
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
-         window.keeFoxInst._KFLog.info("callback fired!");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
+        window.keeFoxInst._KFLog.info("callback fired!");
         this.strbundle = window.document.getElementById("KeeFox-strings");
         
         var foundLogins = null;
@@ -371,8 +397,8 @@ var keeFoxDialogManager = {
         foundLogins = convertedResult;            
         var dialogFindLoginStorage = window.keefox_org.ILM.dialogFindLoginStorages[resultWrapper.id];
         
-	    // auto fill the dialog by default unless a preference or tab variable tells us otherwise
-	    var autoFill = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
+        // auto fill the dialog by default unless a preference or tab variable tells us otherwise
+        var autoFill = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
         
         // do not auto submit the dialog by default unless a preference or tab variable tells us otherwise
         var autoSubmit = keeFoxInst._keeFoxExtension.prefs.getValue("autoSubmitDialogs",false);
@@ -381,7 +407,7 @@ var keeFoxDialogManager = {
         var overWriteFieldsAutomatically = keeFoxInst._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
         
         // this protects against infinite loops when the auto-submitted details are rejected    
-	    if (keeFoxInst._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
+        if (keeFoxInst._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
         {
             if (Math.round(new Date().getTime() / 1000) - keeFoxInst._keeFoxExtension.prefs.get("lastProtocolAuthAttempt") <= 3)
             {
@@ -390,159 +416,160 @@ var keeFoxDialogManager = {
             }
         }
         
-		if (dialogFindLoginStorage.document.getElementById("loginTextbox").getAttribute("value") != ''
-		    && dialogFindLoginStorage.document.getElementById("password1Textbox").getAttribute("value") != ''
-		    && !overWriteFieldsAutomatically)
-		{	
-		    autoFill = false;
+        if (dialogFindLoginStorage.document.getElementById("loginTextbox").getAttribute("value") != ''
+            && dialogFindLoginStorage.document.getElementById("password1Textbox").getAttribute("value") != ''
+            && !overWriteFieldsAutomatically)
+        {    
+            autoFill = false;
             autoSubmit = false;
-		}
-		
+        }
+        
 
         if (keeFoxInst._KFLog.logSensitiveData)
             keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
         else
             keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
-		
-		if (foundLogins.length <= 0)
-		    return;
-		    
-		var matchedLogins = [];
-		var showList;
-		
-		// for every login
-		for (var i = 0; i < foundLogins.length; i++)
-		{
-	        try {
-	            var username = 
+        
+        if (foundLogins.length <= 0)
+            return;
+            
+        var matchedLogins = [];
+        var showList;
+        
+        // for every login
+        for (var i = 0; i < foundLogins.length; i++)
+        {
+            try {
+                var username = 
                     foundLogins[i].otherFields[foundLogins[i].usernameIndex];
                 var password = 
                     foundLogins[i].passwords[0];
                 var title = 
                     foundLogins[i].title;
                
-		        matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title,
-		            'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
-		            'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit, 'httpRealm' : foundLogins[i].httpRealm });
-		        showList = true;
-		        
+                matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title,
+                    'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
+                    'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit, 'httpRealm' : foundLogins[i].httpRealm });
+                showList = true;
+                
 
-	        } catch (e) {
-	            keeFoxInst._KFLog.error(e);
-	        }
-		}
-		
-		var bestMatch = 0;
-		
-		// create a drop down box with all matched logins
-		if (showList) {
-			var box = dialogFindLoginStorage.document.getElementById("keefox-autoauth-box");
+            } catch (e) {
+                keeFoxInst._KFLog.error(e);
+            }
+        }
+        
+        var bestMatch = 0;
+        
+        // create a drop down box with all matched logins
+        if (showList) {
+            var box = dialogFindLoginStorage.document.getElementById("keefox-autoauth-box");
             
-			//var button = dialogFindLoginStorage.document.createElement("button");
-			//TODO2: find a way to get string bundles into here without
-			// referencing document specific vars that go out of scope
-			// when windows are closed...button.setAttribute("label",
-			// keeFoxInst.strbundle.getString("autoFillWith
-			//button.setAttribute("label", "Auto Fill With");
+            //var button = dialogFindLoginStorage.document.createElement("button");
+            //TODO2: find a way to get string bundles into here without
+            // referencing document specific vars that go out of scope
+            // when windows are closed...button.setAttribute("label",
+            // keeFoxInst.strbundle.getString("autoFillWith
+            //button.setAttribute("label", "Auto Fill With");
 
-			var list = dialogFindLoginStorage.document.createElement("menulist");
-			list.setAttribute("id","autoauth-list");
-			var popup = dialogFindLoginStorage.document.createElement("menupopup");
-			var done = false;			
-			
-			for (var i = 0; i < matchedLogins.length; i++){
-				var item = dialogFindLoginStorage.document.createElement("menuitem");
-				item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
-				// original
+            var list = dialogFindLoginStorage.document.createElement("menulist");
+            list.setAttribute("id","autoauth-list");
+            var popup = dialogFindLoginStorage.document.createElement("menupopup");
+            var done = false;            
+            
+            for (var i = 0; i < matchedLogins.length; i++){
+                var item = dialogFindLoginStorage.document.createElement("menuitem");
+                item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
+                // original
 //                item.setAttribute("oncommand",'keeFoxDialogManager.fill(this.username, this.password);');
-//				item.username = matchedLogins[i].username;
-//				item.password = matchedLogins[i].password;
+//                item.username = matchedLogins[i].username;
+//                item.password = matchedLogins[i].password;
                 // new (maybe need to change this.username stuff to use attributes instead?
                 item.addEventListener("command", function (event) { keeFoxDialogManager.fill(this.username, this.password); }, false);  
-				item.username = matchedLogins[i].username;
-				item.password = matchedLogins[i].password;
-				item.setAttribute("tooltiptext", matchedLogins[i].title);
-				popup.appendChild(item);				
-				
-				// crude attempt to find the best match for this realm
-				//TODO2: Improve accuracy here for when multiple logins have the correct or no realm 
-		        if (dialogFindLoginStorage.realm == matchedLogins[i].httpRealm)
-		            bestMatch = i;
-			}
+                item.username = matchedLogins[i].username;
+                item.password = matchedLogins[i].password;
+                item.setAttribute("tooltiptext", matchedLogins[i].title);
+                popup.appendChild(item);                
+                
+                // crude attempt to find the best match for this realm
+                //TODO2: Improve accuracy here for when multiple logins have the correct or no realm 
+                if (dialogFindLoginStorage.realm == matchedLogins[i].httpRealm)
+                    bestMatch = i;
+            }
 
-			list.appendChild(popup);
-			// Remove all of the existing children
+            list.appendChild(popup);
+            // Remove all of the existing children
             for (i = box.childNodes.length; i > 0; i--) {
                 box.removeChild(box.childNodes[0]);
             }
-			box.appendChild(list);
-		}
+            box.appendChild(list);
+        }
 
-		
-		if (matchedLogins[bestMatch].alwaysAutoFill)
-		    autoFill = true;
-		if (matchedLogins[bestMatch].neverAutoFill)
-		    autoFill = false;
-		if (matchedLogins[bestMatch].alwaysAutoSubmit)
-		    autoSubmit = true;
-		if (matchedLogins[bestMatch].neverAutoSubmit)
-		    autoSubmit = false;
-		    
-		if (autoFill)
-		{
-		    // fill in the best matching login
-		    dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[bestMatch].username
-		    dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password
-		}
-		
-		if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
-		{
-		    if (typeof Dialog != 'undefined')
-		        Dialog.onButton0();
-		    else
-		        this.legacyDialogSubmit();
-		    close();
-		}
-		
+        
+        if (matchedLogins[bestMatch].alwaysAutoFill)
+            autoFill = true;
+        if (matchedLogins[bestMatch].neverAutoFill)
+            autoFill = false;
+        if (matchedLogins[bestMatch].alwaysAutoSubmit)
+            autoSubmit = true;
+        if (matchedLogins[bestMatch].neverAutoSubmit)
+            autoSubmit = false;
+            
+        if (autoFill)
+        {
+            // fill in the best matching login
+            dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[bestMatch].username
+            dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password
+        }
+        
+        if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
+        {
+            if (typeof Dialog != 'undefined')
+                Dialog.onButton0();
+            else
+                this.legacyDialogSubmit();
+            close();
+        }
+        
     },
     
     fill : function (username, password)
     {
-		document.getElementById("loginTextbox").value = username;
-		document.getElementById("password1Textbox").value = password;		
-		if (typeof Dialog != 'undefined')
-		    Dialog.onButton0();
-		else
-		    this.legacyDialogSubmit();
-		close();
-	},
-	
-	kfCommonDialogOnAccept : function ()
-	{
-	    if (document.getElementById("loginTextbox") != null
-		    && document.getElementById("password1Textbox") != null
-		    && document.getElementById("loginContainer") != null
-		    && !document.getElementById("loginContainer").hidden
-		    && document.getElementById("password1Container") != null
-		    && !document.getElementById("password1Container").hidden)
-		{
-		    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+        document.getElementById("loginTextbox").value = username;
+        document.getElementById("password1Textbox").value = password;        
+        if (typeof Dialog != 'undefined')
+            Dialog.onButton0();
+        else
+            this.legacyDialogSubmit();
+        close();
+    },
+    
+    kfCommonDialogOnAccept : function ()
+    {
+        if (document.getElementById("loginTextbox") != null
+            && document.getElementById("password1Textbox") != null
+            && document.getElementById("loginContainer") != null
+            && !document.getElementById("loginContainer").hidden
+            && document.getElementById("password1Container") != null
+            && !document.getElementById("password1Container").hidden)
+        {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var parentWindow = wm.getMostRecentWindow("navigator:browser");
+            var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             if (parentWindow.keefox_org.ILM._getSaveOnSubmitForSite(this.host))
                 parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
                     document.getElementById("password1Textbox").value, this.host, this.realm);
             
-	    }
-	    if (typeof Dialog != 'undefined')
-		        Dialog.onButton0();
-		    else
-		        this.legacyDialogSubmit();
+        }
+        if (typeof Dialog != 'undefined')
+                Dialog.onButton0();
+            else
+                this.legacyDialogSubmit();
     },
     
     legacyDialogSubmit : function ()
-	{
-	    gCommonDialogParam.SetInt(0, 0); // say that ok was pressed
+    {
+        gCommonDialogParam.SetInt(0, 0); // say that ok was pressed
 
       var numTextBoxes = gCommonDialogParam.GetInt(3);
       var textboxIsPassword1 = gCommonDialogParam.GetInt(4) == 1;

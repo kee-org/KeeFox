@@ -25,6 +25,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+
 var keefox_org = {};
 
 keefox_org.shouldLoad = true;
@@ -32,37 +33,43 @@ keefox_org.shouldLoad = true;
 //StartupTestApplication stuff can be skipped for Firefox > 3.6 becuase
 // the old version was never published as compatible for newer versions
 
+// TODO can't assume any more!
 // assuming we're running under Firefox
 keefox_org.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
                         .getService(Components.interfaces.nsIXULAppInfo);
 keefox_org.versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
                                .getService(Components.interfaces.nsIVersionComparator);
-                               
-if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0)
-{
-    // running under Firefox 3.6 or earlier
 
-    keefox_org.StartupTestApplication = Components.classes["@mozilla.org/fuel/application;1"]
+if (keefox_org.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+    // This is Firefox
+    if (keefox_org.versionChecker.compare(keefox_org.appInfo.version, "3.7") < 0) {
+        // running under Firefox 3.6 or earlier
+
+        keefox_org.StartupTestApplication = Components.classes["@mozilla.org/fuel/application;1"]
                     .getService(Components.interfaces.fuelIApplication);
-                    
-    if (keefox_org.StartupTestApplication.extensions.has("chris.tomlinson@keefox"))
-    {
-        // uninstall the old version of KeeFox (never published on AMO)
-        keefox_org.em = Components.classes["@mozilla.org/extensions/manager;1"]  
-            .getService(Components.interfaces.nsIExtensionManager);  
-        keefox_org.em.uninstallItem("chris.tomlinson@keefox");
-        
-    //    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-    //                   .getService(Components.interfaces.nsIWindowMediator);
-    //    var window = wm.getMostRecentWindow("navigator:browser");
 
-        // get a reference to the prompt service component.
-        keefox_org.promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+        if (keefox_org.StartupTestApplication.extensions.has("chris.tomlinson@keefox")) {
+            // uninstall the old version of KeeFox (never published on AMO)
+            keefox_org.em = Components.classes["@mozilla.org/extensions/manager;1"]
+            .getService(Components.interfaces.nsIExtensionManager);
+            keefox_org.em.uninstallItem("chris.tomlinson@keefox");
+
+            //    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+            //                   .getService(Components.interfaces.nsIWindowMediator);
+            //    var window = wm.getMostRecentWindow("navigator:browser") ||
+            //        wm.getMostRecentWindow("mail:3pane");
+
+            // get a reference to the prompt service component.
+            keefox_org.promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                     .getService(Components.interfaces.nsIPromptService);
-       keefox_org.promptService.alert(null,"KeeFox upgrade", "An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work!");
-    //window.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
-       keefox_org.shouldLoad = false;
+            keefox_org.promptService.alert(null, "KeeFox upgrade", "An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work!");
+            //window.alert("Old KeeFox found! An old version of KeeFox has been detected and automatically uninstalled. You must restart your browser again before the new version will work.");
+            keefox_org.shouldLoad = false;
+        }
     }
+}
+if (keefox_org.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
+    // This is Thunderbird    
 }
 
 
@@ -158,10 +165,13 @@ if (keefox_org.shouldLoad)
                     keefox_org.UI = new KFUI();
                     keefox_org.UI.init(keeFoxInst, keefox_org.ILM);
 
-                    // Set up tab change event listeners
-                    window.gBrowser.tabContainer.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
-                    window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
-
+                    if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+                        // This is Firefox
+                        
+                        // Set up tab change event listeners
+                        window.gBrowser.tabContainer.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
+                        window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                    }
                     this.startupKeeFox(keefox_org.toolbar, currentWindow);
                     keefox_org.FAMS = keeFoxGetFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { KFLog.info.call(this, msg); });
                                                             
@@ -169,9 +179,13 @@ if (keefox_org.shouldLoad)
                 case "unload":
                     KFLog.info("Window shutting down...");
 
-                    // Remove tab change event listeners
-                    window.gBrowser.tabContainer.removeEventListener("TabSelect", keeFoxInst._onTabSelected, false);
-                    window.gBrowser.tabContainer.removeEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                    if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
+                        // This is Firefox
+
+                        // Remove tab change event listeners
+                        window.gBrowser.tabContainer.removeEventListener("TabSelect", keeFoxInst._onTabSelected, false);
+                        window.gBrowser.tabContainer.removeEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                    }
 
                     window.removeEventListener("unload", this, false);
                     var observerService = Cc["@mozilla.org/observer-service;1"].
@@ -216,7 +230,7 @@ if (keefox_org.shouldLoad)
         window.addEventListener("load", keefox_org.mainEventHandler, false);
         window.addEventListener("unload", keefox_org.mainEventHandler, false);
         
-        let observerService = Cc["@mozilla.org/observer-service;1"].
+        var observerService = Cc["@mozilla.org/observer-service;1"].
                                   getService(Ci.nsIObserverService);                          
         observerService.addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);        
     } else

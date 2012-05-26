@@ -168,7 +168,8 @@ session.prototype =
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
             var rpc = window.keeFoxInst.KeePassRPC;
             
@@ -203,7 +204,8 @@ session.prototype =
     
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
 
         var rpc = window.keeFoxInst.KeePassRPC;
             
@@ -238,7 +240,8 @@ session.prototype =
        */
       var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-      var window = wm.getMostRecentWindow("navigator:browser");
+      var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
       
       if (window.keeFoxInst.useMono)
       {

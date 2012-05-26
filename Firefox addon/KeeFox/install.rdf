@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.0.2a</em:version>
+    <em:version>1.1.0a</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -21,6 +21,14 @@
       </Description>
     </em:targetApplication>
 
+    <em:targetApplication>
+      <Description>
+        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
+        <em:minVersion>4.0</em:minVersion>
+        <em:maxVersion>14.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
     <em:targetPlatform>WINNT</em:targetPlatform>
 
     <!-- Front End MetaData -->
@@ -28,6 +36,7 @@
     <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
     <em:creator>Chris Tomlinson</em:creator>
     <em:contributor>Ben Roberts</em:contributor>
+    <em:contributor>David Lechner</em:contributor>
     <em:homepageURL>http://keefox.org</em:homepageURL>
     <em:iconURL>chrome://keefox/skin/icon.png</em:iconURL>
 
