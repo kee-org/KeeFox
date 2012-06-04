@@ -1480,7 +1480,10 @@ namespace KeePassRPC
 
             parentGroup.AddEntry(newLogin, true);
 
-            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
+            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
+                host.MainWindow.BeginInvoke(new dlgOpenLoginEditorWindow(OpenLoginEditorWindow), newLogin, chosenDB);
+            else
+                host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
 
             Entry output = (Entry)GetEntryFromPwEntry(newLogin, true, true, chosenDB);
 

@@ -51,11 +51,17 @@ namespace KeePassRPC.Forms
             else
                 this.checkBox1.Checked = false;
 
+            this.checkBox2.Text = "Edit entries created by KeeFox";
+            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
+                this.checkBox2.Checked = true;
+            else
+                this.checkBox2.Checked = false;
         }
 
         private void m_btnOK_Click(object sender, EventArgs e)
         {
             _host.CustomConfig.SetBool("KeePassRPC.KeeFox.autoCommit", this.checkBox1.Checked);
+            _host.CustomConfig.SetBool("KeePassRPC.KeeFox.editNewEntries", this.checkBox2.Checked);
 
             _host.MainWindow.Invoke((MethodInvoker)delegate { _host.MainWindow.SaveConfig(); });
         }

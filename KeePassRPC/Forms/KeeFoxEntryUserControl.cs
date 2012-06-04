@@ -84,7 +84,7 @@ namespace KeePassRPC.Forms
 
             _strings.Set(name, new ProtectedString(protect, value));
         }
-
+        
         private void checkBoxHideFromKeeFox_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBoxHideFromKeeFox.Checked)
@@ -111,6 +111,18 @@ namespace KeePassRPC.Forms
             }
         }
 
+        private void checkBoxBlockHostnameOnly_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxBlockHostnameOnly.Checked)
+            {
+                changeAdvancedString("KPRPC Block hostname-only match", "", false);
+            }
+            else
+            {
+                removeAdvancedString("KPRPC Block hostname-only match");
+            }
+        }
+
         private void KeeFoxEntryUserControl_Load(object sender, EventArgs e)
         {
             bool kfNeverAutoFill = false;
@@ -119,10 +131,12 @@ namespace KeePassRPC.Forms
             bool kfAlwaysAutoSubmit = false;
 
             this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
+            this.checkBoxBlockHostnameOnly.CheckedChanged += new System.EventHandler(this.checkBoxBlockHostnameOnly_CheckedChanged);
 
             foreach (ListViewItem existingLi in _advancedListView.Items)
             {
                 if (existingLi.Text == "Hide from KeeFox" || existingLi.Text == "Hide from KPRPC") { removeAdvancedString("Hide from KeeFox"); checkBoxHideFromKeeFox.Checked = true; }
+                else if (existingLi.Text == "KPRPC Block hostname-only match") { checkBoxBlockHostnameOnly.Checked = true; }
                 else if (existingLi.Text == "KeeFox Never Auto Fill" || existingLi.Text == "KPRPC Never Auto Fill") { kfNeverAutoFill = true; }
                 else if (existingLi.Text == "KeeFox Always Auto Fill" || existingLi.Text == "KPRPC Always Auto Fill") { kfAlwaysAutoFill = true; }
                 else if (existingLi.Text == "KeeFox Never Auto Submit" || existingLi.Text == "KPRPC Never Auto Submit") { kfNeverAutoSubmit = true; }
