@@ -134,7 +134,7 @@ KFUI.prototype = {
 
         var text = bar.ownerDocument.createElement('description');
         text.setAttribute('value', notificationText);
-        text.setAttribute('class', 'messageText');
+        text.setAttribute('class', 'keefoxMessageText messageText');
         text.setAttribute('flex', '1');
         b.appendChild(text);
 
@@ -145,7 +145,7 @@ KFUI.prototype = {
         var bx = bar.ownerDocument.createElement('hbox');
         bx.setAttribute('flex', '1');
         bx.setAttribute('pack', 'end');
-        bx.setAttribute('class', 'keeFoxNotificationBar');
+        bx.setAttribute('class', 'keeFoxNotificationButtons');
 
         for(var bi=0; bi < buttons.length; bi++)
         {
@@ -186,7 +186,7 @@ KFUI.prototype = {
         nmi.setAttribute("label", itemDef.label);
         nmi.setAttribute("accesskey", itemDef.accessKey);
         nmi.setAttribute("tooltiptext", itemDef.tooltip);
-        nmi.setAttribute("class", "menu-iconic");
+        nmi.setAttribute("class", "menuitem-iconic");
         nmi.setAttribute("image", itemDef.image);
         var callbackWrapper = function(fn, name){
             return function() {
@@ -266,7 +266,6 @@ KFUI.prototype = {
      *
      */
     _showSaveLoginNotification : function (aNotifyBox, aLogin, isMultiPage) {
-
         var notificationText = "";
             
         var neverButtonText =
@@ -284,25 +283,20 @@ KFUI.prototype = {
         var notNowButtonText =
               this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButton.key");
-        //var rememberButtonDBText =
-        //      this._getLocalizedString("notifyBarRememberDBButton.label");
-        var rememberAdvancedDBButtonText =
-              this._getLocalizedString("notifyBarRememberAdvancedDBButton.label");       
+              this._getLocalizedString("notifyBarNotNowButton.key");   
         
-        var neverButtonTooltip =
-              this._getLocalizedString("notifyBarNeverForSiteButton.tooltip");
+        
         var rememberButtonTooltip =
-              this._getLocalizedString("notifyBarRememberButton.tooltip");
+              this._getLocalizedString("notifyBarRememberButton.tooltip",
+                [keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].name]);
         var rememberAdvancedButtonTooltip =
-              this._getLocalizedString("notifyBarRememberAdvancedButton.tooltip");
-        var notNowButtonTooltip =
-              this._getLocalizedString("notifyBarNotNowButton.tooltip");        
+              this._getLocalizedString("notifyBarRememberAdvancedButton.tooltip",
+                [keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].name]);
         var rememberButtonDBTooltip =
               this._getLocalizedString("notifyBarRememberDBButton.tooltip");
         var rememberAdvancedDBButtonTooltip =
               this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip");
-
+              
         var kfilm = this._kfilm;
         var url=aLogin.URLs[0];
         var urlSchemeHostPort=this._kfilm._getURISchemeHostAndPort(aLogin.URLs[0]);
@@ -316,8 +310,8 @@ KFUI.prototype = {
         {
             notificationText = this._getLocalizedString("savePasswordText");
         }
-        
-        var popupSave = [];        
+        var popupSave = [];
+        var popupSaveToGroup = [];        
         for (var dbi = 0; dbi < keeFoxInst.KeePassDatabases.length; dbi++)
         {
             var db = keeFoxInst.KeePassDatabases[dbi];
@@ -327,18 +321,9 @@ KFUI.prototype = {
                 popup:     null,
                 callback:  function(evt) { evt.stopPropagation(); keefox_org.ILM.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename')); keefox_org.toolbar.clearTabFormRecordingData();}, // this line is broken?????
                 tooltip: this._getLocalizedString("notifyBarRememberDBButton.tooltip", [db.name]),
-                image: "data:image/png;base64,"+db.root.iconImageData,
+                image: "data:image/png;base64,"+db.iconImageData,
                 values: [ { key: "login", value: aLogin }, { key: "filename", value: keeFoxInst.KeePassDatabases[dbi].fileName } ]
             };
-            alert(keeFoxInst.KeePassDatabases[dbi].fileName);
-        }        
-        if (popupSave.length == 0)
-            popupSave = null;
-            
-        var popupSaveToGroup = [];        
-        for (var dbi = 0; dbi < keeFoxInst.KeePassDatabases.length; dbi++)
-        {
-            var db = keeFoxInst.KeePassDatabases[dbi];
             popupSaveToGroup[dbi] = {
                 label:     this._getLocalizedString("notifyBarRememberAdvancedDBButton.label", [db.name]),
                 accessKey: "",
@@ -365,10 +350,12 @@ KFUI.prototype = {
                         evt.stopPropagation();
                     },
                 tooltip: this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip", [db.name]),
-                image: "data:image/png;base64,"+db.root.iconImageData,
+                image: "data:image/png;base64,"+db.iconImageData,
                 values: [ { key: "login", value: aLogin }, { key: "filename", value: keeFoxInst.KeePassDatabases[dbi].fileName } ]
             };
-        }        
+        }    
+        if (popupSave.length == 0)
+            popupSave = null;    
         if (popupSaveToGroup.length == 0)
             popupSaveToGroup = null;
 
@@ -381,7 +368,7 @@ KFUI.prototype = {
                 callback: function(evt) { var result = keefox_org.ILM.addLogin(evt.currentTarget.getUserData('login'), null, null);
                          keefox_org.toolbar.clearTabFormRecordingData(); evt.stopPropagation(); },
                 tooltip: rememberButtonTooltip,
-                image: "chrome://keefox/skin/KeeLock.png",
+                image: "data:image/png;base64,"+ keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].iconImageData,
                 values: [ { key: "login", value: aLogin } ]
             },
             {
@@ -410,7 +397,7 @@ KFUI.prototype = {
                         evt.stopPropagation();
                     },
                 tooltip: rememberAdvancedButtonTooltip,
-                image: "chrome://keefox/skin/KeeLock.png",
+                image: "data:image/png;base64,"+ keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].iconImageData,
                 values: [ { key: "login", value: aLogin } ]
             },
             
@@ -418,9 +405,7 @@ KFUI.prototype = {
             {
                 label:     notNowButtonText,
                 accessKey: notNowButtonAccessKey,
-                callback: function(evt) { keefox_org.toolbar.clearTabFormRecordingData(); },
-                tooltip: notNowButtonTooltip,
-                image: "chrome://keefox/skin/KeeLock.png"          
+                callback: function(evt) { keefox_org.toolbar.clearTabFormRecordingData(); }
             },
                 
             // "Never" button
@@ -428,7 +413,6 @@ KFUI.prototype = {
                 label:     neverButtonText,
                 accessKey: neverButtonAccessKey,
                 popup:     null,
-                tooltip: neverButtonTooltip,
                 callback:  function() {
                     try 
                     {
@@ -468,13 +452,13 @@ KFUI.prototype = {
      * fields.
      *
      */
-    promptToChangePassword : function (aOldLogin, aNewLogin)
-    {
-        var notifyBox = this._getNotifyBox();
+//    promptToChangePassword : function (aOldLogin, aNewLogin)
+//    {
+//        var notifyBox = this._getNotifyBox();
 
-        if (notifyBox)
-            this._showChangeLoginNotification(notifyBox, aOldLogin, aNewLogin);
-    },
+//        if (notifyBox)
+//            this._showChangeLoginNotification(notifyBox, aOldLogin, aNewLogin);
+//    },
 
 
     /*
@@ -483,63 +467,63 @@ KFUI.prototype = {
      * Shows the Change Password notification bar.
      *
      */
-    _showChangeLoginNotification : function (aNotifyBox, aOldLogin, aNewLogin)
-    {
-        var notificationText;
-        var oldUsernameValue = "";
-        
-        if (aOldLogin.usernameIndex >= 0 && aOldLogin.otherFields != null && aOldLogin.otherFields.length > 0)
-        {
-            oldUsernameValue = aOldLogin.otherFields[aOldLogin.usernameIndex].value;
-        }
-        
-        if (oldUsernameValue.length > 0)
-            notificationText  = this._getLocalizedString(
-                                          "passwordChangeText",
-                                          [oldUsernameValue]);
-        else
-            notificationText  = this._getLocalizedString(
-                                          "passwordChangeTextNoUser");
+//    _showChangeLoginNotification : function (aNotifyBox, aOldLogin, aNewLogin)
+//    {
+//        var notificationText;
+//        var oldUsernameValue = "";
+//        
+//        if (aOldLogin.usernameIndex >= 0 && aOldLogin.otherFields != null && aOldLogin.otherFields.length > 0)
+//        {
+//            oldUsernameValue = aOldLogin.otherFields[aOldLogin.usernameIndex].value;
+//        }
+//        
+//        if (oldUsernameValue.length > 0)
+//            notificationText  = this._getLocalizedString(
+//                                          "passwordChangeText",
+//                                          [oldUsernameValue]);
+//        else
+//            notificationText  = this._getLocalizedString(
+//                                          "passwordChangeTextNoUser");
 
-        var changeButtonText =
-              this._getLocalizedString("notifyBarChangeButton.label");
-        var changeButtonAccessKey =
-              this._getLocalizedString("notifyBarChangeButton.key");
-        var dontChangeButtonText =
-              this._getLocalizedString("notifyBarDontChangeButton.label");
-        var dontChangeButtonAccessKey =
-              this._getLocalizedString("notifyBarDontChangeButton.key");
+//        var changeButtonText =
+//              this._getLocalizedString("notifyBarChangeButton.label");
+//        var changeButtonAccessKey =
+//              this._getLocalizedString("notifyBarChangeButton.key");
+//        var dontChangeButtonText =
+//              this._getLocalizedString("notifyBarDontChangeButton.label");
+//        var dontChangeButtonAccessKey =
+//              this._getLocalizedString("notifyBarDontChangeButton.key");
 
-        // The callbacks in |buttons| have a closure to access the variables
-        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
-        // without a getService() call.
-        var kfilm = this._kfilm;
+//        // The callbacks in |buttons| have a closure to access the variables
+//        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
+//        // without a getService() call.
+//        var kfilm = this._kfilm;
 
-        var buttons = [
-            // "Yes" button
-            {
-                label:     changeButtonText,
-                accessKey: changeButtonAccessKey,
-                popup:     null,
-                callback:  function(aNotificationBar, aButton) {
-                    kfilm.modifyLogin(aOldLogin, aNewLogin);
-                }
-            },
+//        var buttons = [
+//            // "Yes" button
+//            {
+//                label:     changeButtonText,
+//                accessKey: changeButtonAccessKey,
+//                popup:     null,
+//                callback:  function(aNotificationBar, aButton) {
+//                    kfilm.modifyLogin(aOldLogin, aNewLogin);
+//                }
+//            },
 
-            // "No" button
-            {
-                label:     dontChangeButtonText,
-                accessKey: dontChangeButtonAccessKey,
-                popup:     null,
-                callback:  function(aNotificationBar, aButton) {
-                    // do nothing
-                }
-            }
-        ];
+//            // "No" button
+//            {
+//                label:     dontChangeButtonText,
+//                accessKey: dontChangeButtonAccessKey,
+//                popup:     null,
+//                callback:  function(aNotificationBar, aButton) {
+//                    // do nothing
+//                }
+//            }
+//        ];
 
-        this._showLoginNotification(aNotifyBox, "password-change",
-             notificationText, buttons);
-    },
+//        this._showLoginNotification(aNotifyBox, "password-change",
+//             notificationText, buttons);
+//    },
 
     _showLaunchKFNotification : function ()
     {
@@ -549,10 +533,16 @@ KFUI.prototype = {
               this._getLocalizedString("notifyBarLaunchKeePassButton.label");
         var loginButtonAccessKey =
               this._getLocalizedString("notifyBarLaunchKeePassButton.key");
+        var loginButtonTip =
+              this._getLocalizedString("notifyBarLaunchKeePassButton.tip");
         var notNowButtonText =
               this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
               this._getLocalizedString("notifyBarNotNowButton.key");
+        var neverButtonText =
+              this._getLocalizedString("notifyBarNeverForSiteButton.label");
+        var neverButtonAccessKey =
+              this._getLocalizedString("notifyBarNeverForSiteButton.key");
 
         var notificationText  = 
             this._getLocalizedString("notifyBarLaunchKeePass.label");
@@ -567,7 +557,8 @@ KFUI.prototype = {
                 popup:     null,
                 callback: function(aNotificationBar, aButton) {
                     kf.launchKeePass('');
-                }
+                },
+                tooltip: loginButtonTip
             },
 
             // "Not now" button
@@ -578,8 +569,8 @@ KFUI.prototype = {
                 callback:  function() { /* NOP */ } 
             }
         ];
-
-        this._showLoginNotification(notifyBox, "keefox-launch",
+        
+        this._showKeeFoxNotification(notifyBox, "keefox-launch",
              notificationText, buttons);
     },
     
@@ -591,10 +582,16 @@ KFUI.prototype = {
               this._getLocalizedString("notifyBarLoginToKeePassButton.label");
         var loginButtonAccessKey =
               this._getLocalizedString("notifyBarLoginToKeePassButton.key");
+        var loginButtonTip =
+              this._getLocalizedString("notifyBarLoginToKeePassButton.tip");
         var notNowButtonText =
               this._getLocalizedString("notifyBarNotNowButton.label");
         var notNowButtonAccessKey =
               this._getLocalizedString("notifyBarNotNowButton.key");
+        var neverButtonText =
+              this._getLocalizedString("notifyBarNeverForSiteButton.label");
+        var neverButtonAccessKey =
+              this._getLocalizedString("notifyBarNeverForSiteButton.key");
 
         var notificationText  = 
             this._getLocalizedString("notifyBarLoginToKeePass.label");
@@ -608,11 +605,17 @@ KFUI.prototype = {
                 accessKey: loginButtonAccessKey,
                 popup:     null,
                 callback: function(evt) { keeFoxInst.loginToKeePass(); },
-                tooltip: "L10n: Login to your KeePass database.",
-                image: "chrome://keefox/skin/KeeLock.png"
-            }//,
+                tooltip: loginButtonTip
+            },
 
             // "Not now" button
+            {
+                label:     notNowButtonText,
+                accessKey: notNowButtonAccessKey,
+                popup:     null,
+                callback:  function() { /* NOP */ } 
+            }
+            // "Not now" button (actually think it's best to keep not now and never entirely seperate buttons when implemented)
 //            {
 //                label:     notNowButtonText,
 //                accessKey: notNowButtonAccessKey,
@@ -622,7 +625,6 @@ KFUI.prototype = {
 //                    accessKey: "s",
 //                    popup:     null,
 //                    callback:  function(evt) { alert('unimplemented'); },
-//                    tooltip: "L10n: Never prompt when you are visiting this website.",
 //                    image: "chrome://keefox/skin/KeeLock.png"
 //                }
 //                ],
@@ -632,7 +634,6 @@ KFUI.prototype = {
 //            }
         ];
 
-//TODO: fix before next release
         this._showKeeFoxNotification(notifyBox, "keefox-login",
              notificationText, buttons);
              
@@ -734,6 +735,8 @@ KFUI.prototype = {
                 }
             }
 
+            if (this._document == null)
+                return gBrowser.getNotificationBox();
 
             // Find the <browser> which contains notifyWindow, by looking
             // through all the open windows and all the <browsers> in each.

@@ -341,8 +341,12 @@ namespace KeePassRPC
             Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);            
             KeePass.Program.MainForm.Activate();
 
+            // refresh the UI in case user cancelled the dialog box and/or KeePass native calls have left us in a bit of a weird state
+            host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
+
             // if user cancels login dialog, leave KeePass as the focussed App otherwise set things back how they were
-            if (showOpenDB(ioci))
+            //if (showOpenDB(ioci))
+            if (true) // testing new approach - always put things back the way they should be
             {
                 KeePass.Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
 
@@ -834,8 +838,9 @@ namespace KeePassRPC
                 rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
             //host.Database.RootGroup.
 
-            Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.GetDisplayName(), rt, (pwd == host.Database) ? true : false);
-
+            Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.GetDisplayName(), rt, (pwd == host.Database) ? true : false,
+                DataExchangeModel.IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.GetDisplayName()) ?? "");
+            //host.MainWindow.Ic
           //  sw.Stop();
           //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
           //  Debug.Unindent();
@@ -928,6 +933,21 @@ namespace KeePassRPC
         }
 
 
+        
+        private string dbIconToBase64(PwDatabase db)
+        {
+            string cachedBase64 = DataExchangeModel.IconCache<string>.GetIconEncoding(db.IOConnectionInfo.GetDisplayName());
+            if (string.IsNullOrEmpty(cachedBase64))
+            {
+                // Don't think this should ever happen but we'll return a null icon if we have to
+                return "";
+            } else
+            {
+                return cachedBase64;
+            }
+        }
+
+
         /// <summary>
         /// extract the current icon information for this entry
         /// </summary>
@@ -942,7 +962,7 @@ namespace KeePassRPC
             string imageData = "";
             if (customIconUUID != PwUuid.Zero)
             {
-                string cachedBase64 = DataExchangeModel.IconCache.GetIconEncoding(customIconUUID);
+                string cachedBase64 = DataExchangeModel.IconCache<PwUuid>.GetIconEncoding(customIconUUID);
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
                     object[] delParams = { customIconUUID };
@@ -978,7 +998,7 @@ namespace KeePassRPC
                     (byte)(iconIdInt >> 24 & 0xFF), (byte)(iconIdInt >> 24 & 0xFF)
                 } );
 
-                string cachedBase64 = DataExchangeModel.IconCache.GetIconEncoding(uuid);
+                string cachedBase64 = DataExchangeModel.IconCache<PwUuid>.GetIconEncoding(uuid);
                 if (string.IsNullOrEmpty(cachedBase64))
                 {
                     object[] delParams = { (int)iconId };
@@ -1003,7 +1023,7 @@ namespace KeePassRPC
                 MemoryStream ms = new MemoryStream();
                 icon.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 imageData = Convert.ToBase64String(ms.ToArray());
-                DataExchangeModel.IconCache.AddIcon(uuid, imageData);
+                DataExchangeModel.IconCache<PwUuid>.AddIcon(uuid, imageData);
             }
 
             return imageData;
@@ -1130,6 +1150,40 @@ namespace KeePassRPC
                 ioci.Path = fileName;
             }
 
+            // Set the current document / database to be the one we've been asked to display (may already be the case)
+            // This is because the minimise/restore trick utilised a few frames later prompts KeePass into raising an
+            // "enter key" dialog for the currently active database. This little check makes sure that the user sees
+            // the database they've asked for first (assuming the database they want is already open but unlocked)
+            // We can't stop an unneccessary prompt being seen if the user has asked for a new password to be opened
+            // and the current workspace is locked
+            //
+            // We do this regardless of whether the DB is already open or locked
+            //
+            //TODO: Need to verify this works OK with unusual circumstances like one DB open but others locked
+            if (ioci != null)
+                foreach (PwDocument doc in host.MainWindow.DocumentManager.Documents)
+                    if (doc.LockedIoc.Path == fileName || 
+                        (doc.Database.IsOpen && doc.Database.IOConnectionInfo.Path == fileName))
+                        host.MainWindow.DocumentManager.ActiveDocument = doc;
+
+            // Going to take a new approach for a bit to see how it works out...
+            //
+            // before explicitly asking user to log into the correct DB we'll set up a "fake" document in KeePass
+            // in the hope that the minimise/restore trick will get KeePass to prompt the user on our behalf
+            // (regardless of state of existing documents and newly requested document)
+            //TODO: verify when LockedIoc property was added to plugin API
+            if (ioci != null 
+                && !(host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
+                && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
+            {
+                PwDocument doc = host.MainWindow.DocumentManager.CreateNewDocument(true);
+                //IOConnectionInfo ioci = new IOConnectionInfo();
+                //ioci.Path = fileName;
+                doc.LockedIoc = ioci;
+            }
+
+            // NB: going to modify implementation of the following function call so that only KeePass initiates the prompt (need to verify cross-platform, etc. even if it seems to work on win7x64)
+            // if it works on some platforms, I will make it work on all platforms that support it and fall back to the old clunky method for others.
             host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(ioci); });
             return;
         }

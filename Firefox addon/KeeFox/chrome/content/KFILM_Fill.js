@@ -143,6 +143,7 @@ KFILM.prototype._fillManyFormFields = function
              || overWriteFieldsAutomatically
            ))
         {
+            // Look for 2nd-best match. Need to pick the first suitable value we come across
             KFLog.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
             for (j = 0; j < matchFields.length; j++)
             {
@@ -561,7 +562,8 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
                         findLoginDoc.logins[i][v].relevanceScore = window.keefox_org.ILM.
                             _calculateRelevanceScore(findLoginDoc.logins[i][v],
                                 findLoginOp.forms[i],findLoginDoc.usernameIndexArray[i],
-                                findLoginDoc.passwordFieldsArray[i], findLoginDoc.currentTabPage);
+                                findLoginDoc.passwordFieldsArray[i], findLoginDoc.currentTabPage,
+                                findLoginDoc.otherFieldsArray[i]);
                     }
                     
                     findLoginDoc.logins[i].forEach(function(c) {
@@ -955,7 +957,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
             // determine the relevance of the selected login entry to this form
             //NB: Assuming only one login returned from search (should be by GUID so OK)
             var relevanceScore = window.keefox_org.ILM._calculateRelevanceScore(logins[0],
-                    form,usernameIndex, passwords, 1); //TODO2: Compare page too?
+                    form,usernameIndex, passwords, 1, otherFields); //TODO2: Compare page too?
             formRelevanceScores[i] = relevanceScore;
             usernameIndexList[i] = usernameIndex;
             passwordsList[i] = passwords;
