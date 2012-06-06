@@ -815,9 +815,9 @@ KeeFox.prototype = {
         } else
         {
             if (this._KFLog.logSensitiveData)
-                this._KFLog.info("The '" + dbName + "' database is open.");
+                this._KFLog.info("The '" + dbName + "' database is open and active (maybe more are too).");
             else
-                this._KFLog.info("The database is open.");
+                this._KFLog.info("At least one database is open.");
             this._keeFoxStorage.set("KeePassDatabaseOpen", true);
         }
         
@@ -1078,7 +1078,6 @@ KeeFox.prototype = {
         try
         {
             return this.KeePassRPC.getMRUdatabases({});
-          
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);

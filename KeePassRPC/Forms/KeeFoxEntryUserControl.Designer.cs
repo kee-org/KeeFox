@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KeeFoxEntryUserControl));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBoxAutoFill = new System.Windows.Forms.ComboBox();
             this.comboBoxAutoSubmit = new System.Windows.Forms.ComboBox();
@@ -41,25 +42,27 @@
             this.buttonFieldEdit = new System.Windows.Forms.Button();
             this.buttonFieldDelete = new System.Windows.Forms.Button();
             this.listView2 = new System.Windows.Forms.ListView();
-            this.columnHeaderFName = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderFValue = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderFId = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderFType = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderFPage = new System.Windows.Forms.ColumnHeader();
+            this.columnHeaderFName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderFValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderFId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderFType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderFPage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.buttonFieldAdd = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.buttonURLEdit = new System.Windows.Forms.Button();
             this.buttonURLDelete = new System.Windows.Forms.Button();
             this.buttonURLAdd = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeaderValue = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderMethod = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderType = new System.Windows.Forms.ColumnHeader();
+            this.columnHeaderValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderMethod = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.textBoxKeeFoxRealm = new System.Windows.Forms.TextBox();
             this.labelRealm = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.checkBoxBlockHostnameOnly = new System.Windows.Forms.CheckBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.toolTipRealm = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
@@ -206,8 +209,8 @@
             this.listView2.TabIndex = 9;
             this.listView2.UseCompatibleStateImageBehavior = false;
             this.listView2.View = System.Windows.Forms.View.Details;
-            this.listView2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView2_MouseDoubleClick);
             this.listView2.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
+            this.listView2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView2_MouseDoubleClick);
             // 
             // columnHeaderFName
             // 
@@ -304,8 +307,8 @@
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
             this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+            this.listView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
             // 
             // columnHeaderValue
             // 
@@ -369,6 +372,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.label2);
+            this.tabPage2.Controls.Add(this.checkBoxBlockHostnameOnly);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -378,6 +383,24 @@
             this.tabPage2.Text = "URLs";
             this.tabPage2.ToolTipText = "Which URLs should this entry match or be blocked from matching?";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(16, 266);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(430, 45);
+            this.label2.TabIndex = 2;
+            this.label2.Text = resources.GetString("label2.Text");
+            // 
+            // checkBoxBlockHostnameOnly
+            // 
+            this.checkBoxBlockHostnameOnly.AutoSize = true;
+            this.checkBoxBlockHostnameOnly.Location = new System.Drawing.Point(7, 246);
+            this.checkBoxBlockHostnameOnly.Name = "checkBoxBlockHostnameOnly";
+            this.checkBoxBlockHostnameOnly.Size = new System.Drawing.Size(205, 17);
+            this.checkBoxBlockHostnameOnly.TabIndex = 1;
+            this.checkBoxBlockHostnameOnly.Text = "Require more accurate URL matching";
+            this.checkBoxBlockHostnameOnly.UseVisualStyleBackColor = true;
             // 
             // tabPage3
             // 
@@ -409,6 +432,7 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -449,5 +473,7 @@
         private System.Windows.Forms.TextBox textBoxKeeFoxRealm;
         private System.Windows.Forms.Label labelRealm;
         private System.Windows.Forms.ToolTip toolTipRealm;
+        private System.Windows.Forms.CheckBox checkBoxBlockHostnameOnly;
+        private System.Windows.Forms.Label label2;
     }
 }

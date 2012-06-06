@@ -68,7 +68,7 @@ KFILM.prototype = {
     
     //TODO2: improve weighting of matches to reflect real world tests
     _calculateRelevanceScore : function (login, form,
-        usernameIndex, passwordFields, currentTabPage)
+        usernameIndex, passwordFields, currentTabPage, otherFields)
     {    
         // entry priorities override any relevance based on URL,
         // etc. (remember that we are already dealing only with
@@ -78,7 +78,7 @@ KFILM.prototype = {
 
         var score = 0;
         var actionURL = this._getActionOrigin(form);
-        var URL = form.baseURI; //TODO2: BUG?: This does not always refer to the URL of the page. <base> tag in head can override. Confusuing for users? even if technically accurate?
+        var URL = form.ownerDocument.URL; // replaced this in 1.1: form.baseURI; //TODO2: BUG?: This does not always refer to the URL of the page. <base> tag in head can override. Confusuing for users? even if technically accurate?
         
         // NB: action url on 2nd page will not match. This is probably OK but will review if required.
         if (actionURL == login.formActionURL)
@@ -116,7 +116,25 @@ KFILM.prototype = {
         }
         
         score += maxURLscore;
-        
+
+        // Prioritise forms with the correct number of fields
+        // These scores and difference values are fairly arbitrary so some
+        // experimenting could help improve them in future
+
+        if (passwordFields.length == login.passwords.length)
+            score += 10;
+        else if (Math.abs(passwordFields.length - login.passwords.length) == 1)
+            score += 3;
+
+        if (otherFields.length == login.otherFields.length)
+            score += 8;
+        else if (Math.abs(otherFields.length - login.otherFields.length) == 1)
+            score += 6;
+        else if (Math.abs(otherFields.length - login.otherFields.length) == 2)
+            score += 3;
+        else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
+            score += 1;
+
         KFLog.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
     },    

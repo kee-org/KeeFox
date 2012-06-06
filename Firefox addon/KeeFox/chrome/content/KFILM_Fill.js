@@ -143,6 +143,7 @@ KFILM.prototype._fillManyFormFields = function
              || overWriteFieldsAutomatically
            ))
         {
+            // Look for 2nd-best match. Need to pick the first suitable value we come across
             KFLog.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
             for (j = 0; j < matchFields.length; j++)
             {
@@ -562,7 +563,8 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
                         findLoginDoc.logins[i][v].relevanceScore = window.keefox_org.ILM.
                             _calculateRelevanceScore(findLoginDoc.logins[i][v],
                                 findLoginOp.forms[i],findLoginDoc.usernameIndexArray[i],
-                                findLoginDoc.passwordFieldsArray[i], findLoginDoc.currentTabPage);
+                                findLoginDoc.passwordFieldsArray[i], findLoginDoc.currentTabPage,
+                                findLoginDoc.otherFieldsArray[i]);
                     }
                     
                     findLoginDoc.logins[i].forEach(function(c) {
@@ -833,11 +835,22 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     // hoping it is OK to delete the underlying array property while still referencing
     // it from this function. Assuming normal OO reference GC but don't know the JS
     // internals well enough to be sure so this is a potential crash cause
-    for (var ridc = 0, l = findLoginDoc.requestIds.length; ridc < l; ridc++)
+
+    // the code below appears to enable cleanup of these resources ONE window load
+    // after they are finished with (assuming the window has a form on it). FAR
+    // from ideal but a vast improvement on leaking the resources forever as was
+    // happening with earlier versions so it will do suffice until more detailed
+    // help from Firefox can tell me what is going on (e.g. bug #722749)
+
+    var rids = findLoginDoc.requestIds.slice(0);
+    findLoginDoc = null;
+    KFLog.debug("Deleting login data for recently completed async find logins call.");
+    for (var ridc = 0, l = rids.length; ridc < l; ridc++)
     {
-        delete window.keefox_org.ILM.findLoginOps[ridc];
-        delete window.keefox_org.ILM.findLoginDocs[ridc];
-    }     
+        KFLog.debug("Deleting for request #" + ridc + " (id: " + rids[ridc] + ")");
+        delete window.keefox_org.ILM.findLoginOps[rids[ridc]];
+        delete window.keefox_org.ILM.findLoginDocs[rids[ridc]];
+    }
 };
 
 // login to be used is indentified via KeePass uniqueID (GUID)
@@ -947,7 +960,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
             // determine the relevance of the selected login entry to this form
             //NB: Assuming only one login returned from search (should be by GUID so OK)
             var relevanceScore = window.keefox_org.ILM._calculateRelevanceScore(logins[0],
-                    form,usernameIndex, passwords, 1); //TODO2: Compare page too?
+                    form,usernameIndex, passwords, 1, otherFields); //TODO2: Compare page too?
             formRelevanceScores[i] = relevanceScore;
             usernameIndexList[i] = usernameIndex;
             passwordsList[i] = passwords;

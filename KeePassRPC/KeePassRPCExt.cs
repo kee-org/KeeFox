@@ -463,6 +463,22 @@ namespace KeePassRPC
             return _host.Database.GetCustomIcon(uuid);
         }
 
+        private void EnsureDBIconIsInKPRPCIconCache()
+        {
+            string cachedBase64 = DataExchangeModel.IconCache<string>
+                .GetIconEncoding(_host.Database.IOConnectionInfo.GetDisplayName());
+            if (string.IsNullOrEmpty(cachedBase64))
+            {
+                // the icon wasn't in the cache so lets calculate its base64 encoding and then add it to the cache
+                MemoryStream ms = new MemoryStream();
+                Image imgNew = new Bitmap(_host.MainWindow.Icon.ToBitmap(), new Size(16, 16));
+                imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                string imageData = Convert.ToBase64String(ms.ToArray());
+                DataExchangeModel.IconCache<string>
+                    .AddIcon(_host.Database.IOConnectionInfo.GetDisplayName(), imageData);
+            }
+         }
+
         /// <summary>
         /// Called when [file new].
         /// </summary>
@@ -794,12 +810,14 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBOpen(object sender, FileCreatedEventArgs e)
         {
+            EnsureDBIconIsInKPRPCIconCache();
             //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
 
         private void OnKPDBOpen(object sender, FileOpenedEventArgs e)
         {
+            EnsureDBIconIsInKPRPCIconCache();
             //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
         }
@@ -817,6 +835,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBSaved(object sender, FileSavedEventArgs e)
         {
+            EnsureDBIconIsInKPRPCIconCache();
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_SAVED);
         }
 
