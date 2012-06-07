@@ -232,18 +232,53 @@ var keeFoxDialogManager = {
                 this.realm = realm;
                 this.host = host;
             } // end if Firefox
+            
             if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
-            // This is Thunderbird
-                // extract password from dialog
-                var promptText = Dialog.args.text;
-                var lastSpace = promptText.lastIndexOf(" ");
-                var lastAtSym = promptText.lastIndexOf("@");
-                var realm = promptText.substring(lastSpace + 1, lastAtSym); // username
-                var host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+            // This is Thunderbird      
+                var host, realm, protocol;                
+                debugger                
+                /* if outgoing server */
+                if (Dialog.args.title == "SMTP Server Password Required") {      // TODO get match string from string bundle  
                 
-                // fake protocol
-                //TODO can we get actual imap, smpt, etc. from Thunderbird?
-                host = "mail://" + host; 
+                    // extract password from dialog
+                    var promptText = Dialog.args.text;
+                    // TODO this is a hack to make it look like the incoming server
+                    // prompt text. we can do better when we get the string bundle
+                    promptText = promptText.replace(" on ", "@");
+                    var lastSpace = promptText.lastIndexOf(" ");
+                    var lastAtSym = promptText.lastIndexOf("@");
+                    
+                    realm = promptText.substring(lastSpace + 1, lastAtSym); // username
+                    host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+                    
+                    protocol = "smtp"; 
+                } else {  /* incoming server */    
+                
+                    // extract password from dialog
+                    var promptText = Dialog.args.text;
+                    var lastSpace = promptText.lastIndexOf(" ");
+                    var lastAtSym = promptText.lastIndexOf("@");
+                    
+                    realm = promptText.substring(lastSpace + 1, lastAtSym); // username
+                    host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+                
+                    protocol = "mail"; // start with generic protocol in case we can't find real one below
+                    
+                    // loop through accounts to get protocol
+                    var acctMgr = Cc["@mozilla.org/messenger/account-manager;1"]  
+                                .getService(Ci.nsIMsgAccountManager);  
+                    var accounts = acctMgr.accounts;  
+                    for (var i = 0; i < accounts.Count(); i++) {  
+                        var account = accounts.QueryElementAt(i, Ci.nsIMsgAccount);
+                        var server = account.incomingServer;
+                        if (server.realHostName == host && realm == server.realUsername) {
+                            protocol = server.type;
+                            break;
+                        }
+                    }                    
+                }
+                
+                host = protocol + "://" + host;
                 
                 this.realm = realm;
                 this.host = host;
