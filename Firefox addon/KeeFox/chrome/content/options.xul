@@ -26,7 +26,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 
-<!--TODO sizeToContent() does not work in Thunderbird-->
 <prefwindow id="KeeFox-prefs"
      title="&KeeFox-Options.title;"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -34,7 +33,6 @@
       windowtype="Browser:Preferences"
           onload="onLoad(); window.sizeToContent();"
           xmlns:html="http://www.w3.org/1999/xhtml"
-          width="740"
           height="480"
         >
 
