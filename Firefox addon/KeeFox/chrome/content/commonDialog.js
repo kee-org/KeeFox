@@ -60,6 +60,9 @@ var keeFoxDialogManager = {
     // localisation string bundle
     strbundle: null,
     
+    appInfo: Components.classes["@mozilla.org/xre/app-info;1"]
+        .getService(Components.interfaces.nsIXULAppInfo),
+    
     dialogInit : function(e) {
         try {
             keeFoxDialogManager.prepareFill();
@@ -72,15 +75,12 @@ var keeFoxDialogManager = {
     host: null,
     
     prepareFill : function()
-    {               
-        if (document.getElementById("loginTextbox") != null
-            && document.getElementById("password1Textbox") != null
-            && document.getElementById("loginContainer") != null
-            // Thunderbird only shows password1Container - could add to if Firefox below if needed
-            //&& !document.getElementById("loginContainer").hidden 
-            && document.getElementById("password1Container") != null
-            && !document.getElementById("password1Container").hidden)
+    {    
+        if (Dialog.args.promptType == "prompt" || // username only
+            Dialog.args.promptType == "promptUserAndPass" || // user and pass
+            Dialog.args.promptType == "promptPassword") // password only
         {
+        
             keeFoxInst._KFLog.debug("prepareFill accepted"); 
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -90,110 +90,84 @@ var keeFoxDialogManager = {
             
             this.strbundle = parentWindow.document.getElementById("KeeFox-strings");
             
-            var mustAutoSubmit = false;
+            var mustAutoSubmit = false;            
+            var host, realm, protocol;                            
             
-            if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
-                // This is Firefox         
-                var currentGBrowser = parentWindow.gBrowser;
-                var domWin = parentWindow;
-                var domDoc = currentGBrowser.contentDocument;                    
-                var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                       .getInterface(Components.interfaces.nsIWebNavigation)
-                       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                       .rootTreeItem
-                       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                       .getInterface(Components.interfaces.nsIDOMWindow); 
-                           
-                var currentTab = currentGBrowser.selectedTab;
-                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                        .getService(Components.interfaces.nsISessionStore);
-                
-                // we always remove this - multi-page HTTP Auth forms are not supported.
-                var removeTabSessionStoreData = true;
-                        
-                                
-                // see if this tab has our special attributes and promote them to session data
-                //TODO2: Some of this block is probably redundant
-                // unless we add support for multi-page logins
-                if (currentTab.hasAttribute("KF_uniqueID"))
-                {
-                    keeFoxInst._KFLog.debug("has uid");                
-                    ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                    ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
-                    ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-                    mustAutoSubmit = true;
-                    currentTab.removeAttribute("KF_uniqueID");
-                    currentTab.removeAttribute("KF_dbFileName");
-                }
-                
-                ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
-                ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
+            /* handle cases for username only prompt */
+            if (Dialog.args.promptType == "prompt") {
+                // are there any cases where we are asked for username only?
+            }
             
-                if (removeTabSessionStoreData)
-                {
-                    // remove the data that helps us track multi-page logins, etc.
-                    keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                    parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
-                    parentWindow.keefox_org.toolbar.clearTabFormFillData();                
-                }
-                
-                var host = "";
-                var realm = "";
-                
-                // e.g. en-US:
-                // A username and password are being requested by %2$S. The site says: "%1$S"
-                var currentRealmL10nPattern = "";            
-                try 
-                {
-                    currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
-                } catch (exception)
-                {
-                    currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
-                }
-
-                var realmFirst = false;
-                if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
-                    realmFirst = true;
-
-                currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                var regEx = new RegExp(currentRealmL10nPattern);
-
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
-                {
-                    if (realmFirst)
+            /* handle cases for username and password prompt */
+            if (Dialog.args.promptType == "promptUserAndPass") {
+                if (parentWindow.gBrowser) { // firefox       
+                    var currentGBrowser = parentWindow.gBrowser;
+                    var domWin = parentWindow;
+                    var domDoc = currentGBrowser.contentDocument;                    
+                    var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                           .getInterface(Components.interfaces.nsIWebNavigation)
+                           .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                           .rootTreeItem
+                           .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                           .getInterface(Components.interfaces.nsIDOMWindow); 
+                               
+                    var currentTab = currentGBrowser.selectedTab;
+                    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                            .getService(Components.interfaces.nsISessionStore);
+                    
+                    // we always remove this - multi-page HTTP Auth forms are not supported.
+                    var removeTabSessionStoreData = true;
+                            
+                                    
+                    // see if this tab has our special attributes and promote them to session data
+                    //TODO2: Some of this block is probably redundant
+                    // unless we add support for multi-page logins
+                    if (currentTab.hasAttribute("KF_uniqueID"))
                     {
-                        host = matches[2];
-                        realm = matches[1];
-                    } else
-                    {
-                        host = matches[1];
-                        realm = matches[2];
+                        keeFoxInst._KFLog.debug("has uid");                
+                        ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                        ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
+                        ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                        mustAutoSubmit = true;
+                        currentTab.removeAttribute("KF_uniqueID");
+                        currentTab.removeAttribute("KF_dbFileName");
                     }
-                }
+                    
+                    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
+                    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
                 
-                if (host.length < 1)
-                {
+                    if (removeTabSessionStoreData)
+                    {
+                        // remove the data that helps us track multi-page logins, etc.
+                        keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                        parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
+                        parentWindow.keefox_org.toolbar.clearTabFormFillData();                
+                    }
+                    
+                    host = "";
+                    realm = "";
+                    
                     // e.g. en-US:
-                    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
-                    var currentProxyL10nPattern = "";            
+                    // A username and password are being requested by %2$S. The site says: "%1$S"
+                    var currentRealmL10nPattern = "";            
                     try 
                     {
-                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                        currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
                     } catch (exception)
                     {
-                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
+                        currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
                     }
 
-                    realmFirst = false;
-                    if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
+                    var realmFirst = false;
+                    if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
                         realmFirst = true;
 
-                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                    var regEx = new RegExp(currentProxyL10nPattern);
+                    currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                    var regEx = new RegExp(currentRealmL10nPattern);
 
                     matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
+                    {
                         if (realmFirst)
                         {
                             host = matches[2];
@@ -204,78 +178,113 @@ var keeFoxDialogManager = {
                             realm = matches[2];
                         }
                     }
-                }
-                
-                // check for NTLM auth dialog
-                if (host.length < 1) 
-                {
-                    // e.g. en-US:
-                    // Enter username and password for %1$S
-                    var currentProxyL10nPattern = "";            
-                    try 
+                    
+                    if (host.length < 1)
                     {
-                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
-                    } catch (exception)
-                    {
-                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
-                    }
-
-                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                    var regEx = new RegExp(currentProxyL10nPattern);
-
-                    matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined")  {
-                            host = matches[1];
-                    }
-                }
-                
-                this.realm = realm;
-                this.host = host;
-            } // end if Firefox
-            
-            if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
-            // This is Thunderbird      
-                var host, realm, protocol;                
-                debugger                
-                /* if outgoing server */
-                if (Dialog.args.title == "SMTP Server Password Required") {      // TODO get match string from string bundle  
-                
-                    // extract password from dialog
-                    var promptText = Dialog.args.text;
-                    // TODO this is a hack to make it look like the incoming server
-                    // prompt text. we can do better when we get the string bundle
-                    promptText = promptText.replace(" on ", "@");
-                    var lastSpace = promptText.lastIndexOf(" ");
-                    var lastAtSym = promptText.lastIndexOf("@");
-                    
-                    realm = promptText.substring(lastSpace + 1, lastAtSym); // username
-                    host = promptText.substring(lastAtSym + 1, promptText.length - 1);
-                    
-                    protocol = "smtp"; 
-                } else {  /* incoming server */    
-                
-                    // extract password from dialog
-                    var promptText = Dialog.args.text;
-                    var lastSpace = promptText.lastIndexOf(" ");
-                    var lastAtSym = promptText.lastIndexOf("@");
-                    
-                    realm = promptText.substring(lastSpace + 1, lastAtSym); // username
-                    host = promptText.substring(lastAtSym + 1, promptText.length - 1);
-                
-                    protocol = "mail"; // start with generic protocol in case we can't find real one below
-                    
-                    // loop through accounts to get protocol
-                    var acctMgr = Cc["@mozilla.org/messenger/account-manager;1"]  
-                                .getService(Ci.nsIMsgAccountManager);  
-                    var accounts = acctMgr.accounts;  
-                    for (var i = 0; i < accounts.Count(); i++) {  
-                        var account = accounts.QueryElementAt(i, Ci.nsIMsgAccount);
-                        var server = account.incomingServer;
-                        if (server.realHostName == host && realm == server.realUsername) {
-                            protocol = server.type;
-                            break;
+                        // e.g. en-US:
+                        // The proxy %2$S is requesting a username and password. The site says: "%1$S"
+                        var currentProxyL10nPattern = "";            
+                        try 
+                        {
+                            currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                        } catch (exception)
+                        {
+                            currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
                         }
-                    }                    
+
+                        realmFirst = false;
+                        if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
+                            realmFirst = true;
+
+                        currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                        var regEx = new RegExp(currentProxyL10nPattern);
+
+                        matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                        if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                            if (realmFirst)
+                            {
+                                host = matches[2];
+                                realm = matches[1];
+                            } else
+                            {
+                                host = matches[1];
+                                realm = matches[2];
+                            }
+                        }
+                    }
+                    
+                    // check for NTLM auth dialog
+                    if (host.length < 1) 
+                    {
+                        // e.g. en-US:
+                        // Enter username and password for %1$S
+                        var currentProxyL10nPattern = "";            
+                        try 
+                        {
+                            currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                        } catch (exception)
+                        {
+                            currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
+                        }
+
+                        currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
+                        var regEx = new RegExp(currentProxyL10nPattern);
+
+                        matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                        if (matches !== null && typeof matches[1] !== "undefined")  {
+                                host = matches[1];
+                        }
+                    }
+                    
+                    this.realm = realm;
+                    this.host = host;
+                } // end if Firefox
+            }
+            
+            /* handle cases for password only prompt */
+            if (Dialog.args.promptType == "promptPassword") {
+                debugger                                
+                switch (Dialog.args.title) {
+                    /* outgoing server in thunderbird */
+                    case "SMTP Server Password Required": // TODO get match string from string bundle           
+                        // extract password from dialog
+                        var promptText = Dialog.args.text;
+                        // TODO this is a hack to make it look like the incoming server
+                        // prompt text. we can do better when we get the string bundle
+                        promptText = promptText.replace(" on ", "@");
+                        var lastSpace = promptText.lastIndexOf(" ");
+                        var lastAtSym = promptText.lastIndexOf("@");
+                        
+                        realm = promptText.substring(lastSpace + 1, lastAtSym); // username
+                        host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+                        
+                        protocol = "smtp"; 
+                        break;
+                    /* incoming server in thunderbird */    
+                    case "Mail Server Password Required": // TODO get match string from string bundle
+                        // extract password from dialog
+                        var promptText = Dialog.args.text;
+                        var lastSpace = promptText.lastIndexOf(" ");
+                        var lastAtSym = promptText.lastIndexOf("@");
+                        
+                        realm = promptText.substring(lastSpace + 1, lastAtSym); // username
+                        host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+                    
+                        protocol = "mail"; // start with generic protocol in case we can't find real one below
+                        
+                        // loop through accounts to get protocol
+                        var acctMgr = Cc["@mozilla.org/messenger/account-manager;1"]  
+                                    .getService(Ci.nsIMsgAccountManager);  
+                        var accounts = acctMgr.accounts;  
+                        for (var i = 0; i < accounts.Count(); i++) {  
+                            var account = accounts.QueryElementAt(i, Ci.nsIMsgAccount);
+                            var server = account.incomingServer;
+                            if (server.realHostName == host && realm == server.realUsername) {
+                                protocol = server.type;
+                                break;
+                            }
+                        }
+                        break;
                 }
                 
                 host = protocol + "://" + host;
@@ -288,22 +297,19 @@ var keeFoxDialogManager = {
                 return;                
                 
             // try to pick out the host from the full protocol, host and port
-            var originalHost = host;
-            if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
-                // This is Firefox            
-                try
-                {
-                    var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                                   getService(Components.interfaces.nsIIOService);
-                    var uri = ioService.newURI(host, null, null);
-                    host = uri.host;            
-                } catch (exception) {
-                    if (keeFoxInst._KFLog.logSensitiveData)
-                        keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
-                    else
-                        keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from a string");
-                }    
-            }
+            var originalHost = host;                     
+            try
+            {
+                var ioService = Components.classes["@mozilla.org/network/io-service;1"].
+                               getService(Components.interfaces.nsIIOService);
+                var uri = ioService.newURI(host, null, null);
+                host = uri.host;            
+            } catch (exception) {
+                if (keeFoxInst._KFLog.logSensitiveData)
+                    keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
+                else
+                    keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from a string");
+            }                
                             
             // if we're not logged in to KeePass then we can't go on
             if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)

@@ -68,10 +68,6 @@ if (keefox_org.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
         }
     }
 }
-if (keefox_org.appInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}") {
-    // This is Thunderbird    
-}
-
 
 if (keefox_org.shouldLoad)
 {
@@ -165,9 +161,7 @@ if (keefox_org.shouldLoad)
                     keefox_org.UI = new KFUI();
                     keefox_org.UI.init(keeFoxInst, keefox_org.ILM);
 
-                    if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
-                        // This is Firefox
-                        
+                    if (window.gBrowser) { // Firefox only
                         // Set up tab change event listeners
                         window.gBrowser.tabContainer.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
                         window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
@@ -179,9 +173,7 @@ if (keefox_org.shouldLoad)
                 case "unload":
                     KFLog.info("Window shutting down...");
 
-                    if (Application.id == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
-                        // This is Firefox
-
+                    if (window.gBrowser) { // Firefox only
                         // Remove tab change event listeners
                         window.gBrowser.tabContainer.removeEventListener("TabSelect", keeFoxInst._onTabSelected, false);
                         window.gBrowser.tabContainer.removeEventListener("TabOpen", keeFoxInst._onTabOpened, false);
