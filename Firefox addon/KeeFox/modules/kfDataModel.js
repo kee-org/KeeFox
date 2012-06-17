@@ -256,7 +256,8 @@ kfLoginInfo.prototype =
     {    
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
     //window.keefox_org.Logger.debug("aa");
         if (this.URLs.length != URLs.length)
             return false;
@@ -303,7 +304,8 @@ kfLoginInfo.prototype =
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+	wm.getMostRecentWindow("mail:3pane");
         
         if (this.otherFields.length != login.otherFields.length)
             return false;
@@ -335,7 +337,8 @@ kfLoginInfo.prototype =
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
 
         if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_org.ILM))
             return false;
