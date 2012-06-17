@@ -33,13 +33,12 @@ var keeFoxDialogManager = {
     get _promptBundle() {
         if (!this.__promptBundle) {
             var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
-                             getService(Components.interfaces.nsIStringBundleService);
+                getService(Components.interfaces.nsIStringBundleService);
             this.__promptBundle = bunService.createBundle(
-                        "chrome://global/locale/prompts.properties");
+                "chrome://global/locale/prompts.properties");
             if (!this.__promptBundle)
                 throw "Prompt string bundle not present!";
         }
-
         return this.__promptBundle;
     },
     
@@ -53,8 +52,49 @@ var keeFoxDialogManager = {
             if (!this.__cdBundle)
                 throw "Common Dialogs string bundle not present!";
         }
-
         return this.__cdBundle;
+    },
+    
+    __messengerBundle : null, // string bundle for thunderbird l10n
+    get _messengerBundle() {    
+        if (!this.__messengerBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService);
+            this.__messengerBundle = bunService.createBundle(
+                "chrome://messenger/locale/messenger.properties");
+            if (!this.__messengerBundle)
+                throw "Messenger string bundle not present!";
+                // TODO will throwing an exception here affect firefox?
+        }        
+        return this.__messengerBundle;
+    },
+    
+    __imapBundle : null, // string bundle for thunderbird l10n
+    get _imapBundle() {    
+        if (!this.__imapBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService);
+            this.__imapBundle = bunService.createBundle(
+                "chrome://messenger/locale/imapMsgs.properties");
+            if (!this.__imapBundle)
+                throw "Messenger string bundle not present!";
+                // TODO will throwing an exception here affect firefox?
+        }        
+        return this.__imapBundle;
+    },
+    
+    __composeBundle : null, // string bundle for thunderbird l10n
+    get _composeBundle() {    
+        if (!this.__composeBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService);
+            this.__composeBundle = bunService.createBundle(
+                "chrome://messenger/locale/messengercompose/composeMsgs.properties");
+            if (!this.__composeBundle)
+                throw "Compose Message string bundle not present!";
+                // TODO will throwing an exception here affect firefox?
+        }        
+        return this.__composeBundle;
     },
     
     // localisation string bundle
@@ -75,12 +115,11 @@ var keeFoxDialogManager = {
     host: null,
     
     prepareFill : function()
-    {    
+    {
         if (Dialog.args.promptType == "prompt" || // username only
             Dialog.args.promptType == "promptUserAndPass" || // user and pass
             Dialog.args.promptType == "promptPassword") // password only
-        {
-        
+        {        
             keeFoxInst._KFLog.debug("prepareFill accepted"); 
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -91,7 +130,8 @@ var keeFoxDialogManager = {
             this.strbundle = parentWindow.document.getElementById("KeeFox-strings");
             
             var mustAutoSubmit = false;            
-            var host, realm, protocol;                            
+            var host, realm;
+            var regEx;
             
             /* handle cases for username only prompt */
             if (Dialog.args.promptType == "prompt") {
@@ -116,8 +156,7 @@ var keeFoxDialogManager = {
                             .getService(Components.interfaces.nsISessionStore);
                     
                     // we always remove this - multi-page HTTP Auth forms are not supported.
-                    var removeTabSessionStoreData = true;
-                            
+                    var removeTabSessionStoreData = true;                            
                                     
                     // see if this tab has our special attributes and promote them to session data
                     //TODO2: Some of this block is probably redundant
@@ -163,7 +202,7 @@ var keeFoxDialogManager = {
                         realmFirst = true;
 
                     currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                    var regEx = new RegExp(currentRealmL10nPattern);
+                    regEx = new RegExp(currentRealmL10nPattern);
 
                     matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                     if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
@@ -197,7 +236,7 @@ var keeFoxDialogManager = {
                             realmFirst = true;
 
                         currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                        var regEx = new RegExp(currentProxyL10nPattern);
+                        regEx = new RegExp(currentProxyL10nPattern);
 
                         matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                         if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
@@ -228,7 +267,7 @@ var keeFoxDialogManager = {
                         }
 
                         currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                        var regEx = new RegExp(currentProxyL10nPattern);
+                        regEx = new RegExp(currentProxyL10nPattern);
 
                         matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                         if (matches !== null && typeof matches[1] !== "undefined")  {
@@ -242,39 +281,96 @@ var keeFoxDialogManager = {
             }
             
             /* handle cases for password only prompt */
-            if (Dialog.args.promptType == "promptPassword") {
-                debugger                                
-                switch (Dialog.args.title) {
-                    /* outgoing server in thunderbird */
-                    case "SMTP Server Password Required": // TODO get match string from string bundle           
-                        // extract password from dialog
-                        var promptText = Dialog.args.text;
-                        // TODO this is a hack to make it look like the incoming server
-                        // prompt text. we can do better when we get the string bundle
-                        promptText = promptText.replace(" on ", "@");
-                        var lastSpace = promptText.lastIndexOf(" ");
-                        var lastAtSym = promptText.lastIndexOf("@");
-                        
-                        realm = promptText.substring(lastSpace + 1, lastAtSym); // username
-                        host = promptText.substring(lastAtSym + 1, promptText.length - 1);
-                        
-                        protocol = "smtp"; 
-                        break;
-                    /* incoming server in thunderbird */    
-                    case "Mail Server Password Required": // TODO get match string from string bundle
-                        // extract password from dialog
-                        var promptText = Dialog.args.text;
-                        var lastSpace = promptText.lastIndexOf(" ");
-                        var lastAtSym = promptText.lastIndexOf("@");
-                        
-                        realm = promptText.substring(lastSpace + 1, lastAtSym); // username
-                        host = promptText.substring(lastAtSym + 1, promptText.length - 1);
+            if (Dialog.args.promptType == "promptPassword") {                                                
+                
+                /* outgoing smtp server in thunderbird */
+                if (this._composeBundle != null && Dialog.args.title ==
+                this._composeBundle.GetStringFromName("smtpEnterPasswordPromptTitle")) {
+                // en-US should be "SMTP Server Password Required"
+                
+                    /* extract user and host from dialog */
+                    var smtpPrompt = this._composeBundle.GetStringFromName("smtpEnterPasswordPromptWithUsername");
+                    // en-US should be "Enter your password for %2$S on %1$S:"     
+
+                    var passFirst = false;
+                    if (smtpPrompt.indexOf("%2$S") < smtpPrompt.indexOf("%1$S")) {
+                        passFirst = true;
+                    }
+
+                    smtpPrompt = smtpPrompt.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                    regEx = new RegExp(smtpPrompt);
+
+                    matches = Dialog.args.text.match(regEx);
+                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
+                    {
+                        if (passFirst)
+                        {
+                            host = matches[2];
+                            realm = matches[1];
+                        } else
+                        {
+                            host = matches[1];
+                            realm = matches[2];
+                        }
+                    }
                     
-                        protocol = "mail"; // start with generic protocol in case we can't find real one below
+                    host = "smtp://" + host; 
+                }
+                
+                /* incoming server in thunderbird */
+                if (this._messengerBundle != null && this._imapBundle != null &&
+                (Dialog.args.title == this._messengerBundle.GetStringFromName("passwordTitle") ||
+                Dialog.args.title == this._imapBundle.GetStringFromName("5051"))) {
+                // imap and non-imap use the same title text - at least in en-US
+                // en-US should be "Mail Server Password Required"
+                
+                    // try to match non-imap first
+                    var nonimapPrompt = this._messengerBundle.GetStringFromName("passwordPrompt");
+                    // en-US should be "Enter your password for %1$S on %2$S:"
+                    var passFirst = false;
+                    if (nonimapPrompt.indexOf("%2$S") < nonimapPrompt.indexOf("%1$S")) {
+                        passFirst = true;
+                    }
+                    
+                    nonimapPrompt = nonimapPrompt.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                    regEx = new RegExp(nonimapPrompt);
+
+                    matches = Dialog.args.text.match(regEx);
+                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
+                    {
+                        if (passFirst)
+                        {
+                            host = matches[2];
+                            realm = matches[1];
+                        } else
+                        {
+                            host = matches[1];
+                            realm = matches[2];
+                        }
+                    } else {
+                        // try to match imap
+                        
+                        var imapPrompt = this._imapBundle.GetStringFromName("5047");
+                        // en-US should be "Enter your password for %S:"
+                        
+                        imapPrompt = imapPrompt.replace("%S","(.+)");
+                        regEx = new RegExp(imapPrompt);   
+                        
+                        matches = Dialog.args.text.match(regEx);
+                        if (matches !== null && typeof matches[1] !== "undefined") {
+                            // imap user and host are separated by @ character
+                            var lastAtSym = matches[1].lastIndexOf("@");                            
+                            realm = matches[1].substring(0, lastAtSym); // username
+                            host = matches[1].substring(lastAtSym + 1, matches[1].length);
+                        }
+                    }
+                    // if we found a host, try to get the protocol to go with it
+                    if (host) {
+                        var protocol = "mail"; // start with generic protocol in case we can't find real one below
                         
                         // loop through accounts to get protocol
                         var acctMgr = Cc["@mozilla.org/messenger/account-manager;1"]  
-                                    .getService(Ci.nsIMsgAccountManager);  
+                            .getService(Ci.nsIMsgAccountManager);  
                         var accounts = acctMgr.accounts;  
                         for (var i = 0; i < accounts.Count(); i++) {  
                             var account = accounts.QueryElementAt(i, Ci.nsIMsgAccount);
@@ -284,14 +380,13 @@ var keeFoxDialogManager = {
                                 break;
                             }
                         }
-                        break;
+                        host = protocol + "://" + host;
+                    }
                 }
-                
-                host = protocol + "://" + host;
                 
                 this.realm = realm;
                 this.host = host;
-            } // end if Thunderbird
+            } // end if password only
             
             if (host.length < 1)
                 return;                
@@ -301,7 +396,7 @@ var keeFoxDialogManager = {
             try
             {
                 var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                               getService(Components.interfaces.nsIIOService);
+                    getService(Components.interfaces.nsIIOService);
                 var uri = ioService.newURI(host, null, null);
                 host = uri.host;            
             } catch (exception) {
@@ -398,14 +493,12 @@ var keeFoxDialogManager = {
             // find all the logins
             var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, null, null, this.autoFill);
             window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
-        }
-    
+        }    
     },
     
     // fill in the dialog with the first matched login found and/or the list of all matched logins
     autoFill : function(resultWrapper)
-    {
-        
+    {        
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
@@ -463,8 +556,7 @@ var keeFoxDialogManager = {
         {    
             autoFill = false;
             autoSubmit = false;
-        }
-        
+        }        
 
         if (keeFoxInst._KFLog.logSensitiveData)
             keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
@@ -491,8 +583,7 @@ var keeFoxDialogManager = {
                 matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title,
                     'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
                     'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit, 'httpRealm' : foundLogins[i].httpRealm });
-                showList = true;
-                
+                showList = true;                
 
             } catch (e) {
                 keeFoxInst._KFLog.error(e);
@@ -558,8 +649,8 @@ var keeFoxDialogManager = {
         if (autoFill)
         {
             // fill in the best matching login
-            dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[bestMatch].username
-            dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password
+            dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[bestMatch].username;
+            dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password;
         }
         
         if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)

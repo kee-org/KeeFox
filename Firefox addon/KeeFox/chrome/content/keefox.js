@@ -25,7 +25,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 var keefox_org = {};
 
 keefox_org.shouldLoad = true;
@@ -36,9 +35,9 @@ keefox_org.shouldLoad = true;
 // TODO can't assume any more!
 // assuming we're running under Firefox
 keefox_org.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                        .getService(Components.interfaces.nsIXULAppInfo);
+    .getService(Components.interfaces.nsIXULAppInfo);
 keefox_org.versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-                               .getService(Components.interfaces.nsIVersionComparator);
+    .getService(Components.interfaces.nsIVersionComparator);
 
 if (keefox_org.appInfo.ID == "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}") {
     // This is Firefox
