@@ -98,11 +98,11 @@
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Please close KeePass before continuing!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass has been detected on your computer. To ensure KeeFox can be setup smoothly, please make sure that it is closed before continuing!">
 
-<!ENTITY KeeFox_Install_monoManual.description "KeeFox can run under Mono, but requires manual installation by following these steps:">
-<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download and install Mono">
-<!ENTITY KeeFox_Install_monoManualStep2.description "2) Download Portable KeePass Password Safe 2 (ZIP Package) from:">
-<!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass to ~/KeePass (this default can be customised)">
-<!ENTITY KeeFox_Install_monoManualStep4.description "4) Copy the KeePassRPC.plgx file to ~/KeePass/plugins ">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox can run on Mac and Linux systems, but requires manual installation by following these steps:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download and install Mono from the website below. Linux users can usually install the latest version of Mono from your distribution's package repository but please ensure you install the complete Mono package (some distributions seperate Mono into multiple sub-packages).">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) Download KeePass Password Safe 2.19 (or higher) Portable (ZIP Package) from the website below or try your distribution's package manager (make sure you get a new enough version though!)">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass to ~/KeePass (this default can be customised) where ~ represents your home directory">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) Copy the KeePassRPC.plgx file to a subdirectory called plugins in the directory that contains your KeePass installation (e.g. ~/KeePass/plugins) ">
 <!ENTITY KeeFox_Install_monoManualStep5.description "5) Restart Firefox">
 <!ENTITY KeeFox_Install_monoManualStep6.description "The KeePassRPC.plgx file you need to manually copy is at:">
 
@@ -112,5 +112,5 @@
 <!ENTITY KeeFox_Install_monoManualTest3.description "To override these defaults, under KeeFox->Options->KeePass, change 'KeePass installation location' and 'Mono executable location'">
 
 <!ENTITY KeeFox_Install_monoManualUpgrade.description "To upgrade KeeFox:">
-<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Copy the KeePassRPC.plgx file to ~/KeePass/plugins ">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Copy the KeePassRPC.plgx file to the plugins subdirectory inside the directory that contains your KeePass installation (e.g. ~/KeePass/plugins where ~ represents your home directory)">
 <!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) Restart Firefox">

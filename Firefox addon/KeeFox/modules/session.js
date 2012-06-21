@@ -306,8 +306,24 @@ session.prototype =
         try {
             if (!this.transport || !this.transport.isAlive()) {
                 log.error("Session.transport is not available");
-                this.disconnect();
-                this.connect();
+                //BUT: I think this does not necessarilly mean that the underlying
+                // communication streams have been closed?! I think that this
+                // transport refers only to the listener at the server end so this
+                // will become "not alive" before the actual underlying TCP
+                // connection between KF and KPRPC has been shutdown (or maybe
+                // that will never even happen if there were a bug in the
+                // listener socket code only).
+                // Is there a different way to detect the closure of the
+                // underlying streams maybe? In fact, maybe this should not even
+                // be a reason to avoid writing to the ostream below?
+                
+                // With the forced disconnection commented out below, initial
+                // tests are encouraging. Perhaps unexpected network dropouts
+                // or 3rd party security software could cause new problems
+                // but I think it's worth giving this change a wider trial.
+                
+                //this.disconnect();
+                //this.connect();
                 return -1;
             }
             if (arguments.length == 0) {

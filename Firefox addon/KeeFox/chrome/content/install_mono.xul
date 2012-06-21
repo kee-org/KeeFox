@@ -77,8 +77,9 @@
               <vbox id="Install_monoManual" hidden="false">
                 <description class="mono-header">&KeeFox_Install_monoManual.description;</description>
                 <description id="monoManualStep1_description">&KeeFox_Install_monoManualStep1.description;</description>
+                <label href="http://www.go-mono.com/mono-downloads/download.html" class="text-link">http://www.go-mono.com/mono-downloads/download.html</label>
                 <description id="monoManualStep2_description">&KeeFox_Install_monoManualStep2.description;</description>
-		<label href="http://keepass.info/" class="text-link">http://keepass.info/</label>
+		<label href="http://keepass.info/download.html" class="text-link">http://keepass.info/download.html</label>
                 <description id="monoManualStep3_description">&KeeFox_Install_monoManualStep3.description;</description>
                 <description id="monoManualStep4_description">&KeeFox_Install_monoManualStep4.description;</description>
                 <description id="monoManualStep5_description">&KeeFox_Install_monoManualStep5.description;</description>

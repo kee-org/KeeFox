@@ -123,7 +123,7 @@ KFToolbar.prototype = {
             KFLog.debug("setting " + logins.length + " toolbar logins");
 
         // add every matched login to the popup menu
-        for (var i = 0; i < logins.length; i++) {
+        for (let i = 0; i < logins.length; i++) {
             var login = logins[i];
             var usernameValue = "";
             var usernameDisplayValue = "[" + this.strbundle.getString("noUsername.partial-tip") + "]";
@@ -164,14 +164,18 @@ KFToolbar.prototype = {
 
                 container.setAttribute("class", "menuitem-iconic");
                 container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
+            } else if (i == 0)
+            {
+                // re-establish the event listener we deleted at the start of the function
+                container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
             }
 
             var addLoginToPopup = (logins.length > 1);
             if (merging && addLoginToPopup) {
                 // find any existing item in the popup menu
                 if (menupopup.childElementCount > 0) {
-                    for (var i = 0, n = menupopup.children.length; i < n; i++) {
-                        var child = menupopup.children[i];
+                    for (let j = 0, n = menupopup.children.length; j < n; j++) {
+                        var child = menupopup.children[j];
                         valAttr = child.hasAttribute('uuid') ? child.getAttribute('uuid') : null;
                         if (valAttr == login.uniqueID) {
                             addLoginToPopup = false;

@@ -180,6 +180,10 @@ namespace KeePassRPC
                 // The requested KPRPC signal will never be recieved by KeeFox
                 // but this should be OK in practice becuase KeeFox will 
                 // re-establish the relevant state information as soon as it reconnects.
+                //
+                // BUT: the exception to this rule is when KeeFox fails to receive the
+                // "shutdown" signal - it then gets itself in an inconsistent state
+                // and has no opportunity to recover until KeePass is running again.
                 return;
             }
             catch (Exception ex)

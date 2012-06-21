@@ -51,7 +51,7 @@ namespace KeePassRPC.Forms
             else
                 this.checkBox1.Checked = false;
 
-            this.checkBox2.Text = "Edit entries created by KeeFox";
+            this.checkBox2.Text = "Immediately edit entries created by KeeFox";
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.editNewEntries", false))
                 this.checkBox2.Checked = true;
             else

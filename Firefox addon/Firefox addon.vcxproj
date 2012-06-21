@@ -288,9 +288,11 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     </None>
     <None Include="KeeFox\chrome\content\install.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
     </None>
     <None Include="KeeFox\chrome\locale\en-US\keefox.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
     </None>
     <None Include="KeeFox\chrome\locale\sv-SE\keefox.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

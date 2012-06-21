@@ -137,11 +137,11 @@ function prepareInstallPage()
     mainWindow.keeFoxInst._keeFoxStorage.set("KFinstallProcessStarted",true);
 
     if (mainWindow.keeFoxInst._keeFoxExtension.prefs.has("keePassInstalledLocation")) {
-        if (!KFupgradeMode)
-            showSection('installationFoundWarning');
         keePassLocation = mainWindow.keeFoxInst._keeFoxExtension.prefs.getValue("keePassInstalledLocation", "not installed");
         if (keePassLocation == "")
             keePassLocation = "not installed";
+        if (!KFupgradeMode && keePassLocation != "not installed")
+            showSection('installationFoundWarning');
     }
     if (userHasAdminRights(mainWindow))
         if (KFupgradeMode)
