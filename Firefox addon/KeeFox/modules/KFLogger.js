@@ -137,7 +137,8 @@ KeeFoxLogger.prototype = {
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                            .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
 
         // get a reference to the prompt service component.
         var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]

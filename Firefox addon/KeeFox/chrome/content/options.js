@@ -2,7 +2,8 @@ function addExcludedItem()
 {
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
     var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
         .getService(Components.interfaces.nsIPromptService);
 
@@ -27,7 +28,8 @@ function removeExcludedItem()
 {
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
         
     var list = document.getElementById('excludedSitesList');
     var count = list.selectedCount;
@@ -45,7 +47,8 @@ function removeExcludedItem()
 function onLoad(){
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
         
     // find all URLs we want to excluded
     var statement = window.keefox_org.ILM._kf._keeFoxExtension.db.conn.createStatement(
@@ -221,7 +224,8 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
                    .createInstance(nsIFilePicker);                   
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser");
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
             
     var dialogName = window.keefox_org.toolbar.strbundle.getString(captionStringKey);
     
@@ -271,7 +275,8 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
 //  keePassGroupTree = new ClassTreeView(getObjectChildren);
 //var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
 //                 .getService(Components.interfaces.nsIWindowMediator);
-//        var window = wm.getMostRecentWindow("navigator:browser");
+//        var window = wm.getMostRecentWindow("navigator:browser") ||
+//            wm.getMostRecentWindow("mail:3pane");
 //        var rootGroup = window.keefox_org.ILM._kf.KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
 //keePassGroupTree.addTopObject(rootGroup, true);
 

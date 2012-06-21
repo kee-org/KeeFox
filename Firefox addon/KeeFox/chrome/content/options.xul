@@ -36,6 +36,7 @@
           height="480"
         >
 
+
   <prefpane id="KeeFox-notifications-pane" label="Temp label" image="chrome://dwhelper/skin/pref-general.png" flex="1">
     <preferences>
       <preference id="KeeFox-pref-autoSubmitMatchedForms" name="extensions.keefox@chris.tomlinson.autoSubmitMatchedForms" type="bool"/>

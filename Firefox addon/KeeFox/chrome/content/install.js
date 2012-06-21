@@ -884,8 +884,7 @@ function launchAndConnectToKeePass()
 {
     // Tell KeeFox that KeePassRPC has been installed so it will reguarly
     // attempt to connect to KeePass when the timer goes off.
-    var Application = Components.classes["@mozilla.org/fuel/application;1"]
-        .getService(Components.interfaces.fuelIApplication);
+    
     var keeFoxStorage = mainWindow.keeFoxInst._keeFoxExtension.storage;
 
     keeFoxStorage.set("KeePassRPCInstalled", true);

@@ -82,7 +82,8 @@ FirefoxAddonMessageService.prototype = {
             // get access to this module object through a nsITimer callback
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
             fams.runMessageProcesses();
         }
@@ -92,7 +93,8 @@ FirefoxAddonMessageService.prototype = {
         notify: function (timer) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
             fams.downloadNewMessages();
         }
@@ -103,7 +105,8 @@ FirefoxAddonMessageService.prototype = {
         //this._log("startttttttt at " + Date());
         //    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
         //                           .getService(Components.interfaces.nsIWindowMediator);
-        //        var window2 = wm.getMostRecentWindow("navigator:browser");
+        //        var window2 = wm.getMostRecentWindow("navigator:browser") ||
+        //            wm.getMostRecentWindow("mail:3pane");
 
         //        // get a reference to the prompt service component.
         //        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
@@ -465,7 +468,8 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
     //TODO2: something like KF._openAndReuseOneTabPerURL?
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                .getService(Components.interfaces.nsIWindowMediator);
-    var newWindow = wm.getMostRecentWindow("navigator:browser");
+    var newWindow = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
     var b = newWindow.getBrowser();
     var newTab = b.loadOneTab( link, null, null, null, false, null );
 };
@@ -523,7 +527,8 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
                 callback: function (aNotificationBar, aButton) {
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
-                    var win = wm.getMostRecentWindow("navigator:browser");
+                    var win = wm.getMostRecentWindow("navigator:browser") ||
+                        wm.getMostRecentWindow("mail:3pane");
                     win.openDialog(
                        "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox", //TODO2: KeeFox specific
                        "",
@@ -572,7 +577,8 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
         {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);    
-            var win = wm.getMostRecentWindow("navigator:browser");
+            var win = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             return win.gBrowser.getNotificationBox(win.gBrowser.selectedBrowser);
 
         } catch (e) {
