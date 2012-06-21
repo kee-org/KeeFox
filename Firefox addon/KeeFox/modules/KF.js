@@ -33,16 +33,15 @@ Components.utils.import("resource://kfmod/json.js");
 Components.utils.import("resource://kfmod/KFLogger.js");
 //var KFLogger = KFLog;
 
-var Application = Components.classes["@mozilla.org/fuel/application;1"]
-                .getService(Components.interfaces.fuelIApplication);
-
 // constructor
 function KeeFox()
 {
     this._KFLog = KFLog;
     
-    this.os = Components.classes["@mozilla.org/xre/app-info;1"]
-            .getService(Components.interfaces.nsIXULRuntime).OS;
+    this.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+            .getService(Components.interfaces.nsIXULRuntime);
+    
+    this.os = this.appInfo.OS;
         
     this._keeFoxExtension = {};
     this._keeFoxExtension.storage = {
@@ -285,7 +284,8 @@ KeeFox.prototype = {
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
         sensistiveLoggingEnabled = window.keeFoxInst._keeFoxExtension.prefs.getValue("logSensitiveData", false);
         if (sensistiveLoggingEnabled)
             window.keefox_org.UI._showSensitiveLogEnabledNotification();
@@ -971,7 +971,8 @@ KeeFox.prototype = {
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
-        var win = wm.getMostRecentWindow("navigator:browser");
+        var win = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
         
         // Run the application (including support for Unicode characters in the path for FF4+ users)
         if (callback == undefined || callback == null)
@@ -1327,7 +1328,8 @@ KeeFox.prototype = {
             if (!found)
             {
                 this._KFLog.debug("tab with this URL not already open so opening one and focussing it now");
-                var newWindow = wm.getMostRecentWindow("navigator:browser");
+                var newWindow = wm.getMostRecentWindow("navigator:browser") ||
+                    wm.getMostRecentWindow("mail:3pane");
                 var b = newWindow.getBrowser();
                 var newTab = b.loadOneTab( url, null, null, null, false, null );
                 return newTab;
@@ -1337,7 +1339,8 @@ KeeFox.prototype = {
             // if this fails, it's probably because we are setting up the JS module before FUEL is ready (can't find a way to test it so will just have to try and catch)
             this._KFLog.debug("browser window not ready yet: " + ex);
             this.urlToOpenOnStartup = url;            
-            var currentWindow = wm.getMostRecentWindow("navigator:browser");
+            var currentWindow = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             if (currentWindow == null)
             {
                 this._KFLog.error("No windows open yet");
@@ -1420,7 +1423,8 @@ KeeFox.prototype = {
                 case "nsPref:changed":
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                        .getService(Components.interfaces.nsIWindowMediator);
-                    var window = wm.getMostRecentWindow("navigator:browser");
+                    var window = wm.getMostRecentWindow("navigator:browser") ||
+                        wm.getMostRecentWindow("mail:3pane");
 
                     // get a reference to the prompt service component.
                     var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]

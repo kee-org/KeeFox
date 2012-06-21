@@ -84,7 +84,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
                         
         if (window.keeFoxInst._keeFoxExtension.prefs.has("uniqueProfileId"))
             sig = window.keeFoxInst._keeFoxExtension.prefs.getValue("uniqueProfileId","");
@@ -108,7 +109,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
               function rpc_callback(resultWrapper) {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser");
+                var window = wm.getMostRecentWindow("navigator:browser") ||
+                    wm.getMostRecentWindow("mail:3pane");
 
                 if (resultWrapper.result.result == 0) // successfully authorised by remote RPC server
                 {
@@ -116,7 +118,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     
                         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                  .getService(Components.interfaces.nsIWindowMediator);
-                        var window = wm.getMostRecentWindow("navigator:browser");
+                        var window = wm.getMostRecentWindow("navigator:browser") ||
+                            wm.getMostRecentWindow("mail:3pane");
                         window.keeFoxInst._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
                         window.keeFoxInst._keeFoxVariableInit();
                         if (window.keeFoxInst._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
@@ -146,7 +149,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         try {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                  .getService(Components.interfaces.nsIWindowMediator);
-                        var window = wm.getMostRecentWindow("navigator:browser");
+                        var window = wm.getMostRecentWindow("navigator:browser") ||
+                            wm.getMostRecentWindow("mail:3pane");
             window.keeFoxInst.KFLog.warn("Problem connecting to KeePass: " + message);
             } catch(e) {}
         }
@@ -342,13 +346,15 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
         
         // call this async so that json reader can get back to listening ASAP and prevent deadlocks
         window.setTimeout(function () {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             window.keeFoxInst.KPRPCListener(signal);
         },5);
     }
@@ -393,7 +399,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         this.request(this, "GetCurrentKFConfig", null, function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {
@@ -418,7 +425,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser");
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
             
         var lst = "LSTall";
         if (httpRealm == undefined || httpRealm == null || httpRealm == "")
@@ -449,7 +457,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var result = this.request(this, "GetAllDatabases", null,function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {
@@ -470,7 +479,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         this.request(this, "GeneratePassword", [""], function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser");
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
             
             passwordGenerated = false;
             var tb = window.keefox_org.toolbar;

@@ -31,5 +31,6 @@
 /Firefox addon/Release/Firefox addon.log
 /Firefox addon/Release/Firefox addon.Build.CppClean.log
 *.bak
+*.orig
 /temp
 /ipch

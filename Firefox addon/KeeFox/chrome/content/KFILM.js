@@ -32,9 +32,6 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://kfmod/kfDataModel.js");
 
-var Application = Components.classes["@mozilla.org/fuel/application;1"]
-                  .getService(Components.interfaces.fuelIApplication);
-
 // constructor
 function KFILM(kf,keeFoxToolbar,currentWindow)
 {
@@ -1027,7 +1024,8 @@ KFILM.prototype = {
                
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var newWindow = wm.getMostRecentWindow("navigator:browser");
+        var newWindow = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
         var b = newWindow.getBrowser();
         var tab;
         
