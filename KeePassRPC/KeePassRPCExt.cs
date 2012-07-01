@@ -531,11 +531,11 @@ namespace KeePassRPC
 
             InsertStandardKeePassData(pd);
 
-            
-
             InstallKeeFoxSampleEntries(pd);
 
-            _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
+            // save the new database & update UI appearance
+            pd.Save(_host.MainWindow.CreateStatusBarLogger());
+            _host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
         }
 
         private void InsertStandardKeePassData(PwDatabase pd)

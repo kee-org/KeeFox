@@ -19,4 +19,5 @@ pref("extensions.keefox@chris.tomlinson.dynamicFormScanning", false);
 pref("extensions.keefox@chris.tomlinson.saveFavicons", true);
 pref("extensions.keefox@chris.tomlinson.rememberMRUDB", true);
 pref("extensions.keefox@chris.tomlinson.keePassRememberInstalledLocation", false);
-pref("extensions.keefox@chris.tomlinson.searchAllOpenDatabases", false);
+pref("extensions.keefox@chris.tomlinson.searchAllOpenDBs", true);
+pref("extensions.keefox@chris.tomlinson.listAllOpenDBs", true);

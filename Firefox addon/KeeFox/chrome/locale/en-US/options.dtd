@@ -60,4 +60,3 @@
 <!ENTITY KeeFox-FAMS-Options.label "Message/tip notification options">
 <!ENTITY KeeFox-pref-searchAllOpenDBs.label "Search all open KeePass databases">
 <!ENTITY KeeFox-pref-listAllOpenDBs.label "List logins from all open KeePass databases">
-<!ENTITY KeeFox-pref-AllOpenDBsNote.desc "NB: New passwords are always saved to the currently active database in KeePass">

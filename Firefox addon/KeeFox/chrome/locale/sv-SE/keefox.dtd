@@ -34,8 +34,8 @@
 <!ENTITY KeeFox_Help-Centre-Button.key "H">
 <!ENTITY KeeFox_Tools-Menu.options.label "Inställningar för KeeFox">
 <!ENTITY KeeFox_Dialog-SelectAGroup.title "Välj en grupp">
-<!ENTITY KeeFox_Dialog_OK_Button.label "&#37;KeeFox_Shared_OK_Button.label;">
-<!ENTITY KeeFox_Dialog_Cancel_Button.label "&#37;KeeFox_Shared_Cancel_Button.label;">
+<!ENTITY KeeFox_Dialog_OK_Button.label "OK">
+<!ENTITY KeeFox_Dialog_Cancel_Button.label "Avbryt">
 <!-- strings that may be used in more than one location -->
 <!ENTITY KeeFox_Install_Setup_KeeFox.label "Installera KeeFox">
 <!ENTITY KeeFox_Install_Upgrade_KeeFox.label "Uppgradera KeeFox">
@@ -49,16 +49,16 @@
 <!ENTITY KeeFox_Install_Try_Again_Button.label "Försök igen">
 <!ENTITY KeeFox_Install_Cancel_Button.label "Avbryt">
 <!-- General installation / setup strings -->
-<!ENTITY KeeFox_Install_adminNETInstallExpander.description "&#37;KeeFox_Shared_Must_Install_Two_Components;.">
-<!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "&#37;KeeFox_Shared_Must_Install_KeePass;. Klicka på knappen ovan för en snabb och enkel installation med standardinställningar. Klicka på knappen nedan om du redan har en installerad kopia av KeePass Password Safe 2, vill använda den flyttbara versionen av KeePass eller vill ha kontroll över installationsprocessen.">
-<!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "&#37;KeeFox_Shared_Must_Install_Two_Components;. &#37;KeeFox_Shared_IF_Do_Not_Know_Admin_Password;, så behöver du fråga din systemadministratör om hjälp.">
-<!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "&#37;KeeFox_Shared_Must_Install_KeePass;. Du kommer att tillfrågas var KeePass Password Safe 2 skall installeras, eller att välja platsen för en befintlig installation av KeePass Password Safe 2 (KeeFox kunde inte identifiera någon automatiskt). Om du kan tillhandahålla det administrativa lösenordet för denna dator, så kommer du att se ett alternativ att installera KeePass Password Safe 2 för alla användare på denna dator genom att klicka här nedan.">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
-<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox använder KeePass Password Safe 2 för att på ett säkert sätt kunna lagra dina lösenord. Det är redan installerat på din dator, men du kan behöva tillhandahålla ett administrativt lösenord för att möjliggöra för KeeFox att på korrekt sätt sammanlänka KeePass Password Safe 2 och Firefox. &#37;KeeFox_Shared_IF_Do_Not_Know_Admin_Password;, klicka nedan för annat alternativ.">
-<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "&#37;KeeFox_Shared_More_Info_And_Options;">
+<!ENTITY KeeFox_Install_adminNETInstallExpander.description "KeeFox måste installera två andra komponenter - klicka bara på knappen ovan för att komma igång.">
+<!ENTITY KeeFox_Install_adminNETInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander.description "KeeFox måste installera KeePass Password Safe 2 för att på ett säkert sätt kunna lagra dina lösenord. Klicka på knappen ovan för en snabb och enkel installation med standardinställningar. Klicka på knappen nedan om du redan har en installerad kopia av KeePass Password Safe 2, vill använda den flyttbara versionen av KeePass eller vill ha kontroll över installationsprocessen.">
+<!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox måste installera två andra komponenter - klicka bara på knappen ovan för att komma igång. Om du inte kan tillhandahålla ett administrativt lösenord för denna dator, så behöver du fråga din systemadministratör om hjälp.">
+<!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox måste installera KeePass Password Safe 2 för att på ett säkert sätt kunna lagra dina lösenord. Du kommer att tillfrågas var KeePass Password Safe 2 skall installeras, eller att välja platsen för en befintlig installation av KeePass Password Safe 2 (KeeFox kunde inte identifiera någon automatiskt). Om du kan tillhandahålla det administrativa lösenordet för denna dator, så kommer du att se ett alternativ att installera KeePass Password Safe 2 för alla användare på denna dator genom att klicka här nedan.">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox använder KeePass Password Safe 2 för att på ett säkert sätt kunna lagra dina lösenord. Det är redan installerat på din dator, men du kan behöva tillhandahålla ett administrativt lösenord för att möjliggöra för KeeFox att på korrekt sätt sammanlänka KeePass Password Safe 2 och Firefox. Om du inte kan tillhandahålla ett administrativt lösenord för denna dator, klicka nedan för annat alternativ.">
+<!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Mer information and avancerade installationsalternativ">
 <!-- strings describing each possible default setup state -->
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description "KeeFox kommer att installera ramverket Microsoft .NET Framework och KeePass Password Safe 2.">
 <!ENTITY KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description "KeePass Password Safe 2 är det lösenordshanteringsprogram som KeeFox använder för att på ett säkert sätt kunna lagra dina lösenord. Om du vill välja installationsplats, språk eller avancerade inställningar för KeePass Password Safe 2, var vänlig ladda ner och installera .NET från Microsofts webbplats och starta sedan om Firefox.">
@@ -77,18 +77,18 @@
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description "Du kan installera KeePass Password Safe 2 på en flyttbar enhet/USB-enhet (eller till en andra plats på din dator). Klicka bara på knappen nedan, men betänk noga den potentiella förvirring du kan uppleva i framtiden p.g.a. att din dator kommer att ha två separata installationer av KeePass Password Safe 2. Om möjligt bör du installera KeeFox m.h.a. knappen ovan och tillhandahålla datorns administrativa lösenord om det efterfrågas.">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "Installera KeePass/KeePassRPC till en andra plats">
 <!-- strings providing further setup information to the user and advanced options -->
-<!ENTITY KeeFox_Install_IC1setupNETdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Var vänlig följ instruktionerna i .NET-installationsfilen som startar alldeles strax…">
+<!ENTITY KeeFox_Install_IC1setupNETdownloading.description "De filer som behövs för installationen av KeeFox laddas ner…">
+<!ENTITY KeeFox_Install_IC1setupNETdownloaded.description "Hämtningen är slutförd. Var vänlig följ instruktionerna i .NET-installationsfilen som startar alldeles strax…">
 <!ENTITY KeeFox_Install_IC1setupKPdownloading.description "KeePass Password Safe 2 hämtas…">
-<!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Var vänlig följ instruktionerna i installationsfilen som startar nu…">
-<!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "&#37;KeeFox_Shared_Nearly_Finished;">
-<!ENTITY KeeFox_Install_IC2setupKPdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC2setupKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Var vänlig vänta…">
-<!ENTITY KeeFox_Install_IC2KRPCdownloaded.description "&#37;KeeFox_Shared_Nearly_Finished;">
-<!ENTITY KeeFox_Install_IC3installing.description "&#37;KeeFox_Shared_Nearly_Finished; Du kan tillfrågas att köra en exekverbar fil vid namn KeePassRPCCopier.exe, som automatiskt kommer att utföra det sista installationssteget.">
-<!ENTITY KeeFox_Install_IC5zipKPdownloading.description "&#37;KeeFox_Shared_Files_Are_Being_Downloaded;">
-<!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "&#37;KeeFox_Shared_Files_Have_Been_Downloaded;. Var vänlig vänta…">
-<!ENTITY KeeFox_Install_IC5installing.description "&#37;KeeFox_Shared_Nearly_Finished;">
+<!ENTITY KeeFox_Install_IC1setupKPdownloaded.description "Hämtningen är slutförd. Var vänlig följ instruktionerna i installationsfilen som startar nu…">
+<!ENTITY KeeFox_Install_IC1KRPCdownloaded.description "Nästan färdig…">
+<!ENTITY KeeFox_Install_IC2setupKPdownloading.description "De filer som behövs för installationen av KeeFox laddas ner…">
+<!ENTITY KeeFox_Install_IC2setupKPdownloaded.description "Hämtningen är slutförd. Var vänlig vänta…">
+<!ENTITY KeeFox_Install_IC2KRPCdownloaded.description "Nästan färdig…">
+<!ENTITY KeeFox_Install_IC3installing.description "Nästan färdig… Du kan tillfrågas att köra en exekverbar fil vid namn KeePassRPCCopier.exe, som automatiskt kommer att utföra det sista installationssteget.">
+<!ENTITY KeeFox_Install_IC5zipKPdownloading.description "De filer som behövs för installationen av KeeFox laddas ner…">
+<!ENTITY KeeFox_Install_IC5zipKPdownloaded.description "Hämtningen är slutförd. Var vänlig vänta…">
+<!ENTITY KeeFox_Install_IC5installing.description "Nästan färdig…">
 <!ENTITY KeeFox_Install_InstallFinished.description "KeeFox är nu redo att användas. Du måste följa instruktionerna i KeePass installationsguide för att antingen skapa en ny databas att lagra dina lösenord i eller öppna en databas som du redan använder. Det kan ta uppemot 20 sekunder för Firefox att verifiera att installationen lyckades. När det är gjort, så kommer huvudknappens text att säga antingen &quot;Utloggad&quot; eller &quot;Inloggad&quot;. Du kanske vill läsa självstudievägledningen &quot;Komma igång&quot;. Du når den från en handfull platser - leta med början i KeeFox verktygsfältsknapp ovan.">
 <!ENTITY KeeFox_Install_NextSteps.description "Try these steps to start using KeeFox:">
 <!ENTITY KeeFox_Install_NextStep1.description "Följ instruktionerna i KeePass programstartshjälp för att antingen skapa en ny lösenordsdatabas eller öppna en KeePass-databas som du redan använder.">

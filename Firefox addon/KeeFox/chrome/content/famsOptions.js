@@ -53,7 +53,7 @@ function onLoad()
     // we don't init this time cos we just want to use some of the utility methods
     //FAMS.configuration = FAMS.getConfiguration();
     config = JSON.parse(JSON.stringify(FAMS.configuration)); //TODO: less hacky clone
-    window.title = FAMS.getLocalisedString("Options.title");
+    document.title = FAMS.getLocalisedString("Options.title");
     go();
 }
 

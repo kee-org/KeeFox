@@ -129,7 +129,6 @@
                 <checkbox preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="&KeeFox-pref-autoFillFormsWithMultipleMatches.label;" class="itemEnd" />
                 <checkbox preference="KeeFox-pref-searchAllOpenDBs" label="&KeeFox-pref-searchAllOpenDBs.label;" />
                 <checkbox preference="KeeFox-pref-listAllOpenDBs" label="&KeeFox-pref-listAllOpenDBs.label;" />
-                <description class="itemEnd note">&KeeFox-pref-AllOpenDBsNote.desc;</description>
               </rows>
 
             </grid>

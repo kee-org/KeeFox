@@ -55,7 +55,7 @@
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "More information and advanced setup options">
 <!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox must install two other components - just click the button above to get started. If you can't provide an administrative password for this computer, you will need to ask your system administrator to help you.">
 <!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "More information and advanced setup options">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox must install KeePass Password Safe 2 to securely store your passwords. You will be asked where to install KeePass Password Safe 2 or you can select the location of an existing KeePass Password Safe 2 installation (KeeFox was unable to find one automatically).">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox must install KeePass Password Safe 2 to securely store your passwords. You will be asked where to install KeePass Password Safe 2 or you can select the location of an existing KeePass Password Safe 2 installation (KeeFox was unable to find one automatically). NOTE: KeeFox may not always be able to automatically setup itself correctly on computers where you have no administrative priveledges. You may need to refer to online help resources to find manual setup instructions or ask your system administrator for help.">
 <!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "More information and advanced setup options">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox uses KeePass Password Safe 2 to securely store your passwords. It is already installed on your computer but you may need to provide an administrative password to enable KeeFox to correctly link KeePass Password Safe 2 and Firefox. If you can't provide an administrative password for this computer, click below for another option.">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "More information and advanced setup options">
@@ -94,6 +94,7 @@
 <!ENTITY KeeFox_Install_NextStep1.description "Follow the instructions in the 'KeePass startup helper' to either create a new database to store your passwords or open a KeePass database that you already use.">
 <!ENTITY KeeFox_Install_NextStep2.description "Click here to try the getting started tutorial.">
 <!ENTITY KeeFox_Install_NextStep2extra.description "You can launch the tutorial from a few other locations too such as the KeeFox toolbar or from within KeePass.">
+<!ENTITY KeeFox_Install_NextStep3.description "Click here to find out how to import your existing passwords from Firefox or other password managers.">
 <!ENTITY KeeFox_Install_Finally.description "Finally, if you have any trouble getting KeeFox to work correctly, please take a look at the help resources found at">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Please close KeePass before continuing!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass has been detected on your computer. To ensure KeeFox can be setup smoothly, please make sure that it is closed before continuing!">

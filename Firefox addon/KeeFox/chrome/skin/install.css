@@ -129,7 +129,6 @@ text-align:center;
 #nextStepsIntro {margin:20px 0px 10px 0px;font-size:large;}
 #nextStepsTutorialLink {  }
 
-#nextStep1 {color:#D8610F;text-align:center;font-size:25px;font-weight:bold;}
-#nextStep2 {color:#D8610F;text-align:center;font-size:25px;font-weight:bold;}
+#nextStep1, #nextStep2, #nextStep3 {color:#D8610F;text-align:center;font-size:25px;font-weight:bold;}
 
 #nextStepsFinally {padding-top:20px;}

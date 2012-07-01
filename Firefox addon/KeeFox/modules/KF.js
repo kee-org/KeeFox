@@ -974,19 +974,13 @@ KeeFox.prototype = {
         var win = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
         
-        // Run the application (including support for Unicode characters in the path for FF4+ users)
+        // Run the application (including support for Unicode characters in the path)
         if (callback == undefined || callback == null)
         {
-            if (win.keefox_org.versionChecker.compare(win.keefox_org.appInfo.version, "3.7") < 0)
-                process.run(true,args,2);
-            else
-                process.runw(true,args,2);
+            process.runw(true,args,2);
         } else
         {
-            if (win.keefox_org.versionChecker.compare(win.keefox_org.appInfo.version, "3.7") < 0)
-                process.runAsync(args, 2, callback);
-            else
-                process.runwAsync(args, 2, callback);
+            process.runwAsync(args, 2, callback);
         }
     },
 
