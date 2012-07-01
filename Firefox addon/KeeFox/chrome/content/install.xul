@@ -355,7 +355,7 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
               </hbox>
               <hbox width="500px">
                 <description id="nextStep3" width="50px">3)</description>
-                <label width="450px" id="nextStepsImportLink" href="http://keefox.org/help/migration" class="text-link">&KeeFox_Install_NextStep3.description;</label>
+                <label width="450px" id="nextStepsImportLink" href="http://keefox.org/migration" class="text-link">&KeeFox_Install_NextStep3.description;</label>
               </hbox>
 
 
