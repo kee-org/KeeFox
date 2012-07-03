@@ -1927,13 +1927,15 @@ namespace KeePassRPC
             return 0;
         }
 
+        // Must match host name; if allowHostnameOnlyMatch is false, exact URL must be matched
         private bool matchesAnyURL(PwEntry pwe, string url, string hostname, bool allowHostnameOnlyMatch)
         {
-            string pattern = @"(^|^/|https?\://|ftp\://)" + System.Text.RegularExpressions.Regex.Escape(hostname) + @"(/|$|\:)";
+            string pattern = @"(^|^/|[a-z]+\://)" + System.Text.RegularExpressions.Regex.Escape(hostname) + @"(/|$|\:)";
 
+            // why can url be empty string and still match? removed that option.
             if (pwe.Strings.Exists("URL") && pwe.Strings.ReadSafe("URL").Length > 0
-                    && (url == "" || pwe.Strings.ReadSafe("URL").Contains(url) || 
-                    (allowHostnameOnlyMatch && System.Text.RegularExpressions.Regex.IsMatch(pwe.Strings.ReadSafe("URL").ToLower(), pattern)))
+                    && System.Text.RegularExpressions.Regex.IsMatch(pwe.Strings.ReadSafe("URL").ToLower(), pattern)
+                    && (allowHostnameOnlyMatch || pwe.Strings.ReadSafe("URL") == url)
                )
                 return true;
 
@@ -1941,7 +1943,8 @@ namespace KeePassRPC
             urls = urls + (string.IsNullOrEmpty(urls) ? "" : " ") + pwe.Strings.ReadSafe("KPRPC Alternative URLs");
             string[] urlsArray = urls.Split(new char[]{' '});
             foreach (string altURL in urlsArray)
-                if (altURL.Contains(url) || (allowHostnameOnlyMatch && altURL.ToLower().Contains(hostname)))
+                if (System.Text.RegularExpressions.Regex.IsMatch(altURL.ToLower(), pattern)
+                    && (allowHostnameOnlyMatch || altURL == url))
                     return true;
 
             return false;
