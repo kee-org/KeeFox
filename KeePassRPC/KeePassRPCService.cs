@@ -2142,9 +2142,16 @@ namespace KeePassRPC
                         if (db.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                             continue; // ignore if it's in the recycle bin
 
-                        if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-                            continue; // entries must have a standard URL entry
-
+                        if (pwe.Strings.Exists("Hide from KeeFox") ||
+                            pwe.Strings.Exists("Hide from KPRPC") ||
+                            (pwe.Strings.GetSafe(PwDefs.UrlField).Length == 0 &&
+                            !pwe.Strings.Exists("KeeFox URL Regex match") &&
+                            !pwe.Strings.Exists("KPRPC URL Regex match") &&
+                            !pwe.Strings.Exists("Alternative URLs") &&
+                            !pwe.Strings.Exists("KPRPC Alternative URLs")))
+                            continue; 
+                            // entries must have a standard or alternate URL entry
+                      
                         bool allowHostnameOnlyMatch = true;
                         if (pwe.Strings.Exists("KPRPC Block hostname-only match"))
                         {
