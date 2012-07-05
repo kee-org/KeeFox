@@ -22,8 +22,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://kfmod/kfDataModel.js");
+const Cu = Components.utils;
+
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://kfmod/kfDataModel.js");
 
 function KFToolbar(currentWindow) {
     this._currentWindow = currentWindow;

@@ -30,11 +30,11 @@
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
-const Cr = Components.results;
+const Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keeFoxLoginInfo","keeFoxLoginField","keeFoxFormFieldType"];
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://kfmod/KFLogger.js");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://kfmod/KFLogger.js");
 
 var log = KFLog;
 

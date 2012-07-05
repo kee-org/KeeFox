@@ -27,8 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
 
+const Ci = Components.interfaces;
+const Cu = Components.utils;
+
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
 _famsInst = null;
@@ -46,19 +49,19 @@ function keeFoxGetFamsInst(id, config, log) {
 function FirefoxAddonMessageService()
 {
     this._prefService =  
-        Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+        Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
     this.prefBranch = this._prefService.getBranch("extensions.fams@chris.tomlinson.");
     
     this._evaluationTimer = Components.classes["@mozilla.org/timer;1"]
-                        .createInstance(Components.interfaces.nsITimer);
+                        .createInstance(Ci.nsITimer);
     this._downloadTimer = Components.classes["@mozilla.org/timer;1"]
-                        .createInstance(Components.interfaces.nsITimer);
+                        .createInstance(Ci.nsITimer);
     this._initialEvaluationTimer = Components.classes["@mozilla.org/timer;1"]
-                        .createInstance(Components.interfaces.nsITimer);
+                        .createInstance(Ci.nsITimer);
     
     // set up FAMS localisation (limited to common strings, does not extend to individual messages (yet?))
     this.strbundle = Components.classes["@mozilla.org/intl/stringbundle;1"]  
-                   .getService(Components.interfaces.nsIStringBundleService)  
+                   .getService(Ci.nsIStringBundleService)  
                    .createBundle("chrome://keefox/locale/keefox.properties"); //TODO2: KeeFox specific
     this._log("constructed at " + Date());
 }
@@ -72,7 +75,7 @@ FirefoxAddonMessageService.prototype = {
 
     _log: function (message) {
     //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-    //    getService(Components.interfaces.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
+    //    getService(Ci.nsIConsoleService); _logService.logStringMessage("FirefoxAddonMessageService: " + message);
     //}, // stub logger logs everything to console
     }, // stub logger logs nothing
 
@@ -81,7 +84,7 @@ FirefoxAddonMessageService.prototype = {
             // I hate this, it's a horrible hack but I can't find any other way to
             // get access to this module object through a nsITimer callback
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
+                     .getService(Ci.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
             var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
@@ -92,7 +95,7 @@ FirefoxAddonMessageService.prototype = {
     downloadNewMessagesHandler: {
         notify: function (timer) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
+                     .getService(Ci.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
             var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
@@ -104,13 +107,13 @@ FirefoxAddonMessageService.prototype = {
         // Overriding the logging method doesn't work some reason.
         //this._log("startttttttt at " + Date());
         //    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-        //                           .getService(Components.interfaces.nsIWindowMediator);
+        //                           .getService(Ci.nsIWindowMediator);
         //        var window2 = wm.getMostRecentWindow("navigator:browser") ||
         //            wm.getMostRecentWindow("mail:3pane");
 
         //        // get a reference to the prompt service component.
         //        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-        //                            .getService(Components.interfaces.nsIPromptService);
+        //                            .getService(Ci.nsIPromptService);
 
         //        promptService.alert(window2,"Alert",logger);
         //        promptService.alert(window2,"Alert",typeof(logger));
@@ -126,7 +129,7 @@ FirefoxAddonMessageService.prototype = {
         this.configuration = this.getConfiguration();
         try {
             var startupInfo = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                                  .getService(Components.interfaces.nsIAppStartup).getStartupInfo();
+                                  .getService(Ci.nsIAppStartup).getStartupInfo();
             this.startUpTime = startupInfo['main'];
         } catch (ex) {
             // Assume Firefox started 10 seconds ago
@@ -140,7 +143,7 @@ FirefoxAddonMessageService.prototype = {
         } catch (ex) { this.prefBranch.setCharPref("installTime." + this.configuration.id, (new Date()).toUTCString()); }
 
         if (this.isEnabled()) {
-            this._initialEvaluationTimer.initWithCallback(this.runMessageProcessesHandler, this.configuration.minTimeAfterStartup, Components.interfaces.nsITimer.TYPE_ONE_SHOT); // technically could trigger this a bit earlier to take account of time between app startup and this init being called but best to err on the side of caution
+            this._initialEvaluationTimer.initWithCallback(this.runMessageProcessesHandler, this.configuration.minTimeAfterStartup, Ci.nsITimer.TYPE_ONE_SHOT); // technically could trigger this a bit earlier to take account of time between app startup and this init being called but best to err on the side of caution
             this.setupRegularMessageProcesses();
         }
         this._log("init complete at " + Date());
@@ -207,9 +210,9 @@ FirefoxAddonMessageService.prototype.setupRegularMessageProcesses = function () 
     //Debug: force display frequency to 30 seconds
 //    this.configuration.timeBetweenMessages = 30000;
     this._log("configuring runMessageProcessesHandler call every " + this.configuration.timeBetweenMessages + "ms");
-    this._evaluationTimer.initWithCallback(this.runMessageProcessesHandler, this.configuration.timeBetweenMessages, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    this._evaluationTimer.initWithCallback(this.runMessageProcessesHandler, this.configuration.timeBetweenMessages, Ci.nsITimer.TYPE_REPEATING_SLACK);
     //    this._log("configuring downloadNewMessagesHandler call every " + this.configuration.timeBetweenDownloadingMessages + "ms");
-    //    this._downloadTimer.initWithCallback(this.downloadNewMessagesHandler, this.configuration.timeBetweenDownloadingMessages, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    //    this._downloadTimer.initWithCallback(this.downloadNewMessagesHandler, this.configuration.timeBetweenDownloadingMessages, Ci.nsITimer.TYPE_REPEATING_SLACK);
 };
 
 FirefoxAddonMessageService.prototype.downloadNewMessages = function()
@@ -467,7 +470,7 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
 {
     //TODO2: something like KF._openAndReuseOneTabPerURL?
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                               .getService(Components.interfaces.nsIWindowMediator);
+                               .getService(Ci.nsIWindowMediator);
     var newWindow = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
     var b = newWindow.getBrowser();
@@ -526,7 +529,7 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
                 popup: null,
                 callback: function (aNotificationBar, aButton) {
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                         .getService(Components.interfaces.nsIWindowMediator);
+                         .getService(Ci.nsIWindowMediator);
                     var win = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
                     win.openDialog(
@@ -576,7 +579,7 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
         try
         {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);    
+                     .getService(Ci.nsIWindowMediator);    
             var win = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
             return win.gBrowser.getNotificationBox(win.gBrowser.selectedBrowser);

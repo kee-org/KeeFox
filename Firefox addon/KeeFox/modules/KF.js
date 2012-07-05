@@ -25,12 +25,12 @@
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
-const Cr = Components.results;
+const Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keeFoxInst"];
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://kfmod/json.js");
-Components.utils.import("resource://kfmod/KFLogger.js");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://kfmod/json.js");
+Cu.import("resource://kfmod/KFLogger.js");
 //var KFLogger = KFLog;
 
 // constructor

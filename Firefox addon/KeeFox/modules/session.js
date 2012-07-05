@@ -25,12 +25,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-var EXPORTED_SYMBOLS = ["session"];
-
 const Cc = Components.classes;
 const Ci = Components.interfaces;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://kfmod/KFLogger.js");
+const Cu = Components.utils;
+
+var EXPORTED_SYMBOLS = ["session"];
+
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://kfmod/KFLogger.js");
 
 var log = KFLog;
 

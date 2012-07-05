@@ -22,15 +22,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+const Ci = Components.interfaces;
+const Cu = Components.utils;
+
 var EXPORTED_SYMBOLS = ["jsonrpcClient"];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-Components.utils.import("resource://kfmod/session.js");
-Components.utils.import("resource://kfmod/KFLogger.js");
-Components.utils.import("resource://kfmod/kfDataModel.js");
+Cu.import("resource://kfmod/session.js");
+Cu.import("resource://kfmod/KFLogger.js");
+Cu.import("resource://kfmod/kfDataModel.js");
 
 var log = KFLog;
 

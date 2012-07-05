@@ -20,6 +20,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+const Cu = Components.utils;
 
 //function KFexecutableInstallerRunner(path, params, reason, mainWindow, browserWindow) {
 //    this.path = path;
@@ -82,7 +83,7 @@ KFmainThreadHandler.prototype =
                 case "IC5PriDownload": this.handleIC5PriDownload(); break;
             }
         } catch (err) {
-            Components.utils.reportError(err);
+            Cu.reportError(err);
         }
     },
 
@@ -375,7 +376,7 @@ function KFMD5checksumVerification(path, testMD5)
             
     } catch (err) {
         KFLog.error("Error calculating checksums: " + err);
-        Components.utils.reportError(err);
+        Cu.reportError(err);
     }
     return false;
 }
