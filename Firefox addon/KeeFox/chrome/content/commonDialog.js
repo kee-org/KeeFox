@@ -25,7 +25,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-Components.utils.import("resource://kfmod/KF.js");
+let Cc = Components.classes;
+let Ci = Components.interfaces;
+let Cu = Components.utils;
+
+Cu.import("resource://kfmod/KF.js");
 
 var keeFoxDialogManager = {
 

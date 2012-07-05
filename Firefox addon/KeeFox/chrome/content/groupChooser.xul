@@ -46,7 +46,9 @@
   </hbox>
   </vbox>
   <script>
-    Components.utils.import("resource://kfmod/ClassTreeView.jsm");
+    let Cu = Components.utils;
+  
+    Cu.import("resource://kfmod/ClassTreeView.jsm");
     var keePassGroupTreeView = null;
 
     function setTreeViewGroupChooser ()

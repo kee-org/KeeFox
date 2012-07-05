@@ -28,13 +28,13 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cr = Components.results;
+let Cc = Components.classes;
+let Ci = Components.interfaces;
+let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keeFoxLoginInfo","keeFoxLoginField","keeFoxFormFieldType"];
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://kfmod/KFLogger.js");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://kfmod/KFLogger.js");
 
 var log = KFLog;
 
