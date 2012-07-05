@@ -46,7 +46,7 @@
   </hbox>
   </vbox>
   <script>
-    const Cu = Components.utils;
+    let Cu = Components.utils;
   
     Cu.import("resource://kfmod/ClassTreeView.jsm");
     var keePassGroupTreeView = null;

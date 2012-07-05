@@ -43,9 +43,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+let Cc = Components.classes;
+let Ci = Components.interfaces;
+let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["KFLog"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");

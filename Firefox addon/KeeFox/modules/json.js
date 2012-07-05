@@ -22,8 +22,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+let Ci = Components.interfaces;
+let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["jsonrpcClient"];
 

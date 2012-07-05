@@ -27,8 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
 
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+let Ci = Components.interfaces;
+let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");

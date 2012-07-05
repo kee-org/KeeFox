@@ -1,4 +1,4 @@
-const Cu = Components.utils;
+let Cu = Components.utils;
 
 function addExcludedItem()
 {
