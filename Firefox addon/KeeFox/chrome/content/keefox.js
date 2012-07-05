@@ -4,7 +4,7 @@
   
   This is the main KeeFox javascript file. It is executed once for each firefox
   window (with a different scope each time). javascript files included using 
-  Components.utils.import() are shared across all scopes (windows) while those
+  Cu.import() are shared across all scopes (windows) while those
   included using loadSubScript() are not. The overall aim is to keep data and
   functions relating to KeePass and other global settings in a shared
   objects while those objects which interact with specific windows and toolbars are
@@ -25,6 +25,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+let Cc = Components.classes;
+let Ci = Components.interfaces;
+let Cu = Components.utils;
+
 var keefox_org = {};
 
 keefox_org.shouldLoad = true;
@@ -32,22 +36,22 @@ keefox_org.shouldLoad = true;
 // and maybe will be again in future so keeping this check in place
 if (keefox_org.shouldLoad)
 {
-    Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+    Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
     // Load our logging subsystem
-    Components.utils.import("resource://kfmod/KFLogger.js");
+    Cu.import("resource://kfmod/KFLogger.js");
     keefox_org.Logger = KFLog;
     // Load our other javascript
     keefox_org.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                            .getService(Components.interfaces.mozIJSSubScriptLoader); 
-    Components.utils.import("resource://kfmod/kfDataModel.js");
+    Cu.import("resource://kfmod/kfDataModel.js");
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFToolBar.js"); 
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM.js"); 
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUI.js"); 
-    Components.utils.import("resource://kfmod/KF.js");
+    Cu.import("resource://kfmod/KF.js");
     keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUtils.js"); 
 
-    Components.utils.import("resource://kfmod/FAMS.js");
+    Cu.import("resource://kfmod/FAMS.js");
 
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window

@@ -1,3 +1,5 @@
+let Cu = Components.utils;
+
 function addExcludedItem()
 {
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -263,7 +265,7 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
 // KeePass database. It may be useful to aid selecting root group status per
 // location? Though I would prefer to leave that in the hands of KeePass
 // wherever practical.
-//Components.utils.import("resource://kfmod/ClassTreeView.jsm");
+//Cu.import("resource://kfmod/ClassTreeView.jsm");
 //var keePassGroupTree = null;
 
 //function getObjectChildren(aObject) {
