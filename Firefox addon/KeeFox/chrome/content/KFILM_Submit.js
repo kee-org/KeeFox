@@ -23,7 +23,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-Components.utils.import("resource://kfmod/kfDataModel.js");
+let Cu = Components.utils;
+
+Cu.import("resource://kfmod/kfDataModel.js");
 
 /*
  * _onFormSubmit

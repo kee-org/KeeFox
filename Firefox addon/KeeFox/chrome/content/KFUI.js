@@ -20,6 +20,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+let Cc = Components.classes;
+let Ci = Components.interfaces;
+
 function KFUI() {}
 
 KFUI.prototype = {
