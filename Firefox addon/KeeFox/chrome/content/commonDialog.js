@@ -142,75 +142,107 @@ var keeFoxDialogManager = {
                 // are there any cases where we are asked for username only?
             }
             
-            /* handle cases for username and password prompt */
-            if (Dialog.args.promptType == "promptUserAndPass") {
-                if (parentWindow.gBrowser) { // firefox       
-                    var currentGBrowser = parentWindow.gBrowser;
-                    var domWin = parentWindow;
-                    var domDoc = currentGBrowser.contentDocument;                    
-                    var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                           .getInterface(Components.interfaces.nsIWebNavigation)
-                           .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                           .rootTreeItem
-                           .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                           .getInterface(Components.interfaces.nsIDOMWindow); 
+            if (parentWindow.gBrowser)
+            { // firefox (or other application that understands gBrowser)
+                var currentGBrowser = parentWindow.gBrowser;
+                var domWin = parentWindow;
+                var domDoc = currentGBrowser.contentDocument;                    
+                var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        .getInterface(Components.interfaces.nsIWebNavigation)
+                        .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                        .rootTreeItem
+                        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        .getInterface(Components.interfaces.nsIDOMWindow); 
                                
-                    var currentTab = currentGBrowser.selectedTab;
-                    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                            .getService(Components.interfaces.nsISessionStore);
+                var currentTab = currentGBrowser.selectedTab;
+                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                        .getService(Components.interfaces.nsISessionStore);
                     
-                    // we always remove this - multi-page HTTP Auth forms are not supported.
-                    var removeTabSessionStoreData = true;                            
+                // we always remove this - multi-page HTTP Auth forms are not supported.
+                var removeTabSessionStoreData = true;                            
                                     
-                    // see if this tab has our special attributes and promote them to session data
-                    //TODO2: Some of this block is probably redundant
-                    // unless we add support for multi-page logins
-                    if (currentTab.hasAttribute("KF_uniqueID"))
-                    {
-                        keeFoxInst._KFLog.debug("has uid");                
-                        ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                        ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
-                        ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-                        mustAutoSubmit = true;
-                        currentTab.removeAttribute("KF_uniqueID");
-                        currentTab.removeAttribute("KF_dbFileName");
-                    }
+                // see if this tab has our special attributes and promote them to session data
+                //TODO2: Some of this block is probably redundant
+                // unless we add support for multi-page logins
+                if (currentTab.hasAttribute("KF_uniqueID"))
+                {
+                    keeFoxInst._KFLog.debug("has uid");                
+                    ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
+                    ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
+                    ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
+                    mustAutoSubmit = true;
+                    currentTab.removeAttribute("KF_uniqueID");
+                    currentTab.removeAttribute("KF_dbFileName");
+                }
                     
-                    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
-                    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
+                ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 0);
+                ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);       
                 
-                    if (removeTabSessionStoreData)
+                if (removeTabSessionStoreData)
+                {
+                    // remove the data that helps us track multi-page logins, etc.
+                    keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                    parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
+                    parentWindow.keefox_org.toolbar.clearTabFormFillData();                
+                }
+                    
+                host = "";
+                realm = "";
+                    
+                // e.g. en-US:
+                // A username and password are being requested by %2$S. The site says: "%1$S"
+                var currentRealmL10nPattern = "";            
+                try 
+                {
+                    currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
+                } catch (exception)
+                {
+                    currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                }
+
+                var realmFirst = false;
+                if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
+                    realmFirst = true;
+
+                currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                regEx = new RegExp(currentRealmL10nPattern);
+
+                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
+                {
+                    if (realmFirst)
                     {
-                        // remove the data that helps us track multi-page logins, etc.
-                        keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                        parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
-                        parentWindow.keefox_org.toolbar.clearTabFormFillData();                
+                        host = matches[2];
+                        realm = matches[1];
+                    } else
+                    {
+                        host = matches[1];
+                        realm = matches[2];
                     }
+                }
                     
-                    host = "";
-                    realm = "";
-                    
+                if (host.length < 1)
+                {
                     // e.g. en-US:
-                    // A username and password are being requested by %2$S. The site says: "%1$S"
-                    var currentRealmL10nPattern = "";            
+                    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
+                    var currentProxyL10nPattern = "";            
                     try 
                     {
-                        currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
                     } catch (exception)
                     {
-                        currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
                     }
 
-                    var realmFirst = false;
-                    if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
+                    realmFirst = false;
+                    if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
                         realmFirst = true;
 
-                    currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                    regEx = new RegExp(currentRealmL10nPattern);
+                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                    regEx = new RegExp(currentProxyL10nPattern);
 
                     matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
-                    {
+                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
                         if (realmFirst)
                         {
                             host = matches[2];
@@ -221,71 +253,36 @@ var keeFoxDialogManager = {
                             realm = matches[2];
                         }
                     }
+                }
                     
-                    if (host.length < 1)
+                // check for NTLM auth dialog
+                if (host.length < 1) 
+                {
+                    // e.g. en-US:
+                    // Enter username and password for %1$S
+                    var currentProxyL10nPattern = "";            
+                    try 
                     {
-                        // e.g. en-US:
-                        // The proxy %2$S is requesting a username and password. The site says: "%1$S"
-                        var currentProxyL10nPattern = "";            
-                        try 
-                        {
-                            currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
-                        } catch (exception)
-                        {
-                            currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
-                        }
-
-                        realmFirst = false;
-                        if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
-                            realmFirst = true;
-
-                        currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                        regEx = new RegExp(currentProxyL10nPattern);
-
-                        matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                        if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
-                            if (realmFirst)
-                            {
-                                host = matches[2];
-                                realm = matches[1];
-                            } else
-                            {
-                                host = matches[1];
-                                realm = matches[2];
-                            }
-                        }
-                    }
-                    
-                    // check for NTLM auth dialog
-                    if (host.length < 1) 
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                    } catch (exception)
                     {
-                        // e.g. en-US:
-                        // Enter username and password for %1$S
-                        var currentProxyL10nPattern = "";            
-                        try 
-                        {
-                            currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
-                        } catch (exception)
-                        {
-                            currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
-                        }
-
-                        currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                        regEx = new RegExp(currentProxyL10nPattern);
-
-                        matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                        if (matches !== null && typeof matches[1] !== "undefined")  {
-                                host = matches[1];
-                        }
+                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
                     }
-                    
-                    this.realm = realm;
-                    this.host = host;
-                } // end if Firefox
-            }
-            
-            /* handle cases for password only prompt */
-            if (Dialog.args.promptType == "promptPassword") {                                                
+
+                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
+                    regEx = new RegExp(currentProxyL10nPattern);
+
+                    matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                    if (matches !== null && typeof matches[1] !== "undefined")  {
+                            host = matches[1];
+                    }
+                }
+                
+                this.realm = realm;
+                this.host = host;
+            } // end if Firefox
+            /* handle cases for password only prompt in thunderbird */
+            else if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}" && Dialog.args.promptType == "promptPassword") {
                 
                 /* outgoing smtp server in thunderbird */
                 if (this._composeBundle != null && Dialog.args.title ==
@@ -681,12 +678,9 @@ var keeFoxDialogManager = {
     
     kfCommonDialogOnAccept : function ()
     {
-        if (document.getElementById("loginTextbox") != null
-            && document.getElementById("password1Textbox") != null
-            && document.getElementById("loginContainer") != null
-            && !document.getElementById("loginContainer").hidden
-            && document.getElementById("password1Container") != null
-            && !document.getElementById("password1Container").hidden)
+        if (Dialog.args.promptType == "prompt" ||
+            Dialog.args.promptType == "promptUserAndPass" ||
+            Dialog.args.promptType == "promptPassword")
         {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
@@ -697,38 +691,7 @@ var keeFoxDialogManager = {
                     document.getElementById("password1Textbox").value, this.host, this.realm);
             
         }
-        if (typeof Dialog != 'undefined')
-                Dialog.onButton0();
-            else
-                this.legacyDialogSubmit();
-    },
-    
-    legacyDialogSubmit : function ()
-    {
-        gCommonDialogParam.SetInt(0, 0); // say that ok was pressed
-
-      var numTextBoxes = gCommonDialogParam.GetInt(3);
-      var textboxIsPassword1 = gCommonDialogParam.GetInt(4) == 1;
-      
-      if (numTextBoxes >= 1) {
-        var editField1;
-        if (textboxIsPassword1)
-          editField1 = document.getElementById("password1Textbox");
-        else
-          editField1 = document.getElementById("loginTextbox");
-        gCommonDialogParam.SetString(6, editField1.value);
-      }
-
-      if (numTextBoxes == 2) {
-        var editField2;
-        if (textboxIsPassword1)
-          // we had two password fields
-          editField2 = document.getElementById("password2Textbox");
-        else
-          // we only had one password field (and one login field)
-          editField2 = document.getElementById("password1Textbox");
-        gCommonDialogParam.SetString(7, editField2.value);
-      }
+        Dialog.onButton0();
     }
 };
 

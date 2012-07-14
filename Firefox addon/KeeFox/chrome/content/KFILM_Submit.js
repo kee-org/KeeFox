@@ -251,6 +251,13 @@ KFILM.prototype._onFormSubmit = function (form)
  */
 KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, schemeAndHost, realm)
 {
+    //do nothing if KeePass is not connected
+    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false) || !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+    {
+        KFLog.info("Form submit handler skipped (no active KeePass database available)");
+        return;
+    }
+
     var currentGBrowser = window.gBrowser;
     var win = window;
     var doc = currentGBrowser.contentDocument;
