@@ -58,3 +58,5 @@
 <!ENTITY KeeFox-pref-keePassLocation.label "Använd denna plats">
 <!ENTITY KeeFox-browse.label "Bläddra">
 <!ENTITY KeeFox-FAMS-Options.label "Aviseringsinställningar">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "Sök i alla öppna KeePass-databaser">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "Lista inloggningar från alla öppna KeePass-databaser">

@@ -58,3 +58,5 @@
 <!ENTITY KeeFox-pref-keePassLocation.label "Используйте это место">
 <!ENTITY KeeFox-browse.label "Обзор">
 <!ENTITY KeeFox-FAMS-Options.label "Настройки уведомлений о сообщениях и подсказках">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "Искать все открытые базы данных KeePass">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "Список логинов из всех открытых баз данных KeePass">

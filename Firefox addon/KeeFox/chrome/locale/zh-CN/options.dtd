@@ -58,3 +58,5 @@
 <!ENTITY KeeFox-pref-keePassLocation.label "使用这个位置">
 <!ENTITY KeeFox-browse.label "浏览">
 <!ENTITY KeeFox-FAMS-Options.label "消息/提示 通知选项">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "搜索所有打开的 KeePass 数据库">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "列出所有打开的 KeePass 数据库的登录">

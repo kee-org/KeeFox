@@ -94,6 +94,7 @@
 <!ENTITY KeeFox_Install_NextStep1.description "Postupujte podle instrukcí 'Průvodce spuštěním KeePass', abyste vytvořili novou databázi k ukládání vašich hesel nebo otevřeli již existující KeePass databázi.">
 <!ENTITY KeeFox_Install_NextStep2.description "Klikněte zde a zkuste tutoriál Začínáme s KeeFox.">
 <!ENTITY KeeFox_Install_NextStep2extra.description "Tutoriál můžete spustit také z dalších míst jako například z nabídkového pruhu KeeFox nebo z aplikace KeePass.">
+<!ENTITY KeeFox_Install_NextStep3.description "Kliknutím zde zjistíte, jak importovat vaše stávající hesla z Firefoxu nebo jiného správce hesel.">
 <!ENTITY KeeFox_Install_Finally.description "Nakonec, pokud máte potíže se správnou funkčností KeeFox, prosím hledejte pomoc na">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Před pokračováním prosím zavřete KeePass!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass byl na vašem počítači úspěšně detekován. Aby instalace KeeFox proběhla hladce, před pokračováním se přesvědčte, že není spuštěný!">

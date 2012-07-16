@@ -53,7 +53,7 @@
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
 <!ENTITY KeeFox_Install_nonAdminNETInstallExpander.description "KeeFox moet nog twee andere componenten installeren. Klik op de knop hierboven om te beginnen. Als u geen administrator rechten hebt op deze PC, vraag dan uw beheerder om hulp.">
 <!ENTITY KeeFox_Install_nonAdminNETInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. U wordt verzocht om KeePass Password Safe 2 te installeren of de locatie op te geven van een reeds geïnstalleerde versie van KeePass Password Safe 2. (KeeFox kon geen geïnstalleerde versie vinden)">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. U wordt verzocht om KeePass Password Safe 2 te installeren of de locatie op te geven van een reeds geïnstalleerde versie van KeePass Password Safe 2. (KeeFox kon geen geïnstalleerde versie vinden) OPMERKING: Mogelijk heeft u administrator rechten nodig op deze computer voor deze installatie.">
 <!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description "KeeFox heeft KeePass Password Safe 2 nodig om de wachtwoorden veilig op te slaan. Dit programma staat reeds op uw computer, u wordt zo dadelijk waarschijnlijk gevraagd om uw administrator wachtwoord, zodat KeeFox een verbinding tot stand kan brengen tussen KeePass en Firefox. Als u dit wachtwoord niet heeft, klik dan op een andere optie hieronder.">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label "Meer informatie en uitgebreide installatie mogelijkheden">
@@ -90,14 +90,15 @@
 <!ENTITY KeeFox_Install_NextStep1.description "Volg de instructies gegeven door de 'KeePass startup helper' om een nieuwe database aan te maken voor het opslaan van uw wachtwoorden, of om een reeds bestaande wachtwoordendatabase te openen.">
 <!ENTITY KeeFox_Install_NextStep2.description "Klik hier om de oefeningen voor beginners te proberen.">
 <!ENTITY KeeFox_Install_NextStep2extra.description "U kunt de oefeningen voor beginners ook vanuit een aantal andere locaties starten, zoals de KeeFox balk of vanuit KeePass.">
+<!ENTITY KeeFox_Install_NextStep3.description "Klik hier om uit te vinden hoe u de reeds in Firefox opgeslagen wachtwoorden (en die van andere wachtwoord-beheer-programmas) kunt overzetten naar KeePass.">
 <!ENTITY KeeFox_Install_Finally.description "Als u problemen heeft bij het gebruik van KeeFox, kijk dan eens bij de help pagina's op">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Sluit KeePass voordat u verder gaat!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass is reeds gevonden op uw computer. Om er zeker van te zijn dat de installatie van KeeFox goed verloopt wordt u aangeraden KeePass te sluiten voordat u verder gaat!">
-<!ENTITY KeeFox_Install_monoManual.description "KeeFox kan onder Mono draaien, maar dan moet u wel handmatig de volgende stappen uitvoeren:">
-<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download en installeer Mono">
-<!ENTITY KeeFox_Install_monoManualStep2.description "2) Download Portable KeePass Password Safe 2 (ZIP Package) van:">
-<!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass naar ~/KeePass (dit is de standaard locatie, maar deze is aan te passen)">
-<!ENTITY KeeFox_Install_monoManualStep4.description "4) Kopieer het KeePassRPC.plgx bestand naar ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox kan op de Mac of onder Linux draaien, maar dan moet u wel handmatig de volgende stappen uitvoeren:">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) Download en installeer Mono van de onderstaande website. Linux gebruikers kunnen Mono ook installeren via de packagemanager van hun Linux distributie, maar let op sommige distributies delen Mono op in meerdere packages, deze dienen wel allemaal geïnstalleerd te worden.">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) Download Portable KeePass Password Safe 2.19 of hoger (ZIP bestand) van de onderstaande website, of installeer KeePass Password Safe via de packagemanager van je distributie, let dan wel op de versie (2.19 of hoger).">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) Unzip KeePass naar ~/KeePass (dit is de standaard locatie, maar deze is aan te passen), de ~ staat voor je gebruikersmap.">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) Kopieer het KeePassRPC.plgx bestand naar de submap plugins in de KeePass map (~/KeePass/plugins)">
 <!ENTITY KeeFox_Install_monoManualStep5.description "5) Restart Firefox">
 <!ENTITY KeeFox_Install_monoManualStep6.description "Het KeePassRPC.plgx bestand kunt u vinden in:">
 <!ENTITY KeeFox_Install_monoManual2.description "Het aanpassen van de standaardwaarden:">
@@ -105,5 +106,5 @@
 <!ENTITY KeeFox_Install_monoManualTest2.description "2) Mono wordt verondersteld hier te staan:">
 <!ENTITY KeeFox_Install_monoManualTest3.description "Om deze waarden te overschrijven, ga naar KeeFox-&gt;Instellingen-&gt;KeePass, en verander 'KeePass installatie locatie' en 'Mono installatie locatie'">
 <!ENTITY KeeFox_Install_monoManualUpgrade.description "Om KeeFox te upgraden:">
-<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Kopieer het KeePassRPC.plgx bestand naar ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) Kopieer het KeePassRPC.plgx bestand naar de submap plugins in de KeePass map (~/KeePass/plugins)">
 <!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) Restart Firefox">

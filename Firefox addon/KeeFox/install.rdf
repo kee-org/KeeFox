@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.1.0a4</em:version>
+    <em:version>1.1.0b</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -135,14 +135,14 @@
     <em:localized>
       <Description>
         <em:locale>cs</em:locale>
-        <em:translator>ramesses</em:translator>
+        <em:translator>Radim Pesek</em:translator>
         <em:name>KeeFox</em:name>
-        <em:description>Jednoduchý a bezpečný správce hesel, který umožňuje automatické přihlašování, takže již nikdy nezapomenete heslo. Zároveň vám dává více kontroly nad vašimi hesly a vylepšuje jejich zabezpečení. Založeno na proslulém programu KeePass Password Safe.</em:description>
+        <em:description>Jednoduchý a bezpečný správce hesel. Automatické přihlašovaní vám nedovolí zapomenout heslo. Získáte lepší kontrolu nad svými hesly a zvýšíte jejich zabezpečení. Založeno na proslulém KeePass Password Safe.</em:description>
         <em:creator>Chris Tomlinson</em:creator>
         <em:homepageURL>http://keefox.org</em:homepageURL>
         <em:contributor>Ben Roberts</em:contributor>
         <em:contributor>David Lechner</em:contributor>
-        <em:contributor>Ken Bass</em:contributor>
+        <em:contributor>Ken Bass</em:contributor>      
       </Description>
     </em:localized>
     

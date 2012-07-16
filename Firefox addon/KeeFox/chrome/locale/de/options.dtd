@@ -58,3 +58,5 @@
 <!ENTITY KeeFox-pref-keePassLocation.label "Verwende diesen Ort">
 <!ENTITY KeeFox-browse.label "Durchsuchen">
 <!ENTITY KeeFox-FAMS-Options.label "Nachricht / Tipp-Hinweis Optionen">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "Alle offenen KeePass-Datenbanken suchen">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "Liste alle Anmeldungen aller geöffneten KeePass-Datenbanken auf">

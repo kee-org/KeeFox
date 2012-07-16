@@ -94,6 +94,7 @@
 <!ENTITY KeeFox_Install_NextStep1.description "Följ instruktionerna i KeePass programstartshjälp för att antingen skapa en ny lösenordsdatabas eller öppna en KeePass-databas som du redan använder.">
 <!ENTITY KeeFox_Install_NextStep2.description "Klicka här för att starta självstudien &quot;Komma igång&quot;.">
 <!ENTITY KeeFox_Install_NextStep2extra.description "Du kan även starta självstudien från några andra platser, bl.a. KeeFox verktygsfält och inifrån KeePass.">
+<!ENTITY KeeFox_Install_NextStep3.description "Klicka här för att få veta hur du importerar dina befintliga lösenord från Firefox eller andra lösenordshanterare.">
 <!ENTITY KeeFox_Install_Finally.description "Slutligen, om du har problem med att få KeeFox att fungera korrekt, ta en titt på hjälpdokumentationen som finns på">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Stäng KeePass innan du fortsätter!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass har identifierats på din dator. För att säkerställa att KeeFox kan installeras korrekt, se till att KeePass avslutas innan du fortsätter!">

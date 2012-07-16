@@ -1,5 +1,5 @@
-<!ENTITY KeeFox_Main-Button.loading.label "KeeFox загружается...">
-<!ENTITY KeeFox_Main-Button.loading.tip "KeeFox загружается и делает несколько тестов при запуске. Это не должно занять много времени...">
+<!ENTITY KeeFox_Main-Button.loading.label "KeeFox загружается…">
+<!ENTITY KeeFox_Main-Button.loading.tip "KeeFox загружается и делает несколько тестов при запуске. Это не должно занять много времени…">
 <!ENTITY KeeFox_Menu-Button.tip "Нажмите, чтобы увидеть меню KeeFox">
 <!ENTITY KeeFox_Menu-Button.label "KeeFox">
 <!ENTITY KeeFox_Menu-Button.changeDB.label "Сменить базу данных">
@@ -21,7 +21,7 @@
 <!ENTITY KeeFox_Logins-Context-Delete-Login.label "Удалить логин">
 <!ENTITY KeeFox_Logins-Context-Delete-Group.label "Удалить группу">
 <!ENTITY KeeFox_Logins-Context-Edit-Group.label "Изменить группу">
-<!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "Сохранить в группе...">
+<!ENTITY KeeFox_Remember-Advanced-Popup-Group.label "Сохранить в группу…">
 <!ENTITY KeeFox_Remember-Advanced-Popup-Multi-Page.label "Это часть многостраничного логина формы">
 <!ENTITY KeeFox_Menu-Button.Help.tip "Помощь по KeeFox.">
 <!ENTITY KeeFox_Menu-Button.Help.label "Помощь">
@@ -90,6 +90,7 @@
 <!ENTITY KeeFox_Install_NextStep1.description "Следуйте инструкциям в «помощнике KeePass», либо создайте новую базу данных для хранения паролей или откройте уже используемую базу данных KeePass.">
 <!ENTITY KeeFox_Install_NextStep2.description "Нажмите здесь, чтобы воспользоваться учебником для начинающих.">
 <!ENTITY KeeFox_Install_NextStep2extra.description "Вы можете запустить учебник из других мест тоже, таких как панель инструментов KeeFox или из KeePass.">
+<!ENTITY KeeFox_Install_NextStep3.description "Нажмите сюда, чтобы узнать, как импортировать существующие пароли из Firefox или других менеджеров паролей.">
 <!ENTITY KeeFox_Install_Finally.description "Наконец, если у вас возникли проблемы при работе с KeeFox, пожалуйста, взгляните на ресурсы помощи, находящиеся в">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Пожалуйста, закройте KeePass перед тем как продолжить!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "На вашем компьютере был обнаружен KeePass. Для корректной установки KeeFox, пожалуйста, убедитесь, что он закрыт, прежде чем продолжать!">

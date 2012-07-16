@@ -58,3 +58,5 @@
 <!ENTITY KeeFox-pref-keePassLocation.label "Gebruik deze locatie">
 <!ENTITY KeeFox-browse.label "Blader">
 <!ENTITY KeeFox-FAMS-Options.label "Berichten/tips instellingen wijzigen">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "Doorzoek alle open wachtwoordendatabases">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "Laat de inloggegevens van alle open wachtwoordendatabases zien in de lijst">

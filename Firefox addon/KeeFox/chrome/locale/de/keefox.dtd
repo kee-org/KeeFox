@@ -90,6 +90,7 @@
 <!ENTITY KeeFox_Install_NextStep1.description "Folge diesen Anweisungen um">
 <!ENTITY KeeFox_Install_NextStep2.description "Klicke hier um das Einstiegstutorial auszuprobieren.">
 <!ENTITY KeeFox_Install_NextStep2extra.description "Du kannst das tutorial auch von ein paar anderen Orten starten wie die KeeFox Toolbar oder aus KeePass heraus.">
+<!ENTITY KeeFox_Install_NextStep3.description "Um herauszufinden wie Sie Ihre bestehenden Passwörter von Firefox oder anderen Passwort-Managern zu importieren, klicken Sie hier.">
 <!ENTITY KeeFox_Install_Finally.description "Wenn du irgendwelche Probleme hast KeeFox richtig ans laufen zu bekommen, bitte wirf einen Blick auf die Hilfen welche du hier finden kannst:">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "Bitte schhließe KeePass bevor du weiter machst!">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "KeePass wurde auf deinem Computer gefunden. Um sicher zu gehen dass KeeFox richtig installiert wird, gehe bitte sicher das KeePass beendet ist bevor es weiter geht!">

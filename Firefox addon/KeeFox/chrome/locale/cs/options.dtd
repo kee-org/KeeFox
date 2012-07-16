@@ -58,3 +58,5 @@
 <!ENTITY KeeFox-pref-keePassLocation.label "Použít toto umístění">
 <!ENTITY KeeFox-browse.label "Procházet">
 <!ENTITY KeeFox-FAMS-Options.label "Nastavení notifikace zpráv/tipů">
+<!ENTITY KeeFox-pref-searchAllOpenDBs.label "Prohledávat všechny otevřené KeePass databáze">
+<!ENTITY KeeFox-pref-listAllOpenDBs.label "Seznam přihlasovacích údajů všech otevřených KeePass databází">

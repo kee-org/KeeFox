@@ -69,7 +69,7 @@
 <!ENTITY KeeFox_Install_adminSetupKPInstallExpandeePortable.description "如果您想安装 KeePass 便携版到一个特定的位置（比如一个U盘），您可以选择下面的位置。如果您已经安装了 KeePass Password Safe 2，请使用下面的框告诉 KeeFox 在哪里可以找到它。">
 <!ENTITY KeeFox_Install_copyKPToSpecificLocationInstallButton.label "设置 KeePass Password Safe 2 的安装位置">
 <!ENTITY KeeFox_Install_admincopyKRPCToKnownKPLocationInstallExpander.description "点击上面的按钮链接 KeeFox 到 KeePass Password Safe 2。（技术上来说，这将安装用于  KeePass Password Safe 2 的 KeePassRPC 插件）。">
-<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpandee.description "如果您知道这台计算机的管理密码，您可以通过使用下列选项之一为所有用户安装 KeePass。如果您想设置一个特定的安装位置，一个非英语的语言或者其他高级选项，请点击底部的按钮。">
+<!ENTITY KeeFox_Install_nonAdminSetupKPInstallExpandee.description "如果您知道这台计算机的管理密码，您可以通过使用下列选项之一为所有用户安装 KeePass。如果您想设置一个特定的安装位置、一个非英语的语言或者其他高级选项，请点击下面的按钮。">
 <!ENTITY KeeFox_Install_KPsetupExeSilentInstallButton.label "对所有用户安装 KeeFox">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description "您可以在一个便携式 USB 驱动器（或者您的计算机上的第二个位置）上安装 KeePass Password Safe 2。只需点击下面的按钮，但考虑可能出现的混乱，您可能会在未来遇到您的计算机安装了两个独立的 KeePass Password Safe 2。如果可能的话，您应该使用上面的按钮安装 KeeFox。如果提示，请提供本计算机的管理密码。">
 <!ENTITY KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label "在第二个位置安装 KeePass/KeePassRPC">
@@ -90,14 +90,15 @@
 <!ENTITY KeeFox_Install_NextStep1.description "按照“KeePass 启动助手”中的指示以创建一个新的数据库来存储您的密码，或者打开一个您使用的 KeePass 数据库。">
 <!ENTITY KeeFox_Install_NextStep2.description "点击这里尝试新手入门教程。">
 <!ENTITY KeeFox_Install_NextStep2extra.description "您可以从其他几个位置启动教程，比如 KeeFox 工具栏或者从 KeePass 里面。">
+<!ENTITY KeeFox_Install_NextStep3.description "点击这里了解如何从 Firefox 或其他密码管理器导入现有的密码。">
 <!ENTITY KeeFox_Install_Finally.description "最后，如果您使用 KeeFox 遇到任何麻烦，请看看帮助资源，可以发现在">
 <!ENTITY KeeFox_Install_PleaseCloseKeePass.description "在继续之前，请关闭 KeePass！">
 <!ENTITY KeeFox_Install_Already_Installed_Warning.description "在您的计算机上检测到了 KeePass。为了确保 KeeFox 可以顺利安装，请确保它已关闭，然后再继续！">
-<!ENTITY KeeFox_Install_monoManual.description "KeeFox 可以在 Mono 下运行，但必须按照以下步骤手动安装：">
-<!ENTITY KeeFox_Install_monoManualStep1.description "1) 下载并安装 Mono">
-<!ENTITY KeeFox_Install_monoManualStep2.description "2) 下载 KeePass Password Safe 2 便携版（ZIP压缩包），从：">
-<!ENTITY KeeFox_Install_monoManualStep3.description "3) 解压缩 KeePass 到 ~/KeePass（此为默认值，可自定义）">
-<!ENTITY KeeFox_Install_monoManualStep4.description "4) 复制 KeePassRPC.plgx 文件 ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManual.description "KeeFox 可以在 Mac 和 Linux 系统下运行，但必须按照下列步骤手动安装：">
+<!ENTITY KeeFox_Install_monoManualStep1.description "1) 从下面的网站下载并安装 Mono。Linux 用户通常可以从您的发行版软件库安装 Mono 的最新版本，但请您确定您安装了完整的 Mono 软件包（一些发行版将 Mono 用逗号分离成了多个子包）。">
+<!ENTITY KeeFox_Install_monoManualStep2.description "2) 从下面的网站下载 KeePass Password Safe 2.19（或更高）便携版（ZIP压缩包）。（您也可以试着从您的发行版软件包管理器下载，但请确定您得到的是一个足够新的版本！）">
+<!ENTITY KeeFox_Install_monoManualStep3.description "3) 解压缩 KeePass 到 ~/KeePass（此为默认值，它可被自定义），~ 代表您的 home 目录">
+<!ENTITY KeeFox_Install_monoManualStep4.description "4) 复制 KeePassRPC.plgx 文件到您的 KeePass 安装目录下的一个叫做 plugins 的子目录里（例如 ~/KeePass/plugins）">
 <!ENTITY KeeFox_Install_monoManualStep5.description "5) 重新启动 Firefox">
 <!ENTITY KeeFox_Install_monoManualStep6.description "您需要手动复制 KeePassRPC.plgx 文件，到：">
 <!ENTITY KeeFox_Install_monoManual2.description "个性化操作说明：">
@@ -105,5 +106,5 @@
 <!ENTITY KeeFox_Install_monoManualTest2.description "2) 假定 Mono 是安装在：">
 <!ENTITY KeeFox_Install_monoManualTest3.description "要覆盖这些默认值，到 KeeFox-&gt;选项-&gt;KeePass 下面，更改“KeePass 安装位置”和“Mono 可执行文件位置”">
 <!ENTITY KeeFox_Install_monoManualUpgrade.description "要升级 KeeFox：">
-<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) 复制 KeePassRPC.plgx 文件到 ~/KeePass/plugins">
+<!ENTITY KeeFox_Install_monoManualUpgradeStep1.description "1) 复制 KeePassRPC.plgx 文件到您的 KeePass 安装目录下的一个叫做 plugins 的子目录里（例如 ~/KeePass/plugins，~ 代表您的 home 目录）">
 <!ENTITY KeeFox_Install_monoManualUpgradeStep2.description "2) 重新启动 Firefox">
