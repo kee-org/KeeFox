@@ -188,7 +188,7 @@ KFUI.prototype = {
     {
         nmi.setAttribute("label", itemDef.label);
         nmi.setAttribute("accesskey", itemDef.accessKey);
-        nmi.setAttribute("tooltiptext", itemDef.tooltip);
+        if (itemDef.tooltip != undefined) nmi.setAttribute("tooltiptext", itemDef.tooltip);
         nmi.setAttribute("class", "menuitem-iconic");
         nmi.setAttribute("image", itemDef.image);
         var callbackWrapper = function(fn, name){

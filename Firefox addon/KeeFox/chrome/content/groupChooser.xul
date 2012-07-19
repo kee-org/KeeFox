@@ -46,9 +46,7 @@
   </hbox>
   </vbox>
   <script>
-    let Cu = Components.utils;
-  
-    Cu.import("resource://kfmod/ClassTreeView.jsm");
+    Components.utils.import("resource://kfmod/ClassTreeView.jsm");
     var keePassGroupTreeView = null;
 
     function setTreeViewGroupChooser ()
@@ -58,7 +56,7 @@
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
     .getService(Components.interfaces.nsIWindowMediator);
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
-        wm.getMostRecentWindow("mail:3pane");
+    wm.getMostRecentWindow("mail:3pane");
     var rootGroup = mainWindow.keefox_org.ILM._kf.getDBbyFilename(window.arguments[2]).root; //KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
     keePassGroupTreeView.addTopObject(rootGroup, true);
     tree.view = keePassGroupTreeView;

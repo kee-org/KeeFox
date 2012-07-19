@@ -1,4 +1,4 @@
-let C_i = Components.interfaces;
+const C_i = Components.interfaces;
 
 function voidFunc() {
   // do nothing
