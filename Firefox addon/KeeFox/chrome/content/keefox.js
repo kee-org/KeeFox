@@ -45,11 +45,11 @@ if (keefox_org.shouldLoad)
     keefox_org.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                            .getService(Components.interfaces.mozIJSSubScriptLoader); 
     Cu.import("resource://kfmod/kfDataModel.js");
-    keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFToolBar.js"); 
-    keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM.js"); 
-    keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUI.js"); 
+    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
+    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
+    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
     Cu.import("resource://kfmod/KF.js");
-    keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFUtils.js"); 
+    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
 
     Cu.import("resource://kfmod/FAMS.js");
 
