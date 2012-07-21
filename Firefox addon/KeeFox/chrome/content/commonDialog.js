@@ -655,11 +655,8 @@ var keeFoxDialogManager = {
         }
         
         if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
-        {
-            if (typeof Dialog != 'undefined')
-                Dialog.onButton0();
-            else
-                this.legacyDialogSubmit();
+        {            
+            Dialog.onButton0();            
             close();
         }
         
@@ -669,10 +666,7 @@ var keeFoxDialogManager = {
     {
         document.getElementById("loginTextbox").value = username;
         document.getElementById("password1Textbox").value = password;        
-        if (typeof Dialog != 'undefined')
-            Dialog.onButton0();
-        else
-            this.legacyDialogSubmit();
+        Dialog.onButton0();
         close();
     },
     
@@ -689,7 +683,6 @@ var keeFoxDialogManager = {
             if (parentWindow.keefox_org.ILM._getSaveOnSubmitForSite(this.host))
                 parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
                     document.getElementById("password1Textbox").value, this.host, this.realm);
-            
         }
         Dialog.onButton0();
     }

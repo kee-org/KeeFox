@@ -1069,5 +1069,5 @@ KFILM.prototype = {
     
    };
    
-keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM_Fill.js");
-keefox_org.scriptLoader.loadSubScript("resource://kfscripts/KFILM_Submit.js");
+keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFILM_Fill.js");
+keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFILM_Submit.js");

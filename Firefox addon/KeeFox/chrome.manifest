@@ -4,7 +4,6 @@ overlay	chrome://global/content/commonDialog.xul chrome://keefox/content/protoco
 overlay chrome://messenger/content/messenger.xul chrome://keefox/content/keefox.xul
 skin keefox classic/1.0 chrome/skin/
 resource kfmod modules/
-resource kfscripts chrome/content/
 
 # locales
 # commented out locales are incomplete (or empty) on babelzilla
