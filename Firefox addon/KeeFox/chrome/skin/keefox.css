@@ -126,4 +126,5 @@ toolbar[iconsize="small"] toolbarbutton.login-found
   margin-right: 5px !important;
   height: 32px !important;
   min-height: 32px !important;
+  color:#000;
 }

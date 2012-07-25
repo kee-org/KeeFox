@@ -495,19 +495,19 @@ namespace KeePassRPC
         
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
 
-        private string GetPwEntryString(PwEntry pwe, string name)
+        private string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
         {
-            return GetPwEntryString(pwe, name, true);
+            return GetPwEntryString(pwe, name, true, db);
         }
 
-        private string GetPwEntryString(PwEntry pwe, string name, bool dereferenceFieldRefs)
+        private string GetPwEntryString(PwEntry pwe, string name, bool dereferenceFieldRefs, PwDatabase db)
         {
             //Debug.Indent();
             //Stopwatch sw = Stopwatch.StartNew();
             string result = "";
             if (dereferenceFieldRefs)
                 result = KeePass.Util.Spr.SprEngine.Compile(
-                    pwe.Strings.ReadSafe(name), false, pwe, host.Database, false, false);
+                    pwe.Strings.ReadSafe(name), false, pwe, db, false, false);
             else
                 pwe.Strings.ReadSafe(name);
            // sw.Stop();
@@ -565,7 +565,7 @@ namespace KeePassRPC
                         {
                             try
                             {
-                                fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page"));
+                                fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page", db));
                             }
                             catch (Exception)
                             {
@@ -576,7 +576,7 @@ namespace KeePassRPC
                         {
                             try
                             {
-                                fieldPage = int.Parse(GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " page"));
+                                fieldPage = int.Parse(GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " page", db));
                             }
                             catch (Exception)
                             {
@@ -586,9 +586,9 @@ namespace KeePassRPC
 
 
                         if (pwe.Strings.Exists("Form field " + fieldName + " id"))
-                            fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id");
+                            fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id", db);
                         else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " id"))
-                            fieldId = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " id");
+                            fieldId = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " id", db);
 
                         if (pweValue == "password")
                         {
@@ -596,42 +596,42 @@ namespace KeePassRPC
                             // we can just use the standard entry password.
                             if (pwe.Strings.Exists("Form field " + fieldName + " value"))
                                 formFieldList.Add(new FormField(fieldName,
-                    "Password", GetPwEntryString(pwe, "Form field " + fieldName + " value"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                    "Password", GetPwEntryString(pwe, "Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
                             else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " value"))
                                 formFieldList.Add(new FormField(fieldName,
-                    "Password", GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                    "Password", GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
                             else
                                 formFieldList.Add(new FormField(fieldName,
-                    "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, fieldId, fieldPage));
+                    "Password", GetPwEntryString(pwe, "Password", db), FormFieldType.FFTpassword, fieldId, fieldPage));
                             passwordFound = true;
                         }
                         else if (pweValue == "username")
                         {
                             formFieldList.Add(new FormField(fieldName,
-                    "User name", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, fieldId, fieldPage));
+                    "User name", GetPwEntryString(pwe, "UserName", db), FormFieldType.FFTusername, fieldId, fieldPage));
                             usernameName = fieldName;
-                            usernameValue = GetPwEntryString(pwe, "UserName", fullDetails);
+                            usernameValue = GetPwEntryString(pwe, "UserName", fullDetails, db);
                             usernameFound = true;
                         }
                         else if (pweValue == "text")
                         {
                             formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName), FormFieldType.FFTtext, fieldId, fieldPage));
+                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTtext, fieldId, fieldPage));
                         }
                         else if (pweValue == "radio")
                         {
                             formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName), FormFieldType.FFTradio, fieldId, fieldPage));
+                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTradio, fieldId, fieldPage));
                         }
                         else if (pweValue == "select")
                         {
                             formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName), FormFieldType.FFTselect, fieldId, fieldPage));
+                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTselect, fieldId, fieldPage));
                         }
                         else if (pweValue == "checkbox")
                         {
                             formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName), FormFieldType.FFTcheckbox, fieldId, fieldPage));
+                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTcheckbox, fieldId, fieldPage));
                         }
                     }
                     else if (pweKey == "Alternative URLs" || pweKey == "KPRPC Alternative URLs")
@@ -650,7 +650,7 @@ namespace KeePassRPC
             if (fullDetails && !passwordFound)
             {
                 formFieldList.Add(new FormField("password",
-                    "Password", GetPwEntryString(pwe, "Password"), FormFieldType.FFTpassword, "password", 1));
+                    "Password", GetPwEntryString(pwe, "Password", db), FormFieldType.FFTpassword, "password", 1));
             }
 
             // If we didn't find an explicit username field, we assume any value
@@ -658,9 +658,9 @@ namespace KeePassRPC
             if (!usernameFound)
             {
                 formFieldList.Add(new FormField("username",
-                    "Username", GetPwEntryString(pwe, "UserName"), FormFieldType.FFTusername, "username", 1));
+                    "Username", GetPwEntryString(pwe, "UserName", db), FormFieldType.FFTusername, "username", 1));
                 usernameName = "username";
-                usernameValue = GetPwEntryString(pwe, "UserName");
+                usernameValue = GetPwEntryString(pwe, "UserName", db);
             }
 
             string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);
@@ -720,14 +720,14 @@ namespace KeePassRPC
                 string realm = "";
                 try
                 {
-                    realm = GetPwEntryString(pwe, "Form HTTP realm");
+                    realm = GetPwEntryString(pwe, "Form HTTP realm", db);
                 }
                 catch (Exception) { realm = ""; }
                 if (string.IsNullOrEmpty(realm))
                 {
                     try
                     {
-                        realm = GetPwEntryString(pwe, "KPRPC Form HTTP realm");
+                        realm = GetPwEntryString(pwe, "KPRPC Form HTTP realm", db);
                     }
                     catch (Exception) { realm = ""; }
                 }
@@ -735,7 +735,7 @@ namespace KeePassRPC
                 {
                     try
                     {
-                        realm = GetPwEntryString(pwe, "KPRPC HTTP realm");
+                        realm = GetPwEntryString(pwe, "KPRPC HTTP realm", db);
                     }
                     catch (Exception) { realm = ""; }
                 }
@@ -743,7 +743,7 @@ namespace KeePassRPC
                 FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
                 Entry kpe = new Entry(
                 (string[])URLs.ToArray(typeof(string)),
-                GetPwEntryString(pwe, "Form match URL"), realm,
+                GetPwEntryString(pwe, "Form match URL", db), realm,
                 pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
@@ -759,19 +759,19 @@ namespace KeePassRPC
             }
         }
 
-        private string GetFormFieldValue(PwEntry pwe, string fieldName)
+        private string GetFormFieldValue(PwEntry pwe, string fieldName, PwDatabase db)
         {
             string value = "";
             try
             {
-                value = GetPwEntryString(pwe, "Form field " + fieldName + " value");
+                value = GetPwEntryString(pwe, "Form field " + fieldName + " value", db);
             }
             catch (Exception) { value = ""; }
             if (string.IsNullOrEmpty(value))
             {
                 try
                 {
-                    value = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value");
+                    value = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db);
                 }
                 catch (Exception) { value = ""; }
             }
