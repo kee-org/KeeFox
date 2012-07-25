@@ -73,18 +73,46 @@ var keeFoxDialogManager = {
         return this.__messengerBundle;
     },
     
-    __imapBundle : null, // string bundle for thunderbird l10n
-    get _imapBundle() {    
-        if (!this.__imapBundle) {
+    __localMsgsBundle : null, // string bundle for thunderbird l10n
+    get _localMsgsBundle() {    
+        if (!this.__localMsgsBundle) {
             var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
                 getService(Components.interfaces.nsIStringBundleService);
-            this.__imapBundle = bunService.createBundle(
-                "chrome://messenger/locale/imapMsgs.properties");
-            if (!this.__imapBundle)
-                throw "Messenger string bundle not present!";
+            this.__localMsgsBundle = bunService.createBundle(
+                "chrome://messenger/locale/localMsgs.properties");
+            if (!this.__localMsgsBundle)
+                throw "localMsgs string bundle not present!";
                 // TODO will throwing an exception here affect firefox?
         }        
-        return this.__imapBundle;
+        return this.__localMsgsBundle;
+    },
+    
+    __imapMsgsBundle : null, // string bundle for thunderbird l10n
+    get _imapMsgsBundle() {    
+        if (!this.__imapMsgsBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService);
+            this.__imapMsgsBundle = bunService.createBundle(
+                "chrome://messenger/locale/imapMsgs.properties");
+            if (!this.__imapMsgsBundle)
+                throw "imapMsgs string bundle not present!";
+                // TODO will throwing an exception here affect firefox?
+        }        
+        return this.__imapMsgsBundle;
+    },
+    
+    __newsBundle : null, // string bundle for thunderbird l10n
+    get _newsBundle() {    
+        if (!this.__newsBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService);
+            this.__newsBundle = bunService.createBundle(
+                "chrome://messenger/locale/news.properties");
+            if (!this.__newsBundle)
+                throw "news string bundle not present!";
+                // TODO will throwing an exception here affect firefox?
+        }        
+        return this.__newsBundle;
     },
     
     __composeBundle : null, // string bundle for thunderbird l10n
@@ -135,7 +163,6 @@ var keeFoxDialogManager = {
             
             var mustAutoSubmit = false;            
             var host, realm;
-            var regEx;
             
             /* handle cases for username only prompt */
             if (Dialog.args.promptType == "prompt") {
@@ -282,115 +309,74 @@ var keeFoxDialogManager = {
                 this.host = host;
             } // end if Firefox
             /* handle cases for password only prompt in thunderbird */
-            else if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}" && Dialog.args.promptType == "promptPassword") {
-                
-                /* outgoing smtp server in thunderbird */
-                if (this._composeBundle != null && Dialog.args.title ==
-                this._composeBundle.GetStringFromName("smtpEnterPasswordPromptTitle")) {
-                // en-US should be "SMTP Server Password Required"
-                
-                    /* extract user and host from dialog */
-                    var smtpPrompt = this._composeBundle.GetStringFromName("smtpEnterPasswordPromptWithUsername");
-                    // en-US should be "Enter your password for %2$S on %1$S:"     
-
-                    var passFirst = false;
-                    if (smtpPrompt.indexOf("%2$S") < smtpPrompt.indexOf("%1$S")) {
-                        passFirst = true;
-                    }
-
-                    smtpPrompt = smtpPrompt.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                    regEx = new RegExp(smtpPrompt);
-
-                    matches = Dialog.args.text.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
-                    {
-                        if (passFirst)
-                        {
-                            host = matches[2];
-                            realm = matches[1];
-                        } else
-                        {
-                            host = matches[1];
-                            realm = matches[2];
-                        }
-                    }
-                    
-                    host = "smtp://" + host; 
-                }
-                
-                /* incoming server in thunderbird */
-                if (this._messengerBundle != null && this._imapBundle != null &&
-                (Dialog.args.title == this._messengerBundle.GetStringFromName("passwordTitle") ||
-                Dialog.args.title == this._imapBundle.GetStringFromName("5051"))) {
-                // imap and non-imap use the same title text - at least in en-US
-                // en-US should be "Mail Server Password Required"
-                
-                    // try to match non-imap first
-                    var nonimapPrompt = this._messengerBundle.GetStringFromName("passwordPrompt");
-                    // en-US should be "Enter your password for %1$S on %2$S:"
-                    var passFirst = false;
-                    if (nonimapPrompt.indexOf("%2$S") < nonimapPrompt.indexOf("%1$S")) {
-                        passFirst = true;
-                    }
-                    
-                    nonimapPrompt = nonimapPrompt.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                    regEx = new RegExp(nonimapPrompt);
-
-                    matches = Dialog.args.text.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
-                    {
-                        if (passFirst)
-                        {
-                            host = matches[2];
-                            realm = matches[1];
-                        } else
-                        {
-                            host = matches[1];
-                            realm = matches[2];
-                        }
+            else if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}" &&
+              Dialog.args.promptType == "promptPassword") {                
+              let titles = {};
+              let prompts = {};
+              let hostFirst = {};
+              let LoadDialogData = function (aStringBundle, aTypeName,
+                aTitlePropertyName, aPromptPropertyName, aHostPlaceholder, aUserPlaceholder) {
+                  if (aStringBundle != null) {
+                    titles[aTypeName] = aStringBundle.GetStringFromName(aTitlePropertyName);
+                    prompts[aTypeName] = aStringBundle.GetStringFromName(aPromptPropertyName);
+                    if (aHostPlaceholder == aUserPlaceholder) {
+                      // use null as a flag to indicate that there was only one
+                      // placeholder and hostFirst is not applicable
+                      hostFirst[aTypeName] = null;
                     } else {
-                        // try to match imap
-                        
-                        var imapPrompt = this._imapBundle.GetStringFromName("5047");
-                        // en-US should be "Enter your password for %S:"
-                        
-                        imapPrompt = imapPrompt.replace("%S","(.+)");
-                        regEx = new RegExp(imapPrompt);   
-                        
-                        matches = Dialog.args.text.match(regEx);
-                        if (matches !== null && typeof matches[1] !== "undefined") {
-                            // imap user and host are separated by @ character
-                            var lastAtSym = matches[1].lastIndexOf("@");                            
-                            realm = matches[1].substring(0, lastAtSym); // username
-                            host = matches[1].substring(lastAtSym + 1, matches[1].length);
-                        }
+                      hostFirst[aTypeName] = prompts[aTypeName].indexOf(aHostPlaceholder) < prompts[aTypeName].indexOf(aUserPlaceholder);
                     }
-                    // if we found a host, try to get the protocol to go with it
-                    if (host) {
-                        var protocol = "mail"; // start with generic protocol in case we can't find real one below
-                        
-                        // loop through accounts to get protocol
-                        var acctMgr = Cc["@mozilla.org/messenger/account-manager;1"]  
-                            .getService(Ci.nsIMsgAccountManager);  
-                        var accounts = acctMgr.accounts;  
-                        for (var i = 0; i < accounts.Count(); i++) {  
-                            var account = accounts.QueryElementAt(i, Ci.nsIMsgAccount);
-                            var server = account.incomingServer;
-                            if (server.realHostName == host && realm == server.realUsername) {
-                                protocol = server.type;
-                                break;
-                            }
-                        }
-                        host = protocol + "://" + host;
-                    }
+                    prompts[aTypeName] = prompts[aTypeName].replace(aHostPlaceholder, "(.+)")
+                      .replace(aUserPlaceholder, "(.+)");
+                  }
                 }
                 
-                this.realm = realm;
-                this.host = host;
-            } // end if password only
+              LoadDialogData(this._composeBundle, "smtp", "smtpEnterPasswordPromptTitle",
+                "smtpEnterPasswordPromptWithUsername", "%1$S", "%2$S");
+              LoadDialogData(this._imapMsgsBundle, "imap", "5051", "5047", "%S", "%S");
+              LoadDialogData(this._localMsgsBundle, "pop3", "pop3EnterPasswordPromptTitle",
+                "pop3EnterPasswordPrompt", "%2$S", "%1$S");
+              // TODO - news asks for user and pass - and there are 2 possible
+              // prompts (enterUserPassServer, enterUserPassGroup)
+              //LoadDialogData(this._newsBundle, "nntp", " enterUserPassTitle",
+              //  " enterUserPassServer", "%2$S", "%1$S");
+              LoadDialogData(this._messengerBundle, "mail", "passwordTitle",
+                "passwordPrompt", "%2$S", "%1$S");
+              
+              for (let type in titles) {                  
+                if (Dialog.args.title == titles[type]) {
+                  // some types have the same title, so we have more checking to do
+                  let regEx = new RegExp(prompts[type]);
+                  let matches = Dialog.args.text.match(regEx);
+                  if (hostFirst[type] == null) {
+                    if (matches.length == 2) {
+                      // imap user and host are separated by @ character
+                      let lastAtSym = matches[1].lastIndexOf("@");                            
+                      realm = matches[1].substring(0, lastAtSym); // username
+                      host = type + "://" + matches[1].substring(lastAtSym + 1, matches[1].length);
+                      break;
+                    }
+                  } else {
+                    if (matches.length == 3) {
+                      if (hostFirst[type]) {
+                        host = type + "://" + matches[1];
+                        realm = matches[2];
+                      } else {
+                        host = type + "://" + matches[2];
+                        realm = matches[1];
+                      }
+                      break;
+                    }
+                  }
+                }
+              }                                    
+              this.realm = realm;
+              this.host = host;
+            } // end if Thunderbird password only
             
-            if (host.length < 1)
-                return;                
+            if (host.length < 1) {
+              return;
+            }
                 
             // try to pick out the host from the full protocol, host and port
             var originalHost = host;                     
