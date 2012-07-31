@@ -578,6 +578,9 @@ var keeFoxDialogManager = {
         }
         
         var bestMatch = 0;
+        if (matchedLogins.length > 1) {
+          autoFill = autoSubmit = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillFormsWithMultipleMatches", false);
+        }        
         
         // create a drop down box with all matched logins
         if (showList) {
@@ -639,7 +642,6 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[bestMatch].username;
             dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password;
         }
-        
         if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
         {            
             Dialog.onButton0();            
