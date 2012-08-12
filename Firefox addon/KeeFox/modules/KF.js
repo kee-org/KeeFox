@@ -497,38 +497,54 @@ KeeFox.prototype = {
 
             var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
                             .createInstance(Components.interfaces.nsIWindowsRegKey);
-            wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-                   wrk.ACCESS_READ);
-            if (wrk.hasChild("KeePassPasswordSafe2_is1"))
+            var locations = ["SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"];
+			var foundInRegistry = false;
+            for (var i = 0; i < locations.length; i++)
             {
-                var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
-                if (subkey.hasValue("InstallLocation"))
+				this._KFLog.info("Checking KeePass install location in registry key: HKLM\\" + locations[i]);
+                try
                 {
-                    keePassLocation = subkey.readStringValue("InstallLocation");
-                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                    if (this._KFLog.logSensitiveData)
-                        this._KFLog.info("KeePass install location found: " + keePassLocation);
-                    else
-                        this._KFLog.info("KeePass install location found.");
-                }
-                subkey.close();
-            } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
-            {
-                var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
-                if (subkey.hasValue("InstallLocation"))
+                    wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+                           locations[i],
+                           wrk.ACCESS_READ);
+                    if (wrk.hasChild("KeePassPasswordSafe2_is1"))
+                    {
+                        var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
+                        if (subkey.hasValue("InstallLocation"))
+                        {
+                            keePassLocation = subkey.readStringValue("InstallLocation");
+                            this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                            foundInRegistry = true;
+                            if (this._KFLog.logSensitiveData)
+                                this._KFLog.info("KeePass install location found: " + keePassLocation);
+                            else
+                                this._KFLog.info("KeePass install location found.");
+                        }
+                        subkey.close();
+                    } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
+                    {
+                        var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
+                        if (subkey.hasValue("InstallLocation"))
+                        {
+                            keePassLocation = subkey.readStringValue("InstallLocation");
+                            this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                            foundInRegistry = true;
+                            if (this._KFLog.logSensitiveData)
+                                this._KFLog.info("KeePass install location found: " + keePassLocation);
+                            else
+                                this._KFLog.info("KeePass install location found.");
+                        }
+                        subkey.close();
+                    }
+                    wrk.close();
+                } catch (ex)
                 {
-                    keePassLocation = subkey.readStringValue("InstallLocation");
-                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                    if (this._KFLog.logSensitiveData)
-                        this._KFLog.info("KeePass install location found: " + keePassLocation);
-                    else
-                        this._KFLog.info("KeePass install location found.");
+                    // Probably just running on an x86 platform so ignore
                 }
-                subkey.close();
+                if (foundInRegistry)
+                    break;
             }
-            wrk.close();
-            
+
             // If still not found...
             // TODO2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
 //            if (keePassLocation == "not installed")

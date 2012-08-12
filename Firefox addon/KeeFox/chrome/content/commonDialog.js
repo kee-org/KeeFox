@@ -577,10 +577,7 @@ var keeFoxDialogManager = {
             }
         }
         
-        var bestMatch = 0;
-        if (matchedLogins.length > 1) {
-          autoFill = autoSubmit = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillFormsWithMultipleMatches", false);
-        }        
+        var bestMatch = 0;      
         
         // create a drop down box with all matched logins
         if (showList) {
