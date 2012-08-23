@@ -1,3 +1,5 @@
+"use strict";
+
 let Cu = Components.utils;
 
 function addExcludedItem()

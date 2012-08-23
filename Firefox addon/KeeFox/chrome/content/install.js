@@ -20,6 +20,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+"use strict";
+
 //Math.round((d.getTime()/1000)-10)
 const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.19/";
 const KF_KPZIP_FILE_NAME = "KeePass-2.19.zip?r=&ts=";
