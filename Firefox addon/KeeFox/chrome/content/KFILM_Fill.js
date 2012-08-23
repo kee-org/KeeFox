@@ -28,27 +28,27 @@ let Cu = Components.utils;
 
 Cu.import("resource://kfmod/kfDataModel.js");
 
-KFILM.prototype._fillManyFormFields = function 
+keefox_org.ILM._fillManyFormFields = function 
     (pageFields, matchFields, currentTabPage, overWriteFieldsAutomatically)
 {
-    KFLog.debug("_fillManyFormFields started");
+    keefox_org.Logger.debug("_fillManyFormFields started");
     
     if (pageFields == null || pageFields == undefined || matchFields == null || matchFields == undefined)
         return;
     
-    KFLog.debug("We've received the data we need");
+    keefox_org.Logger.debug("We've received the data we need");
     
     var validTabPage = true;
     
     if (currentTabPage <= 0)
         validTabPage = false;
         
-    KFLog.info("Filling form fields for page "+currentTabPage);
+    keefox_org.Logger.info("Filling form fields for page "+currentTabPage);
     
     if (overWriteFieldsAutomatically)
-        KFLog.info("Auto-overwriting fields");
+        keefox_org.Logger.info("Auto-overwriting fields");
     else
-        KFLog.info("Not auto-overwriting fields");
+        keefox_org.Logger.info("Not auto-overwriting fields");
     
     var matchedValues = []; // value of the matched field (so we don't have to go through XPCOM again)
     var backupMatchedValues = []; // used to keep track of a less preferred option just in case we don't find any suitable matches.
@@ -66,7 +66,7 @@ KFILM.prototype._fillManyFormFields = function
     for (var i = 0; i < pageFields.length; i++)
     {
         var foundADefiniteMatch = false;
-        KFLog.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
+        keefox_org.Logger.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
         
         for (var j = 0; j < matchFields.length; j++)
         {
@@ -96,7 +96,7 @@ KFILM.prototype._fillManyFormFields = function
                 matchedValues[j] = matchedField.value;
                 matchedIds[j] = i;
                 foundADefiniteMatch = true;
-                KFLog.debug("Data field "+j+" is a match for form field " + i);
+                keefox_org.Logger.debug("Data field "+j+" is a match for form field " + i);
                 break;
             }
         }
@@ -104,7 +104,7 @@ KFILM.prototype._fillManyFormFields = function
         // find by name instead (except for radio buttons which we know have multiple fields per name)
         if (!foundADefiniteMatch && pageFields[i].type != "radio")
         {
-            KFLog.info("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
+            keefox_org.Logger.info("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
             for (j = 0; j < matchFields.length; j++)
             {
                 // if we have already identified a form field that we want
@@ -133,7 +133,7 @@ KFILM.prototype._fillManyFormFields = function
                     matchedValues[j] = matchedField.value;
                     matchedIds[j] = i;
                     foundADefiniteMatch = true;
-                    KFLog.debug("Data field "+j+" is a match for form field " + i);
+                    keefox_org.Logger.debug("Data field "+j+" is a match for form field " + i);
                     break;
                 }
             }
@@ -146,7 +146,7 @@ KFILM.prototype._fillManyFormFields = function
            ))
         {
             // Look for 2nd-best match. Need to pick the first suitable value we come across
-            KFLog.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
+            keefox_org.Logger.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
             for (j = 0; j < matchFields.length; j++)
             {
                 // if we have already identified a form field that we want
@@ -174,7 +174,7 @@ KFILM.prototype._fillManyFormFields = function
                     // all of these matches are considered backup options only...
                     backupMatchedValues[j] = matchedField.value;
                     backupMatchedIds[j] = i;
-                    KFLog.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
+                    keefox_org.Logger.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
                 }
             }
         }
@@ -188,10 +188,10 @@ KFILM.prototype._fillManyFormFields = function
 
         if (matchedValues[i] != undefined && matchedValues[i] != null && matchedValues[i] != "")
         {
-            if (KFLog.logSensitiveData)
-                KFLog.info("We will populate field "+matchedIds[i]+" with: "+matchedValues[i]);
+            if (keefox_org.Logger.logSensitiveData)
+                keefox_org.Logger.info("We will populate field "+matchedIds[i]+" with: "+matchedValues[i]);
             else
-                KFLog.info("We will populate field "+matchedIds[i]+".");
+                keefox_org.Logger.info("We will populate field "+matchedIds[i]+".");
             
             if (pageFields[matchedIds[i]].type == "select-one")
             {
@@ -214,13 +214,13 @@ KFILM.prototype._fillManyFormFields = function
             
         if (backupMatchedValues[i] == undefined || backupMatchedValues[i] == null || backupMatchedValues[i] == "")
         {
-            KFLog.info("We could not find a suitable match so not filling any field with supplied login field id " + i);
+            keefox_org.Logger.info("We could not find a suitable match so not filling any field with supplied login field id " + i);
         } else
         {
-            if (KFLog.logSensitiveData)
-                KFLog.info("We will populate field "+backupMatchedIds[i]+" with our backup choice: "+backupMatchedValues[i]);
+            if (keefox_org.Logger.logSensitiveData)
+                keefox_org.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice: "+backupMatchedValues[i]);
             else
-                KFLog.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
+                keefox_org.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
             
             if (pageFields[backupMatchedIds[i]].type == "select-one")
             {
@@ -244,9 +244,9 @@ KFILM.prototype._fillManyFormFields = function
  * Called when a page has loaded. For each form in the document,
  * we check to see if it can be filled with a stored login.
  */
-KFILM.prototype._fillDocument = function (doc, initialPageLoad)
+keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
 {
-    KFLog.info("Filling document. Initial page load: " + initialPageLoad);
+    keefox_org.Logger.info("Filling document. Initial page load: " + initialPageLoad);
     
     //TODO2: maybe need to attach this var to somewhere in case it gets GCd?
     var findLoginDoc = {};
@@ -274,18 +274,18 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
                 frameDoc=frameDoc.defaultView.frameElement.ownerDocument;
         } else
         {
-            KFLog.debug("skipping document fill (this is not the currently active tab and it is not within a frame)");
+            keefox_org.Logger.debug("skipping document fill (this is not the currently active tab and it is not within a frame)");
             return;
         }
         
         if (mainWindow.content.document != frameDoc)
         {
-            KFLog.debug("skipping document fill (this is within a frame but it is not the currently active tab)");
+            keefox_org.Logger.debug("skipping document fill (this is within a frame but it is not the currently active tab)");
             return;
         }
     }
 
-    KFLog.info("attempting document fill");
+    keefox_org.Logger.info("attempting document fill");
     
     findLoginDoc.uniqueID = "";
     findLoginDoc.logins = [];
@@ -329,8 +329,8 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 
     if (findLoginDoc.currentTabUniqueID != undefined && findLoginDoc.currentTabUniqueID != null && findLoginDoc.currentTabUniqueID != "")
     {
-        KFLog.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
-        KFLog.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbFileName);
+        keefox_org.Logger.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
+        keefox_org.Logger.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbFileName);
         findLoginDoc.uniqueID = findLoginDoc.currentTabUniqueID;
         findLoginDoc.dbFileName = findLoginDoc.currentTabDbFileName;
         
@@ -343,7 +343,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 
         if (findLoginDoc.localAutoSubmitPref != undefined && findLoginDoc.localAutoSubmitPref != null && findLoginDoc.localAutoSubmitPref == "yes")
         {
-            KFLog.debug("We must auto-submit this form.");
+            keefox_org.Logger.debug("We must auto-submit this form.");
             findLoginDoc.mustAutoSubmitForm = true;
         }
 
@@ -370,7 +370,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             ss.deleteTabValue(findLoginDoc.currentTab, "KF_dbFileName");
         }
         
-        KFLog.debug("deleted some tab values");
+        keefox_org.Logger.debug("deleted some tab values");
     }
 
     // If we have exceeded the maximum number of expected pages during
@@ -379,14 +379,14 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     // are high that password or server fault occured)
     if (findLoginDoc.numberOfTabFillsRemaining != undefined && findLoginDoc.numberOfTabFillsRemaining != null && findLoginDoc.numberOfTabFillsRemaining.length > 0)
     {
-        KFLog.info("Found this numberOfTabFillsRemaining in the tab: " + findLoginDoc.numberOfTabFillsRemaining);
+        keefox_org.Logger.info("Found this numberOfTabFillsRemaining in the tab: " + findLoginDoc.numberOfTabFillsRemaining);
         if (findLoginDoc.numberOfTabFillsRemaining == "0")
         {
             findLoginDoc.cannotAutoSubmitForm = true;
             findLoginDoc.cannotAutoFillForm = true;
             ss.deleteTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining");
-            KFLog.debug("Not auto-filling or auto-submiting this form.");
-            KFLog.debug("KF_numberOfTabFillsRemaining deleted");
+            keefox_org.Logger.debug("Not auto-filling or auto-submiting this form.");
+            keefox_org.Logger.debug("KF_numberOfTabFillsRemaining deleted");
         }
     }
 
@@ -415,14 +415,14 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
     
     if (!forms || forms.length == 0)
     {
-        KFLog.info("No forms found on this page");
+        keefox_org.Logger.info("No forms found on this page");
         return;
     }
 
     // if we're not logged in to KeePass then we should prompt user (or not)
     if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
     {
-        notifyBarWhenKeePassRPCInactive = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeePassRPCInactive",false);
+        var notifyBarWhenKeePassRPCInactive = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeePassRPCInactive",false);
         
         if (notifyBarWhenKeePassRPCInactive && initialPageLoad)
         {
@@ -431,7 +431,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             keefox_org.UI._showLaunchKFNotification();
         }
         
-        flashIconWhenKeePassRPCInactive = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenKeePassRPCInactive",true);
+        var flashIconWhenKeePassRPCInactive = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenKeePassRPCInactive",true);
 
         if (flashIconWhenKeePassRPCInactive && initialPageLoad)
             keefox_org.toolbar._currentWindow.setTimeout(keefox_org.toolbar.flashItem, 10,
@@ -439,7 +439,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         return;
     } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        notifyBarWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",false);
+        var notifyBarWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",false);
         
         if (notifyBarWhenLoggedOut && initialPageLoad)
         {
@@ -448,7 +448,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             keefox_org.UI._showLoginToKFNotification();
         }
         
-        flashIconWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
+        var flashIconWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
         
         if (flashIconWhenLoggedOut && initialPageLoad)
             keefox_org.toolbar._currentWindow.setTimeout(keefox_org.toolbar.flashItem, 10,
@@ -456,11 +456,11 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         return;
     }
 
-    if (KFLog.logSensitiveData)
-        KFLog.debug("fillDocument processing " + forms.length +
+    if (keefox_org.Logger.logSensitiveData)
+        keefox_org.Logger.debug("fillDocument processing " + forms.length +
              " forms on " + doc.documentURI);
     else
-        KFLog.debug("fillDocument processing " + forms.length + " forms");
+        keefox_org.Logger.debug("fillDocument processing " + forms.length + " forms");
 
     var previousActionOrigin = null;
     findLoginDoc.formsReadyForSubmit = 0; // tracks how many forms we auto-fill on this page
@@ -491,7 +491,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         // matching entries (so we fill the most relevant form)
         findLoginDoc.formRelevanceScores[i] = 0;
         
-        KFLog.debug("about to get form fields");
+        keefox_org.Logger.debug("about to get form fields");
         var [usernameIndex, passwordFields, otherFields] =
             this._getFormFields(form, false);
             
@@ -499,7 +499,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
         // maybe only if we are doing a multi-page login?
         if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
         {
-            KFLog.debug("no password field found in this form");
+            keefox_org.Logger.debug("no password field found in this form");
             continue;
         }
         
@@ -573,7 +573,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
                         if (c.relevanceScore > findLoginDoc.formRelevanceScores[i])
                             findLoginDoc.formRelevanceScores[i] = c.relevanceScore;
                         } );
-                    KFLog.debug("Relevance of form " + i + " is " + findLoginDoc.formRelevanceScores[i]);
+                    keefox_org.Logger.debug("Relevance of form " + i + " is " + findLoginDoc.formRelevanceScores[i]);
                     
                     // only remember the logins which are not already in our list of matching logins
                     var newUniqueLogins = findLoginDoc.logins[i].filter(function(d) {
@@ -597,7 +597,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
             previousActionOrigin = actionOrigin;
             previousRequestId = requestId;
         } else {
-            KFLog.debug("form[" + i + "]: reusing logins from last form.");
+            keefox_org.Logger.debug("form[" + i + "]: reusing logins from last form.");
             if (previousRequestId > 0)
                 this.findLoginOps[previousRequestId].formIndexes.push(i);
         }
@@ -609,7 +609,7 @@ KFILM.prototype._fillDocument = function (doc, initialPageLoad)
 };
 
 // this happens after each findLogins call has run its callback so we can see if we have received all the answers we need to fill the form now
-KFILM.prototype.allSearchesComplete = function (findLoginDoc)
+keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
 {
 //return; // test mem leak 2
     
@@ -624,12 +624,12 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     
     var mostRelevantFormIndex = 0;
     findLoginDoc.formRelevanceScores.forEach(function(c, index) { 
-        KFLog.debug("Relevance of form is " + c);
+        keefox_org.Logger.debug("Relevance of form is " + c);
         if (c > findLoginDoc.formRelevanceScores[mostRelevantFormIndex])
             mostRelevantFormIndex = index;
         } );
     
-    KFLog.debug("The most relevant form is #" + mostRelevantFormIndex);
+    keefox_org.Logger.debug("The most relevant form is #" + mostRelevantFormIndex);
     
     // from now on we concentrate on just the most relevant form and the fields we found earlier
     form = findLoginDoc.forms[mostRelevantFormIndex];
@@ -646,7 +646,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         findLoginDoc.cannotAutoFillForm = true;
         findLoginDoc.cannotAutoSubmitForm = true;
         findLoginDoc.overWriteFieldsAutomatically = false;
-        KFLog.debug("Not auto-filling or auto-submiting this form. Not overwriting exsisting contents either.");
+        keefox_org.Logger.debug("Not auto-filling or auto-submiting this form. Not overwriting exsisting contents either.");
     }
 
     // No point looking at login specific preferences if we are not allowed to auto-fill
@@ -662,20 +662,20 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
                                     });
             if (!found)
             {
-                KFLog.info("Password not filled. None of the stored " +
+                keefox_org.Logger.info("Password not filled. None of the stored " +
                          "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
             }
         } else if (findLoginDoc.logins[mostRelevantFormIndex].length == 1) {
             matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][0];
         } else {
-            KFLog.debug("Multiple logins for form, so estimating most relevant.");
+            keefox_org.Logger.debug("Multiple logins for form, so estimating most relevant.");
             var mostRelevantLoginIndex = 0;
             
             for (var count = 0; count < findLoginDoc.logins[mostRelevantFormIndex].length; count++)
                 if (findLoginDoc.logins[mostRelevantFormIndex][count].relevanceScore > findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex].relevanceScore)
                     mostRelevantLoginIndex = count;
                 
-            KFLog.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
+            keefox_org.Logger.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
             matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex];
             
             // If user has specified, prevent automatic fill / submit due to multiple matches
@@ -751,8 +751,8 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         // next we update (or set for the first time) the values attached to this tab
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining", findLoginDoc.numberOfTabFillsRemaining);
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget", findLoginDoc.numberOfTabFillsTarget);
-        KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + findLoginDoc.numberOfTabFillsRemaining);
-        KFLog.debug("Set KF_numberOfTabFillsTarget to: " + findLoginDoc.numberOfTabFillsTarget);
+        keefox_org.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + findLoginDoc.numberOfTabFillsRemaining);
+        keefox_org.Logger.debug("Set KF_numberOfTabFillsTarget to: " + findLoginDoc.numberOfTabFillsTarget);
         
         // if we didn't already define a uniqueID, we set it up now
         if (findLoginDoc.uniqueID == undefined || findLoginDoc.uniqueID == null || findLoginDoc.uniqueID == "")
@@ -775,7 +775,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         for (var i = 0; i < passwordFields.length; i++)
         {
             var passField = passwordFields[i];
-            //KFLog.debug("testi:"+passField.DOMInputElement);
+            //keefox_org.Logger.debug("testi:"+passField.DOMInputElement);
             if (passField.DOMInputElement != null)
             {
             //TODO: test mem leak 3 // skip event listener registration
@@ -787,7 +787,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         for (var i = 0; i < otherFields.length; i++)
         {
             var otherField = otherFields[i];
-            //KFLog.debug("testi:"+otherField.DOMInputElement);
+            //keefox_org.Logger.debug("testi:"+otherField.DOMInputElement);
             if (otherField.DOMInputElement != null)
                 otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
             else if (otherField.DOMSelectElement != null)
@@ -801,9 +801,9 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
     if (findLoginDoc.uniqueID != undefined && findLoginDoc.uniqueID != null && findLoginDoc.uniqueID != "")
     {
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
-        KFLog.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
+        keefox_org.Logger.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName);
-        KFLog.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
+        keefox_org.Logger.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
         
         // only auto fill / submit if we expect another page for this login.
         // This may fail in some cases, not sure yet but it should reduce
@@ -813,24 +813,24 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
         if (findLoginDoc.numberOfTabFillsRemaining > 0)
         {
             findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_autoSubmit", "yes");
-            KFLog.debug("Set KF_autoSubmit to: yes");
+            keefox_org.Logger.debug("Set KF_autoSubmit to: yes");
         }
     }
     
     if (!findLoginDoc.cannotAutoSubmitForm && (findLoginDoc.wantToAutoSubmitForm || findLoginDoc.mustAutoSubmitForm)
         && findLoginDoc.formsReadyForSubmit == 1)
     {
-        KFLog.info("Auto-submitting form...");
+        keefox_org.Logger.info("Auto-submitting form...");
         keefox_org.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
     //TODO: test mem leak 4 // comment out this toolbar fill
     
-        KFLog.info("Using toolbar password fill.");
+        keefox_org.Logger.info("Using toolbar password fill.");
         keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 
     {
-        KFLog.info("Nothing to fill.");
+        keefox_org.Logger.info("Nothing to fill.");
     }
     
     // delete un-needed array entries.
@@ -846,10 +846,10 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
 
     var rids = findLoginDoc.requestIds.slice(0);
     findLoginDoc = null;
-    KFLog.debug("Deleting login data for recently completed async find logins call.");
+    keefox_org.Logger.debug("Deleting login data for recently completed async find logins call.");
     for (var ridc = 0, l = rids.length; ridc < l; ridc++)
     {
-        KFLog.debug("Deleting for request #" + ridc + " (id: " + rids[ridc] + ")");
+        keefox_org.Logger.debug("Deleting for request #" + ridc + " (id: " + rids[ridc] + ")");
         delete window.keefox_org.ILM.findLoginOps[rids[ridc]];
         delete window.keefox_org.ILM.findLoginDocs[rids[ridc]];
     }
@@ -864,7 +864,7 @@ KFILM.prototype.allSearchesComplete = function (findLoginDoc)
 // TODO2: formID innacurate (so not used yet)
 // TODO2: extend so more than one form can be filled, with option to automatically submit
 // form that matches most accuratly (currently we just pick the first match - this may not be ideal)
-KFILM.prototype.fill = function (usernameName,usernameValue,
+keefox_org.ILM.fill = function (usernameName,usernameValue,
     actionURL,usernameID,formID,uniqueID,docURI,dbFileName)
 {
     var fillDocumentDataStorage = {};
@@ -884,7 +884,7 @@ KFILM.prototype.fill = function (usernameName,usernameValue,
      fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.dbFileName, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
 };
 
-KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
+keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
 {                
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
@@ -918,10 +918,10 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
         return;
     logins = convertedResult;
               
-    if (KFLog.logSensitiveData)
-        KFLog.info("fill login details from username field: " + fillDocumentDataStorage.usernameName + ":" + fillDocumentDataStorage.usernameValue);
+    if (keefox_org.Logger.logSensitiveData)
+        keefox_org.Logger.info("fill login details from username field: " + fillDocumentDataStorage.usernameName + ":" + fillDocumentDataStorage.usernameValue);
     else
-        KFLog.info("fill login details");
+        keefox_org.Logger.info("fill login details");
     
         
     
@@ -967,7 +967,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
             usernameIndexList[i] = usernameIndex;
             passwordsList[i] = passwords;
             otherFieldsList[i] = otherFields;            
-            KFLog.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
+            keefox_org.Logger.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
         }
         
         //TODO2: form should be considered more relevant if it actually had a password field... extend to comparing correct quantity of fields?
@@ -978,7 +978,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
             if (c > formRelevanceScores[mostRelevantFormIndex])
                 mostRelevantFormIndex = index;
         }); 
-        KFLog.debug("Most releveant form is " + mostRelevantFormIndex);
+        keefox_org.Logger.debug("Most releveant form is " + mostRelevantFormIndex);
         
         form = fillDocumentDataStorage.doc.forms[mostRelevantFormIndex];
         usernameIndex = usernameIndexList[mostRelevantFormIndex];
@@ -989,7 +989,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     if (passwords == null || passwords.length == 0)
     {
         //TODO2: can we improve here so that forms without password fields can also be handled?
-        KFLog.info("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
+        keefox_org.Logger.info("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
         return;
     }
 
@@ -998,7 +998,7 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     var title = fillDocumentDataStorage.doc.title;
     
     var match = null;
-    KFLog.info("Found " + logins.length + " logins.");
+    keefox_org.Logger.info("Found " + logins.length + " logins.");
     
     // Ensure the entry has not been deleted between page load and fill request
     if (fillDocumentDataStorage.uniqueID && logins.length == 1)
@@ -1006,11 +1006,11 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     
     if (match == null)
     {
-        KFLog.warn("Can't find a login for this matched login fill request.");
+        keefox_org.Logger.warn("Can't find a login for this matched login fill request.");
         return;
     }
 
-    KFLog.debug("Found a matching login, filling in passwords, etc.");
+    keefox_org.Logger.debug("Found a matching login, filling in passwords, etc.");
         
     window.keefox_org.ILM._fillManyFormFields(passwords, match.passwords, 1, overWriteFields);
     window.keefox_org.ILM._fillManyFormFields(otherFields, match.otherFields, 1, overWriteFields);
@@ -1052,36 +1052,36 @@ KFILM.prototype.fillFindLoginsComplete = function (resultWrapper, fillDocumentDa
     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
     ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
     ss.setTabValue(currentTab, "KF_dbFileName", fillDocumentDataStorage.dbFileName);
-    KFLog.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
-    KFLog.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
-    KFLog.debug("Set KF_autoSubmit to: yes");
-    KFLog.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
-    KFLog.debug("Set KF_dbFileName to: " + fillDocumentDataStorage.dbFileName);
+    keefox_org.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
+    keefox_org.Logger.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
+    keefox_org.Logger.debug("Set KF_autoSubmit to: yes");
+    keefox_org.Logger.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
+    keefox_org.Logger.debug("Set KF_dbFileName to: " + fillDocumentDataStorage.dbFileName);
     
     // now we can submit the form if desired    
     if (autoSubmitForm)
         window.keefox_org.ILM.submitForm(form);
 };
 
-KFILM.prototype._fillAllFrames = function (window, initialPageLoad)
+keefox_org.ILM._fillAllFrames = function (window, initialPageLoad)
 {
-    KFLog.debug("_fillAllFrames start");
+    keefox_org.Logger.debug("_fillAllFrames start");
     this._fillDocument(window.document,false);
     
     if (window.frames.length > 0)
     {
-        KFLog.debug("Filling " + window.frames.length + " sub frames");
+        keefox_org.Logger.debug("Filling " + window.frames.length + " sub frames");
         var frames = window.frames;
         for (var i = 0; i < frames.length; i++)
           this._fillAllFrames (frames[i], initialPageLoad);
     }    
 };
 
-KFILM.prototype._findDocumentByURI = function (window, URI)
+keefox_org.ILM._findDocumentByURI = function (window, URI)
 {
     if (window.frames.length > 0)
     {
-        KFLog.debug("Searching through " + window.frames.length + " sub frames");
+        keefox_org.Logger.debug("Searching through " + window.frames.length + " sub frames");
         var frames = window.frames;
         for (var i = 0; i < frames.length; i++)
         { 
@@ -1098,7 +1098,7 @@ KFILM.prototype._findDocumentByURI = function (window, URI)
 };
 
 // Submit a form
-KFILM.prototype.submitForm = function (form)
+keefox_org.ILM.submitForm = function (form)
 {
     var inputElements = form.getElementsByTagName("input");
     var submitElement = null;

@@ -33,7 +33,7 @@ Cu.import("resource://kfmod/session.js");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/kfDataModel.js");
 
-var log = KFLog;
+var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keeFoxInst._KFLog;
 
 function jsonrpcClient() {
     this.requestId = 1;
@@ -152,7 +152,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                                  .getService(Components.interfaces.nsIWindowMediator);
                         var window = wm.getMostRecentWindow("navigator:browser") ||
                             wm.getMostRecentWindow("mail:3pane");
-            window.keeFoxInst.KFLog.warn("Problem connecting to KeePass: " + message);
+            window.keefox_org.Logger.warn("Problem connecting to KeePass: " + message);
             } catch(e) {}
         }
     }

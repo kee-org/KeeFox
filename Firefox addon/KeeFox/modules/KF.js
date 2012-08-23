@@ -29,14 +29,14 @@ let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keeFoxInst"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://kfmod/json.js");
 Cu.import("resource://kfmod/KFLogger.js");
-//var KFLogger = KFLog;
+Cu.import("resource://kfmod/json.js");
+//var KFLogger = keefox_org.Logger;
 
 // constructor
 function KeeFox()
 {
-    this._KFLog = KFLog;
+    this._KFLog = new KeeFoxLogger();
     
     this.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
             .getService(Components.interfaces.nsIXULRuntime);
@@ -1414,13 +1414,13 @@ KeeFox.prototype = {
         // nsObserver
         observe : function (subject, topic, data)
         {
-            KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
+            keefox_org.Logger.debug("Observed an event: " + subject + "," + topic + "," + data);
             switch(topic)
             {
                 case "quit-application":
-                    KFLog.info("Application is shutting down...");
+                    keefox_org.Logger.info("Application is shutting down...");
                     _kf.shutdown();
-                    KFLog.info("KeeFox has nearly shut down.");
+                    keefox_org.Logger.info("KeeFox has nearly shut down.");
                     var observerService = Cc["@mozilla.org/observer-service;1"].
                                   getService(Ci.nsIObserverService);
                     observerService.removeObserver(this, "quit-application");
@@ -1428,7 +1428,7 @@ KeeFox.prototype = {
                     this._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch2);
                     this._prefBranchRoot.removeObserver("signon.rememberSignons", this);
                     
-                    KFLog.info("KeeFox has shut down. Sad times; come back soon!");
+                    keefox_org.Logger.info("KeeFox has shut down. Sad times; come back soon!");
                     break;
                 case "nsPref:changed":
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -1472,7 +1472,7 @@ KeeFox.prototype = {
                 case "logMethodStdOut":
                 case "logSensitiveData":
                     // Allow the change to go ahead but warn the user (in case they did not understand the change that was made)
-                    KFLog.configureFromPreferences();
+                    keefox_org.Logger.configureFromPreferences();
                     _kf.oneOffSensitiveLogCheckHandler();
                     break;
                 case "dynamicFormScanning":

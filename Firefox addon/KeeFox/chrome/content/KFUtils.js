@@ -44,7 +44,7 @@ let Cu = Components.utils;
 //    }
 //};
 
-var KFmainThreadHandler = function(source, reason, result, mainWindow, browserWindow)
+var KeeFoxMainThreadHandler = function(source, reason, result, mainWindow, browserWindow)
 {
   this.source = source;
   this.reason = reason;
@@ -53,13 +53,13 @@ var KFmainThreadHandler = function(source, reason, result, mainWindow, browserWi
   this.browserWindow = browserWindow;
 };
 
-KFmainThreadHandler.prototype =
+KeeFoxMainThreadHandler.prototype =
 {
     run: function()
     {
         try
         {
-            KFLog.debug(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
+            this.mainWindow.keefox_org.Logger.debug(this.source + ' thread signalled "' + this.reason + '" with result: ' + this.result);
             switch (this.source)
             {
                 case "executableInstallerRunner":
@@ -100,14 +100,14 @@ KFmainThreadHandler.prototype =
         // if we've just finished downloading NET
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
         
-            KFLog.info("Finished downloading IC1setupNET");
+            this.mainWindow.keefox_org.Logger.info("Finished downloading IC1setupNET");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
             this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADED;
             this.browserWindow.IC1setupNET(this.mainWindow);
         }
         // if we've just finished downloading KP
         else if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("Finished downloading IC1setupKP");
+            this.mainWindow.keefox_org.Logger.info("Finished downloading IC1setupKP");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
             this.browserWindow.IC1setupKP(this.mainWindow);
@@ -115,37 +115,37 @@ KFmainThreadHandler.prototype =
         
         // if we're still downloading NET
         else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
-            KFLog.debug(this.result + "% of IC1setupNETdownloaded");
+            this.mainWindow.keefox_org.Logger.debug(this.result + "% of IC1setupNETdownloaded");
             this.browserWindow.document.getElementById('IC1setupNETdownloadingProgressBar').value = this.result;
         }
         // if we're still downloading KP
         else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.debug(this.result + "% of IC1setupKPdownloaded");
+            this.mainWindow.keefox_org.Logger.debug(this.result + "% of IC1setupKPdownloaded");
             this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
         }
         
         // if NET download was cancelled
         else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
-            KFLog.info("IC1setupNET download cancelled");
+            this.mainWindow.keefox_org.Logger.info("IC1setupNET download cancelled");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
             // No need to take further action
         }
         // if KP download was cancelled
         else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("IC1setupKP download cancelled");
+            this.mainWindow.keefox_org.Logger.info("IC1setupKP download cancelled");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             // No need to take further action
         }
         
         // if NET download failed
         else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING) {
-            KFLog.info("IC1setupNET download failed");
+            this.mainWindow.keefox_org.Logger.info("IC1setupNET download failed");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_NET_DOWNLOADING;
             this.browserWindow.installationError("ERRORInstallDownloadFailed");
         }
         // if KP download failed
         else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("IC1setupKP download failed");
+            this.mainWindow.keefox_org.Logger.info("IC1setupKP download failed");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             this.browserWindow.installationError("ERRORInstallDownloadFailed");
         }
@@ -156,7 +156,7 @@ KFmainThreadHandler.prototype =
     {
         // if we've just finished downloading KP
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("Finished downloading IC1setupKP");
+            this.mainWindow.keefox_org.Logger.info("Finished downloading IC1setupKP");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
             this.browserWindow.IC1setupKP(this.mainWindow);
@@ -164,20 +164,20 @@ KFmainThreadHandler.prototype =
         
         // if we're still downloading KP
         else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.debug(this.result + "% of IC1setupKPdownloaded");
+            this.mainWindow.keefox_org.Logger.debug(this.result + "% of IC1setupKPdownloaded");
             this.browserWindow.document.getElementById('IC1setupKPdownloadingProgressBar').value = this.result;
         }
         
         // if KP download was cancelled
         else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("IC1setupKP download cancelled");
+            this.mainWindow.keefox_org.Logger.info("IC1setupKP download cancelled");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             // No need to take further action
         }
         
         // if KP download failed
         else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("IC1setupKP download failed");
+            this.mainWindow.keefox_org.Logger.info("IC1setupKP download failed");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             this.browserWindow.installationError("ERRORInstallDownloadFailed");
         }
@@ -189,7 +189,7 @@ KFmainThreadHandler.prototype =
         
         // if we've just finished downloading KP
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("Finished downloading IC2setupKP");
+            this.mainWindow.keefox_org.Logger.info("Finished downloading IC2setupKP");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADED;
             if (this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_SELECTED_PRI)
@@ -200,20 +200,20 @@ KFmainThreadHandler.prototype =
         
         // if we're still downloading KP
         else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.debug(this.result + "% of IC2setupKPdownloaded");
+            this.mainWindow.keefox_org.Logger.debug(this.result + "% of IC2setupKPdownloaded");
             this.browserWindow.document.getElementById('IC2setupKPdownloadingProgressBar').value = this.result;
         }
         
         // if KP download was cancelled
         else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("IC2setupKP download cancelled");
+            this.mainWindow.keefox_org.Logger.info("IC2setupKP download cancelled");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             // No need to take further action
         }
         
         // if KP download failed
         else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING) {
-            KFLog.info("IC2setupKP download failed");
+            this.mainWindow.keefox_org.Logger.info("IC2setupKP download failed");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KP_DOWNLOADING;
             this.browserWindow.installationError("ERRORInstallDownloadFailed");
         }
@@ -223,7 +223,7 @@ KFmainThreadHandler.prototype =
     {
         // if we've just finished downloading KP ZIP file
         if (this.reason == "finished" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
-            KFLog.info("Finished downloading IC5zipKP");
+            this.mainWindow.keefox_org.Logger.info("Finished downloading IC5zipKP");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
             this.browserWindow.installState |= this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADED;
             this.browserWindow.IC5zipKP(this.mainWindow);
@@ -231,20 +231,20 @@ KFmainThreadHandler.prototype =
         
         // if we're still downloading KP ZIP file
         else if (this.reason == "progress" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
-            KFLog.debug(this.result + "% of IC5zipKPdownloaded");
+            this.mainWindow.keefox_org.Logger.debug(this.result + "% of IC5zipKPdownloaded");
             this.browserWindow.document.getElementById('IC5zipKPdownloadingProgressBar').value = this.result;
         }
         
         // if KP ZIP download was cancelled
         else if (this.reason == "cancelled" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
-            KFLog.info("IC2setupKP download cancelled");
+            this.mainWindow.keefox_org.Logger.info("IC2setupKP download cancelled");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
             // No need to take further action
         }
         
         // if KP ZIP download failed
         else if (this.reason == "failed" && this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING) {
-            KFLog.info("IC2setupKP download failed");
+            this.mainWindow.keefox_org.Logger.info("IC2setupKP download failed");
             this.browserWindow.installState ^= this.browserWindow.installState & this.browserWindow.KF_INSTALL_STATE_KPZIP_DOWNLOADING;
             this.browserWindow.installationError("ERRORInstallDownloadFailed");
         }
@@ -286,7 +286,7 @@ KeeFoxFileDownloaderListener.prototype =
         //TODO2: only send message to main thread once per second or if it = 100%
         if (percentComplete > this.lastPerCom)
         {
-            var kfMTH = new KFmainThreadHandler(this.source, "progress", percentComplete, this.mainWindow, this.browserWindow);
+            var kfMTH = new KeeFoxMainThreadHandler(this.source, "progress", percentComplete, this.mainWindow, this.browserWindow);
             kfMTH.run();
         }
 
@@ -299,15 +299,15 @@ KeeFoxFileDownloaderListener.prototype =
         
             if (this.persist.result == 0) 
             { // NS_OK
-                var kfMTH = new KFmainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow);
+                var kfMTH = new KeeFoxMainThreadHandler(this.source, "finished", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
             } else if (this.persist.result == 2152398850)
             { //NS_BINDING_ABORTED: 0x804b0002
-                var kfMTH = new KFmainThreadHandler(this.source, "cancelled", "", this.mainWindow, this.browserWindow);
+                var kfMTH = new KeeFoxMainThreadHandler(this.source, "cancelled", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
             } else 
             {
-                var kfMTH = new KFmainThreadHandler(this.source, "failed", "", this.mainWindow, this.browserWindow);
+                var kfMTH = new KeeFoxMainThreadHandler(this.source, "failed", "", this.mainWindow, this.browserWindow);
                 kfMTH.run();
             }
         }
@@ -317,7 +317,7 @@ KeeFoxFileDownloaderListener.prototype =
 /*
 download a file - saveURI function is asyncronous so I don't think this needs to be called away from the main thread
 */
-function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow, persist)
+keefox_org.KFdownloadFile = function(source, URL, destinationFile, mainWindow, browserWindow, persist)
 {
     persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
         .createInstance(Components.interfaces.nsIWebBrowserPersist);
@@ -336,9 +336,9 @@ function KFdownloadFile(source, URL, destinationFile, mainWindow, browserWindow,
     persist.saveURI(obj_URI, null, null, null, "", file);
     
     return persist;
-}
+};
 
-function KFMD5checksumVerification(path, testMD5)
+keefox_org.KFMD5checksumVerification = function(path, testMD5)
 {
     try
     {
@@ -346,8 +346,8 @@ function KFMD5checksumVerification(path, testMD5)
         .createInstance(Components.interfaces.nsILocalFile);
         f.initWithFile(keeFoxInst._myProfileDir());
         f.append(path);
-        //KFLog.debug(keeFoxInst._myDepsDir());
-        //KFLog.debug(path);
+        //this.mainWindow.keefox_org.Logger.debug(keeFoxInst._myDepsDir());
+        //this.mainWindow.keefox_org.Logger.debug(path);
         var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
                                 .createInstance(Components.interfaces.nsIFileInputStream);
         // open for reading
@@ -375,8 +375,8 @@ function KFMD5checksumVerification(path, testMD5)
             return true;
             
     } catch (err) {
-        KFLog.error("Error calculating checksums: " + err);
+        this.Logger.error("Error calculating checksums: " + err);
         Cu.reportError(err);
     }
     return false;
-}
+};

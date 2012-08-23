@@ -34,7 +34,7 @@ var EXPORTED_SYMBOLS = ["session"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 
-var log = KFLog;
+var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keeFoxInst._KFLog;
 
 function session()
 {

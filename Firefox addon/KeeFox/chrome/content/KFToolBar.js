@@ -27,25 +27,23 @@ let Cu = Components.utils;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
-function KFToolbar(currentWindow) {
-    this._currentWindow = currentWindow;
-    this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
+keefox_org.toolbar = {
+    construct : function (currentWindow) {
+        this._currentWindow = currentWindow;
+        this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
 
-    // Lock menu updates when menu is visible
-    var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
-    if (container != undefined && container != null) {
-        container.addEventListener("popupshowing", function (event) {
-            this.setAttribute('KFLock', 'enabled');
-        }, false);  //AET: OK
-        container.addEventListener("popuphiding", function (event) {
-            this.setAttribute('KFLock', 'disabled');
-        }, false); //AET: OK
+        // Lock menu updates when menu is visible
+        var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
+        if (container != undefined && container != null) {
+            container.addEventListener("popupshowing", function (event) {
+                this.setAttribute('KFLock', 'enabled');
+            }, false);  //AET: OK
+            container.addEventListener("popuphiding", function (event) {
+                this.setAttribute('KFLock', 'disabled');
+            }, false); //AET: OK
 
-    }
-}
-
-KFToolbar.prototype = {
-
+        }
+    },
     _currentWindow: null,
     strbundle: null,
 
@@ -83,7 +81,7 @@ KFToolbar.prototype = {
 
     // add all matched logins to the menu
     setLogins: function (logins, doc) {
-        KFLog.debug("setLogins started");
+        keefox_org.Logger.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         if (container === undefined || container == null)
@@ -120,9 +118,9 @@ KFToolbar.prototype = {
         }
 
         if (merging)
-            KFLog.debug("merging " + logins.length + " toolbar logins");
+            keefox_org.Logger.debug("merging " + logins.length + " toolbar logins");
         else
-            KFLog.debug("setting " + logins.length + " toolbar logins");
+            keefox_org.Logger.debug("setting " + logins.length + " toolbar logins");
 
         // add every matched login to the popup menu
         for (let i = 0; i < logins.length; i++) {
@@ -215,14 +213,14 @@ KFToolbar.prototype = {
         }
 
         if (merging)
-            KFLog.debug(logins.length + " toolbar logins merged!");
+            keefox_org.Logger.debug(logins.length + " toolbar logins merged!");
         else
-            KFLog.debug(logins.length + " toolbar logins set!");
+            keefox_org.Logger.debug(logins.length + " toolbar logins set!");
     },
 
     // populate the "all logins" menu with every login in this database
     setAllLogins: function () {
-        KFLog.debug("setAllLogins start");
+        keefox_org.Logger.debug("setAllLogins start");
 
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
         if (loginButton === undefined || loginButton == null)
@@ -286,21 +284,21 @@ KFToolbar.prototype = {
                     }
                 }
             } catch (e) {
-                KFLog.error("setAllLogins exception: " + e);
+                keefox_org.Logger.error("setAllLogins exception: " + e);
                 return;
             }
             loginButton.setAttribute("disabled", "false");
         } else {
             loginButton.setAttribute("disabled", "true");
         }
-        KFLog.debug("setAllLogins end");
+        keefox_org.Logger.debug("setAllLogins end");
         return;
     },
 
     // add all the logins and subgroups for one KeePass group
     setOneLoginsMenu: function(container, group, dbFileName)
     {
-        //KFLog.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
+        //keefox_org.Logger.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
 
         // Remove all of the existing buttons
         for (var i = container.childNodes.length; i > 0; i--) {
@@ -309,7 +307,7 @@ KFToolbar.prototype = {
 
         var foundGroups = group.childGroups;
         var foundLogins = group.childLightEntries;
-        //KFLog.debug("loga");
+        //keefox_org.Logger.debug("loga");
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0)) {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
@@ -319,7 +317,7 @@ KFToolbar.prototype = {
             container.appendChild(noItemsButton);
             return;
         }
-        //KFLog.debug("logb");
+        //keefox_org.Logger.debug("logb");
         for (var i = 0; i < foundGroups.length; i++) {
             var group = foundGroups[i];
 
@@ -343,9 +341,9 @@ KFToolbar.prototype = {
             newMenu.appendChild(newMenuPopup);
 
         }
-        //KFLog.debug("logc");
+        //keefox_org.Logger.debug("logc");
         for (var i = 0; i < foundLogins.length; i++) {
-            //KFLog.debug("logi: " + i);
+            //keefox_org.Logger.debug("logi: " + i);
             var login = foundLogins[i];
             var usernameValue = "";
             var usernameName = "";
@@ -377,7 +375,7 @@ KFToolbar.prototype = {
     },
 
     setupButton_install: function (targetWindow) {
-        KFLog.debug("setupButton_install start");
+        keefox_org.Logger.debug("setupButton_install start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -407,7 +405,7 @@ KFToolbar.prototype = {
     // decide what state the toolbar needs to show when this function is executing rather than calling
     // one of many different ones from other locations
     setupButton_ready: function (targetWindow, mainWindowIN) {
-        KFLog.debug("setupButton_ready start");
+        keefox_org.Logger.debug("setupButton_ready start");
         var mainButton;
         var mainWindow;
 
@@ -513,7 +511,7 @@ KFToolbar.prototype = {
                 generatePasswordButton.setAttribute("disabled", "true");
             }
         }
-        KFLog.debug("setupButton_ready end");
+        keefox_org.Logger.debug("setupButton_ready end");
     },
 
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
@@ -676,7 +674,7 @@ KFToolbar.prototype = {
     // wipe any session data relating to filling login forms that we
     // have associated with the most recent tab.
     clearTabFormFillData: function () {
-        KFLog.debug("clearTabFormFillData start");
+        keefox_org.Logger.debug("clearTabFormFillData start");
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
             .getService(Components.interfaces.nsISessionStore);
         var currentGBrowser = this._currentWindow.gBrowser;
@@ -714,12 +712,12 @@ KFToolbar.prototype = {
         }
 
 
-        KFLog.debug("clearTabFormFillData end");
+        keefox_org.Logger.debug("clearTabFormFillData end");
     },
 
 
     fillCurrentDocument: function () {
-        KFLog.debug("fillCurrentDocument start");
+        keefox_org.Logger.debug("fillCurrentDocument start");
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);

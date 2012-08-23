@@ -35,14 +35,14 @@ Cu.import("resource://kfmod/kfDataModel.js");
  * Looks for a password change in the submitted form, so we can update
  * our stored password.
  */
-KFILM.prototype._onFormSubmit = function (form)
+keefox_org.ILM._onFormSubmit = function (form)
 {
-    KFLog.info("Form submit handler started");
+    keefox_org.Logger.info("Form submit handler started");
     
     //do nothing if KeePass is not connected
     if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false) || !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        KFLog.info("Form submit handler skipped (no active KeePass database available)");
+        keefox_org.Logger.info("Form submit handler skipped (no active KeePass database available)");
         return;
     }
 
@@ -50,7 +50,7 @@ KFILM.prototype._onFormSubmit = function (form)
     var win = doc.defaultView;
 
     var URL = this._getPasswordOrigin(doc.documentURI);
-    if (KFLog.logSensitiveData) KFLog.info("URL: " + URL);
+    if (keefox_org.Logger.logSensitiveData) keefox_org.Logger.info("URL: " + URL);
     var formActionURL = this._getActionOrigin(form);
     var title = doc.title;
     var isPasswordChangeForm = false;
@@ -67,7 +67,7 @@ KFILM.prototype._onFormSubmit = function (form)
     var tabIndex = currentGBrowser.getBrowserIndexForDocument(topDoc);
     if (tabIndex == undefined || tabIndex == null || tabIndex < 0)
     {
-        KFLog.error("Invalid tab index for current document.");
+        keefox_org.Logger.error("Invalid tab index for current document.");
         return;
     }
     
@@ -132,7 +132,7 @@ KFILM.prototype._onFormSubmit = function (form)
     // the user to create entries every time they search google, etc.
     if (passwords == null || passwords[0] == null || passwords[0] == undefined)
     {
-        KFLog.info("No password field found in form submission.");
+        keefox_org.Logger.info("No password field found in form submission.");
         return;
     }
     
@@ -146,7 +146,7 @@ KFILM.prototype._onFormSubmit = function (form)
             
         if (twoPasswordsMatchIndex == -1) // either mis-typed password change form, single password change box form or multi-password login/signup, assuming latter.
         {    
-            KFLog.debug("multiple passwords found (with no identical values)");
+            keefox_org.Logger.debug("multiple passwords found (with no identical values)");
                     
             for (let i=0; i < passwords.length; i++)
                 passwordFields.push(passwords[i]);
@@ -158,7 +158,7 @@ KFILM.prototype._onFormSubmit = function (form)
             // we need to ignore any fields that were presented to the
             // user as either "old password" or "retype new password"
                     
-            KFLog.debug("Looks like a password change form or new registration form has been submitted");
+            keefox_org.Logger.debug("Looks like a password change form or new registration form has been submitted");
             // there may be more than one pair of matches - though, we're plucking for the first one
             // we know the index of one matching password
                     
@@ -249,13 +249,13 @@ KFILM.prototype._onFormSubmit = function (form)
  * Called after an HTTP auth (or similar dialog) submission.
  * Tries to identify new passwords
  */
-KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, schemeAndHost, realm)
+keefox_org.ILM._onHTTPAuthSubmit = function (window, username, password, schemeAndHost, realm)
 {
     //do nothing if KeePass is not connected
     if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false) ||
         !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        KFLog.info("Form submit handler skipped (no active KeePass database available)");
+        keefox_org.Logger.info("Form submit handler skipped (no active KeePass database available)");
         return;
     }
 
@@ -271,7 +271,7 @@ KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, scheme
         var tabIndex = currentGBrowser.getBrowserIndexForDocument(doc);
         if (tabIndex == undefined || tabIndex == null || tabIndex < 0)
         {
-            KFLog.error("Invalid tab index for current document.");
+            keefox_org.Logger.error("Invalid tab index for current document.");
             return;
         }
         
@@ -341,7 +341,7 @@ KFILM.prototype._onHTTPAuthSubmit = function (window, username, password, scheme
  *
  * Called in response to a JSON-RPC reply to a request to find logins
  */
-KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDataStorage)
+keefox_org.ILM._onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDataStorage)
 {                
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
@@ -385,7 +385,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
     {
         var temp = submitDocumentDataStorage.formLogin.otherFields[submitDocumentDataStorage.formLogin.usernameIndex];
         formLoginUsername = temp.value;
-        if (KFLog.logSensitiveData) KFLog.debug("formLoginUsername: " + formLoginUsername);
+        if (keefox_org.Logger.logSensitiveData) keefox_org.Logger.debug("formLoginUsername: " + formLoginUsername);
     }
 
     //if (oldPasswordField != null) // we are changing the password
@@ -395,7 +395,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
 //            
 //            if (submitDocumentDataStorage.existingLogin) // as long as we have previously stored a login for this site...
 //            {
-//                KFLog.info("we are changing the password");
+//                keefox_org.Logger.info("we are changing the password");
 //                keefox_org.UI.setWindow(submitDocumentDataStorage.win);
 //                keefox_org.UI.setDocument(submitDocumentDataStorage.doc);
 
@@ -414,18 +414,18 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
 //        } else 
     if (submitDocumentDataStorage.isRegistrationForm)
     {
-        KFLog.info("Looks like this is a registration form so doing nothing (not implemented yet).");
+        keefox_org.Logger.info("Looks like this is a registration form so doing nothing (not implemented yet).");
         return;
     } else if (submitDocumentDataStorage.existingLogin) // it's already in the database so ignore
     {
-        KFLog.info("we are logging in with a known password so doing nothing.");
+        keefox_org.Logger.info("we are logging in with a known password so doing nothing.");
         // this could miss some cases. e.g.
         // password previously changed outside of this password management system (maybe matching algorithm above needs to compare passwords too in cases like this?)
         return;
     }
         
     // if we get to this stage, we are faced with a new login or signup submission so prompt user to save details
-    KFLog.info("password is not recognised so prompting user to save it");
+    keefox_org.Logger.info("password is not recognised so prompting user to save it");
     
     // set the tab value ready for the next time the page loads
     var nextPage = submitDocumentDataStorage.currentPage + 1;
@@ -433,7 +433,7 @@ KFILM.prototype._onFormSubmitFindLoginsComplete = function (resultWrapper, submi
     // If this is the 2nd (or later) part of a multi-page login form, we need to combine the new field items with the previous login data
     if (nextPage > 2)
     {
-        KFLog.info("This form submission is part of a multi-page login process.");
+        keefox_org.Logger.info("This form submission is part of a multi-page login process.");
         
         var previousStageLoginJSON = submitDocumentDataStorage.ss.getTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentStateJSON");
         var previousStageLogin = keeFoxLoginInfo();

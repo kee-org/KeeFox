@@ -34,10 +34,6 @@ let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keeFoxLoginInfo","keeFoxLoginField","keeFoxFormFieldType"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://kfmod/KFLogger.js");
-
-var log = KFLog;
-
 
 
 keeFoxFormFieldType =

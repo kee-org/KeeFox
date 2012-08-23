@@ -23,9 +23,7 @@
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
-function KFUI() {}
-
-KFUI.prototype = {
+keefox_org.UI = {
     _window        : null,
     setWindow : function (win)
     {
@@ -125,7 +123,7 @@ KFUI.prototype = {
         var bar = notifyBox.getNotificationWithValue(name);
         var p = bar.ownerDocument.getAnonymousElementByAttribute(bar, 'anonid', 'details');
 
-        var b = bar.ownerDocument.createElement("hbox"); // create a new XUL menuitem
+        var b = bar.ownerDocument.createElement("hbox");
         b.setAttribute('flex', '1');
         //b.setAttribute('align', 'right');
         b.setAttribute('pack', 'end');
@@ -181,7 +179,7 @@ KFUI.prototype = {
         
         b.appendChild(bx);
         p.parentNode.replaceChild(b, p);   
-        p.parentNode.setAttribute('flex', '1');
+        b.parentNode.setAttribute('flex', '1');
     },
     
     _prepareNotificationBarMenuItem : function (nmi, itemDef, notifyBox, name)
@@ -203,7 +201,7 @@ KFUI.prototype = {
                     keefox_org.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
                 } catch(ex)
                 {
-                    KFLog.error("Exception occurred in menu item callback: " + ex);
+                    keefox_org.Logger.error("Exception occurred in menu item callback: " + ex);
                 }
             };
         };
@@ -236,7 +234,7 @@ KFUI.prototype = {
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
         priority = priority || aNotifyBox.PRIORITY_INFO_MEDIUM;
 
-        KFLog.debug("Adding new " + aName + " notification bar");
+        keefox_org.Logger.debug("Adding new " + aName + " notification bar");
         var newBar = aNotifyBox.appendNotification(
                                 aText, aName,
                                 "chrome://keefox/skin/KeeFox16.png",
@@ -253,7 +251,7 @@ KFUI.prototype = {
         newBar.timeout = Date.now() + 20000; // 20 seconds
 
         if (oldBar) {
-            KFLog.debug("(...and removing old " + aName + " notification bar)");
+            keefox_org.Logger.debug("(...and removing old " + aName + " notification bar)");
             aNotifyBox.removeNotification(oldBar);
         }
         return newBar;
@@ -442,7 +440,7 @@ KFUI.prototype = {
 
         if (oldBar)
         {
-            KFLog.debug("Removing save-password notification bar.");
+            keefox_org.Logger.debug("Removing save-password notification bar.");
             aNotifyBox.removeNotification(oldBar);
         }
     },
@@ -676,14 +674,14 @@ KFUI.prototype = {
             var oldBar = notifyBox.getNotificationWithValue("password-save");
 
             if (oldBar) {
-                KFLog.debug("Removing save-password notification bar.");
+                keefox_org.Logger.debug("Removing save-password notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
             
             oldBar = notifyBox.getNotificationWithValue("keefox-login");
 
             if (oldBar) {
-                KFLog.debug("Removing keefox-login notification bar.");
+                keefox_org.Logger.debug("Removing keefox-login notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
             
@@ -692,7 +690,7 @@ KFUI.prototype = {
                 oldBar = notifyBox.getNotificationWithValue("keefox-launch");
 
                 if (oldBar) {
-                    KFLog.debug("Removing keefox-launch notification bar.");
+                    keefox_org.Logger.debug("Removing keefox-launch notification bar.");
                     notifyBox.removeNotification(oldBar);
                 }
             }
@@ -734,7 +732,7 @@ KFUI.prototype = {
                 if (chromeDoc.getAttribute("chromehidden") &&
                     webnav.sessionHistory.count == 1)
                 {
-                    KFLog.debug("Using opener window for notification bar.");
+                    keefox_org.Logger.debug("Using opener window for notification bar.");
                     notifyWindow = notifyWindow.opener; //not convinced this will work - maybe change this._document
                 }
             }
@@ -752,7 +750,7 @@ KFUI.prototype = {
             while (!foundBrowser && enumerator.hasMoreElements())
             {
                 var win = enumerator.getNext();
-                KFLog.debug("found window with name:" + win.name);
+                keefox_org.Logger.debug("found window with name:" + win.name);
                 tabbrowser = win.getBrowser(); 
                 foundBrowser = tabbrowser.getBrowserForDocument(
                                                   this._document);
@@ -761,13 +759,13 @@ KFUI.prototype = {
             // Return the notificationBox associated with the browser.
             if (foundBrowser)
             {
-                KFLog.debug("found a browser for this window.");
+                keefox_org.Logger.debug("found a browser for this window.");
                 return tabbrowser.getNotificationBox(foundBrowser)
             }
 
         } catch (e) {
             // If any errors happen, just assume no notification box.
-            KFLog.error("No notification box available: " + e)
+            keefox_org.Logger.error("No notification box available: " + e)
         }
 
         return null;

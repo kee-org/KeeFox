@@ -162,10 +162,10 @@ function prepareInstallPage()
         else
             installCase = 4;
 
-    mainWindow.KFLog.info("applying installation case " + installCase);
+    mainWindow.keefox_org.Logger.info("applying installation case " + installCase);
  
     // comment this out to enable normal operation or uncomment to specify a test case
-    //installCase = 5; mainWindow.KFLog.warn("Overriding with installation case " + installCase);
+    //installCase = 5; mainWindow.keefox_org.Logger.warn("Overriding with installation case " + installCase);
 
 // configure the current installation state and trigger any relevant pre-emptive file
 // downloads to keep the end user experience as fast as possible
@@ -175,7 +175,7 @@ function prepareInstallPage()
             showSection('setupExeInstallButtonMain');
             showSection('setupNET35ExeInstallExpandee');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1PriDownload",
+            persist = mainWindow.keefox_org.KFdownloadFile("IC1PriDownload",
                 KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
             break;
         case 2: 
@@ -184,7 +184,7 @@ function prepareInstallPage()
             installState = KF_INSTALL_STATE_NET_EXECUTED 
                 | KF_INSTALL_STATE_KP_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
                 var d = new Date();
-            persist = mainWindow.KFdownloadFile("IC2PriDownload",
+            persist = mainWindow.keefox_org.KFdownloadFile("IC2PriDownload",
                 KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 3: 
@@ -197,7 +197,7 @@ function prepareInstallPage()
             showSection('setupExeInstallButtonMain');
             //showSection('nonAdminNETInstallExpander');
             installState = KF_INSTALL_STATE_NET_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
-            persist = mainWindow.KFdownloadFile("IC1PriDownload",
+            persist = mainWindow.keefox_org.KFdownloadFile("IC1PriDownload",
                 KF_NET_DOWNLOAD_PATH + KF_NET_FILE_NAME, KF_NET_FILE_NAME, mainWindow, window, persist);
                 // using IC1 since same process is followed from now on...
             break;
@@ -207,7 +207,7 @@ function prepareInstallPage()
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KPZIP_DOWNLOADING 
                 | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             var d = new Date();
-            persist = mainWindow.KFdownloadFile("IC5PriDownload",
+            persist = mainWindow.keefox_org.KFdownloadFile("IC5PriDownload",
                 KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
             break;
         case 6: 
@@ -285,7 +285,7 @@ function hideSection(id) {
 }
 
 function checksumFailed() {
-mainWindow.KFLog.error("File checksum failed. Download corrupted?");
+mainWindow.keefox_org.Logger.error("File checksum failed. Download corrupted?");
 showSection("ERRORInstallDownloadChecksumFailed");
 showSection('restartInstallationOption');
 }
@@ -356,11 +356,11 @@ function IC1setupKP(mainWindow)
             if (installState & KF_INSTALL_STATE_NET_EXECUTED)
                 hideSection('IC1setupNETdownloaded');
                 
-            var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
+            var checkTest = mainWindow.keefox_org.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
             hideSection('IC1setupKPdownloading'); // if applicable (probably this was never shown)
             if (checkTest)
-                mainWindow.KFLog.info("File checksum succeeded.");
+                mainWindow.keefox_org.Logger.info("File checksum succeeded.");
             else
             {
                 checksumFailed();
@@ -385,7 +385,7 @@ function IC1setupKP(mainWindow)
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
                         var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
+                        var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
                 }
@@ -408,11 +408,11 @@ function IC1setupNET(mainWindow)
         if ((installState & KF_INSTALL_STATE_NET_DOWNLOADED)
             && (installState & KF_INSTALL_STATE_SELECTED_PRI))
         {
-            var checkTest = mainWindow.KFMD5checksumVerification(KF_NET_FILE_NAME,KF_NET_FILE_CHECKSUM);
+            var checkTest = mainWindow.keefox_org.KFMD5checksumVerification(KF_NET_FILE_NAME,KF_NET_FILE_CHECKSUM);
             
             hideSection('IC1setupNETdownloading');
             if (checkTest)
-                mainWindow.KFLog.info("File checksum succeeded.");
+                mainWindow.keefox_org.Logger.info("File checksum succeeded.");
             else
             {
                 checksumFailed();
@@ -423,7 +423,7 @@ function IC1setupNET(mainWindow)
             // start the pre-download of the KeePass setup file (while user installs .Net...)
             installState |= KF_INSTALL_STATE_KP_DOWNLOADING;
             var d = new Date();
-            persist = mainWindow.KFdownloadFile("IC1PriDownload",
+            persist = mainWindow.keefox_org.KFdownloadFile("IC1PriDownload",
                 KF_KP_DOWNLOAD_PATH + KF_KP_FILE_NAME + Math.round((d.getTime()/1000)-10), KF_KP_SAVE_NAME, mainWindow, window, persist);
             
             installState |= KF_INSTALL_STATE_NET_EXECUTING;
@@ -443,7 +443,7 @@ function IC1setupNET(mainWindow)
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
                         var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
+                        var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
                 }
@@ -527,11 +527,11 @@ function IC2setupKP(mainWindow)
         if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED)
             && (installState & KF_INSTALL_STATE_SELECTED_PRI))
         {
-            var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
+            var checkTest = mainWindow.keefox_org.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
             hideSection('IC2setupKPdownloading'); // if applicable
             if (checkTest)
-                mainWindow.KFLog.info("File checksum succeeded.");
+                mainWindow.keefox_org.Logger.info("File checksum succeeded.");
             else
             {
                 checksumFailed();
@@ -556,7 +556,7 @@ function IC2setupKP(mainWindow)
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
                         var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
+                        var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
                 }
@@ -578,11 +578,11 @@ function IC2setupCustomKP(mainWindow)
         if ((installState & KF_INSTALL_STATE_KP_DOWNLOADED)
             && (installState & KF_INSTALL_STATE_SELECTED_SEC))
         {
-            var checkTest = mainWindow.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
+            var checkTest = mainWindow.keefox_org.KFMD5checksumVerification(KF_KP_SAVE_NAME,KF_KP_FILE_CHECKSUM);
             
             hideSection('IC2setupKPdownloading'); // if applicable (probably this was never shown)
             if (checkTest)
-                mainWindow.KFLog.info("File checksum succeeded.");
+                mainWindow.keefox_org.Logger.info("File checksum succeeded.");
             else
             {
                 checksumFailed();
@@ -607,7 +607,7 @@ function IC2setupCustomKP(mainWindow)
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
                         var mainWindow = mainWin.keefox_org.ILM._currentWindow;
-                        var kth = new mainWindow.KFmainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
+                        var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
                 }
@@ -647,11 +647,11 @@ function IC5zipKP()
     if ((installState & KF_INSTALL_STATE_KPZIP_DOWNLOADED)
         && (installState & KF_INSTALL_STATE_SELECTED_TER))
     {
-        var checkTest = mainWindow.KFMD5checksumVerification(KF_KPZIP_SAVE_NAME, KF_KPZIP_FILE_CHECKSUM);
+        var checkTest = mainWindow.keefox_org.KFMD5checksumVerification(KF_KPZIP_SAVE_NAME, KF_KPZIP_FILE_CHECKSUM);
         
         hideSection('IC5zipKPdownloading');
         if (checkTest)
-            mainWindow.KFLog.info("File checksum succeeded.");
+            mainWindow.keefox_org.Logger.info("File checksum succeeded.");
         else
         {
             checksumFailed()
@@ -682,7 +682,7 @@ function IC5zipKP()
                     //TODO2: probably should store the file object
                     // itself rather than string version (X-Plat)
             KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(path+"\\");
-            mainWindow.KFLog.info("KeePass install location set to: " + path+"\\");
+            mainWindow.keefox_org.Logger.info("KeePass install location set to: " + path+"\\");
             if (!KeePassEXEfound)
             {
                 //TODO2: permissions, failures, missing directories, etc. etc.
@@ -693,7 +693,7 @@ function IC5zipKP()
                         //TODO2: probably should store the file object
                         // itself rather than string version (X-Plat)
                 KeePassEXEfound = mainWindow.keeFoxInst._confirmKeePassInstallLocation(path+"\\");
-                mainWindow.KFLog.info("KeePass install location set to: " + path+"\\");
+                mainWindow.keefox_org.Logger.info("KeePass install location set to: " + path+"\\");
                 if (!KeePassEXEfound)
                 {
                     mainWindow.keeFoxInst._keeFoxExtension.prefs.setValue("keePassInstalledLocation","");
@@ -831,7 +831,7 @@ function copyKPToSpecificLocationInstall()
     {
         installState |= KF_INSTALL_STATE_KPZIP_DOWNLOADING | KF_INSTALL_STATE_KRPC_DOWNLOADED;
         var d = new Date();
-        persist = mainWindow.KFdownloadFile("IC5PriDownload",
+        persist = mainWindow.keefox_org.KFdownloadFile("IC5PriDownload",
             KF_KPZIP_DOWNLOAD_PATH + KF_KPZIP_FILE_NAME + Math.round((d.getTime()/1000)-10),
             KF_KPZIP_SAVE_NAME, mainWindow, window, persist);
     }
@@ -906,11 +906,11 @@ function userHasAdminRights(mainWindow)
     isAdmin = mainWindow.keeFoxInst.IsUserAdministrator();
     if (isAdmin)
     {
-        mainWindow.KFLog.info("User has administrative rights");
+        mainWindow.keefox_org.Logger.info("User has administrative rights");
         return true;
     } else
     {
-        mainWindow.KFLog.info("User does not have administrative rights");
+        mainWindow.keefox_org.Logger.info("User does not have administrative rights");
         return false;
     }
 }
@@ -950,7 +950,7 @@ function checkDotNetFramework(mainWindow)
                                 if (subkey4a.readIntValue("Install") == 1)
                                 {
                                     dotNetFrameworkFound = true;
-                                    mainWindow.KFLog.info(".NET framework has been found");
+                                    mainWindow.keefox_org.Logger.info(".NET framework has been found");
                                 }
                             }
                             subkey4a.close();
@@ -966,7 +966,7 @@ function checkDotNetFramework(mainWindow)
                                     if (subkey4b1.readIntValue("Install") == 1)
                                     {
                                         dotNetFrameworkFound = true;
-                                        mainWindow.KFLog.info(".NET framework has been found");
+                                        mainWindow.keefox_org.Logger.info(".NET framework has been found");
                                     }
                                 }
                                 subkey4b1.close();
@@ -979,7 +979,7 @@ function checkDotNetFramework(mainWindow)
                                     if (subkey4b2.readIntValue("Install") == 1)
                                     {
                                         dotNetFrameworkFound = true;
-                                        mainWindow.KFLog.info(".NET framework has been found");
+                                        mainWindow.keefox_org.Logger.info(".NET framework has been found");
                                     }
                                 }
                                 subkey4b2.close();
