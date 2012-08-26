@@ -282,6 +282,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\content\famsOptions.xul" />
     <None Include="KeeFox\chrome\content\groupChooser.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
     </None>
     <None Include="KeeFox\install.rdf">
       <SubType>Designer</SubType>

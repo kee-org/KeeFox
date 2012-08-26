@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
@@ -126,7 +126,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                         window.keeFoxInst._keeFoxVariableInit();
                         if (window.keeFoxInst._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
                         {
-                            currentLocation = window.keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation","");
+                            var currentLocation = window.keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation","");
                             window.keefox_org.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
                             window.keeFoxInst.changeLocation(currentLocation);
                         }
@@ -193,7 +193,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             if (this.tokenCurlyCount == 0 && this.tokenSquareCount == 0)
             {
                 var obj = null;
-                fullData = data.substr(lastPacketEndIndex,i-lastPacketEndIndex+1);
+                var fullData = data.substr(lastPacketEndIndex,i-lastPacketEndIndex+1);
                 
                 // if we're looking at only part of the full message we'll patch the previous bit together now
                 if (session in this.partialData)

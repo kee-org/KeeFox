@@ -77,14 +77,14 @@
               <vbox id="Install_monoManual" hidden="false">
                 <description class="mono-header">&KeeFox_Install_monoManual.description;</description>
                 <description id="monoManualStep1_description">&KeeFox_Install_monoManualStep1.description;</description>
-                <label href="http://www.go-mono.com/mono-downloads/download.html" class="text-link">http://www.go-mono.com/mono-downloads/download.html</label>
+                <html:a target="_blank" href="http://www.go-mono.com/mono-downloads/download.html" class="text-link">http://www.go-mono.com/mono-downloads/download.html</html:a>
                 <description id="monoManualStep2_description">&KeeFox_Install_monoManualStep2.description;</description>
-		<label href="http://keepass.info/download.html" class="text-link">http://keepass.info/download.html</label>
+                <html:a target="_blank" href="http://keepass.info/download.html" class="text-link">http://keepass.info/download.html</html:a>
                 <description id="monoManualStep3_description">&KeeFox_Install_monoManualStep3.description;</description>
                 <description id="monoManualStep4_description">&KeeFox_Install_monoManualStep4.description;</description>
                 <description id="monoManualStep5_description">&KeeFox_Install_monoManualStep5.description;</description>
                 <description id="monoManualStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
-                <description id="monoManualStep5a_description" class="text-link"></description>
+                <html:a target="_blank" id="monoManualStep5a_link" href="http://temp" class="text-link"></html:a>
               </vbox>
               
               <vbox id="Install_monoManualUpgrade" hidden="true">
@@ -92,7 +92,7 @@
                 <description id="monoManualUpgradeStep1_description">&KeeFox_Install_monoManualUpgradeStep1.description;</description>
                 <description id="monoManualUpgradeStep2_description">&KeeFox_Install_monoManualUpgradeStep2.description;</description>
                 <description id="monoManualUpgradeStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
-                <description id="monoManualUpgradeStep5a_description" class="text-link"></description>
+                <html:a target="_blank" id="monoManualUpgradeStep5a_link" href="http://temp" class="text-link"></html:a>
               </vbox>
 
               <vbox id="Install_monoManual2" hidden="false">

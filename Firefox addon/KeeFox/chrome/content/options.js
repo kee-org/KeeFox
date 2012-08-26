@@ -1,4 +1,4 @@
-"use strict";
+"use non-strict";
 
 let Cu = Components.utils;
 

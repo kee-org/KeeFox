@@ -22,7 +22,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -287,7 +287,7 @@ KeeFox.prototype = {
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
-        sensistiveLoggingEnabled = window.keeFoxInst._keeFoxExtension.prefs.getValue("logSensitiveData", false);
+        var sensistiveLoggingEnabled = window.keeFoxInst._keeFoxExtension.prefs.getValue("logSensitiveData", false);
         if (sensistiveLoggingEnabled)
             window.keefox_org.UI._showSensitiveLogEnabledNotification();
     },
@@ -347,7 +347,7 @@ KeeFox.prototype = {
         // Checking only the OS does not allow running Mono under Windows.
         // Therefore, if the user has set a Mono executable location in the prefs, we will
         // assume that they want to run under mono.
-        userHasSetMonoLocation = this._keeFoxExtension.prefs.getValue("monoLocation", "");
+        var userHasSetMonoLocation = this._keeFoxExtension.prefs.getValue("monoLocation", "");
         
         if ((this.os != "WINNT") || (userHasSetMonoLocation != ""))
         {
@@ -1401,7 +1401,7 @@ KeeFox.prototype = {
         folder.append("keefox");
 
         if (!folder.exists())
-            folder.create(folder.DIRECTORY_TYPE, 0775);
+            folder.create(folder.DIRECTORY_TYPE, parseInt("0775", 8));
 
         return folder;
     },

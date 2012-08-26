@@ -21,7 +21,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 let Cu = Components.utils;
 
@@ -111,8 +111,8 @@ keefox_org.toolbar = {
 
         var merging = true;
         // find or create a popup menu to hold the logins
-        var menuPopup = this._currentWindow.document.getElementById("KeeFox_Main-ButtonPopup");
-        if (menuPopup == undefined || menuPopup == null) {
+        var menupopup = this._currentWindow.document.getElementById("KeeFox_Main-ButtonPopup");
+        if (menupopup == undefined || menupopup == null) {
             menupopup = this._currentWindow.document.createElement("menupopup");
             menupopup.id = "KeeFox_Main-ButtonPopup";
             merging = false;
@@ -527,7 +527,7 @@ keefox_org.toolbar = {
         else
             flashyItem.setAttribute("class", "highlight");
 
-        theWindow.setTimeout(arguments.callee, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
+        theWindow.setTimeout(keefox_org.toolbar.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
     },
 
     detachMRUpopup: function () {

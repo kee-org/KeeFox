@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 
 // whether we're upgrading from a previous version
@@ -80,10 +80,13 @@ function prepareMonoInstallPage()
   dir.append("extensions");
   dir.append("keefox@chris.tomlinson");
   dir.append("deps");
-  if (KFupgradeMode)
-    document.getElementById('monoManualUpgradeStep5a_description').textContent = dir.path;
-  else
-    document.getElementById('monoManualStep5a_description').textContent = dir.path;
+  if (KFupgradeMode) {
+      document.getElementById('monoManualUpgradeStep5a_link').textContent = dir.path;
+      document.getElementById('monoManualUpgradeStep5a_link').setAttribute('href', 'file:///' + dir.path);
+  }  else {
+      document.getElementById('monoManualStep5a_link').textContent = dir.path;
+      document.getElementById('monoManualStep5a_link').setAttribute('href', 'file:///'+dir.path);
+  }
 
   var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
     getService(Components.interfaces.nsIProperties);

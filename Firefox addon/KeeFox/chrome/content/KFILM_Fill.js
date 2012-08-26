@@ -23,7 +23,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 let Cu = Components.utils;
 
@@ -633,7 +633,7 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
     keefox_org.Logger.debug("The most relevant form is #" + mostRelevantFormIndex);
     
     // from now on we concentrate on just the most relevant form and the fields we found earlier
-    form = findLoginDoc.forms[mostRelevantFormIndex];
+    var form = findLoginDoc.forms[mostRelevantFormIndex];
     var passwordFields = findLoginDoc.passwordFieldsArray[mostRelevantFormIndex];
     var usernameIndex = findLoginDoc.usernameIndexArray[mostRelevantFormIndex];
     var otherFields = findLoginDoc.otherFieldsArray[mostRelevantFormIndex];

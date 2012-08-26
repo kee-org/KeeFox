@@ -42,7 +42,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -103,7 +103,7 @@ KeeFoxLogger.prototype = {
             folder.append("keefox");
         
             if (!folder.exists())
-                folder.create(folder.DIRECTORY_TYPE, 0775);
+                folder.create(folder.DIRECTORY_TYPE, parseInt("0775", 8));
                 
             var file = Components.classes["@mozilla.org/file/local;1"]
                 .createInstance(Components.interfaces.nsILocalFile);
@@ -124,7 +124,7 @@ KeeFoxLogger.prototype = {
                                  createInstance(Components.interfaces.nsIFileOutputStream);
 
         // write, create if doesn't already exist, append to end
-        foStream.init(this._logFile, 0x02 | 0x08 | 0x10, 0666, 0);
+        foStream.init(this._logFile, 0x02 | 0x08 | 0x10, parseInt("0666", 8), 0);
         var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
                                   createInstance(Components.interfaces.nsIConverterOutputStream);
         converter.init(foStream, "UTF-8", 0, 0);
