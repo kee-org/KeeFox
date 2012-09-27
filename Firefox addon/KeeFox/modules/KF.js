@@ -1415,13 +1415,18 @@ KeeFox.prototype = {
         // nsObserver
         observe : function (subject, topic, data)
         {
-            keefox_org.Logger.debug("Observed an event: " + subject + "," + topic + "," + data);
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                       .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                         wm.getMostRecentWindow("mail:3pane");
+            window.keeFoxInst._KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
+
             switch(topic)
             {
                 case "quit-application":
-                    keefox_org.Logger.info("Application is shutting down...");
-                    _kf.shutdown();
-                    keefox_org.Logger.info("KeeFox has nearly shut down.");
+                    window.keeFoxInst._KFLog.info("Application is shutting down...");
+                    window.keeFoxInst.shutdown();
+                    window.keeFoxInst._KFLog.info("KeeFox has nearly shut down.");
                     var observerService = Cc["@mozilla.org/observer-service;1"].
                                   getService(Ci.nsIObserverService);
                     observerService.removeObserver(this, "quit-application");
@@ -1429,7 +1434,7 @@ KeeFox.prototype = {
                     this._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch2);
                     this._prefBranchRoot.removeObserver("signon.rememberSignons", this);
                     
-                    keefox_org.Logger.info("KeeFox has shut down. Sad times; come back soon!");
+                    window.keeFoxInst._KFLog.info("KeeFox has shut down. Sad times; come back soon!");
                     break;
                 case "nsPref:changed":
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -1463,7 +1468,7 @@ KeeFox.prototype = {
                         + " the built-in Firefox password manager?",
                                flags, "", "", "", null, {}) == 0)
                     {
-                      this._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
+                      prefBranch.setBoolPref("signon.rememberSignons", false);
                     }
                     break;
                 case "logLevel":
@@ -1473,15 +1478,15 @@ KeeFox.prototype = {
                 case "logMethodStdOut":
                 case "logSensitiveData":
                     // Allow the change to go ahead but warn the user (in case they did not understand the change that was made)
-                    keefox_org.Logger.configureFromPreferences();
-                    _kf.oneOffSensitiveLogCheckHandler();
+                    window.keeFoxInst._KFLog.configureFromPreferences();
+                    window.keeFoxInst.oneOffSensitiveLogCheckHandler();
                     break;
                 case "dynamicFormScanning":
                     //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
                     if (keeFoxInst._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-                        window.keefox_org.ILM._refillTimer.init(window.keefox_org.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                        window.keeFoxInst.ILM._refillTimer.init(window.keefox_org.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                     else
-                        window.keefox_org.ILM._refillTimer.cancel();
+                        window.keeFoxInst.ILM._refillTimer.cancel();
                     break;
                 case "currentLocation":
                     //tell KeePass this has changed
