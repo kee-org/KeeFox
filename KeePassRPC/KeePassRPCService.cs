@@ -344,21 +344,24 @@ namespace KeePassRPC
             // refresh the UI in case user cancelled the dialog box and/or KeePass native calls have left us in a bit of a weird state
             host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
 
-            // if user cancels login dialog, leave KeePass as the focussed App otherwise set things back how they were
-            //if (showOpenDB(ioci))
-            if (true) // testing new approach - always put things back the way they should be
+            // Set the program state back to what is was unless the user has
+            // configured "lock on minimise" in which case we always set it to Normal
+            if (!KeePass.Program.Config.Security.WorkspaceLocking.LockOnWindowMinimize)
             {
-                KeePass.Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
-
-                if (trayed)
-                {
-                    KeePass.Program.MainForm.Visible = false;
-                    KeePass.Program.MainForm.UpdateTrayIcon();
-                }
-
-                // Make Firefox active again
-                Native.EnsureForegroundWindow(ffWindow);
+                minimised = false;
+                trayed = false;
             }
+            
+            KeePass.Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
+
+            if (trayed)
+            {
+                KeePass.Program.MainForm.Visible = false;
+                KeePass.Program.MainForm.UpdateTrayIcon();
+            }
+
+            // Make Firefox active again
+            Native.EnsureForegroundWindow(ffWindow);
         }
 
         bool showOpenDB(IOConnectionInfo ioci)
