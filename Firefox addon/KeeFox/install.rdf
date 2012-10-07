@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.1.2</em:version>
+    <em:version>1.1.3a1</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -19,7 +19,7 @@
         <!-- Firefox -->
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>4.0</em:minVersion>
-        <em:maxVersion>16.*</em:maxVersion>
+        <em:maxVersion>17.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -34,6 +34,7 @@
 
     <em:targetPlatform>WINNT</em:targetPlatform>
     <em:targetPlatform>Linux</em:targetPlatform>
+    <em:targetPlatform>Darwin</em:targetPlatform>
 
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
