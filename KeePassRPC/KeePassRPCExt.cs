@@ -502,21 +502,36 @@ namespace KeePassRPC
 
             if (dr != DialogResult.OK) return;
 
-            KeePassLib.Keys.CompositeKey key;
+            KeePassLib.Keys.CompositeKey key = null;
             KeyCreationSimpleForm kcsf = new KeyCreationSimpleForm();
-            kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
-            dr = kcsf.ShowDialog(_host.MainWindow);
-            if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
-            if (dr == DialogResult.No)
+            bool showUsualKeePassKeyCreationDialog = false;
+
+            // Don't show the simple key creation form if the user has set
+            // security policies that restrict the allowable composite key sources
+            if (KeePass.Program.Config.UI.KeyCreationFlags == 0)
+            {            
+                kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
+                dr = kcsf.ShowDialog(_host.MainWindow);
+                if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
+                if (dr == DialogResult.No)
+                {
+                    showUsualKeePassKeyCreationDialog = true;
+                } else
+                {
+                    key = kcsf.CompositeKey;
+                }
+            } else
+            {
+                showUsualKeePassKeyCreationDialog = true;
+            }
+
+            if (showUsualKeePassKeyCreationDialog)
             {
                 KeyCreationForm kcf = new KeyCreationForm();
                 kcf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
                 dr = kcf.ShowDialog(_host.MainWindow);
                 if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
                 key = kcf.CompositeKey;
-            } else
-            {
-                key = kcsf.CompositeKey;
             }
 
             PwDocument dsPrevActive = _host.MainWindow.DocumentManager.ActiveDocument;
