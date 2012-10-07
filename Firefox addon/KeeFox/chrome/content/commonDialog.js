@@ -658,17 +658,23 @@ var keeFoxDialogManager = {
     
     kfCommonDialogOnAccept : function ()
     {
-        if (Dialog.args.promptType == "prompt" ||
-            Dialog.args.promptType == "promptUserAndPass" ||
-            Dialog.args.promptType == "promptPassword")
+        try
         {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            if (parentWindow.keefox_org.ILM._getSaveOnSubmitForSite(this.host))
-                parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
-                    document.getElementById("password1Textbox").value, this.host, this.realm);
+            if (Dialog.args.promptType == "prompt" ||
+                Dialog.args.promptType == "promptUserAndPass" ||
+                Dialog.args.promptType == "promptPassword")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                         .getService(Components.interfaces.nsIWindowMediator);
+                var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
+                    wm.getMostRecentWindow("mail:3pane");
+                if (parentWindow.keefox_org.ILM._getSaveOnSubmitForSite(this.host))
+                    parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
+                        document.getElementById("password1Textbox").value, this.host, this.realm);
+            }
+        } catch (ex)
+        {
+            // Do nothing (probably KeeFox has not initialised yet / properly)
         }
         Dialog.onButton0();
     }
