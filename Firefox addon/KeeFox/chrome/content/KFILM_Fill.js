@@ -420,6 +420,10 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
         return;
     }
 
+    //TODO: Establish config given this page URL (may need to do it earlier but definitley by here)
+    // see also ln 572 in KFILM
+    var config = kf.config.getConfigForURL("");
+
     // if we're not logged in to KeePass then we should prompt user (or not)
     if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
     {
@@ -508,6 +512,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
         findLoginDoc.passwordFieldsArray[i] = passwordFields;
         findLoginDoc.otherFieldsArray[i] = otherFields;
         
+        //TODO: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC!
         // Only the actionOrigin might be changing, so if it's the same
         // as the last form on the page we can reuse the same logins.
         var actionOrigin = this._getURIHostAndPort(this._getActionOrigin(form));
