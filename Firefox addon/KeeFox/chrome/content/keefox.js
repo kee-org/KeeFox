@@ -50,8 +50,8 @@ if (keefox_win.shouldLoad)
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
-    //moved higher - hope that's OK... 
-    Cu.import("resource://kfmod/KF.js");
+
+    Cu.import("resource://kfmod/KF.jsm");
     keefox_win.Logger.debug("got sessionstore-windows-restored1");
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
     keefox_win.Logger.debug("got sessionstore-windows-restored2");

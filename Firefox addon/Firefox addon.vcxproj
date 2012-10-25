@@ -107,6 +107,10 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <PostBuildEvent>
       <Command>echo POSTBUILDSTEP for $(ProjectName)
 
+pushd "$(ProjectDir)KeeFox\modules"
+copy KF.js+config.js KF.jsm
+popd
+
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
 if errorlevel 1 goto BuildEventFailed
 
