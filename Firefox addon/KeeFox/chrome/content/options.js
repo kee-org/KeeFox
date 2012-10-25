@@ -21,7 +21,7 @@ function addExcludedItem()
         document.getElementById('excludedSitesList').appendItem(input.value, input.value);
 
         //add new item to database
-        var statement = window.keefox_org.ILM._kf._keeFoxExtension.db.conn.createStatement(
+        var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(
             "INSERT OR REPLACE INTO sites (id,url,tp,preventSaveNotification) VALUES ( (select id from sites where url = :url), :url, coalesce((select tp from sites where url = :url),0), 1  )");
         statement.params.url = input.value;
         statement.executeAsync();
@@ -40,7 +40,7 @@ function removeExcludedItem()
     while (count--)
     {
         var item = list.selectedItems[0];
-        var statement = window.keefox_org.ILM._kf._keeFoxExtension.db.conn.createStatement(
+        var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(
             "UPDATE sites SET preventSaveNotification = 0 WHERE url = :url");
         statement.params.url = item.value;
         statement.executeAsync();
@@ -55,7 +55,7 @@ function onLoad(){
         wm.getMostRecentWindow("mail:3pane");
         
     // find all URLs we want to excluded
-    var statement = window.keefox_org.ILM._kf._keeFoxExtension.db.conn.createStatement(
+    var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(
         "SELECT * FROM sites WHERE tp = 0 AND preventSaveNotification = 1");
 
     // add those URLs to the listbox
@@ -231,7 +231,7 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
     var window = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
             
-    var dialogName = window.keefox_org.toolbar.strbundle.getString(captionStringKey);
+    var dialogName = window.keefox_win.toolbar.strbundle.getString(captionStringKey);
     
     fp.init(window, dialogName, pickerMode);
     
@@ -281,7 +281,7 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
 //                 .getService(Components.interfaces.nsIWindowMediator);
 //        var window = wm.getMostRecentWindow("navigator:browser") ||
 //            wm.getMostRecentWindow("mail:3pane");
-//        var rootGroup = window.keefox_org.ILM._kf.KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
+//        var rootGroup = window.keefox_win.ILM._kf.KeePassDatabases[window.keefox_win.ILM._kf.ActiveKeePassDatabaseIndex].root;
 //keePassGroupTree.addTopObject(rootGroup, true);
 
 //  tree.view = keePassGroupTree;

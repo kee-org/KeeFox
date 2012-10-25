@@ -255,17 +255,17 @@ kfLoginInfo.prototype =
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
-    //window.keefox_org.Logger.debug("aa");
+    //window.keefox_win.Logger.debug("aa");
         if (this.URLs.length != URLs.length)
             return false;
-            //window.keefox_org.Logger.debug("ab");
+            //window.keefox_win.Logger.debug("ab");
         for (let i = 0; i < URLs.length; i++)
         {
             var url1 = URLs[i];
             for (let j = 0; j < this.URLs.length; j++)
             {
                 var url2 = this.URLs[j];
-            //window.keefox_org.Logger.debug("ac:"+url1+":"+url2);
+            //window.keefox_win.Logger.debug("ac:"+url1+":"+url2);
                 if (!ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
                     return false;
                 else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
@@ -337,7 +337,7 @@ kfLoginInfo.prototype =
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
 
-        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_org.ILM))
+        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_win.ILM))
             return false;
 
         if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
@@ -353,12 +353,12 @@ kfLoginInfo.prototype =
         if (this.formActionURL != "" && aLogin.formActionURL != "")
         {
             if (ignoreURIPathsAndSchemes 
-                && window.keefox_org.ILM._getURISchemeHostAndPort(aLogin.formActionURL)
-                    != window.keefox_org.ILM._getURISchemeHostAndPort(this.formActionURL))
+                && window.keefox_win.ILM._getURISchemeHostAndPort(aLogin.formActionURL)
+                    != window.keefox_win.ILM._getURISchemeHostAndPort(this.formActionURL))
                 return false;
             else if (!ignoreURIPathsAndSchemes 
-                && ignoreURIPaths && window.keefox_org.ILM._getURIHostAndPort(aLogin.formActionURL) 
-                    != window.keefox_org.ILM._getURIHostAndPort(this.formActionURL))
+                && ignoreURIPaths && window.keefox_win.ILM._getURIHostAndPort(aLogin.formActionURL) 
+                    != window.keefox_win.ILM._getURIHostAndPort(this.formActionURL))
                 return false;
             else if (!ignoreURIPathsAndSchemes 
                 && !ignoreURIPaths 

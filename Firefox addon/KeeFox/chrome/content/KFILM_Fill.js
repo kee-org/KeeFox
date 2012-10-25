@@ -29,27 +29,27 @@ let Cu = Components.utils;
 
 Cu.import("resource://kfmod/kfDataModel.js");
 
-keefox_org.ILM._fillManyFormFields = function 
+keefox_win.ILM._fillManyFormFields = function 
     (pageFields, matchFields, currentTabPage, overWriteFieldsAutomatically)
 {
-    keefox_org.Logger.debug("_fillManyFormFields started");
+    keefox_win.Logger.debug("_fillManyFormFields started");
     
     if (pageFields == null || pageFields == undefined || matchFields == null || matchFields == undefined)
         return;
     
-    keefox_org.Logger.debug("We've received the data we need");
+    keefox_win.Logger.debug("We've received the data we need");
     
     var validTabPage = true;
     
     if (currentTabPage <= 0)
         validTabPage = false;
         
-    keefox_org.Logger.info("Filling form fields for page "+currentTabPage);
+    keefox_win.Logger.info("Filling form fields for page "+currentTabPage);
     
     if (overWriteFieldsAutomatically)
-        keefox_org.Logger.info("Auto-overwriting fields");
+        keefox_win.Logger.info("Auto-overwriting fields");
     else
-        keefox_org.Logger.info("Not auto-overwriting fields");
+        keefox_win.Logger.info("Not auto-overwriting fields");
     
     var matchedValues = []; // value of the matched field (so we don't have to go through XPCOM again)
     var backupMatchedValues = []; // used to keep track of a less preferred option just in case we don't find any suitable matches.
@@ -67,7 +67,7 @@ keefox_org.ILM._fillManyFormFields = function
     for (var i = 0; i < pageFields.length; i++)
     {
         var foundADefiniteMatch = false;
-        keefox_org.Logger.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
+        keefox_win.Logger.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
         
         for (var j = 0; j < matchFields.length; j++)
         {
@@ -97,7 +97,7 @@ keefox_org.ILM._fillManyFormFields = function
                 matchedValues[j] = matchedField.value;
                 matchedIds[j] = i;
                 foundADefiniteMatch = true;
-                keefox_org.Logger.debug("Data field "+j+" is a match for form field " + i);
+                keefox_win.Logger.debug("Data field "+j+" is a match for form field " + i);
                 break;
             }
         }
@@ -105,7 +105,7 @@ keefox_org.ILM._fillManyFormFields = function
         // find by name instead (except for radio buttons which we know have multiple fields per name)
         if (!foundADefiniteMatch && pageFields[i].type != "radio")
         {
-            keefox_org.Logger.info("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
+            keefox_win.Logger.info("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
             for (j = 0; j < matchFields.length; j++)
             {
                 // if we have already identified a form field that we want
@@ -134,7 +134,7 @@ keefox_org.ILM._fillManyFormFields = function
                     matchedValues[j] = matchedField.value;
                     matchedIds[j] = i;
                     foundADefiniteMatch = true;
-                    keefox_org.Logger.debug("Data field "+j+" is a match for form field " + i);
+                    keefox_win.Logger.debug("Data field "+j+" is a match for form field " + i);
                     break;
                 }
             }
@@ -147,7 +147,7 @@ keefox_org.ILM._fillManyFormFields = function
            ))
         {
             // Look for 2nd-best match. Need to pick the first suitable value we come across
-            keefox_org.Logger.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
+            keefox_win.Logger.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
             for (j = 0; j < matchFields.length; j++)
             {
                 // if we have already identified a form field that we want
@@ -175,7 +175,7 @@ keefox_org.ILM._fillManyFormFields = function
                     // all of these matches are considered backup options only...
                     backupMatchedValues[j] = matchedField.value;
                     backupMatchedIds[j] = i;
-                    keefox_org.Logger.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
+                    keefox_win.Logger.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
                 }
             }
         }
@@ -189,10 +189,10 @@ keefox_org.ILM._fillManyFormFields = function
 
         if (matchedValues[i] != undefined && matchedValues[i] != null && matchedValues[i] != "")
         {
-            if (keefox_org.Logger.logSensitiveData)
-                keefox_org.Logger.info("We will populate field "+matchedIds[i]+" with: "+matchedValues[i]);
+            if (keefox_win.Logger.logSensitiveData)
+                keefox_win.Logger.info("We will populate field "+matchedIds[i]+" with: "+matchedValues[i]);
             else
-                keefox_org.Logger.info("We will populate field "+matchedIds[i]+".");
+                keefox_win.Logger.info("We will populate field "+matchedIds[i]+".");
             
             if (pageFields[matchedIds[i]].type == "select-one")
             {
@@ -215,13 +215,13 @@ keefox_org.ILM._fillManyFormFields = function
             
         if (backupMatchedValues[i] == undefined || backupMatchedValues[i] == null || backupMatchedValues[i] == "")
         {
-            keefox_org.Logger.info("We could not find a suitable match so not filling any field with supplied login field id " + i);
+            keefox_win.Logger.info("We could not find a suitable match so not filling any field with supplied login field id " + i);
         } else
         {
-            if (keefox_org.Logger.logSensitiveData)
-                keefox_org.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice: "+backupMatchedValues[i]);
+            if (keefox_win.Logger.logSensitiveData)
+                keefox_win.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice: "+backupMatchedValues[i]);
             else
-                keefox_org.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
+                keefox_win.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
             
             if (pageFields[backupMatchedIds[i]].type == "select-one")
             {
@@ -245,9 +245,9 @@ keefox_org.ILM._fillManyFormFields = function
  * Called when a page has loaded. For each form in the document,
  * we check to see if it can be filled with a stored login.
  */
-keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
+keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
 {
-    keefox_org.Logger.info("Filling document. Initial page load: " + initialPageLoad);
+    keefox_win.Logger.info("Filling document. Initial page load: " + initialPageLoad);
     
     //TODO2: maybe need to attach this var to somewhere in case it gets GCd?
     var findLoginDoc = {};
@@ -275,18 +275,18 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
                 frameDoc=frameDoc.defaultView.frameElement.ownerDocument;
         } else
         {
-            keefox_org.Logger.debug("skipping document fill (this is not the currently active tab and it is not within a frame)");
+            keefox_win.Logger.debug("skipping document fill (this is not the currently active tab and it is not within a frame)");
             return;
         }
         
         if (mainWindow.content.document != frameDoc)
         {
-            keefox_org.Logger.debug("skipping document fill (this is within a frame but it is not the currently active tab)");
+            keefox_win.Logger.debug("skipping document fill (this is within a frame but it is not the currently active tab)");
             return;
         }
     }
 
-    keefox_org.Logger.info("attempting document fill");
+    keefox_win.Logger.info("attempting document fill");
     
     findLoginDoc.uniqueID = "";
     findLoginDoc.logins = [];
@@ -314,7 +314,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
     var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                 .getService(Components.interfaces.nsISessionStore);
     findLoginDoc.ss = ss;
-    findLoginDoc.currentGBrowser = keefox_org.toolbar._currentWindow.gBrowser;
+    findLoginDoc.currentGBrowser = keefox_win.toolbar._currentWindow.gBrowser;
     var topDoc = doc;
     if (doc.defaultView.frameElement)
         while (topDoc.defaultView.frameElement)
@@ -330,8 +330,8 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
 
     if (findLoginDoc.currentTabUniqueID != undefined && findLoginDoc.currentTabUniqueID != null && findLoginDoc.currentTabUniqueID != "")
     {
-        keefox_org.Logger.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
-        keefox_org.Logger.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbFileName);
+        keefox_win.Logger.info("Found this KeePass uniqueID in the tab: " + findLoginDoc.currentTabUniqueID);
+        keefox_win.Logger.info("Found this KeePass DB root ID in the tab: " + findLoginDoc.currentTabDbFileName);
         findLoginDoc.uniqueID = findLoginDoc.currentTabUniqueID;
         findLoginDoc.dbFileName = findLoginDoc.currentTabDbFileName;
         
@@ -344,7 +344,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
 
         if (findLoginDoc.localAutoSubmitPref != undefined && findLoginDoc.localAutoSubmitPref != null && findLoginDoc.localAutoSubmitPref == "yes")
         {
-            keefox_org.Logger.debug("We must auto-submit this form.");
+            keefox_win.Logger.debug("We must auto-submit this form.");
             findLoginDoc.mustAutoSubmitForm = true;
         }
 
@@ -371,7 +371,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
             ss.deleteTabValue(findLoginDoc.currentTab, "KF_dbFileName");
         }
         
-        keefox_org.Logger.debug("deleted some tab values");
+        keefox_win.Logger.debug("deleted some tab values");
     }
 
     // If we have exceeded the maximum number of expected pages during
@@ -380,14 +380,14 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
     // are high that password or server fault occured)
     if (findLoginDoc.numberOfTabFillsRemaining != undefined && findLoginDoc.numberOfTabFillsRemaining != null && findLoginDoc.numberOfTabFillsRemaining.length > 0)
     {
-        keefox_org.Logger.info("Found this numberOfTabFillsRemaining in the tab: " + findLoginDoc.numberOfTabFillsRemaining);
+        keefox_win.Logger.info("Found this numberOfTabFillsRemaining in the tab: " + findLoginDoc.numberOfTabFillsRemaining);
         if (findLoginDoc.numberOfTabFillsRemaining == "0")
         {
             findLoginDoc.cannotAutoSubmitForm = true;
             findLoginDoc.cannotAutoFillForm = true;
             ss.deleteTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining");
-            keefox_org.Logger.debug("Not auto-filling or auto-submiting this form.");
-            keefox_org.Logger.debug("KF_numberOfTabFillsRemaining deleted");
+            keefox_win.Logger.debug("Not auto-filling or auto-submiting this form.");
+            keefox_win.Logger.debug("KF_numberOfTabFillsRemaining deleted");
         }
     }
 
@@ -416,7 +416,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
     
     if (!forms || forms.length == 0)
     {
-        keefox_org.Logger.info("No forms found on this page");
+        keefox_win.Logger.info("No forms found on this page");
         return;
     }
 
@@ -425,47 +425,47 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
     var config = kf.config.getConfigForURL("");
 
     // if we're not logged in to KeePass then we should prompt user (or not)
-    if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+    if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
     {
-        var notifyBarWhenKeePassRPCInactive = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenKeePassRPCInactive",false);
+        var notifyBarWhenKeePassRPCInactive = keefox_org._keeFoxExtension.prefs.getValue("notifyBarWhenKeePassRPCInactive",false);
         
         if (notifyBarWhenKeePassRPCInactive && initialPageLoad)
         {
-            keefox_org.UI.setWindow(doc.defaultView);
-            keefox_org.UI.setDocument(doc);
-            keefox_org.UI._showLaunchKFNotification();
+            keefox_win.UI.setWindow(doc.defaultView);
+            keefox_win.UI.setDocument(doc);
+            keefox_win.UI._showLaunchKFNotification();
         }
         
-        var flashIconWhenKeePassRPCInactive = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenKeePassRPCInactive",true);
+        var flashIconWhenKeePassRPCInactive = keefox_org._keeFoxExtension.prefs.getValue("flashIconWhenKeePassRPCInactive",true);
 
         if (flashIconWhenKeePassRPCInactive && initialPageLoad)
-            keefox_org.toolbar._currentWindow.setTimeout(keefox_org.toolbar.flashItem, 10,
-                keefox_org.toolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_org.toolbar._currentWindow);
+            keefox_win.toolbar._currentWindow.setTimeout(keefox_win.toolbar.flashItem, 10,
+                keefox_win.toolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.toolbar._currentWindow);
         return;
-    } else if (!keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+    } else if (!keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        var notifyBarWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",false);
+        var notifyBarWhenLoggedOut = keefox_org._keeFoxExtension.prefs.getValue("notifyBarWhenLoggedOut",false);
         
         if (notifyBarWhenLoggedOut && initialPageLoad)
         {
-            keefox_org.UI.setWindow(doc.defaultView);
-            keefox_org.UI.setDocument(doc);
-            keefox_org.UI._showLoginToKFNotification();
+            keefox_win.UI.setWindow(doc.defaultView);
+            keefox_win.UI.setDocument(doc);
+            keefox_win.UI._showLoginToKFNotification();
         }
         
-        var flashIconWhenLoggedOut = keeFoxInst._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
+        var flashIconWhenLoggedOut = keefox_org._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
         
         if (flashIconWhenLoggedOut && initialPageLoad)
-            keefox_org.toolbar._currentWindow.setTimeout(keefox_org.toolbar.flashItem, 10,
-                keefox_org.toolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_org.toolbar._currentWindow);
+            keefox_win.toolbar._currentWindow.setTimeout(keefox_win.toolbar.flashItem, 10,
+                keefox_win.toolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.toolbar._currentWindow);
         return;
     }
 
-    if (keefox_org.Logger.logSensitiveData)
-        keefox_org.Logger.debug("fillDocument processing " + forms.length +
+    if (keefox_win.Logger.logSensitiveData)
+        keefox_win.Logger.debug("fillDocument processing " + forms.length +
              " forms on " + doc.documentURI);
     else
-        keefox_org.Logger.debug("fillDocument processing " + forms.length + " forms");
+        keefox_win.Logger.debug("fillDocument processing " + forms.length + " forms");
 
     var previousActionOrigin = null;
     findLoginDoc.formsReadyForSubmit = 0; // tracks how many forms we auto-fill on this page
@@ -496,7 +496,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
         // matching entries (so we fill the most relevant form)
         findLoginDoc.formRelevanceScores[i] = 0;
         
-        keefox_org.Logger.debug("about to get form fields");
+        keefox_win.Logger.debug("about to get form fields");
         var [usernameIndex, passwordFields, otherFields] =
             this._getFormFields(form, false);
             
@@ -504,7 +504,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
         // maybe only if we are doing a multi-page login?
         if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
         {
-            keefox_org.Logger.debug("no password field found in this form");
+            keefox_win.Logger.debug("no password field found in this form");
             continue;
         }
         
@@ -528,7 +528,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
                          .getService(Components.interfaces.nsIWindowMediator);
                 var window = wm.getMostRecentWindow("navigator:browser") ||
                     wm.getMostRecentWindow("mail:3pane");
-                window.keeFoxInst._KFLog.info("callback fired!");
+                window.keefox_org._KFLog.info("callback fired!");
                  
                 var foundLogins = null;
                 var convertedResult = [];
@@ -546,8 +546,8 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
                 } else
                     return;
                     
-                var findLoginOp = window.keefox_org.ILM.findLoginOps[resultWrapper.id];
-                var findLoginDoc = window.keefox_org.ILM.findLoginDocs[resultWrapper.id];
+                var findLoginOp = window.keefox_win.ILM.findLoginOps[resultWrapper.id];
+                var findLoginDoc = window.keefox_win.ILM.findLoginDocs[resultWrapper.id];
      
                 for (var i=0; i < findLoginOp.forms.length; i++)
                 {
@@ -561,14 +561,14 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
                     if (findLoginDoc.logins[i].length == 0)
                         continue;
                     
-                    window.keeFoxInst._KFLog.info("match found!");
+                    window.keefox_org._KFLog.info("match found!");
                     
                     // determine the relevance of each login entry to this form
                     // we could skip this when autofilling based on uniqueID but we would have to check for
                     // matches first or else we risk no match and no alternative matching logins on the toolbar
                     for (var v = 0; v < findLoginDoc.logins[i].length; v++)
                     {
-                        findLoginDoc.logins[i][v].relevanceScore = window.keefox_org.ILM.
+                        findLoginDoc.logins[i][v].relevanceScore = window.keefox_win.ILM.
                             _calculateRelevanceScore(findLoginDoc.logins[i][v],
                                 findLoginOp.forms[i],findLoginDoc.usernameIndexArray[i],
                                 findLoginDoc.passwordFieldsArray[i], findLoginDoc.currentTabPage,
@@ -579,7 +579,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
                         if (c.relevanceScore > findLoginDoc.formRelevanceScores[i])
                             findLoginDoc.formRelevanceScores[i] = c.relevanceScore;
                         } );
-                    keefox_org.Logger.debug("Relevance of form " + i + " is " + findLoginDoc.formRelevanceScores[i]);
+                    keefox_win.Logger.debug("Relevance of form " + i + " is " + findLoginDoc.formRelevanceScores[i]);
                     
                     // only remember the logins which are not already in our list of matching logins
                     var newUniqueLogins = findLoginDoc.logins[i].filter(function(d) {
@@ -590,7 +590,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
                     findLoginDoc.allMatchingLogins = findLoginDoc.allMatchingLogins.concat(newUniqueLogins);
                 }
                 findLoginDoc.responseCount++;
-                window.keefox_org.ILM.allSearchesComplete(findLoginDoc); // see if we're ready to do the next stage of form processing...
+                window.keefox_win.ILM.allSearchesComplete(findLoginDoc); // see if we're ready to do the next stage of form processing...
                 
             };
             findLoginDoc.wrappers[i] = findLoginOp;
@@ -603,7 +603,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
             previousActionOrigin = actionOrigin;
             previousRequestId = requestId;
         } else {
-            keefox_org.Logger.debug("form[" + i + "]: reusing logins from last form.");
+            keefox_win.Logger.debug("form[" + i + "]: reusing logins from last form.");
             if (previousRequestId > 0)
                 this.findLoginOps[previousRequestId].formIndexes.push(i);
         }
@@ -615,7 +615,7 @@ keefox_org.ILM._fillDocument = function (doc, initialPageLoad)
 };
 
 // this happens after each findLogins call has run its callback so we can see if we have received all the answers we need to fill the form now
-keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
+keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
 {
 //return; // test mem leak 2
     
@@ -630,12 +630,12 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
     
     var mostRelevantFormIndex = 0;
     findLoginDoc.formRelevanceScores.forEach(function(c, index) { 
-        keefox_org.Logger.debug("Relevance of form is " + c);
+        keefox_win.Logger.debug("Relevance of form is " + c);
         if (c > findLoginDoc.formRelevanceScores[mostRelevantFormIndex])
             mostRelevantFormIndex = index;
         } );
     
-    keefox_org.Logger.debug("The most relevant form is #" + mostRelevantFormIndex);
+    keefox_win.Logger.debug("The most relevant form is #" + mostRelevantFormIndex);
     
     // from now on we concentrate on just the most relevant form and the fields we found earlier
     var form = findLoginDoc.forms[mostRelevantFormIndex];
@@ -652,7 +652,7 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
         findLoginDoc.cannotAutoFillForm = true;
         findLoginDoc.cannotAutoSubmitForm = true;
         findLoginDoc.overWriteFieldsAutomatically = false;
-        keefox_org.Logger.debug("Not auto-filling or auto-submiting this form. Not overwriting exsisting contents either.");
+        keefox_win.Logger.debug("Not auto-filling or auto-submiting this form. Not overwriting exsisting contents either.");
     }
 
     // No point looking at login specific preferences if we are not allowed to auto-fill
@@ -668,20 +668,20 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
                                     });
             if (!found)
             {
-                keefox_org.Logger.info("Password not filled. None of the stored " +
+                keefox_win.Logger.info("Password not filled. None of the stored " +
                          "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
             }
         } else if (findLoginDoc.logins[mostRelevantFormIndex].length == 1) {
             matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][0];
         } else {
-            keefox_org.Logger.debug("Multiple logins for form, so estimating most relevant.");
+            keefox_win.Logger.debug("Multiple logins for form, so estimating most relevant.");
             var mostRelevantLoginIndex = 0;
             
             for (var count = 0; count < findLoginDoc.logins[mostRelevantFormIndex].length; count++)
                 if (findLoginDoc.logins[mostRelevantFormIndex][count].relevanceScore > findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex].relevanceScore)
                     mostRelevantLoginIndex = count;
                 
-            keefox_org.Logger.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
+            keefox_win.Logger.info("We think login " + mostRelevantLoginIndex + " is most relevant.");
             matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][mostRelevantLoginIndex];
             
             // If user has specified, prevent automatic fill / submit due to multiple matches
@@ -705,9 +705,9 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
 
             if (findLoginDoc.wantToAutoFillForm || findLoginDoc.mustAutoFillForm)
             {
-                window.keefox_org.ILM._fillManyFormFields(passwordFields, matchingLogin.passwords,
+                window.keefox_win.ILM._fillManyFormFields(passwordFields, matchingLogin.passwords,
                     findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
-                window.keefox_org.ILM._fillManyFormFields(otherFields, matchingLogin.otherFields,
+                window.keefox_win.ILM._fillManyFormFields(otherFields, matchingLogin.otherFields,
                     findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
                 findLoginDoc.formsReadyForSubmit++; //TODO2: could we fill more than one form before? i don't think so but why is it a count rather than bool?!
             }            
@@ -757,8 +757,8 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
         // next we update (or set for the first time) the values attached to this tab
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining", findLoginDoc.numberOfTabFillsRemaining);
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget", findLoginDoc.numberOfTabFillsTarget);
-        keefox_org.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + findLoginDoc.numberOfTabFillsRemaining);
-        keefox_org.Logger.debug("Set KF_numberOfTabFillsTarget to: " + findLoginDoc.numberOfTabFillsTarget);
+        keefox_win.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + findLoginDoc.numberOfTabFillsRemaining);
+        keefox_win.Logger.debug("Set KF_numberOfTabFillsTarget to: " + findLoginDoc.numberOfTabFillsTarget);
         
         // if we didn't already define a uniqueID, we set it up now
         if (findLoginDoc.uniqueID == undefined || findLoginDoc.uniqueID == null || findLoginDoc.uniqueID == "")
@@ -781,7 +781,7 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
         for (var i = 0; i < passwordFields.length; i++)
         {
             var passField = passwordFields[i];
-            //keefox_org.Logger.debug("testi:"+passField.DOMInputElement);
+            //keefox_win.Logger.debug("testi:"+passField.DOMInputElement);
             if (passField.DOMInputElement != null)
             {
             //TODO: test mem leak 3 // skip event listener registration
@@ -793,7 +793,7 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
         for (var i = 0; i < otherFields.length; i++)
         {
             var otherField = otherFields[i];
-            //keefox_org.Logger.debug("testi:"+otherField.DOMInputElement);
+            //keefox_win.Logger.debug("testi:"+otherField.DOMInputElement);
             if (otherField.DOMInputElement != null)
                 otherField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
             else if (otherField.DOMSelectElement != null)
@@ -807,9 +807,9 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
     if (findLoginDoc.uniqueID != undefined && findLoginDoc.uniqueID != null && findLoginDoc.uniqueID != "")
     {
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
-        keefox_org.Logger.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
+        keefox_win.Logger.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName);
-        keefox_org.Logger.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
+        keefox_win.Logger.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
         
         // only auto fill / submit if we expect another page for this login.
         // This may fail in some cases, not sure yet but it should reduce
@@ -819,24 +819,24 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
         if (findLoginDoc.numberOfTabFillsRemaining > 0)
         {
             findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_autoSubmit", "yes");
-            keefox_org.Logger.debug("Set KF_autoSubmit to: yes");
+            keefox_win.Logger.debug("Set KF_autoSubmit to: yes");
         }
     }
     
     if (!findLoginDoc.cannotAutoSubmitForm && (findLoginDoc.wantToAutoSubmitForm || findLoginDoc.mustAutoSubmitForm)
         && findLoginDoc.formsReadyForSubmit == 1)
     {
-        keefox_org.Logger.info("Auto-submitting form...");
-        keefox_org.ILM.submitForm(form);
+        keefox_win.Logger.info("Auto-submitting form...");
+        keefox_win.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
     //TODO: test mem leak 4 // comment out this toolbar fill
     
-        keefox_org.Logger.info("Using toolbar password fill.");
-        keefox_org.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
+        keefox_win.Logger.info("Using toolbar password fill.");
+        keefox_win.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 
     {
-        keefox_org.Logger.info("Nothing to fill.");
+        keefox_win.Logger.info("Nothing to fill.");
     }
     
     // delete un-needed array entries.
@@ -852,12 +852,12 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
 
     var rids = findLoginDoc.requestIds.slice(0);
     findLoginDoc = null;
-    keefox_org.Logger.debug("Deleting login data for recently completed async find logins call.");
+    keefox_win.Logger.debug("Deleting login data for recently completed async find logins call.");
     for (var ridc = 0, l = rids.length; ridc < l; ridc++)
     {
-        keefox_org.Logger.debug("Deleting for request #" + ridc + " (id: " + rids[ridc] + ")");
-        delete window.keefox_org.ILM.findLoginOps[rids[ridc]];
-        delete window.keefox_org.ILM.findLoginDocs[rids[ridc]];
+        keefox_win.Logger.debug("Deleting for request #" + ridc + " (id: " + rids[ridc] + ")");
+        delete window.keefox_win.ILM.findLoginOps[rids[ridc]];
+        delete window.keefox_win.ILM.findLoginDocs[rids[ridc]];
     }
 };
 
@@ -870,7 +870,7 @@ keefox_org.ILM.allSearchesComplete = function (findLoginDoc)
 // TODO2: formID innacurate (so not used yet)
 // TODO2: extend so more than one form can be filled, with option to automatically submit
 // form that matches most accuratly (currently we just pick the first match - this may not be ideal)
-keefox_org.ILM.fill = function (usernameName,usernameValue,
+keefox_win.ILM.fill = function (usernameName,usernameValue,
     actionURL,usernameID,formID,uniqueID,docURI,dbFileName)
 {
     var fillDocumentDataStorage = {};
@@ -881,7 +881,7 @@ keefox_org.ILM.fill = function (usernameName,usernameValue,
     fillDocumentDataStorage.formID = formID;
     fillDocumentDataStorage.uniqueID = uniqueID;
     fillDocumentDataStorage.docURI = docURI;
-    fillDocumentDataStorage.gBrowser = keefox_org.toolbar._currentWindow.gBrowser;
+    fillDocumentDataStorage.gBrowser = keefox_win.toolbar._currentWindow.gBrowser;
     fillDocumentDataStorage.doc = this._findDocumentByURI(
             gBrowser.contentDocument.defaultView, docURI);
     fillDocumentDataStorage.dbFileName = dbFileName;
@@ -890,13 +890,13 @@ keefox_org.ILM.fill = function (usernameName,usernameValue,
      fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.dbFileName, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
 };
 
-keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
+keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
 {                
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
     var window = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
-    window.keeFoxInst._KFLog.info("callback fired!");
+    window.keefox_org._KFLog.info("callback fired!");
      
     var logins = null;
     var convertedResult = [];
@@ -907,7 +907,7 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
     var ignored;
     var passwords;
     var otherFields;        
-    var autoSubmitForm = window.keefox_org.ILM._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
+    var autoSubmitForm = window.keefox_win.ILM._kf._keeFoxExtension.prefs.getValue("autoSubmitMatchedForms",true);
     var overWriteFields = true; // TODO2: create a new preference for this?
     
     if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
@@ -924,10 +924,10 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
         return;
     logins = convertedResult;
               
-    if (keefox_org.Logger.logSensitiveData)
-        keefox_org.Logger.info("fill login details from username field: " + fillDocumentDataStorage.usernameName + ":" + fillDocumentDataStorage.usernameValue);
+    if (keefox_win.Logger.logSensitiveData)
+        keefox_win.Logger.info("fill login details from username field: " + fillDocumentDataStorage.usernameName + ":" + fillDocumentDataStorage.usernameValue);
     else
-        keefox_org.Logger.info("fill login details");
+        keefox_win.Logger.info("fill login details");
     
         
     
@@ -960,20 +960,20 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
             //TODO2:? only fill in forms that match the host and port of the selected login
             // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
             form = formi;
-            [usernameIndex, passwords, otherFields] = window.keefox_org.ILM._getFormFields(form, false, 1);
+            [usernameIndex, passwords, otherFields] = window.keefox_win.ILM._getFormFields(form, false, 1);
             
             if (passwords == null || passwords.length == 0)
                 continue;
             
             // determine the relevance of the selected login entry to this form
             //NB: Assuming only one login returned from search (should be by GUID so OK)
-            var relevanceScore = window.keefox_org.ILM._calculateRelevanceScore(logins[0],
+            var relevanceScore = window.keefox_win.ILM._calculateRelevanceScore(logins[0],
                     form,usernameIndex, passwords, 1, otherFields); //TODO2: Compare page too?
             formRelevanceScores[i] = relevanceScore;
             usernameIndexList[i] = usernameIndex;
             passwordsList[i] = passwords;
             otherFieldsList[i] = otherFields;            
-            keefox_org.Logger.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
+            keefox_win.Logger.debug("Relevance of form " + i + " is " + formRelevanceScores[i]);                
         }
         
         //TODO2: form should be considered more relevant if it actually had a password field... extend to comparing correct quantity of fields?
@@ -984,7 +984,7 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
             if (c > formRelevanceScores[mostRelevantFormIndex])
                 mostRelevantFormIndex = index;
         }); 
-        keefox_org.Logger.debug("Most releveant form is " + mostRelevantFormIndex);
+        keefox_win.Logger.debug("Most releveant form is " + mostRelevantFormIndex);
         
         form = fillDocumentDataStorage.doc.forms[mostRelevantFormIndex];
         usernameIndex = usernameIndexList[mostRelevantFormIndex];
@@ -995,16 +995,16 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
     if (passwords == null || passwords.length == 0)
     {
         //TODO2: can we improve here so that forms without password fields can also be handled?
-        keefox_org.Logger.info("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
+        keefox_win.Logger.info("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
         return;
     }
 
-    var URL = window.keefox_org.ILM._getPasswordOrigin(fillDocumentDataStorage.doc.documentURI);
+    var URL = window.keefox_win.ILM._getPasswordOrigin(fillDocumentDataStorage.doc.documentURI);
     
     var title = fillDocumentDataStorage.doc.title;
     
     var match = null;
-    keefox_org.Logger.info("Found " + logins.length + " logins.");
+    keefox_win.Logger.info("Found " + logins.length + " logins.");
     
     // Ensure the entry has not been deleted between page load and fill request
     if (fillDocumentDataStorage.uniqueID && logins.length == 1)
@@ -1012,14 +1012,14 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
     
     if (match == null)
     {
-        keefox_org.Logger.warn("Can't find a login for this matched login fill request.");
+        keefox_win.Logger.warn("Can't find a login for this matched login fill request.");
         return;
     }
 
-    keefox_org.Logger.debug("Found a matching login, filling in passwords, etc.");
+    keefox_win.Logger.debug("Found a matching login, filling in passwords, etc.");
         
-    window.keefox_org.ILM._fillManyFormFields(passwords, match.passwords, 1, overWriteFields);
-    window.keefox_org.ILM._fillManyFormFields(otherFields, match.otherFields, 1, overWriteFields);
+    window.keefox_win.ILM._fillManyFormFields(passwords, match.passwords, 1, overWriteFields);
+    window.keefox_win.ILM._fillManyFormFields(otherFields, match.otherFields, 1, overWriteFields);
 
     // Attach information to this tab which describes what
     // we know about the number of pages this form covers
@@ -1058,36 +1058,36 @@ keefox_org.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
     ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
     ss.setTabValue(currentTab, "KF_dbFileName", fillDocumentDataStorage.dbFileName);
-    keefox_org.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
-    keefox_org.Logger.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
-    keefox_org.Logger.debug("Set KF_autoSubmit to: yes");
-    keefox_org.Logger.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
-    keefox_org.Logger.debug("Set KF_dbFileName to: " + fillDocumentDataStorage.dbFileName);
+    keefox_win.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
+    keefox_win.Logger.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
+    keefox_win.Logger.debug("Set KF_autoSubmit to: yes");
+    keefox_win.Logger.debug("Set KF_uniqueID to: " + fillDocumentDataStorage.uniqueID);
+    keefox_win.Logger.debug("Set KF_dbFileName to: " + fillDocumentDataStorage.dbFileName);
     
     // now we can submit the form if desired    
     if (autoSubmitForm)
-        window.keefox_org.ILM.submitForm(form);
+        window.keefox_win.ILM.submitForm(form);
 };
 
-keefox_org.ILM._fillAllFrames = function (window, initialPageLoad)
+keefox_win.ILM._fillAllFrames = function (window, initialPageLoad)
 {
-    keefox_org.Logger.debug("_fillAllFrames start");
+    keefox_win.Logger.debug("_fillAllFrames start");
     this._fillDocument(window.document,false);
     
     if (window.frames.length > 0)
     {
-        keefox_org.Logger.debug("Filling " + window.frames.length + " sub frames");
+        keefox_win.Logger.debug("Filling " + window.frames.length + " sub frames");
         var frames = window.frames;
         for (var i = 0; i < frames.length; i++)
           this._fillAllFrames (frames[i], initialPageLoad);
     }    
 };
 
-keefox_org.ILM._findDocumentByURI = function (window, URI)
+keefox_win.ILM._findDocumentByURI = function (window, URI)
 {
     if (window.frames.length > 0)
     {
-        keefox_org.Logger.debug("Searching through " + window.frames.length + " sub frames");
+        keefox_win.Logger.debug("Searching through " + window.frames.length + " sub frames");
         var frames = window.frames;
         for (var i = 0; i < frames.length; i++)
         { 
@@ -1104,7 +1104,7 @@ keefox_org.ILM._findDocumentByURI = function (window, URI)
 };
 
 // Submit a form
-keefox_org.ILM.submitForm = function (form)
+keefox_win.ILM.submitForm = function (form)
 {
     var inputElements = form.getElementsByTagName("input");
     var submitElement = null;

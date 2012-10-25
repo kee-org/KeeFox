@@ -34,7 +34,7 @@ Cu.import("resource://kfmod/session.js");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/kfDataModel.js");
 
-var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keeFoxInst._KFLog;
+var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keefox_org._KFLog;
 
 function jsonrpcClient() {
     this.requestId = 1;
@@ -89,13 +89,13 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
                         
-        if (window.keeFoxInst._keeFoxExtension.prefs.has("uniqueProfileId"))
-            sig = window.keeFoxInst._keeFoxExtension.prefs.getValue("uniqueProfileId","");
+        if (window.keefox_org._keeFoxExtension.prefs.has("uniqueProfileId"))
+            sig = window.keefox_org._keeFoxExtension.prefs.getValue("uniqueProfileId","");
         
         if (sig == "")
         {
             sig = (Math.random() * (4294967296 - 1) + 1) + clientIdSig + (Math.random() * (4294967296 - 1) + 1);
-            window.keeFoxInst._keeFoxExtension.prefs.setValue("uniqueProfileId",sig);
+            window.keefox_org._keeFoxExtension.prefs.setValue("uniqueProfileId",sig);
         }
         
         return btoa(sig);
@@ -122,27 +122,27 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                                  .getService(Components.interfaces.nsIWindowMediator);
                         var window = wm.getMostRecentWindow("navigator:browser") ||
                             wm.getMostRecentWindow("mail:3pane");
-                        window.keeFoxInst._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
-                        window.keeFoxInst._keeFoxVariableInit();
-                        if (window.keeFoxInst._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
+                        window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
+                        window.keefox_org._keeFoxVariableInit();
+                        if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
                         {
-                            var currentLocation = window.keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation","");
-                            window.keefox_org.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
-                            window.keeFoxInst.changeLocation(currentLocation);
+                            var currentLocation = window.keefox_org._keeFoxExtension.prefs.getValue("currentLocation","");
+                            window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
+                            window.keefox_org.changeLocation(currentLocation);
                         }
-                        window.keeFoxInst._refreshKPDB();
+                        window.keefox_org._refreshKPDB();
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 {
                     if (resultWrapper.result.result == 3 || resultWrapper.result == 3) // version mismatch (including backwards compatible test)
                     {
-                        window.keefox_org.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
-                        window.keeFoxInst._launchInstaller(null,null,true);
+                        window.keefox_win.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
+                        window.keefox_org._launchInstaller(null,null,true);
                     } else
                     {
-                        window.keefox_org.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result.result);
+                        window.keefox_win.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result.result);
                     }
-                    window.keeFoxInst._pauseKeeFox();
+                    window.keefox_org._pauseKeeFox();
                 } 
                 //TODO2: ? set confirmation that the connection is established and authenticated?
             }, this.requestId);
@@ -153,7 +153,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                                  .getService(Components.interfaces.nsIWindowMediator);
                         var window = wm.getMostRecentWindow("navigator:browser") ||
                             wm.getMostRecentWindow("mail:3pane");
-            window.keefox_org.Logger.warn("Problem connecting to KeePass: " + message);
+            window.keefox_win.Logger.warn("Problem connecting to KeePass: " + message);
             } catch(e) {}
         }
     }
@@ -357,7 +357,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            window.keeFoxInst.KPRPCListener(signal);
+            window.keefox_org.KPRPCListener(signal);
         },5);
     }
 
@@ -407,7 +407,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {
                 if (resultWrapper.result !== null)
-                    window.keefox_org.toolbar.setMRUdatabasesCallback(resultWrapper.result);
+                    window.keefox_win.toolbar.setMRUdatabasesCallback(resultWrapper.result);
                 
             } 
         }, ++this.requestId); 
@@ -438,11 +438,11 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             
         if (dbFileName == undefined || dbFileName == null || dbFileName == "")
         {
-            //if (window.keeFoxInst._keeFoxExtension.prefs.has("searchAllOpenDatabases"))
+            //if (window.keefox_org._keeFoxExtension.prefs.has("searchAllOpenDatabases"))
             //    sig = ;
             
-            if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("searchAllOpenDBs",false))
-                dbFileName = window.keeFoxInst.KeePassDatabases[window.keeFoxInst.ActiveKeePassDatabaseIndex].fileName;
+            if (!window.keefox_org._keeFoxExtension.prefs.getValue("searchAllOpenDBs",false))
+                dbFileName = window.keefox_org.KeePassDatabases[window.keefox_org.ActiveKeePassDatabaseIndex].fileName;
             else
                 dbFileName = "";
         }
@@ -465,10 +465,10 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {
                 if (resultWrapper.result !== null)
-                    window.keeFoxInst.updateKeePassDatabases(resultWrapper.result);
+                    window.keefox_org.updateKeePassDatabases(resultWrapper.result);
                 
                 //else
-                //    log something? window.keeFoxInst.rror("Null return result received");
+                //    log something? window.keefox_org.rror("Null return result received");
             } //else
               //log something?    
         }, ++this.requestId);
@@ -485,7 +485,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 wm.getMostRecentWindow("mail:3pane");
             
             passwordGenerated = false;
-            var tb = window.keefox_org.toolbar;
+            var tb = window.keefox_win.toolbar;
             
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {
@@ -497,12 +497,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     getService(Components.interfaces.nsIClipboardHelper);
                     gClipboardHelper.copyString(resultWrapper.result);
                     
-                    window.keefox_org.UI.growl(tb.strbundle.getString("generatePassword.copied"));
+                    window.keefox_win.UI.growl(tb.strbundle.getString("generatePassword.copied"));
                 }
             }
             if (!passwordGenerated)
             {
-                window.keefox_org.UI.growl(tb.strbundle.getString("generatePassword.launch"));
+                window.keefox_win.UI.growl(tb.strbundle.getString("generatePassword.launch"));
             }
         }, ++this.requestId);
     }

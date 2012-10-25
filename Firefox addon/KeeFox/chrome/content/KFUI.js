@@ -24,7 +24,7 @@
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
-keefox_org.UI = {
+keefox_win.UI = {
     _window        : null,
     setWindow : function (win)
     {
@@ -199,10 +199,10 @@ keefox_org.UI = {
                         returnValue = fn.apply(this, arguments);
                     
                     //TODO: remove all event listeners from menu items
-                    keefox_org.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
+                    keefox_win.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
                 } catch(ex)
                 {
-                    keefox_org.Logger.error("Exception occurred in menu item callback: " + ex);
+                    keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
                 }
             };
         };
@@ -235,7 +235,7 @@ keefox_org.UI = {
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
         priority = priority || aNotifyBox.PRIORITY_INFO_MEDIUM;
 
-        keefox_org.Logger.debug("Adding new " + aName + " notification bar");
+        keefox_win.Logger.debug("Adding new " + aName + " notification bar");
         var newBar = aNotifyBox.appendNotification(
                                 aText, aName,
                                 "chrome://keefox/skin/KeeFox16.png",
@@ -252,7 +252,7 @@ keefox_org.UI = {
         newBar.timeout = Date.now() + 20000; // 20 seconds
 
         if (oldBar) {
-            keefox_org.Logger.debug("(...and removing old " + aName + " notification bar)");
+            keefox_win.Logger.debug("(...and removing old " + aName + " notification bar)");
             aNotifyBox.removeNotification(oldBar);
         }
         return newBar;
@@ -290,10 +290,10 @@ keefox_org.UI = {
         
         var rememberButtonTooltip =
               this._getLocalizedString("notifyBarRememberButton.tooltip",
-                [keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].name]);
+                [keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].name]);
         var rememberAdvancedButtonTooltip =
               this._getLocalizedString("notifyBarRememberAdvancedButton.tooltip",
-                [keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].name]);
+                [keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].name]);
         var rememberButtonDBTooltip =
               this._getLocalizedString("notifyBarRememberDBButton.tooltip");
         var rememberAdvancedDBButtonTooltip =
@@ -314,17 +314,17 @@ keefox_org.UI = {
         }
         var popupSave = [];
         var popupSaveToGroup = [];        
-        for (var dbi = 0; dbi < keeFoxInst.KeePassDatabases.length; dbi++)
+        for (var dbi = 0; dbi < keefox_org.KeePassDatabases.length; dbi++)
         {
-            var db = keeFoxInst.KeePassDatabases[dbi];
+            var db = keefox_org.KeePassDatabases[dbi];
             popupSave[dbi] = {
                 label:     this._getLocalizedString("notifyBarRememberDBButton.label", [db.name]),
                 accessKey: "",
                 popup:     null,
-                callback:  function(evt) { evt.stopPropagation(); keefox_org.ILM.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename')); keefox_org.toolbar.clearTabFormRecordingData();}, // this line is broken?????
+                callback:  function(evt) { evt.stopPropagation(); keefox_win.ILM.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename')); keefox_win.toolbar.clearTabFormRecordingData();}, // this line is broken?????
                 tooltip: this._getLocalizedString("notifyBarRememberDBButton.tooltip", [db.name]),
                 image: "data:image/png;base64,"+db.iconImageData,
-                values: [ { key: "login", value: aLogin }, { key: "filename", value: keeFoxInst.KeePassDatabases[dbi].fileName } ]
+                values: [ { key: "login", value: aLogin }, { key: "filename", value: keefox_org.KeePassDatabases[dbi].fileName } ]
             };
             popupSaveToGroup[dbi] = {
                 label:     this._getLocalizedString("notifyBarRememberAdvancedDBButton.label", [db.name]),
@@ -335,14 +335,14 @@ keefox_org.UI = {
                         };
                         
                         function onOK(uuid, filename) {
-                            var result = keefox_org.ILM.addLogin(aLogin, uuid, filename);
+                            var result = keefox_win.ILM.addLogin(aLogin, uuid, filename);
                             if (result == "This login already exists.")
                             {
                                 //TODO2: create a new notification bar for 2 seconds with an error message?
                             }
                         };
                         
-                        keefox_org.toolbar.clearTabFormRecordingData();
+                        keefox_win.toolbar.clearTabFormRecordingData();
                         window.openDialog("chrome://keefox/content/groupChooser.xul",
                           "group", "chrome,centerscreen", 
                           onOK,
@@ -353,7 +353,7 @@ keefox_org.UI = {
                     },
                 tooltip: this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip", [db.name]),
                 image: "data:image/png;base64,"+db.iconImageData,
-                values: [ { key: "login", value: aLogin }, { key: "filename", value: keeFoxInst.KeePassDatabases[dbi].fileName } ]
+                values: [ { key: "login", value: aLogin }, { key: "filename", value: keefox_org.KeePassDatabases[dbi].fileName } ]
             };
         }    
         if (popupSave.length == 0)
@@ -367,10 +367,10 @@ keefox_org.UI = {
                 label:     rememberButtonText,
                 accessKey: rememberButtonAccessKey,
                 popup: popupSave,
-                callback: function(evt) { var result = keefox_org.ILM.addLogin(evt.currentTarget.getUserData('login'), null, null);
-                         keefox_org.toolbar.clearTabFormRecordingData(); evt.stopPropagation(); },
+                callback: function(evt) { var result = keefox_win.ILM.addLogin(evt.currentTarget.getUserData('login'), null, null);
+                         keefox_win.toolbar.clearTabFormRecordingData(); evt.stopPropagation(); },
                 tooltip: rememberButtonTooltip,
-                image: "data:image/png;base64,"+ keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].iconImageData,
+                image: "data:image/png;base64,"+ keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].iconImageData,
                 values: [ { key: "login", value: aLogin } ]
             },
             {
@@ -382,14 +382,14 @@ keefox_org.UI = {
                         };
                         
                         function onOK(uuid) {
-                            var result = keefox_org.ILM.addLogin(aLogin, uuid, null);
+                            var result = keefox_win.ILM.addLogin(aLogin, uuid, null);
                             if (result == "This login already exists.")
                             {
                                 //TODO2: create a new notification bar for 2 seconds with an error message?
                             }
                         };
                         
-                        keefox_org.toolbar.clearTabFormRecordingData();
+                        keefox_win.toolbar.clearTabFormRecordingData();
                         window.openDialog("chrome://keefox/content/groupChooser.xul",
                           "group", "chrome,centerscreen", 
                           onOK,
@@ -399,7 +399,7 @@ keefox_org.UI = {
                         evt.stopPropagation();
                     },
                 tooltip: rememberAdvancedButtonTooltip,
-                image: "data:image/png;base64,"+ keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].iconImageData,
+                image: "data:image/png;base64,"+ keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].iconImageData,
                 values: [ { key: "login", value: aLogin } ]
             },
             
@@ -407,7 +407,7 @@ keefox_org.UI = {
             {
                 label:     notNowButtonText,
                 accessKey: notNowButtonAccessKey,
-                callback: function(evt) { keefox_org.toolbar.clearTabFormRecordingData(); }
+                callback: function(evt) { keefox_win.toolbar.clearTabFormRecordingData(); }
             },
                 
             // "Never" button
@@ -423,7 +423,7 @@ keefox_org.UI = {
                         statement.executeAsync();        
                     } finally
                     {
-                        keefox_org.toolbar.clearTabFormRecordingData();
+                        keefox_win.toolbar.clearTabFormRecordingData();
                     }
                 } 
             }
@@ -441,7 +441,7 @@ keefox_org.UI = {
 
         if (oldBar)
         {
-            keefox_org.Logger.debug("Removing save-password notification bar.");
+            keefox_win.Logger.debug("Removing save-password notification bar.");
             aNotifyBox.removeNotification(oldBar);
         }
     },
@@ -606,7 +606,7 @@ keefox_org.UI = {
                 label:     loginButtonText,
                 accessKey: loginButtonAccessKey,
                 popup:     null,
-                callback: function(evt) { keeFoxInst.loginToKeePass(); },
+                callback: function(evt) { keefox_org.loginToKeePass(); },
                 tooltip: loginButtonTip
             },
 
@@ -675,14 +675,14 @@ keefox_org.UI = {
             var oldBar = notifyBox.getNotificationWithValue("password-save");
 
             if (oldBar) {
-                keefox_org.Logger.debug("Removing save-password notification bar.");
+                keefox_win.Logger.debug("Removing save-password notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
             
             oldBar = notifyBox.getNotificationWithValue("keefox-login");
 
             if (oldBar) {
-                keefox_org.Logger.debug("Removing keefox-login notification bar.");
+                keefox_win.Logger.debug("Removing keefox-login notification bar.");
                 notifyBox.removeNotification(oldBar);
             }
             
@@ -691,7 +691,7 @@ keefox_org.UI = {
                 oldBar = notifyBox.getNotificationWithValue("keefox-launch");
 
                 if (oldBar) {
-                    keefox_org.Logger.debug("Removing keefox-launch notification bar.");
+                    keefox_win.Logger.debug("Removing keefox-launch notification bar.");
                     notifyBox.removeNotification(oldBar);
                 }
             }
@@ -733,7 +733,7 @@ keefox_org.UI = {
                 if (chromeDoc.getAttribute("chromehidden") &&
                     webnav.sessionHistory.count == 1)
                 {
-                    keefox_org.Logger.debug("Using opener window for notification bar.");
+                    keefox_win.Logger.debug("Using opener window for notification bar.");
                     notifyWindow = notifyWindow.opener; //not convinced this will work - maybe change this._document
                 }
             }
@@ -751,7 +751,7 @@ keefox_org.UI = {
             while (!foundBrowser && enumerator.hasMoreElements())
             {
                 var win = enumerator.getNext();
-                keefox_org.Logger.debug("found window with name:" + win.name);
+                keefox_win.Logger.debug("found window with name:" + win.name);
                 tabbrowser = win.getBrowser(); 
                 foundBrowser = tabbrowser.getBrowserForDocument(
                                                   this._document);
@@ -760,13 +760,13 @@ keefox_org.UI = {
             // Return the notificationBox associated with the browser.
             if (foundBrowser)
             {
-                keefox_org.Logger.debug("found a browser for this window.");
+                keefox_win.Logger.debug("found a browser for this window.");
                 return tabbrowser.getNotificationBox(foundBrowser)
             }
 
         } catch (e) {
             // If any errors happen, just assume no notification box.
-            keefox_org.Logger.error("No notification box available: " + e)
+            keefox_win.Logger.error("No notification box available: " + e)
         }
 
         return null;

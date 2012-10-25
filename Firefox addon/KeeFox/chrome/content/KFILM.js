@@ -37,7 +37,7 @@ let Cu = Components.utils;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
-keefox_org.ILM = {
+keefox_win.ILM = {
     construct : function(kf,keeFoxToolbar,currentWindow) {
         this.findLoginOps = [];
         this.findLoginDocs = [];
@@ -48,8 +48,8 @@ keefox_org.ILM = {
         this._refillTimer = Components.classes["@mozilla.org/timer;1"]
                             .createInstance(Components.interfaces.nsITimer);
         this.init();
-        //keefox_org.Logger.debug("currentWindowName:" + currentWindow.name);
-        keefox_org.Logger.debug ("KFILM constructor finished");
+        //keefox_win.Logger.debug("currentWindowName:" + currentWindow.name);
+        keefox_win.Logger.debug ("KFILM constructor finished");
     },
     _test : null,
     _currentWindow : null,
@@ -102,7 +102,7 @@ keefox_org.ILM = {
             var URLscore=0;
             var loginURL = login.URLs[i];
             
-            if (keefox_org.Logger.logSensitiveData) keefox_org.Logger.debug(loginURL);
+            if (keefox_win.Logger.logSensitiveData) keefox_win.Logger.debug(loginURL);
 
             if (URL == loginURL)
                 URLscore = 42;
@@ -137,13 +137,13 @@ keefox_org.ILM = {
         else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
             score += 1;
 
-        keefox_org.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
+        keefox_win.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
     },    
 
     init : function ()
     {
-        keefox_org.Logger.debug("KFILM init start");
+        keefox_win.Logger.debug("KFILM init start");
         
         // Cache references to current |this| in utility objects
         this._webProgressListener._domEventListener = this._domEventListener;
@@ -167,22 +167,22 @@ keefox_org.ILM = {
               Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT 
               | Ci.nsIWebProgress.NOTIFY_LOCATION);        
         } catch (e) {
-            keefox_org.Logger.error("couldn't add nsIWebProgress listener: " + e);
+            keefox_win.Logger.error("couldn't add nsIWebProgress listener: " + e);
         }
         
-        keefox_org.Logger.debug("KFILM init complete");
+        keefox_win.Logger.debug("KFILM init complete");
     },
     
     shutdown : function ()
     {
-        keefox_org.Logger.debug("KFILM shutdown started");
+        keefox_win.Logger.debug("KFILM shutdown started");
         var progress = Cc["@mozilla.org/docloaderservice;1"].
                        getService(Ci.nsIWebProgress);
 
         try {
             progress.removeProgressListener(this._webProgressListener);        
         } catch (e) {
-            keefox_org.Logger.error("couldn't remove nsIWebProgress listener: " + e);
+            keefox_win.Logger.error("couldn't remove nsIWebProgress listener: " + e);
         }
         
         // Form submit observer checks forms for new logins and pw changes.
@@ -191,7 +191,7 @@ keefox_org.ILM = {
         observerService.removeObserver(this._observer, "earlyformsubmit");
         observerService.removeObserver(this._observer, "xpcom-shutdown");
         
-        keefox_org.Logger.debug("KFILM shutdown complete");
+        keefox_win.Logger.debug("KFILM shutdown complete");
     },
     
     _countAllDocuments : function (window)
@@ -213,7 +213,7 @@ keefox_org.ILM = {
     
         if (this._kf._keeFoxExtension.prefs.getValue(
                         "notifyBarRequestPasswordSave",true) 
-                    &&  keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+                    &&  keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
         {
             // We don't do this unless we think we have a KeePassRPC connection
             
@@ -237,12 +237,12 @@ keefox_org.ILM = {
 //              },
 
 //              handleError: function(aError) {
-//                keefox_org.Logger.error("KeeFox site URL query cancelled or aborted: " + aError.message);
+//                keefox_win.Logger.error("KeeFox site URL query cancelled or aborted: " + aError.message);
 //              },
 
 //              handleCompletion: function(aReason) {
 //                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
-//                  keefox_org.Logger.error("KeeFox site URL query cancelled or aborted: " + aReason);
+//                  keefox_win.Logger.error("KeeFox site URL query cancelled or aborted: " + aReason);
 //              }
 //            });
 
@@ -281,7 +281,7 @@ keefox_org.ILM = {
             //if (typeof Components == "undefined")
             //    return true;
         
-            keefox_org.Logger.debug("observer notified for form submission.");
+            keefox_win.Logger.debug("observer notified for form submission.");
 
             try
             {            
@@ -291,7 +291,7 @@ keefox_org.ILM = {
             {
                 try
                 {
-                    keefox_org.Logger.error("Caught error in onFormSubmit: " + e);
+                    keefox_win.Logger.error("Caught error in onFormSubmit: " + e);
                 }
                 catch (ex)
                 {}
@@ -316,7 +316,7 @@ keefox_org.ILM = {
                 this._pwmgr = null;
             } else
             {
-                keefox_org.Logger.warn("Unexpected notification: " + topic);
+                keefox_win.Logger.warn("Unexpected notification: " + topic);
             }
         }
     },
@@ -366,12 +366,12 @@ keefox_org.ILM = {
                 if (aRequest.name == null || aRequest.name == "about:blank")
                     return;
                     
-                if (keefox_org.Logger.logSensitiveData)
-                    keefox_org.Logger.debug("onStateChange accepted: req = " +
+                if (keefox_win.Logger.logSensitiveData)
+                    keefox_win.Logger.debug("onStateChange accepted: req = " +
                                 (aRequest ?  aRequest.name : "(null)") +
                                 ", flags = 0x" + aStateFlags.toString(16));
                 else
-                    keefox_org.Logger.debug("onStateChange accepted"); 
+                    keefox_win.Logger.debug("onStateChange accepted"); 
                            
                 var b = getBrowser();
                 var currentTab = b.selectedTab; //TODO2: are we sure this always the tab that this event refers to?
@@ -388,7 +388,7 @@ keefox_org.ILM = {
                 // see if this tab has our special attributes and promote them to session data
                 if (currentTab.hasAttribute("KF_uniqueID"))
                 {
-                    keefox_org.Logger.debug("has uid");                
+                    keefox_win.Logger.debug("has uid");                
                     ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
                     ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
                     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
@@ -396,7 +396,7 @@ keefox_org.ILM = {
                     currentTab.removeAttribute("KF_dbFileName");
                 } else
                 {
-                    keefox_org.Logger.debug("nouid");
+                    keefox_win.Logger.debug("nouid");
                     
                     try
                     {
@@ -434,12 +434,12 @@ keefox_org.ILM = {
 
                     if (formSubmitTrackerCount > 0)
                     {
-                        keefox_org.Logger.debug("formSubmitTrackerCount > 0");
+                        keefox_win.Logger.debug("formSubmitTrackerCount > 0");
                         pageLoadSinceSubmitTrackerCount++;
                         
                         if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
                         {
-                            keefox_org.Logger.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
+                            keefox_win.Logger.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
                             formSubmitTrackerCount = 0;
                             pageLoadSinceSubmitTrackerCount = 0;
                             removeTabSessionStoreData = true;
@@ -448,7 +448,7 @@ keefox_org.ILM = {
                         ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
                     } 
                 }
-                //keefox_org.Logger.debug("temp:" + currentTab.KF_uniqueID);
+                //keefox_win.Logger.debug("temp:" + currentTab.KF_uniqueID);
                 
                 // If this tab location has changed domain then we assume user
                 // wants to cancel any outstanding form filling or saving
@@ -466,15 +466,15 @@ keefox_org.ILM = {
                 if (removeTabSessionStoreData)
                 {
                     // remove the data that helps us track multi-page logins, etc.
-                    keefox_org.Logger.debug("Removing the data that helps us track multi-page logins, etc.");
-                    keefox_org.toolbar.clearTabFormRecordingData();
-                    keefox_org.toolbar.clearTabFormFillData();                
+                    keefox_win.Logger.debug("Removing the data that helps us track multi-page logins, etc.");
+                    keefox_win.toolbar.clearTabFormRecordingData();
+                    keefox_win.toolbar.clearTabFormFillData();                
                 }
                     
                 // Fastback doesn't fire DOMContentLoaded, so process forms now.
                 if (aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING)
                 {
-                    keefox_org.Logger.debug("onStateChange: restoring document");
+                    keefox_win.Logger.debug("onStateChange: restoring document");
                     return this._pwmgr._fillDocument(domDoc,true);
                 }
 
@@ -482,7 +482,7 @@ keefox_org.ILM = {
                 domDoc.addEventListener("DOMContentLoaded",
                                         this._domEventListener, false); //ael
                 
-                keefox_org.Logger.debug("onStateChange: end");   
+                keefox_win.Logger.debug("onStateChange: end");   
             } catch (ex)
             {
                 //TODO2: not gonna risk even logging anything here until I have more time to be sure it can't cause further problems.
@@ -506,13 +506,13 @@ keefox_org.ILM = {
             if (mainWindow != this._pwmgr._currentWindow)
                 return;
             
-            if (keefox_org.Logger.logSensitiveData)    
-                keefox_org.Logger.debug("Location changed: " + aURI.spec);
+            if (keefox_win.Logger.logSensitiveData)    
+                keefox_win.Logger.debug("Location changed: " + aURI.spec);
             else
-                keefox_org.Logger.debug("Location changed.");
+                keefox_win.Logger.debug("Location changed.");
                 
             // remove all the old logins from the toolbar
-            keefox_org.toolbar.removeLogins();
+            keefox_win.toolbar.removeLogins();
          },
 
         // stubs for the nsIWebProgressListener interfaces which we don't use.
@@ -558,7 +558,7 @@ keefox_org.ILM = {
 
         handleEvent : function (event)
         {
-            keefox_org.Logger.debug("domEventListener: got event " + event.type);
+            keefox_win.Logger.debug("domEventListener: got event " + event.type);
 
             var doc, inputElement;
             switch (event.type)
@@ -566,7 +566,7 @@ keefox_org.ILM = {
                 case "DOMContentLoaded":
                     doc = event.target;   
                     doc.removeEventListener("DOMContentLoaded", this, false);           
-                    keefox_org.Logger.debug("domEventListener: trying to load form filler");
+                    keefox_win.Logger.debug("domEventListener: trying to load form filler");
                     this._pwmgr._fillDocument(doc,true);
                     
                     // attempt to refill the forms on the current tab in this window at a regular interval
@@ -575,10 +575,10 @@ keefox_org.ILM = {
                     if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                         this._pwmgr._refillTimer.init(this._pwmgr._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                     
-                    keefox_org.Logger.debug("domEventListener: form filler finished");
+                    keefox_win.Logger.debug("domEventListener: form filler finished");
                     return;
                 default:
-                    keefox_org.Logger.warn("This event unexpected.");
+                    keefox_win.Logger.warn("This event unexpected.");
                     return;
             }
         }
@@ -630,7 +630,7 @@ keefox_org.ILM = {
  
             var DOMtype = form.elements[i].type.toLowerCase();
             
-            keefox_org.Logger.debug("domtype: "+ DOMtype );
+            keefox_win.Logger.debug("domtype: "+ DOMtype );
             
             if (DOMtype == "fieldset")
                 continue; // not interested in fieldsets
@@ -644,7 +644,7 @@ keefox_org.ILM = {
             if (DOMtype == "password" && isSubmission && !form.elements[i].value) continue;
             if (DOMtype == "select-one" && isSubmission && !form.elements[i].value) continue;
             
-            keefox_org.Logger.debug("proccessing...");
+            keefox_win.Logger.debug("proccessing...");
             allFields[allFields.length] =
             {
                 index   : i,
@@ -670,7 +670,7 @@ keefox_org.ILM = {
             usernameIndex = firstPossibleUsernameIndex;
         else if (firstPasswordIndex > 0)
             usernameIndex = firstPasswordIndex - 1;
-        keefox_org.Logger.debug("usernameIndex: "+ usernameIndex );
+        keefox_win.Logger.debug("usernameIndex: "+ usernameIndex );
 
         var otherCount = 0;
         var actualUsernameIndex = 0;
@@ -691,8 +691,8 @@ keefox_org.ILM = {
             }
         }
         
-        keefox_org.Logger.debug("actualUsernameIndex: "+ actualUsernameIndex );
-        keefox_org.Logger.debug("otherFields.length:" + otherFields.length);
+        keefox_win.Logger.debug("actualUsernameIndex: "+ actualUsernameIndex );
+        keefox_win.Logger.debug("otherFields.length:" + otherFields.length);
 
         return [actualUsernameIndex, pwFields, otherFields];
     },
@@ -744,7 +744,7 @@ keefox_org.ILM = {
             }
         }
         
-        keefox_org.Logger.info("Adding login to group: " + parentUUID + " in DB: " + dbFileName);
+        keefox_win.Logger.info("Adding login to group: " + parentUUID + " in DB: " + dbFileName);
         return this._kf.addLogin(login, parentUUID, dbFileName);
     },
     
@@ -759,13 +759,13 @@ keefox_org.ILM = {
         if (title == null || title.length == 0)
             throw "Can't add a group with no title.";
 
-        keefox_org.Logger.info("Adding group: " + title + " to group: " + parentUUID);
+        keefox_win.Logger.info("Adding group: " + title + " to group: " + parentUUID);
         return this._kf.addGroup(title, parentUUID);
     },
     
     getParentGroup : function (uniqueID)
     {
-        keefox_org.Logger.debug("Getting parent group of: " + uniqueID);
+        keefox_win.Logger.debug("Getting parent group of: " + uniqueID);
         return this._kf.getParentGroup(uniqueID);
     },
     
@@ -776,7 +776,7 @@ keefox_org.ILM = {
      */
     removeLogin : function (uniqueID)
     {
-        keefox_org.Logger.info("Removing login: " + uniqueID);
+        keefox_win.Logger.info("Removing login: " + uniqueID);
         return this._kf.removeLogin(uniqueID);
     },
     
@@ -787,7 +787,7 @@ keefox_org.ILM = {
      */
     removeGroup : function (uniqueID)
     {
-        keefox_org.Logger.info("Removing group: " + uniqueID);
+        keefox_win.Logger.info("Removing group: " + uniqueID);
         return this._kf.removeGroup(uniqueID);
     },
 
@@ -798,7 +798,7 @@ keefox_org.ILM = {
      */
     modifyLogin : function (oldLogin, newLogin)
     {
-        keefox_org.Logger.info("Modifying a login");
+        keefox_win.Logger.info("Modifying a login");
         return this._kf.modifyLogin(oldLogin, newLogin);
     },
 
@@ -809,12 +809,12 @@ keefox_org.ILM = {
      */
     findLogins : function (url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
     {
-        if (keefox_org.Logger.logSensitiveData)
-            keefox_org.Logger.info("Searching for logins matching URL: " + url +
+        if (keefox_win.Logger.logSensitiveData)
+            keefox_win.Logger.info("Searching for logins matching URL: " + url +
             ", formSubmitURL: " + formSubmitURL + ", httpRealm: " + httpRealm
              + ", uniqueID: " + uniqueID);
         else
-            keefox_org.Logger.info("Searching for logins");
+            keefox_win.Logger.info("Searching for logins");
 
         return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData);
     },
@@ -852,10 +852,10 @@ keefox_org.ILM = {
             realm += uri.path.substring(1,QSbreak > 1 ? QSbreak : uri.path.length);         
         } catch (e)
         {
-            if (keefox_org.Logger.logSensitiveData)
-                keefox_org.Logger.warn("Couldn't parse origin for " + uriString);
+            if (keefox_win.Logger.logSensitiveData)
+                keefox_win.Logger.warn("Couldn't parse origin for " + uriString);
             else
-                keefox_org.Logger.warn("Couldn't parse origin");
+                keefox_win.Logger.warn("Couldn't parse origin");
             realm = null;
         }
         return realm;
@@ -892,10 +892,10 @@ keefox_org.ILM = {
             }
         } catch (e)
         {
-            if (keefox_org.Logger.logSensitiveData)
-                keefox_org.Logger.warn("Couldn't parse origin for " + uriString);
+            if (keefox_win.Logger.logSensitiveData)
+                keefox_win.Logger.warn("Couldn't parse origin for " + uriString);
             else
-                keefox_org.Logger.warn("Couldn't parse origin");
+                keefox_win.Logger.warn("Couldn't parse origin");
             realm = null;
         }
         return realm;
@@ -933,13 +933,13 @@ keefox_org.ILM = {
 
         } catch (e)
         {
-            if (keefox_org.Logger.logSensitiveData)
-                keefox_org.Logger.warn("Couldn't parse origin for " + uriString);
+            if (keefox_win.Logger.logSensitiveData)
+                keefox_win.Logger.warn("Couldn't parse origin for " + uriString);
             else
-                keefox_org.Logger.warn("Couldn't parse origin");
+                keefox_win.Logger.warn("Couldn't parse origin");
             realm = null;
         }
-        if (keefox_org.Logger.logSensitiveData) keefox_org.Logger.debug("_getURISchemeHostAndPort:"+realm);
+        if (keefox_win.Logger.logSensitiveData) keefox_win.Logger.debug("_getURISchemeHostAndPort:"+realm);
         return realm;
     },
     
@@ -956,10 +956,10 @@ keefox_org.ILM = {
             return uri.scheme;
         } catch (e)
         {
-            if (keefox_org.Logger.logSensitiveData)
-                keefox_org.Logger.warn("Couldn't parse scheme for " + uriString);
+            if (keefox_win.Logger.logSensitiveData)
+                keefox_win.Logger.warn("Couldn't parse scheme for " + uriString);
             else
-                keefox_org.Logger.warn("Couldn't parse scheme");
+                keefox_win.Logger.warn("Couldn't parse scheme");
             return "unknown";
         }
     },
@@ -996,10 +996,10 @@ keefox_org.ILM = {
 //        } catch (e) {
 //            // bug 159484 - disallow url types that don't support a hostPort.
 //            // (although we handle "javascript:..." as a special case above.)
-//            if (keefox_org.Logger.logSensitiveData)
-//                keefox_org.Logger.error("Couldn't parse origin for " + uriString);
+//            if (keefox_win.Logger.logSensitiveData)
+//                keefox_win.Logger.error("Couldn't parse origin for " + uriString);
 //            else
-//                keefox_org.Logger.error("Couldn't parse origin");
+//                keefox_win.Logger.error("Couldn't parse origin");
 //            realm = null;
 //        }
 //        return realm;
@@ -1019,10 +1019,10 @@ keefox_org.ILM = {
     loadAndAutoSubmit : function (button, ctrlClick, usernameName,usernameValue,
                         actionURL,usernameID,formID,uniqueID,dbFileName)
     {
-        if (keefox_org.Logger.logSensitiveData)
-            keefox_org.Logger.debug("loading and auto submitting button " + button + ctrlClick + ":" + actionURL); 
+        if (keefox_win.Logger.logSensitiveData)
+            keefox_win.Logger.debug("loading and auto submitting button " + button + ctrlClick + ":" + actionURL); 
         else
-            keefox_org.Logger.debug("loading and auto submitting button " + button + ctrlClick + "..."); 
+            keefox_win.Logger.debug("loading and auto submitting button " + button + ctrlClick + "..."); 
                
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -1067,5 +1067,5 @@ keefox_org.ILM = {
     
    };
    
-keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFILM_Fill.js");
-keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFILM_Submit.js");
+keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM_Fill.js");
+keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM_Submit.js");

@@ -28,11 +28,11 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-var EXPORTED_SYMBOLS = ["keeFoxInst"];
+var EXPORTED_SYMBOLS = ["keefox_org"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/json.js");
-//var KFLogger = keefox_org.Logger;
+//var KFLogger = keefox_win.Logger;
 
 // constructor
 function KeeFox()
@@ -287,9 +287,9 @@ KeeFox.prototype = {
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
-        var sensistiveLoggingEnabled = window.keeFoxInst._keeFoxExtension.prefs.getValue("logSensitiveData", false);
+        var sensistiveLoggingEnabled = window.keefox_org._keeFoxExtension.prefs.getValue("logSensitiveData", false);
         if (sensistiveLoggingEnabled)
-            window.keefox_org.UI._showSensitiveLogEnabledNotification();
+            window.keefox_win.UI._showSensitiveLogEnabledNotification();
     },
 
     //TODO2: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
@@ -791,10 +791,10 @@ KeeFox.prototype = {
             try
             {
                 var win = enumerator.getNext();
-                win.keefox_org.toolbar.removeLogins(); // remove matched logins           
-                win.keefox_org.toolbar.setAllLogins(); // remove list of all logins
-                win.keefox_org.toolbar.setupButton_ready(win);
-                win.keefox_org.UI._removeOLDKFNotifications(true);
+                win.keefox_win.toolbar.removeLogins(); // remove matched logins           
+                win.keefox_win.toolbar.setAllLogins(); // remove list of all logins
+                win.keefox_win.toolbar.setupButton_ready(win);
+                win.keefox_win.UI._removeOLDKFNotifications(true);
             } catch (exception)
             {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
@@ -848,14 +848,14 @@ KeeFox.prototype = {
             try
             {
                 var win = enumerator.getNext();
-                win.keefox_org.toolbar.removeLogins();
-                win.keefox_org.toolbar.setAllLogins();
-                win.keefox_org.toolbar.setupButton_ready(win);
-                win.keefox_org.UI._removeOLDKFNotifications();
+                win.keefox_win.toolbar.removeLogins();
+                win.keefox_win.toolbar.setAllLogins();
+                win.keefox_win.toolbar.setupButton_ready(win);
+                win.keefox_win.UI._removeOLDKFNotifications();
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
-                    win.keefox_org.ILM._fillDocument(win.content.document,false);
+                    win.keefox_win.ILM._fillDocument(win.content.document,false);
                 }
             } catch (exception)
             {
@@ -1419,14 +1419,14 @@ KeeFox.prototype = {
                                        .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                          wm.getMostRecentWindow("mail:3pane");
-            window.keeFoxInst._KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
+            window.keefox_org._KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
 
             switch(topic)
             {
                 case "quit-application":
-                    window.keeFoxInst._KFLog.info("Application is shutting down...");
-                    window.keeFoxInst.shutdown();
-                    window.keeFoxInst._KFLog.info("KeeFox has nearly shut down.");
+                    window.keefox_org._KFLog.info("Application is shutting down...");
+                    window.keefox_org.shutdown();
+                    window.keefox_org._KFLog.info("KeeFox has nearly shut down.");
                     var observerService = Cc["@mozilla.org/observer-service;1"].
                                   getService(Ci.nsIObserverService);
                     observerService.removeObserver(this, "quit-application");
@@ -1434,7 +1434,7 @@ KeeFox.prototype = {
                     this._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch2);
                     this._prefBranchRoot.removeObserver("signon.rememberSignons", this);
                     
-                    window.keeFoxInst._KFLog.info("KeeFox has shut down. Sad times; come back soon!");
+                    window.keefox_org._KFLog.info("KeeFox has shut down. Sad times; come back soon!");
                     break;
                 case "nsPref:changed":
                     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -1478,19 +1478,19 @@ KeeFox.prototype = {
                 case "logMethodStdOut":
                 case "logSensitiveData":
                     // Allow the change to go ahead but warn the user (in case they did not understand the change that was made)
-                    window.keeFoxInst._KFLog.configureFromPreferences();
-                    window.keeFoxInst.oneOffSensitiveLogCheckHandler();
+                    window.keefox_org._KFLog.configureFromPreferences();
+                    window.keefox_org.oneOffSensitiveLogCheckHandler();
                     break;
                 case "dynamicFormScanning":
                     //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
-                    if (keeFoxInst._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-                        window.keeFoxInst.ILM._refillTimer.init(window.keefox_org.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                    if (keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
+                        window.keefox_org.ILM._refillTimer.init(window.keefox_win.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                     else
-                        window.keeFoxInst.ILM._refillTimer.cancel();
+                        window.keefox_org.ILM._refillTimer.cancel();
                     break;
                 case "currentLocation":
                     //tell KeePass this has changed
-                    keeFoxInst.changeLocation(keeFoxInst._keeFoxExtension.prefs.getValue("currentLocation",false));
+                    keefox_org.changeLocation(keefox_org._keeFoxExtension.prefs.getValue("currentLocation",false));
                     break;
             }
         },
@@ -1507,35 +1507,35 @@ KeeFox.prototype = {
     {
         var sigTime = Date();
         
-        keeFoxInst._KFLog.debug("Signal received by KPRPCListener (" + sig + ") @" + sigTime);
+        keefox_org._KFLog.debug("Signal received by KPRPCListener (" + sig + ") @" + sigTime);
         
         var executeNow = false;
         var pause = false;
         var refresh = false;
         
         switch (sig) {
-            case "0": keeFoxInst._KFLog.info("KeePassRPC is requesting authentication."); keeFoxInst._authenticate(); break;
-            case "3": keeFoxInst._KFLog.info("KeePass' currently active DB is about to be opened."); break;
-            case "4": keeFoxInst._KFLog.info("KeePass' currently active DB has just been opened.");
+            case "0": keefox_org._KFLog.info("KeePassRPC is requesting authentication."); keefox_org._authenticate(); break;
+            case "3": keefox_org._KFLog.info("KeePass' currently active DB is about to be opened."); break;
+            case "4": keefox_org._KFLog.info("KeePass' currently active DB has just been opened.");
                 refresh = true;
                 break;
-            case "5": keeFoxInst._KFLog.info("KeePass' currently active DB is about to be closed."); break;
-            case "6": keeFoxInst._KFLog.info("KeePass' currently active DB has just been closed."); 
+            case "5": keefox_org._KFLog.info("KeePass' currently active DB is about to be closed."); break;
+            case "6": keefox_org._KFLog.info("KeePass' currently active DB has just been closed."); 
                 refresh = true;
                 break;
-            case "7": keeFoxInst._KFLog.info("KeePass' currently active DB is about to be saved."); break;
-            case "8": keeFoxInst._KFLog.info("KeePass' currently active DB has just been saved."); 
+            case "7": keefox_org._KFLog.info("KeePass' currently active DB is about to be saved."); break;
+            case "8": keefox_org._KFLog.info("KeePass' currently active DB has just been saved."); 
                 refresh = true;
                 break;
-            case "9": keeFoxInst._KFLog.info("KeePass' currently active DB is about to be deleted."); break;
-            case "10": keeFoxInst._KFLog.info("KeePass' currently active DB has just been deleted."); break;
-            case "11": keeFoxInst._KFLog.info("KeePass' active DB has been changed/selected."); 
+            case "9": keefox_org._KFLog.info("KeePass' currently active DB is about to be deleted."); break;
+            case "10": keefox_org._KFLog.info("KeePass' currently active DB has just been deleted."); break;
+            case "11": keefox_org._KFLog.info("KeePass' active DB has been changed/selected."); 
                 refresh = true;
                 break;
-            case "12": keeFoxInst._KFLog.info("KeePass is shutting down."); 
+            case "12": keefox_org._KFLog.info("KeePass is shutting down."); 
                 pause = true;
                 break;
-            default: keeFoxInst._KFLog.error("Invalid signal received by KPRPCListener (" + sig + ")"); break;
+            default: keefox_org._KFLog.error("Invalid signal received by KPRPCListener (" + sig + ")"); break;
         }
         
         if (!pause && !refresh)
@@ -1544,17 +1544,17 @@ KeeFox.prototype = {
         var now = (new Date()).getTime();
         
         // avoid refreshing more frequently than every half second
-//        if (refresh && keeFoxInst.lastKeePassRPCRefresh > now-5000)
+//        if (refresh && keefox_org.lastKeePassRPCRefresh > now-5000)
 //        {    
-//            keeFoxInst._KFLog.info("Signal ignored. @" + sigTime);
+//            keefox_org._KFLog.info("Signal ignored. @" + sigTime);
 //            return;
 //        }
         
         // If there is nothing in the queue at the moment we can process this callback straight away
-        if (!keeFoxInst.processingCallback && keeFoxInst.pendingCallback == "")
+        if (!keefox_org.processingCallback && keefox_org.pendingCallback == "")
         {
-            keeFoxInst._KFLog.debug("Signal executing now. @" + sigTime); 
-            keeFoxInst.processingCallback = true;
+            keefox_org._KFLog.debug("Signal executing now. @" + sigTime); 
+            keefox_org.processingCallback = true;
             executeNow = true;
         }
         // Otherwise we need to add the action for this callback to a queue and leave it up to the regular callback processor to execute the action
@@ -1563,75 +1563,75 @@ KeeFox.prototype = {
         if (pause)
         {
             
-            if (executeNow) keeFoxInst._pauseKeeFox(); else keeFoxInst.pendingCallback = "_pauseKeeFox";
+            if (executeNow) keefox_org._pauseKeeFox(); else keefox_org.pendingCallback = "_pauseKeeFox";
         }
         
         if (refresh)
         {
             
-            if (executeNow) {keeFoxInst.lastKeePassRPCRefresh = now; keeFoxInst._refreshKPDB();} else keeFoxInst.pendingCallback = "_refreshKPDB";
+            if (executeNow) {keefox_org.lastKeePassRPCRefresh = now; keefox_org._refreshKPDB();} else keefox_org.pendingCallback = "_refreshKPDB";
         }
         
-        keeFoxInst._KFLog.info("Signal handled or queued. @" + sigTime); 
+        keefox_org._KFLog.info("Signal handled or queued. @" + sigTime); 
         if (executeNow)
         {
             
             //trigger any pending callback handler immediately rather than waiting for the timed handler to pick it up
-            if (keeFoxInst.pendingCallback=="_pauseKeeFox")
-                keeFoxInst._pauseKeeFox();
-            else if (keeFoxInst.pendingCallback=="_refreshKPDB")
-                keeFoxInst._refreshKPDB();
+            if (keefox_org.pendingCallback=="_pauseKeeFox")
+                keefox_org._pauseKeeFox();
+            else if (keefox_org.pendingCallback=="_refreshKPDB")
+                keefox_org._refreshKPDB();
             else
-                keeFoxInst._KFLog.info("A pending signal was found and handled.");
-            keeFoxInst.pendingCallback = "";
-            keeFoxInst.processingCallback = false;
-            keeFoxInst._KFLog.info("Signal handled. @" + sigTime); 
+                keefox_org._KFLog.info("A pending signal was found and handled.");
+            keefox_org.pendingCallback = "";
+            keefox_org.processingCallback = false;
+            keefox_org._KFLog.info("Signal handled. @" + sigTime); 
         }
     },
     
     RegularKPRPCListenerQueueHandler: function()
     {
         // If there is nothing in the queue at the moment or we are already processing a callback, we give up for now
-        if (keeFoxInst.processingCallback || keeFoxInst.pendingCallback == "")
+        if (keefox_org.processingCallback || keefox_org.pendingCallback == "")
             return;
             
-        keeFoxInst._KFLog.debug("RegularKPRPCListenerQueueHandler will execute the pending item now");
-        keeFoxInst.processingCallback = true;
-        if (keeFoxInst.pendingCallback=="_pauseKeeFox")
-            keeFoxInst._pauseKeeFox();
-        else if (keeFoxInst.pendingCallback=="_refreshKPDB")
-            keeFoxInst._refreshKPDB();
-        keeFoxInst.pendingCallback = "";
-        keeFoxInst.processingCallback = false;
-        keeFoxInst._KFLog.debug("RegularKPRPCListenerQueueHandler has finished executing the item");
+        keefox_org._KFLog.debug("RegularKPRPCListenerQueueHandler will execute the pending item now");
+        keefox_org.processingCallback = true;
+        if (keefox_org.pendingCallback=="_pauseKeeFox")
+            keefox_org._pauseKeeFox();
+        else if (keefox_org.pendingCallback=="_refreshKPDB")
+            keefox_org._refreshKPDB();
+        keefox_org.pendingCallback = "";
+        keefox_org.processingCallback = false;
+        keefox_org._KFLog.debug("RegularKPRPCListenerQueueHandler has finished executing the item");
     },
 
     _onTabOpened: function(event)
     {
-    //event.target.ownerDocument.defaultView.keefox_org.Logger.debug("_onTabOpened.");
+    //event.target.ownerDocument.defaultView.keefox_win.Logger.debug("_onTabOpened.");
 
     },
 
 //TODO2: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM?
     _onTabSelected: function(event)
     {
-        var kfo = event.target.ownerDocument.defaultView.keefox_org;
+        var kfw = event.target.ownerDocument.defaultView.keefox_win;
         
-        if (kfo.Logger.logSensitiveData)
-            kfo.Logger.debug("_onTabSelected:" + kfo.ILM._loadingKeeFoxLogin);
+        if (kfw.Logger.logSensitiveData)
+            kfw.Logger.debug("_onTabSelected:" + kfw.ILM._loadingKeeFoxLogin);
         else
-            kfo.Logger.debug("_onTabSelected.");
+            kfw.Logger.debug("_onTabSelected.");
         
-        if (kfo.ILM._loadingKeeFoxLogin != undefined
-        && kfo.ILM._loadingKeeFoxLogin != null)
+        if (kfw.ILM._loadingKeeFoxLogin != undefined
+        && kfw.ILM._loadingKeeFoxLogin != null)
         {
-            kfo.ILM._loadingKeeFoxLogin = null;
+            kfw.ILM._loadingKeeFoxLogin = null;
         } else
         {
-            if (kfo.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
+            if (kfw.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
-                kfo.toolbar.setLogins(null, null);
-                kfo.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
+                kfw.toolbar.setLogins(null, null);
+                kfw.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
             }
         }
     },
@@ -1678,11 +1678,11 @@ KeeFox.prototype = {
     }
 };
 
-var keeFoxInst = new KeeFox;
+var keefox_org = new KeeFox;
 
 // abort if we find a conflict
-if (!keeFoxInst._checkForConflictingExtensions())
-    keeFoxInst = null;
+if (!keefox_org._checkForConflictingExtensions())
+    keefox_org = null;
 
 var launchGroupEditorThread = function(uuid) {
   this.uniqueID = uuid;
@@ -1691,7 +1691,7 @@ var launchGroupEditorThread = function(uuid) {
 launchGroupEditorThread.prototype = {
   run: function() {
     try {
-      keeFoxInst.KeePassRPC.launchGroupEditor(this.uniqueID);
+      keefox_org.KeePassRPC.launchGroupEditor(this.uniqueID);
    
     } catch(err) {
       dump(err);
@@ -1715,7 +1715,7 @@ var launchLoginEditorThread = function(uuid) {
 launchLoginEditorThread.prototype = {
   run: function() {
     try {
-      keeFoxInst.KeePassRPC.launchLoginEditor(this.uniqueID);
+      keefox_org.KeePassRPC.launchLoginEditor(this.uniqueID);
   
     } catch(err) {
       dump(err);

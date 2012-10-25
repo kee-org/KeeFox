@@ -35,7 +35,7 @@ var EXPORTED_SYMBOLS = ["session"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 
-var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keeFoxInst._KFLog;
+var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keefox_org._KFLog;
 
 function session()
 {
@@ -173,8 +173,8 @@ session.prototype =
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            //window.keeFoxInst.KeePassRPC.reconnectSoon.next();
-            var rpc = window.keeFoxInst.KeePassRPC;
+            //window.keefox_org.KeePassRPC.reconnectSoon.next();
+            var rpc = window.keefox_org.KeePassRPC;
             
             if (rpc.fastRetries > 0)
             {
@@ -210,7 +210,7 @@ session.prototype =
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
 
-        var rpc = window.keeFoxInst.KeePassRPC;
+        var rpc = window.keefox_org.KeePassRPC;
             
         if (rpc.transport == undefined || rpc.transport == null)
         {
@@ -246,7 +246,7 @@ session.prototype =
       var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
       
-      if (window.keeFoxInst.useMono)
+      if (window.keefox_org.useMono)
       {
         try
         {

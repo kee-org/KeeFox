@@ -28,7 +28,7 @@ let Cu = Components.utils;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
-keefox_org.toolbar = {
+keefox_win.toolbar = {
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
         this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
@@ -82,7 +82,7 @@ keefox_org.toolbar = {
 
     // add all matched logins to the menu
     setLogins: function (logins, doc) {
-        keefox_org.Logger.debug("setLogins started");
+        keefox_win.Logger.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         if (container === undefined || container == null)
@@ -119,9 +119,9 @@ keefox_org.toolbar = {
         }
 
         if (merging)
-            keefox_org.Logger.debug("merging " + logins.length + " toolbar logins");
+            keefox_win.Logger.debug("merging " + logins.length + " toolbar logins");
         else
-            keefox_org.Logger.debug("setting " + logins.length + " toolbar logins");
+            keefox_win.Logger.debug("setting " + logins.length + " toolbar logins");
 
         // add every matched login to the popup menu
         for (let i = 0; i < logins.length; i++) {
@@ -154,7 +154,7 @@ keefox_org.toolbar = {
                 //container.setAttribute("login", login, null);
                 container.setAttribute("context", "KeeFox-login-toolbar-context");
                 container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
-                //container.setAttribute("oncommand", "keefox_org.ILM.fill('" +
+                //container.setAttribute("oncommand", "keefox_win.ILM.fill('" +
                 //    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','" + usernameId + "',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
                 container.setAttribute('usernameName', usernameName);
                 container.setAttribute('usernameValue', usernameValue);
@@ -214,14 +214,14 @@ keefox_org.toolbar = {
         }
 
         if (merging)
-            keefox_org.Logger.debug(logins.length + " toolbar logins merged!");
+            keefox_win.Logger.debug(logins.length + " toolbar logins merged!");
         else
-            keefox_org.Logger.debug(logins.length + " toolbar logins set!");
+            keefox_win.Logger.debug(logins.length + " toolbar logins set!");
     },
 
     // populate the "all logins" menu with every login in this database
     setAllLogins: function () {
-        keefox_org.Logger.debug("setAllLogins start");
+        keefox_win.Logger.debug("setAllLogins start");
 
         var loginButton = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
         if (loginButton === undefined || loginButton == null)
@@ -236,29 +236,29 @@ keefox_org.toolbar = {
         for (i = container.childNodes.length; i > 0; i--)
             container.removeChild(container.childNodes[0]);
             
-        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false)) {
+        if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false)) {
             // start with the current root group uniqueID
             try {
-                if (!window.keeFoxInst._keeFoxExtension.prefs.getValue("listAllOpenDBs",false))
+                if (!window.keefox_org._keeFoxExtension.prefs.getValue("listAllOpenDBs",false))
                 {
-                    var rootGroup = keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].root;
+                    var rootGroup = keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].root;
                     if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                     {
-                        var dbFileName = keeFoxInst.KeePassDatabases[keeFoxInst.ActiveKeePassDatabaseIndex].fileName;
+                        var dbFileName = keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].fileName;
                         this.setOneLoginsMenu(container, rootGroup, dbFileName);
                     }
                 } else
                 {
-                    for (var i=0; i<keeFoxInst.KeePassDatabases.length; i++)
+                    for (var i=0; i<keefox_org.KeePassDatabases.length; i++)
                     {
-                        var rootGroup = keeFoxInst.KeePassDatabases[i].root;
+                        var rootGroup = keefox_org.KeePassDatabases[i].root;
                         if (rootGroup != null && rootGroup != undefined && rootGroup.uniqueID)
                         {
-                            var dbFileName = keeFoxInst.KeePassDatabases[i].fileName;
+                            var dbFileName = keefox_org.KeePassDatabases[i].fileName;
                             
-                            if (keeFoxInst.KeePassDatabases.length > 1)
+                            if (keefox_org.KeePassDatabases.length > 1)
                             {
-                                var dbName = keeFoxInst.KeePassDatabases[i].name;
+                                var dbName = keefox_org.KeePassDatabases[i].name;
                                 
                                 var newMenu = null;
                                 newMenu = this._currentWindow.document.createElement("menu");
@@ -285,21 +285,21 @@ keefox_org.toolbar = {
                     }
                 }
             } catch (e) {
-                keefox_org.Logger.error("setAllLogins exception: " + e);
+                keefox_win.Logger.error("setAllLogins exception: " + e);
                 return;
             }
             loginButton.setAttribute("disabled", "false");
         } else {
             loginButton.setAttribute("disabled", "true");
         }
-        keefox_org.Logger.debug("setAllLogins end");
+        keefox_win.Logger.debug("setAllLogins end");
         return;
     },
 
     // add all the logins and subgroups for one KeePass group
     setOneLoginsMenu: function(container, group, dbFileName)
     {
-        //keefox_org.Logger.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
+        //keefox_win.Logger.debug("setOneLoginsMenu called for [" + container.id + "] with uniqueRef: " + group.uniqueID);
 
         // Remove all of the existing buttons
         for (var i = container.childNodes.length; i > 0; i--) {
@@ -308,7 +308,7 @@ keefox_org.toolbar = {
 
         var foundGroups = group.childGroups;
         var foundLogins = group.childLightEntries;
-        //keefox_org.Logger.debug("loga");
+        //keefox_win.Logger.debug("loga");
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0)) {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
@@ -318,7 +318,7 @@ keefox_org.toolbar = {
             container.appendChild(noItemsButton);
             return;
         }
-        //keefox_org.Logger.debug("logb");
+        //keefox_win.Logger.debug("logb");
         for (var i = 0; i < foundGroups.length; i++) {
             var group = foundGroups[i];
 
@@ -342,9 +342,9 @@ keefox_org.toolbar = {
             newMenu.appendChild(newMenuPopup);
 
         }
-        //keefox_org.Logger.debug("logc");
+        //keefox_win.Logger.debug("logc");
         for (var i = 0; i < foundLogins.length; i++) {
-            //keefox_org.Logger.debug("logi: " + i);
+            //keefox_win.Logger.debug("logi: " + i);
             var login = foundLogins[i];
             var usernameValue = "";
             var usernameName = "";
@@ -359,8 +359,8 @@ keefox_org.toolbar = {
             tempButton.setAttribute("label", login.title);
             tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
                 "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue]));
-            tempButton.addEventListener("command", function (event) { keefox_org.ILM.loadAndAutoSubmit(0, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); }, false); //ael: works
-            tempButton.addEventListener("click", function (event) { if (event.button == 1) { keefox_org.ILM.loadAndAutoSubmit(event.button, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); keefox_org.UI.closeMenus(event.target); } }, false); //ael: works
+            tempButton.addEventListener("command", function (event) { keefox_win.ILM.loadAndAutoSubmit(0, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); }, false); //ael: works
+            tempButton.addEventListener("click", function (event) { if (event.button == 1) { keefox_win.ILM.loadAndAutoSubmit(event.button, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); keefox_win.UI.closeMenus(event.target); } }, false); //ael: works
 
             tempButton.setAttribute("class", "menuitem-iconic");
             tempButton.setAttribute('fileName', dbFileName, null);
@@ -376,7 +376,7 @@ keefox_org.toolbar = {
     },
 
     setupButton_install: function (targetWindow) {
-        keefox_org.Logger.debug("setupButton_install start");
+        keefox_win.Logger.debug("setupButton_install start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -406,7 +406,7 @@ keefox_org.toolbar = {
     // decide what state the toolbar needs to show when this function is executing rather than calling
     // one of many different ones from other locations
     setupButton_ready: function (targetWindow, mainWindowIN) {
-        keefox_org.Logger.debug("setupButton_ready start");
+        keefox_win.Logger.debug("setupButton_ready start");
         var mainButton;
         var mainWindow;
 
@@ -441,25 +441,25 @@ keefox_org.toolbar = {
         var changeDBButton = mainWindow.document.getElementById("KeeFox_ChangeDB-Button");
         var generatePasswordButton = mainWindow.document.getElementById("KeeFox_CopyNewPasswordToClipboard-Button");
 
-        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false)) {
+        if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false)) {
 
-            //var DBname = mainWindow.keeFoxInst.getDatabaseName();
+            //var DBname = mainWindow.keefox_org.getDatabaseName();
             //if (DBname === null)
             //    return; // KeePassRPC suddenly dissapeared - toolbar will have been updated from deeper in the stack? maybe not since removal of ICE?
 
             var loggedInText = "";
-            var activeDBIndex = mainWindow.keeFoxInst.ActiveKeePassDatabaseIndex;
+            var activeDBIndex = mainWindow.keefox_org.ActiveKeePassDatabaseIndex;
 
-            if (mainWindow.keeFoxInst.KeePassDatabases != null
-                && mainWindow.keeFoxInst.KeePassDatabases.length > 0
-                && mainWindow.keeFoxInst.KeePassDatabases[activeDBIndex] != null 
-                && mainWindow.keeFoxInst.KeePassDatabases[activeDBIndex].root != null)
+            if (mainWindow.keefox_org.KeePassDatabases != null
+                && mainWindow.keefox_org.KeePassDatabases.length > 0
+                && mainWindow.keefox_org.KeePassDatabases[activeDBIndex] != null 
+                && mainWindow.keefox_org.KeePassDatabases[activeDBIndex].root != null)
             {
-                var numberOfDBs = mainWindow.keeFoxInst.KeePassDatabases.length;
+                var numberOfDBs = mainWindow.keefox_org.KeePassDatabases.length;
                 if (numberOfDBs == 1)
-                    loggedInText = this.strbundle.getFormattedString("loggedIn.tip", [mainWindow.keeFoxInst.KeePassDatabases[activeDBIndex].name]);
+                    loggedInText = this.strbundle.getFormattedString("loggedIn.tip", [mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
                 else
-                    loggedInText = this.strbundle.getFormattedString("loggedInMultiple.tip", [numberOfDBs,mainWindow.keeFoxInst.KeePassDatabases[activeDBIndex].name]);
+                    loggedInText = this.strbundle.getFormattedString("loggedInMultiple.tip", [numberOfDBs,mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
             } else
             {
                 return;
@@ -468,11 +468,11 @@ keefox_org.toolbar = {
             mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", loggedInText);
             mainButton.setAttribute("disabled", "true");
-        } else if (!keeFoxInst._keeFoxStorage.get("KeePassRPCInstalled", false)) {
+        } else if (!keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false)) {
             mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
             mainButton.addEventListener("command", this.mainButtonCommandInstallHandler, false);
-        } else if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)) {
+        } else if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false)) {
             mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
             mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
             mainButton.addEventListener("command", this.mainButtonCommandLaunchKPHandler, false);
@@ -483,7 +483,7 @@ keefox_org.toolbar = {
         }
 
 
-        if (keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false) || keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)) {
+        if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) || keefox_org._keeFoxStorage.get("KeePassRPCActive", false)) {
             if (changeDBButton !== undefined && changeDBButton != null) {
                 changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
                 changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip"));
@@ -493,7 +493,7 @@ keefox_org.toolbar = {
             }
             //TODO: make generate password popupshowing event do something useful or remove it
             if (generatePasswordButton !== undefined && generatePasswordButton != null) {
-                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_org.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
+                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
                 generatePasswordButton.setAttribute("disabled", "false");
             }
         } else {
@@ -512,7 +512,7 @@ keefox_org.toolbar = {
                 generatePasswordButton.setAttribute("disabled", "true");
             }
         }
-        keefox_org.Logger.debug("setupButton_ready end");
+        keefox_win.Logger.debug("setupButton_ready end");
     },
 
     flashItem: function (flashyItem, numberOfTimes, theWindow) {
@@ -527,7 +527,7 @@ keefox_org.toolbar = {
         else
             flashyItem.setAttribute("class", "highlight");
 
-        theWindow.setTimeout(keefox_org.toolbar.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
+        theWindow.setTimeout(keefox_win.toolbar.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
     },
 
     detachMRUpopup: function () {
@@ -549,7 +549,7 @@ keefox_org.toolbar = {
         if (event != undefined && event != null)
             event.stopPropagation();
 
-        var popupContainer = keefox_org.toolbar._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+        var popupContainer = keefox_win.toolbar._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
         if (popupContainer === undefined || popupContainer == null)
             return;
 
@@ -560,13 +560,13 @@ keefox_org.toolbar = {
 
         // Set up a loading message while we wait
         var noItemsButton = null;
-        noItemsButton = keefox_org.toolbar._currentWindow.document.createElement("menuitem");
-        noItemsButton.setAttribute("label", keefox_org.toolbar.strbundle.getString("loading") + '...');
+        noItemsButton = keefox_win.toolbar._currentWindow.document.createElement("menuitem");
+        noItemsButton.setAttribute("label", keefox_win.toolbar.strbundle.getString("loading") + '...');
         noItemsButton.setAttribute("disabled", "true");
         popupContainer.appendChild(noItemsButton);
 
         // calls setMRUdatabasesCallback after KeePassRPC responds
-        keefox_org.toolbar._currentWindow.keeFoxInst.getAllDatabaseFileNames();
+        keefox_win.toolbar._currentWindow.keefox_org.getAllDatabaseFileNames();
     },
 
     setMRUdatabasesCallback: function (result) {
@@ -617,9 +617,9 @@ keefox_org.toolbar = {
                 tempButton.setAttribute("label", displayName);
                 tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("changeDBButtonListItem.tip", [mruArray[i]]));
                 var mruToUse = mruArray[i].replace(/[\\]/g, '\\');
-                //tempButton.setAttribute("oncommand", "keeFoxInst.changeDatabase('" +
+                //tempButton.setAttribute("oncommand", "keefox_org.changeDatabase('" +
                 //    mruArray[i].replace(/[\\]/g, '\\\\') + "',false);  event.stopPropagation();");
-                tempButton.addEventListener("command", function (event) { keeFoxInst.changeDatabase(this.getAttribute('mruToUse'), false); event.stopPropagation(); }, false); //AET: OK
+                tempButton.addEventListener("command", function (event) { keefox_org.changeDatabase(this.getAttribute('mruToUse'), false); event.stopPropagation(); }, false); //AET: OK
                 tempButton.setAttribute("class", "menuitem-iconic");
                 //tempButton.setAttribute("context", "KeeFox-login-context"); in future this could enable "set to default for this location..." etc. ?
                 tempButton.setAttribute("image", "chrome://keefox/skin/KeeLock.png");
@@ -675,7 +675,7 @@ keefox_org.toolbar = {
     // wipe any session data relating to filling login forms that we
     // have associated with the most recent tab.
     clearTabFormFillData: function () {
-        keefox_org.Logger.debug("clearTabFormFillData start");
+        keefox_win.Logger.debug("clearTabFormFillData start");
         var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
             .getService(Components.interfaces.nsISessionStore);
         var currentGBrowser = this._currentWindow.gBrowser;
@@ -713,20 +713,20 @@ keefox_org.toolbar = {
         }
 
 
-        keefox_org.Logger.debug("clearTabFormFillData end");
+        keefox_win.Logger.debug("clearTabFormFillData end");
     },
 
 
     fillCurrentDocument: function () {
-        keefox_org.Logger.debug("fillCurrentDocument start");
+        keefox_win.Logger.debug("fillCurrentDocument start");
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);
-        this._currentWindow.keefox_org.ILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
+        this._currentWindow.keefox_win.ILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
     },
 
     generatePassword: function () {
-        this._currentWindow.keeFoxInst.generatePassword();
+        this._currentWindow.keefox_org.generatePassword();
     },
 
     removeNonMatchingEventHandlers: function (node) {
@@ -741,19 +741,19 @@ keefox_org.toolbar = {
     },
 
     mainButtonCommandInstallHandler: function (event) {
-        keeFoxInst.KeeFox_MainButtonClick_install();
+        keefox_org.KeeFox_MainButtonClick_install();
     },
 
     mainButtonCommandLaunchKPHandler: function (event) {
-        keeFoxInst.launchKeePass('');
+        keefox_org.launchKeePass('');
     },
 
     mainButtonCommandLoginKPHandler: function (event) {
-        keeFoxInst.loginToKeePass();
+        keefox_org.loginToKeePass();
     },
 
     mainButtonCommandMatchHandler: function (event) {
-        keefox_org.ILM.fill(
+        keefox_win.ILM.fill(
             this.hasAttribute('usernameName') ? this.getAttribute('usernameName') : null,
             this.hasAttribute('usernameValue') ? this.getAttribute('usernameValue') : null,
             this.hasAttribute('formActionURL') ? this.getAttribute('formActionURL') : null,

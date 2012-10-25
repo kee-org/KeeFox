@@ -140,7 +140,7 @@ var keeFoxDialogManager = {
         try {
             keeFoxDialogManager.prepareFill();
         } catch (exception) {
-            keeFoxInst._KFLog.error(exception);
+            keefox_org._KFLog.error(exception);
         }
     },
     
@@ -153,7 +153,7 @@ var keeFoxDialogManager = {
             Dialog.args.promptType == "promptUserAndPass" || // user and pass
             Dialog.args.promptType == "promptPassword") // password only
         {        
-            keeFoxInst._KFLog.debug("prepareFill accepted"); 
+            keefox_org._KFLog.debug("prepareFill accepted"); 
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
@@ -194,7 +194,7 @@ var keeFoxDialogManager = {
                 // unless we add support for multi-page logins
                 if (currentTab.hasAttribute("KF_uniqueID"))
                 {
-                    keeFoxInst._KFLog.debug("has uid");                
+                    keefox_org._KFLog.debug("has uid");                
                     ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
                     ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
                     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
@@ -209,9 +209,9 @@ var keeFoxDialogManager = {
                 if (removeTabSessionStoreData)
                 {
                     // remove the data that helps us track multi-page logins, etc.
-                    keeFoxInst._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                    parentWindow.keefox_org.toolbar.clearTabFormRecordingData();
-                    parentWindow.keefox_org.toolbar.clearTabFormFillData();                
+                    keefox_org._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
+                    parentWindow.keefox_win.toolbar.clearTabFormRecordingData();
+                    parentWindow.keefox_win.toolbar.clearTabFormFillData();                
                 }
                     
                 host = "";
@@ -388,15 +388,15 @@ var keeFoxDialogManager = {
                 var uri = ioService.newURI(host, null, null);
                 host = uri.host;            
             } catch (exception) {
-                if (keeFoxInst._KFLog.logSensitiveData)
-                    keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
+                if (keefox_org._KFLog.logSensitiveData)
+                    keefox_org._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
                 else
-                    keeFoxInst._KFLog.debug("Exception occured while trying to extract the host from a string");
+                    keefox_org._KFLog.debug("Exception occured while trying to extract the host from a string");
             }                
                             
             // if we're not logged in to KeePass then we can't go on
-            if (!keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)
-            ||  !keeFoxInst._keeFoxStorage.get("KeePassDatabaseOpen", false))
+            if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false)
+            ||  !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
                 //TODO2: be more helpful: have button to load database and then refresh the dialog?                
                 //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?
@@ -479,8 +479,8 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.document = document;
             dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
             // find all the logins
-            var requestId = keeFoxInst.findLogins(originalHost, null, realm, null, null, null, this.autoFill);
-            window.keefox_org.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
+            var requestId = keefox_org.findLogins(originalHost, null, realm, null, null, null, this.autoFill);
+            window.keefox_win.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
         }    
     },
     
@@ -491,7 +491,7 @@ var keeFoxDialogManager = {
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
-        window.keeFoxInst._KFLog.info("callback fired!");
+        window.keefox_org._KFLog.info("callback fired!");
         this.strbundle = window.document.getElementById("KeeFox-strings");
         
         var foundLogins = null;
@@ -517,21 +517,21 @@ var keeFoxDialogManager = {
         }        
         
         foundLogins = convertedResult;            
-        var dialogFindLoginStorage = window.keefox_org.ILM.dialogFindLoginStorages[resultWrapper.id];
+        var dialogFindLoginStorage = window.keefox_win.ILM.dialogFindLoginStorages[resultWrapper.id];
         
         // auto fill the dialog by default unless a preference or tab variable tells us otherwise
-        var autoFill = keeFoxInst._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
+        var autoFill = keefox_org._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
         
         // do not auto submit the dialog by default unless a preference or tab variable tells us otherwise
-        var autoSubmit = keeFoxInst._keeFoxExtension.prefs.getValue("autoSubmitDialogs",false);
+        var autoSubmit = keefox_org._keeFoxExtension.prefs.getValue("autoSubmitDialogs",false);
         
         // overwrite existing username by default unless a preference or tab variable tells us otherwise
-        var overWriteFieldsAutomatically = keeFoxInst._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
+        var overWriteFieldsAutomatically = keefox_org._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
         
         // this protects against infinite loops when the auto-submitted details are rejected    
-        if (keeFoxInst._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
+        if (keefox_org._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
         {
-            if (Math.round(new Date().getTime() / 1000) - keeFoxInst._keeFoxExtension.prefs.get("lastProtocolAuthAttempt") <= 3)
+            if (Math.round(new Date().getTime() / 1000) - keefox_org._keeFoxExtension.prefs.get("lastProtocolAuthAttempt") <= 3)
             {
                 autoFill = false;
                 autoSubmit = false;
@@ -546,10 +546,10 @@ var keeFoxDialogManager = {
             autoSubmit = false;
         }        
 
-        if (keeFoxInst._KFLog.logSensitiveData)
-            keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
+        if (keefox_org._KFLog.logSensitiveData)
+            keefox_org._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
         else
-            keeFoxInst._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
+            keefox_org._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
         
         if (foundLogins.length <= 0)
             return;
@@ -574,7 +574,7 @@ var keeFoxDialogManager = {
                 showList = true;                
 
             } catch (e) {
-                keeFoxInst._KFLog.error(e);
+                keefox_org._KFLog.error(e);
             }
         }
         
@@ -588,7 +588,7 @@ var keeFoxDialogManager = {
             //TODO2: find a way to get string bundles into here without
             // referencing document specific vars that go out of scope
             // when windows are closed...button.setAttribute("label",
-            // keeFoxInst.strbundle.getString("autoFillWith
+            // keefox_org.strbundle.getString("autoFillWith
             //button.setAttribute("label", "Auto Fill With");
 
             var list = dialogFindLoginStorage.document.createElement("menulist");
@@ -668,8 +668,8 @@ var keeFoxDialogManager = {
                          .getService(Components.interfaces.nsIWindowMediator);
                 var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
                     wm.getMostRecentWindow("mail:3pane");
-                if (parentWindow.keefox_org.ILM._getSaveOnSubmitForSite(this.host))
-                    parentWindow.keefox_org.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
+                if (parentWindow.keefox_win.ILM._getSaveOnSubmitForSite(this.host))
+                    parentWindow.keefox_win.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
                         document.getElementById("password1Textbox").value, this.host, this.realm);
             }
         } catch (ex)

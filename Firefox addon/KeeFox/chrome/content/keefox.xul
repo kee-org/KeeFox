@@ -46,13 +46,13 @@
         </menu>
 
         <menuitem id="KeeFox_FillCurrentDocument-Button" tooltiptext="&KeeFox_Menu-Button.fillCurrentDocument.tip;"
-                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keefox_org.toolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
+                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keefox_win.toolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
         
 
         <menuseparator />
 
         <menuitem id="KeeFox_CopyNewPasswordToClipboard-Button" tooltiptext="&KeeFox_Menu-Button.copyNewPasswordToClipboard.tip;"
-                           class="" label="&KeeFox_Menu-Button.copyNewPasswordToClipboard.label;" oncommand="keefox_org.toolbar.generatePassword()" accesskey="&KeeFox_Menu-Button.copyNewPasswordToClipboard.key;" />
+                           class="" label="&KeeFox_Menu-Button.copyNewPasswordToClipboard.label;" oncommand="keefox_win.toolbar.generatePassword()" accesskey="&KeeFox_Menu-Button.copyNewPasswordToClipboard.key;" />
 
 
         <menuseparator />
@@ -68,9 +68,9 @@
                    class="" image="" label="&KeeFox_Menu-Button.Help.label;"  accesskey="&KeeFox_Menu-Button.Help.key;" >
           <menupopup id="KeeFox_Help-Popup">
             <menuitem id="KeeFox_Help-GettingStarted-Button" tooltiptext="&KeeFox_Help-GettingStarted-Button.tip;"
-                           class="" label="&KeeFox_Help-GettingStarted-Button.label;" oncommand="keeFoxInst._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="&KeeFox_Help-GettingStarted-Button.key;" />
+                           class="" label="&KeeFox_Help-GettingStarted-Button.label;" oncommand="keefox_org._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="&KeeFox_Help-GettingStarted-Button.key;" />
             <menuitem id="KeeFox_Help-Centre-Button" tooltiptext="&KeeFox_Help-Centre-Button.tip;"
-                           class="" label="&KeeFox_Help-Centre-Button.label;" oncommand="keeFoxInst._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="&KeeFox_Help-Centre-Button.key;" />
+                           class="" label="&KeeFox_Help-Centre-Button.label;" oncommand="keefox_org._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="&KeeFox_Help-Centre-Button.key;" />
           </menupopup>
         </menu>
 
@@ -104,15 +104,15 @@
   <popupset>
     <menupopup id="KeeFox-login-toolbar-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keefox_org.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-login-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keeFoxInst.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
       <!--<menuitem label="Login all in tabs"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keeFoxInst.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
+      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
     </menupopup>
   </popupset>
 

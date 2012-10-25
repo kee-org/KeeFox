@@ -57,7 +57,7 @@
     .getService(Components.interfaces.nsIWindowMediator);
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
     wm.getMostRecentWindow("mail:3pane");
-    var rootGroup = mainWindow.keefox_org.ILM._kf.getDBbyFilename(window.arguments[2]).root; //KeePassDatabases[window.keefox_org.ILM._kf.ActiveKeePassDatabaseIndex].root;
+    var rootGroup = mainWindow.keefox_win.ILM._kf.getDBbyFilename(window.arguments[2]).root; //KeePassDatabases[window.keefox_win.ILM._kf.ActiveKeePassDatabaseIndex].root;
     keePassGroupTreeView.addTopObject(rootGroup, true);
     tree.view = keePassGroupTreeView;
     }

@@ -221,6 +221,9 @@
       <Filter>JS</Filter>
     </None>
     <None Include="KeeFox\chrome\content\install_mono.xul" />
+    <None Include="KeeFox\modules\config.js">
+      <Filter>JS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

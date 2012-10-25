@@ -205,6 +205,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\KeeOrange24.png" />
     <None Include="KeeFox\chrome\skin\key-highlighted.png" />
     <None Include="KeeFox\chrome\skin\main.png" />
+    <None Include="KeeFox\modules\config.js" />
     <None Include="Test Pages\LeftFrameContents.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>

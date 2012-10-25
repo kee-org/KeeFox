@@ -30,36 +30,36 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-var keefox_org = {};
+var keefox_win = {};
 
-keefox_org.shouldLoad = true;
+keefox_win.shouldLoad = true;
 // Currently nothing that should prevent KeeFox loading - there was in the past
 // and maybe will be again in future so keeping this check in place
-if (keefox_org.shouldLoad)
+if (keefox_win.shouldLoad)
 {
     Cu.import("resource://gre/modules/XPCOMUtils.jsm");
     // Load our logging subsystem
     Cu.import("resource://kfmod/KFLogger.js");
     //Cu.import("resource://kfmod/KF.js");
-    keefox_org.Logger = new KeeFoxLogger();
-    //keefox_org.Logger = KFLog;
+    keefox_win.Logger = new KeeFoxLogger();
+    //keefox_win.Logger = KFLog;
     // Load our other javascript
-    keefox_org.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+    keefox_win.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                            .getService(Components.interfaces.mozIJSSubScriptLoader); 
     Cu.import("resource://kfmod/kfDataModel.js");
-    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
-    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
-    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
+    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
+    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
+    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
     //moved higher - hope that's OK... 
     Cu.import("resource://kfmod/KF.js");
-    keefox_org.Logger.debug("got sessionstore-windows-restored1");
-    keefox_org.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
-    keefox_org.Logger.debug("got sessionstore-windows-restored2");
+    keefox_win.Logger.debug("got sessionstore-windows-restored1");
+    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
+    keefox_win.Logger.debug("got sessionstore-windows-restored2");
     Cu.import("resource://kfmod/FAMS.js");
-    keefox_org.Logger.debug("got sessionstore-windows-restored3");
+    keefox_win.Logger.debug("got sessionstore-windows-restored3");
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window
-    keefox_org.mainEventHandler =
+    keefox_win.mainEventHandler =
     {
         // a reference to this scope's KF object
         _kf: null,
@@ -79,11 +79,11 @@ if (keefox_org.shouldLoad)
             //var doc;
             switch (topic) {
                 case "sessionstore-windows-restored":
-                    keefox_org.Logger.debug("got sessionstore-windows-restored");
-                    if (keeFoxInst.urlToOpenOnStartup != null && keeFoxInst.urlToOpenOnStartup.length > 0) {
-                        var toOpen = keeFoxInst.urlToOpenOnStartup;
-                        keeFoxInst.urlToOpenOnStartup = null;
-                        keeFoxInst._openAndReuseOneTabPerURL(toOpen);
+                    keefox_win.Logger.debug("got sessionstore-windows-restored");
+                    if (keefox_org.urlToOpenOnStartup != null && keefox_org.urlToOpenOnStartup.length > 0) {
+                        var toOpen = keefox_org.urlToOpenOnStartup;
+                        keefox_org.urlToOpenOnStartup = null;
+                        keefox_org._openAndReuseOneTabPerURL(toOpen);
                     }
                     break;
             }
@@ -92,7 +92,7 @@ if (keefox_org.shouldLoad)
         notify: function (subject, topic, data) { },
 
         handleEvent: function (event) {
-            keefox_org.Logger.debug("handleEvent: got event " + event.type);
+            keefox_win.Logger.debug("handleEvent: got event " + event.type);
 
             var currentWindow, inputElement;
             currentWindow = event.target.defaultView;
@@ -101,12 +101,11 @@ if (keefox_org.shouldLoad)
             // this._kf.log(currentWindow.navigator.buildID);
 
             if (currentWindow != this._assignedWindow && event.type != "KeeFoxClearTabFormFillData") {
-                keefox_org.Logger.debug("not the right window");
+                keefox_win.Logger.debug("not the right window");
                 return;
             }
-            keefox_org.Logger.debug("it's the right window");
+            keefox_win.Logger.debug("it's the right window");
 
-            // we only care about "load" events for the moment at least
             switch (event.type) {
                 case "load":
                     // We don't need to know about load events anymore for the life of this window
@@ -114,37 +113,37 @@ if (keefox_org.shouldLoad)
 
                     // our toolbar (+ a bit more, maybe needs renaming
                     // in future if I can think of something better)
-                    keefox_org.toolbar.construct(currentWindow);
+                    keefox_win.toolbar.construct(currentWindow);
 
                     // an event listener on the toolbar clears session data relating to
                     // the form filling process. ATOW only called in response to user
                     // editing form field contents.
-                    document.addEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false, true); //ael OK
+                    document.addEventListener("KeeFoxClearTabFormFillData", keefox_win.mainEventHandler, false, true); //ael OK
 
                     // the improved login manager which acts (a bit) like a bridge
                     // between the user visible code and the KeeFox module / JSON-RPC    
-                    keefox_org.ILM.construct(keeFoxInst, keefox_org.toolbar, currentWindow);
+                    keefox_win.ILM.construct(keefox_org, keefox_win.toolbar, currentWindow);
 
                     // the main UI code including things like
                     // the generation of notification boxes
-                    keefox_org.UI.init(keeFoxInst, keefox_org.ILM);
+                    keefox_win.UI.init(keefox_org, keefox_win.ILM);
 
                     if (window.gBrowser) { // Firefox only
                         // Set up tab change event listeners
-                        window.gBrowser.tabContainer.addEventListener("TabSelect", keeFoxInst._onTabSelected, false);
-                        window.gBrowser.tabContainer.addEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                        window.gBrowser.tabContainer.addEventListener("TabSelect", keefox_org._onTabSelected, false);
+                        window.gBrowser.tabContainer.addEventListener("TabOpen", keefox_org._onTabOpened, false);
                     }
-                    this.startupKeeFox(keefox_org.toolbar, currentWindow);
-                    keefox_org.FAMS = keeFoxGetFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { keefox_org.Logger.info.call(this, msg); });
+                    this.startupKeeFox(keefox_win.toolbar, currentWindow);
+                    keefox_win.FAMS = keeFoxGetFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { keefox_win.Logger.info.call(this, msg); });
                                                             
                     return;
                 case "unload":
-                    keefox_org.Logger.info("Window shutting down...");
+                    keefox_win.Logger.info("Window shutting down...");
 
                     if (window.gBrowser) { // Firefox only
                         // Remove tab change event listeners
-                        window.gBrowser.tabContainer.removeEventListener("TabSelect", keeFoxInst._onTabSelected, false);
-                        window.gBrowser.tabContainer.removeEventListener("TabOpen", keeFoxInst._onTabOpened, false);
+                        window.gBrowser.tabContainer.removeEventListener("TabSelect", keefox_org._onTabSelected, false);
+                        window.gBrowser.tabContainer.removeEventListener("TabOpen", keefox_org._onTabOpened, false);
                     }
 
                     window.removeEventListener("unload", this, false);
@@ -152,26 +151,26 @@ if (keefox_org.shouldLoad)
                                   getService(Ci.nsIObserverService);
                     observerService.removeObserver(this, "sessionstore-windows-restored", false);
 
-                    keefox_org.ILM.shutdown();
-                    document.removeEventListener("KeeFoxClearTabFormFillData", keefox_org.mainEventHandler, false);
-                    keefox_org.toolbar.shutdown();
-                    keefox_org.Logger.info("Window shut down.");
+                    keefox_win.ILM.shutdown();
+                    document.removeEventListener("KeeFoxClearTabFormFillData", keefox_win.mainEventHandler, false);
+                    keefox_win.toolbar.shutdown();
+                    keefox_win.Logger.info("Window shut down.");
                     return;
                 case "KeeFoxClearTabFormFillData":
-                    keefox_org.toolbar.clearTabFormFillData(event);
+                    keefox_win.toolbar.clearTabFormFillData(event);
                     return;
                 default:
-                    keefox_org.Logger.warn("This event was unexpected and has been ignored.");
+                    keefox_win.Logger.warn("This event was unexpected and has been ignored.");
                     return;
             }
         },
 
         startupKeeFox: function (currentKFToolbar, currentWindow) {
-            keefox_org.Logger.info("Testing to see if we've already established whether KeePassRPC is connected.");
+            keefox_win.Logger.info("Testing to see if we've already established whether KeePassRPC is connected.");
 
-            if (keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false)) {
-                keeFoxInst._KFLog.debug("Setup has already been done but we will make sure that the window that this scope is a part of has been set up to properly reflect KeeFox status");
-                keeFoxInst._refreshKPDB();
+            if (keefox_org._keeFoxStorage.get("KeePassRPCActive", false)) {
+                keefox_org._KFLog.debug("Setup has already been done but we will make sure that the window that this scope is a part of has been set up to properly reflect KeeFox status");
+                keefox_org._refreshKPDB();
                 //currentKFToolbar.setupButton_ready(currentWindow);
                 //currentKFToolbar.setAllLogins();
                 return;
@@ -179,22 +178,22 @@ if (keefox_org.shouldLoad)
         }
     };
 
-    // keeFoxInst has been setup already (at the end of KF.js) but the window-specific
+    // keefox_org has been setup already (at the end of KF.js) but the window-specific
     // setup has to wait until Firefox triggers an event listener to say that the
     // window is ready to be used
     // ... unless creation of KF object failed for some reason (conflicting extension?)
-    if (keeFoxInst != null)
+    if (keefox_org != null)
     {    
-        keefox_org.mainEventHandler._kf = keeFoxInst;
-        keefox_org.mainEventHandler._assignedWindow = window;
-        window.addEventListener("load", keefox_org.mainEventHandler, false);
-        window.addEventListener("unload", keefox_org.mainEventHandler, false);
+        keefox_win.mainEventHandler._kf = keefox_org;
+        keefox_win.mainEventHandler._assignedWindow = window;
+        window.addEventListener("load", keefox_win.mainEventHandler, false);
+        window.addEventListener("unload", keefox_win.mainEventHandler, false);
         
         Cc["@mozilla.org/observer-service;1"].
             getService(Ci.nsIObserverService).
-            addObserver(keefox_org.mainEventHandler, "sessionstore-windows-restored", false);        
+            addObserver(keefox_win.mainEventHandler, "sessionstore-windows-restored", false);        
     } else
     {
-        keefox_org.Logger.warn("KeeFox module startup was NOT ATTEMPTED. Maybe there is a conflicting extension that prevents startup?");
+        keefox_win.Logger.warn("KeeFox module startup was NOT ATTEMPTED. Maybe there is a conflicting extension that prevents startup?");
     }
 }

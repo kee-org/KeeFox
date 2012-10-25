@@ -88,7 +88,7 @@ FirefoxAddonMessageService.prototype = {
                      .getService(Ci.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
+            var fams = window.keefox_win.FAMS; //TODO2: KeeFox specific
             fams.runMessageProcesses();
         }
     },
@@ -99,7 +99,7 @@ FirefoxAddonMessageService.prototype = {
                      .getService(Ci.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            var fams = window.keefox_org.FAMS; //TODO2: KeeFox specific
+            var fams = window.keefox_win.FAMS; //TODO2: KeeFox specific
             fams.downloadNewMessages();
         }
     },

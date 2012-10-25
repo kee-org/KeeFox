@@ -33,7 +33,7 @@ var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIDOMWindow);
 
-var mainWindow = mainWin.keefox_org.ILM._currentWindow;
+var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
 // localisation string bundle
 var strbundle = mainWin.document.getElementById("KeeFox-strings");
@@ -55,17 +55,17 @@ function prepareMonoInstallPage()
   if (args.upgrade == "1")
   {
     KFupgradeMode = true;
-    mainWindow.keeFoxInst._KFLog.debug("Install system starting in upgrade mode");
+    mainWindow.keefox_org._KFLog.debug("Install system starting in upgrade mode");
     document.getElementById('Install_monoManualUpgrade').setAttribute('hidden', false);
     document.getElementById('Install_monoManual').setAttribute('hidden', true);
   }
   else
   {
-    mainWindow.keeFoxInst._KFLog.debug("Install system starting in install mode");
+    mainWindow.keefox_org._KFLog.debug("Install system starting in install mode");
   }
         
   // prevent reinstallation if KeeFox is already working
-  if (mainWindow.keeFoxInst._keeFoxStorage.get("KeePassRPCActive", false))
+  if (mainWindow.keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
   {
     document.getElementById('KFInstallNotRequired').setAttribute('hidden', false);
     return;
@@ -94,7 +94,7 @@ function prepareMonoInstallPage()
   dir.append("KeePass");
   document.getElementById('monoManualTest1a_description').textContent = dir.path;
 
-  document.getElementById('monoManualTest2a_description').textContent = mainWindow.keeFoxInst.defaultMonoExec;
+  document.getElementById('monoManualTest2a_description').textContent = mainWindow.keefox_org.defaultMonoExec;
 
   
 }
