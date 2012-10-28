@@ -108,7 +108,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
       <Command>echo POSTBUILDSTEP for $(ProjectName)
 
 pushd "$(ProjectDir)KeeFox\modules"
-copy KF.js+config.js KF.jsm
+copy /b KF.js+config.js KF.jsm /Y
 popd
 
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
@@ -210,6 +210,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\key-highlighted.png" />
     <None Include="KeeFox\chrome\skin\main.png" />
     <None Include="KeeFox\modules\config.js" />
+    <None Include="KeeFox\modules\locales.js" />
     <None Include="Test Pages\LeftFrameContents.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>

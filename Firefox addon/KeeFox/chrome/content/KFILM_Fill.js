@@ -420,9 +420,8 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         return;
     }
 
-    //TODO: Establish config given this page URL (may need to do it earlier but definitley by here)
-    // see also ln 572 in KFILM
-    var config = kf.config.getConfigForURL("");
+    //TODO: use new config structure to determine notification behaviour
+    var conf = keefox_org.config.getConfigForURL(doc.documentURI);
 
     // if we're not logged in to KeePass then we should prompt user (or not)
     if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
@@ -495,19 +494,42 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         // the overall relevance of this form is the maximum of it's
         // matching entries (so we fill the most relevant form)
         findLoginDoc.formRelevanceScores[i] = 0;
+        var interestingForm = true;
+        interestingForm = keefox_org.config.valueAllowed(form.id,conf.interestingForms.id_w,conf.interestingForms.id_b,interestingForm);
+        interestingForm = keefox_org.config.valueAllowed(form.name,conf.interestingForms.name_w,conf.interestingForms.name_b,interestingForm);
         
+        if (!interestingForm)
+        {
+            keefox_win.Logger.debug("Lost interest in this form after inspecting form name and ID");
+            continue;
+        }
+
         keefox_win.Logger.debug("about to get form fields");
         var [usernameIndex, passwordFields, otherFields] =
             this._getFormFields(form, false);
             
-        //TODO2: remove this restriction as long as we don't get problems with search fields, etc.
-        // maybe only if we are doing a multi-page login?
+        
         if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
         {
             keefox_win.Logger.debug("no password field found in this form");
+            interestingForm = false;
             continue;
         }
+
+        for (var f in otherFields)
+        {
+            interestingForm = keefox_org.config.valueAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
+            interestingForm = keefox_org.config.valueAllowed(otherFields[f].name,conf.interestingForms.f_name_w,conf.interestingForms.f_name_b,interestingForm);
+                
+            //TODO: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
+        }
         
+        if (!interestingForm)
+        {
+            keefox_win.Logger.debug("Lost interest in this form after inspecting field names and IDs");
+            continue;
+        }
+
         findLoginDoc.usernameIndexArray[i] = usernameIndex;
         findLoginDoc.passwordFieldsArray[i] = passwordFields;
         findLoginDoc.otherFieldsArray[i] = otherFields;
