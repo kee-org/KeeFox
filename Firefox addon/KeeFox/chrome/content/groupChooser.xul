@@ -23,10 +23,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 
-<!DOCTYPE window SYSTEM "chrome://keefox/locale/keefox.dtd">
+<!DOCTYPE window>
 <window
     id="keefox-choose-group-window"
-    title="&KeeFox_Dialog-SelectAGroup.title;"
+    title="%-KeeFox_Dialog-SelectAGroup.title-%"
     orient="horizontal"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload="setTreeViewGroupChooser();">
@@ -41,8 +41,8 @@
   </tree>
 
   <hbox>
-    <button label="&KeeFox_Dialog_OK_Button.label;" oncommand="onTreeSelected()"/>
-    <button label="&KeeFox_Dialog_Cancel_Button.label;" oncommand="window.arguments[1](); close();"/>
+    <button id="but-OK" label="%-KeeFox_Dialog_OK_Button.label-%" oncommand="onTreeSelected()"/>
+    <button id="but-Cancel" label="%-KeeFox_Dialog_Cancel_Button.label-%" oncommand="window.arguments[1](); close();"/>
   </hbox>
   </vbox>
   <script>
@@ -57,6 +57,12 @@
     .getService(Components.interfaces.nsIWindowMediator);
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
     wm.getMostRecentWindow("mail:3pane");
+
+    window.keefox_org.locale.internationaliseElements(document,
+    ['keefox-choose-group-window','but-OK','but-Cancel'
+    ],
+    ['title','label','tooltiptext','accesskey','value']);
+
     var rootGroup = mainWindow.keefox_win.ILM._kf.getDBbyFilename(window.arguments[2]).root; //KeePassDatabases[window.keefox_win.ILM._kf.ActiveKeePassDatabaseIndex].root;
     keePassGroupTreeView.addTopObject(rootGroup, true);
     tree.view = keePassGroupTreeView;

@@ -30,7 +30,7 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-Cu.import("resource://kfmod/KF.js");
+Cu.import("resource://kfmod/KF.jsm");
 
 var keeFoxDialogManager = {
 
@@ -130,9 +130,6 @@ var keeFoxDialogManager = {
         return this.__composeBundle;
     },
     
-    // localisation string bundle
-    strbundle: null,
-    
     appInfo: Components.classes["@mozilla.org/xre/app-info;1"]
         .getService(Components.interfaces.nsIXULAppInfo),
     
@@ -159,8 +156,6 @@ var keeFoxDialogManager = {
                 .getService(Components.interfaces.nsIWindowMediator);
             var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            
-            this.strbundle = parentWindow.document.getElementById("KeeFox-strings");
             
             var mustAutoSubmit = false;            
             var host, realm;
@@ -423,7 +418,7 @@ var keeFoxDialogManager = {
                 box.setAttribute("pack", "start");
             
                 var loadingPasswords = document.createElement("description");
-                loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.default"));
+                loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.default"));
                 loadingPasswords.setAttribute("align", "start");
                 loadingPasswords.setAttribute("flex", "1");
                 box.appendChild(loadingPasswords);
@@ -459,7 +454,7 @@ var keeFoxDialogManager = {
             box.setAttribute("pack", "start");
             
             var loadingPasswords = document.createElement("description");
-            loadingPasswords.setAttribute("value", this.strbundle.getString("httpAuth.loadingPasswords") + "...");
+            loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.loadingPasswords") + "...");
             loadingPasswords.setAttribute("align", "start");
             loadingPasswords.setAttribute("flex", "1");
             loadingPasswords.setAttribute("id", "keefox-autoauth-box-description");
@@ -492,7 +487,6 @@ var keeFoxDialogManager = {
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
         window.keefox_org._KFLog.info("callback fired!");
-        this.strbundle = window.document.getElementById("KeeFox-strings");
         
         var foundLogins = null;
         var convertedResult = [];
@@ -512,7 +506,7 @@ var keeFoxDialogManager = {
         if (convertedResult.length == 0)
         {
             // set "no passwords" message
-            document.getElementById("keefox-autoauth-box-description").setAttribute("value",this.strbundle.getString("httpAuth.noMatches"));
+            document.getElementById("keefox-autoauth-box-description").setAttribute("value",keefox_org.locale.$STR("httpAuth.noMatches"));
             return;
         }        
         
@@ -583,13 +577,6 @@ var keeFoxDialogManager = {
         // create a drop down box with all matched logins
         if (showList) {
             var box = dialogFindLoginStorage.document.getElementById("keefox-autoauth-box");
-            
-            //var button = dialogFindLoginStorage.document.createElement("button");
-            //TODO2: find a way to get string bundles into here without
-            // referencing document specific vars that go out of scope
-            // when windows are closed...button.setAttribute("label",
-            // keefox_org.strbundle.getString("autoFillWith
-            //button.setAttribute("label", "Auto Fill With");
 
             var list = dialogFindLoginStorage.document.createElement("menulist");
             list.setAttribute("id","autoauth-list");
@@ -599,11 +586,6 @@ var keeFoxDialogManager = {
             for (var i = 0; i < matchedLogins.length; i++){
                 var item = dialogFindLoginStorage.document.createElement("menuitem");
                 item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
-                // original
-//                item.setAttribute("oncommand",'keeFoxDialogManager.fill(this.username, this.password);');
-//                item.username = matchedLogins[i].username;
-//                item.password = matchedLogins[i].password;
-                // new (maybe need to change this.username stuff to use attributes instead?
                 item.addEventListener("command", function (event) { keeFoxDialogManager.fill(this.username, this.password); }, false);  
                 item.username = matchedLogins[i].username;
                 item.password = matchedLogins[i].password;

@@ -31,7 +31,6 @@ Cu.import("resource://kfmod/kfDataModel.js");
 keefox_win.toolbar = {
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
-        this.strbundle = currentWindow.document.getElementById("KeeFox-strings");
 
         // Lock menu updates when menu is visible
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
@@ -46,7 +45,6 @@ keefox_win.toolbar = {
         }
     },
     _currentWindow: null,
-    strbundle: null,
 
     shutdown: function () {
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
@@ -127,7 +125,7 @@ keefox_win.toolbar = {
         for (let i = 0; i < logins.length; i++) {
             var login = logins[i];
             var usernameValue = "";
-            var usernameDisplayValue = "[" + this.strbundle.getString("noUsername.partial-tip") + "]";
+            var usernameDisplayValue = "[" + keefox_org.locale.$STR("noUsername.partial-tip") + "]";
             var usernameName = "";
             var usernameId = "";
             var displayGroupPath = login.database.name + '/' + login.parentGroup.path;
@@ -148,12 +146,12 @@ keefox_win.toolbar = {
 
             if (!merging && i == 0) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
             {
-                container.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label", [usernameDisplayValue, login.title]));
+                container.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
                 container.setAttribute('uuid', login.uniqueID, null);
                 container.setAttribute('fileName', login.database.fileName, null);
                 //container.setAttribute("login", login, null);
                 container.setAttribute("context", "KeeFox-login-toolbar-context");
-                container.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
+                container.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
                 //container.setAttribute("oncommand", "keefox_win.ILM.fill('" +
                 //    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','" + usernameId + "',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
                 container.setAttribute('usernameName', usernameName);
@@ -189,14 +187,14 @@ keefox_win.toolbar = {
             if (addLoginToPopup) {
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
-                tempButton.setAttribute("label", this.strbundle.getFormattedString("matchedLogin.label", [usernameDisplayValue, login.title]));
+                tempButton.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
                 tempButton.setAttribute("class", "menuitem-iconic");
                 tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
                 tempButton.setAttribute('uuid', login.uniqueID, null);
                 tempButton.setAttribute('fileName', login.database.fileName, null);
                 //tempButton.setAttribute("login", login, null);
                 tempButton.setAttribute("context", "KeeFox-login-context");
-                tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
+                tempButton.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
 
                 tempButton.setAttribute('usernameName', usernameName);
                 tempButton.setAttribute('usernameValue', usernameValue);
@@ -263,7 +261,7 @@ keefox_win.toolbar = {
                                 var newMenu = null;
                                 newMenu = this._currentWindow.document.createElement("menu");
                                 newMenu.setAttribute("label", dbName + ' / ' + rootGroup.title);
-                                newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
+                                newMenu.setAttribute("tooltiptext", keefox_org.locale.$STR("loginsButtonGroup.tip"));
                                 newMenu.setAttribute("class", "menu-iconic");
                                 //newMenu.setAttribute("value", rootGroup.uniqueID);
                                 newMenu.setAttribute('uuid', rootGroup.uniqueID, null);
@@ -312,9 +310,9 @@ keefox_win.toolbar = {
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0)) {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
-            noItemsButton.setAttribute("label", this.strbundle.getString("loginsButtonEmpty.label"));
+            noItemsButton.setAttribute("label", keefox_org.locale.$STR("loginsButtonEmpty.label"));
             noItemsButton.setAttribute("disabled", "true");
-            noItemsButton.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonEmpty.tip"));
+            noItemsButton.setAttribute("tooltiptext", keefox_org.locale.$STR("loginsButtonEmpty.tip"));
             container.appendChild(noItemsButton);
             return;
         }
@@ -326,7 +324,7 @@ keefox_win.toolbar = {
             var newMenu = null;
             newMenu = this._currentWindow.document.createElement("menu");
             newMenu.setAttribute("label", group.title);
-            newMenu.setAttribute("tooltiptext", this.strbundle.getString("loginsButtonGroup.tip"));
+            newMenu.setAttribute("tooltiptext", keefox_org.locale.$STR("loginsButtonGroup.tip"));
             newMenu.setAttribute("class", "menu-iconic");
             newMenu.setAttribute('uuid', group.uniqueID, null);
             newMenu.setAttribute('fileName', dbFileName, null);
@@ -348,7 +346,7 @@ keefox_win.toolbar = {
             var login = foundLogins[i];
             var usernameValue = "";
             var usernameName = "";
-            var usernameDisplayValue = "[" + this.strbundle.getString("noUsername.partial-tip") + "]";
+            var usernameDisplayValue = "[" + keefox_org.locale.$STR("noUsername.partial-tip") + "]";
             usernameValue = login.usernameValue;
             if (usernameValue != undefined && usernameValue != null && usernameValue != "")
                 usernameDisplayValue = usernameValue;
@@ -357,7 +355,7 @@ keefox_win.toolbar = {
             var tempButton = null;
             tempButton = this._currentWindow.document.createElement("menuitem");
             tempButton.setAttribute("label", login.title);
-            tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString(
+            tempButton.setAttribute("tooltiptext", keefox_org.locale.$STRF(
                 "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue]));
             tempButton.addEventListener("command", function (event) { keefox_win.ILM.loadAndAutoSubmit(0, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); }, false); //ael: works
             tempButton.addEventListener("click", function (event) { if (event.button == 1) { keefox_win.ILM.loadAndAutoSubmit(event.button, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); keefox_win.UI.closeMenus(event.target); } }, false); //ael: works
@@ -394,9 +392,9 @@ keefox_win.toolbar = {
         }
         mainButton.setAttribute("class", "");
         mainButton.removeAttribute("type");
-        mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
+        mainButton.setAttribute("label", keefox_org.locale.$STR("installKeeFox.label"));
         mainButton.setAttribute("disabled", "false");
-        mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
+        mainButton.setAttribute("tooltiptext", keefox_org.locale.$STR("installKeeFox.tip"));
         this.removeNonMatchingEventHandlers(mainButton);
         this.removeMatchingEventHandlers(mainButton);
         mainButton.addEventListener("command", this.mainButtonCommandInstallHandler, false);
@@ -457,36 +455,36 @@ keefox_win.toolbar = {
             {
                 var numberOfDBs = mainWindow.keefox_org.KeePassDatabases.length;
                 if (numberOfDBs == 1)
-                    loggedInText = this.strbundle.getFormattedString("loggedIn.tip", [mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
+                    loggedInText = keefox_org.locale.$STRF("loggedIn.tip", [mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
                 else
-                    loggedInText = this.strbundle.getFormattedString("loggedInMultiple.tip", [numberOfDBs,mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
+                    loggedInText = keefox_org.locale.$STRF("loggedInMultiple.tip", [numberOfDBs,mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
             } else
             {
                 return;
             }
 
-            mainButton.setAttribute("label", this.strbundle.getString("loggedIn.label"));
+            mainButton.setAttribute("label", keefox_org.locale.$STR("loggedIn.label"));
             mainButton.setAttribute("tooltiptext", loggedInText);
             mainButton.setAttribute("disabled", "true");
         } else if (!keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false)) {
-            mainButton.setAttribute("label", this.strbundle.getString("installKeeFox.label"));
-            mainButton.setAttribute("tooltiptext", this.strbundle.getString("installKeeFox.tip"));
+            mainButton.setAttribute("label", keefox_org.locale.$STR("installKeeFox.label"));
+            mainButton.setAttribute("tooltiptext", keefox_org.locale.$STR("installKeeFox.tip"));
             mainButton.addEventListener("command", this.mainButtonCommandInstallHandler, false);
         } else if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false)) {
-            mainButton.setAttribute("label", this.strbundle.getString("launchKeePass.label"));
-            mainButton.setAttribute("tooltiptext", this.strbundle.getString("launchKeePass.tip"));
+            mainButton.setAttribute("label", keefox_org.locale.$STR("launchKeePass.label"));
+            mainButton.setAttribute("tooltiptext", keefox_org.locale.$STR("launchKeePass.tip"));
             mainButton.addEventListener("command", this.mainButtonCommandLaunchKPHandler, false);
         } else {
-            mainButton.setAttribute("label", this.strbundle.getString("loggedOut.label"));
-            mainButton.setAttribute("tooltiptext", this.strbundle.getString("loggedOut.tip"));
+            mainButton.setAttribute("label", keefox_org.locale.$STR("loggedOut.label"));
+            mainButton.setAttribute("tooltiptext", keefox_org.locale.$STR("loggedOut.tip"));
             mainButton.addEventListener("command", this.mainButtonCommandLoginKPHandler, false);
         }
 
 
         if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) || keefox_org._keeFoxStorage.get("KeePassRPCActive", false)) {
             if (changeDBButton !== undefined && changeDBButton != null) {
-                changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButton.label"));
-                changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButton.tip"));
+                changeDBButton.setAttribute("label", keefox_org.locale.$STR("changeDBButton.label"));
+                changeDBButton.setAttribute("tooltiptext", keefox_org.locale.$STR("changeDBButton.tip"));
                 changeDBButton.removeEventListener("popupshowing", this.setMRUdatabases, false);
                 changeDBButton.addEventListener("popupshowing", this.setMRUdatabases, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "false");
@@ -498,8 +496,8 @@ keefox_win.toolbar = {
             }
         } else {
             if (changeDBButton !== undefined && changeDBButton != null) {
-                changeDBButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
-                changeDBButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip"));
+                changeDBButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonDisabled.label"));
+                changeDBButton.setAttribute("tooltiptext", keefox_org.locale.$STR("changeDBButtonDisabled.tip"));
                 //changeDBButton.setAttribute("onpopupshowing", "");
                 //changeDBButton.addEventListener("popupshowing", function (event) { return; }, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "true");
@@ -561,7 +559,7 @@ keefox_win.toolbar = {
         // Set up a loading message while we wait
         var noItemsButton = null;
         noItemsButton = keefox_win.toolbar._currentWindow.document.createElement("menuitem");
-        noItemsButton.setAttribute("label", keefox_win.toolbar.strbundle.getString("loading") + '...');
+        noItemsButton.setAttribute("label", keefox_org.locale.$STR("loading") + '...');
         noItemsButton.setAttribute("disabled", "true");
         popupContainer.appendChild(noItemsButton);
 
@@ -584,9 +582,9 @@ keefox_win.toolbar = {
         if (mruArray == null || mruArray.length == 0) {
             var noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
-            noItemsButton.setAttribute("label", this.strbundle.getString("changeDBButtonEmpty.label"));
+            noItemsButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonEmpty.label"));
             noItemsButton.setAttribute("disabled", "true");
-            noItemsButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonEmpty.tip"));
+            noItemsButton.setAttribute("tooltiptext", keefox_org.locale.$STR("changeDBButtonEmpty.tip"));
             popupContainer.appendChild(noItemsButton);
             return;
         } else {
@@ -615,7 +613,7 @@ keefox_win.toolbar = {
                 var tempButton = null;
                 tempButton = this._currentWindow.document.createElement("menuitem");
                 tempButton.setAttribute("label", displayName);
-                tempButton.setAttribute("tooltiptext", this.strbundle.getFormattedString("changeDBButtonListItem.tip", [mruArray[i]]));
+                tempButton.setAttribute("tooltiptext", keefox_org.locale.$STRF("changeDBButtonListItem.tip", [mruArray[i]]));
                 var mruToUse = mruArray[i].replace(/[\\]/g, '\\');
                 //tempButton.setAttribute("oncommand", "keefox_org.changeDatabase('" +
                 //    mruArray[i].replace(/[\\]/g, '\\\\') + "',false);  event.stopPropagation();");

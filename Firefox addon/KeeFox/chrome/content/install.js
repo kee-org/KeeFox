@@ -88,9 +88,6 @@ var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 
 var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
-// localisation string bundle
-var strbundle = mainWin.document.getElementById("KeeFox-strings");
-
 function prepareInstallPage()
 {
     var qs = "";
@@ -1070,8 +1067,8 @@ function copyKeePassRPCFilesTo(keePassLocation)
             mainWindow.keefox_org._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
             var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                         .getService(Components.interfaces.nsIPromptService);
-            promptService.alert(mainWindow, strbundle.getString("install.somethingsWrong"),strbundle.getString("install.KPRPCNotInstalled")); 
-            return false;          
+            promptService.alert(mainWindow, mainWindow.keefox_org.locale.$STR("install.somethingsWrong"),mainWindow.keefox_org.locale.$STR("install.KPRPCNotInstalled")); 
+            return false;
         }
     }
     return true;

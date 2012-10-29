@@ -26,9 +26,6 @@
 -->
 
 <overlay id="KeeFox-Overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="KeeFox-strings" src="chrome://keefox/locale/keefox.properties"/>
-  </stringbundleset>
 
   <script type="application/x-javascript" src="chrome://keefox/content/keefox.js" />
   <script>

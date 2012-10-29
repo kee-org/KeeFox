@@ -35,9 +35,6 @@ var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 
 var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
-// localisation string bundle
-var strbundle = mainWin.document.getElementById("KeeFox-strings");
-  
 function prepareMonoInstallPage()
 {  
   var qs = "";

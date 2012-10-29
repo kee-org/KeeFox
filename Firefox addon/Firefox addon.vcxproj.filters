@@ -196,7 +196,6 @@
     <None Include="KeeFox\chrome\content\groupChooser.xul" />
     <None Include="KeeFox\install.rdf" />
     <None Include="KeeFox\chrome\content\install.xul" />
-    <None Include="KeeFox\chrome\locale\en-US\keefox.dtd" />
     <None Include="KeeFox\chrome\locale\sv-SE\keefox.dtd" />
     <None Include="KeeFox\chrome\locale\ru-RU\keefox.dtd" />
     <None Include="KeeFox\chrome\locale\cs\keefox.dtd" />
@@ -211,7 +210,6 @@
     <None Include="KeeFox\chrome\content\keefox.xul" />
     <None Include="KeeFox\chrome\locale\cs\options.dtd" />
     <None Include="KeeFox\chrome\locale\sv-SE\options.dtd" />
-    <None Include="KeeFox\chrome\locale\en-US\options.dtd" />
     <None Include="KeeFox\chrome\locale\ru-RU\options.dtd" />
     <None Include="KeeFox\chrome\locale\de\options.dtd" />
     <None Include="KeeFox\chrome\locale\zh-CN\options.dtd" />

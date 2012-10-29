@@ -245,7 +245,6 @@ KeeFox.prototype = {
     oneOffSensitiveLogCheckTimer: null,
 
     // localisation string bundle
-    strbundle: null, //TODO: deprecate use of strbundle
     locale: null,
     
     // our logging object (held locally becuase this is a seperate module)

@@ -497,12 +497,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     getService(Components.interfaces.nsIClipboardHelper);
                     gClipboardHelper.copyString(resultWrapper.result);
                     
-                    window.keefox_win.UI.growl(tb.strbundle.getString("generatePassword.copied"));
+                    window.keefox_win.UI.growl(keefox_org.locale.$STR("generatePassword.copied"));
                 }
             }
             if (!passwordGenerated)
             {
-                window.keefox_win.UI.growl(tb.strbundle.getString("generatePassword.launch"));
+                window.keefox_win.UI.growl(keefox_org.locale.$STR("generatePassword.launch"));
             }
         }, ++this.requestId);
     }

@@ -244,7 +244,7 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
     var window = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
             
-    var dialogName = window.keefox_win.toolbar.strbundle.getString(captionStringKey);
+    var dialogName = window.keefox_org.locale.$STR(captionStringKey);
     
     fp.init(window, dialogName, pickerMode);
     

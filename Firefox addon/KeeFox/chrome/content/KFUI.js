@@ -60,8 +60,6 @@ keefox_win.UI = {
         return this.__promptService;
     },
 
-    strbundle: null,
-
     __brandBundle : null, // String bundle for L10N
     get _brandBundle()
     {
@@ -92,7 +90,6 @@ keefox_win.UI = {
         this._kf = kf;
         this._kfilm = kfilm;
         this._window = this._kfilm._currentWindow;
-        this.strbundle = this._kfilm._currentWindow.document.getElementById("KeeFox-strings");
     },
 
     promptToSavePassword : function (aLogin, isMultiPage)
@@ -788,9 +785,9 @@ keefox_win.UI = {
     _getLocalizedString : function (key, formatArgs)
     {
         if (formatArgs)
-            return this.strbundle.getFormattedString(key, formatArgs);
+            return keefox_org.locale.$STRF(key, formatArgs);
         else
-            return this.strbundle.getString(key);
+            return keefox_org.locale.$STR(key);
     },
 
 
