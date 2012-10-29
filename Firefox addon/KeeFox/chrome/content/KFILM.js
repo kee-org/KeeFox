@@ -576,7 +576,8 @@ keefox_win.ILM = {
                     //if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                     if (conf.rescanFormDelay >= 500)
                         this._pwmgr._refillTimer.init(this._pwmgr._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                    
+                    //TODO: This doesn't seem to be getting stopped when tab closes?
+
                     keefox_win.Logger.debug("domEventListener: form filler finished");
                     return;
                 default:

@@ -53,6 +53,19 @@ function onLoad(){
                  .getService(Components.interfaces.nsIWindowMediator);
     var window = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
+
+    window.keefox_org.locale.internationaliseElements(document,
+      ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
+      'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
+      'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs',
+      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut','flashIconWhenKeePassRPCInactive',
+      'flashIconWhenLoggedOut','famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
+      'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
+      'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
+      'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
+      'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation'
+      ],
+      ['title','label','tooltiptext','accesskey','value']);
         
     // find all URLs we want to excluded
     var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://keefox/skin/keefox.css" type="text/css"?>
 
-<!DOCTYPE overlay SYSTEM "chrome://keefox/locale/keefox.dtd">
+<!DOCTYPE overlay>
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
@@ -31,58 +31,70 @@
   </stringbundleset>
 
   <script type="application/x-javascript" src="chrome://keefox/content/keefox.js" />
+  <script>
+    // Localise this window. We use a fixed list of elements since it's known in
+    // advance and more performant but we could always come up with a more
+    // automatic way in future if we need.
+    window.addEventListener("load", function () {
+    this.keefox_org.locale.internationaliseElements(this.document,
+    ['KeeFox_Menu-Button','KeeFox_ChangeDB-Button','KeeFox_FillCurrentDocument-Button','KeeFox_CopyNewPasswordToClipboard-Button','KeeFox_Options-Button','KeeFox_Help-Button',
+    'KeeFox_Help-GettingStarted-Button','KeeFox_Help-Centre-Button','KeeFox_Main-Button','KeeFox_Logins-Button','KeeFox-login-toolbar-context-edit','KeeFox-login-context-edit',
+    'KeeFox-group-context-edit','menu_ToolsPopup-options'],
+    ['label','tooltiptext','accesskey']);
+    }, false);
+  </script>
   
   <toolbarpalette id="BrowserToolbarPalette">
 
-    <toolbarbutton id="KeeFox_Menu-Button" tooltiptext="&KeeFox_Menu-Button.tip;"
-           class="" type="menu" label="&KeeFox_Menu-Button.label;" >
+    <toolbarbutton id="KeeFox_Menu-Button" tooltiptext="%-KeeFox_Menu-Button.tip-%"
+           class="" type="menu" label="%-KeeFox_Menu-Button.label-%" >
       <menupopup>
 
-        <menu id="KeeFox_ChangeDB-Button" tooltiptext="&KeeFox_Menu-Button.changeDB.tip;"
-                   class="" image="" label="&KeeFox_Menu-Button.changeDB.label;"  accesskey="&KeeFox_Menu-Button.changeDB.key;" >
+        <menu id="KeeFox_ChangeDB-Button" tooltiptext="%-KeeFox_Menu-Button.changeDB.tip-%"
+                   class="" image="" label="%-KeeFox_Menu-Button.changeDB.label-%"  accesskey="%-KeeFox_Menu-Button.changeDB.key-%" >
         <menupopup id="KeeFox_ChangeDB-Popup">
           
         </menupopup>
         </menu>
 
-        <menuitem id="KeeFox_FillCurrentDocument-Button" tooltiptext="&KeeFox_Menu-Button.fillCurrentDocument.tip;"
-                           class="" label="&KeeFox_Menu-Button.fillCurrentDocument.label;" oncommand="keefox_win.toolbar.fillCurrentDocument()" accesskey="&KeeFox_Menu-Button.fillCurrentDocument.key;" />
+        <menuitem id="KeeFox_FillCurrentDocument-Button" tooltiptext="%-KeeFox_Menu-Button.fillCurrentDocument.tip-%"
+                           class="" label="%-KeeFox_Menu-Button.fillCurrentDocument.label-%" oncommand="keefox_win.toolbar.fillCurrentDocument()" accesskey="%-KeeFox_Menu-Button.fillCurrentDocument.key-%" />
         
 
         <menuseparator />
 
-        <menuitem id="KeeFox_CopyNewPasswordToClipboard-Button" tooltiptext="&KeeFox_Menu-Button.copyNewPasswordToClipboard.tip;"
-                           class="" label="&KeeFox_Menu-Button.copyNewPasswordToClipboard.label;" oncommand="keefox_win.toolbar.generatePassword()" accesskey="&KeeFox_Menu-Button.copyNewPasswordToClipboard.key;" />
+        <menuitem id="KeeFox_CopyNewPasswordToClipboard-Button" tooltiptext="%-KeeFox_Menu-Button.copyNewPasswordToClipboard.tip-%"
+                           class="" label="%-KeeFox_Menu-Button.copyNewPasswordToClipboard.label-%" oncommand="keefox_win.toolbar.generatePassword()" accesskey="%-KeeFox_Menu-Button.copyNewPasswordToClipboard.key-%" />
 
 
         <menuseparator />
 
-        <menuitem id="KeeFox_Options-Button" tooltiptext="&KeeFox_Menu-Button.options.tip;"
-                   class="" label="&KeeFox_Menu-Button.options.label;" oncommand='openDialog(
+        <menuitem id="KeeFox_Options-Button" tooltiptext="%-KeeFox_Menu-Button.options.tip-%"
+                   class="" label="%-KeeFox_Menu-Button.options.label-%" oncommand='openDialog(
                "chrome://keefox/content/options.xul",
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
-              );' accesskey="&KeeFox_Menu-Button.options.key;" />
+              );' accesskey="%-KeeFox_Menu-Button.options.key-%" />
         
-        <menu id="KeeFox_Help-Button" tooltiptext="&KeeFox_Menu-Button.Help.tip;"
-                   class="" image="" label="&KeeFox_Menu-Button.Help.label;"  accesskey="&KeeFox_Menu-Button.Help.key;" >
+        <menu id="KeeFox_Help-Button" tooltiptext="%-KeeFox_Menu-Button.Help.tip-%"
+                   class="" image="" label="%-KeeFox_Menu-Button.Help.label-%"  accesskey="%-KeeFox_Menu-Button.Help.key-%" >
           <menupopup id="KeeFox_Help-Popup">
-            <menuitem id="KeeFox_Help-GettingStarted-Button" tooltiptext="&KeeFox_Help-GettingStarted-Button.tip;"
-                           class="" label="&KeeFox_Help-GettingStarted-Button.label;" oncommand="keefox_org._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="&KeeFox_Help-GettingStarted-Button.key;" />
-            <menuitem id="KeeFox_Help-Centre-Button" tooltiptext="&KeeFox_Help-Centre-Button.tip;"
-                           class="" label="&KeeFox_Help-Centre-Button.label;" oncommand="keefox_org._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="&KeeFox_Help-Centre-Button.key;" />
+            <menuitem id="KeeFox_Help-GettingStarted-Button" tooltiptext="%-KeeFox_Help-GettingStarted-Button.tip-%"
+                           class="" label="%-KeeFox_Help-GettingStarted-Button.label-%" oncommand="keefox_org._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="%-KeeFox_Help-GettingStarted-Button.key-%" />
+            <menuitem id="KeeFox_Help-Centre-Button" tooltiptext="%-KeeFox_Help-Centre-Button.tip-%"
+                           class="" label="%-KeeFox_Help-Centre-Button.label-%" oncommand="keefox_org._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="%-KeeFox_Help-Centre-Button.key-%" />
           </menupopup>
         </menu>
 
       </menupopup>
     </toolbarbutton>
 
-    <toolbarbutton id="KeeFox_Main-Button" tooltiptext="&KeeFox_Main-Button.loading.tip;"
-                 label="&KeeFox_Main-Button.loading.label;" accesskey=""
+    <toolbarbutton id="KeeFox_Main-Button" tooltiptext="%-KeeFox_Main-Button.loading.tip-%"
+                 label="%-KeeFox_Main-Button.loading.label-%" accesskey=""
                    KFLock="disabled" disabled="true" maxwidth="200"/>
       
-    <toolbarbutton id="KeeFox_Logins-Button" disabled="true" tooltiptext="&KeeFox_Logins-Button.tip;"
-             label="&KeeFox_Logins-Button.label;" accesskey="&KeeFox_Logins-Button.key;" type="menu">
+    <toolbarbutton id="KeeFox_Logins-Button" disabled="true" tooltiptext="%-KeeFox_Logins-Button.tip-%"
+             label="%-KeeFox_Logins-Button.label-%" accesskey="%-KeeFox_Logins-Button.key-%" type="menu">
       <menupopup id="KeeFox_Logins-Button-root">
         
       </menupopup>
@@ -104,20 +116,20 @@
   <popupset>
     <menupopup id="KeeFox-login-toolbar-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keefox_org.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
+      <menuitem id="KeeFox-login-toolbar-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-login-context" position="after_start">
       <!--<menuitem label="Login in new tab"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Login.label;" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
+      <menuitem id="KeeFox-login-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
       <!--<menuitem label="Login all in tabs"/>-->
-      <menuitem label="&KeeFox_Logins-Context-Edit-Group.label;" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
+      <menuitem id="KeeFox-group-context-edit" label="%-KeeFox_Logins-Context-Edit-Group.label-%" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
     </menupopup>
   </popupset>
 
   <menupopup id="menu_ToolsPopup">
-    <menuitem label="&KeeFox_Tools-Menu.options.label;..."
+    <menuitem id="menu_ToolsPopup-options" label="%-KeeFox_Tools-Menu.options.label-%..."
               insertafter="devToolsSeparator"
               oncommand='openDialog(
                "chrome://keefox/content/options.xul",

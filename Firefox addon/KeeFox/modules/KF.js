@@ -32,6 +32,7 @@ var EXPORTED_SYMBOLS = ["keefox_org"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/json.js");
+Cu.import("resource://kfmod/locales.js");
 //var KFLogger = keefox_win.Logger;
 
 // constructor
@@ -192,6 +193,9 @@ function KeeFox()
         this._keeFoxExtension.prefs._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
     }
     
+    this.locale = new KFandFAMSLocalisation();
+    this._KFLog.debug("testttttting: " + this.locale.$STR("installKeeFox.tip"));
+
     //this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
     
     this._registerPlacesListeners();
@@ -241,7 +245,8 @@ KeeFox.prototype = {
     oneOffSensitiveLogCheckTimer: null,
 
     // localisation string bundle
-    strbundle: null,
+    strbundle: null, //TODO: deprecate use of strbundle
+    locale: null,
     
     // our logging object (held locally becuase this is a seperate module)
     _KFLog: null,

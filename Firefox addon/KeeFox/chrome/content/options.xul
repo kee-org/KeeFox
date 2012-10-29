@@ -2,7 +2,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://keefox/skin/options.css" type="text/css"?>
 
-<!DOCTYPE prefwindow SYSTEM "chrome://keefox/locale/options.dtd">
+<!DOCTYPE prefwindow>
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
@@ -27,7 +27,7 @@
 -->
 
 <prefwindow id="KeeFox-prefs"
-     title="&KeeFox-Options.title;"
+     title="%-KeeFox-Options.title-%"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             type="prefwindow"
       windowtype="Browser:Preferences"
@@ -75,21 +75,21 @@
 
     <tabbox flex="1">
       <tabs>
-        <tab label="&KeeFox-pref-FindingEntries.heading;"/>
-        <tab label="&KeeFox-pref-Notifications.heading;"/>
-        <tab label="&KeeFox-pref-Logging.heading;"/>
-        <tab label="&KeeFox-pref-Advanced.heading;"/>
-        <tab label="&KeeFox-pref-KeePass.heading;"/>
+        <tab id="tab-FindingEntries" label="%-KeeFox-pref-FindingEntries.heading-%"/>
+        <tab id="tab-Notifications" label="%-KeeFox-pref-Notifications.heading-%"/>
+        <tab id="tab-Logging" label="%-KeeFox-pref-Logging.heading-%"/>
+        <tab id="tab-Advanced" label="%-KeeFox-pref-Advanced.heading-%"/>
+        <tab id="tab-KeePass" label="%-KeeFox-pref-KeePass.heading-%"/>
       </tabs>
       <tabpanels flex="1">
 
         <tabpanel>
           <vbox align="left">
-            <description>&KeeFox-pref-when-user-chooses.desc;:</description>
+            <description id="desc-when-user-chooses">%-KeeFox-pref-when-user-chooses.desc-%:</description>
             <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();" class="itemEnd">
               <menupopup>
-                <menuitem label="&KeeFox-pref-FillForm.desc;" value="Fill"/>
-                <menuitem label="&KeeFox-pref-FillAndSubmitForm.desc;" value="FillAndSubmit"/>
+                <menuitem id="mi-FillForm" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
+                <menuitem id="mi-FillAndSubmitForm" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
               </menupopup>
             </menulist>
 
@@ -103,32 +103,32 @@
 
               <rows>
                 <row>
-                  <description>&KeeFox-pref-when-keefox-chooses.desc;:</description>
-                  <description>&KeeFox-pref-a-standard-form.desc;</description>
-                  <description>&KeeFox-pref-a-prompt.desc;</description>
+                  <description id="desc-when-keefox-chooses">%-KeeFox-pref-when-keefox-chooses.desc-%:</description>
+                  <description id="desc-a-standard-form">%-KeeFox-pref-a-standard-form.desc-%</description>
+                  <description id="desc-a-prompt">%-KeeFox-pref-a-prompt.desc-%</description>
 
                 </row>
                 <row>
-                  <description class="tableLeftName">&KeeFox-pref-KeeFoxShould.desc;:</description>
+                  <description id="desc-keefox-should" class="tableLeftName">%-KeeFox-pref-KeeFoxShould.desc-%:</description>
                   <menulist id="KeeFox-pref-matchStandard-list" preference="KeeFox-pref-autoSubmitForms" onsyncfrompreference="return onsyncfrompreferenceMatchStandard();" onsynctopreference="return onsynctopreferenceMatchStandard();" class="itemEnd kfMenu">
                     <menupopup>
-                      <menuitem label="&KeeFox-pref-DoNothing.desc;" value="DoNothing"/>
-                      <menuitem label="&KeeFox-pref-FillForm.desc;" value="Fill"/>
-                      <menuitem label="&KeeFox-pref-FillAndSubmitForm.desc;" value="FillAndSubmit"/>
+                      <menuitem id="mi-do-nothing" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
+                      <menuitem id="mi-FillForm2" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
+                      <menuitem id="mi-FillAndSubmitForm2" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
                     </menupopup>
                   </menulist>
                   <menulist id="KeeFox-pref-matchHTTP-list" preference="KeeFox-pref-autoSubmitDialogs" onsyncfrompreference="return onsyncfrompreferenceMatchHTTP();" onsynctopreference="return onsynctopreferenceMatchHTTP();" class="itemEnd kfMenu">
                     <menupopup>
-                      <menuitem label="&KeeFox-pref-DoNothing.desc;" value="DoNothing"/>
-                      <menuitem label="&KeeFox-pref-FillPrompt.desc;" value="Fill"/>
-                      <menuitem label="&KeeFox-pref-FillAndSubmitPrompt.desc;" value="FillAndSubmit"/>
+                      <menuitem id="mi-do-nothing2" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
+                      <menuitem id="mi-FillForm3" label="%-KeeFox-pref-FillPrompt.desc-%" value="Fill"/>
+                      <menuitem id="mi-FillAndSubmitForm3" label="%-KeeFox-pref-FillAndSubmitPrompt.desc-%" value="FillAndSubmit"/>
                     </menupopup>
                   </menulist>
                 </row>
-                <description class="itemEnd note">&KeeFox-pref-FillNote.desc;</description>
-                <checkbox preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="&KeeFox-pref-autoFillFormsWithMultipleMatches.label;" class="itemEnd" />
-                <checkbox preference="KeeFox-pref-searchAllOpenDBs" label="&KeeFox-pref-searchAllOpenDBs.label;" />
-                <checkbox preference="KeeFox-pref-listAllOpenDBs" label="&KeeFox-pref-listAllOpenDBs.label;" />
+                <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
+                <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" class="itemEnd" />
+                <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
+                <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" />
               </rows>
 
             </grid>
@@ -141,24 +141,24 @@
           <vbox align="left">
 
             <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
-                    label="&KeeFox-pref-notifyBarRequestPasswordSave.label;" class="itemEnd"/>
+                    label="%-KeeFox-pref-notifyBarRequestPasswordSave.label-%" class="itemEnd"/>
 
-            <description>&KeeFox-pref-excludedSaveSites.desc;:</description>
+            <description id="desc-exclude-saved-sites">%-KeeFox-pref-excludedSaveSites.desc-%:</description>
             <hbox>
               <listbox id="excludedSitesList" rows="4" seltype="multiple" class="itemEnd"/>
-              <vbox><button id="excludedSitesRemoveButton" label="&KeeFox-pref-excludedSaveSites.remove;" oncommand="removeExcludedItem();" class="itemEnd"/>
+              <vbox><button id="excludedSitesRemoveButton" label="%-KeeFox-pref-excludedSaveSites.remove-%" oncommand="removeExcludedItem();" class="itemEnd"/>
               </vbox>
             </hbox>
 
             <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
-                      label="&KeeFox-pref-notifyBarWhenKeePassRPCInactive.label;" />
+                      label="%-KeeFox-pref-notifyBarWhenKeePassRPCInactive.label-%" />
             <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
-                    label="&KeeFox-pref-notifyBarWhenLoggedOut.label;" class="itemEnd"/>
+                    label="%-KeeFox-pref-notifyBarWhenLoggedOut.label-%" class="itemEnd"/>
             <checkbox id="flashIconWhenKeePassRPCInactive" preference="KeeFox-pref-flashIconWhenKeePassRPCInactive"
-                    label="&KeeFox-pref-flashIconWhenKeePassRPCInactive.label;" />
+                    label="%-KeeFox-pref-flashIconWhenKeePassRPCInactive.label-%" />
             <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
-                    label="&KeeFox-pref-flashIconWhenLoggedOut.label;" class="itemEnd"/>
-            <button id="famsOptionsButton" label="&KeeFox-FAMS-Options.label;..." oncommand='openDialog(
+                    label="%-KeeFox-pref-flashIconWhenLoggedOut.label-%" class="itemEnd"/>
+            <button id="famsOptionsButton" label="%-KeeFox-FAMS-Options.label-%..." oncommand='openDialog(
                "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox",
                "",
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
@@ -169,13 +169,13 @@
         <tabpanel>
           <vbox align="left">
 
-            <description>&KeeFox-pref-logMethod.desc;</description>
-            <checkbox preference="KeeFox-pref-logMethodAlert" label="&KeeFox-pref-logMethodAlert;"/>
-            <checkbox preference="KeeFox-pref-logMethodConsole" label="&KeeFox-pref-logMethodConsole;"/>
-            <checkbox preference="KeeFox-pref-logMethodStdOut" label="&KeeFox-pref-logMethodStdOut;"/>
-            <checkbox preference="KeeFox-pref-logMethodFile" label="&KeeFox-pref-logMethodFile;" class="itemEnd"/>
+            <description id="desc-log-method">%-KeeFox-pref-logMethod.desc-%</description>
+            <checkbox id="check-log-method-alert" preference="KeeFox-pref-logMethodAlert" label="%-KeeFox-pref-logMethodAlert-%"/>
+            <checkbox id="check-log-method-console" preference="KeeFox-pref-logMethodConsole" label="%-KeeFox-pref-logMethodConsole-%"/>
+            <checkbox id="check-log-method-stdout" preference="KeeFox-pref-logMethodStdOut" label="%-KeeFox-pref-logMethodStdOut-%"/>
+            <checkbox id="check-log-method-file" preference="KeeFox-pref-logMethodFile" label="%-KeeFox-pref-logMethodFile-%" class="itemEnd"/>
 
-            <description>&KeeFox-pref-logLevel.desc;</description>
+            <description id="desc-log-level">%-KeeFox-pref-logLevel.desc-%</description>
             <menulist id="KeeFox-pref-logLevel-list" preference="KeeFox-pref-logLevel" onsyncfrompreference="return onsyncfrompreferenceLogLevel();" onsynctopreference="return onsynctopreferenceLogLevel();" class="itemEnd kfMenu">
               <menupopup>
                 <!-- TODO2: verify changing label doesn't break functionality and then localise them -->
@@ -192,22 +192,22 @@
         <tabpanel>
           <vbox align="left">
             <checkbox id="dynamicFormScanning" preference="KeeFox-pref-dynamicFormScanning"
-                      label="&KeeFox-pref-dynamicFormScanning.label;" />
-            <label value="&KeeFox-pref-dynamicFormScanningExplanation.label;" class="itemEnd note"/>
-            <label control="keePassRPCPort" value="&KeeFox-pref-keePassRPCPort.label;:"/>
+                      label="%-KeeFox-pref-dynamicFormScanning.label-%" />
+            <label id="lab-dynamicFormScanningExplanation" value="%-KeeFox-pref-dynamicFormScanningExplanation.label-%" class="itemEnd note"/>
+            <label id="lab-keePassRPCPort" control="keePassRPCPort" value="%-KeeFox-pref-keePassRPCPort.label-%:"/>
             <textbox preference="KeeFox-pref-keePassRPCPort" id="keePassRPCPort" maxlength="5" size="5"/>
-            <label value="&KeeFox-pref-keePassRPCPortWarning.label;" class="itemEnd note"/>
+            <label id="lab-keePassRPCPortWarning" value="%-KeeFox-pref-keePassRPCPortWarning.label-%" class="itemEnd note"/>
             <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
-                      label="&KeeFox-pref-saveFavicons.label;" class="itemEnd" />
+                      label="%-KeeFox-pref-saveFavicons.label-%" class="itemEnd" />
 
-            <label control="keePassDBToOpen" value="&KeeFox-pref-keePassDBToOpen.label;:"/>
+            <label id="lab-keePassDBToOpen" control="keePassDBToOpen" value="%-KeeFox-pref-keePassDBToOpen.label-%:"/>
             <hbox class="itemEnd">
               <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80" />
-              <button id="keePassDBToOpenBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForDefaultKDBXLocation(document.getElementById('keePassDBToOpen').value);"/>
+              <button id="keePassDBToOpenBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForDefaultKDBXLocation(document.getElementById('keePassDBToOpen').value);"/>
             </hbox>
             
             <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
-                      label="&KeeFox-pref-rememberMRUDB.label;"  class="itemEnd"/>
+                      label="%-KeeFox-pref-rememberMRUDB.label-%"  class="itemEnd"/>
 
           </vbox>
         </tabpanel>
@@ -215,26 +215,26 @@
 
         <tabpanel>
           <vbox align="left">
-            <label control="keePassRPCInstalledLocation" value="&KeeFox-pref-keePassRPCInstalledLocation.label;:"/>            
+            <label id="lab-keePassRPCInstalledLocation" control="keePassRPCInstalledLocation" value="%-KeeFox-pref-keePassRPCInstalledLocation.label-%:"/>            
             <hbox class="itemEnd">
               <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80" />
-              <button id="keePassRPCInstalledLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForKPRPCLocation(document.getElementById('keePassRPCInstalledLocation').value);"/>
+              <button id="keePassRPCInstalledLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForKPRPCLocation(document.getElementById('keePassRPCInstalledLocation').value);"/>
             </hbox>
             
-            <label control="keePassInstalledLocation" value="&KeeFox-pref-keePassInstalledLocation.label;:"/>
+            <label id="lab-keePassInstalledLocation" control="keePassInstalledLocation" value="%-KeeFox-pref-keePassInstalledLocation.label-%:"/>
             <hbox class="itemEnd">
               <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80" />
-              <button id="keePassInstalledLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
+              <button id="keePassInstalledLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
             </hbox>
             
-            <label control="monoLocation" value="&KeeFox-pref-monoLocation.label;:"/>
+            <label id="lab-monoLocation" control="monoLocation" value="%-KeeFox-pref-monoLocation.label-%:"/>
             <hbox class="itemEnd">
               <textbox preference="KeeFox-pref-monoLocation" id="monoLocation" maxlength="255" size="80" />
-              <button id="monoLocationBrowseButton" label="&KeeFox-browse.label;..." oncommand="browseForMonoLocation(document.getElementById('monoLocation').value);"/>
+              <button id="monoLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForMonoLocation(document.getElementById('monoLocation').value);"/>
             </hbox>
 
-            <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="&KeeFox-pref-keePassRememberInstalledLocation.label;" class="itemEnd" />
-            <label control="keePassLocation" value="&KeeFox-pref-keePassLocation.label;:"/>
+            <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="%-KeeFox-pref-keePassRememberInstalledLocation.label-%" class="itemEnd" />
+            <label id="lab-keePassLocation" control="keePassLocation" value="%-KeeFox-pref-keePassLocation.label-%:"/>
             <textbox preference="KeeFox-pref-keePassLocation" id="keePassLocation" maxlength="128" size="40" class="itemEnd"/>
 
           </vbox>
@@ -243,5 +243,29 @@
     </tabbox>
 
     <script type="application/x-javascript" src="chrome://keefox/content/options.js" />
+    <script>
+      // Localise this window. We use a fixed list of elements since it's known in
+      // advance and more performant but we could always come up with a more
+      // automatic way in future if we need.
+      /*window.addEventListener("load", function () {
+      this.keefox_org.locale.internationaliseElements(this.document,
+      ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
+      'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
+      'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs',
+      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut','flashIconWhenKeePassRPCInactive',
+      'flashIconWhenLoggedOut','famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
+      'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
+      'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
+      'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
+      'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation'
+      ],
+      ['title','label','tooltiptext','accesskey','value']);
+      }, false);
+      alert(window);
+      alert('loading');
+      alert(this);
+      alert(this.keefox_org);
+      alert(this.keefox_win);*/
+    </script>
   </prefpane>
 </prefwindow>
