@@ -1,36 +1,6 @@
-// The KeeFox locale module is based on the Firebug locale code, used under the following BSD-style license:
-/*
-Software License Agreement (BSD License)
-
-Copyright (c) 2009, Mozilla Foundation
-All rights reserved.
-
-Redistribution and use of this software in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above
-  copyright notice, this list of conditions and the
-  following disclaimer.
-
-* Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the
-  following disclaimer in the documentation and/or other
-  materials provided with the distribution.
-
-* Neither the name of Mozilla Foundation nor the names of its
-  contributors may be used to endorse or promote products
-  derived from this software without specific prior
-  written permission of Mozilla Foundation.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// The KeeFox locale module is loosly based on the Firebug locale code, used under a BSD-style license.
+// In fact there are really just a few similarities in style since most of the extra features I wanted
+// to implement required greater changes to the basic firebug code than I first thought
 // Modifications to the original Firebug code are copyright Chris Tomlinson.
 // The resulting combined code is released under the same GPL license as the rest of KeeFox:
 /*
@@ -41,6 +11,20 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   noteably this will support dynamically loaded translations from outside of the
   standard locale structure that gets bundled with the current addon version and will
   support falling back to the default en-US locale if a string is missing.
+
+  Use registerStringBundleJSON and registerStringBundleChromeURI as many times as needed
+  to register all disperate sources of translation data. Note the following priority order:
+
+  JSON bundles of active locale
+  JSON bundles of default locale
+  chrome bundles of active locale
+  chrome bundles of default locale
+  
+  Priority within each group of bundles is based on registration order (FIFO)
+
+  Limitations:
+  Locales are initialised straight away. Most of the time that will make sense but I guess it's possible for this to be an unnecessrilly eager load in some circumstances
+  No support for changing the locale without add-on (Firefox) restart
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -68,20 +52,9 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
 
-// Import of PluralForm object.
-//Cu.import("resource://gre/modules/PluralForm.jsm");
-
 //TODO: we need to work out how to log problems with this module. Can't use KeeFox logger because
 // it doesn't exist yet (and even then it would need to be passed in to this module so this
 // module has no dependency on KF
-
-//var consoleService = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
-
-//// Just workaround for this module.
-//var FBTrace = {sysout: function(msg)
-//{
-//    consoleService.logStringMessage(msg);
-//}};
 
 // This module is named conservatively to protect other addon
 // namespaces but maybe should be made more generic in future.
@@ -89,154 +62,168 @@ var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
 //TODO: constructor or init needs to take addon URIs so we can have dynamically loaded data for FAMS
 function KFandFAMSLocalisation()
 {
-    this.stringBundleURI = "chrome://keefox/locale/keefox.properties";
+    this.registerStringBundleChromeURI("chrome://keefox/locale/keefox.properties");
+    var sampleJson = {
+    "en": {
+        "key": "translation",
+        "key2": "translation2"
+        }
+    }
+    this.registerStringBundleJSON(sampleJson);
 };
 
 KFandFAMSLocalisation.prototype = {
 stringBundleService: Services.strings,
+stringBundles: [],
+jsonBundles: [],
+defaultStringBundles: [],
+defaultJsonBundles: [],
+registerStringBundleChromeURI: function(uri)
+{
+    this.stringBundles.push(this.stringBundleService.createBundle(uri));
+    this.defaultStringBundles.push(this.stringBundleService.createBundle(this.getDefaultStringBundleURI(uri)));
+},
+registerStringBundleJSON: function(json)
+{
+    this.jsonBundles.push(this.getJSONForCurrentLocale(json));
+    this.jsonBundles.push(this.getJSONForDefaultLocale(json));
+},
+
+getJSONForCurrentLocale: function(json)
+{
+    // determine current locale
+    var locale = this.getCurrentLocale();
+
+    //TODO: Priorities, fallbacks, etc.
+    return json["en"];
+},
+
+getJSONForDefaultLocale: function(json)
+{
+    return json["en"];
+},
 
 /*
  * $STR - intended for localization of a static string.
  * $STRF - intended for localization of a string with dynamically inserted values.
- * $STRP - intended for localization of a string with dynamically plural forms.
- *
- * Notes:
- * 1) Name with _ in place of spaces is the key in the firebug.properties file.
- * 2) If the specified key isn't localized for particular language, both methods use
- *    the part after the last dot (in the specified name) as the return value.
- *
- * Examples:
- * $STR("Label"); - search for key "Label" within the firebug.properties file
- *                 and returns its value. If the key doesn't exist returns "Label".
- *
- * $STR("Button Label"); - search for key "Button_Label" withing the firebug.properties
- *                        file. If the key doesn't exist returns "Button Label".
- *
- * $STR("net.Response Header"); - search for key "net.Response_Header". If the key doesn't
- *                               exist returns "Response Header".
- *
- * firebug.properties:
- * net.timing.Request_Time=Request Time: %S [%S]
- *
- * var param1 = 10;
- * var param2 = "ms";
- * $STRF("net.timing.Request Time", param1, param2);  -> "Request Time: 10 [ms]"
- *
- * - search for key "net.timing.Request_Time" within the firebug.properties file. Parameters
- *   are inserted at specified places (%S) in the same order as they are passed. If the
- *   key doesn't exist the method returns "Request Time".
  */
 $STR: function(name, bundle)
 {
-    var strKey = name.replace(" ", "_", "g");
-
-    //TODO: Nice idea but creates a cyclic dependency and not important enough to justify refactoring at the moment
-    //if (!keefox_org.prefs.getValue("useEnglishLocale", false))
-    //{
-        try
-        {
-            if (bundle)
-                return bundle.getString(strKey);
-            else
-                return this.getStringBundle().GetStringFromName(strKey);
-        }
-        catch (err)
-        {
-            //keefox_org._KFLog.info("getting string failed: '" + name + "'", err);
-        }
-    //}
-
     try
     {
-        // The en-US string should be always available.
-        var defaultBundle = this.getDefaultStringBundle();
-        if (defaultBundle)
-            return defaultBundle.GetStringFromName(strKey);
+        if (bundle)
+            return bundle.getString(name);
+        else
+            return this.GetStringFromName(name);
     }
     catch (err)
     {
-        //keefox_org._KFLog.error("getting en-US default string failed: '" + name + "'", err);
+        //keefox_org._KFLog.info("getting string failed: '" + name + "'", err);
     }
 
-    //TODO: This doesn't work well for KeeFox
-    // Don't panic now and use only the label after last dot.
-    var index = name.lastIndexOf(".");
-    if (index > 0 && name.charAt(index-1) != "\\")
-        name = name.substr(index + 1);
+    // return the key if it all went wrong
     name = name.replace("_", " ", "g");
     return name;
 },
 
 $STRF: function(name, args, bundle)
 {
-    var strKey = name.replace(" ", "_", "g");
-
-    //TODO: Nice idea but creates a cyclic dependency and not important enough to justify refactoring at the moment
-    //if (!keefox_org.prefs.getValue("useEnglishLocale", false))
-    //{
-        try
-        {
-            if (bundle)
-                return bundle.getFormattedString(strKey, args);
-            else
-                return this.getStringBundle().formatStringFromName(strKey, args, args.length);
-        }
-        catch (err)
-        {
-            //keefox_org._KFLog.info("getting string failed: '" + name + "'", err);
-        }
-    //}
-
     try
     {
-        // The en-US string should be always available.
-        var defaultBundle = this.getDefaultStringBundle();
-        if (defaultBundle)
-            return defaultBundle.formatStringFromName(strKey, args, args.length);
+        if (bundle)
+            return bundle.getFormattedString(name, args);
+        else
+            return this.FormatStringFromName(name, args, args.length);
     }
     catch (err)
     {
-        //keefox_org._KFLog.error("getting en-US default string failed: '" + name + "'", err);
+        //keefox_org._KFLog.info("getting string failed: '" + name + "'", err);
     }
-
-    // Don't panic now and use only the label after last dot.
-    var index = name.lastIndexOf(".");
-    if (index > 0)
-        name = name.substr(index + 1);
-
+    
+    // return the key if it all went wrong
     return name;
 },
 
-/*
-Not concerned with plurals at the moment...
-KFandFAMSLocalisation.$STRP = function(name, args, index, bundle)
+GetStringFromName: function(name)
 {
-    // xxxHonza:
-    // pluralRule from chrome://global/locale/intl.properties for Chinese is 1,
-    // which is wrong, it should be 0.
+    for (let i=0; i<this.jsonBundles.length; i++)
+    {
+        if (this.jsonBundles[i][name] != null)
+            return this.jsonBundles[i][name];
+    }
+    for (let i=0; i<this.defaultJsonBundles.length; i++)
+    {
+        if (this.defaultJsonBundles[i][name] != null)
+            return this.defaultJsonBundles[i][name];
+    }
+    for (let i=0; i<this.stringBundles.length; i++)
+    {
+        try
+        {
+            let translation = this.stringBundles[i].GetStringFromName(name);
+            return translation;
+        }
+        catch (ex) { }
+    }
+    for (let i=0; i<this.defaultStringBundles.length; i++)
+    {
+        try
+        {
+            let translation = this.defaultStringBundles[i].GetStringFromName(name);
+            return translation;
+        }
+        catch (ex) { }
+    }
 
-    var getPluralForm = PluralForm.get;
-    var getNumForms = PluralForm.numForms;
+    // No match found
+    return name;
+},
 
-    // Get custom plural rule; otherwise the rule from chrome://global/locale/intl.properties
-    // (depends on the current locale) is used.
-    var pluralRule = Locale.getPluralRule();
-    if (!isNaN(parseInt(pluralRule, 10)))
-        [getPluralForm, getNumForms] = PluralForm.makeGetter(pluralRule);
+printf: function(text, args) {
+    var arg;
+    return msg.replace(/(%s)/g, function(a,val) {
+        arg = args.shift();
+        if (arg !== undefined) {
+            return String(arg);
+        }
+        return val;
+    });
+},
 
-    // Index of the argument with plural form (there must be only one arg that needs plural form).
-    if (!index)
-        index = 0;
+FormatStringFromName: function(name, args)
+{
+    for (let i=0; i<this.jsonBundles.length; i++)
+    {
+        if (this.jsonBundles[i][name] != null)
+            return this.printf(this.jsonBundles[i][name], args);
+    }
+    for (let i=0; i<this.defaultJsonBundles.length; i++)
+    {
+        if (this.defaultJsonBundles[i][name] != null)
+            return this.printf(this.defaultJsonBundles[i][name], args);
+    }
+    for (let i=0; i<this.stringBundles.length; i++)
+    {
+        try
+        {
+            let translation = this.stringBundles[i].formatStringFromName(name, args, args.length);
+            return translation;
+        }
+        catch (ex) { }
+    }
+    for (let i=0; i<this.defaultStringBundles.length; i++)
+    {
+        try
+        {
+            let translation = this.defaultStringBundles[i].formatStringFromName(name, args, args.length);
+            return translation;
+        }
+        catch (ex) { }
+    }
 
-    // Get proper plural form from the string (depends on the current Firefox locale).
-    var translatedString = Locale.$STRF(name, args, bundle);
-    if (translatedString.search(";") > 0)
-        return getPluralForm(args[index], translatedString);
-
-    // translatedString contains no ";", either rule 0 or getString fails
-    return translatedString;
-}
-*/
+    // No match found
+    return name;
+},
 
 /*
  * Use the current value of the attribute as a key to look up the localized value.
@@ -296,10 +283,6 @@ internationaliseElements: function(doc, elements, attributes)
         if (!element)
             continue;
 
-        // Remove fbInternational class, so that the label is not translated again later.
-        //CPT: Not sure why I'd want to do this
-        //element.classList.remove("fbInternational");
-
         // Replace within text content too. Assumes there are no other subnodes. May need to be more clever here.
         if (element.childNodes != null && element.childNodes.length > 0)
             this.internationalise(element.childNodes[0]);
@@ -312,36 +295,6 @@ internationaliseElements: function(doc, elements, attributes)
     }
 },
 
-getStringBundle: function()
-{
-    if (!this.stringBundle)
-        this.stringBundle = this.stringBundleService.createBundle(this.stringBundleURI);
-    return this.stringBundle;
-},
-
-getDefaultStringBundle: function()
-{
-    if (!this.defaultStringBundle)
-    {
-        var bundleURI = this.getDefaultStringBundleURI(this.stringBundleURI);
-        this.defaultStringBundle = this.stringBundleService.createBundle(bundleURI);
-    }
-    return this.defaultStringBundle;
-},
-
-/*
-KFandFAMSLocalisation.getPluralRule = function()
-{
-    try
-    {
-        return this.getStringBundle().GetStringFromName("pluralRule");
-    }
-    catch (err)
-    {
-    }
-}
-*/
-
 getDefaultStringBundleURI: function(bundleURI)
 {
     var chromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].
@@ -353,7 +306,15 @@ getDefaultStringBundleURI: function(bundleURI)
     parts[parts.length - 2] = "en-US";
 
     return parts.join("/");
+},
+
+getCurrentLocale: function()
+{
+    var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
+    var prefBranchRoot = prefService.getBranch("");
+    return prefBranchRoot.getComplexValue("general.useragent.locale", Ci.nsISupportsString).data;
 }
+
 };
 
 //TODO: should call this from somewhere else
