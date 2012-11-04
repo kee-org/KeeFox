@@ -20,7 +20,7 @@
 
 let Cu = Components.utils;
 
-Cu.import("resource://kfmod/FAMS.js");
+Cu.import("resource://kfmod/FAMS.jsm");
 
 var FAMS = null;
 var config = null;
@@ -88,7 +88,7 @@ function renderAllMessageGroups()
 {
     var msgGroupContainer = window.document.getElementById("msgGroupContainer");
     var famsDescription = window.document.createElement("description");    
-    famsDescription.textContent = config.description;    
+    famsDescription.textContent = FAMS.locale.internationaliseString(config.description);
     msgGroupContainer.appendChild(famsDescription);
     
     //TODO2: Enable downloads for urgent security notifications
@@ -147,7 +147,7 @@ function renderMessageGroup(msgGroupIndex)
     var appearanceSlider = window.document.createElement("scale");
     var appearanceLabel = window.document.createElement("label");
     //var seeAllButton = window.document.createElement("button");
-    desc.textContent = msgGroup.description;
+    desc.textContent = FAMS.locale.internationaliseString(msgGroup.description);
 
     var disabled = !msgGroup.userEditable;
     enabledCheckbox.setAttribute("disabled",disabled);

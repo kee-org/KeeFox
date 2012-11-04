@@ -55,7 +55,7 @@ if (keefox_win.shouldLoad)
     keefox_win.Logger.debug("got sessionstore-windows-restored1");
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
     keefox_win.Logger.debug("got sessionstore-windows-restored2");
-    Cu.import("resource://kfmod/FAMS.js");
+    Cu.import("resource://kfmod/FAMS.jsm");
     keefox_win.Logger.debug("got sessionstore-windows-restored3");
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window

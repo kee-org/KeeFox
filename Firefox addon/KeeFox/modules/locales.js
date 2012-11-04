@@ -46,33 +46,43 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 
-const DEFAULT_LOCALE = "en-US";
-
 Cu.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
 
 //TODO: we need to work out how to log problems with this module. Can't use KeeFox logger because
-// it doesn't exist yet (and even then it would need to be passed in to this module so this
-// module has no dependency on KF
+// it doesn't exist yet
 
 // This module is named conservatively to protect other addon
 // namespaces but maybe should be made more generic in future.
 
-//TODO: constructor or init needs to take addon URIs so we can have dynamically loaded data for FAMS
-function KFandFAMSLocalisation()
+function KFandFAMSLocalisation(chromeURIs, jsonLocales)
 {
-    this.registerStringBundleChromeURI("chrome://keefox/locale/keefox.properties");
-    var sampleJson = {
-    "en": {
-        "key": "translation",
-        "key2": "translation2"
+    if (chromeURIs != undefined && chromeURIs != null)
+    {
+        for (let i=0; i<chromeURIs.length; i++)
+        {
+            this._log("registering: " + chromeURIs[i]);
+            this.registerStringBundleChromeURI(chromeURIs[i]);
         }
     }
-    this.registerStringBundleJSON(sampleJson);
+    if (jsonLocales != undefined && jsonLocales != null)
+    {
+        for (let i=0; i<jsonLocales.length; i++)
+        {
+            this._log("registering: " + jsonLocales[i]);
+            this.registerStringBundleJSON(jsonLocales[i]);
+        }
+    }
 };
 
 KFandFAMSLocalisation.prototype = {
+_log: function (message) {
+        var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+        getService(Ci.nsIConsoleService); _logService.logStringMessage("Locale: " + message);
+    }, // stub logger logs everything to console
+    //}, // stub logger logs nothing
+
 stringBundleService: Services.strings,
 stringBundles: [],
 jsonBundles: [],
@@ -80,22 +90,71 @@ defaultStringBundles: [],
 defaultJsonBundles: [],
 registerStringBundleChromeURI: function(uri)
 {
-    this.stringBundles.push(this.stringBundleService.createBundle(uri));
+    var newBundle = this.stringBundleService.createBundle(uri);
+    if (newBundle) this.stringBundles.push(newBundle);
     this.defaultStringBundles.push(this.stringBundleService.createBundle(this.getDefaultStringBundleURI(uri)));
 },
 registerStringBundleJSON: function(json)
 {
-    this.jsonBundles.push(this.getJSONForCurrentLocale(json));
-    this.jsonBundles.push(this.getJSONForDefaultLocale(json));
+    var newBundle = this.getJSONForCurrentLocale(json);
+    if (newBundle) this.jsonBundles.push(newBundle);
+    this.defaultJsonBundles.push(this.getJSONForDefaultLocale(json));
 },
 
 getJSONForCurrentLocale: function(json)
 {
     // determine current locale
-    var locale = this.getCurrentLocale();
+    var appLocale = this.getCurrentLocale();
 
-    //TODO: Priorities, fallbacks, etc.
-    return json["en"];
+    //let appLocale = getLocale();
+ 
+   // Holds the best matching localized resource
+   var bestmatch = null;
+   // The number of locale parts it matched with
+   var bestmatchcount = 0;
+   // The number of locale parts in the match
+   var bestpartcount = 0;
+ 
+   //var matchLocales = [appLocale.toLowerCase()];
+   /* If the current locale is English then it will find a match if there is
+      a valid match for en-US so no point searching that locale too. */
+   //if (matchLocales[0].substring(0, 3) != "en-")
+   //  matchLocales.push("en-us");
+ 
+   //for each (var locale in matchLocales) {
+     var lparts = appLocale.split("-");
+     for (var locale in json) {
+//       for each (let found in localized.locales) {
+         let found = locale.toLowerCase();
+         // Exact match is returned immediately
+         if (appLocale == found)
+           return json[locale];
+ 
+         var fparts = found.split("-");
+         /* If we have found a possible match and this one isn't any longer
+            then we dont need to check further. */
+         if (bestmatch && fparts.length < bestmatchcount)
+           continue;
+ 
+         // Count the number of parts that match
+         var maxmatchcount = Math.min(fparts.length, lparts.length);
+         var matchcount = 0;
+         while (matchcount < maxmatchcount &&
+                fparts[matchcount] == lparts[matchcount])
+           matchcount++;
+ 
+         /* If we matched more than the last best match or matched the same and
+            this locale is less specific than the last best match. */
+         if (matchcount > bestmatchcount ||
+            (matchcount == bestmatchcount && fparts.length < bestpartcount)) {
+           bestmatch = locale;
+           bestmatchcount = matchcount;
+           bestpartcount = fparts.length;
+         }
+      // }
+     }
+    //}
+    return json[bestmatch];
 },
 
 getJSONForDefaultLocale: function(json)
@@ -118,7 +177,7 @@ $STR: function(name, bundle)
     }
     catch (err)
     {
-        //keefox_org._KFLog.info("getting string failed: '" + name + "'", err);
+        //info("getting string failed: '" + name + "'", err);
     }
 
     // return the key if it all went wrong
@@ -137,7 +196,7 @@ $STRF: function(name, args, bundle)
     }
     catch (err)
     {
-        //keefox_org._KFLog.info("getting string failed: '" + name + "'", err);
+        //info("getting string failed: '" + name + "'", err);
     }
     
     // return the key if it all went wrong
@@ -265,7 +324,7 @@ internationalise: function(element, attr, args)
     }
     else
     {
-        //keefox_org._KFLog.error("Failed to internationalise element with attr "+attr+" args:"+args);
+        //error("Failed to internationalise element with attr "+attr+" args:"+args);
     }
 },
 
@@ -295,6 +354,18 @@ internationaliseElements: function(doc, elements, attributes)
     }
 },
 
+internationaliseString: function(orig, args)
+{
+    // replace callback
+    var that = this;
+    function substituteText  (str, p1, offset, s)
+    {
+        return that.args ? that.$STRF(p1, that.args) : that.$STR(p1);
+    }
+
+    return orig.replace(/%-(.+?)-%/g,substituteText);
+},
+
 getDefaultStringBundleURI: function(bundleURI)
 {
     var chromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].
@@ -312,16 +383,7 @@ getCurrentLocale: function()
 {
     var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
     var prefBranchRoot = prefService.getBranch("");
-    return prefBranchRoot.getComplexValue("general.useragent.locale", Ci.nsISupportsString).data;
+    return prefBranchRoot.getComplexValue("general.useragent.locale", Ci.nsISupportsString).data.toLowerCase();
 }
 
 };
-
-//TODO: should call this from somewhere else
-//FAMS.locale = new KFandFAMSLocalisation();
-
-
-
-
-
-

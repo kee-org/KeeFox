@@ -193,8 +193,7 @@ function KeeFox()
         this._keeFoxExtension.prefs._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
     }
     
-    this.locale = new KFandFAMSLocalisation();
-    this._KFLog.debug("testttttting: " + this.locale.$STR("installKeeFox.tip"));
+    this.locale = new KFandFAMSLocalisation(["chrome://keefox/locale/keefox.properties"]);
 
     //this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
     

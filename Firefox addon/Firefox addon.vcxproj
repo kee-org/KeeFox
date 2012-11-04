@@ -107,8 +107,10 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <PostBuildEvent>
       <Command>echo POSTBUILDSTEP for $(ProjectName)
 
+REM combine module components into single file
 pushd "$(ProjectDir)KeeFox\modules"
 copy /b KF.js+config.js KF.jsm /Y
+copy /b FAMS.js+FAMS-config.js+FAMS-strings.js FAMS.jsm /Y
 popd
 
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
@@ -210,6 +212,8 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\key-highlighted.png" />
     <None Include="KeeFox\chrome\skin\main.png" />
     <None Include="KeeFox\modules\config.js" />
+    <None Include="KeeFox\modules\FAMS-config.js" />
+    <None Include="KeeFox\modules\FAMS-strings.js" />
     <None Include="KeeFox\modules\locales.js" />
     <None Include="Test Pages\LeftFrameContents.htm">
       <DeploymentContent>true</DeploymentContent>

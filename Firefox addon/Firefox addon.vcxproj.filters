@@ -225,6 +225,12 @@
     <None Include="KeeFox\modules\locales.js">
       <Filter>JS</Filter>
     </None>
+    <None Include="KeeFox\modules\FAMS-config.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\FAMS-strings.js">
+      <Filter>JS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />
