@@ -26,7 +26,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 
-<window id="KeeFoxInstallWizard" title="&KeeFox_Install_Setup_KeeFox.label;" 
+<window id="KeeFoxInstallWizard" title="%-KeeFox_Install_Setup_KeeFox.label-%" 
         xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" onload="prepareInstallPage();">
 
@@ -113,35 +113,35 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
           </vbox>
 
           <vbox id="KFInstallPageTitle" width="590px" >
-            <description>&KeeFox_Install_Setup_KeeFox.label;</description>
+            <description>%-KeeFox_Install_Setup_KeeFox.label-%</description>
           </vbox>
 
           <vbox id="KFInstallPageContent" width="590px" >
 
             <vbox id="KFInstallAlreadyInProgress" hidden="true">
-              <description>&KeeFox_Install_Process_Running_In_Other_Tab.label;</description>
+              <description id="desc_KFInstallAlreadyInProgress">%-KeeFox_Install_Process_Running_In_Other_Tab.label-%</description>
             </vbox>
 
             <vbox id="KFInstallNotRequired" hidden="true">
-              <description>&KeeFox_Install_Not_Required.label;</description>
-              <label href="http://keefox.org/help" class="text-link">&KeeFox_Install_Not_Required_Link.label;</label>
+              <description id="desc_KFInstallNotRequired">%-KeeFox_Install_Not_Required.label-%</description>
+              <label href="http://keefox.org/help" class="text-link" id="lab_KFInstallNotRequired">%-KeeFox_Install_Not_Required_Link.label-%</label>
             </vbox>
 
             <vbox id="ERRORInstallButtonMain" hidden="true">
-              <description>&KeeFox_Install_Unexpected_Error.label;</description>
+              <description id="desc_ERRORInstallButtonMain">%-KeeFox_Install_Unexpected_Error.label-%</description>
             </vbox>
             <vbox id="ERRORInstallDownloadFailed" hidden="true">
-              <description>&KeeFox_Install_Download_Failed.label;</description>
+              <description id="desc_ERRORInstallDownloadFailed">%-KeeFox_Install_Download_Failed.label-%</description>
             </vbox>
             <vbox id="ERRORInstallDownloadChecksumFailed" hidden="true">
-              <description>&KeeFox_Install_Download_Checksum_Failed.label;</description>
+              <description id="desc_ERRORInstallDownloadChecksumFailed">%-KeeFox_Install_Download_Checksum_Failed.label-%</description>
             </vbox>
             <vbox id="ERRORInstallDownloadCanceled" hidden="true">
-              <description>&KeeFox_Install_Download_Canceled.label;</description>
+              <description id="desc_ERRORInstallDownloadCanceled">%-KeeFox_Install_Download_Canceled.label-%</description>
             </vbox>
 
             <vbox id="restartInstallationOption" hidden="true">
-              <button label="&KeeFox_Install_Try_Again_Button.label;"
+              <button id="but_restartInstallationOption" label="%-KeeFox_Install_Try_Again_Button.label-%"
                     oncommand="resetInstallation(); window.location.reload(true);"/>
             </vbox>
 
@@ -153,38 +153,38 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
               <!-- these boxes can be styled to be big massive pretty "click me!" buttons -->
 
               <vbox id="installationFoundWarning" hidden="true">
-                <description class="warning">&KeeFox_Install_Already_Installed_Warning.description;</description>
+                <description id="desc_installationFoundWarning" class="warning">%-KeeFox_Install_Already_Installed_Warning.description-%</description>
               </vbox>
 
               <!-- IC1, IC4 -->
               <vbox id="setupExeInstallButtonMain" hidden="true">
-                <button label="&KeeFox_Install_Setup_KeeFox.label;"
+                <button id="but_setupExeInstallButtonMain" label="%-KeeFox_Install_Setup_KeeFox.label-%"
                       oncommand="setupExeInstall();"/>
               </vbox>
 
               <!-- IC2 -->
               <vbox id="KPsetupExeSilentInstallButtonMain" hidden="true">
-                <button label="&KeeFox_Install_Setup_KeeFox.label;"
+                <button id="but_KPsetupExeSilentInstallButtonMain" label="%-KeeFox_Install_Setup_KeeFox.label-%"
                       oncommand="KPsetupExeSilentInstall();"/>
               </vbox>
 
               <!-- IC3, IC6 -->
               <vbox id="copyKRPCToKnownKPLocationInstallButtonMain" hidden="true">
-                <button label="&KeeFox_Install_Setup_KeeFox.label;"
+                <button id="but_copyKRPCToKnownKPLocationInstallButtonMain" label="%-KeeFox_Install_Setup_KeeFox.label-%"
                       oncommand="copyKRPCToKnownKPLocationInstall();"/>
               </vbox>
 
               <!-- IC5 -->
               <vbox id="copyKPToSpecificLocationInstallButtonMain" hidden="true">
                 <!-- file chooser field needed -->
-                <button label="&KeeFox_Install_copyKPToSpecificLocationInstallButton.label;"
+                <button id="but_copyKPToSpecificLocationInstallButtonMain" label="%-KeeFox_Install_copyKPToSpecificLocationInstallButton.label-%"
                       oncommand="copyKPToSpecificLocationInstall();"/>
               </vbox>
 
               <!-- IC7, IC8 -->
               <vbox id="copyKRPCToKnownKPLocationUpgradeButtonMain" hidden="true">
-                <description class="warning">&KeeFox_Install_PleaseCloseKeePass.description;</description>
-                <button label="&KeeFox_Install_Upgrade_KeeFox.label;"
+                <description id="desc_copyKRPCToKnownKPLocationUpgradeButtonMain" class="warning">%-KeeFox_Install_PleaseCloseKeePass.description-%</description>
+                <button id="but_copyKRPCToKnownKPLocationUpgradeButtonMain" label="%-KeeFox_Install_Upgrade_KeeFox.label-%"
                       oncommand="copyKRPCToKnownKPLocationInstall();"/>
               </vbox>
 
@@ -192,49 +192,49 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
               <!-- these boxes are used to provide a "click to see more options" interface to the user -->
 
               <vbox id="setupNET35ExeInstallExpandee" hidden="true">
-                <description id="setupNET35ExeInstallExpandeeOverview">&KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description;</description>
-                <description id="setupNET35ExeInstallExpandeeKeePass">&KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description;</description>
-                <!--<description id="setupNET35ExeInstallExpandeeNet">&KeeFox_Install_setupNET35ExeInstallExpandeeNet.description;</description>
+                <description id="setupNET35ExeInstallExpandeeOverview">%-KeeFox_Install_setupNET35ExeInstallExpandeeOverview.description-%</description>
+                <description id="setupNET35ExeInstallExpandeeKeePass">%-KeeFox_Install_setupNET35ExeInstallExpandeeKeePass.description-%</description>
+                <!--<description id="setupNET35ExeInstallExpandeeNet">%-KeeFox_Install_setupNET35ExeInstallExpandeeNet.description-%</description>
                 <vbox id="setupNET35ExeInstallButton">
-                  <button label="&KeeFox_Install_setupNET35ExeInstallButton.label;"
+                  <button label="%-KeeFox_Install_setupNET35ExeInstallButton.label-%"
                         oncommand="setupNET35ExeInstall();"/>
                 </vbox>-->
-                <description id="setupNET35ExeInstallExpandeeManual">&KeeFox_Install_setupNET35ExeInstallExpandeeManual.description;</description>
-                <description id="setupNET35ExeInstallExpandeeManualStep1">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description;</description>
-                <description id="setupNET35ExeInstallExpandeeManualStep2">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description;</description>
-                <description id="setupNET35ExeInstallExpandeeManualStep3">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description;</description>
-                <description id="setupNET35ExeInstallExpandeeManualStep4">&KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description;</description>
+                <description id="setupNET35ExeInstallExpandeeManual">%-KeeFox_Install_setupNET35ExeInstallExpandeeManual.description-%</description>
+                <description id="setupNET35ExeInstallExpandeeManualStep1">%-KeeFox_Install_setupNET35ExeInstallExpandeeManualStep1.description-%</description>
+                <description id="setupNET35ExeInstallExpandeeManualStep2">%-KeeFox_Install_setupNET35ExeInstallExpandeeManualStep2.description-%</description>
+                <description id="setupNET35ExeInstallExpandeeManualStep3">%-KeeFox_Install_setupNET35ExeInstallExpandeeManualStep3.description-%</description>
+                <description id="setupNET35ExeInstallExpandeeManualStep4">%-KeeFox_Install_setupNET35ExeInstallExpandeeManualStep4.description-%</description>
               
               </vbox>
               
               <!-- IC2 -->
               <vbox id="adminSetupKPInstallExpander" hidden="true">
-                <description>&KeeFox_Install_adminSetupKPInstallExpander.description;</description>
+                <description id="desc_adminSetupKPInstallExpander">%-KeeFox_Install_adminSetupKPInstallExpander.description-%</description>
                 <button id="adminSetupKPInstallExpanderButton" 
-                        label="&KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label;"
+                        label="%-KeeFox_Install_adminSetupKPInstallExpander_More_Info_Button.label-%"
                       oncommand="expandSection('adminSetupKPInstallExpandee',
                             'adminSetupKPInstallExpanderButton');"/>
               </vbox>
 
               <!-- IC3 -->
               <vbox id="admincopyKRPCToKnownKPLocationInstallExpander" hidden="true">
-                <description>&KeeFox_Install_admincopyKRPCToKnownKPLocationInstallExpander.description;</description>
+                <description id="desc_admincopyKRPCToKnownKPLocationInstallExpander">%-KeeFox_Install_admincopyKRPCToKnownKPLocationInstallExpander.description-%</description>
               </vbox>
 
               <!-- IC5 -->
               <vbox id="nonAdminSetupKPInstallExpander" hidden="true">
-                <description>&KeeFox_Install_nonAdminSetupKPInstallExpander.description;</description>
+                <description id="desc_nonAdminSetupKPInstallExpander">%-KeeFox_Install_nonAdminSetupKPInstallExpander.description-%</description>
                 <!--<button id="nonAdminSetupKPInstallExpanderButton" 
-                        label="&KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label;"
+                        label="%-KeeFox_Install_nonAdminSetupKPInstallExpander_More_Info_Button.label-%"
                       oncommand="expandSection('nonAdminSetupKPInstallExpandee',
                           'nonAdminSetupKPInstallExpanderButton');"/>-->
               </vbox>
 
               <!-- IC6 -->
               <vbox id="nonAdmincopyKRPCToKnownKPLocationInstallExpander" hidden="true">
-                <description>&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description;</description>
+                <description id="desc_nonAdmincopyKRPCToKnownKPLocationInstallExpander">%-KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander.description-%</description>
                 <button id="nonAdmincopyKRPCToKnownKPLocationInstallExpanderButton" 
-                        label="&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label;"
+                        label="%-KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpander_More_Info_Button.label-%"
                       oncommand="expandSection('nonAdmincopyKRPCToKnownKPLocationInstallExpandee',
                         'nonAdmincopyKRPCToKnownKPLocationInstallExpanderButton');"/>
               </vbox>
@@ -243,37 +243,37 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
                 advanced install options -->
 
               <vbox id="adminSetupKPInstallExpandee" hidden="true">
-                <description>&KeeFox_Install_adminSetupKPInstallExpandee.description;</description>
+                <description id="desc_adminSetupKPInstallExpandee">%-KeeFox_Install_adminSetupKPInstallExpandee.description-%</description>
                 <vbox id="KPsetupExeInstallButton" hidden="false">
-                  <button label="&KeeFox_Install_KPsetupExeInstallButton.label;"
+                  <button id="but_KPsetupExeInstallButton" label="%-KeeFox_Install_KPsetupExeInstallButton.label-%"
                         oncommand="KPsetupExeInstall();"/>
                 </vbox>
-                <description>&KeeFox_Install_adminSetupKPInstallExpandeePortable.description;</description>
+                <description id="desc_adminSetupKPInstallExpandee2">%-KeeFox_Install_adminSetupKPInstallExpandeePortable.description-%</description>
                 <vbox id="copyKPToSpecificLocationInstallButton" hidden="false">
                   <!-- file chooser field needed -->
-                  <button label="&KeeFox_Install_copyKPToSpecificLocationInstallButton.label;"
+                  <button id="but_copyKPToSpecificLocationInstallButton" label="%-KeeFox_Install_copyKPToSpecificLocationInstallButton.label-%"
                         oncommand="copyKPToSpecificLocationInstall();"/>
                 </vbox>
               </vbox>
 
               <vbox id="nonAdminSetupKPInstallExpandee" hidden="true">
-                <description>&KeeFox_Install_nonAdminSetupKPInstallExpandee.description;</description>
+                <description id="desc_nonAdminSetupKPInstallExpandee">%-KeeFox_Install_nonAdminSetupKPInstallExpandee.description-%</description>
                 <vbox id="KPsetupExeSilentInstallButton" hidden="false">
-                  <button label="&KeeFox_Install_KPsetupExeSilentInstallButton.label;"
+                  <button id="but_KPsetupExeSilentInstallButton" label="%-KeeFox_Install_KPsetupExeSilentInstallButton.label-%"
                         oncommand="KPsetupExeSilentInstall();"/>
                 </vbox>
                 <vbox id="KPsetupExeInstallButton" hidden="false">
-                  <button label="&KeeFox_Install_KPsetupExeInstallButton.label;"
+                  <button id="but_KPsetupExeInstallButton" label="%-KeeFox_Install_KPsetupExeInstallButton.label-%"
                         oncommand="KPsetupExeInstall();"/>
                 </vbox>
 
               </vbox>
 
               <vbox id="nonAdmincopyKRPCToKnownKPLocationInstallExpandee" hidden="true">
-                <description>&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description;</description>
+                <description id="desc_nonAdmincopyKRPCToKnownKPLocationInstallExpandee">%-KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallExpandee.description-%</description>
                 <vbox id="nonAdmincopyKRPCToKnownKPLocationInstallButton" hidden="false">
                   <!-- file chooser field needed -->
-                  <button label="&KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label;"
+                  <button id="but_nonAdmincopyKRPCToKnownKPLocationInstallButton" label="%-KeeFox_Install_nonAdmincopyKRPCToKnownKPLocationInstallButton.label-%"
                         oncommand="copyKPToSpecificLocationInstall();"/>
                 </vbox>
               </vbox>
@@ -284,83 +284,83 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
             <!-- everything in this box is displayed during the installation process -->
             <vbox id="installProgressView" hidden="true">
               <vbox id="IC1setupNETdownloading" hidden="true">
-                <description>&KeeFox_Install_IC1setupNETdownloading.description;</description>
+                <description id="desc_IC1setupNETdownloading">%-KeeFox_Install_IC1setupNETdownloading.description-%</description>
                 <progressmeter id="IC1setupNETdownloadingProgressBar" mode="determined" value="0"/>
-                <button label="&KeeFox_Install_Cancel_Button.label;"
+                <button id="but_IC1setupNETdownloading" label="%-KeeFox_Install_Cancel_Button.label-%"
                         oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC1setupNETdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC1setupNETdownloaded.description;</description>
+                <description id="desc_IC1setupNETdownloaded">%-KeeFox_Install_IC1setupNETdownloaded.description-%</description>
               </vbox>
 
               <vbox id="IC1setupKPdownloading" hidden="true">
-                <description>&KeeFox_Install_IC1setupKPdownloading.description;</description>
+                <description id="desc_IC1setupKPdownloading">%-KeeFox_Install_IC1setupKPdownloading.description-%</description>
                 <progressmeter id="IC1setupKPdownloadingProgressBar" mode="determined" value="0"/>
-                <button label="&KeeFox_Install_Cancel_Button.label;"
+                <button id="but_IC1setupKPdownloading" label="%-KeeFox_Install_Cancel_Button.label-%"
                         oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC1setupKPdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC1setupKPdownloaded.description;</description>
+                <description id="desc_IC1setupKPdownloaded">%-KeeFox_Install_IC1setupKPdownloaded.description-%</description>
               </vbox>
 
               <vbox id="IC1KRPCdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC1KRPCdownloaded.description;</description>
+                <description id="desc_IC1KRPCdownloaded">%-KeeFox_Install_IC1KRPCdownloaded.description-%</description>
               </vbox>
 
               <vbox id="IC2setupKPdownloading" hidden="true">
-                <description>&KeeFox_Install_IC2setupKPdownloading.description;</description>
+                <description id="desc_IC2setupKPdownloading">%-KeeFox_Install_IC2setupKPdownloading.description-%</description>
                 <progressmeter id="IC2setupKPdownloadingProgressBar" mode="determined" value="0"/>
-                <button label="&KeeFox_Install_Cancel_Button.label;"
+                <button id="but_IC2setupKPdownloading" label="%-KeeFox_Install_Cancel_Button.label-%"
                         oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC2setupKPdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC2setupKPdownloaded.description;</description>
+                <description id="desc_IC2setupKPdownloaded">%-KeeFox_Install_IC2setupKPdownloaded.description-%</description>
               </vbox>
 
               <vbox id="IC2KRPCdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC2KRPCdownloaded.description;</description>
+                <description id="desc_IC2KRPCdownloaded">%-KeeFox_Install_IC2KRPCdownloaded.description-%</description>
               </vbox>
 
               <vbox id="IC3installing" hidden="true">
-                <description>&KeeFox_Install_IC3installing.description;</description>
+                <description id="desc_IC3installing">%-KeeFox_Install_IC3installing.description-%</description>
               </vbox>
 
               <vbox id="IC5zipKPdownloading" hidden="true">
-                <description>&KeeFox_Install_IC5zipKPdownloading.description;</description>
+                <description id="desc_IC5zipKPdownloading">%-KeeFox_Install_IC5zipKPdownloading.description-%</description>
                 <progressmeter id="IC5zipKPdownloadingProgressBar" mode="determined" value="0"/>
-                <button label="&KeeFox_Install_Cancel_Button.label;"
+                <button id="lab_IC5zipKPdownloading" label="%-KeeFox_Install_Cancel_Button.label-%"
                         oncommand="cancelCurrentDownload();"/>
               </vbox>
               <vbox id="IC5zipKPdownloaded" hidden="true">
-                <description>&KeeFox_Install_IC5zipKPdownloaded.description;</description>
+                <description id="desc_IC5zipKPdownloaded">%-KeeFox_Install_IC5zipKPdownloaded.description-%</description>
               </vbox>
 
               <vbox id="IC5installing" hidden="true">
-                <description>&KeeFox_Install_IC5installing.description;</description>
+                <description id="desc_IC5installing">%-KeeFox_Install_IC5installing.description-%</description>
               </vbox>
 
             </vbox>
 
             <!-- everything in this box is displayed when everything is installed correctly -->
             <vbox id="InstallFinished" hidden="true">
-              <description>&KeeFox_Install_InstallFinished.description;</description>
-              <description id="nextStepsIntro">&KeeFox_Install_NextSteps.description;</description>
+              <description id="desc_InstallFinished">%-KeeFox_Install_InstallFinished.description-%</description>
+              <description id="nextStepsIntro">%-KeeFox_Install_NextSteps.description-%</description>
               <hbox width="500px">
                 <description id="nextStep1" width="50px">1)</description>
-                <description width="450px">&KeeFox_Install_NextStep1.description;</description>
+                <description id="desc_nextStep1" width="450px">%-KeeFox_Install_NextStep1.description-%</description>
               </hbox>
               <hbox width="500px">
                 <description id="nextStep2" width="50px">2)</description>
-                <label width="450px" id="nextStepsTutorialLink" href="http://tutorial.keefox.org" class="text-link">&KeeFox_Install_NextStep2.description;</label>
+                <label width="450px" id="nextStepsTutorialLink" href="http://tutorial.keefox.org" class="text-link">%-KeeFox_Install_NextStep2.description-%</label>
               </hbox>
               <hbox width="500px">
                 <description id="nextStep3" width="50px">3)</description>
-                <label width="450px" id="nextStepsImportLink" href="http://keefox.org/migration" class="text-link">&KeeFox_Install_NextStep3.description;</label>
+                <label width="450px" id="nextStepsImportLink" href="http://keefox.org/migration" class="text-link">%-KeeFox_Install_NextStep3.description-%</label>
               </hbox>
 
 
-              <!--<description>&KeeFox_Install_NextStep2extra.description;</description>-->
-              <description id="nextStepsFinally">&KeeFox_Install_Finally.description; <label href="http://keefox.org/help" class="text-link">http://keefox.org/help</label></description>
+              <!--<description>%-KeeFox_Install_NextStep2extra.description-%</description>-->
+              <description id="nextStepsFinally">%-KeeFox_Install_Finally.description-% <label href="http://keefox.org/help" class="text-link">http://keefox.org/help</label></description>
             </vbox>
           </vbox> <!-- end KFInstallPageContent -->
         </vbox> <!-- end KFInstallPageMain -->

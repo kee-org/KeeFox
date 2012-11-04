@@ -90,6 +90,26 @@ var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
 function prepareInstallPage()
 {
+    mainWindow.keefox_org.locale.internationaliseElements(document,
+    ['KeeFoxInstallWizard', 'KFInstallPageTitle', 'desc_KFInstallAlreadyInProgress', 'desc_KFInstallNotRequired', 'lab_KFInstallNotRequired',
+    'desc_ERRORInstallButtonMain','desc_ERRORInstallDownloadFailed','desc_ERRORInstallDownloadChecksumFailed','desc_ERRORInstallDownloadCanceled',
+    'but_restartInstallationOption','desc_installationFoundWarning','but_setupExeInstallButtonMain','but_KPsetupExeSilentInstallButtonMain',
+    'but_copyKRPCToKnownKPLocationInstallButtonMain','but_copyKPToSpecificLocationInstallButtonMain','desc_copyKRPCToKnownKPLocationUpgradeButtonMain',
+    'but_copyKRPCToKnownKPLocationUpgradeButtonMain','setupNET35ExeInstallExpandeeOverview','setupNET35ExeInstallExpandeeKeePass',
+    'setupNET35ExeInstallExpandeeManual','setupNET35ExeInstallExpandeeManualStep1','setupNET35ExeInstallExpandeeManualStep2',
+    'setupNET35ExeInstallExpandeeManualStep3','setupNET35ExeInstallExpandeeManualStep4','desc_adminSetupKPInstallExpander',
+    'adminSetupKPInstallExpanderButton','desc_admincopyKRPCToKnownKPLocationInstallExpander','desc_nonAdminSetupKPInstallExpander',
+    'desc_nonAdmincopyKRPCToKnownKPLocationInstallExpander','nonAdmincopyKRPCToKnownKPLocationInstallExpanderButton',
+    'desc_adminSetupKPInstallExpandee','but_KPsetupExeInstallButton','desc_adminSetupKPInstallExpandee2','but_copyKPToSpecificLocationInstallButton',
+    'desc_nonAdminSetupKPInstallExpandee','but_KPsetupExeSilentInstallButton','but_KPsetupExeInstallButton',
+    'desc_nonAdmincopyKRPCToKnownKPLocationInstallExpandee','but_nonAdmincopyKRPCToKnownKPLocationInstallButton','desc_IC1setupNETdownloading',
+    'but_IC1setupNETdownloading','desc_IC1setupNETdownloaded','desc_IC1setupKPdownloading','but_IC1setupKPdownloading','desc_IC1setupKPdownloaded',
+    'desc_IC1KRPCdownloaded','desc_IC2setupKPdownloading','but_IC2setupKPdownloading','desc_IC2setupKPdownloaded','desc_IC2KRPCdownloaded',
+    'desc_IC3installing','desc_IC5zipKPdownloading','lab_IC5zipKPdownloading','desc_IC5zipKPdownloaded','desc_IC5installing',
+    'desc_InstallFinished','nextStepsIntro','desc_nextStep1','nextStepsTutorialLink','nextStepsImportLink','nextStepsFinally'
+    ],
+    ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
+
     var qs = "";
     var args = new Object();
     var query = location.search.substring(1);

@@ -26,7 +26,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 -->
 
-<window id="KeeFoxInstallWizard" title="&KeeFox_Install_Setup_KeeFox.label;" 
+<window id="KeeFoxInstallWizard" title="%-KeeFox_Install_Setup_KeeFox.label-%" 
         xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" onload="prepareMonoInstallPage();">
 
@@ -58,50 +58,50 @@
           </vbox>
 
           <vbox id="KFInstallPageTitle" width="590px" >
-            <description>&KeeFox_Install_Setup_KeeFox.label;</description>
+            <description>%-KeeFox_Install_Setup_KeeFox.label-%</description>
           </vbox>
 
           <vbox id="KFInstallPageContent" width="590px" >
 
             <vbox id="KFInstallAlreadyInProgress" hidden="true">
-              <description>&KeeFox_Install_Process_Running_In_Other_Tab.label;</description>
+              <description id="desc_KFInstallAlreadyInProgress">%-KeeFox_Install_Process_Running_In_Other_Tab.label-%</description>
             </vbox>
 
             <vbox id="KFInstallNotRequired" hidden="true">
-              <description>&KeeFox_Install_Not_Required.label;</description>
-              <label href="http://keefox.org/help" class="text-link">&KeeFox_Install_Not_Required_Link.label;</label>
+              <description id="desc_KFInstallNotRequired">%-KeeFox_Install_Not_Required.label-%</description>
+              <label href="http://keefox.org/help" class="text-link" id="lab_KFInstallNotRequired">%-KeeFox_Install_Not_Required_Link.label-%</label>
             </vbox>
 
             <vbox style="width:600px;" id="installationStartView" hidden="false">
 
               <vbox id="Install_monoManual" hidden="false">
-                <description class="mono-header">&KeeFox_Install_monoManual.description;</description>
-                <description id="monoManualStep1_description">&KeeFox_Install_monoManualStep1.description;</description>
+                <description class="mono-header" id="desc_Install_monoManual">%-KeeFox_Install_monoManual.description-%</description>
+                <description id="monoManualStep1_description">%-KeeFox_Install_monoManualStep1.description-%</description>
                 <html:a target="_blank" href="http://www.go-mono.com/mono-downloads/download.html" class="text-link">http://www.go-mono.com/mono-downloads/download.html</html:a>
-                <description id="monoManualStep2_description">&KeeFox_Install_monoManualStep2.description;</description>
+                <description id="monoManualStep2_description">%-KeeFox_Install_monoManualStep2.description-%</description>
                 <html:a target="_blank" href="http://keepass.info/download.html" class="text-link">http://keepass.info/download.html</html:a>
-                <description id="monoManualStep3_description">&KeeFox_Install_monoManualStep3.description;</description>
-                <description id="monoManualStep4_description">&KeeFox_Install_monoManualStep4.description;</description>
-                <description id="monoManualStep5_description">&KeeFox_Install_monoManualStep5.description;</description>
-                <description id="monoManualStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
+                <description id="monoManualStep3_description">%-KeeFox_Install_monoManualStep3.description-%</description>
+                <description id="monoManualStep4_description">%-KeeFox_Install_monoManualStep4.description-%</description>
+                <description id="monoManualStep5_description">%-KeeFox_Install_monoManualStep5.description-%</description>
+                <description id="monoManualStep6_description">%-KeeFox_Install_monoManualStep6.description-%</description>
                 <html:a target="_blank" id="monoManualStep5a_link" href="http://temp" class="text-link"></html:a>
               </vbox>
               
               <vbox id="Install_monoManualUpgrade" hidden="true">
-                <description class="mono-header">&KeeFox_Install_monoManualUpgrade.description;</description>
-                <description id="monoManualUpgradeStep1_description">&KeeFox_Install_monoManualUpgradeStep1.description;</description>
-                <description id="monoManualUpgradeStep2_description">&KeeFox_Install_monoManualUpgradeStep2.description;</description>
-                <description id="monoManualUpgradeStep6_description">&KeeFox_Install_monoManualStep6.description;</description>
+                <description class="mono-header" id="desc_Install_monoManualUpgrade">%-KeeFox_Install_monoManualUpgrade.description-%</description>
+                <description id="monoManualUpgradeStep1_description">%-KeeFox_Install_monoManualUpgradeStep1.description-%</description>
+                <description id="monoManualUpgradeStep2_description">%-KeeFox_Install_monoManualUpgradeStep2.description-%</description>
+                <description id="monoManualUpgradeStep6_description">%-KeeFox_Install_monoManualStep6.description-%</description>
                 <html:a target="_blank" id="monoManualUpgradeStep5a_link" href="http://temp" class="text-link"></html:a>
               </vbox>
 
               <vbox id="Install_monoManual2" hidden="false">
-                <description class="mono-header">&KeeFox_Install_monoManual2.description;</description>
-                <description id="monoManualTest1_description">&KeeFox_Install_monoManualTest1.description;</description>
+                <description class="mono-header" id="desc_Install_monoManual2">%-KeeFox_Install_monoManual2.description-%</description>
+                <description id="monoManualTest1_description">%-KeeFox_Install_monoManualTest1.description-%</description>
                 <description class="mono-file" id="monoManualTest1a_description"></description>
-                <description id="monoManualTest2_description">&KeeFox_Install_monoManualTest2.description;</description>
+                <description id="monoManualTest2_description">%-KeeFox_Install_monoManualTest2.description-%</description>
                 <description class="mono-file" id="monoManualTest2a_description"></description>
-                <description id="monoManualTest3_description">&KeeFox_Install_monoManualTest3.description;</description>
+                <description id="monoManualTest3_description">%-KeeFox_Install_monoManualTest3.description-%</description>
               </vbox>
 
             </vbox>
