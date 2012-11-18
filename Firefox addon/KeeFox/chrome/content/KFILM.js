@@ -211,51 +211,12 @@ keefox_win.ILM = {
     {
         var showSaveNotification = false;
     
-        if (this._kf._keeFoxExtension.prefs.getValue(
-                        "notifyBarRequestPasswordSave",true) 
-                    &&  keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
+        if (keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
         {
             // We don't do this unless we think we have a KeePassRPC connection
-            
-            var siteHP = this._getURISchemeHostAndPort(siteURL);
-            var statement = this._kf._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE tp = 0 AND url = :siteURL AND preventSaveNotification = 1");
-            statement.params.siteURL = siteHP;
-    
-    // would like to do this but async callback may reference
-    // expired (DOM) objects and make Firefox go bang.
-    //TODO2: Maybe make this decision after page load to pre-empt
-    // interaction with any forms that might be on the page?
-//            statement.executeAsync({
-//              handleResult: function(aResultSet) {
-//                var showSaveNotification = false;
-//                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow())
-//                {
-//                  showSaveNotification = true;
-//                }
-//                if (showSaveNotification)
-//                    this._pwmgr._onFormSubmit(formElement);
-//              },
-
-//              handleError: function(aError) {
-//                keefox_win.Logger.error("KeeFox site URL query cancelled or aborted: " + aError.message);
-//              },
-
-//              handleCompletion: function(aReason) {
-//                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED)
-//                  keefox_win.Logger.error("KeeFox site URL query cancelled or aborted: " + aReason);
-//              }
-//            });
-
-            showSaveNotification = true;
-            
-            try
-            {
-                if (statement.executeStep())
-                  showSaveNotification = false;
-            } finally
-            {
-                statement.reset();
-            }
+            let conf = keefox_org.config.getConfigForURL(doc.documentURI);
+            if (!conf.preventSaveNotification)
+                showSaveNotification = true;
         }
         return showSaveNotification;
     },
@@ -566,7 +527,7 @@ keefox_win.ILM = {
                 case "DOMContentLoaded":
                     doc = event.target;   
                     doc.removeEventListener("DOMContentLoaded", this, false);           
-                    var conf = keefox_org.config.getConfigForURL(doc.documentURI);
+                    var conf = keefox_org.config.getConfigForURL(doc.documentURI); // var conftemp = this._pwmgr._kf.config.getConfigForURL("https://login.live.com/"); // actual effective config
                     keefox_win.Logger.debug("domEventListener: trying to load form filler");
                     this._pwmgr._fillDocument(doc,true);
                     

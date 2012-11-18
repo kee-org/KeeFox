@@ -33,6 +33,7 @@
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
+let Cc = Components.classes;
 
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -585,21 +586,28 @@ FirefoxAddonMessageService.prototype.setConfiguration = function (configuration)
         throw new Exception("Trying to save a configuration with a different ID from the currently initialised config. Failed.");
 
     this.configuration = configuration;
-    this.prefBranch.setCharPref("config." + configuration.id, JSON.stringify(configuration));
+    var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+    str.data = JSON.stringify(configuration);
+    this.prefBranch.setComplexValue("config.utf8." + configuration.id, Ci.nsISupportsString, str);
 };
 
 // Use the current configuration stored in preferences unless it has not yet been defined
 // or the version stored within preferences is older than the default configuration
-// only messages can be changed at the moment. Attempting to alter other
-// configuration settings will result in undefined behaviour, likely a crash
-// Message display counts, records, etc. will be lost.
-// Maybe the migration procedure will be improved before it actually needs
-// to be used but this is at least a POC.
 FirefoxAddonMessageService.prototype.getConfiguration = function ()
 {
     try
     {
-        var prefData = this.prefBranch.getCharPref("config." + this.configId);
+        // Ensure config is stored somewhere that will understand UTF8
+        var prefType = this.prefBranch.getPrefType("config." + this.configId);
+        if (prefType == 32)
+        {
+            var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+            str.data = this.prefBranch.getCharPref("config." + this.configId);
+            this.prefBranch.setComplexValue("config.utf8." + this.configId, Ci.nsISupportsString, str);
+            this.prefBranch.clearUserPref("config." + this.configId);
+        }
+
+        var prefData = this.prefBranch.getComplexValue("config.utf8." + this.configId, Ci.nsISupportsString).data;
         var conf = JSON.parse(prefData);
         if (conf.version < this.defaultConfiguration.version)
         {

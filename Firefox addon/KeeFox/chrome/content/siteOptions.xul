@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://keefox/skin/keefox.css" type="text/css"?>
+
+<!--
+  KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
+  Copyright 2012 Chris Tomlinson <keefox@christomlinson.name>
+  
+  This is the site options XUL file which describes the interface for 
+  viewing and editing the various KeeFox preferences for specific web sites.
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+<dialog id="KeeFoxSiteOptions" title=""
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="extra1" buttonlabelextra1="Close" ondialogextra1 ="window.close();"
+        ondialogaccept=""
+        ondialogcancel="return;"
+        onload="onLoad();">
+  <script type="application/x-javascript" src="chrome://keefox/content/siteOptions.js"/>
+  <grid flex="1" >
+    <columns>
+      <column flex="1" />
+      <column width="250px" />
+      <column width="400px" />
+      <column flex="1" />
+    </columns>
+
+    <rows>
+      <row>
+        <spacer flex="1" />
+        <tree  id="siteURLTree" width="300" height="500" hidecolumnpicker="true" onselect="onTreeSelected();" seltype="single">
+          <treecols>
+            <treecol hideheader="true" id="url" primary="true"
+                     propertyname="url" flex="1" />
+          </treecols>
+          <treechildren/>
+        </tree>
+        <vbox id="site" style='overflow: auto'>
+          <description id="siteIntro">%-KeeFox-site-options-default-intro.desc-%</description>
+          <description id="siteDetail"/>
+          <description id="siteEnabledExplanation"/>
+          <hbox>
+            <checkbox id="notifyBarRequestPasswordSave-enabled"/>
+            <checkbox id="notifyBarRequestPasswordSave"
+                              label="%-KeeFox-pref-notifyBarRequestPasswordSave.label-%" class="itemEnd"/>
+          </hbox>
+          <hbox>
+            <checkbox id="monitorTime-enabled"/>
+            <checkbox id="monitorTime" label="%-KeeFox-pref-dynamicFormScanning.label-%" tooltiptext="%-KeeFox-pref-dynamicFormScanningExplanation.label-%"/>
+          </hbox>
+          <description id="validFormIntro">%-KeeFox-site-options-valid-form-intro.desc-%</description>
+          <description id="listExplain">%-KeeFox-site-options-list-explain.desc-%</description>
+          <description id="invisibleTip">%-KeeFox-site-options-invisible-tip.desc-%</description>
+
+          <groupbox>
+            <caption id="gb-form-name-caption" label="%-KeeFox-form-name-%"/>
+            <hbox class="listGroup">
+              <checkbox id="gb-form-name-wl-enabled"/>
+              <label id="gb-form-name-wl-lab" control="gb-form-name-wl" value="%-KeeFox-white-list-%" />
+              <textbox id="gb-form-name-wl" maxlength="50000" flex="2" />
+            </hbox>
+            <hbox class="listGroup">
+              <checkbox id="gb-form-name-bl-enabled"/>
+              <label id="gb-form-name-bl-lab" control="gb-form-name-bl" value="%-KeeFox-black-list-%" />
+              <textbox id="gb-form-name-bl" maxlength="50000" flex="2" />
+            </hbox>
+          </groupbox>
+
+          <groupbox>
+            <caption id="gb-form-id-caption" label="%-KeeFox-form-id-%"/>
+            <hbox class="listGroup">
+              <checkbox id="gb-form-id-wl-enabled"/>
+              <label id="gb-form-id-wl-lab" control="gb-form-id-wl" value="%-KeeFox-white-list-%" />
+              <textbox id="gb-form-id-wl" maxlength="50000" flex="2" />
+            </hbox>
+            <hbox class="listGroup">
+              <checkbox id="gb-form-id-bl-enabled"/>
+              <label id="gb-form-id-bl-lab" control="gb-form-id-bl" value="%-KeeFox-black-list-%" />
+              <textbox id="gb-form-id-bl" maxlength="50000" flex="2" size="10" />
+            </hbox>
+          </groupbox>
+
+          <groupbox>
+            <caption id="gb-field-name-caption" label="%-KeeFox-text-field-name-%"/>
+            <hbox class="listGroup">
+              <checkbox id="gb-field-name-wl-enabled"/>
+              <label id="gb-field-name-wl-lab" control="gb-field-name-wl" value="%-KeeFox-white-list-%" />
+              <textbox id="gb-field-name-wl" maxlength="50000" flex="2" />
+            </hbox>
+            <hbox class="listGroup">
+              <checkbox id="gb-field-name-bl-enabled"/>
+              <label id="gb-field-name-bl-lab" control="gb-field-name-bl" value="%-KeeFox-black-list-%" />
+              <textbox id="gb-field-name-bl" maxlength="50000" flex="2" />
+            </hbox>
+          </groupbox>
+
+          <groupbox>
+            <caption id="gb-field-id-caption" label="%-KeeFox-text-field-id-%"/>
+            <hbox class="listGroup">
+              <checkbox id="gb-field-id-wl-enabled"/>
+              <label id="gb-field-id-wl-lab" control="gb-field-id-wl" value="%-KeeFox-white-list-%" />
+              <textbox id="gb-field-id-wl" maxlength="50000" flex="2" />
+            </hbox>
+            <hbox class="listGroup">
+              <checkbox id="gb-field-id-bl-enabled"/>
+              <label id="gb-field-id-bl-lab" control="gb-field-id-bl" value="%-KeeFox-black-list-%" />
+              <textbox id="gb-field-id-bl" maxlength="50000" flex="2" />
+            </hbox>
+          </groupbox>
+
+
+        
+        </vbox>
+        <spacer flex="1"/>
+      </row>
+      <row>
+        <spacer flex="1"/>
+        <button id="addSite" label="%-KeeFox-add-site-%" oncommand="addSite()" />
+        <button id="saveSite" label="%-KeeFox-save-site-settings-%" oncommand="saveSite()" />
+        <spacer flex="1"/>
+      </row>
+    </rows>
+  </grid>
+</dialog>

@@ -63,7 +63,7 @@
     ],
     ['title','label','tooltiptext','accesskey','value']);
 
-    var rootGroup = mainWindow.keefox_win.ILM._kf.getDBbyFilename(window.arguments[2]).root; //KeePassDatabases[window.keefox_win.ILM._kf.ActiveKeePassDatabaseIndex].root;
+    var rootGroup = mainWindow.keefox_win.ILM._kf.getDBbyFilename(window.arguments[2]).root;
     keePassGroupTreeView.addTopObject(rootGroup, true);
     tree.view = keePassGroupTreeView;
     }

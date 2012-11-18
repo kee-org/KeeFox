@@ -2,52 +2,6 @@
 
 let Cu = Components.utils;
 
-function addExcludedItem()
-{
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser") ||
-        wm.getMostRecentWindow("mail:3pane");
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-        .getService(Components.interfaces.nsIPromptService);
-
-    var input = {value: "http://"};
-    var result = prompts.prompt(null, "Block a site", "Which site do you want to block?", input, null, {});
-
-    // result is true if OK is pressed, false if Cancel. input.value holds the value of the edit field if "OK" was pressed.
-    
-    if (result && input.value.length > 0)
-    {
-        document.getElementById('excludedSitesList').appendItem(input.value, input.value);
-
-        //add new item to database
-        var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(
-            "INSERT OR REPLACE INTO sites (id,url,tp,preventSaveNotification) VALUES ( (select id from sites where url = :url), :url, coalesce((select tp from sites where url = :url),0), 1  )");
-        statement.params.url = input.value;
-        statement.executeAsync();
-    }
-}
-
-function removeExcludedItem()
-{
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-    var window = wm.getMostRecentWindow("navigator:browser") ||
-        wm.getMostRecentWindow("mail:3pane");
-        
-    var list = document.getElementById('excludedSitesList');
-    var count = list.selectedCount;
-    while (count--)
-    {
-        var item = list.selectedItems[0];
-        var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(
-            "UPDATE sites SET preventSaveNotification = 0 WHERE url = :url");
-        statement.params.url = item.value;
-        statement.executeAsync();
-        list.removeItemAt(list.getIndexOfItem(item));
-    }
-}
-
 function onLoad(){
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -63,20 +17,11 @@ function onLoad(){
       'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
       'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
       'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
-      'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation'
+      'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation',
+      'desc-site-specific','desc-site-specific-savepass','desc-site-specific-link','desc-site-specific-savepass-link'
       ],
       ['title','label','tooltiptext','accesskey','value']);
-        
-    // find all URLs we want to excluded
-    var statement = window.keefox_win.ILM._kf._keeFoxExtension.db.conn.createStatement(
-        "SELECT * FROM sites WHERE tp = 0 AND preventSaveNotification = 1");
 
-    // add those URLs to the listbox
-    while (statement.executeStep())
-    {
-        var url = statement.row.url;
-        document.getElementById('excludedSitesList').appendItem(url, url);
-    }
 }
 
 function onsyncfrompreferenceMatchSelected()
@@ -276,33 +221,11 @@ function browseForLocation(currentLocationPath, pickerMode, captionStringKey, fi
     return currentLocationPath;
 }
 
-// This section allows selection of the root group of the currently active
-// KeePass database. It may be useful to aid selecting root group status per
-// location? Though I would prefer to leave that in the hands of KeePass
-// wherever practical.
-//Cu.import("resource://kfmod/ClassTreeView.jsm");
-//var keePassGroupTree = null;
-
-//function getObjectChildren(aObject) {
-//  return aObject.childGroups;
-//}
-
-//function init() {
-//  var tree = document.getElementById("keePassGroupTree");
-//  keePassGroupTree = new ClassTreeView(getObjectChildren);
-//var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                 .getService(Components.interfaces.nsIWindowMediator);
-//        var window = wm.getMostRecentWindow("navigator:browser") ||
-//            wm.getMostRecentWindow("mail:3pane");
-//        var rootGroup = window.keefox_win.ILM._kf.KeePassDatabases[window.keefox_win.ILM._kf.ActiveKeePassDatabaseIndex].root;
-//keePassGroupTree.addTopObject(rootGroup, true);
-
-//  tree.view = keePassGroupTree;
-//}
-
-//function onTreeSelected(){
-//   var tree = document.getElementById("keePassGroupTree");
-//   var cellIndex = 1;
-//   var cellText = tree.view.getCellText(tree.currentIndex, tree.columns.getColumnAt(cellIndex));
-//   dump(cellText);
-// }
+function openSiteConfig()
+{
+    window.openDialog("chrome://keefox/content/siteOptions.xul",
+    "siteoptions", "chrome,centerscreen", 
+    onOK,
+    onCancel,
+    null);
+}

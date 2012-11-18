@@ -6,7 +6,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox options XUL file which describes the interface for 
   viewing and editing the various preferences which KeeFox understands.
@@ -85,7 +85,13 @@
 
         <tabpanel>
           <vbox align="left">
-            <description id="desc-when-user-chooses">%-KeeFox-pref-when-user-chooses.desc-%:</description>
+            <description id="desc-site-specific" class="itemEnd">%-KeeFox-pref-site-options-find.desc-% <html:a id="desc-site-specific-link" class="text-link" onclick='javascript:openDialog(
+               "chrome://keefox/content/siteOptions.xul",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              );'>%-KeeFox-pref-site-options-find.link-%</html:a>
+            </description>
+            <description id="desc-when-user-chooses">%-KeeFox-pref-when-user-chooses.desc-%: </description>
             <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();" class="itemEnd">
               <menupopup>
                 <menuitem id="mi-FillForm" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
@@ -140,16 +146,14 @@
         <tabpanel>
           <vbox align="left">
 
-            <checkbox id="notifyBarRequestPasswordSave" preference="KeeFox-pref-notifyBarRequestPasswordSave"
-                    label="%-KeeFox-pref-notifyBarRequestPasswordSave.label-%" class="itemEnd"/>
-
-            <description id="desc-exclude-saved-sites">%-KeeFox-pref-excludedSaveSites.desc-%:</description>
-            <hbox>
-              <listbox id="excludedSitesList" rows="4" seltype="multiple" class="itemEnd"/>
-              <vbox><button id="excludedSitesRemoveButton" label="%-KeeFox-pref-excludedSaveSites.remove-%" oncommand="removeExcludedItem();" class="itemEnd"/>
-              </vbox>
-            </hbox>
-
+            <description id="desc-site-specific-savepass" class="itemEnd">
+              %-KeeFox-pref-site-options-savepass.desc-% <html:a id="desc-site-specific-savepass-link" class="text-link" onclick='javascript:openDialog(
+               "chrome://keefox/content/siteOptions.xul",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              );'>%-KeeFox-pref-site-options-find.link-%</html:a>
+            </description>
+            
             <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
                       label="%-KeeFox-pref-notifyBarWhenKeePassRPCInactive.label-%" />
             <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
@@ -191,9 +195,6 @@
 
         <tabpanel>
           <vbox align="left">
-            <checkbox id="dynamicFormScanning" preference="KeeFox-pref-dynamicFormScanning"
-                      label="%-KeeFox-pref-dynamicFormScanning.label-%" />
-            <label id="lab-dynamicFormScanningExplanation" value="%-KeeFox-pref-dynamicFormScanningExplanation.label-%" class="itemEnd note"/>
             <label id="lab-keePassRPCPort" control="keePassRPCPort" value="%-KeeFox-pref-keePassRPCPort.label-%:"/>
             <textbox preference="KeeFox-pref-keePassRPCPort" id="keePassRPCPort" maxlength="5" size="5"/>
             <label id="lab-keePassRPCPortWarning" value="%-KeeFox-pref-keePassRPCPortWarning.label-%" class="itemEnd note"/>

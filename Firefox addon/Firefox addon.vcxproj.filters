@@ -231,6 +231,10 @@
     <None Include="KeeFox\modules\FAMS-strings.js">
       <Filter>JS</Filter>
     </None>
+    <None Include="KeeFox\chrome\content\siteOptions.xul" />
+    <None Include="KeeFox\chrome\content\siteOptions.js">
+      <Filter>JS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

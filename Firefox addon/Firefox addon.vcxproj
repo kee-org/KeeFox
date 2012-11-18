@@ -194,6 +194,10 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
       <SubType>Designer</SubType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
+    <None Include="KeeFox\chrome\content\siteOptions.js" />
+    <None Include="KeeFox\chrome\content\siteOptions.xul">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="KeeFox\chrome\skin\buttonGradient.png" />
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />

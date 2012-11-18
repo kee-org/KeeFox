@@ -22,3 +22,10 @@
 {
 	text-align:right;
 }
+
+.text-link 
+{
+	text-decoration: underline !important;
+	color: #284898;
+	cursor: pointer;
+}

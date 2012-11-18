@@ -35,4 +35,5 @@
 /temp
 /ipch
 /Firefox addon/KeeFox/modules/KF.jsm
+/Firefox addon/KeeFox/modules/FAMS.jsm
 /Firefox addon/Release/Firefox addon.vcxprojResolveAssemblyReference.cache

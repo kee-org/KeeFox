@@ -76,25 +76,33 @@ function KeeFox()
     this._keeFoxExtension.db.conn = this._keeFoxExtension.db.storageService
                         .openDatabase(this._keeFoxExtension.db.file); // Will also create the file if it does not exist
     
-    // Create the meta schema table to ease possible future upgrades
-    if (!this._keeFoxExtension.db.conn.tableExists("meta"))
+    if (this._keeFoxExtension.db.conn.tableExists("meta"))
     {
-        var statement = this._keeFoxExtension.db.conn.createStatement('CREATE TABLE "meta" ("id" INTEGER PRIMARY KEY NOT NULL UNIQUE , "schemaVersion" INTEGER NOT NULL)');
-        statement.execute(); // no longer async - testing if it fixes first install bugs // technically user could try to access table before this completes but that's implausable in practice
-        var statement2 = this._keeFoxExtension.db.conn.createStatement("INSERT INTO meta (id,schemaVersion) VALUES (1, 1)");
-        statement2.execute(); // no longer async - testing if it fixes first install bugs // technically user could try to access table before this completes but that's implausable in practice
-    } else
-    {
-        //TODO2: read schema version and update if required
-    }
-    
-    // Create the sites table if it doesn't already exist
-    if (!this._keeFoxExtension.db.conn.tableExists("sites"))
-    {
-        var statement = this._keeFoxExtension.db.conn.createStatement(
-            'CREATE TABLE "sites" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , "url" VARCHAR NOT NULL UNIQUE , "tp" INTEGER NOT NULL , "preventSaveNotification" INTEGER NOT NULL  DEFAULT 0)');
-        statement.executeAsync(); // technically user could try to access table before this completes but that's implausable in practice
-    }
+        var statement = this._keeFoxExtension.db.conn.createStatement("SELECT * FROM meta WHERE id = 1");
+
+        var currentSchemaVersion = 0;
+        while (statement.executeStep())
+            currentSchemaVersion = statement.row.schemaVersion;
+
+        if (currentSchemaVersion == 1)
+        {
+            // No actual change to shema for v2 but we're not using this sqlite DB any more, at least for the time being.
+            this.listOfNoSavePromptURLsToMigrate = [];
+
+            // find all URLs we want to exclude
+            var statement = this._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE preventSaveNotification = 1");
+
+            // These URLs will be processed by the config object which is initialised after this main constructor executes
+            // Combined impact and liklihood of problems with this migration are low enough to just assume everything is OK
+            while (statement.executeStep())
+                this.listOfNoSavePromptURLsToMigrate.push(statement.row.url);
+
+            var statementMigrateSchemaBump = this._keeFoxExtension.db.conn.createStatement('UPDATE "meta" SET schemaVersion=2 WHERE id=1');
+            statementMigrateSchemaBump.execute(); 
+            var statementMigrateDrop = this._keeFoxExtension.db.conn.createStatement('DELETE FROM "sites"');
+            statementMigrateDrop.execute(); 
+        }
+    }    
     
     this._keeFoxExtension.prefs = {}; // TODO2: move all the pref and storage functions into a seperate prototype definition for clarity?
     this._keeFoxExtension.prefs._prefService = 
@@ -1422,6 +1430,11 @@ KeeFox.prototype = {
                                        .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                          wm.getMostRecentWindow("mail:3pane");
+
+            // sometimes this can be null when this function is called (e.g. during window startup)
+            if (window == undefined || window == null
+                || window.keefox_org == undefined || window.keefox_org == null)
+                return;
             window.keefox_org._KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
 
             switch(topic)
@@ -1484,13 +1497,13 @@ KeeFox.prototype = {
                     window.keefox_org._KFLog.configureFromPreferences();
                     window.keefox_org.oneOffSensitiveLogCheckHandler();
                     break;
-                case "dynamicFormScanning":
-                    //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
-                    if (keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-                        window.keefox_org.ILM._refillTimer.init(window.keefox_win.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                    else
-                        window.keefox_org.ILM._refillTimer.cancel();
-                    break;
+//                case "dynamicFormScanning":
+//                    //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
+//                    if (keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
+//                        window.keefox_org.ILM._refillTimer.init(window.keefox_win.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+//                    else
+//                        window.keefox_org.ILM._refillTimer.cancel();
+//                    break;
                 case "currentLocation":
                     //tell KeePass this has changed
                     keefox_org.changeLocation(keefox_org._keeFoxExtension.prefs.getValue("currentLocation",false));

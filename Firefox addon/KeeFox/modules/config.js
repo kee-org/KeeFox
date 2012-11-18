@@ -167,9 +167,15 @@ keefox_org.config = {
             {
                 try
                 {
-                    if (extraConfig[prop].constructor == Object)
+                    if (extraConfig[prop].constructor == Object || typeof(extraConfig[prop]) == "object")
                     {
-                        workingConfig[prop] = applyMoreSpecificConfig(workingConfig[prop], extraConfig[prop]);
+                        workingConfig[prop] = this.applyMoreSpecificConfig(workingConfig[prop], extraConfig[prop]);
+//                    } else if (typeof(extraConfig[prop].length) != "undefined")
+//                    {
+//                        for (let a in extraConfig[prop])
+//                        {
+//                            workingConfig[prop][a] = this.applyMoreSpecificConfig(workingConfig[prop][a], extraConfig[prop][a]);
+//                        }
                     } else
                     {
                         workingConfig[prop] = extraConfig[prop];
@@ -187,33 +193,119 @@ keefox_org.config = {
     {
         keefox_org._KFLog.debug("Loading configuration");
         //TODO: parse json from storage. If not found in storage assume it's first time run and load default config before calling save()
-        this.current = this.default_config;
+        var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
+        var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
+
+        try
+        {
+            var prefData = prefBranch.getComplexValue("config", Ci.nsISupportsString).data;
+            var conf = JSON.parse(prefData);
+            //TODO: In future check version here
+            this.current = conf;
+        } catch (ex) {
+            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO: faster clone?
+            this.current = conf;
+            this.save();
+        }
     },
 
     save: function()
     {
         keefox_org._KFLog.debug("Saving configuration");
-        //TODO: write json to storage
+        
+        var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
+        var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
+
+        var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+        str.data = JSON.stringify(this.current);
+        prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
+
     },
 
     setConfigForURL: function(url,newConfig)
     {
-        //TODO: insert or update to relevant current config entry. make sure insertion occurs in key length order (iterate looking for spot to insert and then do some array split and joins)
+        keefox_org._KFLog.debug("setConfigForURL");
+
+        // Clear the curernt config cache.
+        //TODO: would be more efficient to only remove affected URLs
+        this.configCache = {};
+
+        if (url == "*")
+        {
+            this.current[0].config = newConfig;
+            return;
+        }
+        // example.com/page.htm
+        // example.com/longerpage
+        // example.com/longerpage2
+        // example.com/dir/page.htm
+        // example.com/dir/page2.htm
+        // example.com/longerpage.htm
+
+        // if above url is exact prefix of currently visited url we want to apply the config.
+        // order is important cos we assume a match that occurs later must be more specific
+        // think that will always be the case
+
+        var insertionPoint = this.current.length;
+
+        for (var i=1; i<this.current.length; i++) // skip the first default "*"
+        {
+            if (url.length > this.current[i].url.length)
+            {
+                //insertionPoint = i+1;
+                continue;
+            }
+            if (url.length <= this.current[i].url.length)
+            {
+                insertionPoint = i;
+                if (url == this.current[i].url)
+                {
+                    this.current[i].config = newConfig;
+                    return;
+                }
+                break;
+            }
+
+        }
+
+        if (insertionPoint == this.current.length)
+            this.current = this.current.push({"url": url, "config": newConfig});
+        else
+            this.current.splice(insertionPoint,0,{"url": url, "config": newConfig});
+        keefox_org._KFLog.debug(JSON.stringify(this.current));
     },
 
-    migrateFromSqliteSchema1: function()
+    migrateListOfNoSavePromptURLs: function(urls)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
-        //TODO: Although not this simple
+
+        for (let i=0; i<urls.length; i++)
+        {
+            let newConfig = applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.default_config)),{"preventSaveNotification": true}); //TODO: faster clone?
+            setConfigForURL(url,{"url": url, "config": newConfig});
+        }
     },
 
-    migrateRescanFormTimeFromFFPrefs: function()
+    migrateRescanFormTimeFromFFPrefs: function(enabled)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
-        //TODO: Although not this simple
+        // this migration only affects the default behaviour "*"
+        let newConfig = this.current[0];
+        newConfig.rescanFormDelay = enabled ? 2500 : -1;
+        setConfigForURL("*",newConfig);
     }
 
 };
 
 // initialise the configuration (usually from some kind of local storage TBD)
 keefox_org.config.load();
+
+// migrate old data if needed
+if (keefox_org.listOfNoSavePromptURLsToMigrate != null && keefox_org.listOfNoSavePromptURLsToMigrate.length > 0)
+    keefox_org.config.migrateListOfNoSavePromptURLs(keefox_org.listOfNoSavePromptURLsToMigrate);
+
+if (keefox_org._keeFoxExtension.prefs.has("dynamicFormScanning"))
+{
+    keefox_org.config.migrateRescanFormTimeFromFFPrefs(keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false));
+    keefox_org._keeFoxExtension.prefs._prefBranch.clearUserPref("dynamicFormScanning");
+}
