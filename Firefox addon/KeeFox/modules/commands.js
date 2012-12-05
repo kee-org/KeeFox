@@ -2,13 +2,71 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
   
-  Configuration of KeeFox behaviour occurs in several places. This config
-  file is the newest as of Oct 2012. Ultimately other configuration will be
-  added to this config file, either directly or via abstractions to existing
-  config data stores. For other configuration look to the standard Firefox
-  preferences system and a keefox.sqlite file.
-  Entry-specific configuration is stored in KeePass but in future maybe
-  we'll still make it available from this interface.
+  Draft notes for new command system...
+
+
+  some sort of registration system?
+
+  could hardcode stuff but cos we want it to be configurable (using "*" config?)
+  we should make it more clever
+
+  do we really want the extra complexity of per-site command changes? Don't think it will possible for many commands and invocations anyway.
+
+  read whole lot from config json
+
+  foreach feature (name, keyboard shortcut modifiers+key, rightclick location flags)
+  go through each of those certain types of data and register relevant listeners and menus
+  changing any config setting will trigger entire re-assignment but would be good to allow
+  option for being more delicate in future in case performance is too poor
+
+
+  e.g. of migration script approach for commands and config updates in future releases:
+
+  where [i] goes up with each new config version and each config migration is applied in order, starting from the current version number
+
+  migrations[i]: [
+    {
+        url: "*", // or some other kind of id
+        config:{
+            rescanFormDelay: { 
+            action: edit, // add, delete
+            equals: -1, // lessthan, greaterthan, notequals, etc.
+            becomes: 1000, 
+            force: false  // force controls whether user modifications since the previous migration will be overridden
+            }
+            interestingForms: {
+                   name_w: {
+                   action: delete
+                   }
+                   }
+            }
+    }
+    ];
+
+
+  example of keyboard shortcuts:
+
+window.addEventListener("keydown", function(e)
+    {
+        if (e.ctrlKey && e.shiftKey)
+        {
+            if (e.keyCode == 70)
+                doSomething();
+            else if (e.keyCode == 68)
+                doSomethingElse();
+        }
+    }, false);
+
+
+
+
+
+
+
+
+
+
+
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,100 +88,13 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-keefox_org.config = {
+keefox_org.commandManager = {
 
-    default_config: [
+    default_commands: [
     {
-        url: "*",
-        config:{
-            rescanFormDelay: -1, // to +INTMAX, // if old "rescan forms" set to true - configure to whatever that default was (5 seconds?)
-            /* TODO: In future we can give finer control of form rescanning behaviour from here
-            rescanDOMevents:
-            [{
-
-                // /html/body/div[3]/div/h1/small
-
-                type: "click" | "mutation" | "hover" | etc,
-                xpath: "/html/body/div[3]/div/h1/small", // we should do a sanity check on returned items and limit to max of ~a hundred DOM nodes
-                id: "someID",
-                //something else to limit mutation events to create one (e.g. creation of new child item matching certain xpath? etc.)
-            }],
-            */
-            interestingForms: {
-                /*
-                Forms will be scanned iff they have a password (type) field
-                UNLESS one of the interestingForms arrays matches the form in question.
-                All (w)hitelists will force the form to be scanned for matching passwords.
-                (b)lacklists will prevent the form being scanned.
-                (b)lacklists have priority over whitelists of the same type but the priorities
-                of different types of check are undefined here - you'll have to look at the
-                behaviour of the form matching code which is subject to change.
-                */
-                name_w: ["login"],
-                name_b: ["search"],
-                id_w: ["login"],
-                id_b: ["search"],
-                //f_type_w: ["password"],
-                //f_type_b: [],
-                f_name_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user name","user id","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login id","login_name"],
-                f_name_b: ["search","q","query"],
-                f_id_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login_name"],
-                f_id_b: ["search","q"],
-                
-                // simple string comparisons won't work here becuase multiple
-                // xpaths could lead to the same element. Each xpath listed here
-                // will have to be found and any discovered element's parent
-                // form then compared against the potentially interesting form
-                xpath_w: [],
-                xpath_b: [],
-                f_xpath_w: [],
-                f_xpath_b: []
-            },
-            preventSaveNotification: false
-            /*
-            TODO: In future we can migrate other preferences to here
-            ,
-            flashOnLoggedOut: true,
-            flashOnNotRunning: true,
-            notifyOnLoggedOut: true,
-            notifyOnNotRunning: true
-            */
-        }
-    },
-    {
-        url:"https://login.live.com/",
-        config:{
-            rescanFormDelay: 2500
-        }
+        
     }
-    /*,
-    {
-        url:"http://domain.name/page.html?...",
-        config:{
-            ...
-        }
-    }
-    */
     ],
-
-    valueAllowed: function(val,whitelist,blacklist,def)
-    {
-        for (var b in blacklist)
-            if (blacklist[b] == val)
-            {
-                keefox_org._KFLog.debug("Value found in blacklist");
-                return false;
-            }
-        for (var w in whitelist)
-            if (whitelist[w] == val)
-            {
-                keefox_org._KFLog.debug("Value found in whitelist");
-                return true;
-            }
-        return def;
-    },
-
-    configCache: {},
 
     cloneObj: function (obj)
     {
@@ -200,8 +171,7 @@ keefox_org.config = {
         {
             var prefData = prefBranch.getComplexValue("config", Ci.nsISupportsString).data;
             var conf = JSON.parse(prefData);
-            //TODO: In future check version here and apply migrations if needed
-            //var currentVersion = prefBranch.getIntPref("configVersion");
+            //TODO: In future check version here
             this.current = conf;
         } catch (ex) {
             var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO: faster clone?
@@ -221,8 +191,6 @@ keefox_org.config = {
         str.data = JSON.stringify(this.current);
         prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
 
-        //TODO: Stop forcing this to 1 when we release the first new version
-        prefBranch.setIntPref("configVersion",1);
     },
 
     setConfigForURL: function(url,newConfig)
@@ -278,37 +246,7 @@ keefox_org.config = {
         keefox_org._KFLog.debug(JSON.stringify(this.current));
     },
 
-    migrateListOfNoSavePromptURLs: function(urls)
-    {
-        // We know that no custom config has already been set when this is called so that keeps things simple
-
-        for (let i=0; i<urls.length; i++)
-        {
-            let newConfig = applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.default_config)),{"preventSaveNotification": true}); //TODO: faster clone?
-            setConfigForURL(url,{"url": url, "config": newConfig});
-        }
-    },
-
-    migrateRescanFormTimeFromFFPrefs: function(enabled)
-    {
-        // We know that no custom config has already been set when this is called so that keeps things simple
-        // this migration only affects the default behaviour "*"
-        let newConfig = this.current[0];
-        newConfig.rescanFormDelay = enabled ? 2500 : -1;
-        setConfigForURL("*",newConfig);
-    }
-
 };
 
-// initialise the configuration (usually from some kind of local storage TBD)
-keefox_org.config.load();
-
-// migrate old data if needed
-if (keefox_org.listOfNoSavePromptURLsToMigrate != null && keefox_org.listOfNoSavePromptURLsToMigrate.length > 0)
-    keefox_org.config.migrateListOfNoSavePromptURLs(keefox_org.listOfNoSavePromptURLsToMigrate);
-
-if (keefox_org._keeFoxExtension.prefs.has("dynamicFormScanning"))
-{
-    keefox_org.config.migrateRescanFormTimeFromFFPrefs(keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false));
-    keefox_org._keeFoxExtension.prefs._prefBranch.clearUserPref("dynamicFormScanning");
-}
+// initialise the command system (maybe do this from somewhere else?)
+keefox_org.commandManager.load();

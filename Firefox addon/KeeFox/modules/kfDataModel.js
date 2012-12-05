@@ -516,11 +516,6 @@ kfLoginField.prototype = {
     
     init : function ( aName, aValue, aID, aType, aFormFieldPage )
     {
-        var logService = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
-        logService.logStringMessage("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]");
-        
-        //dump("Initialising kfLoginField [name: " + aName + ", value: " + aValue + ", ID: " + aID + ", type: " + aType + ", page: " + aFormFieldPage + "]\n");
-        
         this.name = aName;
         this.value = aValue;
         if (aID == null || aID == undefined)
