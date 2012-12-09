@@ -29,21 +29,117 @@ let Cu = Components.utils;
 
 Cu.import("resource://kfmod/kfDataModel.js");
 
+keefox_win.ILM._calculateFieldMatchScore = function (formField, dataField, currentTabPage, overWriteFieldsAutomatically)
+{
+    // scores are grouped into type of match information. Each group will contribute its largest possible score to the overall score
+    let score = 0;
+
+    // c) if field is already filled in and can't be overwritten we make the score 0
+    if ((this.isATextFormFieldType(formField.type) || formField.type == "password") && 
+        (formField.value.length > 0 && !overWriteFieldsAutomatically)
+    )
+        return 0;
+
+    // a) if field IDs match +++++
+    if (formField.fieldId != null && formField.fieldId != undefined 
+        && formField.fieldId != "" && formField.fieldId == dataField.fieldId
+        )
+        score += 50;
+
+    // a) if field names match (except for radio buttons which we know have multiple fields per name) ++++
+    else if (formField.name != null && formField.name != undefined 
+             && formField.name != "" && formField.name == dataField.name
+            )
+        score += 40;
+
+    // d) if field types match (except for radio buttons which we currently deem too risky to fill without extra assurance) ++
+    if ( ( this.isATextFormFieldType(formField.type) && (dataField.type == "username" || dataField.type == "text") )
+         || (formField.type == "password" && dataField.type == "password")
+       )
+       score += 20;
+
+    // b) if page # matches exactly ++
+    if (currentTabPage > 0 && dataField.formFieldPage == formField.formFieldPage)
+        score += 20;
+
+    // b) if page # is wrong --
+    else if (currentTabPage > 0 && dataField.formFieldPage != formField.formFieldPage)
+        score -= 20;
+
+    // b) if page # is unestablished (0)
+    //else do nothing
+
+    return score;
+}
+
+keefox_win.ILM._fillMatchedFields = function (fields, dataFields, formFields)
+{
+// We want to make sure each data field is matched to only one form field but we don't know which field will be the best match and we don't want to ignore less accurate matches just becuase they happen to appear later.
+
+// We have a list of objects representing each possible combination of data field and form field and the score for that match
+// We choose what to fill by sorting that list by score
+// after filling a field we remove all objects from the list which are for the data field we just filled in
+
+// The above algorithm could maybe be tweaked slightly in order to auto-fill a "change password" form if we ever manage to make that automated
+
+// (score is reduced by one for each position we find in the form - this gives a slight priority to fields at the top of a form which can be useful occasionaly and shouldn't cuase any side-effects)
+
+    fields.sort(function (a, b) {
+        return b.score - a.score;
+    });
+
+    // Keep filling in fields until we find no more with a positive score
+    while (fields.length > 0 && fields[0].score >= 0)
+    {
+        let ffi = fields[0].formFieldIndex;
+        let dfi = fields[0].dataFieldIndex;
+
+        if (keefox_win.Logger.logSensitiveData)
+            keefox_win.Logger.info("We will populate field "+ffi + " with: " + dataFields[dfi].value);
+        else
+            keefox_win.Logger.info("We will populate field " + ffi + ".");
+
+        if (formFields[ffi].type == "select-one")
+            this._fillASingleField(formFields[ffi].DOMSelectElement,formFields[ffi].type,dataFields[dfi].value);
+        else
+            this._fillASingleField(formFields[ffi].DOMInputElement,formFields[ffi].type,dataFields[dfi].value);
+
+        fields.filter(function (element, index, array) {
+            return (element.dataFieldIndex != dfi);
+        });
+        
+        fields.sort(function (a, b) {
+            return b.score - a.score;
+        });
+    }
+
+}
+
+keefox_win.ILM._fillASingleField = function (domElement, fieldType, value)
+{  
+    if (fieldType == "select-one")
+    {
+        domElement.value = value; 
+    } else if (fieldType == "checkbox" || fieldType == "radio")
+    {
+        //TODO: should / can we set value to true or false and use that instead of assuming we have only stored this if it's checked?
+        domElement.checked = true;
+    } else
+    {    
+        domElement.value = value; 
+    }
+}
+
 keefox_win.ILM._fillManyFormFields = function 
-    (pageFields, matchFields, currentTabPage, overWriteFieldsAutomatically)
+    (formFields, dataFields, currentTabPage, overWriteFieldsAutomatically)
 {
     keefox_win.Logger.debug("_fillManyFormFields started");
     
-    if (pageFields == null || pageFields == undefined || matchFields == null || matchFields == undefined)
+    if (formFields == null || formFields == undefined || dataFields == null || dataFields == undefined)
         return;
     
     keefox_win.Logger.debug("We've received the data we need");
     
-    var validTabPage = true;
-    
-    if (currentTabPage <= 0)
-        validTabPage = false;
-        
     keefox_win.Logger.info("Filling form fields for page "+currentTabPage);
     
     if (overWriteFieldsAutomatically)
@@ -51,192 +147,25 @@ keefox_win.ILM._fillManyFormFields = function
     else
         keefox_win.Logger.info("Not auto-overwriting fields");
     
-    var matchedValues = []; // value of the matched field (so we don't have to go through XPCOM again)
-    var backupMatchedValues = []; // used to keep track of a less preferred option just in case we don't find any suitable matches.
-    
-    var matchedIds = []; // index = corresponding matchField index and value = pageFieldId that the matchField would like to fill in
-    var backupMatchedIds = [];
-    
-    var fieldFilled = []; // tracks whether a certain form field has already had a value put into it (so we don't over-write it with a less-ideal value)
-    
     // we try to fill every form field. We try to match by id first and then name before just guessing.
     // Generally we'll only fill if the matched field is of the same type as the form field but
     // we are flexible RE text and username fields because that's an artificial difference
     // for the sake of the KeeFox password management software. However, usernames will be chosen above
     // text fields if all else is equal
-    for (var i = 0; i < pageFields.length; i++)
-    {
-        var foundADefiniteMatch = false;
-        keefox_win.Logger.info("Trying to find suitable data field match based on form field "+i+"'s id: "+pageFields[i].fieldId);
-        
-        for (var j = 0; j < matchFields.length; j++)
-        {
-            // if we have already identified a form field that we want
-            // to fill with the value in this field, skip on to the next possibility...
-            if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
-                continue;
-                
-            var matchedField = matchFields[j];
-            
-            if (pageFields[i].fieldId != null && pageFields[i].fieldId != undefined 
-                && pageFields[i].fieldId != "" && pageFields[i].fieldId == matchedField.fieldId && 
-                (pageFields[i].type == "select-one" 
-                 || pageFields[i].type == "radio" 
-                 || pageFields[i].type == "checkbox" 
-                 || pageFields[i].value.length == 0 
-                 || overWriteFieldsAutomatically
-                )
-                && (!validTabPage || matchedField.formFieldPage == currentTabPage)
-                && (pageFields[i].type == matchedField.type
-                    || (this.isATextFormFieldType(pageFields[i].type)
-                            && (matchedField.type == "username" || matchedField.type == "text")
-                       )
-                   )
-               )
-            {
-                matchedValues[j] = matchedField.value;
-                matchedIds[j] = i;
-                foundADefiniteMatch = true;
-                keefox_win.Logger.debug("Data field "+j+" is a match for form field " + i);
-                break;
-            }
-        }
-        
-        // find by name instead (except for radio buttons which we know have multiple fields per name)
-        if (!foundADefiniteMatch && pageFields[i].type != "radio")
-        {
-            keefox_win.Logger.info("We didn't find a match so trying to match by form field name: "+pageFields[i].name);
-            for (j = 0; j < matchFields.length; j++)
-            {
-                // if we have already identified a form field that we want
-                // to fill with the value in this field, skip on to the next possibility...
-                if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
-                    continue;
-                    
-                var matchedField = matchFields[j];
-                
-                if (pageFields[i].name != null && pageFields[i].name != undefined 
-                    && pageFields[i].name != "" && pageFields[i].name == matchedField.name && 
-                    (pageFields[i].type == "select-one" 
-                     || pageFields[i].type == "radio" 
-                     || pageFields[i].type == "checkbox" 
-                     || pageFields[i].value.length == 0 
-                     || overWriteFieldsAutomatically
-                    )
-                    && (!validTabPage || matchedField.formFieldPage == currentTabPage)
-                    && (pageFields[i].type == matchedField.type
-                        || (this.isATextFormFieldType(pageFields[i].type)
-                                && (matchedField.type == "username" || matchedField.type == "text")
-                           )
-                       )
-                   )
-                {
-                    matchedValues[j] = matchedField.value;
-                    matchedIds[j] = i;
-                    foundADefiniteMatch = true;
-                    keefox_win.Logger.debug("Data field "+j+" is a match for form field " + i);
-                    break;
-                }
-            }
-        }
-        
-        if (!foundADefiniteMatch && pageFields[i].type != "radio" && (pageFields[i].type == "select-one" 
-             || pageFields[i].type == "checkbox" 
-             || pageFields[i].value.length == 0 
-             || overWriteFieldsAutomatically
-           ))
-        {
-            // Look for 2nd-best match. Need to pick the first suitable value we come across
-            keefox_win.Logger.info("We could not find a good field match so just looking for the next best option (first value of this type: "+pageFields[i].type + ")");
-            for (j = 0; j < matchFields.length; j++)
-            {
-                // if we have already identified a form field that we want
-                // to fill with the value in this field, skip on to the next possibility...
-                if (matchedValues[j] != undefined && matchedValues[j] != null && matchedValues[j] != "")
-                    continue;
-                    
-                // if this is not a potential text field we ignore it (not so
-                // important to try to match with innacurate names for
-                // non-text fields and there are some bad side-effects so best avoided) 
-                if (!(this.isATextFormFieldType(pageFields[i].type)
-                        || pageFields[i].type == "password")) //TODO2: don't think this is possible; plus simplify logic in later if statements cos we know something about the field type now
-                    continue;
-                    
-                var matchedField = matchFields[j];
-                
-                if ((
-                    (this.isATextFormFieldType(pageFields[i].type)
-                          && (matchedField.type == "username" || matchedField.type == "text"))
-                    || (pageFields[i].type == "password" && matchedField.type == "password")
-                    )
-                    && (backupMatchedValues[j] == undefined || backupMatchedValues[j] == null )
-                    )
-                {
-                    // all of these matches are considered backup options only...
-                    backupMatchedValues[j] = matchedField.value;
-                    backupMatchedIds[j] = i;
-                    keefox_win.Logger.debug("Data field "+j+" is almost a match for form field " + i + " - we'll use it if we find no better option.");
-                }
-            }
-        }
-    }
-     
-    // OK, now we know which values we want to fill so let's actually apply them to the form...
-    for (i = 0; i < matchedIds.length; i++)
-    {   
-        if (fieldFilled[matchedIds[i]] != undefined && fieldFilled[matchedIds[i]] != null && fieldFilled[matchedIds[i]] == true)
-            continue;
+    fields = [];
 
-        if (matchedValues[i] != undefined && matchedValues[i] != null && matchedValues[i] != "")
+    for (var i = 0; i < formFields.length; i++)
+    {
+        for (var j = 0; j < dataFields.length; j++)
         {
-            if (keefox_win.Logger.logSensitiveData)
-                keefox_win.Logger.info("We will populate field "+matchedIds[i]+" with: "+matchedValues[i]);
-            else
-                keefox_win.Logger.info("We will populate field "+matchedIds[i]+".");
-            
-            if (pageFields[matchedIds[i]].type == "select-one")
-            {
-                pageFields[matchedIds[i]].DOMSelectElement.value = matchedValues[i]; 
-            } else if (pageFields[matchedIds[i]].type == "checkbox" || pageFields[matchedIds[i]].type == "radio")
-            {
-                pageFields[matchedIds[i]].DOMInputElement.checked = true;
-            } else
-            {    
-                pageFields[matchedIds[i]].DOMInputElement.value = matchedValues[i]; 
-            }
-            fieldFilled[matchedIds[i]] = true;
+            keefox_win.Logger.debug("Calculating the suitablility of putting data field "+j+" into form field "+i+" (id: "+formFields[i].fieldId + ")");
+            let score = this._calculateFieldMatchScore(formFields[i],dataFields[j],currentTabPage,overWriteFieldsAutomatically);
+            fields.push({'score': score,'dataFieldIndex': j,'formFieldIndex': i});
         }
     }
-    
-    for (i = 0; i < backupMatchedIds.length; i++)
-    {   
-        if (fieldFilled[backupMatchedIds[i]] != undefined && fieldFilled[backupMatchedIds[i]] != null && fieldFilled[backupMatchedIds[i]] == true)
-            continue;
-            
-        if (backupMatchedValues[i] == undefined || backupMatchedValues[i] == null || backupMatchedValues[i] == "")
-        {
-            keefox_win.Logger.info("We could not find a suitable match so not filling any field with supplied login field id " + i);
-        } else
-        {
-            if (keefox_win.Logger.logSensitiveData)
-                keefox_win.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice: "+backupMatchedValues[i]);
-            else
-                keefox_win.Logger.info("We will populate field "+backupMatchedIds[i]+" with our backup choice.");
-            
-            if (pageFields[backupMatchedIds[i]].type == "select-one")
-            {
-                pageFields[backupMatchedIds[i]].DOMSelectElement.value = backupMatchedValues[i]; 
-            } else if (pageFields[backupMatchedIds[i]].type == "checkbox" || pageFields[backupMatchedIds[i]].type == "radio")
-            {
-                pageFields[backupMatchedIds[i]].DOMInputElement.checked = true;
-            } else
-            {    
-                pageFields[backupMatchedIds[i]].DOMInputElement.value = backupMatchedValues[i]; 
-            }
-            fieldFilled[backupMatchedIds[i]] = true;
-        }
-    }
-    
+
+    this._fillMatchedFields (fields, dataFields, formFields);
+
 };
 
 /*
@@ -420,7 +349,6 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         return;
     }
 
-    //TODO: use new config structure to determine notification behaviour
     var conf = keefox_org.config.getConfigForURL(doc.documentURI);
 
     // if we're not logged in to KeePass then we should prompt user (or not)
@@ -494,25 +422,21 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         // the overall relevance of this form is the maximum of it's
         // matching entries (so we fill the most relevant form)
         findLoginDoc.formRelevanceScores[i] = 0;
-        var interestingForm = true;
-        interestingForm = keefox_org.config.valueAllowed(form.id,conf.interestingForms.id_w,conf.interestingForms.id_b,interestingForm);
-        interestingForm = keefox_org.config.valueAllowed(form.name,conf.interestingForms.name_w,conf.interestingForms.name_b,interestingForm);
-        
-        if (!interestingForm)
-        {
-            keefox_win.Logger.debug("Lost interest in this form after inspecting form name and ID");
-            continue;
-        }
 
         keefox_win.Logger.debug("about to get form fields");
         var [usernameIndex, passwordFields, otherFields] =
             this._getFormFields(form, false);
             
+        // We want to fill in this form if we find a password field but first
+        // we check whether any whitelist or blacklist entries must override that behaviour
+        var interestingForm = null;
+
+        interestingForm = keefox_org.config.valueAllowed(form.id,conf.interestingForms.id_w,conf.interestingForms.id_b,interestingForm);
+        interestingForm = keefox_org.config.valueAllowed(form.name,conf.interestingForms.name_w,conf.interestingForms.name_b,interestingForm);
         
-        if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
+        if (interestingForm === false)
         {
-            keefox_win.Logger.debug("no password field found in this form");
-            interestingForm = false;
+            keefox_win.Logger.debug("Lost interest in this form after inspecting form name and ID");
             continue;
         }
 
@@ -524,10 +448,18 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             //TODO: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
         }
         
-        if (!interestingForm)
+        if (interestingForm === false)
         {
             keefox_win.Logger.debug("Lost interest in this form after inspecting field names and IDs");
             continue;
+        }
+        
+        if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
+        {
+            keefox_win.Logger.debug("no password field found in this form");
+            // so we now only want to fill in the form if it has been whitelisted
+            if (interestingForm !== true)
+                continue;
         }
 
         findLoginDoc.usernameIndexArray[i] = usernameIndex;
@@ -1130,14 +1062,36 @@ keefox_win.ILM.submitForm = function (form)
 {
     var inputElements = form.getElementsByTagName("input");
     var submitElement = null;
+    var submitElements = [];
     
-    // Find the first submit button    
-    for(var i = 0; i < inputElements.length; i++)
+    // Rank the submit buttons
+    for(let i = 0; i < inputElements.length; i++)
 	{
 		if(inputElements[i].type != null && inputElements[i].type == "submit")
 		{
-			submitElement = inputElements[i];
-			break;
+            var score = 1;
+            if(inputElements[i].name.toLowerCase().indexOf("submit") >= 0)
+                score += 5;
+            if(inputElements[i].name.toLowerCase().indexOf("login") >= 0)
+                score += 5;
+            if(inputElements[i].name.toLowerCase().indexOf("reset") >= 0)
+                score -= 5;
+            if(inputElements[i].name.toLowerCase().indexOf("cancel") >= 0)
+                score -= 5;
+            if(inputElements[i].name.toLowerCase().indexOf("back") >= 0)
+                score -= 5;
+			submitElements.push({'score':score, 'el': inputElements[i]});
+	    }
+	}
+
+    // Find the best submit button   
+    var largestScore = 0; 
+    for(let j = 0; j < submitElements.length; j++)
+	{
+		if(submitElements[j].score > largestScore)
+		{
+			submitElement = submitElements[j].el;
+			largestScore = submitElements[j].score;
 	    }
 	}
     //TODO2: more accurate searching of submit buttons, etc. to avoid password resets if possible

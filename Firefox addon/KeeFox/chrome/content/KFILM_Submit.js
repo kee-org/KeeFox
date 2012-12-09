@@ -127,14 +127,42 @@ keefox_win.ILM._onFormSubmit = function (form)
     // there must be at least one password or otherField
     var [usernameIndex, passwords, otherFields] =
         this._getFormFields(form, true, currentPage);
-    
-    // Need at least 1 valid password field to handle a submision unless the user has
-    // stated that the form should be captured. Otherwise we will end up prompting
-    // the user to create entries every time they search google, etc.
+
+    var conf = keefox_org.config.getConfigForURL(URL);
+
+    // We want to save this form if we find a password field but first
+    // we check whether any whitelist or blacklist entries must override that behaviour
+    var interestingForm = null;
+
+    interestingForm = keefox_org.config.valueAllowed(form.id,conf.interestingForms.id_w,conf.interestingForms.id_b,interestingForm);
+    interestingForm = keefox_org.config.valueAllowed(form.name,conf.interestingForms.name_w,conf.interestingForms.name_b,interestingForm);
+        
+    if (interestingForm === false)
+    {
+        keefox_win.Logger.debug("Lost interest in this form after inspecting form name and ID");
+        return;
+    }
+
+    for (var f in otherFields)
+    {
+        interestingForm = keefox_org.config.valueAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
+        interestingForm = keefox_org.config.valueAllowed(otherFields[f].name,conf.interestingForms.f_name_w,conf.interestingForms.f_name_b,interestingForm);
+                
+        //TODO: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
+    }
+        
+    if (interestingForm === false)
+    {
+        keefox_win.Logger.debug("Lost interest in this form after inspecting field names and IDs");
+        return;
+    }
+        
     if (passwords == null || passwords[0] == null || passwords[0] == undefined)
     {
-        keefox_win.Logger.info("No password field found in form submission.");
-        return;
+        keefox_win.Logger.debug("No password field found in form submission.");
+        // so we now only want to save the form if it has been whitelisted
+            if (interestingForm !== true)
+                return;
     }
     
     if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
@@ -429,7 +457,7 @@ keefox_win.ILM._onFormSubmitFindLoginsComplete = function (resultWrapper, submit
     keefox_win.Logger.info("password is not recognised so prompting user to save it");
     
     // set the tab value ready for the next time the page loads
-    var nextPage = submitDocumentDataStorage.currentPage + 1;
+    var nextPage = parseInt(submitDocumentDataStorage.currentPage) + 1;
    
     // If this is the 2nd (or later) part of a multi-page login form, we need to combine the new field items with the previous login data
     if (nextPage > 2)

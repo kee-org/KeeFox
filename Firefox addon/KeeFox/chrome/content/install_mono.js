@@ -38,10 +38,10 @@ var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 function prepareMonoInstallPage()
 {
     mainWindow.keefox_org.locale.internationaliseElements(document,
-    ['KeeFoxInstallWizard', 'KFInstallPageTitle', 'desc_KFInstallAlreadyInProgress', 'desc_KFInstallNotRequired', 'lab_KFInstallNotRequired',
+    ['KeeFoxInstallWizard', 'KFInstallPageTitle_description', 'desc_KFInstallAlreadyInProgress', 'desc_KFInstallNotRequired', 'lab_KFInstallNotRequired',
     'desk_Install_monoManual', 'monoManualStep1_description', 'monoManualStep2_description', 'monoManualStep3_description', 'monoManualStep4_description', 'monoManualStep5_description',
-     'monoManualStep6_description', 'desc_Install_monoManualUpgrade', 'monoManualUpgradeStep1_description', 'monoManualUpgradeStep2_description', 'monoManualUpgradeStep6_description',
-     'desc_Install_monoManual2', 'monoManualTest1a_description', 'monoManualTest2a_description'
+     'monoManualStep6_description', 'desc_Install_monoManual', 'desc_Install_monoManualUpgrade', 'monoManualUpgradeStep1_description', 'monoManualUpgradeStep2_description', 'monoManualUpgradeStep6_description',
+     'desc_Install_monoManual2', 'monoManualTest1a_description', 'monoManualTest2a_description', 'monoManualTest1_description', 'monoManualTest2_description', 'monoManualTest3_description'
     ],
     ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
 

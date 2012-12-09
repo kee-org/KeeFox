@@ -58,7 +58,7 @@
           </vbox>
 
           <vbox id="KFInstallPageTitle" width="590px" >
-            <description>%-KeeFox_Install_Setup_KeeFox.label-%</description>
+            <description id="KFInstallPageTitle_description">%-KeeFox_Install_Setup_KeeFox.label-%</description>
           </vbox>
 
           <vbox id="KFInstallPageContent" width="590px" >

@@ -137,6 +137,8 @@ keefox_win.ILM = {
         else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
             score += 1;
 
+        //TODO: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
+
         keefox_win.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
     },    
@@ -214,7 +216,7 @@ keefox_win.ILM = {
         if (keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
         {
             // We don't do this unless we think we have a KeePassRPC connection
-            let conf = keefox_org.config.getConfigForURL(doc.documentURI);
+            let conf = keefox_org.config.getConfigForURL(siteURL);
             if (!conf.preventSaveNotification)
                 showSaveNotification = true;
         }
@@ -374,7 +376,8 @@ keefox_win.ILM = {
                                 )
                            )
                         {
-                            removeTabSessionStoreData = true;
+                            removeTabSessionStoreData = false;
+                            //removeTabSessionStoreData = true;
                         }
                     } catch (ex) {}
                     

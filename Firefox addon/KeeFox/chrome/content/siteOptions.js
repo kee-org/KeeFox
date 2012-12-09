@@ -34,13 +34,16 @@ var siteURLTreeView = null;
 function stop()
 {
     var container = window.document.getElementById("msgGroupContainer");
-    while(container.hasChildNodes()
+    while(container.hasChildNodes())
         container.removeChild(container.firstChild);
 }
 
 function getQS ()
 {
-    var a = window.location.href.split("?")[1].split("&");
+    var qs = window.location.href.split("?");
+    if (qs.length == 1)
+        return {};
+    var a = qs[1].split("&");
     var o = {};
     a.forEach(function(e) {
       o[e.split("=")[0]] = e.split("=")[1];

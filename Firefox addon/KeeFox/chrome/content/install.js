@@ -106,7 +106,7 @@ function prepareInstallPage()
     'but_IC1setupNETdownloading','desc_IC1setupNETdownloaded','desc_IC1setupKPdownloading','but_IC1setupKPdownloading','desc_IC1setupKPdownloaded',
     'desc_IC1KRPCdownloaded','desc_IC2setupKPdownloading','but_IC2setupKPdownloading','desc_IC2setupKPdownloaded','desc_IC2KRPCdownloaded',
     'desc_IC3installing','desc_IC5zipKPdownloading','lab_IC5zipKPdownloading','desc_IC5zipKPdownloaded','desc_IC5installing',
-    'desc_InstallFinished','nextStepsIntro','desc_nextStep1','nextStepsTutorialLink','nextStepsImportLink','nextStepsFinally'
+    'desc_InstallFinished','nextStepsIntro','desc_nextStep1','nextStepsTutorialLink','nextStepsImportLink','nextStepsFinally','KFInstallPageTitle_description'
     ],
     ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
 

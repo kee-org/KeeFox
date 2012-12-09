@@ -98,8 +98,6 @@ keefox_win.UI = {
 
         if (notifyBox)
             this._showSaveLoginNotification(notifyBox, aLogin, isMultiPage);
-        else
-            this._showSaveLoginDialog(aLogin);
     },
     
     removeNotification : function (nb, name)
@@ -415,9 +413,9 @@ keefox_win.UI = {
                 callback:  function() {
                     try 
                     {
-                        var statement = kfilm._kf._keeFoxExtension.db.conn.createStatement("INSERT OR REPLACE INTO sites (id,url,tp,preventSaveNotification) VALUES ( (select id from sites where url = :url), :url, coalesce((select tp from sites where url = :url),0), 1  )");
-                        statement.params.url = urlSchemeHostPort;
-                        statement.executeAsync();        
+                    //TODO: get only the precise config for this url - NOT the expanded, effective one.
+                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO: faster clone?
+                        keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
                     } finally
                     {
                         keefox_win.toolbar.clearTabFormRecordingData();

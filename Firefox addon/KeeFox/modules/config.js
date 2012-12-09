@@ -112,13 +112,16 @@ keefox_org.config = {
             if (blacklist[b] == val)
             {
                 keefox_org._KFLog.debug("Value found in blacklist");
+                // a blacklist match always overrides the existing default behaviour
                 return false;
             }
         for (var w in whitelist)
             if (whitelist[w] == val)
             {
                 keefox_org._KFLog.debug("Value found in whitelist");
-                return true;
+                // a whitelist match only overrides an unspecified default behaviour
+                if (def == null)
+                    return true;
             }
         return def;
     },
@@ -229,7 +232,7 @@ keefox_org.config = {
     {
         keefox_org._KFLog.debug("setConfigForURL");
 
-        // Clear the curernt config cache.
+        // Clear the current config cache.
         //TODO: would be more efficient to only remove affected URLs
         this.configCache = {};
 
@@ -272,7 +275,7 @@ keefox_org.config = {
         }
 
         if (insertionPoint == this.current.length)
-            this.current = this.current.push({"url": url, "config": newConfig});
+            this.current.push({"url": url, "config": newConfig});
         else
             this.current.splice(insertionPoint,0,{"url": url, "config": newConfig});
         keefox_org._KFLog.debug(JSON.stringify(this.current));
@@ -285,7 +288,7 @@ keefox_org.config = {
         for (let i=0; i<urls.length; i++)
         {
             let newConfig = applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.default_config)),{"preventSaveNotification": true}); //TODO: faster clone?
-            setConfigForURL(url,{"url": url, "config": newConfig});
+            setConfigForURL(url,newConfig);
         }
     },
 

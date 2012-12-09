@@ -141,10 +141,14 @@ kfLoginInfo.prototype =
         this.formActionURL = intermediateObject.formActionURL;
         this.httpRealm = intermediateObject.httpRealm;
         this.usernameIndex = intermediateObject.usernameIndex;
-        this.passwords = intermediateObject.passwords.map(function(item) { var newField = new kfLoginField(); newField.fromJSONifiable(item); return newField; });
+        this.passwords = intermediateObject.passwords
+            .filter(function(element, index, array) { return (element != null); })
+            .map(function(item) { var newField = new kfLoginField(); newField.fromJSONifiable(item); return newField; });
         this.uniqueID = intermediateObject.uniqueID;
         this.title = intermediateObject.title;
-        this.otherFields = intermediateObject.otherFields.map(function(item) { var newField = new kfLoginField(); newField.fromJSONifiable(item); return newField; });
+        this.otherFields = intermediateObject.otherFields
+            .filter(function(element, index, array) { return (element != null); })
+            .map(function(item) { var newField = new kfLoginField(); newField.fromJSONifiable(item); return newField; });
         this.relevanceScore = intermediateObject.relevanceScore;
         this.maximumPage = intermediateObject.maximumPage;
         this.iconImageData = intermediateObject.iconImageData;

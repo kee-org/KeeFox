@@ -58,7 +58,7 @@
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
     wm.getMostRecentWindow("mail:3pane");
 
-    window.keefox_org.locale.internationaliseElements(document,
+    mainWindow.keefox_org.locale.internationaliseElements(document,
     ['keefox-choose-group-window','but-OK','but-Cancel'
     ],
     ['title','label','tooltiptext','accesskey','value']);

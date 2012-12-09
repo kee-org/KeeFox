@@ -1,6 +1,6 @@
-C:\development\KeeFox\Jayrock\src\Jayrock\obj\Release\ResolveAssemblyReference.cache
 C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.dll.config
 C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.dll
 C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.pdb
 C:\development\KeeFox\Jayrock\src\Jayrock\obj\Release\Jayrock.dll
 C:\development\KeeFox\Jayrock\src\Jayrock\obj\Release\Jayrock.pdb
+C:\development\keefox\Jayrock\src\Jayrock\obj\Release\Jayrock.csprojResolveAssemblyReference.cache
