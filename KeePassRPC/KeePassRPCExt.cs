@@ -46,6 +46,7 @@ using System.Reflection;
 using KeePassLib.Collections;
 
 using System.Runtime.Remoting.Lifetime;
+using KeePassRPC.DataExchangeModel;
 //using System.Web;
 
 namespace KeePassRPC
@@ -58,7 +59,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,1,3);
+        public static readonly Version PluginVersion = new Version(1,1,6);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -265,8 +266,6 @@ namespace KeePassRPC
         
 		void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
 		{
-            //return; // not in 0.8 (soon after hopefully...)
-
 			PwEntryForm ef = e.Form as PwEntryForm;
             if (ef != null)
             {
@@ -615,7 +614,7 @@ namespace KeePassRPC
                 }
             }
 
-            if (kfpg.FindEntry(entry1Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(entry1Uuid, true) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, entry1Uuid,
                     "Quick Start (double click on the URL to learn how to use KeeFox)",
@@ -623,35 +622,49 @@ namespace KeePassRPC
                 kfpg.AddEntry(pe, true);
             }
 
-            if (kfpg.FindEntry(entry2Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(entry2Uuid, false) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, entry2Uuid,
                     "KeeFox sample entry with alternative URL",
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
-                pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "5"));
-                pe.Strings.Set("KPRPC Alternative URLs", new ProtectedString(false, @"http://tutorial-section-c.keefox.org/part3"));
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig()
+                {
+                    Version = 1,
+                    Priority = 5,
+                    AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" }
+                };
+                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
 
-            if (kfpg.FindEntry(entry3Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(entry3Uuid, false) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, entry3Uuid,
                     "KeeFox sample entry with no auto-fill and no auto-submit",
                     "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
-                pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "2"));
-                pe.Strings.Set("KeeFox Never Auto Fill", new ProtectedString(false, ""));
-                pe.Strings.Set("KeeFox Never Auto Submit", new ProtectedString(false, ""));
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig()
+                {
+                    Version = 1,
+                    Priority = 2,
+                    NeverAutoFill = true,
+                    NeverAutoSubmit = true
+                };
+                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
-            //TODO 0.9: demo of complex form with select drop downs, etc.
 
-            if (kfpg.FindEntry(entry5Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(entry5Uuid, false) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, entry5Uuid,
                     "KeeFox sample entry for HTTP authentication",
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
-                pe.Strings.Set("KeeFox Priority", new ProtectedString(false, "20"));
-                pe.Strings.Set("KPRPC HTTP realm", new ProtectedString(false, "KeeFox tutorial sample"));
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig()
+                {
+                    Version = 1,
+                    Priority = 20,
+                    HTTPRealm = "KeeFox tutorial sample"
+                };
+                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
 
@@ -825,21 +838,149 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBOpen(object sender, FileCreatedEventArgs e)
         {
+            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
             EnsureDBIconIsInKPRPCIconCache();
             //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
+        }
+
+        private delegate void dlgSaveDB(PwDatabase databaseToSave);
+
+        void saveDB(PwDatabase databaseToSave)
+        {
+            // save active database & update UI appearance
+            if (_host.MainWindow.UIFileSave(true))
+                _host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
+
         }
 
         private void OnKPDBOpen(object sender, FileOpenedEventArgs e)
         {
             EnsureDBIconIsInKPRPCIconCache();
-            //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
+
+            // If we've not already upgraded the KPRPC data for this database...
+            if (!e.Database.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
+                || e.Database.CustomData.Get("KeePassRPC.KeeFox.configVersion") != "1")
+            {
+                // We know that this upgrade path may contain duplicate KeeFox
+                // sample entries due to an earlier bug so lets get rid of them
+                // for good and replace them with a single instance of each. Not
+                // a perfect solution but should only cause problems for KeeFox
+                // developers and those with OCD and a short fuse.
+                List<string> uuids = new List<string>(5) {
+                    new PwUuid(new byte[] {
+                0xe9, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x24}).ToHexString(),
+                new PwUuid(new byte[] {
+                0xe8, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x25}).ToHexString(),
+                new PwUuid(new byte[] {
+                0xe7, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x26}).ToHexString(),
+                new PwUuid(new byte[] {
+                0xe6, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x27}).ToHexString(),
+                new PwUuid(new byte[] {
+                0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28}).ToHexString()};
+
+                KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+
+                // Scan every entry for matching UUIDs and add them to the list for deletion
+                KeePassLib.Delegates.EntryHandler ehdup = delegate(PwEntry pe)
+                {
+                    if (uuids.Contains(pe.Uuid.ToHexString()))
+                    {
+                        output.Add(pe);
+                    }
+                    return true;
+                };
+                e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, ehdup);
+
+                // Tidy up
+                foreach (PwEntry pwe in output)
+                {
+                    pwe.ParentGroup.Entries.Remove(pwe);
+                }
+                InstallKeeFoxSampleEntries(e.Database);
+                _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+
+                bool foundStringsToUpgrade = false;
+                // Scan every string of every entry to find out whether we need to disturb the user
+                KeePassLib.Delegates.EntryHandler eh = delegate(PwEntry pe)
+                {
+                    foreach (KeyValuePair<string, ProtectedString> kvp in pe.Strings)
+                    {
+                        if (StringIsFromKPRPCv1(kvp.Key))
+                        {
+                            foundStringsToUpgrade = true;
+                            // Cancel our search, we have the answer (unfortunately we can only cancel the search in this group so more organised users will have to wait a little longer)
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+
+                // If our search is aborted before the end it's becuase we found a string that needs upgrading
+                e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
+                if (foundStringsToUpgrade)
+                {
+                    DialogResult dr = MessageBox.Show("KeePassRPC (KeeFox) needs to update your database. This process is safe but irreversable so it is strongly reccommended that you ensure you have a recent backup of your password database before you continue." + Environment.NewLine + Environment.NewLine + "You can take a backup right now if you want: just find the database file on your system and copy (not move) it to a safe place. Make sure you backup the correct file. The database you are trying to open is located at " + e.Database.IOConnectionInfo.Path + "." + Environment.NewLine + Environment.NewLine + "You will not be able to use this database with older versions of KeeFox once you click OK. Make sure you hold onto your backup copy until you're happy that the upgrade process was successful." + Environment.NewLine + Environment.NewLine + "The upgrade may take a few minutes. You will not be able to open this database with this version of the KeePassRPC plugin installed until you perform the upgrade." + Environment.NewLine + Environment.NewLine + "Press OK to perform the upgrade.", "KeeFox upgrade", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    if (dr != DialogResult.OK)
+                    {
+                        // User aborted so we must shut down this database to prevent KeeFox from attempting communication with it
+                        e.Database.Close();
+                        return;
+                    }
+                    else
+                    {
+                        // User has confirmed they have a recent backup so we start the upgrade
+
+                        // Scan every string of every entry to find entries we will update
+                        KeePassLib.Delegates.EntryHandler ehupgrade = delegate(PwEntry pe)
+                        {
+                            foreach (KeyValuePair<string, ProtectedString> kvp in pe.Strings)
+                            {
+                                if (StringIsFromKPRPCv1(kvp.Key))
+                                {
+                                    ConvertKPRPCSeperateStringsToJSON(pe, e.Database);
+                                    return true;
+                                }
+                            }
+                            return true;
+                        };
+
+                        // If our search is successful we know we've upgraded every entry and can save the DB
+                        if (e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, ehupgrade))
+                        {
+                            // Store what version of the KPRPC config this is (maybe generously calling
+                            // it 1 when I should have included the "1st version" marker 4 years ago!)
+                            // Better late than never
+                            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
+                            
+                            _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
+
+                            DialogResult drfinished = MessageBox.Show("KeePassRPC (KeeFox) information upgraded. Press OK to use your updated database.", "KeeFox upgrade", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
+            }
+
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
+        }
+
+        public bool StringIsFromKPRPCv1(string p)
+        {
+            if (p == "KPRPC JSON") return false;
+            if (p.StartsWith("KPRPC ") || p.StartsWith("KeeFox ") || p.StartsWith("Form field ")
+                || p == "Alternative URLs" || p == "Form HTTP realm" || p == "Hide from KeeFox"
+                || p == "Hide from KPRPC" || p == "Form match URL")
+                return true;
+            return false;
         }
 
         private void OnKPDBClose(object sender, FileClosedEventArgs e)
         {
-            //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_CLOSED);
         }
 
@@ -882,6 +1023,330 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                             manager.RemoveRPCClientConnection(keePassRPCClient);
                 //     _RPCClientManagers["null"]
                 // RemoveRPCClientConnection(keePassRPCClient);
+            }
+        }
+
+
+
+        public string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
+        {
+            return GetPwEntryString(pwe, name, true, db);
+        }
+
+        public string GetPwEntryString(PwEntry pwe, string name, bool dereferenceFieldRefs, PwDatabase db)
+        {
+            string result = "";
+            if (dereferenceFieldRefs)
+                result = KeePass.Util.Spr.SprEngine.Compile(
+                    pwe.Strings.ReadSafe(name), false, pwe, db, false, false);
+            else
+                result = pwe.Strings.ReadSafe(name);
+            return result;
+        }
+
+        // This is only called by legacy migration code now
+        private string GetFormFieldValue(PwEntry pwe, string fieldName, PwDatabase db)
+        {
+            string value = "";
+            try
+            {
+                value = GetPwEntryString(pwe, "Form field " + fieldName + " value", db);
+            }
+            catch (Exception) { value = ""; }
+            if (string.IsNullOrEmpty(value))
+            {
+                try
+                {
+                    value = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db);
+                }
+                catch (Exception) { value = ""; }
+            }
+            return value;
+        }
+
+        private void ConvertKPRPCSeperateStringsToJSON(PwEntry pwe, PwDatabase db)
+        {
+            //Sanity check to protect against duplicate updates
+            if (pwe.Strings.Exists("KPRPC JSON"))
+                return;
+
+            ArrayList formFieldList = new ArrayList();
+            ArrayList URLs = new ArrayList();
+            //bool usernameFound = false;
+            bool passwordFound = false;
+            bool alwaysAutoFill = false;
+            bool neverAutoFill = false;
+            bool alwaysAutoSubmit = false;
+            bool neverAutoSubmit = false;
+            int priority = 0;
+            string usernameName = "";
+            string usernameValue = "";
+
+
+            foreach (System.Collections.Generic.KeyValuePair
+                <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
+            {
+                string pweKey = pwestring.Key;
+                string pweValue = pwestring.Value.ReadString();
+
+                if ((pweKey.StartsWith("Form field ") || pweKey.StartsWith("KPRPC Form field ")) && pweKey.EndsWith(" type") && pweKey.Length > 16)
+                {
+                    string fieldName = "";
+                    if (pweKey.StartsWith("Form field "))
+                        fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
+                    else
+                        fieldName = pweKey.Substring(17).Substring(0, pweKey.Length - 17 - 5);
+
+                    string fieldId = "";
+                    int fieldPage = 1;
+
+                    if (pwe.Strings.Exists("Form field " + fieldName + " page"))
+                    {
+                        try
+                        {
+                            fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page", db));
+                        }
+                        catch (Exception)
+                        {
+                            fieldPage = 1;
+                        }
+                    }
+                    else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " page"))
+                    {
+                        try
+                        {
+                            fieldPage = int.Parse(GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " page", db));
+                        }
+                        catch (Exception)
+                        {
+                            fieldPage = 1;
+                        }
+                    }
+
+                    if (pwe.Strings.Exists("Form field " + fieldName + " id"))
+                        fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id", db);
+                    else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " id"))
+                        fieldId = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " id", db);
+
+                    //Not going to backfill missing passwords and usernames but we do need to convert from old value placeholder to new one
+                    if (pweValue == "password")
+                    {
+                        if (pwe.Strings.Exists("Form field " + fieldName + " value"))
+                            formFieldList.Add(new FormField(fieldName,
+                                fieldName, GetPwEntryString(pwe, "Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
+                        else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " value"))
+                            formFieldList.Add(new FormField(fieldName,
+                                fieldName, GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
+                        else if (!passwordFound) // it's the default password
+                        {
+                            formFieldList.Add(new FormField(fieldName,
+                                "KeePass password", "{PASSWORD}", FormFieldType.FFTpassword, fieldId, fieldPage));
+                            passwordFound = true;
+                        }
+                    }
+                    else if (pweValue == "username")
+                    {
+                        string displayUser = "KeePass username";
+                        //if (usernameFound)
+                        //    displayUser = fieldName;
+                        formFieldList.Add(new FormField(fieldName,
+                            displayUser, "{USERNAME}", FormFieldType.FFTusername, fieldId, fieldPage));
+                        usernameName = fieldName;
+                        usernameValue = GetPwEntryString(pwe, "UserName", true, db);
+                        //usernameFound = true;
+                    }
+                    else if (pweValue == "text")
+                    {
+                        formFieldList.Add(new FormField(fieldName,
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTtext, fieldId, fieldPage));
+                    }
+                    else if (pweValue == "radio")
+                    {
+                        formFieldList.Add(new FormField(fieldName,
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTradio, fieldId, fieldPage));
+                    }
+                    else if (pweValue == "select")
+                    {
+                        formFieldList.Add(new FormField(fieldName,
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTselect, fieldId, fieldPage));
+                    }
+                    else if (pweValue == "checkbox")
+                    {
+                        formFieldList.Add(new FormField(fieldName,
+                fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTcheckbox, fieldId, fieldPage));
+                    }
+                }
+                else if (pweKey == "Alternative URLs" || pweKey == "KPRPC Alternative URLs")
+                {
+                    string[] urlsArray = pweValue.Split(new char[] { ' ' });
+                    foreach (string altURL in urlsArray)
+                        if (!string.IsNullOrEmpty(altURL)) URLs.Add(altURL);
+
+                }
+            }
+
+            if (pwe.Strings.Exists("KeeFox Always Auto Fill") || pwe.Strings.Exists("KPRPC Always Auto Fill"))
+                alwaysAutoFill = true;
+            if (pwe.Strings.Exists("KeeFox Always Auto Submit") || pwe.Strings.Exists("KPRPC Always Auto Submit"))
+                alwaysAutoSubmit = true;
+            if (pwe.Strings.Exists("KeeFox Never Auto Fill") || pwe.Strings.Exists("KPRPC Never Auto Fill"))
+                neverAutoFill = true;
+            if (pwe.Strings.Exists("KeeFox Never Auto Submit") || pwe.Strings.Exists("KPRPC Never Auto Submit"))
+                neverAutoSubmit = true;
+
+            if (pwe.Strings.Exists("KeeFox Priority"))
+            {
+                string priorityString = pwe.Strings.ReadSafe("KeeFox Priority");
+                if (!string.IsNullOrEmpty(priorityString))
+                {
+                    try
+                    {
+                        priority = int.Parse(priorityString);
+                    }
+                    catch
+                    { }
+
+                    if (priority < 0 || priority > 100000)
+                        priority = 0;
+                }
+            }
+            if (pwe.Strings.Exists("KPRPC Priority"))
+            {
+                string priorityString = pwe.Strings.ReadSafe("KPRPC Priority");
+                if (!string.IsNullOrEmpty(priorityString))
+                {
+                    try
+                    {
+                        priority = int.Parse(priorityString);
+                    }
+                    catch
+                    { }
+
+                    if (priority < 0 || priority > 100000)
+                        priority = 0;
+                }
+            }
+
+            string realm = "";
+            try
+            {
+                realm = GetPwEntryString(pwe, "Form HTTP realm", db);
+            }
+            catch (Exception) { realm = ""; }
+            if (string.IsNullOrEmpty(realm))
+            {
+                try
+                {
+                    realm = GetPwEntryString(pwe, "KPRPC Form HTTP realm", db);
+                }
+                catch (Exception) { realm = ""; }
+            }
+            if (string.IsNullOrEmpty(realm))
+            {
+                try
+                {
+                    realm = GetPwEntryString(pwe, "KPRPC HTTP realm", db);
+                }
+                catch (Exception) { realm = ""; }
+            }
+
+
+            EntryConfig conf = new EntryConfig();
+            conf.Hide = false;
+            string hide = "";
+            try
+            {
+                hide = GetPwEntryString(pwe, "Hide from KeeFox", db);
+                if (!string.IsNullOrEmpty(hide))
+                    conf.Hide = true;
+            }
+            catch (Exception) { hide = ""; }
+            if (string.IsNullOrEmpty(hide))
+            {
+                try
+                {
+                    hide = GetPwEntryString(pwe, "Hide from KPRPC", db);
+                    if (!string.IsNullOrEmpty(hide))
+                        conf.Hide = true;
+                }
+                catch (Exception) { hide = ""; }
+            }
+
+            conf.BlockHostnameOnlyMatch = false;
+            string block = "";
+            try
+            {
+                block = GetPwEntryString(pwe, "KPRPC Block hostname-only match", db);
+                if (!string.IsNullOrEmpty(block))
+                    conf.BlockHostnameOnlyMatch = true;
+            }
+            catch (Exception) { block = ""; }
+
+
+            FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
+
+            conf.AltURLs = (string[])URLs.ToArray(typeof(string));
+
+            try
+            {
+                List<string> listNormalBlockedURLs = new List<string>();
+                string urls = GetPwEntryString(pwe, "KPRPC Blocked URLs", db);
+                foreach (string url in urls.Split(' '))
+                    if (!string.IsNullOrEmpty(url)) listNormalBlockedURLs.Add(url);
+                conf.BlockedURLs = listNormalBlockedURLs.ToArray();
+            }
+            catch (Exception) { }
+
+            try
+            {
+                List<string> listRegExURLs = new List<string>();
+                string urls = GetPwEntryString(pwe, "KPRPC URL Regex match", db);
+                foreach (string url in urls.Split(' '))
+                    if (!string.IsNullOrEmpty(url)) listRegExURLs.Add(url);
+                conf.RegExURLs = listRegExURLs.ToArray();
+            }
+            catch (Exception) { }
+
+            try
+            {
+                List<string> listRegExBlockedURLs = new List<string>();
+                string urls = GetPwEntryString(pwe, "KPRPC URL Regex block", db);
+                foreach (string url in urls.Split(' '))
+                    if (!string.IsNullOrEmpty(url)) listRegExBlockedURLs.Add(url);
+                conf.RegExBlockedURLs = listRegExBlockedURLs.ToArray();
+            }
+            catch (Exception) { }
+
+
+            conf.AlwaysAutoFill = alwaysAutoFill;
+            conf.AlwaysAutoSubmit = alwaysAutoSubmit;
+            conf.FormActionURL = GetPwEntryString(pwe, "Form match URL", db);
+            conf.FormFieldList = temp;
+            conf.HTTPRealm = realm;
+            conf.NeverAutoFill = neverAutoFill;
+            conf.NeverAutoSubmit = neverAutoSubmit;
+            conf.Priority = priority;
+            conf.Version = 1;
+
+            // Store the new config info
+            pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+
+            // Delete all old advanced strings...
+
+            List<string> advancedStringKeysToDelete = new List<string>();
+
+            foreach (KeyValuePair<string, ProtectedString> kvp in pwe.Strings)
+            {
+                if (StringIsFromKPRPCv1(kvp.Key))
+                {
+                    // Not sure how kindly KeePass would take to DB changes while iterating so we'll store a list for later
+                    advancedStringKeysToDelete.Add(kvp.Key);
+                }
+            }
+
+            foreach (string item in advancedStringKeysToDelete)
+            {
+                pwe.Strings.Remove(item);
             }
         }
     }

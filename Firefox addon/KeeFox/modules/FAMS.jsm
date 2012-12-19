@@ -611,7 +611,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
         var conf = JSON.parse(prefData);
         if (conf.version < this.defaultConfiguration.version)
         {
-            var newConf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO: faster clone?
+            var newConf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO2: faster clone?
             newConf.knownMessageGroups = conf.knownMessageGroups;
 
             for (var i=0; i < newConf.messageGroups.length; i++)
@@ -639,7 +639,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
         return conf;
     } catch (ex) {
         this._log(ex);
-        var conf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO: faster clone?
+        var conf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO2: faster clone?
         this.setConfiguration(conf);
         return conf;
     }

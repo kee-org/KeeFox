@@ -16,26 +16,28 @@ namespace KeePassRPC.Forms
         public string Id;
         public FormFieldType Type;
         public int Page;
-        public List<string> OtherKeys;
 
-        public KeeFoxFieldForm(string name, string value, string id, FormFieldType type, int page, List<string> otherKeys)
+        public KeeFoxFieldForm(FormField ff) : this(ff.Name, ff.Value, ff.Id, ff.Type, ff.Page)
+        {
+        }
+
+        public KeeFoxFieldForm(string name, string value, string id, FormFieldType type, int page)
         {
             InitializeComponent();
             Icon = global::KeePassRPC.Properties.Resources.keefox;
-            OtherKeys = otherKeys;
             if (string.IsNullOrEmpty(name))
                 this.Text = "Add a form field";
             else
                 this.Text = "Edit a form field";
 
-            if (value == "KeePass username")
+            if (value == "{USERNAME}")
             {
                 textBox2.Enabled = false;
                 comboBox1.Text = "Username";
                 comboBox1.Enabled = false;
                 label6.Visible = true;
             } else
-            if (value == "KeePass password")
+            if (value == "{PASSWORD}")
             {
                 textBox2.Enabled = false;
                 comboBox1.Text = "Password";
@@ -66,13 +68,6 @@ namespace KeePassRPC.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox1.Text.Length <= 0)
-            {
-                MessageBox.Show(this, "Please specify a name");
-                this.DialogResult = DialogResult.None;
-                return;
-            }
-
             if (textBox2.Text.Length <= 0)
             {
                 MessageBox.Show(this, "Please specify a value");
@@ -80,16 +75,9 @@ namespace KeePassRPC.Forms
                 return;
             }
 
-            if (textBox2.Enabled && (textBox2.Text == "KeePass username" || textBox2.Text == "KeePass password"))
+            if (textBox2.Enabled && (textBox2.Text == "{USERNAME}" || textBox2.Text == "{PASSWORD}"))
             {
                 MessageBox.Show(this, "Please change the value of this form field - it is currently set to a value that KeeFox needs to reserve for internal use. Sorry, please report this on the support forums if you are inconvienced by this choice of reserved phrase.");
-                this.DialogResult = DialogResult.None;
-                return;
-            }
-
-            if (OtherKeys.Contains(textBox1.Text))
-            {
-                MessageBox.Show(this, "A rule for '" + textBox1.Text + "' has already been added.");
                 this.DialogResult = DialogResult.None;
                 return;
             }

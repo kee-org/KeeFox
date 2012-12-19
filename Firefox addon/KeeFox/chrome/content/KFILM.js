@@ -137,7 +137,7 @@ keefox_win.ILM = {
         else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
             score += 1;
 
-        //TODO: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
+        //TODO1.2: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
 
         keefox_win.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
@@ -376,6 +376,7 @@ keefox_win.ILM = {
                                 )
                            )
                         {
+                            //TODO1.2: Try to set this to true as before except for when a form has been submitted. Use some kind of flag that only gets cleared around now so multiple redirects won't fool us
                             removeTabSessionStoreData = false;
                             //removeTabSessionStoreData = true;
                         }
@@ -540,7 +541,7 @@ keefox_win.ILM = {
                     //if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
                     if (conf.rescanFormDelay >= 500)
                         this._pwmgr._refillTimer.init(this._pwmgr._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                    //TODO: This doesn't seem to be getting stopped when tab closes?
+                    //TODO1.2: This doesn't seem to be getting stopped when tab closes?
 
                     keefox_win.Logger.debug("domEventListener: form filler finished");
                     return;

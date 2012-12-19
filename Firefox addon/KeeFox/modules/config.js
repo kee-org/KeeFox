@@ -37,7 +37,7 @@ keefox_org.config = {
         url: "*",
         config:{
             rescanFormDelay: -1, // to +INTMAX, // if old "rescan forms" set to true - configure to whatever that default was (5 seconds?)
-            /* TODO: In future we can give finer control of form rescanning behaviour from here
+            /* TODO1.3: In future we can give finer control of form rescanning behaviour from here
             rescanDOMevents:
             [{
 
@@ -81,7 +81,7 @@ keefox_org.config = {
             },
             preventSaveNotification: false
             /*
-            TODO: In future we can migrate other preferences to here
+            TODO1.3: In future we can migrate other preferences to here if they are suited to being overridden per site
             ,
             flashOnLoggedOut: true,
             flashOnNotRunning: true,
@@ -130,9 +130,23 @@ keefox_org.config = {
 
     cloneObj: function (obj)
     {
-        //TODO: improve speed? See http://jsperf.com/clone/5
-        //TODO: Might be useful in a utils location, not just for config manipulation
+        //TODO1.3: improve speed? See http://jsperf.com/clone/5
+        //TODO1.3: Might be useful in a utils location, not just for config manipulation
         return JSON.parse(JSON.stringify(obj));
+    },
+
+    getConfigDefinitionForURL: function(url)
+    {
+        for (var i=1; i<this.current.length; i++) // skip first which is always "*"
+        {
+            if (url == this.current[i].url)
+            {
+                return this.current[i].config;
+            }
+        }
+
+        // No config defined yet
+        return {};
     },
 
     getConfigForURL: function(url)
@@ -195,7 +209,7 @@ keefox_org.config = {
     load: function()
     {
         keefox_org._KFLog.debug("Loading configuration");
-        //TODO: parse json from storage. If not found in storage assume it's first time run and load default config before calling save()
+        // Parse json from storage. If not found in storage assume it's first time run and load default config before calling save()
         var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
         var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
 
@@ -203,11 +217,11 @@ keefox_org.config = {
         {
             var prefData = prefBranch.getComplexValue("config", Ci.nsISupportsString).data;
             var conf = JSON.parse(prefData);
-            //TODO: In future check version here and apply migrations if needed
+            //TODO1.3: In future check version here and apply migrations if needed
             //var currentVersion = prefBranch.getIntPref("configVersion");
             this.current = conf;
         } catch (ex) {
-            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO: faster clone?
+            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO1.3: faster clone?
             this.current = conf;
             this.save();
         }
@@ -224,7 +238,7 @@ keefox_org.config = {
         str.data = JSON.stringify(this.current);
         prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
 
-        //TODO: Stop forcing this to 1 when we release the first new version
+        //TODO1.3: Stop forcing this to 1 when we release the first new version
         prefBranch.setIntPref("configVersion",1);
     },
 
@@ -233,7 +247,7 @@ keefox_org.config = {
         keefox_org._KFLog.debug("setConfigForURL");
 
         // Clear the current config cache.
-        //TODO: would be more efficient to only remove affected URLs
+        //TODO2: would be more efficient to only remove affected URLs
         this.configCache = {};
 
         if (url == "*")
@@ -287,7 +301,7 @@ keefox_org.config = {
 
         for (let i=0; i<urls.length; i++)
         {
-            let newConfig = applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.default_config)),{"preventSaveNotification": true}); //TODO: faster clone?
+            let newConfig = applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.default_config)),{"preventSaveNotification": true}); //TODO2: faster clone?
             setConfigForURL(url,newConfig);
         }
     },

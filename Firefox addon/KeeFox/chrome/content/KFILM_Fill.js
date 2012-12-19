@@ -104,7 +104,7 @@ keefox_win.ILM._fillMatchedFields = function (fields, dataFields, formFields)
         else
             this._fillASingleField(formFields[ffi].DOMInputElement,formFields[ffi].type,dataFields[dfi].value);
 
-        fields.filter(function (element, index, array) {
+        fields = fields.filter(function (element, index, array) {
             return (element.dataFieldIndex != dfi);
         });
         
@@ -122,7 +122,7 @@ keefox_win.ILM._fillASingleField = function (domElement, fieldType, value)
         domElement.value = value; 
     } else if (fieldType == "checkbox" || fieldType == "radio")
     {
-        //TODO: should / can we set value to true or false and use that instead of assuming we have only stored this if it's checked?
+        //TODO1.2: should / can we set value to true or false and use that instead of assuming we have only stored this if it's checked?
         domElement.checked = true;
     } else
     {    
@@ -445,7 +445,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             interestingForm = keefox_org.config.valueAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
             interestingForm = keefox_org.config.valueAllowed(otherFields[f].name,conf.interestingForms.f_name_w,conf.interestingForms.f_name_b,interestingForm);
                 
-            //TODO: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
+            //TODO1.3: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
         }
         
         if (interestingForm === false)
@@ -466,7 +466,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         findLoginDoc.passwordFieldsArray[i] = passwordFields;
         findLoginDoc.otherFieldsArray[i] = otherFields;
         
-        //TODO: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC!
+        //TODO1.2: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC!
         // Only the actionOrigin might be changing, so if it's the same
         // as the last form on the page we can reuse the same logins.
         var actionOrigin = this._getURIHostAndPort(this._getActionOrigin(form));
@@ -737,9 +737,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
             var passField = passwordFields[i];
             //keefox_win.Logger.debug("testi:"+passField.DOMInputElement);
             if (passField.DOMInputElement != null)
-            {
-            //TODO: test mem leak 3 // skip event listener registration
-    
+            {    
                 passField.DOMInputElement.addEventListener("change",function(event) { var evt = document.createEvent('Events'); evt.initEvent('KeeFoxClearTabFormFillData', true, false); this.dispatchEvent(evt); },false,true);
             } //TODO2: Do I need to remove these 3 change listeners? When? Where? How?
         }
@@ -784,8 +782,6 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
         keefox_win.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
-    //TODO: test mem leak 4 // comment out this toolbar fill
-    
         keefox_win.Logger.info("Using toolbar password fill.");
         keefox_win.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
     } else 

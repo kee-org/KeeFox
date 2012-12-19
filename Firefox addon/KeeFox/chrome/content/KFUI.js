@@ -193,7 +193,7 @@ keefox_win.UI = {
                     if (fn != null)
                         returnValue = fn.apply(this, arguments);
                     
-                    //TODO: remove all event listeners from menu items
+                    //TODO1.3: remove all event listeners from menu items
                     keefox_win.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
                 } catch(ex)
                 {
@@ -215,7 +215,7 @@ keefox_win.UI = {
                 nmi.setUserData(key, val, null);
             }                  
         }
-        nmi.setUserData('notificationbox',notifyBox,null); //TODO: some way to reference top menu rather than attach to all nodes? or would that be slower anyway?
+        nmi.setUserData('notificationbox',notifyBox,null); //TODO1.3: some way to reference top menu rather than attach to all nodes? or would that be slower anyway?
         return nmi;    
     },
 
@@ -413,8 +413,7 @@ keefox_win.UI = {
                 callback:  function() {
                     try 
                     {
-                    //TODO: get only the precise config for this url - NOT the expanded, effective one.
-                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO: faster clone?
+                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO: faster clone?
                         keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
                     } finally
                     {

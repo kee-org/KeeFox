@@ -2,7 +2,7 @@
   KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2010-2012 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -208,7 +208,7 @@ namespace KeePassRPC
             {
                 DialogResult userConfirmationResult = MessageBox.Show(
                     "KeePass detected an attempt to connect to KeePass from '"
-                    + clientId 
+                    + clientId
                     + "'. Should KeePass allow this application to access your passwords?",
                     "Security check from the KeePassRPC plugin", MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
@@ -258,48 +258,48 @@ namespace KeePassRPC
         /// required information from this function.
         /// </summary>
         /// <param name="clientId">The text to identify a particular RPC client</param>
-//        private void SetupPrivateKeySignatures(string clientId)
-//        {
-//            byte[] data = Encoding.UTF8.GetBytes(clientId);
-//            //sha1 crypto service, digital signatures are created from the hash
-//            SHA1 sha = new SHA1CryptoServiceProvider();
-//            byte[] hash = sha.ComputeHash(data);
+        //        private void SetupPrivateKeySignatures(string clientId)
+        //        {
+        //            byte[] data = Encoding.UTF8.GetBytes(clientId);
+        //            //sha1 crypto service, digital signatures are created from the hash
+        //            SHA1 sha = new SHA1CryptoServiceProvider();
+        //            byte[] hash = sha.ComputeHash(data);
 
-//            //Create a new instance of DSACryptoServiceProvider.
-//            //DSA contains asymmetric public and private key information
-//            DSACryptoServiceProvider DSA1 = new DSACryptoServiceProvider();
+        //            //Create a new instance of DSACryptoServiceProvider.
+        //            //DSA contains asymmetric public and private key information
+        //            DSACryptoServiceProvider DSA1 = new DSACryptoServiceProvider();
 
 
-//            //RSA subjectKey = (RSA)RSA.Create();
-//            //subjectKey.
-//            //DSA.ImportCspBlob();
-//            //TODO2: load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
+        //            //RSA subjectKey = (RSA)RSA.Create();
+        //            //subjectKey.
+        //            //DSA.ImportCspBlob();
+        //            //TODO2: load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
 
-//            // store staight into Truecrypt
-//            System.IO.File.WriteAllBytes(
-//                "X:\\" + "KPRPCclientSignaturePrivateKey.key",
-//                DSA1.ExportCspBlob(true));
+        //            // store staight into Truecrypt
+        //            System.IO.File.WriteAllBytes(
+        //                "X:\\" + "KPRPCclientSignaturePrivateKey.key",
+        //                DSA1.ExportCspBlob(true));
 
-//            DSACryptoServiceProvider DSA2 = new DSACryptoServiceProvider();
+        //            DSACryptoServiceProvider DSA2 = new DSACryptoServiceProvider();
 
-//            DSA2.ImportCspBlob(System.IO.File.ReadAllBytes(
-//"X:\\" + "KPRPCclientSignaturePrivateKey.key"));
+        //            DSA2.ImportCspBlob(System.IO.File.ReadAllBytes(
+        //"X:\\" + "KPRPCclientSignaturePrivateKey.key"));
 
-//            byte[] publicKey = DSA2.ExportCspBlob(false);
-//            //EXPORT: store these bytes in source code
-//            string pubkeyencoded = Convert.ToBase64String(publicKey);
+        //            byte[] publicKey = DSA2.ExportCspBlob(false);
+        //            //EXPORT: store these bytes in source code
+        //            string pubkeyencoded = Convert.ToBase64String(publicKey);
 
-//            DSASignatureFormatter DSAFormatter = new DSASignatureFormatter(DSA2);
+        //            DSASignatureFormatter DSAFormatter = new DSASignatureFormatter(DSA2);
 
-//            //Set the hash algorithm to SHA1.
-//            DSAFormatter.SetHashAlgorithm("SHA1");
+        //            //Set the hash algorithm to SHA1.
+        //            DSAFormatter.SetHashAlgorithm("SHA1");
 
-//            //Create a signature from the hash using the private key
-//            byte[] signature = DSAFormatter.CreateSignature(hash);
+        //            //Create a signature from the hash using the private key
+        //            byte[] signature = DSAFormatter.CreateSignature(hash);
 
-//            string encodedClientIdSignature = Convert.ToBase64String(signature);
-//            //EXPORT: Client must send encodedClientIdSignature to KeePassRPC
-//        }
+        //            string encodedClientIdSignature = Convert.ToBase64String(signature);
+        //            //EXPORT: Client must send encodedClientIdSignature to KeePassRPC
+        //        }
 
         #endregion
 
@@ -319,7 +319,7 @@ namespace KeePassRPC
                 // TODO2: consider moving above statement to top of method - shouldn't do any harm and could rule out rare deadlock?
                 host.MainWindow.BeginInvoke((MethodInvoker)delegate { promptUserToOpenDB(null); });
                 //ensureDBisOpenEWH.WaitOne(15000, false); // wait until DB has been opened
-                
+
                 if (!host.Database.IsOpen)
                     return false;
             }
@@ -338,7 +338,7 @@ namespace KeePassRPC
             if (ioci == null)
                 ioci = KeePass.Program.Config.Application.LastUsedFile;
 
-            Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);            
+            Native.AttachToActiveAndBringToForeground(KeePass.Program.MainForm.Handle);
             KeePass.Program.MainForm.Activate();
 
             // refresh the UI in case user cancelled the dialog box and/or KeePass native calls have left us in a bit of a weird state
@@ -351,7 +351,7 @@ namespace KeePassRPC
                 minimised = false;
                 trayed = false;
             }
-            
+
             KeePass.Program.MainForm.WindowState = minimised ? FormWindowState.Minimized : FormWindowState.Normal;
 
             if (trayed)
@@ -383,7 +383,7 @@ namespace KeePassRPC
         {
             // store current active tab/db
             PwDocument currentActiveDoc = host.MainWindow.DocumentManager.ActiveDocument;
-            
+
             // change active tab
             PwDocument doc = host.MainWindow.DocumentManager.FindDocument(databaseToSave);
             host.MainWindow.DocumentManager.ActiveDocument = doc;
@@ -395,7 +395,7 @@ namespace KeePassRPC
                     host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
             }
             else
-            {                
+            {
                 // update ui with "changed" flag                
                 host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
             }
@@ -495,35 +495,28 @@ namespace KeePassRPC
         }
 
         #endregion
-        
+
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
-
-        private string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
-        {
-            return GetPwEntryString(pwe, name, true, db);
-        }
-
-        private string GetPwEntryString(PwEntry pwe, string name, bool dereferenceFieldRefs, PwDatabase db)
-        {
-            //Debug.Indent();
-            //Stopwatch sw = Stopwatch.StartNew();
-            string result = "";
-            if (dereferenceFieldRefs)
-                result = KeePass.Util.Spr.SprEngine.Compile(
-                    pwe.Strings.ReadSafe(name), false, pwe, db, false, false);
-            else
-                pwe.Strings.ReadSafe(name);
-           // sw.Stop();
-            //Debug.WriteLine("GetPwEntryString execution time: " + sw.Elapsed);
-            //Debug.Unindent();
-            return result;
-        }
 
         private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails, PwDatabase db)
         {
-            //Debug.Indent();
-            //Stopwatch sw = Stopwatch.StartNew();
+            return GetEntryFromPwEntry(pwe, isExactMatch, fullDetails, db, false);
+        }
 
+        private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails, PwDatabase db, bool abortIfHidden)
+        {
+            string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", false, db);
+
+            EntryConfig conf;
+            if (string.IsNullOrEmpty(json))
+                conf = new EntryConfig();
+            else
+                conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+            return GetEntryFromPwEntry(pwe, conf, isExactMatch, fullDetails, db, abortIfHidden);
+        }
+
+        private LightEntry GetEntryFromPwEntry(PwEntry pwe, EntryConfig conf, bool isExactMatch, bool fullDetails, PwDatabase db, bool abortIfHidden)
+        {
             ArrayList formFieldList = new ArrayList();
             ArrayList URLs = new ArrayList();
             URLs.Add(pwe.Strings.ReadSafe("URL"));
@@ -537,115 +530,33 @@ namespace KeePassRPC
             string usernameName = "";
             string usernameValue = "";
 
+            if (abortIfHidden && conf.Hide)
+                return null;
+
             if (!fullDetails)
             {
 
             }
             else
             {
-
-                foreach (System.Collections.Generic.KeyValuePair
-                    <string, KeePassLib.Security.ProtectedString> pwestring in pwe.Strings)
-                {
-                    string pweKey = pwestring.Key;
-                    string pweValue = pwestring.Value.ReadString();
-
-                    if (!fullDetails && pweValue != "username")
-                        continue;
-
-                    if ((pweKey.StartsWith("Form field ") || pweKey.StartsWith("KPRPC Form field ")) && pweKey.EndsWith(" type") && pweKey.Length > 16)
+                if (conf.FormFieldList != null)
+                    foreach (FormField ff in conf.FormFieldList)
                     {
-                        string fieldName = "";
-                        if (pweKey.StartsWith("Form field "))
-                            fieldName = pweKey.Substring(11).Substring(0, pweKey.Length - 11 - 5);
-                        else
-                            fieldName = pweKey.Substring(17).Substring(0, pweKey.Length - 17 - 5);
-
-                        string fieldId = "";
-                        int fieldPage = 1;
-
-                        if (pwe.Strings.Exists("Form field " + fieldName + " page"))
+                        if (ff.Type == FormFieldType.FFTpassword)
                         {
-                            try
-                            {
-                                fieldPage = int.Parse(GetPwEntryString(pwe, "Form field " + fieldName + " page", db));
-                            }
-                            catch (Exception)
-                            {
-                                fieldPage = 1;
-                            }
-                        }
-                        else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " page"))
-                        {
-                            try
-                            {
-                                fieldPage = int.Parse(GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " page", db));
-                            }
-                            catch (Exception)
-                            {
-                                fieldPage = 1;
-                            }
-                        }
-
-
-                        if (pwe.Strings.Exists("Form field " + fieldName + " id"))
-                            fieldId = GetPwEntryString(pwe, "Form field " + fieldName + " id", db);
-                        else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " id"))
-                            fieldId = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " id", db);
-
-                        if (pweValue == "password")
-                        {
-                            // If there is a matching custom string for this password, use that but if not
-                            // we can just use the standard entry password.
-                            if (pwe.Strings.Exists("Form field " + fieldName + " value"))
-                                formFieldList.Add(new FormField(fieldName,
-                    "Password", GetPwEntryString(pwe, "Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
-                            else if (pwe.Strings.Exists("KPRPC Form field " + fieldName + " value"))
-                                formFieldList.Add(new FormField(fieldName,
-                    "Password", GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db), FormFieldType.FFTpassword, fieldId, fieldPage));
-                            else
-                                formFieldList.Add(new FormField(fieldName,
-                    "Password", GetPwEntryString(pwe, "Password", db), FormFieldType.FFTpassword, fieldId, fieldPage));
+                            formFieldList.Add(new FormField(ff.Name, "KeePass password", KeePassRPCPlugin.GetPwEntryString(pwe, ff.Value, true, db), ff.Type, ff.Id, ff.Page));
                             passwordFound = true;
                         }
-                        else if (pweValue == "username")
+                        else if (ff.Type == FormFieldType.FFTusername)
                         {
-                            formFieldList.Add(new FormField(fieldName,
-                    "User name", GetPwEntryString(pwe, "UserName", db), FormFieldType.FFTusername, fieldId, fieldPage));
-                            usernameName = fieldName;
-                            usernameValue = GetPwEntryString(pwe, "UserName", fullDetails, db);
+                            formFieldList.Add(new FormField(ff.Name, "KeePass username", KeePassRPCPlugin.GetPwEntryString(pwe, ff.Value, true, db), ff.Type, ff.Id, ff.Page));
                             usernameFound = true;
                         }
-                        else if (pweValue == "text")
-                        {
-                            formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTtext, fieldId, fieldPage));
-                        }
-                        else if (pweValue == "radio")
-                        {
-                            formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTradio, fieldId, fieldPage));
-                        }
-                        else if (pweValue == "select")
-                        {
-                            formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTselect, fieldId, fieldPage));
-                        }
-                        else if (pweValue == "checkbox")
-                        {
-                            formFieldList.Add(new FormField(fieldName,
-                    fieldName, GetFormFieldValue(pwe, fieldName, db), FormFieldType.FFTcheckbox, fieldId, fieldPage));
-                        }
+                        else
+                            formFieldList.Add(new FormField(ff.Name, ff.Name, KeePassRPCPlugin.GetPwEntryString(pwe, ff.Value, true, db), ff.Type, ff.Id, ff.Page));
                     }
-                    else if (pweKey == "Alternative URLs" || pweKey == "KPRPC Alternative URLs")
-                    {
-                        string[] urlsArray = pweValue.Split(new char[]{' '});
-                        foreach (string altURL in urlsArray)
-                            URLs.Add(altURL);
-
-                    }
-                    //Debug.WriteLine("GetEntryFromPwEntry field processed: " + sw.Elapsed);
-                }
+                if (conf.AltURLs != null)
+                    URLs.AddRange(conf.AltURLs);
             }
 
             // If we didn't find an explicit password field, we assume any value
@@ -653,7 +564,7 @@ namespace KeePassRPC
             if (fullDetails && !passwordFound)
             {
                 formFieldList.Add(new FormField("password",
-                    "Password", GetPwEntryString(pwe, "Password", db), FormFieldType.FFTpassword, "password", 1));
+                    "KeePass password", KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db), FormFieldType.FFTpassword, "password", 1));
             }
 
             // If we didn't find an explicit username field, we assume any value
@@ -661,9 +572,9 @@ namespace KeePassRPC
             if (!usernameFound)
             {
                 formFieldList.Add(new FormField("username",
-                    "Username", GetPwEntryString(pwe, "UserName", db), FormFieldType.FFTusername, "username", 1));
+                    "KeePass username", KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db), FormFieldType.FFTusername, "username", 1));
                 usernameName = "username";
-                usernameValue = GetPwEntryString(pwe, "UserName", db);
+                usernameValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
             }
 
             string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);
@@ -671,82 +582,28 @@ namespace KeePassRPC
 
             if (fullDetails)
             {
-                if (pwe.Strings.Exists("KeeFox Always Auto Fill") || pwe.Strings.Exists("KPRPC Always Auto Fill"))
-                    alwaysAutoFill = true;
-                if (pwe.Strings.Exists("KeeFox Always Auto Submit") || pwe.Strings.Exists("KPRPC Always Auto Submit"))
-                    alwaysAutoSubmit = true;
-                if (pwe.Strings.Exists("KeeFox Never Auto Fill") || pwe.Strings.Exists("KPRPC Never Auto Fill"))
-                    neverAutoFill = true;
-                if (pwe.Strings.Exists("KeeFox Never Auto Submit") || pwe.Strings.Exists("KPRPC Never Auto Submit"))
-                    neverAutoSubmit = true;
+                alwaysAutoFill = conf.AlwaysAutoFill;
+                alwaysAutoSubmit = conf.AlwaysAutoSubmit;
+                neverAutoFill = conf.NeverAutoFill;
+                neverAutoSubmit = conf.NeverAutoSubmit;
+                priority = conf.Priority;
 
-                if (pwe.Strings.Exists("KeeFox Priority"))
-                {
-                    string priorityString = pwe.Strings.ReadSafe("KeeFox Priority");
-                    if (!string.IsNullOrEmpty(priorityString))
-                    {
-                        try
-                        {
-                            priority = int.Parse(priorityString);
-                        }
-                        catch
-                        { }
-
-                        if (priority < 0 || priority > 100000)
-                            priority = 0;
-                    }
-                }
-                if (pwe.Strings.Exists("KPRPC Priority"))
-                {
-                    string priorityString = pwe.Strings.ReadSafe("KPRPC Priority");
-                    if (!string.IsNullOrEmpty(priorityString))
-                    {
-                        try
-                        {
-                            priority = int.Parse(priorityString);
-                        }
-                        catch
-                        { }
-
-                        if (priority < 0 || priority > 100000)
-                            priority = 0;
-                    }
-                }
             }
 
             //sw.Stop();
             //Debug.WriteLine("GetEntryFromPwEntry execution time: " + sw.Elapsed);
             //Debug.Unindent();
-            
+
             if (fullDetails)
             {
                 string realm = "";
-                try
-                {
-                    realm = GetPwEntryString(pwe, "Form HTTP realm", db);
-                }
-                catch (Exception) { realm = ""; }
-                if (string.IsNullOrEmpty(realm))
-                {
-                    try
-                    {
-                        realm = GetPwEntryString(pwe, "KPRPC Form HTTP realm", db);
-                    }
-                    catch (Exception) { realm = ""; }
-                }
-                if (string.IsNullOrEmpty(realm))
-                {
-                    try
-                    {
-                        realm = GetPwEntryString(pwe, "KPRPC HTTP realm", db);
-                    }
-                    catch (Exception) { realm = ""; }
-                }
+                if (!string.IsNullOrEmpty(conf.HTTPRealm))
+                    realm = conf.HTTPRealm;
 
                 FormField[] temp = (FormField[])formFieldList.ToArray(typeof(FormField));
                 Entry kpe = new Entry(
                 (string[])URLs.ToArray(typeof(string)),
-                GetPwEntryString(pwe, "Form match URL", db), realm,
+                conf.FormActionURL, realm,
                 pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
@@ -762,24 +619,6 @@ namespace KeePassRPC
             }
         }
 
-        private string GetFormFieldValue(PwEntry pwe, string fieldName, PwDatabase db)
-        {
-            string value = "";
-            try
-            {
-                value = GetPwEntryString(pwe, "Form field " + fieldName + " value", db);
-            }
-            catch (Exception) { value = ""; }
-            if (string.IsNullOrEmpty(value))
-            {
-                try
-                {
-                    value = GetPwEntryString(pwe, "KPRPC Form field " + fieldName + " value", db);
-                }
-                catch (Exception) { value = ""; }
-            }
-            return value;
-        }
 
         /*
          * public static void ReorderEntriesAsInDatabase(PwObjectList<PwEntry> v,
@@ -826,7 +665,7 @@ namespace KeePassRPC
         private Database GetDatabaseFromPwDatabase(PwDatabase pwd, bool fullDetail, bool noDetail)
         {
             //Debug.Indent();
-           // Stopwatch sw = Stopwatch.StartNew();
+            // Stopwatch sw = Stopwatch.StartNew();
             if (fullDetail && noDetail)
                 throw new ArgumentException("Don't be silly");
 
@@ -844,78 +683,54 @@ namespace KeePassRPC
             Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.GetDisplayName(), rt, (pwd == host.Database) ? true : false,
                 DataExchangeModel.IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.GetDisplayName()) ?? "");
             //host.MainWindow.Ic
-          //  sw.Stop();
-          //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
-          //  Debug.Unindent();
+            //  sw.Stop();
+            //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
+            //  Debug.Unindent();
             return kpd;
         }
 
         private void setPwEntryFromEntry(PwEntry pwe, Entry login)
         {
             bool firstPasswordFound = false;
+            EntryConfig conf = new EntryConfig();
+            List<FormField> ffl = new List<FormField>();
 
+            // Go through each form field, mostly just making a copy but with occasional tweaks such as default username and password selection
+            // by convention, we'll always have the first text field as the username when both reading and writing from the EntryConfig
             foreach (FormField kpff in login.FormFieldList)
             {
                 if (kpff.Type == FormFieldType.FFTpassword && !firstPasswordFound)
                 {
+                    ffl.Add(new FormField(kpff.Name, "KeePass password", "{PASSWORD}", kpff.Type, kpff.Id, kpff.Page));
                     pwe.Strings.Set("Password", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value));
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "password"));
                     firstPasswordFound = true;
-                }
-                else if (kpff.Type == FormFieldType.FFTpassword)
-                {
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(host.Database.MemoryProtection.ProtectPassword, kpff.Value)); // we protect this string if user has asked to protect passwords
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "password"));
                 }
                 else if (kpff.Type == FormFieldType.FFTusername)
                 {
+                    ffl.Add(new FormField(kpff.Name, "KeePass username", "{USERNAME}", kpff.Type, kpff.Id, kpff.Page));
                     pwe.Strings.Set("UserName", new ProtectedString(host.Database.MemoryProtection.ProtectUserName, kpff.Value));
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "username"));
                 }
-                else if (kpff.Type == FormFieldType.FFTtext)
+                else
                 {
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "text"));
+                    ffl.Add(new FormField(kpff.Name, kpff.Name, kpff.Value, kpff.Type, kpff.Id, kpff.Page));
                 }
-                else if (kpff.Type == FormFieldType.FFTcheckbox)
-                {
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "checkbox"));
-                }
-                else if (kpff.Type == FormFieldType.FFTradio)
-                {
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "radio"));
-                }
-                else if (kpff.Type == FormFieldType.FFTselect)
-                {
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " value", new ProtectedString(false, kpff.Value));
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " type", new ProtectedString(false, "select"));
-                }
-
-                pwe.Strings.Set("KPRPC Form field " + kpff.Name + " page", new ProtectedString(false, kpff.Page.ToString()));
-
-                if (kpff.Id != null && kpff.Id.Length > 0)
-                    pwe.Strings.Set("KPRPC Form field " + kpff.Name + " id", new ProtectedString(false, kpff.Id));
             }
+            conf.FormFieldList = ffl.ToArray();
 
-            string altURLs = "";
+            List<string> altURLs = new List<string>();
 
             for (int i = 0; i < login.URLs.Length; i++)
             {
                 string url = login.URLs[i];
                 if (i == 0)
                     pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
-                else if (i == 1)
-                    altURLs += url;
                 else
-                    altURLs += " " + url;
+                    altURLs.Add(url);
             }
-            if (altURLs.Length > 0)
-                pwe.Strings.Set("KPRPC Alternative URLs", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, altURLs));
-
-            pwe.Strings.Set("Form match URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.FormActionURL ?? ""));
-            pwe.Strings.Set("KPRPC HTTP realm", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, login.HTTPRealm ?? ""));
+            conf.AltURLs = altURLs.ToArray();
+            conf.FormActionURL = login.FormActionURL;
+            conf.HTTPRealm = login.HTTPRealm;
+            conf.Version = 1;
 
             // Set some of the string fields
             pwe.Strings.Set(PwDefs.TitleField, new ProtectedString(host.Database.MemoryProtection.ProtectTitle, login.Title ?? ""));
@@ -933,10 +748,10 @@ namespace KeePassRPC
                 else
                     pwe.CustomIconUuid = customIconUUID;
             }
+
+            pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
         }
 
-
-        
         private string dbIconToBase64(PwDatabase db)
         {
             string cachedBase64 = DataExchangeModel.IconCache<string>.GetIconEncoding(db.IOConnectionInfo.GetDisplayName());
@@ -944,7 +759,8 @@ namespace KeePassRPC
             {
                 // Don't think this should ever happen but we'll return a null icon if we have to
                 return "";
-            } else
+            }
+            else
             {
                 return cachedBase64;
             }
@@ -980,17 +796,18 @@ namespace KeePassRPC
                     {
                         uuid = customIconUUID;
                     }
-                } else
+                }
+                else
                 {
                     return cachedBase64;
                 }
             }
-            
+
             // this happens if we didn't want to or couldn't find a custom icon
             if (icon == null)
             {
                 int iconIdInt = (int)iconId;
-                uuid = new PwUuid( new byte[]{
+                uuid = new PwUuid(new byte[]{
                     (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
                     (byte)(iconIdInt & 0xFF), (byte)(iconIdInt & 0xFF),
                     (byte)(iconIdInt >> 8 & 0xFF), (byte)(iconIdInt >> 8 & 0xFF),
@@ -999,7 +816,7 @@ namespace KeePassRPC
                     (byte)(iconIdInt >> 16 & 0xFF), (byte)(iconIdInt >> 16 & 0xFF),
                     (byte)(iconIdInt >> 24 & 0xFF), (byte)(iconIdInt >> 24 & 0xFF),
                     (byte)(iconIdInt >> 24 & 0xFF), (byte)(iconIdInt >> 24 & 0xFF)
-                } );
+                });
 
                 string cachedBase64 = DataExchangeModel.IconCache<PwUuid>.GetIconEncoding(uuid);
                 if (string.IsNullOrEmpty(cachedBase64))
@@ -1012,13 +829,14 @@ namespace KeePassRPC
                     {
                         icon = (Image)invokeResult;
                     }
-                } else
+                }
+                else
                 {
                     return cachedBase64;
                 }
             }
 
-            
+
             if (icon != null)
             {
                 // we found an icon but it wasn't in the cache so lets
@@ -1165,7 +983,7 @@ namespace KeePassRPC
             //TODO: Need to verify this works OK with unusual circumstances like one DB open but others locked
             if (ioci != null)
                 foreach (PwDocument doc in host.MainWindow.DocumentManager.Documents)
-                    if (doc.LockedIoc.Path == fileName || 
+                    if (doc.LockedIoc.Path == fileName ||
                         (doc.Database.IsOpen && doc.Database.IOConnectionInfo.Path == fileName))
                         host.MainWindow.DocumentManager.ActiveDocument = doc;
 
@@ -1175,7 +993,7 @@ namespace KeePassRPC
             // in the hope that the minimise/restore trick will get KeePass to prompt the user on our behalf
             // (regardless of state of existing documents and newly requested document)
             //TODO: verify when LockedIoc property was added to plugin API
-            if (ioci != null 
+            if (ioci != null
                 && !(host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
                 && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))
             {
@@ -1272,7 +1090,7 @@ namespace KeePassRPC
 
                 object[] inputParameters = new object[] { newPassword, profile, null, null };
                 result = (PwgError)mi.Invoke(null, inputParameters);
-                
+
                 // If an exception is thrown here it would be unexpected and
                 // require a new version of the application to be released
             }
@@ -1303,7 +1121,7 @@ namespace KeePassRPC
         }
 
         #endregion
-        
+
         #region Retrival and manipulation of entries and groups
 
         /// <summary>
@@ -1538,6 +1356,8 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public void ModifyLogin(Entry oldLogin, Entry newLogin)
         {
+            throw new NotImplementedException();
+
             if (oldLogin == null)
                 throw new Exception("old login must be passed to the ModifyLogin function. It wasn't");
             if (newLogin == null)
@@ -1647,7 +1467,7 @@ namespace KeePassRPC
                 }
                 // If no locations found we'll just return the default root group
             }
-            
+
             if (pwd.CustomData.Exists("KeePassRPC.KeeFox.rootUUID") && pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID").Length == 32)
             {
                 string uuid = pwd.CustomData.Get("KeePassRPC.KeeFox.rootUUID");
@@ -1697,7 +1517,7 @@ namespace KeePassRPC
             Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
             Debug.Unindent();
             return dbarray;
-        }        
+        }
 
         /// <summary>
         /// Return a list of every login in the database
@@ -1722,13 +1542,15 @@ namespace KeePassRPC
                 if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                     continue; // ignore if it's in the recycle bin
 
-                if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-                    continue;
+                if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    continue; // ignore if it has no URL
 
-                Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true, host.Database);
-                allEntries.Add(kpe);
-                count++;
-
+                Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true, host.Database, true);
+                if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                {
+                    allEntries.Add(kpe);
+                    count++;
+                }
             }
 
             allEntries.Sort(delegate(Entry e1, Entry e2)
@@ -1779,7 +1601,7 @@ namespace KeePassRPC
 
             if (group != null)
             {
-                
+
                 KeePassLib.Collections.PwObjectList<PwEntry> output;
                 output = group.GetEntries(false);
 
@@ -1788,17 +1610,19 @@ namespace KeePassRPC
                     if (pwd.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                         continue; // ignore if it's in the recycle bin
 
-                    if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         continue;
                     if (fullDetails)
                     {
-                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true, pwd);
-                        allEntries.Add(kpe);
+                        Entry kpe = (Entry)GetEntryFromPwEntry(pwe, false, true, pwd, true);
+                        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                            allEntries.Add(kpe);
                     }
                     else
                     {
-                        LightEntry kpe = GetEntryFromPwEntry(pwe, false, false, pwd);
-                        allLightEntries.Add(kpe);
+                        LightEntry kpe = GetEntryFromPwEntry(pwe, false, false, pwd, true);
+                        if (kpe != null) // is null if entry is marked as hidden from KPRPC
+                            allLightEntries.Add(kpe);
                     }
                 }
 
@@ -1819,7 +1643,7 @@ namespace KeePassRPC
                     return allLightEntries.ToArray();
                 }
 
-                
+
             }
 
             return null;
@@ -1931,7 +1755,7 @@ namespace KeePassRPC
         }
 
         // Must match host name; if allowHostnameOnlyMatch is false, exact URL must be matched
-        private bool matchesAnyURL(PwEntry pwe, string url, string hostname, bool allowHostnameOnlyMatch)
+        private bool matchesAnyURL(PwEntry pwe, EntryConfig conf, string url, string hostname, bool allowHostnameOnlyMatch)
         {
             string pattern = @"(^|^/|[a-z]+\://)" + System.Text.RegularExpressions.Regex.Escape(hostname) + @"(/|$|\:)";
 
@@ -1942,28 +1766,22 @@ namespace KeePassRPC
                )
                 return true;
 
-            string urls = pwe.Strings.ReadSafe("Alternative URLs");
-            urls = urls + (string.IsNullOrEmpty(urls) ? "" : " ") + pwe.Strings.ReadSafe("KPRPC Alternative URLs");
-            string[] urlsArray = urls.Split(new char[]{' '});
-            foreach (string altURL in urlsArray)
-                if (System.Text.RegularExpressions.Regex.IsMatch(altURL.ToLower(), pattern)
-                    && (allowHostnameOnlyMatch || altURL == url))
-                    return true;
+            if (conf.AltURLs != null)
+                foreach (string altURL in conf.AltURLs)
+                    if (System.Text.RegularExpressions.Regex.IsMatch(altURL.ToLower(), pattern)
+                        && (allowHostnameOnlyMatch || altURL == url))
+                        return true;
 
             return false;
-
         }
 
-        private bool matchesAnyBlockedURL(PwEntry pwe, string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
+        private bool matchesAnyBlockedURL(PwEntry pwe, EntryConfig conf, string url) // hostname-wide blocks are not natively supported but can be emulated using an appropriate regex
         {
-            string urls = pwe.Strings.ReadSafe("KPRPC Blocked URLs");
-            string[] urlsArray = urls.Split(new char[]{' '});
-            foreach (string altURL in urlsArray)
-                if (altURL.Contains(url))
-                    return true;
-
+            if (conf.BlockedURLs != null)
+                foreach (string altURL in conf.BlockedURLs)
+                    if (altURL.Contains(url))
+                        return true;
             return false;
-
         }
 
         /// <summary>
@@ -2063,7 +1881,7 @@ namespace KeePassRPC
                         count++;
                     }
                 }
-               
+
 
 
             }
@@ -2148,26 +1966,26 @@ namespace KeePassRPC
                         if (db.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                             continue; // ignore if it's in the recycle bin
 
-                        if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                        if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                             continue; // entries must have a standard URL entry
 
-                        bool allowHostnameOnlyMatch = true;
-                        if (pwe.Strings.Exists("KPRPC Block hostname-only match"))
-                        {
-                            allowHostnameOnlyMatch = false;
-                        }
+                        string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", false, db);
+                        EntryConfig conf;
+                        if (string.IsNullOrEmpty(json))
+                            conf = new EntryConfig();
+                        else
+                            conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+
+                        if (conf.Hide)
+                            continue;
 
                         bool entryIsAMatch = false;
                         bool entryIsAnExactMatch = false;
 
-                        string regexPatterns = null;
-                        if (pwe.Strings.Exists("KeeFox URL Regex match"))
-                            regexPatterns = pwe.Strings.ReadSafe("KeeFox URL Regex match");
-                        if (pwe.Strings.Exists("KPRPC URL Regex match"))
-                            regexPatterns = pwe.Strings.ReadSafe("KPRPC URL Regex match");
-                        if (!string.IsNullOrEmpty(regexPatterns))
+
+                        if (conf.RegExURLs != null)
                             foreach (string URL in URLs)
-                                foreach (string regexPattern in regexPatterns.Split(' '))
+                                foreach (string regexPattern in conf.RegExURLs)
                                 {
                                     try
                                     {
@@ -2186,9 +2004,9 @@ namespace KeePassRPC
 
                         foreach (string URL in URLs)
                         {
-                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
+                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch))
                             {
-                                if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
+                                if (conf.FormActionURL == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                                 {
                                     entryIsAnExactMatch = true;
                                     entryIsAMatch = true;
@@ -2200,18 +2018,11 @@ namespace KeePassRPC
 
                         foreach (string URL in URLs)
                         {
-                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, URL, URLHostnames[URL], allowHostnameOnlyMatch))
+                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch))
                             {
-                                if ((
-                                    (pwe.Strings.Exists("Form HTTP realm")
-                                    && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
-                                    && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
+                                if ((!string.IsNullOrEmpty(conf.HTTPRealm)
+                                    && (httpRealm == "" || conf.HTTPRealm == httpRealm)
                                     )
-                                    ||
-                                    (pwe.Strings.Exists("KPRPC HTTP realm")
-                                    && pwe.Strings.ReadSafe("KPRPC HTTP realm").Length > 0
-                                    && (httpRealm == "" || pwe.Strings.ReadSafe("KPRPC HTTP realm") == httpRealm)
-                                    ))
                                     && pwe.Strings.ReadSafe("URL") == URL)
                                 {
                                     entryIsAnExactMatch = true;
@@ -2225,15 +2036,13 @@ namespace KeePassRPC
                         foreach (string URL in URLs)
                         {
                             // If we think we found a match, check it's not on a block list
-                            if (entryIsAMatch && matchesAnyBlockedURL(pwe, URL))
+                            if (entryIsAMatch && matchesAnyBlockedURL(pwe, conf, URL))
                             {
                                 entryIsAMatch = false;
                                 break;
                             }
-                            if (entryIsAMatch && pwe.Strings.Exists("KPRPC URL Regex block"))
-                            {
-                                string patterns = pwe.Strings.ReadSafe("KPRPC URL Regex block");
-                                foreach (string pattern in patterns.Split(' '))
+                            if (conf.RegExBlockedURLs != null)
+                                foreach (string pattern in conf.RegExBlockedURLs)
                                 {
                                     try
                                     {
@@ -2245,11 +2054,10 @@ namespace KeePassRPC
                                     }
                                     catch (ArgumentException)
                                     {
-                                        MessageBox.Show("'" + pattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        MessageBox.Show("'" + pattern + "' is not a valid regular expression. This error was found in an entry in your database called '" + pwe.Strings.ReadSafe(PwDefs.TitleField) + "'. You need to fix or delete this regular expression to prevent this warning message appearing.", "Warning: Broken regular expression", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         break;
                                     }
                                 }
-                            }
                         }
 
                         if (entryIsAMatch)
@@ -2274,143 +2082,145 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public int CountLogins(string URL, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches)
         {
-            string hostname = URL;
-            string actionHost = actionURL;
+            throw new NotImplementedException();
 
-            // make sure that hostname and actionURL always represent only the hostname portion
-            // of the URL
+            //string hostname = URL;
+            //string actionHost = actionURL;
 
-            int protocolIndex = URL.IndexOf("://");
-            if (URL.IndexOf("file://") > -1)
-            {
-                // the "host and port" of a file is the actual file name (i.e. just not the query string)
+            //// make sure that hostname and actionURL always represent only the hostname portion
+            //// of the URL
 
-                int qsIndex = URL.IndexOf("?");
-                if (qsIndex > -1)
-                    hostname = URL.Substring(8, qsIndex - 8);
-                else
-                    hostname = URL.Substring(8);
-            }
-            else if (protocolIndex > -1)
-            {
-                string hostAndPort = URL.Substring(protocolIndex + 3);
-                int pathStart = hostAndPort.IndexOf("/", 0);
-                if (pathStart > -1 && hostAndPort.Length > pathStart)
-                {
-                    hostname = URL.Substring(0, pathStart + protocolIndex + 3);
-                }
-            }
-            else
-            {
-                // we havn't received a protocol but may still have a query string 
-                // we'd like to remove from the URL (e.g. especially if we're dealing with a file:///
-                int qsIndex = URL.IndexOf("?");
-                if (qsIndex > -1)
-                    hostname = URL.Substring(1, qsIndex - 1);
-            }
+            //int protocolIndex = URL.IndexOf("://");
+            //if (URL.IndexOf("file://") > -1)
+            //{
+            //    // the "host and port" of a file is the actual file name (i.e. just not the query string)
 
-            protocolIndex = actionURL.IndexOf("://");
-            if (protocolIndex > -1)
-            {
-                string actionURLAndPort = actionURL.Substring(protocolIndex + 3);
-                int pathStart = actionURLAndPort.IndexOf("/", 0);
-                if (pathStart > -1 && actionURLAndPort.Length > pathStart)
-                {
-                    actionHost = actionURL.Substring(0, pathStart + protocolIndex + 3);
-                }
-            }
+            //    int qsIndex = URL.IndexOf("?");
+            //    if (qsIndex > -1)
+            //        hostname = URL.Substring(8, qsIndex - 8);
+            //    else
+            //        hostname = URL.Substring(8);
+            //}
+            //else if (protocolIndex > -1)
+            //{
+            //    string hostAndPort = URL.Substring(protocolIndex + 3);
+            //    int pathStart = hostAndPort.IndexOf("/", 0);
+            //    if (pathStart > -1 && hostAndPort.Length > pathStart)
+            //    {
+            //        hostname = URL.Substring(0, pathStart + protocolIndex + 3);
+            //    }
+            //}
+            //else
+            //{
+            //    // we havn't received a protocol but may still have a query string 
+            //    // we'd like to remove from the URL (e.g. especially if we're dealing with a file:///
+            //    int qsIndex = URL.IndexOf("?");
+            //    if (qsIndex > -1)
+            //        hostname = URL.Substring(1, qsIndex - 1);
+            //}
 
-            int count = 0;
-            ArrayList allEntries = new ArrayList();
+            //protocolIndex = actionURL.IndexOf("://");
+            //if (protocolIndex > -1)
+            //{
+            //    string actionURLAndPort = actionURL.Substring(protocolIndex + 3);
+            //    int pathStart = actionURLAndPort.IndexOf("/", 0);
+            //    if (pathStart > -1 && actionURLAndPort.Length > pathStart)
+            //    {
+            //        actionHost = actionURL.Substring(0, pathStart + protocolIndex + 3);
+            //    }
+            //}
 
-
-            // Make sure there is an active database
-            if (!ensureDBisOpen()) return -1;
-
-            // Narrow down the possible matches by doing a KeePass search
-            // (We could match on an irrelevant string field but chances are that any matches are suitable)
-            SearchParameters sp = new SearchParameters();
-            sp.SearchInUrls = true;
-            sp.SearchInOther = true;
-            sp.RegularExpression = true;
-            if (URL.Length == 0)
-                sp.SearchString = ".*";
-            else if (requireFullURLMatches)
-                sp.SearchString = System.Text.RegularExpressions.Regex.Escape(URL);
-            else
-                sp.SearchString = System.Text.RegularExpressions.Regex.Escape(hostname);
-
-            KeePassLib.Collections.PwObjectList<PwEntry> output;
-            output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-
-            PwGroup searchGroup = GetRootPwGroup(host.Database);
-            MethodInfo mi;
-
-            // SearchEntries method signature changed in KP 2.17 so we use
-            // reflection to enable support for both 2.17 and earlier versions
-            try
-            {
-                mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>) });
-                mi.Invoke(searchGroup, new object[] { sp, output });
-            }
-            catch (AmbiguousMatchException ex)
-            {
-                // can't find the 2.17 method definition so try for an earlier version
-                mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>), typeof(bool) });
-                mi.Invoke(searchGroup, new object[] { sp, output, false });
-
-                // If an exception is thrown here it would be unexpected and
-                // require a new version of the application to be released
-            }
-
-            foreach (PwEntry pwe in output)
-            {
-                if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
-                    continue; // ignore if it's in the recycle bin
-
-                if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
-                    continue;
-
-                bool entryIsAMatch = false;
-
-                if (lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, hostname,hostname,false))
-                {
-                    if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
-                    {
-                        entryIsAMatch = true;
-                    }
-                    else if (!requireFullURLMatches)
-                        entryIsAMatch = true;
-                }
-
-                if (lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, hostname, hostname, false))
-                {
-                    if ((
-                        (pwe.Strings.Exists("Form HTTP realm")
-                        && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
-                        && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
-                        )
-                        ||
-                        (pwe.Strings.Exists("KPRPC HTTP realm")
-                        && pwe.Strings.ReadSafe("KPRPC HTTP realm").Length > 0
-                        && (httpRealm == "" || pwe.Strings.ReadSafe("KPRPC HTTP realm") == httpRealm)
-                        ))
-                        && pwe.Strings.ReadSafe("URL") == URL)
-                    {
-                        entryIsAMatch = true;
-                    }
-                    else if (!requireFullURLMatches)
-                        entryIsAMatch = true;
-                }
-
-                if (entryIsAMatch)
-                    count++;
-
-            }
-            
+            //int count = 0;
+            //ArrayList allEntries = new ArrayList();
 
 
-            return count;
+            //// Make sure there is an active database
+            //if (!ensureDBisOpen()) return -1;
+
+            //// Narrow down the possible matches by doing a KeePass search
+            //// (We could match on an irrelevant string field but chances are that any matches are suitable)
+            //SearchParameters sp = new SearchParameters();
+            //sp.SearchInUrls = true;
+            //sp.SearchInOther = true;
+            //sp.RegularExpression = true;
+            //if (URL.Length == 0)
+            //    sp.SearchString = ".*";
+            //else if (requireFullURLMatches)
+            //    sp.SearchString = System.Text.RegularExpressions.Regex.Escape(URL);
+            //else
+            //    sp.SearchString = System.Text.RegularExpressions.Regex.Escape(hostname);
+
+            //KeePassLib.Collections.PwObjectList<PwEntry> output;
+            //output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+
+            //PwGroup searchGroup = GetRootPwGroup(host.Database);
+            //MethodInfo mi;
+
+            //// SearchEntries method signature changed in KP 2.17 so we use
+            //// reflection to enable support for both 2.17 and earlier versions
+            //try
+            //{
+            //    mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>) });
+            //    mi.Invoke(searchGroup, new object[] { sp, output });
+            //}
+            //catch (AmbiguousMatchException ex)
+            //{
+            //    // can't find the 2.17 method definition so try for an earlier version
+            //    mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>), typeof(bool) });
+            //    mi.Invoke(searchGroup, new object[] { sp, output, false });
+
+            //    // If an exception is thrown here it would be unexpected and
+            //    // require a new version of the application to be released
+            //}
+
+            //foreach (PwEntry pwe in output)
+            //{
+            //    if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+            //        continue; // ignore if it's in the recycle bin
+
+            //    if (pwe.Strings.Exists("Hide from KeeFox") || pwe.Strings.Exists("Hide from KPRPC") || string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+            //        continue;
+
+            //    bool entryIsAMatch = false;
+
+            //    if (lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, hostname, hostname, false))
+            //    {
+            //        if (pwe.Strings.Exists("Form match URL") && pwe.Strings.ReadSafe("Form match URL") == actionURL && pwe.Strings.ReadSafe("URL") == URL)
+            //        {
+            //            entryIsAMatch = true;
+            //        }
+            //        else if (!requireFullURLMatches)
+            //            entryIsAMatch = true;
+            //    }
+
+            //    if (lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, hostname, hostname, false))
+            //    {
+            //        if ((
+            //            (pwe.Strings.Exists("Form HTTP realm")
+            //            && pwe.Strings.ReadSafe("Form HTTP realm").Length > 0
+            //            && (httpRealm == "" || pwe.Strings.ReadSafe("Form HTTP realm") == httpRealm)
+            //            )
+            //            ||
+            //            (pwe.Strings.Exists("KPRPC HTTP realm")
+            //            && pwe.Strings.ReadSafe("KPRPC HTTP realm").Length > 0
+            //            && (httpRealm == "" || pwe.Strings.ReadSafe("KPRPC HTTP realm") == httpRealm)
+            //            ))
+            //            && pwe.Strings.ReadSafe("URL") == URL)
+            //        {
+            //            entryIsAMatch = true;
+            //        }
+            //        else if (!requireFullURLMatches)
+            //            entryIsAMatch = true;
+            //    }
+
+            //    if (entryIsAMatch)
+            //        count++;
+
+            //}
+
+
+
+            //return count;
         }
 
         #endregion

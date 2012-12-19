@@ -489,7 +489,7 @@ keefox_win.toolbar = {
                 changeDBButton.addEventListener("popupshowing", this.setMRUdatabases, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "false");
             }
-            //TODO: make generate password popupshowing event do something useful or remove it
+            //TODO1.3: make generate password popupshowing event do something useful or remove it
             if (generatePasswordButton !== undefined && generatePasswordButton != null) {
                 generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
                 generatePasswordButton.setAttribute("disabled", "false");

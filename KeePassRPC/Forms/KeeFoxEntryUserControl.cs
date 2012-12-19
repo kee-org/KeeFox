@@ -21,11 +21,9 @@ namespace KeePassRPC.Forms
     {
         private PwEntry _entry;
         KeePassRPCExt KeePassRPCPlugin;
-        CustomListViewEx _advancedListView;
         PwEntryForm _pwEntryForm;
         ProtectedStringDictionary _strings;
-
-        Dictionary<string, FormField> fields = new Dictionary<string, FormField>();
+        EntryConfig _conf;
 
         public KeeFoxEntryUserControl(KeePassRPCExt keePassRPCPlugin, PwEntry entry,
             CustomListViewEx advancedListView, PwEntryForm pwEntryForm, ProtectedStringDictionary strings)
@@ -33,55 +31,17 @@ namespace KeePassRPC.Forms
             KeePassRPCPlugin = keePassRPCPlugin;
             _entry = entry;
             InitializeComponent();
-            _advancedListView = advancedListView;
             _pwEntryForm = pwEntryForm;
             _strings = strings;
-        }
-
-        private void removeAdvancedString(string name)
-        {
-            ListViewItem li = null;
-            foreach (ListViewItem existingLi in _advancedListView.Items)
-            {
-                if (existingLi.Text == name)
-                {
-                    li = existingLi;
-                    break;
-                }
-            }
-
-            if (li != null)
-                _advancedListView.Items.Remove(li);
-
-            _strings.Remove(name);
+            string json = strings.ReadSafe("KPRPC JSON");
+            if (string.IsNullOrEmpty(json))
+                _conf = new EntryConfig();
+            else
+                _conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
         }
 
         private void changeAdvancedString(string name, string value, bool protect)
         {
-            ListViewItem li = null;
-            int iTopVisible = UIUtil.GetTopVisibleItem(_advancedListView);
-
-            foreach (ListViewItem existingLi in _advancedListView.Items)
-            {
-                if (existingLi.Text == name)
-                {
-                    li = existingLi;
-                    li.SubItems.RemoveAt(1);
-                    break;
-                }
-            }
-            
-            if (li == null)
-            {
-                li = _advancedListView.Items.Add(name, (int)PwIcon.PaperNew);
-                
-            }
-
-            if (protect && value != null && value.Length > 0) li.SubItems.Add("********");
-            else li.SubItems.Add(value);
-
-            UIUtil.SetTopVisibleItem(_advancedListView, iTopVisible);
-
             _strings.Set(name, new ProtectedString(protect, value));
         }
         
@@ -89,7 +49,7 @@ namespace KeePassRPC.Forms
         {
             if (checkBoxHideFromKeeFox.Checked)
             {
-                changeAdvancedString("Hide from KPRPC", "", false);
+                _conf.Hide = true;
                 textBoxKeeFoxPriority.Enabled = false;
                 label1.Enabled = false;
                 groupBox1.Enabled = false;
@@ -100,7 +60,7 @@ namespace KeePassRPC.Forms
             }
             else
             {
-                removeAdvancedString("Hide from KPRPC");
+                _conf.Hide = false;
                 textBoxKeeFoxPriority.Enabled = true;
                 label1.Enabled = true;
                 groupBox1.Enabled = true;
@@ -109,18 +69,20 @@ namespace KeePassRPC.Forms
                 labelRealm.Enabled = true;
                 textBoxKeeFoxRealm.Enabled = true;
             }
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
         }
 
         private void checkBoxBlockHostnameOnly_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBoxBlockHostnameOnly.Checked)
             {
-                changeAdvancedString("KPRPC Block hostname-only match", "", false);
+                _conf.BlockHostnameOnlyMatch = true;
             }
             else
             {
-                removeAdvancedString("KPRPC Block hostname-only match");
+                _conf.BlockHostnameOnlyMatch = false;
             }
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
         }
 
         private void KeeFoxEntryUserControl_Load(object sender, EventArgs e)
@@ -133,148 +95,70 @@ namespace KeePassRPC.Forms
             this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
             this.checkBoxBlockHostnameOnly.CheckedChanged += new System.EventHandler(this.checkBoxBlockHostnameOnly_CheckedChanged);
 
-            foreach (ListViewItem existingLi in _advancedListView.Items)
-            {
-                if (existingLi.Text == "Hide from KeeFox" || existingLi.Text == "Hide from KPRPC") { removeAdvancedString("Hide from KeeFox"); checkBoxHideFromKeeFox.Checked = true; }
-                else if (existingLi.Text == "KPRPC Block hostname-only match") { checkBoxBlockHostnameOnly.Checked = true; }
-                else if (existingLi.Text == "KeeFox Never Auto Fill" || existingLi.Text == "KPRPC Never Auto Fill") { kfNeverAutoFill = true; }
-                else if (existingLi.Text == "KeeFox Always Auto Fill" || existingLi.Text == "KPRPC Always Auto Fill") { kfAlwaysAutoFill = true; }
-                else if (existingLi.Text == "KeeFox Never Auto Submit" || existingLi.Text == "KPRPC Never Auto Submit") { kfNeverAutoSubmit = true; }
-                else if (existingLi.Text == "KeeFox Always Auto Submit" || existingLi.Text == "KPRPC Always Auto Submit") { kfAlwaysAutoSubmit = true; }
-                else if ((existingLi.Text.StartsWith("Form field ") || existingLi.Text.StartsWith("KPRPC Form field ")) && existingLi.Text.EndsWith("type"))
-                {
-                    string name = null;
-                    // extract name
-                    if (existingLi.Text.StartsWith("Form field "))
-                        name = existingLi.Text.Substring(11,existingLi.Text.Length-16);
-                    else if (existingLi.Text.StartsWith("KPRPC Form field "))
-                        name = existingLi.Text.Substring(17, existingLi.Text.Length - 22);
-                    string displayName = name;
-
-                    string type = existingLi.SubItems[1].Text;
-                    FormFieldType fft = Utilities.FormFieldTypeFromDisplay(type);
-
-                    string value = null;
-                    string id = null;
-                    int page = 1;
-
-                    // Grrrrr... can't find any way to request specific list item!
-                    //TODO2: cache a better data structure than .NET provides to speed up handling of many form fields
-                    foreach (ListViewItem internalLi in _advancedListView.Items)
-                    {
-                        if (internalLi.Text == "KPRPC Form field " + name + " value")
-                            value = internalLi.SubItems[1].Text;
-                        if (value == null && internalLi.Text == "Form field " + name + " value")
-                            value = internalLi.SubItems[1].Text;
-
-                        if (internalLi.Text == "KPRPC Form field " + name + " id")
-                            id = internalLi.SubItems[1].Text;
-                        if (id == null && internalLi.Text == "Form field " + name + " id")
-                            id = internalLi.SubItems[1].Text;
-
-                        if (internalLi.Text == "KPRPC Form field " + name + " page")
-                            page = int.Parse(internalLi.SubItems[1].Text);
-                        if (internalLi.Text == "Form field " + name + " page")
-                            page = int.Parse(internalLi.SubItems[1].Text);
-                    }
-                    
-                    // if value not found it's probably a standard KeePass data field
-                    if (value == null && fft == FormFieldType.FFTusername)
-                        displayName = "KeePass username";
-                    else if (value == null && fft == FormFieldType.FFTpassword)
-                        displayName = "KeePass password";
-                    
-                    fields.Add(name, new FormField(name, displayName, value, fft, id, page));
-                }
-                else if (existingLi.Text == "KeeFox Priority" || existingLi.Text == "KPRPC Priority")
-                {
-                    if (existingLi.Text == "KeeFox Priority")
-                    {
-                        changeAdvancedString("KPRPC Priority", existingLi.SubItems[1].Text, false);
-                        removeAdvancedString("KeeFox Priority");
-                    }
-                    textBoxKeeFoxPriority.Text = existingLi.SubItems[1].Text;
-                }
-                else if (existingLi.Text == "KPRPC Alternative URLs" || existingLi.Text == "Alternative URLs")
-                {
-                    foreach (string url in existingLi.SubItems[1].Text.Split(' '))
-                        listNormalURLs.Add(url);
-                    if (existingLi.Text == "Alternative URLs")
-                    {
-                        changeAdvancedString("KPRPC Alternative URLs", existingLi.SubItems[1].Text, false);
-                        removeAdvancedString("Alternative URLs");
-                    }
-                }
-                else if (existingLi.Text == "KPRPC Blocked URLs")
-                {
-                    foreach (string url in existingLi.SubItems[1].Text.Split(' '))
-                        listNormalBlockedURLs.Add(url);
-                }
-                else if (existingLi.Text == "KPRPC URL Regex match")
-                {
-                    foreach (string url in existingLi.SubItems[1].Text.Split(' '))
-                        listRegExURLs.Add(url);
-                }
-                else if (existingLi.Text == "KPRPC URL Regex block")
-                {
-                    foreach (string url in existingLi.SubItems[1].Text.Split(' '))
-                        listRegExBlockedURLs.Add(url);
-                }
-                else if (existingLi.Text == "Form HTTP realm" || existingLi.Text == "KPRPC HTTP realm" || existingLi.Text == "KPRPC form HTTP realm")
-                {
-                    if (existingLi.Text == "Form HTTP realm")
-                    {
-                        changeAdvancedString("KPRPC HTTP realm", existingLi.SubItems[1].Text, false);
-                        removeAdvancedString("Form HTTP realm");
-                    }
-                    if (existingLi.Text == "KPRPC form HTTP realm")
-                    {
-                        changeAdvancedString("KPRPC HTTP realm", existingLi.SubItems[1].Text, false);
-                        removeAdvancedString("KPRPC form HTTP realm");
-                    }
-                    textBoxKeeFoxRealm.Text = existingLi.SubItems[1].Text;
-                }
-
+            if (_conf.Hide) { checkBoxHideFromKeeFox.Checked = true; }
+            if (_conf.BlockHostnameOnlyMatch) { checkBoxBlockHostnameOnly.Checked = true; }
+            if (_conf.NeverAutoFill) { kfNeverAutoFill = true; }
+            if (_conf.AlwaysAutoFill) { kfAlwaysAutoFill = true; }
+            if (_conf.NeverAutoSubmit) { kfNeverAutoSubmit = true; }
+            if (_conf.AlwaysAutoSubmit) { kfAlwaysAutoSubmit = true; }
+            if (_conf.Priority != 0)
+                textBoxKeeFoxPriority.Text = _conf.Priority.ToString();
                 
-            }
+            listNormalURLs = new List<string>();
+            listNormalBlockedURLs = new List<string>();
+            listRegExURLs = new List<string>();
+            listRegExBlockedURLs = new List<string>();
 
-            // find password... how? have to look through all fields again for ones with no value? likewise for username though could use FFTPusername type for that...
+            if (_conf.AltURLs != null) listNormalURLs.AddRange(_conf.AltURLs);
+            if (_conf.BlockedURLs != null) listNormalBlockedURLs.AddRange(_conf.BlockedURLs);
+            if (_conf.RegExURLs != null) listRegExURLs.AddRange(_conf.RegExURLs);
+            if (_conf.RegExBlockedURLs != null) listRegExBlockedURLs.AddRange(_conf.RegExBlockedURLs);
+
+            textBoxKeeFoxRealm.Text = _conf.HTTPRealm;
+
             bool standardPasswordFound = false;
             bool standardUsernameFound = false;
 
-            foreach (FormField f in fields.Values)
+            // Read the list of form field objects and create ListViewItems for display to the user
+            if (_conf.FormFieldList != null)
             {
-                string type = Utilities.FormFieldTypeToDisplay(f.Type, false);
+                foreach (FormField ff in _conf.FormFieldList)
+                {
+                    string type = Utilities.FormFieldTypeToDisplay(ff.Type, false);
 
-                string value = f.Value;
-                if (f.DisplayName == "KeePass username")
-                {
-                    standardUsernameFound = true;
-                    value = f.DisplayName;
+                    // Override display of standard variables 
+                    string value = ff.Value;
+                    if (ff.Type == FormFieldType.FFTpassword)
+                        value = "********";
+                    if (ff.DisplayName == "KeePass username")
+                    {
+                        standardUsernameFound = true;
+                        value = ff.DisplayName;
+                    }
+                    if (ff.DisplayName == "KeePass password")
+                    {
+                        standardPasswordFound = true;
+                        value = ff.DisplayName;
+                    }
+                    ListViewItem lvi = new ListViewItem(new string[] { ff.Name, value, ff.Id, type, ff.Page.ToString() });
+                    lvi.Tag = ff;
+                    AddFieldListItem(lvi);
                 }
-                if (f.DisplayName == "KeePass password")
-                {
-                    standardPasswordFound = true;
-                    value = f.DisplayName;
-                }
-                ListViewItem lvi = new ListViewItem(new string[] { f.Name, value, f.Id, type, f.Page.ToString() });
-                AddFieldListItem(lvi);
             }
 
             // if we didn't find specific details about the username and
             // password, we'll pre-populate the standard KeePass ones so
-            // users can easily change thigns like page number and ID
+            // users can easily change things like page number and ID
 
             // we don't add them to the list of actual fields though - just the display list.
-            
             if (!standardPasswordFound)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { "UNSPECIFIED password", "KeePass password", "UNSPECIFIED password id", "password", "1" });
+                ListViewItem lvi = new ListViewItem(new string[] { "", "{PASSWORD}", "", "password", "1" });
                 AddFieldListItem(lvi);
             }
             if (!standardUsernameFound)
             {
-                ListViewItem lvi = new ListViewItem(new string[] { "UNSPECIFIED username", "KeePass username", "UNSPECIFIED username id", "username", "1" });
+                ListViewItem lvi = new ListViewItem(new string[] { "", "{USERNAME}", "", "username", "1" });
                 AddFieldListItem(lvi);
             }
 
@@ -283,30 +167,20 @@ namespace KeePassRPC.Forms
             comboBoxAutoSubmit.Text = "Use KeeFox setting";
             comboBoxAutoFill.Text = "Use KeeFox setting";
 
-            // doesn't make sense for some of these values to co-exist so we'll tidy up while working out what we should default the GUI options to.
-            // There are also implicit behaviours based on single option choices so we'll make them explicit now so that the GUI accurately reflects the 
+            // There are implicit behaviours based on single option choices so we'll make them explicit now so that the GUI accurately reflects the 
             // strings stored in the advanced tab
             if (kfNeverAutoFill)
-            {
                 currentBehaviour = EntryBehaviour.NeverAutoFillNeverAutoSubmit;
-            }
             else if (kfAlwaysAutoSubmit)
-            {
                 currentBehaviour = EntryBehaviour.AlwaysAutoFillAlwaysAutoSubmit;
-            } else if (kfAlwaysAutoFill && kfNeverAutoSubmit)
-            {
+            else if (kfAlwaysAutoFill && kfNeverAutoSubmit)
                 currentBehaviour = EntryBehaviour.AlwaysAutoFillNeverAutoSubmit;
-            } else if (kfNeverAutoSubmit)
-            {
+            else if (kfNeverAutoSubmit)
                 currentBehaviour = EntryBehaviour.NeverAutoSubmit;
-            }
-             else if (kfAlwaysAutoFill)
-            {
+            else if (kfAlwaysAutoFill)
                 currentBehaviour = EntryBehaviour.AlwaysAutoFill;
-            } else
-            {
+            else
                 currentBehaviour = EntryBehaviour.Default;
-            }
             changeBehaviourState(currentBehaviour);
 
             this.comboBoxAutoSubmit.SelectedIndexChanged += new System.EventHandler(this.comboBoxAutoSubmit_SelectedIndexChanged);
@@ -326,15 +200,16 @@ namespace KeePassRPC.Forms
             {
                 try
                 {
-                    int.Parse(priority);
-                    changeAdvancedString("KPRPC Priority", priority, false);
+                    _conf.Priority = int.Parse(priority);
+                    changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
                     return;
                 }
                 catch (Exception)
                 {
                 }
             }
-            removeAdvancedString("KPRPC Priority");
+            _conf.Priority = 0;
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
             return;
         }
 
@@ -343,9 +218,10 @@ namespace KeePassRPC.Forms
             string realm = ((System.Windows.Forms.TextBoxBase)sender).Text;
 
             if (!string.IsNullOrEmpty(realm))
-                changeAdvancedString("KPRPC HTTP realm", realm, false);
+                _conf.HTTPRealm = realm;
             else
-                removeAdvancedString("KPRPC HTTP realm");
+                _conf.HTTPRealm = null;
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
             return;
         }
 
@@ -414,85 +290,71 @@ namespace KeePassRPC.Forms
 
         private void changeBehaviourState(EntryBehaviour behav)
         {
+            EntryConfig newConfig = null;
             switch (behav)
             {
                 case EntryBehaviour.AlwaysAutoFill:
-                    changeAdvancedString("KPRPC Always Auto Fill", "", false);
-                    removeAdvancedString("KPRPC Never Auto Fill");
-                    removeAdvancedString("KPRPC Always Auto Submit");
-                    removeAdvancedString("KPRPC Never Auto Submit");
-                    removeAdvancedString("KeeFox Never Auto Fill");
-                    removeAdvancedString("KeeFox Always Auto Submit");
-                    removeAdvancedString("KeeFox Never Auto Submit");
+                    _conf.AlwaysAutoFill = true;
+                    _conf.AlwaysAutoSubmit = false;
+                    _conf.NeverAutoFill = false;
+                    _conf.NeverAutoSubmit = false;
                     comboBoxAutoFill.Text = "Always";
                     comboBoxAutoSubmit.Text = "Use KeeFox setting";
                     comboBoxAutoFill.Enabled = true;
                     comboBoxAutoSubmit.Enabled = true;
                     break;
                 case EntryBehaviour.NeverAutoSubmit:
-                    changeAdvancedString("KPRPC Never Auto Submit", "", false);
-                    removeAdvancedString("KPRPC Always Auto Submit");
-                    removeAdvancedString("KPRPC Always Auto Fill");
-                    removeAdvancedString("KPRPC Never Auto Fill");
-                    removeAdvancedString("KeeFox Always Auto Submit");
-                    removeAdvancedString("KeeFox Always Auto Fill");
-                    removeAdvancedString("KeeFox Never Auto Fill");
+                    _conf.AlwaysAutoFill = false;
+                    _conf.AlwaysAutoSubmit = false;
+                    _conf.NeverAutoFill = false;
+                    _conf.NeverAutoSubmit = true;
                     comboBoxAutoFill.Text = "Use KeeFox setting";
                     comboBoxAutoSubmit.Text = "Never";
                     comboBoxAutoFill.Enabled = true;
                     comboBoxAutoSubmit.Enabled = true;
                     break;
                 case EntryBehaviour.AlwaysAutoFillAlwaysAutoSubmit:
-                    changeAdvancedString("KPRPC Always Auto Fill", "", false);
-                    changeAdvancedString("KPRPC Always Auto Submit", "", false);
-                    removeAdvancedString("KPRPC Never Auto Fill");
-                    removeAdvancedString("KPRPC Never Auto Submit");
-                    removeAdvancedString("KeeFox Never Auto Fill");
-                    removeAdvancedString("KeeFox Never Auto Submit");
+                    _conf.AlwaysAutoFill = true;
+                    _conf.AlwaysAutoSubmit = true;
+                    _conf.NeverAutoFill = false;
+                    _conf.NeverAutoSubmit = false;
                     comboBoxAutoSubmit.Text = "Always";
                     comboBoxAutoFill.Text = "Always";
                     comboBoxAutoFill.Enabled = false;
                     comboBoxAutoSubmit.Enabled = true;
                     break;
                 case EntryBehaviour.NeverAutoFillNeverAutoSubmit:
-                    changeAdvancedString("KPRPC Never Auto Fill", "", false);
-                    changeAdvancedString("KPRPC Never Auto Submit", "", false);
-                    removeAdvancedString("KPRPC Always Auto Fill");
-                    removeAdvancedString("KPRPC Always Auto Submit");
-                    removeAdvancedString("KeeFox Always Auto Fill");
-                    removeAdvancedString("KeeFox Always Auto Submit");
+                    _conf.AlwaysAutoFill = false;
+                    _conf.AlwaysAutoSubmit = false;
+                    _conf.NeverAutoFill = true;
+                    _conf.NeverAutoSubmit = true;
                     comboBoxAutoFill.Text = "Never";
                     comboBoxAutoSubmit.Text = "Never";
                     comboBoxAutoSubmit.Enabled = false;
                     comboBoxAutoFill.Enabled = true;
                     break;
                 case EntryBehaviour.AlwaysAutoFillNeverAutoSubmit:
-                    changeAdvancedString("KPRPC Always Auto Fill", "", false);
-                    changeAdvancedString("KPRPC Never Auto Submit", "", false);
-                    removeAdvancedString("KPRPC Never Auto Fill");
-                    removeAdvancedString("KPRPC Always Auto Submit");
-                    removeAdvancedString("KeeFox Never Auto Fill");
-                    removeAdvancedString("KeeFox Always Auto Submit");
+                    _conf.AlwaysAutoFill = true;
+                    _conf.AlwaysAutoSubmit = false;
+                    _conf.NeverAutoFill = false;
+                    _conf.NeverAutoSubmit = true;
                     comboBoxAutoFill.Text = "Always";
                     comboBoxAutoSubmit.Text = "Never";
                     comboBoxAutoSubmit.Enabled = true;
                     comboBoxAutoFill.Enabled = true;
                     break;
                 case EntryBehaviour.Default:
-                    removeAdvancedString("KeeFox Never Auto Fill");
-                    removeAdvancedString("KeeFox Always Auto Fill");
-                    removeAdvancedString("KeeFox Never Auto Submit");
-                    removeAdvancedString("KeeFox Always Auto Submit");
-                    removeAdvancedString("KPRPC Never Auto Fill");
-                    removeAdvancedString("KPRPC Always Auto Fill");
-                    removeAdvancedString("KPRPC Never Auto Submit");
-                    removeAdvancedString("KPRPC Always Auto Submit");
+                    _conf.AlwaysAutoFill = false;
+                    _conf.AlwaysAutoSubmit = false;
+                    _conf.NeverAutoFill = false;
+                    _conf.NeverAutoSubmit = false;
                     comboBoxAutoFill.Text = "Use KeeFox setting";
                     comboBoxAutoSubmit.Text = "Use KeeFox setting";
                     comboBoxAutoSubmit.Enabled = true;
                     comboBoxAutoFill.Enabled = true;
                     break;
             }
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
             currentBehaviour = behav;
         }
 
@@ -635,87 +497,24 @@ namespace KeePassRPC.Forms
 
         private void UpdateURLStrings()
         {
-            string alternativeURLs = "";
-            foreach (string url in listNormalURLs)
-            {
-                alternativeURLs += url + " ";
-            }
-            alternativeURLs = alternativeURLs.TrimEnd();
-
-            string alternativeBlockedURLs = "";
-            foreach (string url in listNormalBlockedURLs)
-            {
-                alternativeBlockedURLs += url + " ";
-            }
-            alternativeBlockedURLs = alternativeBlockedURLs.TrimEnd();
-
-            string regexURLs = "";
-            foreach (string url in listRegExURLs)
-            {
-                regexURLs += url + " ";
-            }
-            regexURLs = regexURLs.TrimEnd();
-
-            string regexBlockedURLs = "";
-            foreach (string url in listRegExBlockedURLs)
-            {
-                regexBlockedURLs += url + " ";
-            }
-            regexBlockedURLs = regexBlockedURLs.TrimEnd();
-
-            if (string.IsNullOrEmpty(alternativeURLs))
-                removeAdvancedString("KPRPC Alternative URLs");
-            else
-                changeAdvancedString("KPRPC Alternative URLs", alternativeURLs, false);
-
-            if (string.IsNullOrEmpty(alternativeBlockedURLs))
-                removeAdvancedString("KPRPC Blocked URLs");
-            else
-                changeAdvancedString("KPRPC Blocked URLs", alternativeBlockedURLs, false);
-
-            if (string.IsNullOrEmpty(regexURLs))
-                removeAdvancedString("KPRPC URL Regex match");
-            else
-                changeAdvancedString("KPRPC URL Regex match", regexURLs, false);
-
-            if (string.IsNullOrEmpty(regexBlockedURLs))
-                removeAdvancedString("KPRPC URL Regex block");
-            else
-                changeAdvancedString("KPRPC URL Regex block", regexBlockedURLs, false);
+            _conf.AltURLs = listNormalURLs.ToArray();
+            _conf.BlockedURLs = listNormalBlockedURLs.ToArray();
+            _conf.RegExURLs = listRegExURLs.ToArray();
+            _conf.RegExBlockedURLs = listRegExBlockedURLs.ToArray();
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
         }
 
 
         private void UpdateFieldStrings()
         {
-            foreach (ListViewItem existingLi in _advancedListView.Items)
+            List<FormField> ffs = new List<FormField>();
+            foreach (ListViewItem lvi in listView2.Items)
             {
-                if (existingLi.Text.StartsWith("KPRPC Form field ") || existingLi.Text.StartsWith("Form field "))
-                {
-                    _advancedListView.Items.Remove(existingLi);
-                    _strings.Remove(existingLi.Text);
-                }
+                if (lvi.Tag != null)
+                    ffs.Add((FormField)lvi.Tag);
             }
-        
-            foreach (FormField field in fields.Values)
-            {
-                string type = Utilities.FormFieldTypeToDisplay(field.Type,false);
-
-                if (field.DisplayName != "KeePass username" && field.DisplayName != "KeePass password")
-                {
-                    if (field.Type == FormFieldType.FFTpassword)
-                        changeAdvancedString("KPRPC Form field " + field.Name + " value", field.Value, KeePassRPCPlugin._host.Database.MemoryProtection.ProtectPassword);
-                    else
-                        changeAdvancedString("KPRPC Form field " + field.Name + " value", field.Value, false);
-                }
-
-                changeAdvancedString("KPRPC Form field " + field.Name + " type", type, false);
-                if (!string.IsNullOrEmpty(field.Id))
-                    changeAdvancedString("KPRPC Form field " + field.Name + " id", field.Id, false);
-                else
-                    changeAdvancedString("KPRPC Form field " + field.Name + " id", "", false);
-                if (field.Page >= 0)
-                    changeAdvancedString("KPRPC Form field " + field.Name + " page", field.Page.ToString(), false);
-            }
+            _conf.FormFieldList = ffs.ToArray();
+            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
         }
         
 
@@ -775,79 +574,63 @@ namespace KeePassRPC.Forms
 
         private void buttonFieldAdd_Click(object sender, EventArgs e)
         {
-            List<string> all = new List<string>();
-            for (int i = 0; i < listView2.Items.Count; ++i)
-                all.Add(listView2.Items[i].Text);
-
-            KeeFoxFieldForm kfff = new KeeFoxFieldForm(null, null, null, FormFieldType.FFTtext, 1, all);
+            KeeFoxFieldForm kfff = new KeeFoxFieldForm(null, null, null, FormFieldType.FFTtext, 1);
 
             if (kfff.ShowDialog() == DialogResult.OK)
             {
-                fields.Add(kfff.Name,new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page));
+                FormField ff = new FormField(kfff.Name, kfff.Name, kfff.Value, kfff.Type, kfff.Id, kfff.Page);
 
                 string type = Utilities.FormFieldTypeToDisplay(kfff.Type,false);
                 int page = kfff.Page;
 
                 // We know any new passwords are not the main Entry password
+                // Also know that the display name can be same as main name
                 ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type, page.ToString() });
+                lvi.Tag = ff;
                 AddFieldListItem(lvi);
-
-                //////if (kfff.Type != FormFieldType.FFTusername
-
-                //UpdateEntryStrings(false, false);
-                //ResizeColumnHeaders();
-
-                //if (kfff.Match && !kfff.RegEx)
-                //{
-                //    listNormalURLs.Add(kfff.URL);
-                //    ListViewItem lvi = new ListViewItem(new string[] { kfurlf.URL, "Normal", "Match" });
-                //    AddURLListItem(lvi);
-                //}
-                
-                
                 UpdateFieldStrings();
-
-                //fiel
             }
         }
 
         private void buttonFieldEdit_Click(object sender, EventArgs e)
         {
             ListView.SelectedListViewItemCollection lvsicSel = listView2.SelectedItems;
-            List<string> all = new List<string>();
-            for (int i = 0; i < listView2.Items.Count; ++i)
-                all.Add(listView2.Items[i].Text);
 
-            List<string> others = all.GetRange(0, all.Count);
-            others.Remove(lvsicSel[0].Text);
-
-            FormFieldType fft = Utilities.FormFieldTypeFromDisplay(lvsicSel[0].SubItems[3].Text);
-            string existingValue = "";
-            if (lvsicSel[0].SubItems[1].Text == "KeePass password" || lvsicSel[0].SubItems[1].Text == "KeePass username")
-                existingValue = lvsicSel[0].SubItems[1].Text;
+            FormField tag = (FormField)lvsicSel[0].Tag;
+            KeeFoxFieldForm kfff = null;
+            if (tag != null)
+                kfff = new KeeFoxFieldForm(tag);
+            else if (lvsicSel[0].SubItems[1].Text == "{PASSWORD}")
+                kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, "{PASSWORD}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTpassword, int.Parse(lvsicSel[0].SubItems[4].Text));
+            else if (lvsicSel[0].SubItems[1].Text == "{USERNAME}")
+                kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, "{USERNAME}", lvsicSel[0].SubItems[2].Text, FormFieldType.FFTusername, int.Parse(lvsicSel[0].SubItems[4].Text));
             else
-                existingValue = _strings.Get("KPRPC Form field " + lvsicSel[0].SubItems[0].Text + " value").ReadString();
-
-            KeeFoxFieldForm kfff = new KeeFoxFieldForm(lvsicSel[0].SubItems[0].Text, existingValue, lvsicSel[0].SubItems[2].Text, fft, int.Parse(lvsicSel[0].SubItems[4].Text), others);
+                throw new Exception("Corrupt Entry found!");
 
             if (kfff.ShowDialog() == DialogResult.OK)
             {
-                // remove the old field data
-                fields.Remove(lvsicSel[0].Text);
-                RemoveFieldListItem(lvsicSel[0]);
-
+                // Update the display name. defaulting to whatever user entered as the name unless they were editing one of the standard fields
+                //Really? Why fix the name to this random string?!!
                 string displayName = kfff.Name;
-                if (kfff.Value == "KeePass password" || kfff.Value == "KeePass username")
-                    displayName = kfff.Value;
+                if (kfff.Value == "{PASSWORD}")
+                    displayName = "KeePass password";
+                else if (kfff.Value == "{USERNAME}")
+                    displayName = "KeePass username";
 
+                string displayValue = kfff.Value;
+                if (kfff.Type == FormFieldType.FFTpassword)
+                {
+                    displayValue = "********";
+                    if (kfff.Value == "{PASSWORD}")
+                        displayValue = "KeePass password";
+                }
                 string type = Utilities.FormFieldTypeToDisplay(kfff.Type, false);
                 int page = kfff.Page;
 
-                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, kfff.Type == FormFieldType.FFTpassword ? "********" : kfff.Value, kfff.Id, type, page.ToString() });
+                ListViewItem lvi = new ListViewItem(new string[] { kfff.Name, displayValue, kfff.Id, type, page.ToString() });
+                lvi.Tag = new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page);
+                RemoveFieldListItem(lvsicSel[0]);
                 AddFieldListItem(lvi);
-                fields.Add(kfff.Name, new FormField(kfff.Name, displayName, kfff.Value, kfff.Type, kfff.Id, page));
-
-
                 UpdateFieldStrings();
             }
 
@@ -857,7 +640,6 @@ namespace KeePassRPC.Forms
         {
             ListView.SelectedListViewItemCollection lvsicSel = listView2.SelectedItems;
             // remove the old field data
-            fields.Remove(lvsicSel[0].Text);
             RemoveFieldListItem(lvsicSel[0]);
             UpdateFieldStrings();
         }
