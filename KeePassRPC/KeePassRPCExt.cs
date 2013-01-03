@@ -1030,18 +1030,12 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         public string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
         {
-            return GetPwEntryString(pwe, name, true, db);
+            return pwe.Strings.ReadSafe(name);
         }
 
-        public string GetPwEntryString(PwEntry pwe, string name, bool dereferenceFieldRefs, PwDatabase db)
+        public string GetPwEntryStringFromDereferencableValue(PwEntry pwe, string name, PwDatabase db)
         {
-            string result = "";
-            if (dereferenceFieldRefs)
-                result = KeePass.Util.Spr.SprEngine.Compile(
-                    pwe.Strings.ReadSafe(name), false, pwe, db, false, false);
-            else
-                result = pwe.Strings.ReadSafe(name);
-            return result;
+            return KeePass.Util.Spr.SprEngine.Compile(name, false, pwe, db, false, false);
         }
 
         // This is only called by legacy migration code now
@@ -1152,7 +1146,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                         formFieldList.Add(new FormField(fieldName,
                             displayUser, "{USERNAME}", FormFieldType.FFTusername, fieldId, fieldPage));
                         usernameName = fieldName;
-                        usernameValue = GetPwEntryString(pwe, "UserName", true, db);
+                        usernameValue = GetPwEntryString(pwe, "UserName", db);
                         //usernameFound = true;
                     }
                     else if (pweValue == "text")

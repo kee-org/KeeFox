@@ -505,7 +505,7 @@ namespace KeePassRPC
 
         private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails, PwDatabase db, bool abortIfHidden)
         {
-            string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", false, db);
+            string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", db);
 
             EntryConfig conf;
             if (string.IsNullOrEmpty(json))
@@ -544,16 +544,16 @@ namespace KeePassRPC
                     {
                         if (ff.Type == FormFieldType.FFTpassword)
                         {
-                            formFieldList.Add(new FormField(ff.Name, "KeePass password", KeePassRPCPlugin.GetPwEntryString(pwe, ff.Value, true, db), ff.Type, ff.Id, ff.Page));
+                            formFieldList.Add(new FormField(ff.Name, "KeePass password", KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db), ff.Type, ff.Id, ff.Page));
                             passwordFound = true;
                         }
                         else if (ff.Type == FormFieldType.FFTusername)
                         {
-                            formFieldList.Add(new FormField(ff.Name, "KeePass username", KeePassRPCPlugin.GetPwEntryString(pwe, ff.Value, true, db), ff.Type, ff.Id, ff.Page));
+                            formFieldList.Add(new FormField(ff.Name, "KeePass username", KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db), ff.Type, ff.Id, ff.Page));
                             usernameFound = true;
                         }
                         else
-                            formFieldList.Add(new FormField(ff.Name, ff.Name, KeePassRPCPlugin.GetPwEntryString(pwe, ff.Value, true, db), ff.Type, ff.Id, ff.Page));
+                            formFieldList.Add(new FormField(ff.Name, ff.Name, ff.Value, ff.Type, ff.Id, ff.Page));
                     }
                 if (conf.AltURLs != null)
                     URLs.AddRange(conf.AltURLs);
@@ -1969,7 +1969,7 @@ namespace KeePassRPC
                         if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                             continue; // entries must have a standard URL entry
 
-                        string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", false, db);
+                        string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", db);
                         EntryConfig conf;
                         if (string.IsNullOrEmpty(json))
                             conf = new EntryConfig();

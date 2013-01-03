@@ -592,8 +592,11 @@ keefox_win.ILM = {
         // search the DOM for any form fields we might be interested in
         for (var i = 0; i < form.elements.length; i++)
         {        
-            if (form.elements[i].localName.toLowerCase() != "input" 
-                && (form.elements[i].type == undefined || form.elements[i].type == null))
+            if (form.elements[i].localName.toLowerCase() == "object"
+                || form.elements[i].localName.toLowerCase() == "keygen"
+                || form.elements[i].localName.toLowerCase() == "output"
+                || (form.elements[i].localName.toLowerCase() != "input" 
+                && (form.elements[i].type == undefined || form.elements[i].type == null)))
                 continue; // maybe it's something un-interesting
  
             var DOMtype = form.elements[i].type.toLowerCase();
