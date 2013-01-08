@@ -78,11 +78,13 @@ keefox_win.ILM._fillMatchedFields = function (fields, dataFields, formFields)
 
 // We have a list of objects representing each possible combination of data field and form field and the score for that match
 // We choose what to fill by sorting that list by score
-// after filling a field we remove all objects from the list which are for the data field we just filled in
+// after filling a field we remove all objects from the list which are for the data field we just filled in and the form field we filled in
+
+// This means we always fill each form field only once, with the best match selected from all data fields that haven't already been selected for another form field
 
 // The above algorithm could maybe be tweaked slightly in order to auto-fill a "change password" form if we ever manage to make that automated
 
-// (score is reduced by one for each position we find in the form - this gives a slight priority to fields at the top of a form which can be useful occasionaly and shouldn't cuase any side-effects)
+// (score is reduced by one for each position we find in the form - this gives a slight priority to fields at the top of a form which can be useful occassionaly and shouldn't cause any side-effects)
 
     fields.sort(function (a, b) {
         return b.score - a.score;
@@ -105,7 +107,7 @@ keefox_win.ILM._fillMatchedFields = function (fields, dataFields, formFields)
             this._fillASingleField(formFields[ffi].DOMInputElement,formFields[ffi].type,dataFields[dfi].value);
 
         fields = fields.filter(function (element, index, array) {
-            return (element.dataFieldIndex != dfi);
+            return (element.dataFieldIndex != dfi && element.formFieldIndex != ffi);
         });
         
         fields.sort(function (a, b) {
@@ -122,7 +124,6 @@ keefox_win.ILM._fillASingleField = function (domElement, fieldType, value)
         domElement.value = value; 
     } else if (fieldType == "checkbox" || fieldType == "radio")
     {
-        //TODO1.2: should / can we set value to true or false and use that instead of assuming we have only stored this if it's checked?
         domElement.checked = true;
     } else
     {    
@@ -466,7 +467,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         findLoginDoc.passwordFieldsArray[i] = passwordFields;
         findLoginDoc.otherFieldsArray[i] = otherFields;
         
-        //TODO1.2: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC!
+        //TODO1.3: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC?
         // Only the actionOrigin might be changing, so if it's the same
         // as the last form on the page we can reuse the same logins.
         var actionOrigin = this._getURIHostAndPort(this._getActionOrigin(form));
@@ -550,7 +551,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             findLoginDoc.wrappers[i] = findLoginOp;
             findLoginDoc.requestCount++;
             
-            var requestId = this.findLogins(findLoginDoc.formOrigin, actionOrigin, null, null, null, null, findLoginOp.callback);
+            var requestId = this.findLogins(findLoginDoc.formOrigin, actionOrigin, null, null, null, null, null, findLoginOp.callback);
             findLoginDoc.requestIds.push(requestId);
             this.findLoginOps[requestId] = findLoginOp;
             this.findLoginDocs[requestId] = findLoginDoc;
@@ -570,9 +571,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
 
 // this happens after each findLogins call has run its callback so we can see if we have received all the answers we need to fill the form now
 keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
-{
-//return; // test mem leak 2
-    
+{ 
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
     var window = wm.getMostRecentWindow("navigator:browser") ||
@@ -617,17 +616,28 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
         if (findLoginDoc.uniqueID.length > 0)
         {
             var found = findLoginDoc.logins[mostRelevantFormIndex].some(function(l) {
-                                        matchingLogin = l;
-                                        return (l.uniqueID == findLoginDoc.uniqueID);
+                                        if (l.uniqueID == findLoginDoc.uniqueID)
+                                        {
+                                            matchingLogin = l;
+                                            return true;
+                                        } else
+                                        {
+                                            return false;
+                                        }
                                     });
             if (!found)
             {
-                keefox_win.Logger.info("Password not filled. None of the stored " +
-                         "logins match the uniqueID provided. Maybe it is not this form we want to fill...");
+                // We don't have to force the auto-fill/submit anymore because we're aborting the multi-page automated login
+                findLoginDoc.mustAutoFillForm = false;
+                findLoginDoc.mustAutoSubmitForm = false;
+                keefox_win.Logger.info("None of the stored " +
+                         "logins match the uniqueID provided. So we'll try to find the closest match and procede anyway...");
             }
-        } else if (findLoginDoc.logins[mostRelevantFormIndex].length == 1) {
+        }
+        
+        if (matchingLogin == null && findLoginDoc.logins[mostRelevantFormIndex].length == 1) {
             matchingLogin = findLoginDoc.logins[mostRelevantFormIndex][0];
-        } else {
+        } else if (matchingLogin == null) {
             keefox_win.Logger.debug("Multiple logins for form, so estimating most relevant.");
             var mostRelevantLoginIndex = 0;
             
@@ -837,7 +847,7 @@ keefox_win.ILM.fill = function (usernameName,usernameValue,
     fillDocumentDataStorage.dbFileName = dbFileName;
             
     this.findLogins(fillDocumentDataStorage.URL, fillDocumentDataStorage.actionURL, null,
-     fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.dbFileName, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
+     fillDocumentDataStorage.uniqueID, fillDocumentDataStorage.dbFileName, null, null, this.fillFindLoginsComplete, fillDocumentDataStorage);
 };
 
 keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDataStorage)
@@ -1065,17 +1075,31 @@ keefox_win.ILM.submitForm = function (form)
 	{
 		if(inputElements[i].type != null && inputElements[i].type == "submit")
 		{
+            var goodWords = ["submit","login","enter","go"]; //TODO: other languages
+            var badWords = ["reset","cancel","back","abort","undo","exit"]; //TODO: other languages
+
             var score = 1;
-            if(inputElements[i].name.toLowerCase().indexOf("submit") >= 0)
-                score += 5;
-            if(inputElements[i].name.toLowerCase().indexOf("login") >= 0)
-                score += 5;
-            if(inputElements[i].name.toLowerCase().indexOf("reset") >= 0)
-                score -= 5;
-            if(inputElements[i].name.toLowerCase().indexOf("cancel") >= 0)
-                score -= 5;
-            if(inputElements[i].name.toLowerCase().indexOf("back") >= 0)
-                score -= 5;
+            if (inputElements[i].name !== undefined && inputElements[i].name !== null)
+            {
+                for (let gw in goodWords)
+                    if(inputElements[i].name.toLowerCase().indexOf(goodWords[gw]) >= 0)
+                        score += 5;
+                for (let bw in badWords)
+                    if(inputElements[i].name.toLowerCase().indexOf(badWords[bw]) >= 0)
+                        score -= 5;
+            }
+
+            // Names are more important but sometimes they don't exist or are random
+            // so check what is actually displayed to the user
+            if (inputElements[i].value !== undefined && inputElements[i].value !== null)
+            {
+                for (let gw in goodWords)
+                    if(inputElements[i].value.toLowerCase().indexOf(goodWords[gw]) >= 0)
+                        score += 4;
+                for (let bw in badWords)
+                    if(inputElements[i].value.toLowerCase().indexOf(badWords[bw]) >= 0)
+                        score -= 4;
+            }
 			submitElements.push({'score':score, 'el': inputElements[i]});
 	    }
 	}
@@ -1094,7 +1118,7 @@ keefox_win.ILM.submitForm = function (form)
     // maybe special cases for common HTML output patterns (e.g. javascript-only ASP.NET forms)
     
     // if no submit button found, try to find an image button
-    if(submitElement != null)
+    if(submitElement == null)
     {
         for(var i = 0; i < inputElements.length; i++)
 		{
@@ -1104,13 +1128,18 @@ keefox_win.ILM.submitForm = function (form)
 			    break;
 		    }
 	    }
-    }    
+    }
     
     // If we've found a button to click, use that; if not, just submit the form.  
     if(submitElement != null)
+    {
+        keefox_win.Logger.debug("Submiting using element: " + submitElement.name + ": " + submitElement.id);
 		submitElement.click();
+    }
     else
+    {
 		form.submit();
+    }
 		
 		//TODO2: maybe something like this might be useful? Dunno why a click()
 		// above wouldn't be sufficient but maybe some custom event raising might be handy...

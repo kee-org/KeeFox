@@ -93,6 +93,7 @@ namespace KeePassRPC
 
         private static object _lockRPCClientManagers = new object();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
+        public string CurrentConfigVersion = "1";
 
         private int FindKeePassRPCPort(IPluginHost host)
         {
@@ -391,7 +392,7 @@ namespace KeePassRPC
         {
             if (_host.Database != null && _host.Database.IsOpen)
             {
-                InstallKeeFoxSampleEntries(_host.Database);
+                InstallKeeFoxSampleEntries(_host.Database, false);
                 _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
             }
         }
@@ -545,7 +546,7 @@ namespace KeePassRPC
 
             InsertStandardKeePassData(pd);
 
-            InstallKeeFoxSampleEntries(pd);
+            InstallKeeFoxSampleEntries(pd, false);
 
             // save the new database & update UI appearance
             pd.Save(_host.MainWindow.CreateStatusBarLogger());
@@ -573,7 +574,7 @@ namespace KeePassRPC
             pd.RootGroup.AddGroup(pg, true);
         }
 
-        private void InstallKeeFoxSampleEntries(PwDatabase pd)
+        private void InstallKeeFoxSampleEntries(PwDatabase pd, bool skipGroupWarning)
         {
             PwUuid iconUuid = GetKeeFoxIcon();
             PwUuid groupUuid = new PwUuid(new byte[] {
@@ -600,7 +601,7 @@ namespace KeePassRPC
             {
                 // check that the group doesn't exist outside of the visible home group
                 PwGroup kfpgTestRoot = pd.RootGroup.FindGroup(groupUuid, false);
-                if (kfpgTestRoot != null)
+                if (kfpgTestRoot != null && !skipGroupWarning)
                 {
                     MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -902,7 +903,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 {
                     pwe.ParentGroup.Entries.Remove(pwe);
                 }
-                InstallKeeFoxSampleEntries(e.Database);
+                InstallKeeFoxSampleEntries(e.Database, true);
                 _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
 
                 bool foundStringsToUpgrade = false;

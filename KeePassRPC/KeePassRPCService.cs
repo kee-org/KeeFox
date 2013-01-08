@@ -1506,6 +1506,8 @@ namespace KeePassRPC
             Stopwatch sw = Stopwatch.StartNew();
 
             List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+            // unless the DB is the wrong version
+            dbs = dbs.FindAll(t => t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion);
             List<Database> output = new List<Database>(1);
 
             foreach (PwDatabase db in dbs)
@@ -1785,7 +1787,7 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Finds entries. Presence of certain parameters dictates type of search performed in the following priority order: uniqueId; freeTextSearch; URL, realm, etc.. Searching stops as soon as one of the different types of search results in a successful match.
+        /// Finds entries. Presence of certain parameters dictates type of search performed in the following priority order: uniqueId; freeTextSearch; URL, realm, etc.. Searching stops as soon as one of the different types of search results in a successful match. Supply a username to limit results from URL and realm searches (to search for username regardless of URL/realm, do a free text search and filter results in your client).
         /// </summary>
         /// <param name="URLs">The URLs to search for. Host must be lower case as per the URI specs. Other parts are case sensitive.</param>
         /// <param name="actionURL">The action URL.</param>
@@ -1795,9 +1797,11 @@ namespace KeePassRPC
         /// <param name="uniqueID">The unique ID of a particular entry we want to retrieve.</param>
         /// <param name="dbRootID">The unique ID of the root group of the database we want to search. Empty string = search all DBs</param>
         /// <param name="freeTextSearch">A string to search for in all entries. E.g. title, username (may change)</param>
+        /// /// <param name="username">Limit a search for URL to exact username matches only</param>
         /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
-        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, string uniqueID, string dbFileName, string freeTextSearch)
+        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, 
+            string uniqueID, string dbFileName, string freeTextSearch, string username)
         {
             List<PwDatabase> dbs = null;
             int count = 0;
@@ -1811,8 +1815,12 @@ namespace KeePassRPC
                 dbs.Add(db);
             }
             else
+            {
                 // if DB list is not populated, look in all open DBs
                 dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
+                // unless the DB is the wrong version
+                dbs = dbs.FindAll(t => t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion);
+            }
 
             //string hostname = URLs[0];
             string actionHost = actionURL;
@@ -2004,7 +2012,9 @@ namespace KeePassRPC
 
                         foreach (string URL in URLs)
                         {
-                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch))
+                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms 
+                                && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch)
+                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe("Username")))
                             {
                                 if (conf.FormActionURL == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                                 {
@@ -2018,7 +2028,9 @@ namespace KeePassRPC
 
                         foreach (string URL in URLs)
                         {
-                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch))
+                            if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms 
+                                && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch)
+                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe("Username")))
                             {
                                 if ((!string.IsNullOrEmpty(conf.HTTPRealm)
                                     && (httpRealm == "" || conf.HTTPRealm == httpRealm)

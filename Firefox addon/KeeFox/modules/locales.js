@@ -50,8 +50,8 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
 
-//TODO1.2: we need to work out how to log problems with this module. Can't use KeeFox logger because
-// it doesn't exist yet
+//TODO1.3: we need to work out how to log problems with this module? Can't use KeeFox logger because
+// it doesn't exist yet...
 
 // This module is named conservatively to protect other addon
 // namespaces but maybe should be made more generic in future.

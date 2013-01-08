@@ -1216,11 +1216,11 @@ KeeFox.prototype = {
         }
     },
     
-    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
+    findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData)
     {
         try
         {
-            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData);
+            return this.KeePassRPC.findLogins(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -1648,8 +1648,46 @@ KeeFox.prototype = {
             {
                 kfw.toolbar.setLogins(null, null);
                 kfw.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
+
+                var topDoc = event.originalTarget.linkedBrowser.contentDocument;
+                    if (topDoc.defaultView.frameElement)
+                        while (topDoc.defaultView.frameElement)
+                            topDoc=topDoc.defaultView.frameElement.ownerDocument;
+
+                this._checkRescanForAllFrames(topDoc.defaultView, kfw);
             }
         }
+    },
+    
+    _checkRescanForAllFrames: function (win, kfw)
+    {
+        kfw.Logger.debug("_checkRescanForAllFrames start");
+        var conf = keefox_org.config.getConfigForURL(win.contentDocument.documentURI);
+        
+        //TODO1.3: shared code with KFILM.js? refactor?
+                
+        if (conf.rescanFormDelay >= 500)
+        {
+            // make sure a timer is running
+                kfw.ILM._refillTimer.cancel();
+                kfw.ILM._refillTimer.init(kfw.ILM._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                kfw.ILM._refillTimerURL = win.contentDocument.documentURI;
+        } else // We don't want to scan for new forms reguarly
+        {
+            // but we'll only cancel the existing timer if we're definitley now on a new page
+            if (kfw.ILM._refillTimerURL != win.contentDocument.documentURI)
+            {
+                kfw.ILM._refillTimer.cancel();
+            }
+        }
+    
+        if (win.frames.length > 0)
+        {
+            kfw.Logger.debug("check Rescan For " + win.frames.length + " sub frames");
+            var frames = win.frames;
+            for (var i = 0; i < frames.length; i++)
+              this._checkRescanForAllFrames(frames[i], kfw);
+        }    
     },
     
     loadFavicon: function(url)

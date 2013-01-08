@@ -83,7 +83,7 @@ function setTreeViewURLChooser ()
     var rootURL = "*"; // defaults
     siteURLTreeView.addTopObject(getURLTree(), true);
     tree.view = siteURLTreeView;
-    //TODO1.2: open tree on load if needed - "auto expand"
+    //TODO1.3: open tree on load if needed - "auto expand"
 }
 
 function getURLTree()
@@ -318,8 +318,6 @@ function saveSite()
     let url = siteDetail.textContent;
     if (url == "")
     {
-        //TODO1.2: decide whether we allow editing "*"
-        //return;
         url = "*";
     }
     configMan.setConfigForURL(url,getMainPanelConfig());

@@ -720,7 +720,7 @@ keefox_win.toolbar = {
         var currentGBrowser = this._currentWindow.gBrowser;
         //var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(currentGBrowser.selectedBrowser.contentDocument)];
         this.setLogins(null, null);
-        this._currentWindow.keefox_win.ILM._fillDocument(currentGBrowser.selectedBrowser.contentDocument, false);
+        this._currentWindow.keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
     },
 
     generatePassword: function () {

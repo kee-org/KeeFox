@@ -58,7 +58,12 @@ keefox_win.ILM = {
     _toolbar : null, // the keefox toolbar in this scope
     _refillTimer : null, // timer to cause re-filling of
                         // forms every x seconds (if option enabled)
-    
+    _refillTimerURL : null, // the URL on which we expect to re-fill forms
+                        // This allows us to track the activation state of the timer
+                        // and ensure it is only running when the user is on a tab
+                        // containing a site on which they want to enable 
+                        // this relatively expensive option
+
     __ioService: null, // IO service for string -> nsIURI conversion
     get _ioService()
     {
@@ -137,7 +142,7 @@ keefox_win.ILM = {
         else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
             score += 1;
 
-        //TODO1.2: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
+        //TODO1.3: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
 
         keefox_win.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;
@@ -363,27 +368,6 @@ keefox_win.ILM = {
                     
                     try
                     {
-                        if (!(this._pwmgr._getURIScheme(domWin.history.current) == "file"
-                             && this._pwmgr._getURIScheme(domWin.history.previous) == "file")
-                             && (
-                                this._pwmgr._getURIScheme(domWin.history.current) == "file"
-                                || this._pwmgr._getURIScheme(domWin.history.previous) == "file"
-                                ||
-                                (domWin.history.current != domWin.history.previous                         
-                                    && this._pwmgr._getURISchemeHostAndPort(domWin.history.current)
-                                    != this._pwmgr._getURISchemeHostAndPort(domWin.history.previous) 
-                                )
-                                )
-                           )
-                        {
-                            //TODO1.2: Try to set this to true as before except for when a form has been submitted. Use some kind of flag that only gets cleared around now so multiple redirects won't fool us
-                            removeTabSessionStoreData = false;
-                            //removeTabSessionStoreData = true;
-                        }
-                    } catch (ex) {}
-                    
-                    try
-                    {
                         if (domWin.history.next != undefined 
                             && domWin.history.next != null 
                             && domWin.history.next != "")
@@ -531,17 +515,34 @@ keefox_win.ILM = {
                 case "DOMContentLoaded":
                     doc = event.target;   
                     doc.removeEventListener("DOMContentLoaded", this, false);           
-                    var conf = keefox_org.config.getConfigForURL(doc.documentURI); // var conftemp = this._pwmgr._kf.config.getConfigForURL("https://login.live.com/"); // actual effective config
+                    var conf = keefox_org.config.getConfigForURL(doc.documentURI);
                     keefox_win.Logger.debug("domEventListener: trying to load form filler");
                     this._pwmgr._fillDocument(doc,true);
-                    
+
                     // attempt to refill the forms on the current tab in this window at a regular interval
-                    // This is to enable manual form filling of sites which generate forms dynamically
+                    // This is to enable form filling (not submitting) of sites which generate forms dynamically
                     // (i.e. after initial DOM load)
-                    //if (this._pwmgr._kf._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
+                    var topDoc = doc;
+                    if (topDoc.defaultView.frameElement)
+                        while (topDoc.defaultView.frameElement)
+                            topDoc=topDoc.defaultView.frameElement.ownerDocument;
+
                     if (conf.rescanFormDelay >= 500)
-                        this._pwmgr._refillTimer.init(this._pwmgr._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                    //TODO1.2: This doesn't seem to be getting stopped when tab closes?
+                    {
+                        if (this._pwmgr._refillTimerURL != topDoc.documentURI)
+                        {
+                            this._pwmgr._refillTimer.cancel();
+                            this._pwmgr._refillTimer.init(this._pwmgr._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                            this._pwmgr._refillTimerURL = topDoc.documentURI;
+                        } // else the timer is already running
+                    } else // We don't want to scan for new forms reguarly
+                    {
+                        // but we'll only cancel the existing timer if we're definitley now on a new page
+                        if (this._pwmgr._refillTimerURL != topDoc.documentURI)
+                        {
+                            this._pwmgr._refillTimer.cancel();
+                        }
+                    }
 
                     keefox_win.Logger.debug("domEventListener: form filler finished");
                     return;
@@ -778,7 +779,7 @@ keefox_win.ILM = {
      *
      * Search for the known logins for entries matching the specified criteria.
      */
-    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
+    findLogins : function (url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData)
     {
         if (keefox_win.Logger.logSensitiveData)
             keefox_win.Logger.info("Searching for logins matching URL: " + url +
@@ -787,7 +788,7 @@ keefox_win.ILM = {
         else
             keefox_win.Logger.info("Searching for logins");
 
-        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData);
+        return this._kf.findLogins(url, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData);
     },
     
     /*

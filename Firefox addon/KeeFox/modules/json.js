@@ -421,7 +421,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, callback, callbackData)
+    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData)
     {
         // returns ID of async JSON-RPC request so calling functions can track if desired
         
@@ -450,7 +450,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var newId = ++this.requestId;
         // slight chance IDs may be sent out of order but at least this way
         // they are consistent for any given request/response cycle
-        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID, dbFileName, freeText], callback, newId, callbackData);        
+        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID, dbFileName, freeText, username], callback, newId, callbackData);        
         return newId;
     }
 

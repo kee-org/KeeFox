@@ -263,7 +263,7 @@ keefox_win.ILM._onFormSubmit = function (form)
     //  multi-page logins so the uniqueID will be set
     if (!submitDocumentDataStorage.existingLogin && keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
-        this.findLogins(submitDocumentDataStorage.URL, submitDocumentDataStorage.formActionURL, null, null, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
+        this.findLogins(submitDocumentDataStorage.URL, submitDocumentDataStorage.formActionURL, null, null, null, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
         
     } else // no need to wait for async response from KeePassRPC
     {
@@ -356,7 +356,7 @@ keefox_win.ILM._onHTTPAuthSubmit = function (window, username, password, schemeA
         // matches any existing password and not bother showing the notification bar if that's the case.
         if (!submitDocumentDataStorage.existingLogin && keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
         {
-            this.findLogins(submitDocumentDataStorage.URL, null, realm, null, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
+            this.findLogins(submitDocumentDataStorage.URL, null, realm, null, null, null, null, this._onFormSubmitFindLoginsComplete, submitDocumentDataStorage);
             
         } else // no need to wait for async response from KeePassRPC
         {
