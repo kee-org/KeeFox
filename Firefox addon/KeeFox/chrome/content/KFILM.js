@@ -611,7 +611,7 @@ keefox_win.ILM = {
                 && DOMtype != "radio" && DOMtype != "select-one")
                 continue; // ignoring other form types
             
-            if (DOMtype == "checkbox" && isSubmission && form.elements[i].checked == false) continue;
+            // Now recording choice of not box ticking... if (DOMtype == "checkbox" && isSubmission && form.elements[i].checked == false) continue;
             if (DOMtype == "radio" && isSubmission && form.elements[i].checked == false) continue;            
             if (DOMtype == "password" && isSubmission && !form.elements[i].value) continue;
             if (DOMtype == "select-one" && isSubmission && !form.elements[i].value) continue;
@@ -623,8 +623,16 @@ keefox_win.ILM = {
                 element : keeFoxLoginField(),
                 type    : DOMtype
             };
+            let fieldValue = form.elements[i].value;
+            if (DOMtype == "checkbox")
+            {
+                if (form.elements[i].checked)
+                    fieldValue = "KEEFOX_CHECKED_FLAG_TRUE";
+                else
+                    fieldValue = "KEEFOX_CHECKED_FLAG_FALSE";
+            }
             allFields[allFields.length-1].element.init(
-                form.elements[i].name, form.elements[i].value, form.elements[i].id, DOMtype, currentTabPage);
+                form.elements[i].name, fieldValue, form.elements[i].id, DOMtype, currentTabPage);
             if (DOMtype == "select-one")
                 allFields[allFields.length-1].element.DOMSelectElement = form.elements[i];
             else

@@ -122,7 +122,13 @@ keefox_win.ILM._fillASingleField = function (domElement, fieldType, value)
     if (fieldType == "select-one")
     {
         domElement.value = value; 
-    } else if (fieldType == "checkbox" || fieldType == "radio")
+    } else if (fieldType == "checkbox")
+    {
+        if (value == "KEEFOX_CHECKED_FLAG_TRUE")
+            domElement.checked = true;
+        else
+            domElement.checked = false;
+    } else if (fieldType == "radio")
     {
         domElement.checked = true;
     } else
