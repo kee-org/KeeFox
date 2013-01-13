@@ -1654,12 +1654,13 @@ KeeFox.prototype = {
                         while (topDoc.defaultView.frameElement)
                             topDoc=topDoc.defaultView.frameElement.ownerDocument;
 
-                this._checkRescanForAllFrames(topDoc.defaultView, kfw);
+                this._checkRescanForAllFrames(topDoc.defaultView, kfw, topDoc);
             }
         }
     },
     
-    _checkRescanForAllFrames: function (win, kfw)
+    // This checks every frame within the document in the selected tab but it needs to store the URL of the topmost tab so that detection of changed URIs will work correctly.
+    _checkRescanForAllFrames: function (win, kfw, topDoc)
     {
         kfw.Logger.debug("_checkRescanForAllFrames start");
         var conf = keefox_org.config.getConfigForURL(win.contentDocument.documentURI);
@@ -1671,13 +1672,15 @@ KeeFox.prototype = {
             // make sure a timer is running
                 kfw.ILM._refillTimer.cancel();
                 kfw.ILM._refillTimer.init(kfw.ILM._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                kfw.ILM._refillTimerURL = win.contentDocument.documentURI;
+                kfw.ILM._refillTimerURL = topDoc.documentURI;
         } else // We don't want to scan for new forms reguarly
         {
             // but we'll only cancel the existing timer if we're definitley now on a new page
-            if (kfw.ILM._refillTimerURL != win.contentDocument.documentURI)
+            // I.e. this is the first frame we've looked at on a new tab
+            if (kfw.ILM._refillTimerURL != topDoc.documentURI)
             {
                 kfw.ILM._refillTimer.cancel();
+                //TODO1.2: do we need to store the url of the document we have decided we aren't interested in? Might protect against a problem with tabbing to and from different instances of the same website?
             }
         }
     
@@ -1686,7 +1689,7 @@ KeeFox.prototype = {
             kfw.Logger.debug("check Rescan For " + win.frames.length + " sub frames");
             var frames = win.frames;
             for (var i = 0; i < frames.length; i++)
-              this._checkRescanForAllFrames(frames[i], kfw);
+              this._checkRescanForAllFrames(frames[i], kfw, topDoc);
         }    
     },
     

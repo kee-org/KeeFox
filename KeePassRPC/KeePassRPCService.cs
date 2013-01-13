@@ -544,13 +544,21 @@ namespace KeePassRPC
                     {
                         if (ff.Type == FormFieldType.FFTpassword)
                         {
-                            formFieldList.Add(new FormField(ff.Name, "KeePass password", KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db), ff.Type, ff.Id, ff.Page));
-                            passwordFound = true;
+                            string ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db);
+                            if (!string.IsNullOrEmpty(ffValue))
+                            {
+                                formFieldList.Add(new FormField(ff.Name, "KeePass password", ffValue, ff.Type, ff.Id, ff.Page));
+                                passwordFound = true;
+                            }
                         }
                         else if (ff.Type == FormFieldType.FFTusername)
                         {
-                            formFieldList.Add(new FormField(ff.Name, "KeePass username", KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db), ff.Type, ff.Id, ff.Page));
-                            usernameFound = true;
+                            string ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ff.Value, db);
+                            if (!string.IsNullOrEmpty(ffValue))
+                            {
+                                formFieldList.Add(new FormField(ff.Name, "KeePass username", ffValue, ff.Type, ff.Id, ff.Page));
+                                usernameFound = true;
+                            }
                         }
                         else
                             formFieldList.Add(new FormField(ff.Name, ff.Name, ff.Value, ff.Type, ff.Id, ff.Page));
@@ -563,18 +571,26 @@ namespace KeePassRPC
             // in the KeePass "password" box is what we are looking for
             if (fullDetails && !passwordFound)
             {
-                formFieldList.Add(new FormField("password",
-                    "KeePass password", KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db), FormFieldType.FFTpassword, "password", 1));
+                string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db);
+                if (!string.IsNullOrEmpty(ffValue))
+                {
+                    formFieldList.Add(new FormField("password",
+                        "KeePass password", ffValue, FormFieldType.FFTpassword, "password", 1));
+                }
             }
 
             // If we didn't find an explicit username field, we assume any value
             // in the KeePass "username" box is what we are looking for
             if (!usernameFound)
             {
-                formFieldList.Add(new FormField("username",
-                    "KeePass username", KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db), FormFieldType.FFTusername, "username", 1));
-                usernameName = "username";
-                usernameValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
+                string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
+                if (!string.IsNullOrEmpty(ffValue))
+                {
+                    formFieldList.Add(new FormField("username",
+                        "KeePass username", ffValue, FormFieldType.FFTusername, "username", 1));
+                    usernameName = "username";
+                    usernameValue = ffValue;
+                }
             }
 
             string imageData = iconToBase64(pwe.CustomIconUuid, pwe.IconId);

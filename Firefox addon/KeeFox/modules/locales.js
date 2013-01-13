@@ -358,6 +358,10 @@ internationaliseString: function(orig, args)
 {
     // replace callback
     var that = this;
+
+    if (orig === undefined || orig === null)
+        return orig;
+
     function substituteText  (str, p1, offset, s)
     {
         return that.args ? that.$STRF(p1, that.args) : that.$STR(p1);

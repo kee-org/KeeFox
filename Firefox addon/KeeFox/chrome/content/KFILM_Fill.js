@@ -489,7 +489,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
                          .getService(Components.interfaces.nsIWindowMediator);
                 var window = wm.getMostRecentWindow("navigator:browser") ||
                     wm.getMostRecentWindow("mail:3pane");
-                window.keefox_org._KFLog.info("callback fired!");
+                window.keefox_org._KFLog.debug("callback fired!");
                  
                 var foundLogins = null;
                 var convertedResult = [];
@@ -502,7 +502,11 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
                     {
                         var kfl = keeFoxLoginInfo();
                         kfl.initFromEntry(foundLogins[i]);
-                        convertedResult.push(kfl);
+
+                        // Only consider logins that have some kind of form data to fill in
+                        if ((kfl.passwords != null && kfl.passwords.length > 0)
+                            || (kfl.otherFields != null && kfl.otherFields.length > 0))
+                            convertedResult.push(kfl);
                     }
                 } else
                     return;
@@ -958,10 +962,10 @@ keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
         otherFields = otherFieldsList[mostRelevantFormIndex];
     }
     
-    if (passwords == null || passwords.length == 0)
+    //TODO1.3: This should work fine but maybe needs refinement now that we allow filling fields with just text fields too?
+    if ((passwords == null || passwords.length == 0) && (otherFields == null || otherFields.length == 0))
     {
-        //TODO2: can we improve here so that forms without password fields can also be handled?
-        keefox_win.Logger.info("Can't find any form with a password field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
+        keefox_win.Logger.info("Can't find any form with a password or text field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");
         return;
     }
 

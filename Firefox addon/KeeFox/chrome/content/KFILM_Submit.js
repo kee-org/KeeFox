@@ -288,6 +288,14 @@ keefox_win.ILM._onHTTPAuthSubmit = function (window, username, password, schemeA
         return;
     }
 
+    // ignore if there is no URL (this was probably called accidentally
+    // from one of the other uses of commonDialog that we can't avoid)
+    if (schemeAndHost === undefined || schemeAndHost === null || schemeAndHost === "")
+    {
+        keefox_win.Logger.debug("Form submit handler skipped (no URL found)");
+        return;
+    }
+
     // TODO handle case for Thunderbird
     if (window.gBrowser) {
         var currentGBrowser = window.gBrowser;
