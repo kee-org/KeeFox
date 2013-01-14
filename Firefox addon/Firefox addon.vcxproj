@@ -198,6 +198,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\content\siteOptions.xul">
       <SubType>Designer</SubType>
     </None>
+    <None Include="KeeFox\chrome\locale\da\keefox.properties" />
     <None Include="KeeFox\chrome\skin\buttonGradient.png" />
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />
@@ -311,10 +312,6 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\locale\ru-RU\keefox.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="KeeFox\chrome\locale\cs\keefox.dtd" />
-    <None Include="KeeFox\chrome\locale\de\keefox.dtd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="KeeFox\chrome\locale\zh-CN\keefox.dtd" />
     <None Include="KeeFox\chrome\locale\en-US\keefox.properties" />
     <None Include="KeeFox\chrome\locale\cs\keefox.properties" />
@@ -325,14 +322,12 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\content\keefox.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="KeeFox\chrome\locale\cs\options.dtd" />
     <None Include="KeeFox\chrome\locale\sv-SE\options.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
     <None Include="KeeFox\chrome\locale\ru-RU\options.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="KeeFox\chrome\locale\de\options.dtd" />
     <None Include="KeeFox\chrome\locale\zh-CN\options.dtd" />
     <CustomBuildStep Include="KeeFox\chrome\content\options.xul">
       <FileType>Document</FileType>
