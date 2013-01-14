@@ -23,7 +23,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cu = Components.utils;
 
@@ -159,7 +159,7 @@ keefox_win.ILM._fillManyFormFields = function
     // we are flexible RE text and username fields because that's an artificial difference
     // for the sake of the KeeFox password management software. However, usernames will be chosen above
     // text fields if all else is equal
-    fields = [];
+    var fields = [];
 
     for (var i = 0; i < formFields.length; i++)
     {
@@ -410,7 +410,6 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
     findLoginDoc.formOrigin = doc.documentURI;
     findLoginDoc.wrappers = [];
     findLoginDoc.allMatchingLogins = [];
-    findLoginDoc.formToAutoSubmit;
     findLoginDoc.formRelevanceScores = [];
     findLoginDoc.usernameIndexArray = [];
     findLoginDoc.passwordFieldsArray = [];

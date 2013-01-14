@@ -1,4 +1,4 @@
-"use non-strict";
+"can't use strict"; // global/binding/preferences.xul can't handle events in strict mode
 
 let Cu = Components.utils;
 

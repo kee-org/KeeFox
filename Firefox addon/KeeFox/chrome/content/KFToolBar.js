@@ -21,7 +21,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cu = Components.utils;
 
@@ -591,6 +591,7 @@ keefox_win.toolbar = {
 
             for (let i = 0; i < mruArray.length; i++) {
                 var displayName = mruArray[i];
+                let suffix, prefix;
                 if (displayName.length > 50) {
                     var fileNameStartLocation = displayName.lastIndexOf('\\');
                     var spareChars = 50 - (displayName.length - fileNameStartLocation);

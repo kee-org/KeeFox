@@ -27,7 +27,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -212,7 +212,7 @@ kfLoginInfo.prototype =
 	            if (kpff.page > maximumPage)
 		            maximumPage = kpff.page;
 
-	            newField = new kfLoginField();
+	            let newField = new kfLoginField();
 	            newField.init(kpff.name, kpff.value, kpff.id, "password", kpff.page);
 	            passwords.push(newField);
 
@@ -225,7 +225,7 @@ kfLoginInfo.prototype =
 
 	            switch (kpff.type)
 	            {
-		            case keeFoxFormFieldType.username: usernameIndex = otherLength; type = "text"; break; // may 2010: should be "text"? // may 2011: trying it out...
+		            case keeFoxFormFieldType.username: usernameIndex = otherLength; type = "text"; break;
 		            case keeFoxFormFieldType.text: type = "text"; break;
 		            case keeFoxFormFieldType.radio: type = "radio"; break;
 		            case keeFoxFormFieldType.checkbox: type = "checkbox"; break;
@@ -235,7 +235,7 @@ kfLoginInfo.prototype =
 	            if (kpff.page > maximumPage)
 		            maximumPage = kpff.page;
             	
-	            newField = new kfLoginField();
+	            let newField = new kfLoginField();
 	            newField.init(kpff.name, kpff.value, kpff.id, type, kpff.page);
 	            otherFields.push(newField);
             }

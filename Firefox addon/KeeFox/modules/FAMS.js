@@ -29,7 +29,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
-"use non-strict";
+"use strict";
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
@@ -39,7 +39,7 @@ var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TOD
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/locales.js");
 
-_famsInst = null;
+var _famsInst = null;
 function keeFoxGetFamsInst(id, config, log) {
     if (!_famsInst) {
         _famsInst = new FirefoxAddonMessageService();

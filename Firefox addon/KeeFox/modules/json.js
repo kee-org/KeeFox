@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
@@ -484,7 +484,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
             
-            passwordGenerated = false;
+            var passwordGenerated = false;
             var tb = window.keefox_win.toolbar;
             
             if ("result" in resultWrapper && resultWrapper.result !== false)
@@ -497,12 +497,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     getService(Components.interfaces.nsIClipboardHelper);
                     gClipboardHelper.copyString(resultWrapper.result);
                     
-                    window.keefox_win.UI.growl(keefox_org.locale.$STR("generatePassword.copied"));
+                    window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.copied"));
                 }
             }
             if (!passwordGenerated)
             {
-                window.keefox_win.UI.growl(keefox_org.locale.$STR("generatePassword.launch"));
+                window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.launch"));
             }
         }, ++this.requestId);
     }

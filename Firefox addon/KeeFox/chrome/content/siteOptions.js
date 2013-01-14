@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"can't use strict"; // don't know why yet
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -280,10 +280,10 @@ function setMainPanelConfig(url, newConfig, effectiveConfig)
         document.getElementById("monitorTime").checked = (effectiveConfig.rescanFormDelay > 0) ? true : false;
     }
 
-    listNames = ["gb-field-name-wl","gb-field-name-bl","gb-field-id-wl","gb-field-id-bl",
+    let listNames = ["gb-field-name-wl","gb-field-name-bl","gb-field-id-wl","gb-field-id-bl",
                 "gb-form-name-wl","gb-form-name-bl","gb-form-id-wl","gb-form-id-bl"];
     let ifConfig = newConfig.interestingForms;
-    listConfigs = ["f_name_w","f_name_b","f_id_w","f_id_b","name_w","name_b","id_w","id_b"];
+    let listConfigs = ["f_name_w","f_name_b","f_id_w","f_id_b","name_w","name_b","id_w","id_b"];
 
     for (let i=0; i<listNames.length; i++)
     {

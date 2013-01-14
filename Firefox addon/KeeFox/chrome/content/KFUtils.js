@@ -19,7 +19,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cu = Components.utils;
 
@@ -341,18 +341,22 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
 
 keefox_win.KFMD5checksumVerification = function(path, testMD5)
 {
+    // return the two-digit hexadecimal code for a byte
+    function toHexString(charCode)
+    {
+        return ("0" + charCode.toString(16)).slice(-2);
+    }
+
     try
     {
         var f = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
         f.initWithFile(keefox_org._myProfileDir());
         f.append(path);
-        //this.mainWindow.keefox_win.Logger.debug(keefox_org._myDepsDir());
-        //this.mainWindow.keefox_win.Logger.debug(path);
         var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
                                 .createInstance(Components.interfaces.nsIFileInputStream);
         // open for reading
-        istream.init(f, 0x01, 0444, 0);
+        istream.init(f, 0x01, 292, 0);
         var ch = Components.classes["@mozilla.org/security/hash;1"]
                            .createInstance(Components.interfaces.nsICryptoHash);
         // we want to use the MD5 algorithm
@@ -362,13 +366,6 @@ keefox_win.KFMD5checksumVerification = function(path, testMD5)
         ch.updateFromStream(istream, PR_UINT32_MAX);
         // pass false here to get binary data back
         var hash = ch.finish(false);
-        //istream.close();
-
-        // return the two-digit hexadecimal code for a byte
-        function toHexString(charCode)
-        {
-          return ("0" + charCode.toString(16)).slice(-2);
-        }
 
         // convert the binary hash data to a hex string.
         var s = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");

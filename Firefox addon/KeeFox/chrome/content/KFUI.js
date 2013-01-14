@@ -19,7 +19,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -227,6 +227,11 @@ keefox_win.UI = {
      */
     _showLoginNotification : function (aNotifyBox, aName, aText, aButtons, priority)
     {
+        if (aNotifyBox === undefined || aNotifyBox === null)
+        {
+            keefox_win.Logger.warn("Could not display " + aName + " notification bar. Apparently this happens sometimes - don't know why yet!");
+        }
+
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
         priority = priority || aNotifyBox.PRIORITY_INFO_MEDIUM;
 

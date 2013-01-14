@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 //Math.round((d.getTime()/1000)-10)
 const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.20/";
@@ -122,7 +122,7 @@ function prepareInstallPage()
         var value = pairs[i].substring(pos+1);
         args[argname] = unescape(value); 
     }
-    if (args.upgrade == "1")
+    if (args['upgrade'] !== undefined && args['upgrade'] == "1")
     {
         KFupgradeMode = true;
         mainWindow.keefox_org._KFLog.debug("Install system starting in upgrade mode");
@@ -1141,7 +1141,7 @@ function extractKPZip (zipFilePath, storeLocation)
         {
             try
             {
-                target.create(Components.interfaces.nsILocalFile.DIRECTORY_TYPE, 0744);
+                target.create(Components.interfaces.nsILocalFile.DIRECTORY_TYPE, 484);
             }
             catch (e)
             {
@@ -1164,7 +1164,7 @@ function extractKPZip (zipFilePath, storeLocation)
 
         try
         {
-            target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 0744);
+            target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 484);
             //TODO2: different permissions for special files on linux. e.g. 755
             // for main executable? not sure how it works with Mono though
             // so needs much more reading...
