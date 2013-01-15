@@ -78,10 +78,10 @@ function KFandFAMSLocalisation(chromeURIs, jsonLocales)
 
 KFandFAMSLocalisation.prototype = {
 _log: function (message) {
-        var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-        getService(Ci.nsIConsoleService); _logService.logStringMessage("Locale: " + message);
-    }, // stub logger logs everything to console
-    //}, // stub logger logs nothing
+    //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+    //    getService(Ci.nsIConsoleService); _logService.logStringMessage("Locale: " + message);
+    //}, // stub logger logs everything to console
+    }, // stub logger logs nothing
 
 stringBundleService: Services.strings,
 stringBundles: [],

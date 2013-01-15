@@ -803,7 +803,7 @@ function copyKRPCToKnownKPLocationInstall()
 {
     hideInstallView();
     
-    keePassLocation = mainWindow.keefox_org._keeFoxExtension.prefs
+    let keePassLocation = mainWindow.keefox_org._keeFoxExtension.prefs
                     .getValue("keePassInstalledLocation", "not installed");
 
     if (keePassLocation == "not installed")

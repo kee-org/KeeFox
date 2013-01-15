@@ -14,8 +14,8 @@ iceutil33d.dll
 ice33d.dll
 bzip2d.dll
 log.txt
-KF.js
-config.js
-FAMS.js
-FAMS-config.js
-FAMS-strings.js
+KF.js.temp
+config.js.temp
+FAMS.js.temp
+FAMS-config.js.temp
+FAMS-strings.js.temp

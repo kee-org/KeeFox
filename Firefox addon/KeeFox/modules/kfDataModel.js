@@ -532,7 +532,7 @@ kfLoginField.prototype = {
     
     asFormField : function (isUsername)
     {
-        formField = {};
+        var formField = {};
         
         formField.name = this.name;
         formField.value = this.value;

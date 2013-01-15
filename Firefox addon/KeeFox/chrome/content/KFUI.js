@@ -112,8 +112,9 @@ keefox_win.UI = {
 
     _showKeeFoxNotification : function (notifyBox, name, notificationText, buttons)
     {
-        this._showLoginNotification(notifyBox, name,
-             notificationText, []);
+        if (this._showLoginNotification(notifyBox, name,
+             notificationText, []) == null)
+             return;
              
         // improve the notification bar
         var bar = notifyBox.getNotificationWithValue(name);
@@ -230,6 +231,7 @@ keefox_win.UI = {
         if (aNotifyBox === undefined || aNotifyBox === null)
         {
             keefox_win.Logger.warn("Could not display " + aName + " notification bar. Apparently this happens sometimes - don't know why yet!");
+            return null;
         }
 
         var oldBar = aNotifyBox.getNotificationWithValue(aName);
@@ -435,6 +437,8 @@ keefox_win.UI = {
 
     _removeSaveLoginNotification : function (aNotifyBox)
     {
+        if (aNotifyBox == null)
+            return;
 
         var oldBar = aNotifyBox.getNotificationWithValue("password-save");
 
@@ -444,87 +448,6 @@ keefox_win.UI = {
             aNotifyBox.removeNotification(oldBar);
         }
     },
-
-    /*
-     * promptToChangePassword
-     *
-     * Called when we think we detect a password change for an existing
-     * login, when the form being submitted contains multiple password
-     * fields.
-     *
-     */
-//    promptToChangePassword : function (aOldLogin, aNewLogin)
-//    {
-//        var notifyBox = this._getNotifyBox();
-
-//        if (notifyBox)
-//            this._showChangeLoginNotification(notifyBox, aOldLogin, aNewLogin);
-//    },
-
-
-    /*
-     * _showChangeLoginNotification
-     *
-     * Shows the Change Password notification bar.
-     *
-     */
-//    _showChangeLoginNotification : function (aNotifyBox, aOldLogin, aNewLogin)
-//    {
-//        var notificationText;
-//        var oldUsernameValue = "";
-//        
-//        if (aOldLogin.usernameIndex >= 0 && aOldLogin.otherFields != null && aOldLogin.otherFields.length > 0)
-//        {
-//            oldUsernameValue = aOldLogin.otherFields[aOldLogin.usernameIndex].value;
-//        }
-//        
-//        if (oldUsernameValue.length > 0)
-//            notificationText  = this._getLocalizedString(
-//                                          "passwordChangeText",
-//                                          [oldUsernameValue]);
-//        else
-//            notificationText  = this._getLocalizedString(
-//                                          "passwordChangeTextNoUser");
-
-//        var changeButtonText =
-//              this._getLocalizedString("notifyBarChangeButton.label");
-//        var changeButtonAccessKey =
-//              this._getLocalizedString("notifyBarChangeButton.key");
-//        var dontChangeButtonText =
-//              this._getLocalizedString("notifyBarDontChangeButton.label");
-//        var dontChangeButtonAccessKey =
-//              this._getLocalizedString("notifyBarDontChangeButton.key");
-
-//        // The callbacks in |buttons| have a closure to access the variables
-//        // in scope here; set one to |this._pwmgr| so we can get back to pwmgr
-//        // without a getService() call.
-//        var kfilm = this._kfilm;
-
-//        var buttons = [
-//            // "Yes" button
-//            {
-//                label:     changeButtonText,
-//                accessKey: changeButtonAccessKey,
-//                popup:     null,
-//                callback:  function(aNotificationBar, aButton) {
-//                    kfilm.modifyLogin(aOldLogin, aNewLogin);
-//                }
-//            },
-
-//            // "No" button
-//            {
-//                label:     dontChangeButtonText,
-//                accessKey: dontChangeButtonAccessKey,
-//                popup:     null,
-//                callback:  function(aNotificationBar, aButton) {
-//                    // do nothing
-//                }
-//            }
-//        ];
-
-//        this._showLoginNotification(aNotifyBox, "password-change",
-//             notificationText, buttons);
-//    },
 
     _showLaunchKFNotification : function ()
     {

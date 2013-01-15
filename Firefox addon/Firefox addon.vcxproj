@@ -111,10 +111,23 @@ REM combine module components into single file
 pushd "$(ProjectDir)KeeFox\modules"
 copy /b KF.js+config.js KF.jsm /Y
 copy /b FAMS.js+FAMS-config.js+FAMS-strings.js FAMS.jsm /Y
+move KF.js KF.js.temp
+move config.js config.js.temp
+move FAMS.js FAMS.js.temp
+move FAMS-config.js FAMS-config.js.temp
+move FAMS-strings.js FAMS-strings.js.temp
 popd
 
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
 if errorlevel 1 goto BuildEventFailed
+
+pushd "$(ProjectDir)KeeFox\modules"
+move KF.js.temp KF.js
+move config.js.temp config.js
+move FAMS.js.temp FAMS.js
+move FAMS-config.js.temp FAMS-config.js
+move FAMS-strings.js.temp FAMS-strings.js
+popd
 
 REM compress the files into the complete XPI
 cd $(SolutionDir)XPIs\current
@@ -306,13 +319,9 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SubType>Designer</SubType>
     </None>
-    <None Include="KeeFox\chrome\locale\sv-SE\keefox.dtd">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
     <None Include="KeeFox\chrome\locale\ru-RU\keefox.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="KeeFox\chrome\locale\zh-CN\keefox.dtd" />
     <None Include="KeeFox\chrome\locale\en-US\keefox.properties" />
     <None Include="KeeFox\chrome\locale\cs\keefox.properties" />
     <None Include="KeeFox\chrome\locale\ru-RU\keefox.properties" />
@@ -322,13 +331,9 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\content\keefox.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="KeeFox\chrome\locale\sv-SE\options.dtd">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
     <None Include="KeeFox\chrome\locale\ru-RU\options.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="KeeFox\chrome\locale\zh-CN\options.dtd" />
     <CustomBuildStep Include="KeeFox\chrome\content\options.xul">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Analyse|Win32'">true</ExcludedFromBuild>
