@@ -189,7 +189,6 @@
     <None Include="KeeFox\modules\session.js">
       <Filter>JS</Filter>
     </None>
-    <None Include="CHANGELOG.txt" />
     <None Include="KeeFox\modules\ClassTreeView.jsm" />
     <None Include="debugXPIPackageExclusions.txt" />
     <None Include="KeeFox\chrome\content\famsOptions.xul" />

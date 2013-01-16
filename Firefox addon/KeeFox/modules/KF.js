@@ -1022,11 +1022,11 @@ KeeFox.prototype = {
         if (upgrade)
         {
             this._KFLog.info("KeeFox not installed correctly. Going to try to launch the upgrade page.");
-            installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL+"?upgrade=1");
+            let installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL+"?upgrade=1");
         } else
         {
             this._KFLog.info("KeeFox not installed correctly. Going to try to launch the install page.");
-            installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
+            let installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
         }
         
         //NB: FF < 3.0.5 may fail to open the tab due to bug where "session loaded" event fires too soon.
@@ -1048,7 +1048,7 @@ KeeFox.prototype = {
     
     KeeFox_MainButtonClick_install: function(event, temp) {
         this._KFLog.debug("install button clicked. Loading (and focusing) install page.");
-        installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
+        let installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeePassRPCInstalled", false);
     },

@@ -548,6 +548,8 @@ namespace KeePassRPC
 
             InstallKeeFoxSampleEntries(pd, false);
 
+            pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
+
             // save the new database & update UI appearance
             pd.Save(_host.MainWindow.CreateStatusBarLogger());
             _host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
@@ -628,12 +630,10 @@ namespace KeePassRPC
                 PwEntry pe = createKeeFoxSample(pd, entry2Uuid,
                     "KeeFox sample entry with alternative URL",
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig()
-                {
-                    Version = 1,
-                    Priority = 5,
-                    AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" }
-                };
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                conf.Version = 1;
+                conf.Priority = 5;
+                conf.AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" };
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
@@ -643,13 +643,11 @@ namespace KeePassRPC
                 PwEntry pe = createKeeFoxSample(pd, entry3Uuid,
                     "KeeFox sample entry with no auto-fill and no auto-submit",
                     "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig()
-                {
-                    Version = 1,
-                    Priority = 2,
-                    NeverAutoFill = true,
-                    NeverAutoSubmit = true
-                };
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                conf.Version = 1;
+                conf.Priority = 2;
+                conf.NeverAutoFill = true;
+                conf.NeverAutoSubmit = true;
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
@@ -659,12 +657,10 @@ namespace KeePassRPC
                 PwEntry pe = createKeeFoxSample(pd, entry5Uuid,
                     "KeeFox sample entry for HTTP authentication",
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig()
-                {
-                    Version = 1,
-                    Priority = 20,
-                    HTTPRealm = "KeeFox tutorial sample"
-                };
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                conf.Version = 1;
+                conf.Priority = 20;
+                conf.HTTPRealm = "KeeFox tutorial sample";
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
@@ -868,22 +864,29 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 // for good and replace them with a single instance of each. Not
                 // a perfect solution but should only cause problems for KeeFox
                 // developers and those with OCD and a short fuse.
-                List<string> uuids = new List<string>(5) {
-                    new PwUuid(new byte[] {
+
+                PwUuid pwuuid1 = new PwUuid(new byte[] {
                 0xe9, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x24}).ToHexString(),
-                new PwUuid(new byte[] {
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x24});
+                PwUuid pwuuid2 = new PwUuid(new byte[] {
                 0xe8, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x25}).ToHexString(),
-                new PwUuid(new byte[] {
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x25});
+                PwUuid pwuuid3 = new PwUuid(new byte[] {
                 0xe7, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x26}).ToHexString(),
-                new PwUuid(new byte[] {
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x26});
+                PwUuid pwuuid4 = new PwUuid(new byte[] {
                 0xe6, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x27}).ToHexString(),
-                new PwUuid(new byte[] {
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x27});
+                PwUuid pwuuid5 = new PwUuid(new byte[] {
                 0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28}).ToHexString()};
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28});
+
+                List<string> uuids = new List<string>(5);
+                uuids.Add(pwuuid1.ToHexString());
+                uuids.Add(pwuuid2.ToHexString());
+                uuids.Add(pwuuid3.ToHexString());
+                uuids.Add(pwuuid4.ToHexString());
+                uuids.Add(pwuuid5.ToHexString());
 
                 KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
 

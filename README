@@ -1,19 +1,11 @@
+Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.
+
 KeeFox (http://keefox.org) adds free, secure and easy to use password management features to Firefox which save you time and keep your private data more secure.
 
 KeeFox connects Firefox to KeePass Password Safe, the most popular open source (and free) password manager.
 
 The official add-on can be downloaded at https://addons.mozilla.org/en-US/firefox/addon/keefox/
-Please feel free to fork and submit pull requests for any changes or improvements you would like to see incorporated to the official add-on.
 
-Only essential security fixes will be accepted on the 1.0 branch - please use the master branch instead.
+Please feel free to fork and submit pull requests for any changes or improvements you would like to see incorporated to the official add-on. See https://github.com/luckyrat/KeeFox/wiki/en-|-Development for guidelines and more detail on how and what to develop.
 
-Read about contributing to KeeFox in other ways here: https://sourceforge.net/apps/trac/keefox/wiki/Manual/Contributing
-
-If you make changes to the KeePassRPC plugin you will need to increment the version number in a few places in order to ensure that your new version is installed correctly by the updated version of KeeFox.
-
-To increment the version number in all locations look in:
-
-AssemblyInfo.cs: AssemblyFileVersion attribute
-KeePassRPCExt.cs: PluginVersion property
-install.rdf
-json.js: clientVersion - near the top of the file
+Read about contributing to KeeFox in other ways here: https://github.com/luckyrat/KeeFox/wiki/en-|-Contributing

@@ -370,7 +370,7 @@ session.prototype =
 
     handleFailedCertificate: function (gSSLStatus)
     {
-        gCert = gSSLStatus.QueryInterface(Components.interfaces.nsISSLStatus).serverCert;
+        let gCert = gSSLStatus.QueryInterface(Components.interfaces.nsISSLStatus).serverCert;
           
         log.warn("Adding security certificate exception for " + this.address + ":" + this.port
             + " <-- This should be the address and port of the KeePassRPC server."

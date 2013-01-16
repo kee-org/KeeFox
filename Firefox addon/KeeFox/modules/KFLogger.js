@@ -156,6 +156,12 @@ KeeFoxLogger.prototype = {
         // I don't understand why Firefox complains about this check for private
         // browsing mode but I will ignore its complaints becuase I'm
         // uncomfortable leaving users with a risk of recording URL data unexpectedly
+        // As of Firefox 20 this will always fail so we have to always log.
+        // When docs are updated I can investigate if its possible to add this feature for FF20+
+        //TODO1.2: This probably needs reviewing before final 1.2 submission but currently
+        // can find no info on how to make it work on all FF versions
+        // try: if("@mozilla.org/privatebrowsing;1" in Components.classes)
+        // Maybe this URL will be updated with useful info soon: https://developer.mozilla.org/en-US/docs/Supporting_per-window_private_browsing
         try
         {
             var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]

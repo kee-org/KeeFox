@@ -334,7 +334,7 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
     persist.progressListener = new KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist);
     persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
 
-    persist.saveURI(obj_URI, null, null, null, "", file);
+    persist.saveURI(obj_URI, null, null, null, "", file, null);
     
     return persist;
 };

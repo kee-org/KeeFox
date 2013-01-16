@@ -1523,7 +1523,7 @@ namespace KeePassRPC
 
             List<PwDatabase> dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
             // unless the DB is the wrong version
-            dbs = dbs.FindAll(t => t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion);
+            dbs = dbs.FindAll(ConfigIsCorrectVersion);
             List<Database> output = new List<Database>(1);
 
             foreach (PwDatabase db in dbs)
@@ -1535,6 +1535,20 @@ namespace KeePassRPC
             Debug.WriteLine("GetAllDatabases execution time: " + sw.Elapsed);
             Debug.Unindent();
             return dbarray;
+        }
+
+        // Search predicate returns true if a string ends in "saurus".
+        private bool ConfigIsCorrectVersion(PwDatabase t)
+        {
+            if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") 
+                && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -1835,7 +1849,7 @@ namespace KeePassRPC
                 // if DB list is not populated, look in all open DBs
                 dbs = host.MainWindow.DocumentManager.GetOpenDatabases();
                 // unless the DB is the wrong version
-                dbs = dbs.FindAll(t => t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") && t.CustomData.Get("KeePassRPC.KeeFox.configVersion") == KeePassRPCPlugin.CurrentConfigVersion);
+                dbs = dbs.FindAll(ConfigIsCorrectVersion);
             }
 
             //string hostname = URLs[0];
