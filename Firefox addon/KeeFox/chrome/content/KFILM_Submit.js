@@ -219,7 +219,7 @@ keefox_win.ILM._onFormSubmit = function (form)
                         oldPasswordField = passwords[i];
             }
         }
-    } else
+    } else if (passwords != null && passwords[0] != null && passwords[0] != undefined)
     {
         passwordFields.push(passwords[0]);
     }

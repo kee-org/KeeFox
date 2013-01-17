@@ -453,139 +453,147 @@ keefox_win.UI = {
     {
         var notifyBox = this._getNotifyBox();
 
-        var loginButtonText =
-              this._getLocalizedString("notifyBarLaunchKeePassButton.label");
-        var loginButtonAccessKey =
-              this._getLocalizedString("notifyBarLaunchKeePassButton.key");
-        var loginButtonTip =
-              this._getLocalizedString("notifyBarLaunchKeePassButton.tip");
-        var notNowButtonText =
-              this._getLocalizedString("notifyBarNotNowButton.label");
-        var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButton.key");
-        var neverButtonText =
-              this._getLocalizedString("notifyBarNeverForSiteButton.label");
-        var neverButtonAccessKey =
-              this._getLocalizedString("notifyBarNeverForSiteButton.key");
+        if (notifyBox)
+        {
+            var loginButtonText =
+                  this._getLocalizedString("notifyBarLaunchKeePassButton.label");
+            var loginButtonAccessKey =
+                  this._getLocalizedString("notifyBarLaunchKeePassButton.key");
+            var loginButtonTip =
+                  this._getLocalizedString("notifyBarLaunchKeePassButton.tip");
+            var notNowButtonText =
+                  this._getLocalizedString("notifyBarNotNowButton.label");
+            var notNowButtonAccessKey =
+                  this._getLocalizedString("notifyBarNotNowButton.key");
+            var neverButtonText =
+                  this._getLocalizedString("notifyBarNeverForSiteButton.label");
+            var neverButtonAccessKey =
+                  this._getLocalizedString("notifyBarNeverForSiteButton.key");
 
-        var notificationText  = 
-            this._getLocalizedString("notifyBarLaunchKeePass.label");
-        var kfilm = this._kfilm;
-        var kf = this._kf;
+            var notificationText  = 
+                this._getLocalizedString("notifyBarLaunchKeePass.label");
+            var kfilm = this._kfilm;
+            var kf = this._kf;
 
-        var buttons = [
-            // "Remember" button
-            {
-                label:     loginButtonText,
-                accessKey: loginButtonAccessKey,
-                popup:     null,
-                callback: function(aNotificationBar, aButton) {
-                    kf.launchKeePass('');
+            var buttons = [
+                // "Remember" button
+                {
+                    label:     loginButtonText,
+                    accessKey: loginButtonAccessKey,
+                    popup:     null,
+                    callback: function(aNotificationBar, aButton) {
+                        kf.launchKeePass('');
+                    },
+                    tooltip: loginButtonTip
                 },
-                tooltip: loginButtonTip
-            },
 
-            // "Not now" button
-            {
-                label:     notNowButtonText,
-                accessKey: notNowButtonAccessKey,
-                popup:     null,
-                callback:  function() { /* NOP */ } 
-            }
-        ];
+                // "Not now" button
+                {
+                    label:     notNowButtonText,
+                    accessKey: notNowButtonAccessKey,
+                    popup:     null,
+                    callback:  function() { /* NOP */ } 
+                }
+            ];
         
-        this._showKeeFoxNotification(notifyBox, "keefox-launch",
-             notificationText, buttons);
+            this._showKeeFoxNotification(notifyBox, "keefox-launch",
+                 notificationText, buttons);
+        }
     },
     
     _showLoginToKFNotification : function ()
     {
         var notifyBox = this._getNotifyBox();
 
-        var loginButtonText =
-              this._getLocalizedString("notifyBarLoginToKeePassButton.label");
-        var loginButtonAccessKey =
-              this._getLocalizedString("notifyBarLoginToKeePassButton.key");
-        var loginButtonTip =
-              this._getLocalizedString("notifyBarLoginToKeePassButton.tip");
-        var notNowButtonText =
-              this._getLocalizedString("notifyBarNotNowButton.label");
-        var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButton.key");
-        var neverButtonText =
-              this._getLocalizedString("notifyBarNeverForSiteButton.label");
-        var neverButtonAccessKey =
-              this._getLocalizedString("notifyBarNeverForSiteButton.key");
+        if (notifyBox)
+        {
+            var loginButtonText =
+                  this._getLocalizedString("notifyBarLoginToKeePassButton.label");
+            var loginButtonAccessKey =
+                  this._getLocalizedString("notifyBarLoginToKeePassButton.key");
+            var loginButtonTip =
+                  this._getLocalizedString("notifyBarLoginToKeePassButton.tip");
+            var notNowButtonText =
+                  this._getLocalizedString("notifyBarNotNowButton.label");
+            var notNowButtonAccessKey =
+                  this._getLocalizedString("notifyBarNotNowButton.key");
+            var neverButtonText =
+                  this._getLocalizedString("notifyBarNeverForSiteButton.label");
+            var neverButtonAccessKey =
+                  this._getLocalizedString("notifyBarNeverForSiteButton.key");
 
-        var notificationText  = 
-            this._getLocalizedString("notifyBarLoginToKeePass.label");
+            var notificationText  = 
+                this._getLocalizedString("notifyBarLoginToKeePass.label");
 
-        var kfilm = this._kfilm;
-        var kf = this._kf;
+            var kfilm = this._kfilm;
+            var kf = this._kf;
 
-        var buttons = [
-            {
-                label:     loginButtonText,
-                accessKey: loginButtonAccessKey,
-                popup:     null,
-                callback: function(evt) { keefox_org.loginToKeePass(); },
-                tooltip: loginButtonTip
-            },
+            var buttons = [
+                {
+                    label:     loginButtonText,
+                    accessKey: loginButtonAccessKey,
+                    popup:     null,
+                    callback: function(evt) { keefox_org.loginToKeePass(); },
+                    tooltip: loginButtonTip
+                },
 
-            // "Not now" button
-            {
-                label:     notNowButtonText,
-                accessKey: notNowButtonAccessKey,
-                popup:     null,
-                callback:  function() { /* NOP */ } 
-            }
-            // "Not now" button (actually think it's best to keep not now and never entirely seperate buttons when implemented)
-//            {
-//                label:     notNowButtonText,
-//                accessKey: notNowButtonAccessKey,
-//                popup:     [
-//                {
-//                    label:     "L10n: Never for this site",
-//                    accessKey: "s",
-//                    popup:     null,
-//                    callback:  function(evt) { alert('unimplemented'); },
-//                    image: "chrome://keefox/skin/KeeLock.png"
-//                }
-//                ],
-//                callback: null,
-//                tooltip: "L10n: dismiss this window without logging in to KeePass (same as clicking the cross).",
-//                image: "chrome://keefox/skin/KeeLock.png"
-//            }
-        ];
+                // "Not now" button
+                {
+                    label:     notNowButtonText,
+                    accessKey: notNowButtonAccessKey,
+                    popup:     null,
+                    callback:  function() { /* NOP */ } 
+                }
+                // "Not now" button (actually think it's best to keep not now and never entirely seperate buttons when implemented)
+    //            {
+    //                label:     notNowButtonText,
+    //                accessKey: notNowButtonAccessKey,
+    //                popup:     [
+    //                {
+    //                    label:     "L10n: Never for this site",
+    //                    accessKey: "s",
+    //                    popup:     null,
+    //                    callback:  function(evt) { alert('unimplemented'); },
+    //                    image: "chrome://keefox/skin/KeeLock.png"
+    //                }
+    //                ],
+    //                callback: null,
+    //                tooltip: "L10n: dismiss this window without logging in to KeePass (same as clicking the cross).",
+    //                image: "chrome://keefox/skin/KeeLock.png"
+    //            }
+            ];
 
-        this._showKeeFoxNotification(notifyBox, "keefox-login",
-             notificationText, buttons);
-             
+            this._showKeeFoxNotification(notifyBox, "keefox-login",
+                 notificationText, buttons);
+        }
     },
 
     _showSensitiveLogEnabledNotification : function ()
     {
         var notifyBox = this._getNotifyBox();
-        var notificationText  = 
-            this._getLocalizedString("notifyBarLogSensitiveData.label");
+        if (notifyBox)
+        {
+            var notificationText  = 
+                this._getLocalizedString("notifyBarLogSensitiveData.label");
 
-            var buttons = [
-            // "More info" button
-            {
-                label:     this._getLocalizedString("KeeFox-FAMS-NotifyBar-A-LearnMore-Button.label"),
-                accessKey: this._getLocalizedString("KeeFox-FAMS-NotifyBar-A-LearnMore-Button.key"),
-                popup:     null,
-                callback: function(aNotificationBar, aButton) {
-                    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                             .getService(Components.interfaces.nsIWindowMediator);
-                    var newWindow = wm.getMostRecentWindow("navigator:browser") ||
-                        wm.getMostRecentWindow("mail:3pane");
-                    var b = newWindow.getBrowser();
-                    var newTab = b.loadOneTab( "https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive", null, null, null, false, null );
-                }
-            }];
-        this._showLoginNotification(notifyBox, "keefox-sensitivelog",
-             notificationText, buttons, notifyBox.PRIORITY_WARNING_HIGH);
+                var buttons = [
+                // "More info" button
+                {
+                    label:     this._getLocalizedString("KeeFox-FAMS-NotifyBar-A-LearnMore-Button.label"),
+                    accessKey: this._getLocalizedString("KeeFox-FAMS-NotifyBar-A-LearnMore-Button.key"),
+                    popup:     null,
+                    callback: function(aNotificationBar, aButton) {
+                        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                 .getService(Components.interfaces.nsIWindowMediator);
+                        var newWindow = wm.getMostRecentWindow("navigator:browser") ||
+                            wm.getMostRecentWindow("mail:3pane");
+                        var b = newWindow.getBrowser();
+                        var newTab = b.loadOneTab( "https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive", null, null, null, false, null );
+                    }
+                }];
+            this._showLoginNotification(notifyBox, "keefox-sensitivelog",
+                 notificationText, buttons, notifyBox.PRIORITY_WARNING_HIGH);
+        }
     },
     
     _removeOLDKFNotifications : function (keepLaunchBar)

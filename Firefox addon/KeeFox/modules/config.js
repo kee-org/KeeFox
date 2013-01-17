@@ -65,9 +65,9 @@ keefox_org.config = {
                 id_b: ["search"],
                 //f_type_w: ["password"],
                 //f_type_b: [],
-                f_name_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user name","user id","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login id","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id"],
+                f_name_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user name","user id","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login id","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber"],
                 f_name_b: ["search","q","query"],
-                f_id_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id"],
+                f_id_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber"],
                 f_id_b: ["search","q"],
                 
                 // simple string comparisons won't work here becuase multiple
@@ -121,15 +121,18 @@ keefox_org.config = {
 
     valueAllowed: function(val,whitelist,blacklist,def)
     {
+        if (val === undefined || val === null)
+            return def;
+
         for (var b in blacklist)
-            if (blacklist[b] == val)
+            if (blacklist[b].toLowerCase() == val.toLowerCase())
             {
                 keefox_org._KFLog.debug("Value found in blacklist");
                 // a blacklist match always overrides the existing default behaviour
                 return false;
             }
         for (var w in whitelist)
-            if (whitelist[w] == val)
+            if (whitelist[w].toLowerCase() == val.toLowerCase())
             {
                 keefox_org._KFLog.debug("Value found in whitelist");
                 // a whitelist match only overrides an unspecified default behaviour

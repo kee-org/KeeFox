@@ -551,7 +551,7 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
 };
 
 /*
-* _getNotifyBox
+* getNotifyBox
 *
 * Returns the notification box to this prompter, or null if there isn't
 * a notification box available.

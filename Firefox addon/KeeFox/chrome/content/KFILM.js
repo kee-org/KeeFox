@@ -692,8 +692,8 @@ keefox_win.ILM = {
         //if (login.username == null)
         //    throw "Can't add a login with a null username.";
 
-        if (login.passwords == null || login.passwords.length <= 0)
-            throw "Can't add a login with a null or empty list of passwords.";
+//        if (login.passwords == null || login.passwords.length <= 0)
+//            throw "Can't add a login with a null or empty list of passwords.";
 
         if (login.formActionURL || login.formActionURL == "")
         {

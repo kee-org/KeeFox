@@ -563,7 +563,7 @@ var keeFoxDialogManager = {
                 var title = 
                     foundLogins[i].title;
                
-                matchedLogins.push({ 'username' : username.value, 'password' : password.value, 'host' : dialogFindLoginStorage.host, 'title' : title,
+                matchedLogins.push({ 'username' : ((username !== undefined) ? username.value : ''), 'password' : ((password !== undefined) ? password.value : ''), 'host' : dialogFindLoginStorage.host, 'title' : title,
                     'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
                     'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit, 'httpRealm' : foundLogins[i].httpRealm });
                 showList = true;                
@@ -607,6 +607,8 @@ var keeFoxDialogManager = {
             box.appendChild(list);
         }
 
+        if (matchedLogins[bestMatch] === undefined)
+            return;
         
         if (matchedLogins[bestMatch].alwaysAutoFill)
             autoFill = true;
