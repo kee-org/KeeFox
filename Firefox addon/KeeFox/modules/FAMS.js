@@ -65,7 +65,7 @@ function FirefoxAddonMessageService()
                         .createInstance(Ci.nsITimer);
     
     // set up FAMS localisation
-    this.locale = new KFandFAMSLocalisation(["chrome://keefox/locale/keefox.properties"],[this.strings]); //TODO2: KeeFox specific
+    this.locale = new KFandFAMSLocalisation(["chrome://keefox/locale/keefox.properties","chrome://keefox/locale/FAMS.keefox.properties"]); //TODO2: KeeFox specific
 
     this._log("constructed at " + Date());
 }

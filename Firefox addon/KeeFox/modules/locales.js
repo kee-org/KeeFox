@@ -23,7 +23,8 @@
   Priority within each group of bundles is based on registration order (FIFO)
 
   Limitations:
-  Locales are initialised straight away. Most of the time that will make sense but I guess it's possible for this to be an unnecessrilly eager load in some circumstances
+  Locales are initialised straight away. Most of the time that will make sense but
+  I guess it's possible for this to be an unnecessarilly eager load in some circumstances
   No support for changing the locale without add-on (Firefox) restart
 
   This program is free software; you can redistribute it and/or modify
@@ -51,7 +52,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
 
 //TODO1.3: we need to work out how to log problems with this module? Can't use KeeFox logger because
-// it doesn't exist yet...
+// it doesn't exist yet and might never if we're using the module outside of KeeFox
 
 // This module is named conservatively to protect other addon
 // namespaces but maybe should be made more generic in future.
@@ -106,55 +107,79 @@ getJSONForCurrentLocale: function(json)
     // determine current locale
     var appLocale = this.getCurrentLocale();
 
-    //let appLocale = getLocale();
+    // JSON is optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
+    if (json == null)
+    {
+        //TODO: get JSON from the right place
+        json = null;
+    }
+
+    var singleLocale = null;
+
+    // The JSON may contain multiple localisations
+    if (json["schemaVersion"] === 1)
+    {
+        json = json["locales"];
+     
+        // Holds the best matching localized resource
+        var bestmatch = null;
+        // The number of locale parts it matched with
+        var bestmatchcount = 0;
+        // The number of locale parts in the match
+        var bestpartcount = 0;
  
-   // Holds the best matching localized resource
-   var bestmatch = null;
-   // The number of locale parts it matched with
-   var bestmatchcount = 0;
-   // The number of locale parts in the match
-   var bestpartcount = 0;
+        var lparts = appLocale.split("-");
+        for (var locale in json)
+        {
+            let found = locale.toLowerCase();
+
+            // Exact match is returned immediately
+            if (appLocale == found)
+            {
+                singleLocale = json[locale];
+                break;
+            }
  
-   //var matchLocales = [appLocale.toLowerCase()];
-   /* If the current locale is English then it will find a match if there is
-      a valid match for en-US so no point searching that locale too. */
-   //if (matchLocales[0].substring(0, 3) != "en-")
-   //  matchLocales.push("en-us");
+            var fparts = found.split("-");
+
+            // If we have found a possible match and this one isn't any longer
+            // then we dont need to check further.
+            if (bestmatch && fparts.length < bestmatchcount)
+                continue;
  
-   //for each (var locale in matchLocales) {
-     var lparts = appLocale.split("-");
-     for (var locale in json) {
-//       for each (let found in localized.locales) {
-         let found = locale.toLowerCase();
-         // Exact match is returned immediately
-         if (appLocale == found)
-           return json[locale];
+            // Count the number of parts that match
+            var maxmatchcount = Math.min(fparts.length, lparts.length);
+            var matchcount = 0;
+            while (matchcount < maxmatchcount &&
+                    fparts[matchcount] == lparts[matchcount])
+                matchcount++;
  
-         var fparts = found.split("-");
-         /* If we have found a possible match and this one isn't any longer
-            then we dont need to check further. */
-         if (bestmatch && fparts.length < bestmatchcount)
-           continue;
- 
-         // Count the number of parts that match
-         var maxmatchcount = Math.min(fparts.length, lparts.length);
-         var matchcount = 0;
-         while (matchcount < maxmatchcount &&
-                fparts[matchcount] == lparts[matchcount])
-           matchcount++;
- 
-         /* If we matched more than the last best match or matched the same and
-            this locale is less specific than the last best match. */
-         if (matchcount > bestmatchcount ||
-            (matchcount == bestmatchcount && fparts.length < bestpartcount)) {
-           bestmatch = locale;
-           bestmatchcount = matchcount;
-           bestpartcount = fparts.length;
+            // If we matched more than the last best match or matched the same and
+            // this locale is less specific than the last best match.
+            if (matchcount > bestmatchcount ||
+                (matchcount == bestmatchcount && fparts.length < bestpartcount))
+            {
+                bestmatch = locale;
+                bestmatchcount = matchcount;
+                bestpartcount = fparts.length;
+            }
          }
-      // }
-     }
-    //}
-    return json[bestmatch];
+         if (singleLocale === null)
+            singleLocale = json[bestmatch];
+    } else
+    {
+        // else we assume the JSON is for the current locale only
+        singleLocale = json;
+    }
+
+    // We now have a single object that represents the current locale
+
+    // We check each name and convert from Google Chrome JSON format if required
+    for (var name in singleLocale)
+        if (typeof singleLocale[name] != 'string' && !(singleLocale[name] instanceof String))
+            singleLocale[name] = singleLocale[name]["message"]; //TODO: Hook in some conversion of Chrome parameters
+
+    return singleLocale;    
 },
 
 getJSONForDefaultLocale: function(json)

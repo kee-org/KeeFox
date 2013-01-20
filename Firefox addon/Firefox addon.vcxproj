@@ -110,12 +110,11 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
 REM combine module components into single file
 pushd "$(ProjectDir)KeeFox\modules"
 copy /b KF.js+config.js KF.jsm /Y
-copy /b FAMS.js+FAMS-config.js+FAMS-strings.js FAMS.jsm /Y
+copy /b FAMS.js+FAMS-config.js FAMS.jsm /Y
 move KF.js KF.js.temp
 move config.js config.js.temp
 move FAMS.js FAMS.js.temp
 move FAMS-config.js FAMS-config.js.temp
-move FAMS-strings.js FAMS-strings.js.temp
 popd
 
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
@@ -126,7 +125,6 @@ move KF.js.temp KF.js
 move config.js.temp config.js
 move FAMS.js.temp FAMS.js
 move FAMS-config.js.temp FAMS-config.js
-move FAMS-strings.js.temp FAMS-strings.js
 popd
 
 REM compress the files into the complete XPI
@@ -212,6 +210,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
       <SubType>Designer</SubType>
     </None>
     <None Include="KeeFox\chrome\locale\da\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\en-US\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\skin\buttonGradient.png" />
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />
@@ -329,6 +328,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\locale\sv-SE\keefox.properties" />
     <None Include="KeeFox\chrome\content\keefox.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
     </None>
     <None Include="KeeFox\chrome\locale\ru-RU\options.dtd">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

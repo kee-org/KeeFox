@@ -227,6 +227,7 @@
       <Filter>JS</Filter>
     </None>
     <None Include="KeeFox\chrome\locale\da\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\en-US\FAMS.keefox.properties" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />
