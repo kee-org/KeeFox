@@ -929,11 +929,16 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
                 if (foundStringsToUpgrade)
                 {
-                    DialogResult dr = MessageBox.Show("KeePassRPC (KeeFox) needs to update your database. This process is safe but irreversable so it is strongly reccommended that you ensure you have a recent backup of your password database before you continue." + Environment.NewLine + Environment.NewLine + "You can take a backup right now if you want: just find the database file on your system and copy (not move) it to a safe place. Make sure you backup the correct file. The database you are trying to open is located at " + e.Database.IOConnectionInfo.Path + "." + Environment.NewLine + Environment.NewLine + "You will not be able to use this database with older versions of KeeFox once you click OK. Make sure you hold onto your backup copy until you're happy that the upgrade process was successful." + Environment.NewLine + Environment.NewLine + "The upgrade may take a few minutes. You will not be able to open this database with this version of the KeePassRPC plugin installed until you perform the upgrade." + Environment.NewLine + Environment.NewLine + "Press OK to perform the upgrade.", "KeeFox upgrade", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    DialogResult dr = MessageBox.Show("KeePassRPC (KeeFox) needs to update your database. This process is safe but irreversible so it is strongly recommended that you ensure you have a recent backup of your password database before you continue." + Environment.NewLine + Environment.NewLine + "You can take a backup right now if you want: just find the database file on your system and copy (not move) it to a safe place. The database you are trying to open is located at " + e.Database.IOConnectionInfo.Path + "." + Environment.NewLine + Environment.NewLine + "You will not be able to use this database with older versions of KeeFox once you click OK. Make sure you hold onto your backup copy until you're happy that the upgrade process was successful." + Environment.NewLine + Environment.NewLine + "Press OK to perform the upgrade.", "KeeFox upgrade", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                     if (dr != DialogResult.OK)
                     {
                         // User aborted so we must shut down this database to prevent KeeFox from attempting communication with it
                         e.Database.Close();
+                        _host.MainWindow.DocumentManager.CloseDatabase(e.Database);
+                        _host.MainWindow.DocumentManager.ActiveDatabase.UINeedsIconUpdate = true;
+                        _host.MainWindow.UpdateUI(true, null, true, null, true, null, false);
+                        _host.MainWindow.ResetDefaultFocus(null);
+                        DialogResult dr2 = MessageBox.Show("KeePassRPC has NOT upgraded your database. The database has been closed to protect it from damage." + Environment.NewLine + Environment.NewLine + "It is safe to use this database with older versions of KeeFox but you can not use it with this version until you re-open it and perform the upgrade.", "KeeFox upgrade cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
                     else

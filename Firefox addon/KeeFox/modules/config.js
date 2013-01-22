@@ -97,6 +97,12 @@ keefox_org.config = {
         }
     },
     {
+        url:"https://login.microsoftonline.com/",
+        config:{
+            rescanFormDelay: 2500
+        }
+    },
+    {
         url:"http://www.bild.de/",
         config:{
             rescanFormDelay: 2500
@@ -108,7 +114,7 @@ keefox_org.config = {
             rescanFormDelay: 2500
         }
     }
-
+    
     /*,
     {
         url:"http://domain.name/page.html?...",
