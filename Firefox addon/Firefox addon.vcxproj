@@ -211,6 +211,13 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     </None>
     <None Include="KeeFox\chrome\locale\da\keefox.properties" />
     <None Include="KeeFox\chrome\locale\en-US\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-ES\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fr\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\nb-NO\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\nl\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\pl\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ro\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ru\keefox.properties" />
     <None Include="KeeFox\chrome\skin\buttonGradient.png" />
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />
@@ -230,7 +237,6 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\main.png" />
     <None Include="KeeFox\modules\config.js" />
     <None Include="KeeFox\modules\FAMS-config.js" />
-    <None Include="KeeFox\modules\FAMS-strings.js" />
     <None Include="KeeFox\modules\locales.js" />
     <None Include="Test Pages\LeftFrameContents.htm">
       <DeploymentContent>true</DeploymentContent>

@@ -219,15 +219,19 @@
     <None Include="KeeFox\modules\FAMS-config.js">
       <Filter>JS</Filter>
     </None>
-    <None Include="KeeFox\modules\FAMS-strings.js">
-      <Filter>JS</Filter>
-    </None>
     <None Include="KeeFox\chrome\content\siteOptions.xul" />
     <None Include="KeeFox\chrome\content\siteOptions.js">
       <Filter>JS</Filter>
     </None>
     <None Include="KeeFox\chrome\locale\da\keefox.properties" />
     <None Include="KeeFox\chrome\locale\en-US\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ru\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ro\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\pl\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\nl\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\nb-NO\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fr\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-ES\keefox.properties" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />
