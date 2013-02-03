@@ -323,18 +323,20 @@ keefox_org.config = {
 
         for (let i=0; i<urls.length; i++)
         {
-            let newConfig = applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.default_config)),{"preventSaveNotification": true}); //TODO2: faster clone?
-            setConfigForURL(url,newConfig);
+            let newConfig = this.applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.getConfigDefinitionForURL(urls[i]))),{"preventSaveNotification": true}); //TODO2: faster clone?
+            this.setConfigForURL(urls[i],newConfig);
         }
+        this.save();
     },
 
     migrateRescanFormTimeFromFFPrefs: function(enabled)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
         // this migration only affects the default behaviour "*"
-        let newConfig = this.current[0];
+        let newConfig = this.current[0].config;
         newConfig.rescanFormDelay = enabled ? 2500 : -1;
-        setConfigForURL("*",newConfig);
+        this.setConfigForURL("*",newConfig);
+        this.save();
     }
 
 };
