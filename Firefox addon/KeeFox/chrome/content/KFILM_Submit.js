@@ -168,7 +168,7 @@ keefox_win.ILM._onFormSubmit = function (form)
     if (passwords.length > 1) // could be password change form or multi-password login form or sign up form
     {
         // naive duplicate finder - more than sufficient for the number of passwords per domain
-        twoPasswordsMatchIndex=-1;
+        let twoPasswordsMatchIndex=-1;
         for(let i=0;i<passwords.length && twoPasswordsMatchIndex == -1;i++)
             for(let j=i+1;j<passwords.length && twoPasswordsMatchIndex == -1;j++)
                 if(passwords[j].value==passwords[i].value) twoPasswordsMatchIndex=j;
