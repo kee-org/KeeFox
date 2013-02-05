@@ -1693,27 +1693,59 @@ KeeFox.prototype = {
         }    
     },
     
-    loadFavicon: function(url)
+    loadFavicon: function(url, faviconLoader)
     {
         try
         {
-            var faviconService = 
-                Components.classes["@mozilla.org/browser/favicon-service;1"]
-                    .getService(Components.interfaces.nsIFaviconService);
-
+        
             var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
                 .getService(Components.interfaces.nsIIOService);
                 
             var pageURI = ioservice.newURI(url, null, null);
+
+            var faviconService = 
+                Components.classes["@mozilla.org/browser/favicon-service;1"]
+                    .getService(Components.interfaces.nsIFaviconService);
+
+            try
+            {
+                // find out if we can used the new async service
+                faviconService = faviconService.QueryInterface(Components.interfaces.mozIAsyncFavicons);
+
+                faviconService.getFaviconDataForPage(pageURI,faviconLoader);
+                return;
+            } catch (e)
+            {
+                // We couldn't make the new async service work so make sure the fall back is using the correct interface
+                faviconService = faviconService.QueryInterface(Components.interfaces.nsIFaviconService);
+
+                if (this._KFLog.logSensitiveData)
+                    this._KFLog.info("favicon async load failed for " + url + " : " + e);
+                else
+                    this._KFLog.info("favicon async load failed : " + e);
+            }
+
         
-            var favIconURI = faviconService.getFaviconForPage(pageURI);
+            try
+            {
+                var favIconURI = faviconService.getFaviconForPage(pageURI);
+            } catch (e)
+            {
+                // exception means that we couldn't find a favicon
+                faviconLoader.onComplete(null,0,null,null);     
+            }
             if (!faviconService.isFailedFavicon(favIconURI))
             {
                 var datalen = {};
                 var mimeType = {};
+                try {
                 var data = faviconService.getFaviconData(favIconURI, mimeType, datalen);
-                var faviconBytes = String.fromCharCode.apply(null, data);
-                return btoa(faviconBytes);
+                faviconLoader.onComplete(favIconURI,datalen,data,mimeType);                
+                } catch (e)
+                {
+                    // exception means that we couldn't find a favicon
+                    faviconLoader.onComplete(favIconURI,0,null,null);     
+                }
             }
             if (this._KFLog.logSensitiveData)
                 throw "We couldn't find a favicon for this URL: " + url;

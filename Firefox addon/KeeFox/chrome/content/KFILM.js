@@ -717,15 +717,39 @@ keefox_win.ILM = {
         {
             try
             {
-                login.iconImageData = this._kf.loadFavicon(primaryURL);
+                // Ask Firefox to give us the favicon data
+                // For recent versions it will be done async
+                // For older versions it will be done sync
+                // in both cases the callback function will be executed
+                // Since we're already off the main thread it doesn't 
+                // really matter whether it's done async or not
+                var faviconLoader = {
+                    l: login,
+                    p: parentUUID,
+                    d: dbFileName,
+                    k: this._kf,
+                    onComplete: function (aURI, aDataLen, aData, aMimeType)
+                    {
+                        if (aURI == null || aDataLen <= 0)
+                        {
+                            keefox_win.Logger.info("No favicon found");
+                        } else
+                        {
+                            // Convert the favicon data into a form that KPRPC will understand
+                            var faviconBytes = String.fromCharCode.apply(null, aData);
+                            this.l.iconImageData = btoa(faviconBytes);
+                        }
+
+                        keefox_win.Logger.info("Adding login to group: " + this.p + " in DB: " + this.d);
+                        return this.k.addLogin(this.l, this.p, this.d);
+                    }
+                };
+                this._kf.loadFavicon(primaryURL, faviconLoader);
             } catch (ex) 
             {
-                // something failed so we can't get the favicon. We don't really mind too much...
+                keefox_win.Logger.info("Failed to process add login request");
             }
         }
-        
-        keefox_win.Logger.info("Adding login to group: " + parentUUID + " in DB: " + dbFileName);
-        return this._kf.addLogin(login, parentUUID, dbFileName);
     },
     
     /*
