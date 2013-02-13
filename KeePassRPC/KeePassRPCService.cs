@@ -2044,7 +2044,7 @@ namespace KeePassRPC
                         {
                             if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms 
                                 && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch)
-                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe("Username")))
+                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe(PwDefs.UserNameField)))
                             {
                                 if (conf.FormActionURL == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                                 {
@@ -2060,7 +2060,7 @@ namespace KeePassRPC
                         {
                             if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms 
                                 && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch)
-                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe("Username")))
+                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe(PwDefs.UserNameField)))
                             {
                                 if ((!string.IsNullOrEmpty(conf.HTTPRealm)
                                     && (httpRealm == "" || conf.HTTPRealm == httpRealm)

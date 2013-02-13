@@ -30,7 +30,7 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-Cu.import("resource://kfmod/KF.jsm");
+Cu.import("resource://kfmod/KF.js");
 
 var keeFoxDialogManager = {
 
@@ -158,7 +158,7 @@ var keeFoxDialogManager = {
                 wm.getMostRecentWindow("mail:3pane");
             
             var mustAutoSubmit = false;            
-            var host, realm;
+            var host, realm, username;
             
             /* handle cases for username only prompt */
             if (Dialog.args.promptType == "prompt") {
@@ -211,6 +211,7 @@ var keeFoxDialogManager = {
                     
                 host = "";
                 realm = "";
+                username = ""; // currently not used in FireFox, but may be in future
                     
                 // e.g. en-US:
                 // A username and password are being requested by %2$S. The site says: "%1$S"
@@ -306,7 +307,8 @@ var keeFoxDialogManager = {
             } // end if Firefox
             /* handle cases for password only prompt in thunderbird */
             else if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}" &&
-              Dialog.args.promptType == "promptPassword") {                
+              Dialog.args.promptType == "promptPassword")
+            {
               let titles = {};
               let prompts = {};
               let hostFirst = {};
@@ -348,7 +350,7 @@ var keeFoxDialogManager = {
                     if (matches.length == 2) {
                       // imap user and host are separated by @ character
                       let lastAtSym = matches[1].lastIndexOf("@");                            
-                      realm = matches[1].substring(0, lastAtSym); // username
+                      username = matches[1].substring(0, lastAtSym);
                       host = type + "://" + matches[1].substring(lastAtSym + 1, matches[1].length);
                       break;
                     }
@@ -356,18 +358,18 @@ var keeFoxDialogManager = {
                     if (matches.length == 3) {
                       if (hostFirst[type]) {
                         host = type + "://" + matches[1];
-                        realm = matches[2];
+                        username = matches[2];
                       } else {
                         host = type + "://" + matches[2];
-                        realm = matches[1];
+                        username = matches[1];
                       }
                       break;
                     }
                   }
                 }
-              }                                    
-              this.realm = realm;
+              }
               this.host = host;
+              this.username = username;
             } // end if Thunderbird password only
             
             if (host.length < 1) {
@@ -471,11 +473,12 @@ var keeFoxDialogManager = {
             var dialogFindLoginStorage = {};
             dialogFindLoginStorage.host = host;
             dialogFindLoginStorage.realm = realm;
+            dialogFindLoginStorage.username = username;
             dialogFindLoginStorage.document = document;
             dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
             // find all the logins
-            //var requestId = keefox_org.findLogins(originalHost, null, realm, null, null, "username to filter by", null, this.autoFill);
-            var requestId = keefox_org.findLogins(originalHost, null, realm, null, null, null, null, this.autoFill);
+            var requestId = keefox_org.findLogins(originalHost, null, realm, null,
+                null, null, username, this.autoFill);
             window.keefox_win.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
         }    
     },
