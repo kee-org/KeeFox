@@ -111,8 +111,9 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
               function rpc_callback(resultWrapper) {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser") ||
-                    wm.getMostRecentWindow("mail:3pane");
+                var window = wm.getMostRecentWindow("common-dialog") ||
+                             wm.getMostRecentWindow("navigator:browser") ||
+                             wm.getMostRecentWindow("mail:3pane");
 
                 if (resultWrapper.result.result == 0) // successfully authorised by remote RPC server
                 {
@@ -121,7 +122,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                  .getService(Components.interfaces.nsIWindowMediator);
                         var window = wm.getMostRecentWindow("navigator:browser") ||
-                            wm.getMostRecentWindow("mail:3pane");
+                                     wm.getMostRecentWindow("mail:3pane");
                         window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
                         window.keefox_org._keeFoxVariableInit();
                         if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
@@ -349,15 +350,15 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("common-dialog") ||
-            wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
+                     wm.getMostRecentWindow("navigator:browser") ||
+                     wm.getMostRecentWindow("mail:3pane");
         
         // call this async so that json reader can get back to listening ASAP and prevent deadlocks
         window.setTimeout(function () {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
+                         wm.getMostRecentWindow("mail:3pane");
             window.keefox_org.KPRPCListener(signal);
         },5);
     }

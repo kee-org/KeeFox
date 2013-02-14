@@ -400,16 +400,14 @@ var keeFoxDialogManager = {
             row.setAttribute("flex", "1");
 
             // spacer to take up first column in layout
-            var spacerBox = document.createElement("hbox");
-            spacerBox.setAttribute("align", "end");
-            spacerBox.setAttribute("flex", "1");
-            spacerBox.setAttribute("pack", "end");
-            row.appendChild(spacerBox);
+            var spacer = document.createElement("spacer");
+            spacer.setAttribute("flex", "1");
+            row.appendChild(spacer);
 
             // this box displays labels and also the list of entries when fetched
             var box = document.createElement("hbox");
             box.setAttribute("id","keefox-autoauth-box");
-            box.setAttribute("align", "start");
+            box.setAttribute("align", "center");
             box.setAttribute("flex", "1");
             box.setAttribute("pack", "start");
 
@@ -445,14 +443,24 @@ var keeFoxDialogManager = {
             if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false) ||
                 !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
-                // TODO - need new message string here
+                if (keeFoxDialogManager.updateTimer) {
+                  return;
+                }
                 loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.default"));
-                setTimeout(keeFoxDialogManager.updateDialog, 1000);
+                keeFoxDialogManager.updateTimer = setInterval(keeFoxDialogManager.updateDialog, 1000);
                 return;
             }
             
+            if (keeFoxDialogManager.updateTimer) {
+              clearTimeout(keeFoxDialogManager.updateTimer);
+              delete keeFoxDialogManager.updateTimer;
+            }
+
             loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.loadingPasswords") + "...");
-            
+
+            var launchKeePassButton = document.getElementById("keefox-launch-kp-button");
+            launchKeePassButton.setAttribute("hidden", "true");
+
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
@@ -478,7 +486,7 @@ var keeFoxDialogManager = {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
+                     wm.getMostRecentWindow("mail:3pane");
         window.keefox_org._KFLog.info("callback fired!");
         
         var foundLogins = null;
@@ -499,7 +507,7 @@ var keeFoxDialogManager = {
         if (convertedResult.length == 0)
         {
             // set "no passwords" message
-            document.getElementById("keefox-autoauth-box-description").setAttribute("value",keefox_org.locale.$STR("httpAuth.noMatches"));
+            document.getElementById("keefox-autoauth-description").setAttribute("value",keefox_org.locale.$STR("httpAuth.noMatches"));
             return;
         }        
         
@@ -548,16 +556,20 @@ var keeFoxDialogManager = {
         for (var i = 0; i < foundLogins.length; i++)
         {
             try {
-                var username = 
-                    foundLogins[i].otherFields[foundLogins[i].usernameIndex];
-                var password = 
-                    foundLogins[i].passwords[0];
-                var title = 
-                    foundLogins[i].title;
-               
-                matchedLogins.push({ 'username' : ((username !== undefined) ? username.value : ''), 'password' : ((password !== undefined) ? password.value : ''), 'host' : dialogFindLoginStorage.host, 'title' : title,
-                    'alwaysAutoFill' : foundLogins[i].alwaysAutoFill, 'neverAutoFill' : foundLogins[i].neverAutoFill, 
-                    'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit, 'neverAutoSubmit' : foundLogins[i].neverAutoSubmit, 'httpRealm' : foundLogins[i].httpRealm });
+                var username = foundLogins[i].otherFields[foundLogins[i].usernameIndex];
+                var password = foundLogins[i].passwords[0];
+                var title = foundLogins[i].title;
+                var displayGroupPath = foundLogins[i].database.name + '/' + foundLogins[i].parentGroup.path;
+                matchedLogins.push({ 'username' : ((username !== undefined) ? username.value : ''),
+                    'password' : ((password !== undefined) ? password.value : ''),
+                    'host' : dialogFindLoginStorage.host,
+                    'title' : title,
+                    'displayGroupPath' : displayGroupPath,
+                    'alwaysAutoFill' : foundLogins[i].alwaysAutoFill,
+                    'neverAutoFill' : foundLogins[i].neverAutoFill, 
+                    'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit,
+                    'neverAutoSubmit' : foundLogins[i].neverAutoSubmit,
+                    'httpRealm' : foundLogins[i].httpRealm });
                 showList = true;                
 
             } catch (e) {
@@ -578,12 +590,14 @@ var keeFoxDialogManager = {
             
             for (var i = 0; i < matchedLogins.length; i++){
                 var item = dialogFindLoginStorage.document.createElement("menuitem");
-                item.setAttribute("label", matchedLogins[i].username + "@" + matchedLogins[i].host);
-                item.addEventListener("command", function (event) { keeFoxDialogManager.fill(this.username, this.password); }, false);  
+                item.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label",
+                    [matchedLogins[i].username, matchedLogins[i].host]));
+                item.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip",
+                    [matchedLogins[i].title, matchedLogins[i].displayGroupPath, matchedLogins[i].username]));
+                item.addEventListener("command", function (event) { keeFoxDialogManager.fill(this.username, this.password); }, false);
                 item.username = matchedLogins[i].username;
                 item.password = matchedLogins[i].password;
-                item.setAttribute("tooltiptext", matchedLogins[i].title);
-                popup.appendChild(item);                
+                popup.appendChild(item);
                 
                 // crude attempt to find the best match for this realm
                 //TODO2: Improve accuracy here for when multiple logins have the correct or no realm 
