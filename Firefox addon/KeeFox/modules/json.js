@@ -348,7 +348,8 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
+        var window = wm.getMostRecentWindow("common-dialog") ||
+            wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
         
         // call this async so that json reader can get back to listening ASAP and prevent deadlocks

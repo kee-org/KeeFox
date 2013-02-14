@@ -112,7 +112,7 @@ var keeFoxDialogManager = {
             if (!this.__newsBundle)
                 throw "news string bundle not present!";
                 // TODO will throwing an exception here affect firefox?
-        }        
+        }
         return this.__newsBundle;
     },
     
@@ -126,7 +126,7 @@ var keeFoxDialogManager = {
             if (!this.__composeBundle)
                 throw "Compose Message string bundle not present!";
                 // TODO will throwing an exception here affect firefox?
-        }        
+        }
         return this.__composeBundle;
     },
     
@@ -134,7 +134,9 @@ var keeFoxDialogManager = {
         .getService(Components.interfaces.nsIXULAppInfo),
     
     dialogInit : function(e) {
-        try {
+        try
+        {
+            document.getElementById("commonDialog").setAttribute("windowtype","common-dialog");
             keeFoxDialogManager.prepareFill();
         } catch (exception) {
             keefox_org._KFLog.error(exception);
@@ -301,9 +303,6 @@ var keeFoxDialogManager = {
                             host = matches[1];
                     }
                 }
-                
-                this.realm = realm;
-                this.host = host;
             } // end if Firefox
             /* handle cases for password only prompt in thunderbird */
             else if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}" &&
@@ -368,8 +367,6 @@ var keeFoxDialogManager = {
                   }
                 }
               }
-              this.host = host;
-              this.username = username;
             } // end if Thunderbird password only
             
             if (host.length < 1) {
@@ -377,7 +374,7 @@ var keeFoxDialogManager = {
             }
                 
             // try to pick out the host from the full protocol, host and port
-            var originalHost = host;                     
+            this.originalHost = host;
             try
             {
                 var ioService = Components.classes["@mozilla.org/network/io-service;1"].
@@ -389,103 +386,95 @@ var keeFoxDialogManager = {
                     keefox_org._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
                 else
                     keefox_org._KFLog.debug("Exception occured while trying to extract the host from a string");
-            }                
-                            
-            // if we're not logged in to KeePass then we can't go on
-            if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false)
-            ||  !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
-            {
-                //TODO2: be more helpful: have button to load database and then refresh the dialog?                
-                //TODO2: register this dialog box to recive notifications when keeFoxUpdate is raised by KeePass?
-                
-                var row = document.createElement("row");
-                row.setAttribute("id","keefox-autoauth-row");
-                row.setAttribute("flex", "1");
-                var boxLabel = document.createElement("hbox");
-                boxLabel.setAttribute("id","keefox-autoauth-label");
-                boxLabel.setAttribute("align", "end");
-                boxLabel.setAttribute("flex", "1");
-                boxLabel.setAttribute("pack", "end");
-                var label = document.createElement("description");
-                label.setAttribute("value", "");
-                label.setAttribute("align", "end");
-                label.setAttribute("pack", "end");
-                label.setAttribute("flex", "1");
-                boxLabel.appendChild(label);
-            
-                var box = document.createElement("hbox");
-                box.setAttribute("id","keefox-autoauth-box");
-                box.setAttribute("align", "start");
-                box.setAttribute("flex", "1");
-                box.setAttribute("pack", "start");
-            
-                var loadingPasswords = document.createElement("description");
-                loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.default"));
-                loadingPasswords.setAttribute("align", "start");
-                loadingPasswords.setAttribute("flex", "1");
-                box.appendChild(loadingPasswords);
-                row.appendChild(boxLabel);
-                row.appendChild(box);
-                document.getElementById("loginContainer").parentNode.appendChild(row);
-                return;
             }
             
-            //TODO2: some of these attributes are probably redundant...
+            this.realm = realm;
+            this.host = host;
+            this.username = username;
+            this.mustAutoSubmit = mustAutoSubmit;
+
+            /* add ui elements to dialog */
             
             var row = document.createElement("row");
             row.setAttribute("id","keefox-autoauth-row");
             row.setAttribute("flex", "1");
-            
-            var boxLabel = document.createElement("hbox");
-            boxLabel.setAttribute("id","keefox-autoauth-label");
-            boxLabel.setAttribute("align", "end");
-            boxLabel.setAttribute("flex", "1");
-            boxLabel.setAttribute("pack", "end");
-            
-            var label = document.createElement("description");
-            label.setAttribute("value", "KeeFox:");
-            label.setAttribute("align", "end");
-            label.setAttribute("pack", "end");
-            label.setAttribute("flex", "1");
-            boxLabel.appendChild(label);
-            
+
+            // spacer to take up first column in layout
+            var spacerBox = document.createElement("hbox");
+            spacerBox.setAttribute("align", "end");
+            spacerBox.setAttribute("flex", "1");
+            spacerBox.setAttribute("pack", "end");
+            row.appendChild(spacerBox);
+
+            // this box displays labels and also the list of entries when fetched
             var box = document.createElement("hbox");
             box.setAttribute("id","keefox-autoauth-box");
             box.setAttribute("align", "start");
             box.setAttribute("flex", "1");
             box.setAttribute("pack", "start");
-            
+
             var loadingPasswords = document.createElement("description");
-            loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.loadingPasswords") + "...");
+            loadingPasswords.setAttribute("id","keefox-autoauth-description");
             loadingPasswords.setAttribute("align", "start");
             loadingPasswords.setAttribute("flex", "1");
-            loadingPasswords.setAttribute("id", "keefox-autoauth-box-description");
             box.appendChild(loadingPasswords);
-            row.appendChild(boxLabel);
             row.appendChild(box);
+
+            // button to lauch KeePass
+            var launchKeePassButton = document.createElement("button");
+            launchKeePassButton.setAttribute("id", "keefox-launch-kp-button");
+            launchKeePassButton.setAttribute("label", keefox_org.locale.$STR("launchKeePass.label"));
+            launchKeePassButton.setAttribute("oncommand", "keefox_org.launchKeePass('');");
+            box.appendChild(launchKeePassButton);
+
             document.getElementById("loginContainer").parentNode.appendChild(row);
+
+            this.updateDialog();
+        }
+    },
+
+    updateDialog : function()
+    {
+        // check to make sure prepareFill was called
+        var row = document.getElementById("keefox-autoauth-row");
+        if (row) {
+
+            var loadingPasswords = document.getElementById("keefox-autoauth-description");
+
+            // if we're not logged in to KeePass then we can't go on
+            if (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false) ||
+                !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
+            {
+                // TODO - need new message string here
+                loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.default"));
+                setTimeout(keeFoxDialogManager.updateDialog, 1000);
+                return;
+            }
+            
+            loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.loadingPasswords") + "...");
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                 .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-        
+
             var dialogFindLoginStorage = {};
-            dialogFindLoginStorage.host = host;
-            dialogFindLoginStorage.realm = realm;
-            dialogFindLoginStorage.username = username;
+            dialogFindLoginStorage.host = keeFoxDialogManager.host;
+            dialogFindLoginStorage.realm = keeFoxDialogManager.realm;
+            dialogFindLoginStorage.username = keeFoxDialogManager.username;
             dialogFindLoginStorage.document = document;
-            dialogFindLoginStorage.mustAutoSubmit = mustAutoSubmit;
+            dialogFindLoginStorage.mustAutoSubmit = keeFoxDialogManager.mustAutoSubmit;
             // find all the logins
-            var requestId = keefox_org.findLogins(originalHost, null, realm, null,
-                null, null, username, this.autoFill);
+            var requestId = keefox_org.findLogins(keeFoxDialogManager.originalHost,
+                null, keeFoxDialogManager.realm, null, null, null,
+                keeFoxDialogManager.username, keeFoxDialogManager.autoFill);
             window.keefox_win.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
-        }    
+        }
     },
     
     // fill in the dialog with the first matched login found and/or the list of all matched logins
     autoFill : function(resultWrapper)
-    {        
+    {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||

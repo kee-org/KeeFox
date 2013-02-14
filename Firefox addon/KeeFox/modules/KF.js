@@ -369,7 +369,7 @@ KeeFox.prototype = {
           this.useMono = false;
         }
 
-        // Set the baseRUL to use for Mono vs Windows
+        // Set the baseURL to use for Mono vs Windows
         if (!this.useMono)
         {
           this.baseInstallURL = 'chrome://keefox/content/install.xul';
