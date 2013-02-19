@@ -54,11 +54,6 @@ namespace KeePassRPC
         KeePassRPCExt KeePassRPCPlugin;
         Version PluginVersion;
         IPluginHost host;
-        // no way to make use of this yet: bool permitUnencryptedURLs = false;
-
-        // naive way to block synchronous operations until user responds to a database login dialog - likely to require more sophistication when more than one RPC client connects at the same time.
-        //TODO2: Verify it was safe to remove this: don't think we have any significant syncronous action anymore.
-        //internal static EventWaitHandle ensureDBisOpenEWH = new AutoResetEvent(false);
 
         private string[] _standardIconsBase64;
 
@@ -68,17 +63,6 @@ namespace KeePassRPC
             PluginVersion = KeePassRPCExt.PluginVersion;
             this.host = host;
             _standardIconsBase64 = standardIconsBase64;
-        }
-
-        // why?
-        public void destroy()
-        {
-            // why?
-            lock (this)
-            {
-                // why?
-                System.Threading.Monitor.Pulse(this);
-            }
         }
         #endregion
 

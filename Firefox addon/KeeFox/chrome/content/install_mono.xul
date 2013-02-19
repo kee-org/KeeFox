@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://keefox/skin/install_mono.css" type="text/css"?>
 
-<!DOCTYPE overlay SYSTEM "chrome://keefox/locale/keefox.dtd">
+<!DOCTYPE overlay>
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)

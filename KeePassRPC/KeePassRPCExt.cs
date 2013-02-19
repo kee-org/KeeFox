@@ -59,7 +59,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,1,6);
+        public static readonly Version PluginVersion = new Version(1,1,7);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
