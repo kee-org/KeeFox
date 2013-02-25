@@ -436,7 +436,7 @@ KeeFox.prototype = {
               monoLocation = this._discoverMonoLocation();
               if (monoLocation != "not installed")
               {
-                monoExecFound = this._confirmMonoLocation(monoLocation);
+                let monoExecFound = this._confirmMonoLocation(monoLocation);
                 if (!monoExecFound)
                 {
                   this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
@@ -923,6 +923,7 @@ KeeFox.prototype = {
               getService(Components.interfaces.nsIProperties);   
             var homeDirFile = dirService.get("Home", Components.interfaces.nsIFile); // returns an nsIFile object  
             var homeDir = homeDirFile.path;  
+            var keepass_exec = "";
 
             var keepassLoc = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation", "");
             if (keepassLoc == "")
