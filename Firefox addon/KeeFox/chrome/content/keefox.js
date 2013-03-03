@@ -40,7 +40,7 @@ if (keefox_win.shouldLoad)
     Cu.import("resource://gre/modules/XPCOMUtils.jsm");
     // Load our logging subsystem
     Cu.import("resource://kfmod/KFLogger.js");
-    //Cu.import("resource://kfmod/KF.js");
+    //Cu.import("resource://kfmod/KF.jsm");
     keefox_win.Logger = new KeeFoxLogger();
     //keefox_win.Logger = KFLog;
     // Load our other javascript
