@@ -569,7 +569,11 @@ keefox_win.ILM = {
          || fieldName == "user id" || fieldName == "user-id" || fieldName == "userid"
          || fieldName == "email" || fieldName == "e-mail" || fieldName == "id"
          || fieldName == "form_loginname" || fieldName == "wpname" || fieldName == "mail"
-         || fieldName == "loginid" || fieldName == "login id" || fieldName == "login_name") // etc. etc.
+         || fieldName == "loginid" || fieldName == "login id" || fieldName == "login_name"
+         || fieldName == "openid_identifier" || fieldName == "authentication_email" || fieldName == "openid"
+         || fieldName == "auth_email" || fieldName == "auth_id" || fieldName == "authentication_identifier"
+         || fieldName == "authentication_id" || fieldName == "customer_number" || fieldName == "customernumber"
+         || fieldName == "onlineid") // etc. etc.
             return true;
         return false;
     },

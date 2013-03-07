@@ -65,9 +65,9 @@ keefox_org.config = {
                 id_b: ["search"],
                 //f_type_w: ["password"],
                 //f_type_b: [],
-                f_name_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user name","user id","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login id","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber"],
+                f_name_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user name","user id","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login id","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber","onlineid"],
                 f_name_b: ["search","q","query"],
-                f_id_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber"],
+                f_id_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber","onlineid"],
                 f_id_b: ["search","q"],
                 
                 // simple string comparisons won't work here becuase multiple
