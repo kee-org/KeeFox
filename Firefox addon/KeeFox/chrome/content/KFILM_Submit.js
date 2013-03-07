@@ -407,7 +407,7 @@ keefox_win.ILM._onFormSubmitFindLoginsComplete = function (resultWrapper, submit
         {
             for (var i = 0; i < logins.length; i++)
             {
-                if (submitDocumentDataStorage.formLogin.matches(logins[i],false,true,false,false))
+                if (submitDocumentDataStorage.formLogin.containedIn(logins[i],false,true,false,false))
                     submitDocumentDataStorage.existingLogin = true;
             }
         }

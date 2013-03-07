@@ -378,6 +378,13 @@ keefox_win.ILM = {
                     
                     // When pages are being navigated without form
                     // submissions we want to cancel multi-page login forms 
+                    // but we don't know whether a redirect has been initiated
+                    // automatically on the client-side (or in HTML head) so we
+                    // have to allow a handful of extra pages before we can 
+                    // definitely clear the old data. Not ideal, but it's still
+                    // under the user's control to explicitly cancel the
+                    // tracking through the "not now" button if it becomes a 
+                    // problem on specific sites.
                     var formSubmitTrackerCount = ss.getTabValue(currentTab, "KF_formSubmitTrackerCount");
                     var pageLoadSinceSubmitTrackerCount = ss.getTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount");
 
@@ -386,9 +393,9 @@ keefox_win.ILM = {
                         keefox_win.Logger.debug("formSubmitTrackerCount > 0");
                         pageLoadSinceSubmitTrackerCount++;
                         
-                        if (pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin))
+                        if ((pageLoadSinceSubmitTrackerCount - 5) > this._pwmgr._countAllDocuments(domWin))
                         {
-                            keefox_win.Logger.debug("pageLoadSinceSubmitTrackerCount > this._pwmgr._countAllDocuments(domWin)");
+                            keefox_win.Logger.debug("(pageLoadSinceSubmitTrackerCount - 5) > this._pwmgr._countAllDocuments(domWin)");
                             formSubmitTrackerCount = 0;
                             pageLoadSinceSubmitTrackerCount = 0;
                             removeTabSessionStoreData = true;
@@ -873,10 +880,15 @@ keefox_win.ILM = {
      */
     _getURIHostAndPort : function (uriString)
     {
+        var uri;
         var realm = "";
         try
         {
-            var uri = this._ioService.newURI(uriString, null, null);
+            // if no protocol scheme included, we can still try to return the host and port
+            if (uriString.indexOf("://") < 0)
+                uri = this._ioService.newURI("http://" + uriString, null, null);
+            else
+                uri = this._ioService.newURI(uriString, null, null);
 
             if (uri.scheme == "file")
                 realm = uri.path;

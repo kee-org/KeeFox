@@ -930,8 +930,8 @@ keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
             // and only if the scheme is the same (i.e. don't submit to http forms when https was expected)
             form = formi;
             [usernameIndex, passwords, otherFields] = window.keefox_win.ILM._getFormFields(form, false, 1);
-            
-            if (passwords == null || passwords.length == 0)
+
+            if ((passwords == null || passwords.length == 0) && (otherFields == null || otherFields.length == 0))
                 continue;
             
             // determine the relevance of the selected login entry to this form

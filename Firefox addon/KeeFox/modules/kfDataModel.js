@@ -289,7 +289,7 @@ kfLoginInfo.prototype =
             
         for (let i = 0; i < this.passwords.length; i++)
             for (let j = 0; j < passwords.length; j++)
-                if (passwords[i].value == this.passwords[i].value)
+                if (passwords[j].value == this.passwords[i].value)
                 {
                     matches++;
                     break; // leave only the inner loop
@@ -303,11 +303,6 @@ kfLoginInfo.prototype =
 
     _usernamesMatch : function (login)
     {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-	wm.getMostRecentWindow("mail:3pane");
-        
         if (this.otherFields.length != login.otherFields.length)
             return false;
          
@@ -329,6 +324,74 @@ kfLoginInfo.prototype =
             return false;
         
         return true;
+    },
+
+    
+    _allURLsContainedIn : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    {    
+        var matches = 0;
+
+        for (let i = 0; i < this.URLs.length; i++)
+        {
+            var url1 = this.URLs[i];
+            for (let j = 0; j < URLs.length; j++)
+            {
+                var url2 = URLs[j];
+                if (!ignoreURIPathsAndSchemes && url1.indexOf("://") > 0 &&
+                        keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                    { continue; }
+                else if (!ignoreURIPathsAndSchemes && url1.indexOf("://") <= 0
+                        && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                    { continue; }
+                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                    { continue; }
+                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIExcludingQS(url1) != keeFoxILM._getURIExcludingQS(url2))
+                    { continue; }
+                else
+                    { matches++; break; }
+            }
+        }
+
+        if (matches >= this.URLs.length)
+            return true;
+                    
+        return false;
+    },
+
+    _allPasswordsContainedIn : function (passwords)
+    {
+        var matches = 0;
+
+        for (let i = 0; i < this.passwords.length; i++)
+            for (let j = 0; j < passwords.length; j++)
+                if (passwords[j].value == this.passwords[i].value)
+                {
+                    matches++;
+                    break; // leave only the inner loop
+                }
+                
+        if (matches >= this.passwords.length)
+            return true;
+                    
+        return false;
+    },
+
+    _allOtherFieldsContainedIn : function (login)
+    {         
+        var matches = 0;
+
+        for (let i = 0; i < this.otherFields.length; i++)
+            for (let j = 0; j < login.otherFields.length; j++)
+                if (login.otherFields[j].value == this.otherFields[i].value)
+                {
+                    matches++;
+                    break; // leave only the inner loop
+                }
+                
+        if (matches >= this.otherFields.length)
+            return true;
+                    
+        return false;
     },
 
     // determines if this matches another supplied login object, with a number
@@ -369,6 +432,31 @@ kfLoginInfo.prototype =
                 && this.formActionURL != aLogin.formActionURL)
                 return false;
         }
+
+        return true;
+    },
+
+    // determines if this login is contained within a supplied login object, with a number
+    // of controllable definitions of "containedIn" to support various use cases
+    containedIn : function (aLogin, ignorePasswords, ignoreURIPaths,
+         ignoreURIPathsAndSchemes, ignoreUsernames)
+    {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
+
+        if (!this._allURLsContainedIn(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_win.ILM))
+            return false;
+
+        if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
+            return false;
+
+        if (!ignoreUsernames && !this._allOtherFieldsContainedIn(aLogin))
+            return false;
+
+        if (!ignorePasswords && !this._allPasswordsContainedIn(aLogin.passwords))
+            return false;
 
         return true;
     },

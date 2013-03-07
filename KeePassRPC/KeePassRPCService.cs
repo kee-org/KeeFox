@@ -1955,6 +1955,20 @@ namespace KeePassRPC
                     {
                         // we havn't received a protocol but may still have a query string 
                         // we'd like to remove from the URL (e.g. especially if we're dealing with an unknown file:///)
+
+                        string URLExcludingProt = URL;
+                        int pathStart = URLExcludingProt.IndexOf("/", 0);
+
+                        if (pathStart > -1 && URLExcludingProt.Length > pathStart)
+                        {
+                            hostAndPort = URL.Substring(0, pathStart);
+                            newURL = URL.Substring(0, pathStart);
+                        }
+                        else if (pathStart == -1) // it's already just a hostname
+                        {
+                            hostAndPort = URLExcludingProt;
+                        }
+
                         int qsIndex = URL.IndexOf("?");
                         if (qsIndex > -1)
                             newURL = URL.Substring(1, qsIndex - 1);
