@@ -13,6 +13,7 @@ locale keefox de chrome/locale/de/
 locale keefox en-US chrome/locale/en-US/
 locale keefox es-ES chrome/locale/es-ES/
 locale keefox fr chrome/locale/fr/
+locale keefox ko-KR chrome/locale/ko-KR/
 locale keefox nb-NO chrome/locale/nb-NO/
 locale keefox nl chrome/locale/nl/
 locale keefox pl chrome/locale/pl/
