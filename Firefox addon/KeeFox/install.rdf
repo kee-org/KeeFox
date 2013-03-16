@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.2.0a11</em:version>
+    <em:version>1.2.0b1</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -19,7 +19,7 @@
         <!-- Firefox -->
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>4.0</em:minVersion>
-        <em:maxVersion>20.*</em:maxVersion>
+        <em:maxVersion>21.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -28,7 +28,7 @@
         <!-- Thunderbird -->
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
         <em:minVersion>5.0</em:minVersion>
-        <em:maxVersion>20.*</em:maxVersion>
+        <em:maxVersion>21.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -146,6 +146,20 @@
         <em:contributor>Ben Roberts</em:contributor>
         <em:contributor>David Lechner</em:contributor>
         <em:contributor>Ken Bass</em:contributor>      
+      </Description>
+    </em:localized>
+
+    <em:localized>
+      <Description>
+        <em:locale>ko-KR</em:locale>
+        <em:translator>용오름(Wtspout)</em:translator>
+        <em:name>KeeFox</em:name>
+        <em:description>간편하고 안전한 암호 관리. 자동 로그인, 다른 암호를 잊는 일이 없으며, 비밀번호 제어를 유지하고 보안을 향상시킵니다. 세계적으로 유명한 안전한 KeePass 암호를 통해 구동됩니다.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
+        <em:contributor>David Lechner</em:contributor>
+        <em:contributor>Ken Bass</em:contributor>
       </Description>
     </em:localized>
     
