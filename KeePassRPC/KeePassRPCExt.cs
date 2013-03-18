@@ -59,7 +59,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,2,0);
+        public static readonly Version PluginVersion = new Version(1,2,1);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -902,12 +902,15 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, ehdup);
 
                 // Tidy up
-                foreach (PwEntry pwe in output)
+                if (output.UCount > 0)
                 {
-                    pwe.ParentGroup.Entries.Remove(pwe);
+                    foreach (PwEntry pwe in output)
+                    {
+                        pwe.ParentGroup.Entries.Remove(pwe);
+                    }
+                    InstallKeeFoxSampleEntries(e.Database, true);
+                    _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
                 }
-                InstallKeeFoxSampleEntries(e.Database, true);
-                _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
 
                 bool foundStringsToUpgrade = false;
                 // Scan every string of every entry to find out whether we need to disturb the user

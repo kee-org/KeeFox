@@ -255,6 +255,66 @@ namespace KeePassRPC.DataExchangeModel
         public string[] BlockedURLs;
         public string[] RegExBlockedURLs;
         public string[] RegExURLs;
+
+
+        public override bool Equals(System.Object obj)
+        {
+            if (obj == null)
+                return false;
+
+            EntryConfig p = obj as EntryConfig;
+            if ((System.Object)p == null)
+                return false;
+
+            return Version == p.Version
+                && FormActionURL == p.FormActionURL
+                && HTTPRealm == p.HTTPRealm
+                && AlwaysAutoFill == p.AlwaysAutoFill
+                && NeverAutoFill == p.NeverAutoFill
+                && AlwaysAutoSubmit == p.AlwaysAutoSubmit
+                && NeverAutoSubmit == p.NeverAutoSubmit
+                && Priority == p.Priority
+                && Hide == p.Hide
+                && BlockHostnameOnlyMatch == p.BlockHostnameOnlyMatch
+                && AreEqual(FormFieldList, p.FormFieldList)
+                && AreEqual(AltURLs, p.AltURLs)
+                && AreEqual(BlockedURLs, p.BlockedURLs)
+                && AreEqual(RegExBlockedURLs, p.RegExBlockedURLs)
+                && AreEqual(RegExURLs, p.RegExURLs);
+        }
+
+        bool AreEqual<T>(T[] a, T[] b)
+        {
+            return AreEqual(a, b, EqualityComparer<T>.Default);
+        }
+
+        bool AreEqual<T>(T[] a, T[] b, IEqualityComparer<T> comparer)
+        {
+            if (a == null && b == null)
+            {
+                return true;
+            }
+
+            if (a == null || b == null)
+            {
+                return false;
+            }
+
+            if (a.Length != b.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (!comparer.Equals(a[i], b[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
     }
 
     public class Database

@@ -112,9 +112,11 @@
             // 
             // OptionsForm
             // 
+            this.AcceptButton = this.m_btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.CancelButton = this.m_btnCancel;
             this.ClientSize = new System.Drawing.Size(386, 173);
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.label2);

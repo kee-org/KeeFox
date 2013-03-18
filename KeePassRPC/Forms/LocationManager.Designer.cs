@@ -78,7 +78,7 @@
             this.richTextBox1.Size = new System.Drawing.Size(259, 60);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "KeePassRPC can behave differently when in different locations. Add or remove loca" +
-                "tions here. Change the current location from KeeFox.";
+    "tions here. Change the current location from KeeFox.";
             // 
             // button3
             // 
@@ -121,8 +121,10 @@
             // 
             // LocationManager
             // 
+            this.AcceptButton = this.button3;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.button4;
             this.ClientSize = new System.Drawing.Size(278, 217);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);

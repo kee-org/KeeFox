@@ -44,6 +44,13 @@ namespace KeePassRPC.Forms
         {
             _strings.Set(name, new ProtectedString(protect, value));
         }
+
+        private void UpdateKPRPCJSON(EntryConfig _conf)
+        {
+            // if the config is identical to an empty (default) config, only update if a JSON string already exists
+            if (!_conf.Equals(new EntryConfig()) || _strings.GetKeys().Contains("KPRPC JSON"))
+                changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+        }
         
         private void checkBoxHideFromKeeFox_CheckedChanged(object sender, EventArgs e)
         {
@@ -69,7 +76,7 @@ namespace KeePassRPC.Forms
                 labelRealm.Enabled = true;
                 textBoxKeeFoxRealm.Enabled = true;
             }
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
         }
 
         private void checkBoxBlockHostnameOnly_CheckedChanged(object sender, EventArgs e)
@@ -82,7 +89,7 @@ namespace KeePassRPC.Forms
             {
                 _conf.BlockHostnameOnlyMatch = false;
             }
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
         }
 
         private void KeeFoxEntryUserControl_Load(object sender, EventArgs e)
@@ -201,7 +208,7 @@ namespace KeePassRPC.Forms
                 try
                 {
                     _conf.Priority = int.Parse(priority);
-                    changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+                    UpdateKPRPCJSON(_conf);
                     return;
                 }
                 catch (Exception)
@@ -209,7 +216,7 @@ namespace KeePassRPC.Forms
                 }
             }
             _conf.Priority = 0;
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
             return;
         }
 
@@ -221,7 +228,7 @@ namespace KeePassRPC.Forms
                 _conf.HTTPRealm = realm;
             else
                 _conf.HTTPRealm = null;
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
             return;
         }
 
@@ -290,7 +297,6 @@ namespace KeePassRPC.Forms
 
         private void changeBehaviourState(EntryBehaviour behav)
         {
-            EntryConfig newConfig = null;
             switch (behav)
             {
                 case EntryBehaviour.AlwaysAutoFill:
@@ -354,7 +360,7 @@ namespace KeePassRPC.Forms
                     comboBoxAutoFill.Enabled = true;
                     break;
             }
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
             currentBehaviour = behav;
         }
 
@@ -501,7 +507,7 @@ namespace KeePassRPC.Forms
             _conf.BlockedURLs = listNormalBlockedURLs.ToArray();
             _conf.RegExURLs = listRegExURLs.ToArray();
             _conf.RegExBlockedURLs = listRegExBlockedURLs.ToArray();
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
         }
 
 
@@ -514,7 +520,7 @@ namespace KeePassRPC.Forms
                     ffs.Add((FormField)lvi.Tag);
             }
             _conf.FormFieldList = ffs.ToArray();
-            changeAdvancedString("KPRPC JSON", Jayrock.Json.Conversion.JsonConvert.ExportToString(_conf), true);
+            UpdateKPRPCJSON(_conf);
         }
         
 
