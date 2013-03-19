@@ -969,12 +969,21 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                             // it 1 when I should have included the "1st version" marker 4 years ago!)
                             // Better late than never
                             e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
-                            
+
                             _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
 
                             DialogResult drfinished = MessageBox.Show("KeePassRPC (KeeFox) information upgraded. Press OK to use your updated database.", "KeeFox upgrade", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
+                }
+                else
+                {
+                    // Nothing to upgrade in this DB but we'll bump up the config
+                    // version count anyway to ensure that even DBs that contain no
+                    // specific KPRPC information are able to be accessed 
+                    // via KPRPC clients like KeeFox
+                    e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
+                    _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
                 }
             }
 

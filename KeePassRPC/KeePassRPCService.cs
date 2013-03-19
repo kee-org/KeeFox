@@ -56,6 +56,7 @@ namespace KeePassRPC
         IPluginHost host;
 
         private string[] _standardIconsBase64;
+        private bool _restartWarningShown = false;
 
         public KeePassRPCService(IPluginHost host, string[] standardIconsBase64, KeePassRPCExt plugin)
         {
@@ -116,7 +117,19 @@ namespace KeePassRPC
                 versionMatch = true;
 
             if (versionMatch == false)
+            {
+                // Listen for changes to the KeePassRPC plgx file so we can prompt the user to restart
+                try
+                {
+                    ListenForPLGXChanges();
+                }
+                catch (Exception ex)
+                {
+                    KeePassLib.Utility.MessageService.ShowInfo("For beta testing we need to know if you see this error message. Please report it on the forum: http://keefox.org/help/forum Details of the problem follow: " + ex);
+                }
+
                 return new AuthenticationResult(3, clientId); // version mismatch
+            }
 
             if (string.IsNullOrEmpty(clientId))
                 return new AuthenticationResult(4, clientId); // missing clientId parameter
@@ -207,6 +220,61 @@ namespace KeePassRPC
             }
             //TODO2: audit logging options? needs to be a KeePass supported
             //feature really or maybe a seperate plugin?
+        }
+
+        public void ListenForPLGXChanges()
+        {
+            Type mwType = host.MainWindow.GetType();
+            FieldInfo fiPM = mwType.GetField("m_pluginManager", BindingFlags.Instance | BindingFlags.NonPublic);
+            object pm = fiPM.GetValue(host.MainWindow);
+
+
+            Type pmType = pm.GetType();
+            FieldInfo fiPI = pmType.GetField("m_vPlugins", BindingFlags.Instance | BindingFlags.NonPublic);
+            IList ilist = (IList)fiPI.GetValue(pm);
+
+
+            foreach (object pl in ilist)
+            {
+                Type pluginInfoType = pl.GetType();
+                PropertyInfo piName = pluginInfoType.GetProperty("Name", BindingFlags.Instance | BindingFlags.Public);
+                string name = (string)piName.GetValue(pl, null);
+
+                if (name == "KeePassRPC")
+                {
+                    PropertyInfo piDisplayFilePath = pluginInfoType.GetProperty("DisplayFilePath", BindingFlags.Instance | BindingFlags.Public);
+                    string displayFilePath = (string)piDisplayFilePath.GetValue(pl, null);
+                    PropertyInfo piFileVersion = pluginInfoType.GetProperty("FileVersion", BindingFlags.Instance | BindingFlags.Public);
+                    string fileVersion = (string)piFileVersion.GetValue(pl, null);
+                    ListenForPLGXChanges(displayFilePath, fileVersion);
+                    break;
+                }
+            }
+        }
+
+        private void ListenForPLGXChanges(string displayFilePath, string fileVersion)
+        {
+            if (!displayFilePath.EndsWith(".plgx"))
+                return;
+
+            FileInfo fi = new FileInfo(displayFilePath);
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = fi.DirectoryName;
+            watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            watcher.Filter = fi.Name;
+
+            watcher.Changed += new FileSystemEventHandler(OnPLGXFileChanged);
+            watcher.Created += new FileSystemEventHandler(OnPLGXFileChanged);
+
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void OnPLGXFileChanged(object source, FileSystemEventArgs e)
+        {
+            if (!_restartWarningShown)
+                KeePassLib.Utility.MessageService.ShowInfo("Please restart KeePass for the upgrade to take effect. If KeeFox does not detect KeePass within 10 seconds of KeePass restarting, please also restart Firefox.");
+            _restartWarningShown = true;
+            ((FileSystemWatcher)source).EnableRaisingEvents = false;
         }
 
         //TODO2: find some way that this can be private? (but really, what is
