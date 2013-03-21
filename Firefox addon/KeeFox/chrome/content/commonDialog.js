@@ -69,7 +69,6 @@ var keeFoxDialogManager = {
                 "chrome://messenger/locale/messenger.properties");
             if (!this.__messengerBundle)
                 throw "Messenger string bundle not present!";
-                // TODO will throwing an exception here affect firefox?
         }        
         return this.__messengerBundle;
     },
@@ -83,7 +82,6 @@ var keeFoxDialogManager = {
                 "chrome://messenger/locale/localMsgs.properties");
             if (!this.__localMsgsBundle)
                 throw "localMsgs string bundle not present!";
-                // TODO will throwing an exception here affect firefox?
         }        
         return this.__localMsgsBundle;
     },
@@ -97,7 +95,6 @@ var keeFoxDialogManager = {
                 "chrome://messenger/locale/imapMsgs.properties");
             if (!this.__imapMsgsBundle)
                 throw "imapMsgs string bundle not present!";
-                // TODO will throwing an exception here affect firefox?
         }        
         return this.__imapMsgsBundle;
     },
@@ -111,7 +108,6 @@ var keeFoxDialogManager = {
                 "chrome://messenger/locale/news.properties");
             if (!this.__newsBundle)
                 throw "news string bundle not present!";
-                // TODO will throwing an exception here affect firefox?
         }
         return this.__newsBundle;
     },
@@ -125,7 +121,6 @@ var keeFoxDialogManager = {
                 "chrome://messenger/locale/messengercompose/composeMsgs.properties");
             if (!this.__composeBundle)
                 throw "Compose Message string bundle not present!";
-                // TODO will throwing an exception here affect firefox?
         }
         return this.__composeBundle;
     },
@@ -210,11 +205,152 @@ var keeFoxDialogManager = {
                     parentWindow.keefox_win.toolbar.clearTabFormRecordingData();
                     parentWindow.keefox_win.toolbar.clearTabFormFillData();                
                 }
-                    
-                host = "";
-                realm = "";
-                username = ""; // currently not used in FireFox, but may be in future
-                    
+            } // end if (parentWindow.gBrowser)
+            
+            host = "";
+            realm = "";
+            username = ""; // currently not used in FireFox, but may be in future
+            
+            /* handle cases for password only prompt in thunderbird */
+            if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}")
+            {                
+                let protocols = {};
+                let titles = {};
+                let prompts = {};
+                let hostIsFirst = {};
+                let secondIsUserName = {};
+                let extractUserFromHost = {};
+                
+                /* this function is used to get localized strings and setup a regex
+                 * and other parameters for each type of dialog.
+                 *
+                 * @param {nsIStringBundle} aStringBundle 
+                 * String bundle that contains localized strings for a dialog.
+                 *
+                 * @param {string} aDialogType
+                 * The type of dialog. For dialogs that do not contain a protocol
+                 * aDialogType should be the name of the protocol. If a protocol
+                 * has more than one possible dialog, suffix it with -1, -2 etc.
+                 * The '-' and everthing after it will be stripped.
+                 *
+                 * @param {string}aTitlePropertyName
+                 * The name of the dialog title property to lookup in the string bundle.
+                 *
+                 * @param {string}aPromptPropertyName
+                 * The name of the dialog message prompt property to lookup in the string bundle.
+                 *
+                 * @param {string} aHostPlaceholder
+                 * The placeholder being used for the host name in the localized string.
+                 * Should be "%S" if there is only one parameter in the string or 
+                 * "%1$S" where 1 is the index of the parameter if there is more than one.
+                 *
+                 * @param {string} aRealmPlaceholder
+                 * The placeholder for the parameter to use as the realm in the localized string.
+                 * See aHostPlaceholder. Can also be null if the parameter is not present.
+                 *
+                 * @param {string} aUserPlaceholder
+                 * The placeholder for the parameter to use as the user name in the localized string.
+                 * See aHostPlaceholder. Can also be null if the parameter is not present.
+                 * aUserPlaceholder and aRealPlaceholder are optional and mutually exclusive
+                 * so, you can have one, the other or neither, but not both
+                 *
+                 * @param {boolean} aExtractUserFromHost
+                 * Set to true when username is combined with hostname as in "username@www.example.com"
+                 */
+                let LoadDialogData = function (aStringBundle, aDialogType, aTitlePropertyName,
+                    aPromptPropertyName, aHostPlaceholder, aRealmPlaceholder, aUserPlaceholder,
+                    aExtractUserFromHost)
+                {
+                    if (aStringBundle != null)
+                    {
+                        protocols[aDialogType] = aDialogType.split("-")[0];
+                        titles[aDialogType] = aStringBundle.GetStringFromName(aTitlePropertyName);
+                        prompts[aDialogType] = aStringBundle.GetStringFromName(aPromptPropertyName);
+                        // use null as a flag to indicate that there was only one
+                        // placeholder and hostIsFirst and secondIsUserName are not applicable
+                        hostIsFirst[aDialogType] = null;
+                        if (aUserPlaceholder != null)
+                        {
+                            hostIsFirst[aDialogType] = prompts[aDialogType].indexOf(aHostPlaceholder) <
+                                prompts[aDialogType].indexOf(aUserPlaceholder);
+                            secondIsUserName[aDialogType] = true;
+                        }
+                        if (aRealmPlaceholder != null)
+                        {
+                            hostIsFirst[aDialogType] = prompts[aDialogType].indexOf(aHostPlaceholder) <
+                                prompts[aDialogType].indexOf(aRealmPlaceholder);
+                            secondIsUserName[aDialogType] = false;
+                        }
+                        prompts[aDialogType] = prompts[aDialogType].replace(aHostPlaceholder, "(.+)");
+                        if (aUserPlaceholder != null)
+                        {
+                            prompts[aDialogType] = prompts[aDialogType].replace(aUserPlaceholder, "(.+)");
+                        }
+                        if (aRealmPlaceholder != null)
+                        {
+                            prompts[aDialogType] = prompts[aDialogType].replace(aRealmPlaceholder, "(.+)");
+                        }
+                        extractUserFromHost[aDialogType] = aExtractUserFromHost;
+                    }
+                }
+                  
+                LoadDialogData(this._composeBundle, "smtp", "smtpEnterPasswordPromptTitle",
+                    "smtpEnterPasswordPromptWithUsername", "%1$S", null, "%2$S");
+                LoadDialogData(this._imapMsgsBundle, "imap", "5051", "5047", "%S", null, null, true);
+                LoadDialogData(this._localMsgsBundle, "pop3", "pop3EnterPasswordPromptTitle",
+                    "pop3EnterPasswordPrompt", "%2$S", null, "%1$S");
+                LoadDialogData(this._newsBundle, "nntp-1", "enterUserPassTitle",
+                    "enterUserPassServer", "%S");
+                LoadDialogData(this._newsBundle, "nntp-2", "enterUserPassTitle",
+                    "enterUserPassGroup", "%2$S", "%1$S");
+                LoadDialogData(this._messengerBundle, "mail", "passwordTitle",
+                    "passwordPrompt", "%2$S", null, "%1$S");
+                
+                for (let type in titles)
+                {                  
+                    if (Dialog.args.title == titles[type])
+                    {
+                        // some types have the same title, so we have more checking to do
+                        let regEx = new RegExp(prompts[type]);
+                        let matches = Dialog.args.text.match(regEx);
+                        if (!matches)
+                        {
+                            continue;
+                        }
+                        if (hostIsFirst[type] === null) {
+                            // there is only one parameter, so nothing is first
+                            if (matches.length == 2) {
+                                if (extractUserFromHost[type])
+                                {
+                                    // user and host are separated by @ character
+                                    let lastAtSym = matches[1].lastIndexOf("@");                            
+                                    username = matches[1].substring(0, lastAtSym);
+                                    host = protocols[type] + "://" +
+                                        matches[1].substring(lastAtSym + 1, matches[1].length);
+                                } else {
+                                    host = protocols[type] + "://" + matches[1];
+                                }
+                                break;
+                            }
+                        } else
+                        {
+                            if (matches.length == 3) {
+                                if (hostIsFirst[type]) {
+                                    host = protocols[type] + "://" + matches[1];
+                                    username = matches[2];
+                                } else {
+                                    host = protocols[type] + "://" + matches[2];
+                                    username = matches[1];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            } // end if Thunderbird
+            
+            if (host.length < 1)
+            {
                 // e.g. en-US:
                 // A username and password are being requested by %2$S. The site says: "%1$S"
                 var currentRealmL10nPattern = "";            
@@ -246,128 +382,64 @@ var keeFoxDialogManager = {
                         realm = matches[2];
                     }
                 }
-                    
-                if (host.length < 1)
-                {
-                    // e.g. en-US:
-                    // The proxy %2$S is requesting a username and password. The site says: "%1$S"
-                    var currentProxyL10nPattern = "";            
-                    try 
-                    {
-                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
-                    } catch (exception)
-                    {
-                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
-                    }
-
-                    realmFirst = false;
-                    if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
-                        realmFirst = true;
-
-                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                    regEx = new RegExp(currentProxyL10nPattern);
-
-                    matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
-                        if (realmFirst)
-                        {
-                            host = matches[2];
-                            realm = matches[1];
-                        } else
-                        {
-                            host = matches[1];
-                            realm = matches[2];
-                        }
-                    }
-                }
-                    
-                // check for NTLM auth dialog
-                if (host.length < 1) 
-                {
-                    // e.g. en-US:
-                    // Enter username and password for %1$S
-                    var currentProxyL10nPattern = "";            
-                    try 
-                    {
-                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
-                    } catch (exception)
-                    {
-                        currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
-                    }
-
-                    currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                    regEx = new RegExp(currentProxyL10nPattern);
-
-                    matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
-                    if (matches !== null && typeof matches[1] !== "undefined")  {
-                            host = matches[1];
-                    }
-                }
-            } // end if Firefox
-            /* handle cases for password only prompt in thunderbird */
-            else if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}" &&
-              Dialog.args.promptType == "promptPassword")
-            {
-              let titles = {};
-              let prompts = {};
-              let hostFirst = {};
-              let LoadDialogData = function (aStringBundle, aTypeName,
-                aTitlePropertyName, aPromptPropertyName, aHostPlaceholder, aUserPlaceholder) {
-                  if (aStringBundle != null) {
-                    titles[aTypeName] = aStringBundle.GetStringFromName(aTitlePropertyName);
-                    prompts[aTypeName] = aStringBundle.GetStringFromName(aPromptPropertyName);
-                    if (aHostPlaceholder == aUserPlaceholder) {
-                      // use null as a flag to indicate that there was only one
-                      // placeholder and hostFirst is not applicable
-                      hostFirst[aTypeName] = null;
-                    } else {
-                      hostFirst[aTypeName] = prompts[aTypeName].indexOf(aHostPlaceholder) < prompts[aTypeName].indexOf(aUserPlaceholder);
-                    }
-                    prompts[aTypeName] = prompts[aTypeName].replace(aHostPlaceholder, "(.+)")
-                      .replace(aUserPlaceholder, "(.+)");
-                  }
-                }
+            }
                 
-              LoadDialogData(this._composeBundle, "smtp", "smtpEnterPasswordPromptTitle",
-                "smtpEnterPasswordPromptWithUsername", "%1$S", "%2$S");
-              LoadDialogData(this._imapMsgsBundle, "imap", "5051", "5047", "%S", "%S");
-              LoadDialogData(this._localMsgsBundle, "pop3", "pop3EnterPasswordPromptTitle",
-                "pop3EnterPasswordPrompt", "%2$S", "%1$S");
-              // TODO - news asks for user and pass - and there are 2 possible
-              // prompts (enterUserPassServer, enterUserPassGroup)
-              //LoadDialogData(this._newsBundle, "nntp", " enterUserPassTitle",
-              //  " enterUserPassServer", "%2$S", "%1$S");
-              LoadDialogData(this._messengerBundle, "mail", "passwordTitle",
-                "passwordPrompt", "%2$S", "%1$S");
-              
-              for (let type in titles) {                  
-                if (Dialog.args.title == titles[type]) {
-                  // some types have the same title, so we have more checking to do
-                  let regEx = new RegExp(prompts[type]);
-                  let matches = Dialog.args.text.match(regEx);
-                  if (hostFirst[type] == null) {
-                    if (matches.length == 2) {
-                      // imap user and host are separated by @ character
-                      let lastAtSym = matches[1].lastIndexOf("@");                            
-                      username = matches[1].substring(0, lastAtSym);
-                      host = type + "://" + matches[1].substring(lastAtSym + 1, matches[1].length);
-                      break;
-                    }
-                  } else {
-                    if (matches.length == 3) {
-                      if (hostFirst[type]) {
-                        host = type + "://" + matches[1];
-                        username = matches[2];
-                      } else {
-                        host = type + "://" + matches[2];
-                        username = matches[1];
-                      }
-                      break;
-                    }
-                  }
+            if (host.length < 1)
+            {
+                // e.g. en-US:
+                // The proxy %2$S is requesting a username and password. The site says: "%1$S"
+                var currentProxyL10nPattern = "";            
+                try 
+                {
+                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                } catch (exception)
+                {
+                    currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
                 }
-              }
-            } // end if Thunderbird password only
+
+                realmFirst = false;
+                if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
+                    realmFirst = true;
+
+                currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
+                regEx = new RegExp(currentProxyL10nPattern);
+
+                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
+                    if (realmFirst)
+                    {
+                        host = matches[2];
+                        realm = matches[1];
+                    } else
+                    {
+                        host = matches[1];
+                        realm = matches[2];
+                    }
+                }
+            }
+                
+            // check for NTLM auth dialog
+            if (host.length < 1) 
+            {
+                // e.g. en-US:
+                // Enter username and password for %1$S
+                var currentProxyL10nPattern = "";            
+                try 
+                {
+                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                } catch (exception)
+                {
+                    currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
+                }
+
+                currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
+                regEx = new RegExp(currentProxyL10nPattern);
+
+                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                if (matches !== null && typeof matches[1] !== "undefined")  {
+                        host = matches[1];
+                }
+            }
             
             if (host.length < 1) {
               return;
