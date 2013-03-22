@@ -2067,6 +2067,8 @@ namespace KeePassRPC
                     // Search every entry in the DB
                     foreach (PwEntry pwe in output)
                     {
+                        string entryUserName = pwe.Strings.ReadSafe(PwDefs.UserNameField);
+                        entryUserName = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
                         if (db.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
                             continue; // ignore if it's in the recycle bin
 
@@ -2110,7 +2112,7 @@ namespace KeePassRPC
                         {
                             if (!entryIsAMatch && lst != LoginSearchType.LSTnoForms 
                                 && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch)
-                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe(PwDefs.UserNameField)))
+                                && (string.IsNullOrEmpty(username) || username == entryUserName))
                             {
                                 if (conf.FormActionURL == actionURL && pwe.Strings.ReadSafe("URL") == URL)
                                 {
@@ -2126,7 +2128,7 @@ namespace KeePassRPC
                         {
                             if (!entryIsAMatch && lst != LoginSearchType.LSTnoRealms 
                                 && matchesAnyURL(pwe, conf, URL, URLHostnames[URL], !conf.BlockHostnameOnlyMatch)
-                                && (string.IsNullOrEmpty(username) || username == pwe.Strings.ReadSafe(PwDefs.UserNameField)))
+                                && (string.IsNullOrEmpty(username) || username == entryUserName))
                             {
                                 if ((!string.IsNullOrEmpty(conf.HTTPRealm)
                                     && (httpRealm == "" || conf.HTTPRealm == httpRealm)
