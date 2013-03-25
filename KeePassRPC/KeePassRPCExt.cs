@@ -1037,7 +1037,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
-                // this generally only happens at conenction shutdown time so think we get away with a search like this
+                // this generally only happens at connection shutdown time so think we get away with a search like this
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
                         if (connection == keePassRPCClient)
