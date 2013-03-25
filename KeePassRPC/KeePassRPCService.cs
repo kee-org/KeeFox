@@ -1624,7 +1624,7 @@ namespace KeePassRPC
 
             foreach (PwEntry pwe in output)
             {
-                if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                if (EntryIsInRecycleBin(pwe, host.Database))
                     continue; // ignore if it's in the recycle bin
 
                 if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
@@ -1644,6 +1644,18 @@ namespace KeePassRPC
             });
 
             return allEntries.ToArray();
+        }
+
+        private bool EntryIsInRecycleBin(PwEntry pwe, PwDatabase db)
+        {
+            PwGroup parent = pwe.ParentGroup;
+            while (parent != null)
+            {
+                if (db.RecycleBinUuid.EqualsValue(parent.Uuid))
+                    return true;
+                parent = parent.ParentGroup;
+            }
+            return false;
         }
 
         /// <summary>
@@ -1692,7 +1704,7 @@ namespace KeePassRPC
 
                 foreach (PwEntry pwe in output)
                 {
-                    if (pwd.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                    if (EntryIsInRecycleBin(pwe, pwd))
                         continue; // ignore if it's in the recycle bin
 
                     if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
@@ -2070,7 +2082,7 @@ namespace KeePassRPC
                     {
                         string entryUserName = pwe.Strings.ReadSafe(PwDefs.UserNameField);
                         entryUserName = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, entryUserName, db);
-                        if (db.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                        if (EntryIsInRecycleBin(pwe, db))
                             continue; // ignore if it's in the recycle bin
 
                         if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
