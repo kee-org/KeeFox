@@ -636,6 +636,7 @@ namespace KeePassRPC
             if (!usernameFound)
             {
                 string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "UserName", db);
+                ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db);
                 if (!string.IsNullOrEmpty(ffValue))
                 {
                     formFieldList.Add(new FormField("username",
