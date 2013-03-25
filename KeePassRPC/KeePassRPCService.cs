@@ -1623,7 +1623,18 @@ namespace KeePassRPC
 
             foreach (PwEntry pwe in output)
             {
-                if (host.Database.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                bool entryInRecycleBin = false;
+                PwGroup parent = pwe.ParentGroup;
+                while (parent != null)
+                {
+                    if (host.Database.RecycleBinUuid.EqualsValue(parent.Uuid))
+                    {
+                        entryInRecycleBin = true;
+                        break;
+                    }
+                    parent = parent.ParentGroup;
+                }
+                if (entryInRecycleBin)
                     continue; // ignore if it's in the recycle bin
 
                 if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
@@ -1691,7 +1702,18 @@ namespace KeePassRPC
 
                 foreach (PwEntry pwe in output)
                 {
-                    if (pwd.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+                    bool entryInRecycleBin = false;
+                    PwGroup parent = pwe.ParentGroup;
+                    while (parent != null)
+                    {
+                        if (host.Database.RecycleBinUuid.EqualsValue(parent.Uuid))
+                        {
+                            entryInRecycleBin = true;
+                            break;
+                        }
+                        parent = parent.ParentGroup;
+                    }
+                    if (entryInRecycleBin)
                         continue; // ignore if it's in the recycle bin
 
                     if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
@@ -2067,7 +2089,19 @@ namespace KeePassRPC
                     // Search every entry in the DB
                     foreach (PwEntry pwe in output)
                     {
-                        if (db.RecycleBinUuid.EqualsValue(pwe.ParentGroup.Uuid))
+
+                        bool entryInRecycleBin = false;
+                        PwGroup parent = pwe.ParentGroup;
+                        while (parent != null)
+                        {
+                            if (host.Database.RecycleBinUuid.EqualsValue(parent.Uuid))
+                            {
+                                entryInRecycleBin = true;
+                                break;
+                            }
+                            parent = parent.ParentGroup;
+                        }
+                        if (entryInRecycleBin)
                             continue; // ignore if it's in the recycle bin
 
                         if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
