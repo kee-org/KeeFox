@@ -1047,11 +1047,10 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             }
         }
 
-
-
         public string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
         {
-            return pwe.Strings.ReadSafe(name);
+            string password = pwe.Strings.ReadSafe(name);
+            return GetPwEntryStringFromDereferencableValue(pwe, password, db);
         }
 
         public string GetPwEntryStringFromDereferencableValue(PwEntry pwe, string name, PwDatabase db)
