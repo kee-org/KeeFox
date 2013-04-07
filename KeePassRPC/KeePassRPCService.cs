@@ -624,6 +624,7 @@ namespace KeePassRPC
             if (fullDetails && !passwordFound)
             {
                 string ffValue = KeePassRPCPlugin.GetPwEntryString(pwe, "Password", db);
+                ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db);
                 if (!string.IsNullOrEmpty(ffValue))
                 {
                     formFieldList.Add(new FormField("password",
