@@ -42,7 +42,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use strict";
+"use non-strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -151,27 +151,6 @@ KeeFoxLogger.prototype = {
     // Logs a message using the currently enabled methods
     _log : function (message)
     {
-        // Don't log anything if user is in private browsing mode, just in case!
-        
-        // I don't understand why Firefox complains about this check for private
-        // browsing mode but I will ignore its complaints becuase I'm
-        // uncomfortable leaving users with a risk of recording URL data unexpectedly
-        // As of Firefox 20 this will always fail so we have to always log.
-        // When docs are updated I can investigate if its possible to add this feature for FF20+
-        //TODO1.2: This probably needs reviewing before final 1.2 submission but currently
-        // can find no info on how to make it work on all FF versions
-        // try: if("@mozilla.org/privatebrowsing;1" in Components.classes)
-        // Maybe this URL will be updated with useful info soon: https://developer.mozilla.org/en-US/docs/Supporting_per-window_private_browsing
-        try
-        {
-            var pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
-                        .getService(Components.interfaces.nsIPrivateBrowsingService);
-            if (pbs.privateBrowsingEnabled)
-                return;
-        } catch (nothing) {
-        // log if private browsing feature is unavailable
-        }
-        
         //timestamp the message
         var ts = Date();
         message = ts + ":" + message;
@@ -179,6 +158,10 @@ KeeFoxLogger.prototype = {
         // prefix logs in sensitive mode
         if (this.logSensitiveData)
             message = "!! " + message;
+
+        //TODO2: Once we no longer support FF < 21 we might want to consider private browsing
+        // state and provide the user extra protection from themselves (in case they have
+        // ignored warnings of sensitive data logging and then entered a private browsing window)
 
         try
         {
