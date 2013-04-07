@@ -23,14 +23,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 "use strict";
 
 //Math.round((d.getTime()/1000)-10)
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.21/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.21.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.21.zip";
-const KF_KPZIP_FILE_CHECKSUM = "08f34085b009120059e70caffe5427e9";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.21/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KP_FILE_NAME = "KeePass-2.21-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
-const KF_KP_SAVE_NAME = "KeePass-2.21-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "1c554561a231ca80d20528e49aff9a53";
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.22/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.22.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.22.zip";
+const KF_KPZIP_FILE_CHECKSUM = "cf781cb9b02b5a530ab4889dd522804c";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.22/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
+const KF_KP_FILE_NAME = "KeePass-2.22-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
+const KF_KP_SAVE_NAME = "KeePass-2.22-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "0717f2fd9320bb8dbbb111f3e1889099";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
 const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
 const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
