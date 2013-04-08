@@ -332,7 +332,8 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
         .getService(Components.interfaces.nsIIOService)
         .newURI(URL, null, null);
     persist.progressListener = new KeeFoxFileDownloaderListener(source, URL, destinationFile, mainWindow, browserWindow, persist);
-    persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_CLEANUP_ON_FAILURE | PERSIST_FLAGS_REPLACE_EXISTING_FILES | PERSIST_FLAGS_BYPASS_CACHE;
+    persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_CLEANUP_ON_FAILURE 
+                         | persist.PERSIST_FLAGS_REPLACE_EXISTING_FILES | persist.PERSIST_FLAGS_BYPASS_CACHE;
 
     persist.saveURI(obj_URI, null, null, null, "", file, null);
     

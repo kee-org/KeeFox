@@ -494,7 +494,7 @@ var keeFoxDialogManager = {
             var launchKeePassButton = document.createElement("button");
             launchKeePassButton.setAttribute("id", "keefox-launch-kp-button");
             launchKeePassButton.setAttribute("label", keefox_org.locale.$STR("launchKeePass.label"));
-            launchKeePassButton.setAttribute("oncommand", "keefox_org.launchKeePass('');");
+            launchKeePassButton.addEventListener("command", function (event) { keefox_org.launchKeePass(''); }, false);
             box.appendChild(launchKeePassButton);
 
             document.getElementById("loginContainer").parentNode.appendChild(row);
@@ -519,7 +519,7 @@ var keeFoxDialogManager = {
                   return;
                 }
                 loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.default"));
-                keeFoxDialogManager.updateTimer = setInterval(keeFoxDialogManager.updateDialog, 1000);
+                keeFoxDialogManager.updateTimer = setInterval(function() { keeFoxDialogManager.updateDialog(); }, 1000);
                 return;
             }
             
