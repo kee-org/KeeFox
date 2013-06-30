@@ -62,7 +62,8 @@ namespace KeePassRPC
         private bool _useSSL = true;
         private string pkcs12_password = "private"; // Really doesn't matter, but required for Mono
 		private AutoResetEvent wait_event = null;
-		
+        private List<Thread> activeClientThreads;
+
         /// <summary>
         /// Gets a value indicating whether this server is listening for connection requests from clients.
         /// </summary>
@@ -78,8 +79,11 @@ namespace KeePassRPC
         /// Terminates this server.
         /// </summary>
         public void Terminate()
-        {			
+        {
             this._tcpListener.Stop();
+            foreach (var thread in activeClientThreads.ToArray()) {
+                thread.Interrupt();
+            }
 			// KRB - there appears to be a race condition here (at least under Mono).
 			// The above Stop will signal AcceptTcpClient() in ListenForClients() to exit.
 			// However, the thread may not exit until AFTER the main KeePass program
@@ -108,6 +112,7 @@ namespace KeePassRPC
             if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Starting KPRPCServer");
             Service = service;
             KeePassRPCPlugin = keePassRPCPlugin;
+            activeClientThreads = new List<Thread>();
 
             if (_useSSL)
             {
@@ -210,6 +215,7 @@ namespace KeePassRPC
             {
                 this._tcpListener =  new TcpListener(IPAddress.Loopback, port);
                 this._listenThread = new Thread(new ThreadStart(ListenForClients));
+                this._listenThread.Name = "KeePassRPCServer._listenThread";
                 this._listenThread.Start();
                 this._isListening = true; // just in case the main thread checks
                     // for successful startup before the thread has got going.
@@ -228,7 +234,8 @@ namespace KeePassRPC
         {
             bool tryToListen = true;
             long lastListenAttempt = 0;
-			this.wait_event = new AutoResetEvent(false);
+            this.wait_event = new AutoResetEvent(false);
+            int connectionThreadCount = 0;
 
             // Keep listening even if the connection drops out occasionally
             while (tryToListen)
@@ -249,7 +256,10 @@ namespace KeePassRPC
                         //create a thread to handle communication with connected client
                         Thread clientThread = new Thread(
                             new ParameterizedThreadStart(HandleClientComm));
+                        clientThread.Name = string.Format("KeePassRPCServer - clientThread{0}",
+                                                          connectionThreadCount++);
                         clientThread.Start(client);
+                        activeClientThreads.Add(clientThread);
                     }
                 }
                 catch (Exception ex)
@@ -455,6 +465,7 @@ namespace KeePassRPC
                     clientStream.Close();
 				}
             }
+            activeClientThreads.Remove(Thread.CurrentThread);
         }
 
         /// <summary>
