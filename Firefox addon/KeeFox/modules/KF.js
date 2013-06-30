@@ -1755,6 +1755,7 @@ KeeFox.prototype = {
         } catch (ex) 
         {
             // something failed so we can't get the favicon. We don't really mind too much...
+            faviconLoader.onComplete(null,0,null,null);
             if (this._KFLog.logSensitiveData)
             {
                 this._KFLog.info("favicon load failed for " + url + " : " + ex);

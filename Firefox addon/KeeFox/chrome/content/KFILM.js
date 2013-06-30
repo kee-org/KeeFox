@@ -760,6 +760,9 @@ keefox_win.ILM = {
             {
                 keefox_win.Logger.info("Failed to process add login request");
             }
+        } else
+        {
+            this.k.addLogin(login, parentUUID, dbFileName);
         }
     },
     
