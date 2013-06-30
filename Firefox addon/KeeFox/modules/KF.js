@@ -967,11 +967,11 @@ KeeFox.prototype = {
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
 
         if (params != "" && mruparam != "")
-            args = [params, '' + mruparam + ''];
+            args = [params, "-iocredfromrecent", '' + mruparam + ''];
         else if (params != "")
             args = [params];
         else if (mruparam != "")
-            args = ['' + mruparam + ''];
+            args = ["-iocredfromrecent", '' + mruparam + ''];
 
         var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
