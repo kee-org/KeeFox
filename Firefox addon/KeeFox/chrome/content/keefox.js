@@ -55,7 +55,7 @@ if (keefox_win.shouldLoad)
     keefox_win.Logger.debug("got sessionstore-windows-restored1");
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
     keefox_win.Logger.debug("got sessionstore-windows-restored2");
-    Cu.import("resource://kfmod/FAMS.jsm");
+    Cu.import("resource://kfmod/FAMS.jsm",keefox_org);
     keefox_win.Logger.debug("got sessionstore-windows-restored3");
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window
@@ -134,7 +134,7 @@ if (keefox_win.shouldLoad)
                         window.gBrowser.tabContainer.addEventListener("TabOpen", keefox_org._onTabOpened, false);
                     }
                     this.startupKeeFox(keefox_win.toolbar, currentWindow);
-                    keefox_win.FAMS = keeFoxGetFamsInst("KeeFox", FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { keefox_win.Logger.info.call(this, msg); });
+                    keefox_win.FAMS = keefox_org.keeFoxGetFamsInst("KeeFox", keefox_org.FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { keefox_win.Logger.info.call(this, msg); });
                                                             
                     return;
                 case "unload":
