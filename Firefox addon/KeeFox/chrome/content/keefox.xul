@@ -36,7 +36,7 @@
     this.keefox_org.locale.internationaliseElements(this.document,
     ['KeeFox_Menu-Button','KeeFox_ChangeDB-Button','KeeFox_FillCurrentDocument-Button','KeeFox_CopyNewPasswordToClipboard-Button','KeeFox_Options-Button','KeeFox_Help-Button',
     'KeeFox_Help-GettingStarted-Button','KeeFox_Help-Centre-Button','KeeFox_Main-Button','KeeFox_Logins-Button','KeeFox-login-toolbar-context-edit','KeeFox-login-context-edit',
-    'KeeFox-group-context-edit','menu_ToolsPopup-options'],
+    'KeeFox-group-context-edit','KeeFox-menu_ToolsPopup-options'],
     ['label','tooltiptext','accesskey']);
     }, false);
   </script>
@@ -126,7 +126,7 @@
   </popupset>
 
   <menupopup id="menu_ToolsPopup">
-    <menuitem id="menu_ToolsPopup-options" label="%-KeeFox_Tools-Menu.options.label-%..."
+    <menuitem id="KeeFox-menu_ToolsPopup-options" label="%-KeeFox_Tools-Menu.options.label-%..."
               insertafter="devToolsSeparator"
               oncommand='openDialog(
                "chrome://keefox/content/options.xul",
