@@ -98,7 +98,19 @@ var keeFoxDialogManager = {
         }        
         return this.__imapMsgsBundle;
     },
-    
+
+    __imapBundleUsesStrings : null, // specifies whether imap bundle uses string
+                                    // identifiers (true) or numeric identifiers
+                                    // (false). Change was made in Thunderbird 25
+    get _imapBundleUsesStrings() {
+        if (this.__imapBundleUsesStrings === null) {
+            var versionComparator = Components.classes["@mozilla.org/xpcom/version-comparator;1"].
+                getService(Components.interfaces.nsIVersionComparator);
+            this.__imapBundleUsesStrings = versionComparator.compare(Application.version, "25.0a1") >= 0;
+        }
+        return this.__imapBundleUsesStrings;
+    },
+
     __newsBundle : null, // string bundle for thunderbird l10n
     get _newsBundle() {    
         if (!this.__newsBundle) {
@@ -296,7 +308,10 @@ var keeFoxDialogManager = {
                   
                 LoadDialogData(this._composeBundle, "smtp", "smtpEnterPasswordPromptTitle",
                     "smtpEnterPasswordPromptWithUsername", "%1$S", null, "%2$S");
-                LoadDialogData(this._imapMsgsBundle, "imap", "5051", "5047", "%S", null, null, true);
+                LoadDialogData(this._imapMsgsBundle, "imap",
+                    this._imapBundleUsesStrings ? "imapEnterPasswordPromptTitle" : "5051",
+                    this._imapBundleUsesStrings ? "imapEnterPasswordPrompt" : "5047",
+                    "%S", null, null, true);
                 LoadDialogData(this._localMsgsBundle, "pop3", "pop3EnterPasswordPromptTitle",
                     "pop3EnterPasswordPrompt", "%2$S", null, "%1$S");
                 LoadDialogData(this._newsBundle, "nntp-1", "enterUserPassTitle",
