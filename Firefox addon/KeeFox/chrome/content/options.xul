@@ -217,22 +217,25 @@
         <tabpanel>
           <vbox align="left">
             <label id="lab-keePassRPCInstalledLocation" control="keePassRPCInstalledLocation" value="%-KeeFox-pref-keePassRPCInstalledLocation.label-%:"/>            
-            <hbox class="itemEnd">
+            <hbox>
               <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80" />
               <button id="keePassRPCInstalledLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForKPRPCLocation(document.getElementById('keePassRPCInstalledLocation').value);"/>
             </hbox>
-            
+            <label id="lab-keePassRPCInstalledLocationStatus" value="staus" class="itemEnd" />
+
             <label id="lab-keePassInstalledLocation" control="keePassInstalledLocation" value="%-KeeFox-pref-keePassInstalledLocation.label-%:"/>
-            <hbox class="itemEnd">
+            <hbox>
               <textbox preference="KeeFox-pref-keePassInstalledLocation" id="keePassInstalledLocation" maxlength="255" size="80" />
               <button id="keePassInstalledLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
             </hbox>
-            
+            <label id="lab-keePassInstalledLocationStatus" value="staus" class="itemEnd" />
+
             <label id="lab-monoLocation" control="monoLocation" value="%-KeeFox-pref-monoLocation.label-%:"/>
-            <hbox class="itemEnd">
+            <hbox>
               <textbox preference="KeeFox-pref-monoLocation" id="monoLocation" maxlength="255" size="80" />
               <button id="monoLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForMonoLocation(document.getElementById('monoLocation').value);"/>
             </hbox>
+            <label id="lab-monoLocationStatus" value="staus" class="itemEnd" />
 
             <checkbox id="keePassRememberInstalledLocation" preference="KeeFox-pref-keePassRememberInstalledLocation" label="%-KeeFox-pref-keePassRememberInstalledLocation.label-%" class="itemEnd" />
             <label id="lab-keePassLocation" control="keePassLocation" value="%-KeeFox-pref-keePassLocation.label-%:"/>

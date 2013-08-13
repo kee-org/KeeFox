@@ -22,6 +22,9 @@ function onLoad(){
       ],
       ['title','label','tooltiptext','accesskey','value']);
 
+    validateFileLocation("keePassInstalledLocation", "KeePass.exe");
+    validateFileLocation("keePassRPCInstalledLocation", "KeePassRPC.plgx");
+    validateFileLocation("monoLocation");
 }
 
 function onsyncfrompreferenceMatchSelected()
@@ -152,6 +155,7 @@ function browseForKeePassLocation(currentLocationPath)
                                      Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation', 'NoFilter');
     document.getElementById("keePassInstalledLocation").value = location;
     document.getElementById("KeeFox-pref-keePassInstalledLocation").value = location;
+    validateFileLocation("keePassInstalledLocation", "KeePass.exe");
 }
 
 function browseForKPRPCLocation(currentLocationPath)
@@ -160,6 +164,7 @@ function browseForKPRPCLocation(currentLocationPath)
                                      Components.interfaces.nsIFilePicker.modeGetFolder, 'selectKeePassLocation', 'NoFilter');
     document.getElementById("keePassRPCInstalledLocation").value = location;
     document.getElementById("KeeFox-pref-keePassRPCInstalledLocation").value = location;
+    validateFileLocation("keePassRPCInstalledLocation", "KeePassRPC.plgx");
 }
 
 function browseForMonoLocation(currentLocationPath)
@@ -168,6 +173,7 @@ function browseForMonoLocation(currentLocationPath)
                                      Components.interfaces.nsIFilePicker.modeOpen, 'selectMonoLocation', 'NoFilter');
     document.getElementById("monoLocation").value = location;
     document.getElementById("KeeFox-pref-monoLocation").value = location;
+    validateFileLocation("monoLocation");
 }
 
 function browseForDefaultKDBXLocation(currentLocationPath)
@@ -228,4 +234,30 @@ function openSiteConfig()
     onOK,
     onCancel,
     null);
+}
+
+function validateFileLocation(id, fileName)
+{
+    var location = document.getElementById(id).value;
+    var file = Components.classes["@mozilla.org/file/local;1"].
+        createInstance(Components.interfaces.nsILocalFile);
+    var stausLabel = document.getElementById("lab-" + id + "Status");
+    if (location && location.length > 0) {
+      file.initWithPath(location);
+      if (typeof(fileName) !== "undefined")
+        file.append(fileName);
+      if (file.exists()) {
+          // TODO: Check and display version
+          stausLabel.value = "Found %1$S version %2$S".replace("%1$S", fileName);
+      } else {
+          stausLabel.value = "Could not find KeePass.exe at this location";
+          // TODO: Make text red for indicating error.
+      }
+    } else {
+        // TODO: show platform specific messages
+        if (id == "monoLocation" /* && isWindows */)
+          stausLabel.value = "Mono is not required on Windows.";
+        else
+          stausLabel.value = "????";
+    }
 }
