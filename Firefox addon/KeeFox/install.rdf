@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.2.4</em:version>
+    <em:version>1.2.5b1</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -19,7 +19,7 @@
         <!-- Firefox -->
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>4.0</em:minVersion>
-        <em:maxVersion>23.*</em:maxVersion>
+        <em:maxVersion>25.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -28,13 +28,15 @@
         <!-- Thunderbird -->
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
         <em:minVersion>5.0</em:minVersion>
-        <em:maxVersion>23.*</em:maxVersion>
+        <em:maxVersion>25.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
     <em:targetPlatform>WINNT</em:targetPlatform>
     <em:targetPlatform>Linux</em:targetPlatform>
-
+    <em:targetPlatform>Darwin</em:targetPlatform>
+    <em:targetPlatform>FreeBSD</em:targetPlatform>
+    
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
     <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
@@ -153,6 +155,20 @@
         <em:translator>용오름(Wtspout)</em:translator>
         <em:name>KeeFox</em:name>
         <em:description>간편하고 안전한 암호 관리. 자동 로그인, 다른 암호를 잊는 일이 없으며, 비밀번호 제어를 유지하고 보안을 향상시킵니다. 세계적으로 유명한 안전한 KeePass 암호를 통해 구동됩니다.</em:description>
+        <em:creator>Chris Tomlinson</em:creator>
+        <em:homepageURL>http://keefox.org</em:homepageURL>
+        <em:contributor>Ben Roberts</em:contributor>
+        <em:contributor>David Lechner</em:contributor>
+        <em:contributor>Ken Bass</em:contributor>
+      </Description>
+    </em:localized>
+
+    <em:localized>
+      <Description>
+        <em:locale>pt-BR</em:locale>
+        <em:translator>Ghelman</em:translator>
+        <em:name>KeeFox</em:name>
+        <em:description>Gerenciador de senhas simples e seguro. Faça login automaticamente, nunca esqueça outra senha, mantenha o controle sobre suas senhas e aumente sua segurança. Fortalecido pelo mundialmente renomado KeePass Password Safe.</em:description>
         <em:creator>Chris Tomlinson</em:creator>
         <em:homepageURL>http://keefox.org</em:homepageURL>
         <em:contributor>Ben Roberts</em:contributor>
