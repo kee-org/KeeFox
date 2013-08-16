@@ -563,7 +563,17 @@ namespace KeePassRPC
             if (string.IsNullOrEmpty(json))
                 conf = new EntryConfig();
             else
-                conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+            {
+                try
+                {
+                    conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + pwe.Strings.ReadSafe("URL") + " and the full configuration data is: " + json, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return null;
+                }
+            }
             return GetEntryFromPwEntry(pwe, conf, isExactMatch, fullDetails, db, abortIfHidden);
         }
 
@@ -1981,8 +1991,11 @@ namespace KeePassRPC
                     foreach (PwEntry pwe in output)
                     {
                         Entry kpe = (Entry)GetEntryFromPwEntry(pwe, true, true, db);
-                        allEntries.Add(kpe);
-                        count++;
+                        if (kpe != null)
+                        {
+                            allEntries.Add(kpe);
+                            count++;
+                        }
                     }
                 }
 
@@ -2077,6 +2090,7 @@ namespace KeePassRPC
 
                     PwGroup searchGroup = GetRootPwGroup(db);
                     output = searchGroup.GetEntries(true);
+                    List<string> configErrors = new List<string>(1);
 
                     // Search every entry in the DB
                     foreach (PwEntry pwe in output)
@@ -2092,9 +2106,21 @@ namespace KeePassRPC
                         string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", db);
                         EntryConfig conf;
                         if (string.IsNullOrEmpty(json))
+                        {
                             conf = new EntryConfig();
+                        }
                         else
-                            conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+                        {
+                            try
+                            {
+                                conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+                            }
+                            catch (Exception ex)
+                            {
+                                configErrors.Add("Username: " + entryUserName + ". URL: " + pwe.Strings.ReadSafe("URL"));
+                                continue;
+                            }
+                        }
 
                         if (conf.Hide)
                             continue;
@@ -2187,11 +2213,16 @@ namespace KeePassRPC
                         if (entryIsAMatch)
                         {
                             Entry kpe = (Entry)GetEntryFromPwEntry(pwe, entryIsAnExactMatch, true, db);
-                            allEntries.Add(kpe);
-                            count++;
+                            if (kpe != null)
+                            {
+                                allEntries.Add(kpe);
+                                count++;
+                            }
                         }
 
                     }
+                    if (configErrors.Count > 0)
+                        MessageBox.Show("There are configuration errors in your database called '" + db.Name + "'. To fix the entries listed below and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. These entries are affected:" + Environment.NewLine + string.Join(Environment.NewLine, configErrors.ToArray()), "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             allEntries.Sort(delegate(Entry e1, Entry e2)

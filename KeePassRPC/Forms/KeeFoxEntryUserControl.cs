@@ -37,7 +37,16 @@ namespace KeePassRPC.Forms
             if (string.IsNullOrEmpty(json))
                 _conf = new EntryConfig();
             else
-                _conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+            {
+                try
+                {
+                    _conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this.", "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
         }
 
         private void changeAdvancedString(string name, string value, bool protect)
