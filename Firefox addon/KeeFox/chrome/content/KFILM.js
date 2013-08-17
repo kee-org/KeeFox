@@ -28,7 +28,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -142,7 +142,7 @@ keefox_win.ILM = {
         else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
             score += 1;
 
-        //TODO1.3: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
+        //TODO1.4: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
 
         keefox_win.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;

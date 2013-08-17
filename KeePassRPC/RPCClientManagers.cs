@@ -87,6 +87,7 @@ namespace KeePassRPC
         {
             lock (_lockRPCClients)
             {
+                client.ShuttingDown();
                 _RPCClientConnections.Remove(client);
             }
         }

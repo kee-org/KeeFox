@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.2.5b1</em:version>
+    <em:version>1.3.0n1</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -36,7 +36,7 @@
     <em:targetPlatform>Linux</em:targetPlatform>
     <em:targetPlatform>Darwin</em:targetPlatform>
     <em:targetPlatform>FreeBSD</em:targetPlatform>
-    
+
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
     <em:description>Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.</em:description>
@@ -162,7 +162,7 @@
         <em:contributor>Ken Bass</em:contributor>
       </Description>
     </em:localized>
-
+    
     <em:localized>
       <Description>
         <em:locale>pt-BR</em:locale>
@@ -174,7 +174,7 @@
         <em:contributor>Ben Roberts</em:contributor>
         <em:contributor>David Lechner</em:contributor>
         <em:contributor>Ken Bass</em:contributor>
-      </Description>
+  </Description>
     </em:localized>
     
   </Description>

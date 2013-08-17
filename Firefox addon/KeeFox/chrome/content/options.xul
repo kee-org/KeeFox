@@ -71,6 +71,9 @@
       <preference id="KeeFox-pref-keePassRememberInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRememberInstalledLocation" type="bool"/>
       <preference id="KeeFox-pref-keePassLocation" name="extensions.keefox@chris.tomlinson.currentLocation" type="string"/>
       <preference id="KeeFox-pref-monoLocation" name="extensions.keefox@chris.tomlinson.monoLocation" type="string"/>
+
+      <preference id="KeeFox-pref-connSLClient" name="extensions.keefox@chris.tomlinson.connSLClient" type="int"/>
+      <preference id="KeeFox-pref-connSLServerMin" name="extensions.keefox@chris.tomlinson.connSLServerMin" type="int"/>
     </preferences>
 
     <tabbox flex="1">
@@ -80,6 +83,9 @@
         <tab id="tab-Logging" label="%-KeeFox-pref-Logging.heading-%"/>
         <tab id="tab-Advanced" label="%-KeeFox-pref-Advanced.heading-%"/>
         <tab id="tab-KeePass" label="%-KeeFox-pref-KeePass.heading-%"/>
+        <tab id="tab-ConnectionSecurity" label="%-KeeFox-pref-ConnectionSecurity.heading-%"/>
+        <tab id="tab-AuthorisedConnections" label="%-KeeFox-pref-AuthorisedConnections.heading-%"/>
+        <tab id="tab-Commands" label="%-KeeFox-pref-Commands.heading-%"/>
       </tabs>
       <tabpanels flex="1">
 
@@ -240,33 +246,56 @@
 
           </vbox>
         </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+            <description id="desc-ConnSL" width="650">%-KeeFox-conn-sl.desc-%</description>
+            <description id="desc-ConnSL-ManualLink" class="itemEnd">
+               <html:a id="desc-ConnSL-ManualLink-link" target="_blank" class="text-link" href="http://keefox.org">%-KeeFox-conn-sl.link-%</html:a>
+            </description>
+
+            <description id="desc-conn-sl-client">%-KeeFox-conn-sl-client-%: </description>
+            <menulist id="KeeFox-pref-sl-client-list" preference="KeeFox-pref-connSLClient">
+              <menupopup>
+                <menuitem id="slc-Low" label="%-KeeFox-conn-sl-low-%" value="1"/>
+                <menuitem id="slc-Medium" label="%-KeeFox-conn-sl-medium-%" value="2"/>
+                <menuitem id="slc-High" label="%-KeeFox-conn-sl-high-%" value="3"/>
+              </menupopup>
+            </menulist>
+            <description id="desc-conn-sl-client-detail" width="650" class="itemEnd">%-KeeFox-conn-sl-client.desc-%</description>
+
+            <description id="desc-conn-sl-server">%-KeeFox-conn-sl-server-min-%: </description>
+            <menulist id="KeeFox-pref-sl-server-list" preference="KeeFox-pref-connSLServerMin">
+              <menupopup>
+                <menuitem id="sls-Low" label="%-KeeFox-conn-sl-low-%" value="1"/>
+                <menuitem id="sls-Medium" label="%-KeeFox-conn-sl-medium-%" value="2"/>
+                <menuitem id="sls-High" label="%-KeeFox-conn-sl-high-%" value="3"/>
+              </menupopup>
+            </menulist>
+            <description id="desc-conn-sl-server-detail" width="650" class="itemEnd">%-KeeFox-conn-sl-server-min.desc-%</description>
+
+            <description id="desc-conn-sl-low" width="650" class="itemEnd">%-KeeFox-conn-sl-low-warning.desc-%</description>
+
+            <description id="desc-conn-sl-high" width="650" class="itemEnd">%-KeeFox-conn-sl-high-warning.desc-%</description>
+            
+          </vbox>
+        </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+            <label id="lab-todo" value="TODO"/>
+          </vbox>
+        </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+            <label id="lab-todo" value="TODO"/>
+          </vbox>
+        </tabpanel>
+        
       </tabpanels>
     </tabbox>
 
     <script type="application/x-javascript" src="chrome://keefox/content/options.js" />
-    <script>
-      // Localise this window. We use a fixed list of elements since it's known in
-      // advance and more performant but we could always come up with a more
-      // automatic way in future if we need.
-      /*window.addEventListener("load", function () {
-      this.keefox_org.locale.internationaliseElements(this.document,
-      ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
-      'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
-      'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs',
-      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut','flashIconWhenKeePassRPCInactive',
-      'flashIconWhenLoggedOut','famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
-      'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
-      'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
-      'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
-      'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation'
-      ],
-      ['title','label','tooltiptext','accesskey','value']);
-      }, false);
-      alert(window);
-      alert('loading');
-      alert(this);
-      alert(this.keefox_org);
-      alert(this.keefox_win);*/
-    </script>
   </prefpane>
 </prefwindow>

@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 
 // whether we're upgrading from a previous version
@@ -37,14 +37,6 @@ var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
 function prepareMonoInstallPage()
 {
-    mainWindow.keefox_org.locale.internationaliseElements(document,
-    ['KeeFoxInstallWizard', 'KFInstallPageTitle_description', 'desc_KFInstallAlreadyInProgress', 'desc_KFInstallNotRequired', 'lab_KFInstallNotRequired',
-    'desk_Install_monoManual', 'monoManualStep1_description', 'monoManualStep2_description', 'monoManualStep3_description', 'monoManualStep4_description', 'monoManualStep5_description',
-     'monoManualStep6_description', 'desc_Install_monoManual', 'desc_Install_monoManualUpgrade', 'monoManualUpgradeStep1_description', 'monoManualUpgradeStep2_description', 'monoManualUpgradeStep6_description',
-     'desc_Install_monoManual2', 'monoManualTest1a_description', 'monoManualTest2a_description', 'monoManualTest1_description', 'monoManualTest2_description', 'monoManualTest3_description'
-    ],
-    ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
-
   var qs = "";
   var args = new Object();
   var query = location.search.substring(1);
@@ -55,19 +47,33 @@ function prepareMonoInstallPage()
     if (pos == -1) continue;
     var argname = pairs[i].substring(0,pos);
     var value = pairs[i].substring(pos+1);
-    args[argname] = unescape(value); 
+    args[argname] = unescape(value);
   }
+  let downgradeWarning = "desc_Install_monoManualDowngradeWarning";
   if (args.upgrade == "1")
   {
     KFupgradeMode = true;
     mainWindow.keefox_org._KFLog.debug("Install system starting in upgrade mode");
     document.getElementById('Install_monoManualUpgrade').setAttribute('hidden', false);
+    if (args.downWarning == "1" && args.currentKPRPCv && args.newKPRPCv)
+    {
+      document.getElementById('desc_Install_monoManualDowngradeWarning').setAttribute('hidden', false);
+      downgradeWarning = ['desc_Install_monoManualDowngradeWarning', [args.newKPRPCv,args.currentKPRPCv]];
+    }
     document.getElementById('Install_monoManual').setAttribute('hidden', true);
   }
   else
   {
     mainWindow.keefox_org._KFLog.debug("Install system starting in install mode");
   }
+  mainWindow.keefox_org.locale.internationaliseElements(document,
+        ['KeeFoxInstallWizard', 'KFInstallPageTitle_description', 'desc_KFInstallAlreadyInProgress', 'desc_KFInstallNotRequired', 'lab_KFInstallNotRequired',
+        'desk_Install_monoManual', 'monoManualStep1_description', 'monoManualStep2_description', 'monoManualStep3_description', 'monoManualStep4_description', 'monoManualStep5_description',
+         'monoManualStep6_description', 'desc_Install_monoManual', downgradeWarning, 'desc_Install_monoManualUpgrade', 'monoManualUpgradeStep1_description', 'monoManualUpgradeStep2_description', 'monoManualUpgradeStep6_description',
+         'desc_Install_monoManual2', 'monoManualTest1a_description', 'monoManualTest2a_description', 'monoManualTest1_description', 'monoManualTest2_description', 'monoManualTest3_description'
+        ],
+        ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
+
         
   // prevent reinstallation if KeeFox is already working
   if (mainWindow.keefox_org._keeFoxStorage.get("KeePassRPCActive", false))

@@ -29,7 +29,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
-"use non-strict";
+"use strict";
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
@@ -143,7 +143,7 @@ FirefoxAddonMessageService.prototype = {
         // Record the first time this init function is run so we know when
         // the service was first installed
         try {
-            installTimeString = this.prefBranch.getCharPref("installTime." + this.configuration.id);
+            var installTimeString = this.prefBranch.getCharPref("installTime." + this.configuration.id);
         } catch (ex) { this.prefBranch.setCharPref("installTime." + this.configuration.id, (new Date()).toUTCString()); }
 
         if (this.isEnabled()) {
@@ -460,7 +460,7 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
 };
 
 FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
-    aNotifyBox = this.getNotifyBox();
+    var aNotifyBox = this.getNotifyBox();
     if (!aNotifyBox)
         return false;
 

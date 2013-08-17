@@ -105,6 +105,9 @@ namespace KeePassRPC
         [JsonRpcMethod]
         public AuthenticationResult Authenticate(int[] versionParts, string clientId, string b64IdSig, string b64PrivId)
         {
+            // As of version 1.3+ this method only checks version number
+            // No valid authentication can be achieved by calling this method
+
             //do version negotiation first so client and server know they'll
             //be using correct key pairs (in case signatures are changed in future).
             bool versionMatch = false;
@@ -130,96 +133,43 @@ namespace KeePassRPC
 
                 return new AuthenticationResult(3, clientId); // version mismatch
             }
+            return new AuthenticationResult(4, clientId); // version OK - client must be having problems communicating with the web socket port
 
-            if (string.IsNullOrEmpty(clientId))
-                return new AuthenticationResult(4, clientId); // missing clientId parameter
+            //// This is the first time this type of client has
+            //// connected to KeePassRPC so we start the new user
+            //// wizard.
+            //// TODO2: support wizards for different clients
+            //if (knownClients.Length == 0 && clientId == "KeeFox Firefox add-on")
+            //{
+            //    // The wizard handles user confirmation - if user says yes,
+            //    // the hash will be stored in the KeePass config file
+            //    PendingRPCClient newClient = new PendingRPCClient(
+            //        clientId, clientHash, new List<string>(knownClients));
+            //    object[] delParams = { newClient };
+            //    object invokeResult = host.MainWindow.Invoke(
+            //        new KeePassRPCExt.WelcomeKeeFoxUserDelegate(
+            //            KeePassRPCPlugin.WelcomeKeeFoxUser), delParams);
+            //    return new AuthenticationResult((int)invokeResult, clientId); // Should be 0 unless user cancels
+            //}
+            //else
+            //{
+            //    DialogResult userConfirmationResult = MessageBox.Show(
+            //        "KeePass detected an attempt to connect to KeePass from '"
+            //        + clientId
+            //        + "'. Should KeePass allow this application to access your passwords?",
+            //        "Security check from the KeePassRPC plugin", MessageBoxButtons.YesNo,
+            //        MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
 
-            if (string.IsNullOrEmpty(b64IdSig))
-                return new AuthenticationResult(5, clientId); // missing base64 encoded clientId signature parameter
-
-            if (string.IsNullOrEmpty(b64PrivId))
-                return new AuthenticationResult(6, clientId); // missing base64 encoded unique client hash parameter
-
-            byte[] clientIdClaim = System.Text.Encoding.UTF8.GetBytes(clientId);
-            byte[] clientIdSignature = Convert.FromBase64String(b64IdSig);
-
-            // calculate hash of claimed client ID
-            SHA1 sha1 = new SHA1CryptoServiceProvider(); //TODO2: SHA256
-            byte[] clientIdClaimHash = sha1.ComputeHash(clientIdClaim);
-
-            // Load public key information
-            DSACryptoServiceProvider DSA = new DSACryptoServiceProvider();
-            DSA.ImportCspBlob(GetClientIdPublicKey());
-
-            //Create an DSASignatureDeformatter object and pass it the 
-            //DSACryptoServiceProvider to transfer the key information.
-            DSASignatureDeformatter DSADeformatter = new DSASignatureDeformatter(DSA);
-
-            //Verify the hash and the signature
-            if (!DSADeformatter.VerifySignature(
-                clientIdClaimHash, clientIdSignature))
-            {
-                return new AuthenticationResult(7, clientId); // Signature invalid
-            }
-
-            // hash the (now authenticated) client Id and the client's
-            // secret unique identifier so we can tell if this particular
-            // client has conencted to KeePassRPC before
-            //TODO2: record failed attempts too so we can avoid bothering
-            // the user if they choose to ignore certain clients
-            byte[] data = System.Text.Encoding.UTF8.GetBytes("hash of: " + b64PrivId + clientId);
-            byte[] result;
-            SHA256 shaM = new SHA256Managed();
-            result = shaM.ComputeHash(data);
-            string clientHash = Convert.ToBase64String(result);
-
-            string currentKnownClients = host.CustomConfig
-                .GetString("KeePassRPC.knownClients." + clientId, "");
-            string[] knownClients = new string[0];
-
-            if (!string.IsNullOrEmpty(currentKnownClients))
-            {
-                knownClients = currentKnownClients.Split(',');
-                foreach (string knownClient in knownClients)
-                    if (knownClient == clientHash)
-                        return new AuthenticationResult(0, clientId); // everything's good, access granted
-            }
-
-            // This is the first time this type of client has
-            // connected to KeePassRPC so we start the new user
-            // wizard.
-            // TODO2: support wizards for different clients
-            if (knownClients.Length == 0 && clientId == "KeeFox Firefox add-on")
-            {
-                // The wizard handles user confirmation - if user says yes,
-                // the hash will be stored in the KeePass config file
-                PendingRPCClient newClient = new PendingRPCClient(
-                    clientId, clientHash, new List<string>(knownClients));
-                object[] delParams = { newClient };
-                object invokeResult = host.MainWindow.Invoke(
-                    new KeePassRPCExt.WelcomeKeeFoxUserDelegate(
-                        KeePassRPCPlugin.WelcomeKeeFoxUser), delParams);
-                return new AuthenticationResult((int)invokeResult, clientId); // Should be 0 unless user cancels
-            }
-            else
-            {
-                DialogResult userConfirmationResult = MessageBox.Show(
-                    "KeePass detected an attempt to connect to KeePass from '"
-                    + clientId
-                    + "'. Should KeePass allow this application to access your passwords?",
-                    "Security check from the KeePassRPC plugin", MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-
-                // if user says yes, we store the hash in the KeePass config file
-                if (userConfirmationResult == DialogResult.Yes)
-                {
-                    AddKnownRPCClient(new PendingRPCClient(clientId, clientHash, new List<string>(knownClients)));
-                    return new AuthenticationResult(0, clientId); // everything's good, access granted
-                }
-                return new AuthenticationResult(5, clientId);
-            }
-            //TODO2: audit logging options? needs to be a KeePass supported
-            //feature really or maybe a seperate plugin?
+            //    // if user says yes, we store the hash in the KeePass config file
+            //    if (userConfirmationResult == DialogResult.Yes)
+            //    {
+            //        AddKnownRPCClient(new PendingRPCClient(clientId, clientHash, new List<string>(knownClients)));
+            //        return new AuthenticationResult(0, clientId); // everything's good, access granted
+            //    }
+            //    return new AuthenticationResult(5, clientId);
+            //}
+            ////TODO2: audit logging options? needs to be a KeePass supported
+            ////feature really or maybe a seperate plugin?
         }
 
         public void ListenForPLGXChanges()

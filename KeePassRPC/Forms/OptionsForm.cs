@@ -56,12 +56,58 @@ namespace KeePassRPC.Forms
                 this.checkBox2.Checked = true;
             else
                 this.checkBox2.Checked = false;
+
+            this.textBoxAuthExpiry.Text = (_host.CustomConfig.GetLong("KeePassRPC.AuthorisationExpiryTime", 8760 * 3600) / 3600).ToString();
+
+            long secLevel = _host.CustomConfig.GetLong("KeePassRPC.SecurityLevel", 2);
+            long secLevelClientMin = _host.CustomConfig.GetLong("KeePassRPC.SecurityLevelClientMinimum", 2);
+            switch (secLevel)
+            {
+                case 1: comboBoxSecLevelKeePass.SelectedItem = "Low"; break;
+                case 2: comboBoxSecLevelKeePass.SelectedItem = "Medium"; break;
+                default: comboBoxSecLevelKeePass.SelectedItem = "High"; break;
+            }
+            switch (secLevelClientMin)
+            {
+                case 1: comboBoxSecLevelMinClient.SelectedItem = "Low"; break;
+                case 2: comboBoxSecLevelMinClient.SelectedItem = "Medium"; break;
+                default: comboBoxSecLevelMinClient.SelectedItem = "High"; break;
+            }
         }
 
         private void m_btnOK_Click(object sender, EventArgs e)
         {
+            long expTime = 8760;
+            try
+            {
+                expTime = long.Parse(this.textBoxAuthExpiry.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Invalid expiry time.");
+                return;
+            }
+
+            long secLevel = 2;
+            long secLevelClientMin = 2;
+            switch ((string)comboBoxSecLevelKeePass.SelectedItem)
+            {
+                case "Low": secLevel = 1; break;
+                case "Medium": secLevel = 2; break;
+                default: secLevel = 3; break;
+            }
+            switch ((string)comboBoxSecLevelMinClient.SelectedItem)
+            {
+                case "Low": secLevelClientMin = 1; break;
+                case "Medium": secLevelClientMin = 2; break;
+                default: secLevelClientMin = 3; break;
+            }
+
             _host.CustomConfig.SetBool("KeePassRPC.KeeFox.autoCommit", this.checkBox1.Checked);
             _host.CustomConfig.SetBool("KeePassRPC.KeeFox.editNewEntries", this.checkBox2.Checked);
+            _host.CustomConfig.SetLong("KeePassRPC.AuthorisationExpiryTime", expTime * 3600);
+            _host.CustomConfig.SetLong("KeePassRPC.SecurityLevel", secLevel);
+            _host.CustomConfig.SetLong("KeePassRPC.SecurityLevelClientMinimum", secLevelClientMin);
 
             _host.MainWindow.Invoke((MethodInvoker)delegate { _host.MainWindow.SaveConfig(); });
         }
@@ -79,6 +125,16 @@ namespace KeePassRPC.Forms
         private void OnFormClosed(object sender, FormClosedEventArgs e)
         {
             GlobalWindowManager.RemoveWindow(this);
+        }
+
+        private void comboBoxSecLevelKeePass_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxSecLevelKeePass.SelectedItem == "Low")
+                labelSecLevelWarning.Text = "A low security setting could increase the chance of your passwords being stolen. Please make sure you read the information in the manual (see link above).";
+            else if (comboBoxSecLevelKeePass.SelectedItem == "High")
+                labelSecLevelWarning.Text = "A high security setting will require you to enter a randomly generated password every time you start KeePass or its client. A medium setting should suffice in most situations, especially if you set a low authorisation timeout below.";
+            else
+                labelSecLevelWarning.Text = "";
         }
     }
 }

@@ -47,6 +47,7 @@ using KeePassLib.Collections;
 
 using System.Runtime.Remoting.Lifetime;
 using KeePassRPC.DataExchangeModel;
+using Fleck2.Interfaces;
 //using System.Web;
 
 namespace KeePassRPC
@@ -94,20 +95,30 @@ namespace KeePassRPC
         private static object _lockRPCClientManagers = new object();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
         public string CurrentConfigVersion = "1";
+        public volatile bool terminating = false;
 
-        private int FindKeePassRPCPort(IPluginHost host)
+        private int FindKeePassRPCPort(IPluginHost host, bool webSocket)
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
-            int KeePassRPCport = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536);
+            int port;
+            
+            if (webSocket)
+                port = (int)host.CustomConfig.GetULong("KeePassRPC.webSocket.port", 12546);
+            else
+                port = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536);
 
             if (allowCommandLineOverride)
             {
-                string KeePassRPCportStr = host.CommandLineArgs["KeePassRPCPort"];
-                if (KeePassRPCportStr != null)
+                string portStr;
+                if (webSocket) 
+                    portStr = host.CommandLineArgs["webSocketPort"];
+                else
+                    portStr = host.CommandLineArgs["KeePassRPCPort"];
+                if (portStr != null)
                 {
                     try
                     {
-                        KeePassRPCport = int.Parse(KeePassRPCportStr);
+                        port = int.Parse(portStr);
                     }
                     catch
                     {
@@ -115,7 +126,7 @@ namespace KeePassRPC
                     }
                 }
             }
-            return KeePassRPCport;
+            return port;
         }
 
         private bool FindKeePassRPCSSLEnabled(IPluginHost host)
@@ -178,7 +189,8 @@ namespace KeePassRPC
                 //new ResolveEventHandler(CurrentDomain_AssemblyResolve);
         
 
-
+                // The client managers directly manage the legacy KPRPC connections (i.e. connections from KeeFox < 1.3 in case client and server mismatch is created by user)
+                // The KeeFox client manager also holds objects relating to the web socket connections managed by the Fleck2 library
                 CreateClientManagers();
 
                 if (logger != null) logger.WriteLine("Client managers started.");
@@ -187,7 +199,7 @@ namespace KeePassRPC
                 _RPCService = new KeePassRPCService(host,
                     getStandardIconsBase64(host.MainWindow.ClientIcons), this);
                 if (logger != null) logger.WriteLine("RPC service started.");
-                _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService, this, FindKeePassRPCSSLEnabled(host));
+                _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host, false), RPCService, this, FindKeePassRPCSSLEnabled(host), FindKeePassRPCPort(host, true));
                 if (logger != null) logger.WriteLine("RPC server started.");
 
                 // register to recieve events that we need to deal with
@@ -782,7 +794,8 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             string managerName = "null";
             switch (clientName)
             {
-                case "KeeFox Firefox add-on": managerName = "KeeFox"; break;
+                case "KeeFox": managerName = "KeeFox"; break; // KeeFox >= 1.3
+                case "KeeFox Firefox add-on": managerName = "KeeFox"; break; // KeeFox <= 1.2
             }
 
             PromoteNullRPCClient(connection,_RPCClientManagers[managerName]);
@@ -793,6 +806,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 		/// </summary>
         public override void Terminate()
         {
+            this.terminating = true;
             RPCServer.Terminate();
             lock (_lockRPCClientManagers)
             {
@@ -1042,11 +1056,59 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
                         if (connection == keePassRPCClient)
                             manager.RemoveRPCClientConnection(keePassRPCClient);
-                //     _RPCClientManagers["null"]
-                // RemoveRPCClientConnection(keePassRPCClient);
             }
         }
 
+        internal void AddRPCClientConnection(IWebSocketConnection webSocket)
+        {
+            lock (_lockRPCClientManagers)
+            {
+                _RPCClientManagers["null"].AddRPCClientConnection(new KeePassRPCClientConnection(webSocket, false, this));
+            }
+        }
+
+        internal void RemoveRPCClientConnection(IWebSocketConnection webSocket)
+        {
+            lock (_lockRPCClientManagers)
+            {
+                // this generally only happens at conenction shutdown time so think we get away with a search like this
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
+                        if (connection.WebSocketConnection == webSocket)
+                        {
+                            manager.RemoveRPCClientConnection(connection);
+                            return;
+                        }
+            }
+        }
+
+
+        internal void MessageRPCClientConnection(IWebSocketConnection webSocket, string message, KeePassRPCService service)
+        {
+            KeePassRPCClientConnection connection = null;
+
+            lock (_lockRPCClientManagers)
+            {
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                {
+                    foreach (KeePassRPCClientConnection conn in manager.CurrentRPCClientConnections)
+                    {
+                        if (conn.WebSocketConnection == webSocket)
+                        {
+                            connection = conn;
+                            break;
+                        }
+                    }
+                    if (connection != null)
+                        break;
+                }
+            }
+
+            if (connection != null)
+                connection.ReceiveMessage(message, service);
+            //TODO: else send an error to client saying we don't have a corresponding connection?
+        }
+        
 
 
         public string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
@@ -1366,33 +1428,33 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         }
     }
 
-    public class Log : KeePassLib.Interfaces.IStatusLogger
-    {
-        public bool ContinueWork()
-        {
-            return true;
-        }
+    //public class Log : KeePassLib.Interfaces.IStatusLogger
+    //{
+    //    public bool ContinueWork()
+    //    {
+    //        return true;
+    //    }
 
-        public void EndLogging()
-        {
-            return;
-        }
+    //    public void EndLogging()
+    //    {
+    //        return;
+    //    }
 
-        public bool SetProgress(uint uPercent)
-        {
-            return true;
-        }
+    //    public bool SetProgress(uint uPercent)
+    //    {
+    //        return true;
+    //    }
 
-        public bool SetText(string strNewText, KeePassLib.Interfaces.LogStatusType lsType)
-        {
-            return true;
-        }
+    //    public bool SetText(string strNewText, KeePassLib.Interfaces.LogStatusType lsType)
+    //    {
+    //        return true;
+    //    }
 
-        public void StartLogging(string strOperation, bool bWriteOperationToLog)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public void StartLogging(string strOperation, bool bWriteOperationToLog)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 
 
 }

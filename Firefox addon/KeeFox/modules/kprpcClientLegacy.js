@@ -1,11 +1,19 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
 
-json.js provides a JSON-RPC client and method proxies for
-communication between Firefox and KeePassRPC
-  
-Partially based on code by Shane Caraveo, ActiveState Software Inc
+kprpcClientLegacy.js provides functionality for
+communication using the KeePassRPC protocol < version 1.3.
+Only basic features are supported - just enough to establish a
+connection to allow KeeFox and KeePass to determine the need
+for the user to upgrade to a newer protocol version.
+
+This file alone will not be sufficient to connect to any version of 
+KPRPC but when extended by the new (and occasionally shared) features 
+of kprpcClient.js, legacy connections will be enabled.
+
+Legacy connection features can be removed by extending kprpcClient
+from session instead of kprpcClientLegacy.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,62 +29,49 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-var EXPORTED_SYMBOLS = ["jsonrpcClient"];
+var EXPORTED_SYMBOLS = ["kprpcClientLegacy"];
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 Cu.import("resource://kfmod/session.js");
 Cu.import("resource://kfmod/KFLogger.js");
-Cu.import("resource://kfmod/kfDataModel.js");
+Cu.import("resource://kfmod/utils.js");
 
-var log = new KeeFoxLogger(); // can't share logging system any more due to complete change of architecture. importing KF.js = loop: keefox_org._KFLog;
+var log = KFLog;
 
-function jsonrpcClient() {
-    this.requestId = 1;
-    this.callbacks = {};
-    this.callbacksData = {};
+function kprpcClientLegacy() {
     this.partialData = {};
     this.parsingStringContents = false;
     this.tokenCurlyCount = 0;
     this.tokenSquareCount = 0;
     this.adjacentBackslashCount = 0;
-    this.clientVersion = [1,2,5];
+    this.firewalledConnectionCount = 0;
 }
 
-jsonrpcClient.prototype = new session();
-jsonrpcClient.prototype.constructor = jsonrpcClient;
+kprpcClientLegacy.prototype = new session();
+kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
 
 (function() {
 
-    this.shutdown = function()
-    {
-        log.debug("Shutting down JSON-RPC...");
-        if (this.reconnectTimer)
-            this.reconnectTimer.cancel();
-        if (this.certFailedReconnectTimer)
-            this.certFailedReconnectTimer.cancel();
-        if (this.onConnectDelayTimer)
-            this.onConnectDelayTimer.cancel();
-        this.disconnect();     
-        log.debug("JSON-RPC shut down.");
-    }
-    
+    //[deprecated]
     this.getClientIdSignatureBase64 = function()
     {
         return "hUiPbbPln4TIl+/RCsl5pjL0QOeEN7OqBmkz68ZMz7tGZOUxb7BCaQ==";
     }
     
+    //[deprecated]
     this.getUniqueClientIdBase64 = function()
     {
         var bytes = this.getUniqueClientId(this.getClientIdSignatureBase64());
         return bytes;
     }
     
+    //[deprecated]
     this.getUniqueClientId = function(clientIdSig)
     {
         //TODO2: get/create a unique private key?
@@ -101,6 +96,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return btoa(sig);
     }
 
+    //[deprecated]
     this.onNotify = function(topic, message) {
         if (topic == "transport-status-connected")
         {
@@ -135,6 +131,18 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                     }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
                 } else
                 {
+                    if (resultWrapper.result.result == 4 || resultWrapper.result == 4) // KF and KPRPC capable of SRP auth but have not acheived it for some reason
+                    {
+                        // We make sure this happens a few times just in case it's a transient problem due
+                        // to webSocket connection attempts occurring while KeePassRPC server was starting up
+                        window.keefox_org.KeePassRPC.firewalledConnectionCount++;
+                        if (window.keefox_org.KeePassRPC.firewalledConnectionCount >= 3)
+                        {
+                            window.keefox_org.KeePassRPC.firewalledConnectionCount = 0;
+                            window.keefox_win.Logger.warn("Problem authenticating with KeePass. Firewall or other problem preventing SRP protocol negotiation.");
+                            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-firewall-problem"));
+                        }
+                    } else
                     if (resultWrapper.result.result == 3 || resultWrapper.result == 3) // version mismatch (including backwards compatible test)
                     {
                         window.keefox_win.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
@@ -159,17 +167,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         }
     }
 
-    //TODO2: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
-    // talk of moving it to an off-main thread back in 2009 implies it is on main so no problem
-    // but worth experimenting if crashes occur? Also, should I use different UTF8 decoding
-    // routines that can allow adherence to the "count" parameter rather than just reading
-    // everything we can get our potentially dirty paws on.
+    //[deprecated]
     this.onDataAvailable = function(request, ctx, inputStream, offset, count)
     {
         var data = this.readData(); // don't care about the number of bytes, we'll just read all the UTF8 characters available
         var lastPacketEndIndex = 0;
         
-        //TODO2: handle whitespace between json packets? (although KeePassRPC should never send them)
         for (var i = 0; i < data.length; i++)
         {
             var incrementAdjacentBackslashCount = false;
@@ -284,36 +287,14 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 this.partialData[session] = data.substr(lastPacketEndIndex,data.length-lastPacketEndIndex);
         }
     }
+    //[deprecated]
     this.onStartRequest = function(request, ctx) {}
+    //[deprecated]
     this.onStopRequest = function(request, ctx, status) {}
 
-    // send a request to the current RPC server.
-    // calling functions MUST manage the requestID to limit thread concurrency errors
-    this.request = function(session, method, params, callback, requestId, callbackData)
-    {
-        if (requestId == undefined || requestId == null || requestId < 0)
-            throw("JSON-RPC communciation requested with no requestID provided.");
- 
-        this.callbacks[requestId] = callback;
-        if (callbackData != null)
-            this.callbacksData[requestId] = callbackData;
-            
-        var data = JSON.stringify({ "params": params, "method": method, "id": requestId });
-        if (log.logSensitiveData)
-            log.debug("Sending a JSON-RPC request: " + data);
-        else
-            log.debug("Sending a JSON-RPC request");
-            
-        var writeResult = session.writeData(data);
-        if (writeResult <=0)
-        {
-            log.warn("JSON-RPC request could not be sent.");
-            delete this.callbacks[requestId];
-            delete this.callbacksData[requestId];
-        }
-    }
 
     // send a notification to the current RPC server
+    //[deprecated]
     this.notify = function(session, method, params, callback)
     {
         if (log.logSensitiveData)
@@ -324,195 +305,4 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         session.writeData(data);
     }
 
-    // interpret the message from the RPC server
-    this.evalJson = function(method, params)
-    {
-        var data = JSON.stringify(params);
-        if (log.logSensitiveData)
-            log.debug("Evaluating a JSON-RPC object we just recieved: " + data);
-        else
-            log.debug("Evaluating a JSON-RPC object we just recieved.");
-            
-        if (data)
-        {
-            data = data.match(/\s*\[(.*)\]\s*/)[1];
-        }
-        
-        // We only really need one method to be callable... but we'll keep the
-        // old name to enable Authentication attempts to fail with older
-        // RPC server versions
-        if (method=="KPRPCListener" || method=="callBackToKeeFoxJS")
-            this.KPRPCListener(data);
-    }
-
-    this.KPRPCListener = function (signal)
-    {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("common-dialog") ||
-                     wm.getMostRecentWindow("navigator:browser") ||
-                     wm.getMostRecentWindow("mail:3pane");
-        
-        // call this async so that json reader can get back to listening ASAP and prevent deadlocks
-        window.setTimeout(function () {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                         wm.getMostRecentWindow("mail:3pane");
-            window.keefox_org.KPRPCListener(signal);
-        },5);
-    }
-
-    //***************************************
-    // Functions below can be thought of as proxies to the RPC
-    // methods exposed in the KeePassRPC server.
-    // See KeePassRPCService.cs for more detail
-    // TODO2: pull these out into a more specific prototype
-    //***************************************
-
-    this.launchGroupEditor = function(uniqueID, dbFileName)
-    {
-        // fire and forget
-        this.request(this, "LaunchGroupEditor", [uniqueID, dbFileName], null, ++this.requestId);
-        return;
-    }
-
-    this.launchLoginEditor = function(uniqueID, dbFileName)
-    {
-        // fire and forget
-        this.request(this, "LaunchLoginEditor", [uniqueID, dbFileName], null, ++this.requestId);
-        return;
-    }
-
-    this.changeDB = function(fileName, closeCurrent)
-    {
-        // fire and forget
-        this.request(this, "ChangeDatabase", [fileName, closeCurrent], null, ++this.requestId);
-        return;
-    }
-    
-    this.changeLocation = function(locationId)
-    {
-        // fire and forget
-        this.request(this, "ChangeLocation", [locationId], null, ++this.requestId);
-        return;
-    }
-
-    this.getMRUdatabases = function()
-    {
-        this.request(this, "GetCurrentKFConfig", null, function rpc_callback(resultWrapper) {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            
-            if ("result" in resultWrapper && resultWrapper.result !== false)
-            {
-                if (resultWrapper.result !== null)
-                    window.keefox_win.toolbar.setMRUdatabasesCallback(resultWrapper.result);
-                
-            } 
-        }, ++this.requestId); 
-    }
-
-    this.addLogin = function(login, parentUUID, dbFileName)
-    {
-        var jslogin = login.asEntry();
-        // fire and forget
-        this.request(this, "AddLogin", [jslogin, parentUUID, dbFileName], null, ++this.requestId);        
-        return;
-    }
-
-    this.findLogins = function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData)
-    {
-        // returns ID of async JSON-RPC request so calling functions can track if desired
-        
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-            
-        var lst = "LSTall";
-        if (httpRealm == undefined || httpRealm == null || httpRealm == "")
-            lst = "LSTnoRealms";
-        else if (formSubmitURL == undefined || formSubmitURL == null || formSubmitURL == "")
-            lst = "LSTnoForms";     
-            
-        if (dbFileName == undefined || dbFileName == null || dbFileName == "")
-        {
-            //if (window.keefox_org._keeFoxExtension.prefs.has("searchAllOpenDatabases"))
-            //    sig = ;
-            
-            if (!window.keefox_org._keeFoxExtension.prefs.getValue("searchAllOpenDBs",false))
-                dbFileName = window.keefox_org.KeePassDatabases[window.keefox_org.ActiveKeePassDatabaseIndex].fileName;
-            else
-                dbFileName = "";
-        }
-        
-        var newId = ++this.requestId;
-        // slight chance IDs may be sent out of order but at least this way
-        // they are consistent for any given request/response cycle
-        this.request(this, "FindLogins", [[fullURL], formSubmitURL, httpRealm, lst, false, uniqueID, dbFileName, freeText, username], callback, newId, callbackData);        
-        return newId;
-    }
-
-    this.getAllDatabases = function()
-    {
-        var result = this.request(this, "GetAllDatabases", null,function rpc_callback(resultWrapper) {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            
-            if ("result" in resultWrapper && resultWrapper.result !== false)
-            {
-                if (resultWrapper.result !== null)
-                    window.keefox_org.updateKeePassDatabases(resultWrapper.result);
-                
-                //else
-                //    log something? window.keefox_org.rror("Null return result received");
-            } //else
-              //log something?    
-        }, ++this.requestId);
-        
-        return;
-    }
-
-    this.generatePassword = function()
-    {
-        this.request(this, "GeneratePassword", [""], function rpc_callback(resultWrapper) {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            
-            var passwordGenerated = false;
-            var tb = window.keefox_win.toolbar;
-            
-            if ("result" in resultWrapper && resultWrapper.result !== false)
-            {
-                if (resultWrapper.result !== null)
-                {
-                    passwordGenerated = true;
-                    
-                    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
-                    getService(Components.interfaces.nsIClipboardHelper);
-                    gClipboardHelper.copyString(resultWrapper.result);
-                    
-                    window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.copied"));
-                }
-            }
-            if (!passwordGenerated)
-            {
-                window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.launch"));
-            }
-        }, ++this.requestId);
-    }
-    
-    /*
-    
-    maybe a standard timeout could be put in place for some functions so if their async response comes back after some recorded deadline we can ignore it.
-    
-    */
-    
-}).apply(jsonrpcClient.prototype);
+}).apply(kprpcClientLegacy.prototype);

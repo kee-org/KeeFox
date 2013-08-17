@@ -45,7 +45,7 @@
 
     <toolbarbutton id="KeeFox_Menu-Button" tooltiptext="%-KeeFox_Menu-Button.tip-%"
            class="" type="menu" label="%-KeeFox_Menu-Button.label-%" >
-      <menupopup>
+      <menupopup id="KeeFox_Menu-Button-Popup">
 
         <menu id="KeeFox_ChangeDB-Button" tooltiptext="%-KeeFox_Menu-Button.changeDB.tip-%"
                    class="" image="" label="%-KeeFox_Menu-Button.changeDB.label-%"  accesskey="%-KeeFox_Menu-Button.changeDB.key-%" >
@@ -77,9 +77,9 @@
                    class="" image="" label="%-KeeFox_Menu-Button.Help.label-%"  accesskey="%-KeeFox_Menu-Button.Help.key-%" >
           <menupopup id="KeeFox_Help-Popup">
             <menuitem id="KeeFox_Help-GettingStarted-Button" tooltiptext="%-KeeFox_Help-GettingStarted-Button.tip-%"
-                           class="" label="%-KeeFox_Help-GettingStarted-Button.label-%" oncommand="keefox_org._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="%-KeeFox_Help-GettingStarted-Button.key-%" />
+                           class="" label="%-KeeFox_Help-GettingStarted-Button.label-%" oncommand="keefox_org.utils._openAndReuseOneTabPerURL('http://tutorial.keefox.org/')" accesskey="%-KeeFox_Help-GettingStarted-Button.key-%" />
             <menuitem id="KeeFox_Help-Centre-Button" tooltiptext="%-KeeFox_Help-Centre-Button.tip-%"
-                           class="" label="%-KeeFox_Help-Centre-Button.label-%" oncommand="keefox_org._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="%-KeeFox_Help-Centre-Button.key-%" />
+                           class="" label="%-KeeFox_Help-Centre-Button.label-%" oncommand="keefox_org.utils._openAndReuseOneTabPerURL('http://keefox.org/help')" accesskey="%-KeeFox_Help-Centre-Button.key-%" />
           </menupopup>
         </menu>
 

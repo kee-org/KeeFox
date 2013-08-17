@@ -19,7 +19,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -420,7 +420,7 @@ keefox_win.UI = {
                 callback:  function() {
                     try 
                     {
-                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO: faster clone?
+                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO1.4: faster clone?
                         keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
                     } finally
                     {
@@ -446,6 +446,41 @@ keefox_win.UI = {
         {
             keefox_win.Logger.debug("Removing save-password notification bar.");
             aNotifyBox.removeNotification(oldBar);
+        }
+    },
+
+    showConnectionMessage : function (message)
+    {
+        var notifyBox = this._getNotifyBox();
+
+        if (notifyBox)
+        {
+            var buttons = [
+//                // "OK" button
+//                {
+//                    label:     this._getLocalizedString("KeeFox_Dialog_OK_Button.label"),
+//                    accessKey: this._getLocalizedString("KeeFox_Dialog_OK_Button.key"),
+//                    popup:     null,
+//                    callback:  function() { /* NOP */ } 
+//                }
+            ];
+            keefox_win.Logger.debug("Adding keefox-connection-message notification bar.");
+            this._showKeeFoxNotification(notifyBox, "keefox-connection-message",
+                 message, buttons);
+        }
+    },
+
+    removeConnectionMessage : function ()
+    {
+        var notifyBox = this._getNotifyBox();
+
+        if (notifyBox)
+        {
+            let oldBar = notifyBox.getNotificationWithValue("keefox-connection-message");
+            if (oldBar) {
+                keefox_win.Logger.debug("Removing keefox-connection-message notification bar.");
+                notifyBox.removeNotification(oldBar);
+            }
         }
     },
 

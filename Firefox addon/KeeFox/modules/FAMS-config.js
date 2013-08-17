@@ -480,7 +480,7 @@ FirefoxAddonMessageService.prototype.defaultConfiguration = {
 
                 // The main content of the message. Should be text only.
                 // Perhaps basic formatting codes can be supported in future.
-                body: "%-tips201201040000g-body%",
+                body: "%-tips201201040000g-body-%",
 
                 // The more info link can be different for different languages
                 // but in many cases a single link in the default language

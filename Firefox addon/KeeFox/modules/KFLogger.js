@@ -42,13 +42,13 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-var EXPORTED_SYMBOLS = ["KeeFoxLogger"];
+var EXPORTED_SYMBOLS = ["KFLog"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // constructor
@@ -255,3 +255,5 @@ KeeFoxLogger.prototype = {
     }
 
 };
+
+var KFLog = new KeeFoxLogger();

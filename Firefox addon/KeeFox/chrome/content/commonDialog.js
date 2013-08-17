@@ -146,7 +146,12 @@ var keeFoxDialogManager = {
             document.getElementById("commonDialog").setAttribute("windowtype","common-dialog");
             keeFoxDialogManager.prepareFill();
         } catch (exception) {
-            keefox_org._KFLog.error(exception);
+            try {
+                keefox_org._KFLog.error(exception);
+            } catch (e)
+            {
+                // don't want missing keefox.org object to break standard dialogs
+            }
         }
     },
     

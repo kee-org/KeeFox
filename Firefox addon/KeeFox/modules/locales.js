@@ -41,7 +41,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -110,7 +110,7 @@ getJSONForCurrentLocale: function(json)
     // JSON is optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
     if (json == null)
     {
-        //TODO: get JSON from the right place
+        //TODO1.4: get JSON from the right place
         json = null;
     }
 
@@ -177,7 +177,7 @@ getJSONForCurrentLocale: function(json)
     // We check each name and convert from Google Chrome JSON format if required
     for (var name in singleLocale)
         if (typeof singleLocale[name] != 'string' && !(singleLocale[name] instanceof String))
-            singleLocale[name] = singleLocale[name]["message"]; //TODO: Hook in some conversion of Chrome parameters
+            singleLocale[name] = singleLocale[name]["message"]; //TODO1.4: Hook in some conversion of Chrome parameters
 
     return singleLocale;    
 },
@@ -319,7 +319,7 @@ internationalise: function(element, attr, args)
     var that = this;
     function substituteText  (str, p1, offset, s)
     {
-        return that.args ? that.$STRF(p1, that.args) : that.$STR(p1);
+        return args ? that.$STRF(p1, args) : that.$STR(p1);
     }
 
     if (element)
@@ -360,21 +360,27 @@ internationaliseElements: function(doc, elements, attributes)
     for (var i=0; i<elements.length; i++)
     {
         var element = elements[i];
+        let args = null;
 
         if (typeof(element) == "string")
             element = doc.getElementById(elements[i]);
+
+        if (Object.prototype.toString.call(elements[i]) == '[object Array]') {
+            element = doc.getElementById(elements[i][0]);
+            args = elements[i][1];
+        }
 
         if (!element)
             continue;
 
         // Replace within text content too. Assumes there are no other subnodes. May need to be more clever here.
         if (element.childNodes != null && element.childNodes.length > 0)
-            this.internationalise(element.childNodes[0]);
+            this.internationalise(element.childNodes[0], null, args);
 
         for (var j=0; j<attributes.length; j++)
         {
             if (element.hasAttribute(attributes[j]))
-                this.internationalise(element, attributes[j]);
+                this.internationalise(element, attributes[j], args);
         }
     }
 },

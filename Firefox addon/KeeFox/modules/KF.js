@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
   
   The KeeFox object will handle communication with the KeeFox JSON-RPC objects,
   including situations such as partially installed components and KeePass
@@ -22,7 +22,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -31,50 +31,23 @@ let Cu = Components.utils;
 var EXPORTED_SYMBOLS = ["keefox_org"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
-Cu.import("resource://kfmod/json.js");
+Cu.import("resource://kfmod/jsonrpcClient.js");
 Cu.import("resource://kfmod/locales.js");
-//var KFLogger = keefox_win.Logger;
+Cu.import("resource://kfmod/utils.js");
+Cu.import("resource://kfmod/KFExtension.js");
 
 // constructor
 function KeeFox()
 {
-    this._KFLog = new KeeFoxLogger();
-    
+    this._KFLog = KFLog;
+    this.utils = utils;
+
     this.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
             .getService(Components.interfaces.nsIXULRuntime);
     
     this.os = this.appInfo.OS;
         
-    this._keeFoxExtension = {};
-    this._keeFoxExtension.storage = {
-        _storage : {},
-        has : function ss_has(aName) {
-            return this._storage.hasOwnProperty(aName);
-        },
-
-        set : function ss_set(aName, aValue) {
-            this._storage[aName] = aValue;
-        },
-
-        get : function ss_get(aName, aDefaultValue) {
-            return this.has(aName) ? this._storage[aName] : aDefaultValue;
-        }
-    };
-    
-    //TODO2: abstract database access away from main KeeFox features in order to provide cached representation of critical and oft-requested data?
-    this._keeFoxExtension.db = {};
-    
-    var folder = this._myProfileDir();
-        
-    this._keeFoxExtension.db.file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    this._keeFoxExtension.db.file.initWithFile(folder);  
-    this._keeFoxExtension.db.file.append("keefox.sqlite");
-
-    this._keeFoxExtension.db.storageService = Components.classes["@mozilla.org/storage/service;1"]
-                        .getService(Components.interfaces.mozIStorageService);
-    this._keeFoxExtension.db.conn = this._keeFoxExtension.db.storageService
-                        .openDatabase(this._keeFoxExtension.db.file); // Will also create the file if it does not exist
+    this._keeFoxExtension = KFExtension;
     
     if (this._keeFoxExtension.db.conn.tableExists("meta"))
     {
@@ -102,91 +75,7 @@ function KeeFox()
             var statementMigrateDrop = this._keeFoxExtension.db.conn.createStatement('DELETE FROM "sites"');
             statementMigrateDrop.execute(); 
         }
-    }    
-    
-    this._keeFoxExtension.prefs = {}; // TODO2: move all the pref and storage functions into a seperate prototype definition for clarity?
-    this._keeFoxExtension.prefs._prefService = 
-        Components.classes["@mozilla.org/preferences-service;1"]
-        .getService(Ci.nsIPrefService);
-    this._keeFoxExtension.prefs._prefBranch = 
-        this._keeFoxExtension.prefs._prefService
-        .getBranch("extensions.keefox@chris.tomlinson.");
-    this._keeFoxExtension.prefs._prefBranchRoot = 
-        this._keeFoxExtension.prefs._prefService
-        .getBranch("");
-    this._keeFoxExtension.prefs.has = function(name)
-    {
-        var prefType = this._prefBranch.getPrefType(name);
-        if (prefType == 32 || prefType == 64 || prefType == 128)
-            return true;
-        return false;
-    };
-    this._keeFoxExtension.prefs.getValue = function(name, defaultValue)
-    {
-        var prefType = this._prefBranch.getPrefType(name);
-
-        var gotValue = null;
-        if (prefType == 32)
-            gotValue = this._getStringValue(name);
-        if (prefType == 64)
-            gotValue = this._getIntValue(name);
-        if (prefType == 128)
-            gotValue = this._getBoolValue(name);
- 
-        if (gotValue != null)
-            return gotValue;
-        return defaultValue;
-    };
-    this._keeFoxExtension.prefs._getStringValue = function(name)
-    {
-        try { return this._prefBranch.getComplexValue(name, Components.interfaces.nsISupportsString).data;
-        } catch (ex) { return null; }
-    };
-    this._keeFoxExtension.prefs._getIntValue = function(name)
-    {
-        try { return this._prefBranch.getIntPref(name);
-        } catch (ex) { return null; }
-    };
-    this._keeFoxExtension.prefs._getBoolValue = function(name)
-    {
-        try { return this._prefBranch.getBoolPref(name);
-        } catch (ex) { return null; }
-    };
-    this._keeFoxExtension.prefs.setValue = function(name,value)
-    {
-        if (typeof value == "string")
-            return this._setStringValue(name, value);
-        if (typeof value == "number")
-            return this._setIntValue(name, value);
-        if (typeof value == "boolean")
-            return this._setBoolValue(name, value);
-    };
-    this._keeFoxExtension.prefs._setStringValue = function(name, value)
-    {
-        try { 
-            var str = Components.classes["@mozilla.org/supports-string;1"]
-                .createInstance(Components.interfaces.nsISupportsString);
-            str.data = value;
-            this._prefBranch.setComplexValue(name, 
-                Components.interfaces.nsISupportsString, str);
-        } catch (ex) {}
-    };
-    this._keeFoxExtension.prefs._setIntValue = function(name, value)
-    {
-        try { this._prefBranch.setIntPref(name, value);
-        } catch (ex) {}
-    };
-    this._keeFoxExtension.prefs._setBoolValue = function(name, value)
-    {
-        try { this._prefBranch.setBoolPref(name, value);
-        } catch (ex) {}
-    };
-    
-    if (!this._keeFoxExtension.prefs.getValue("install-event-fired", false)) {
-        this._keeFoxExtension.prefs.setValue("install-event-fired", true);
-        this._keeFoxExtension.firstRun = true;
     }
-
     
     this._keeFoxStorage = this._keeFoxExtension.storage;
     
@@ -202,11 +91,7 @@ function KeeFox()
     }
     
     this.locale = new KFandFAMSLocalisation(["chrome://keefox/locale/keefox.properties"]);
-
-    //this._keeFoxExtension.events.addListener("uninstall", this.uninstallHandler);
-    
-    this._registerPlacesListeners();
-    
+        
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
                               getService(Ci.nsIObserverService);
     this._observer._kf = this;    
@@ -233,7 +118,7 @@ function KeeFox()
             .createInstance(Components.interfaces.nsITimer);
 
     this.oneOffSensitiveLogCheckTimer.initWithCallback(
-    this.oneOffSensitiveLogCheckHandler, 45000,
+    utils.oneOffSensitiveLogCheckHandler, 45000,
     Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     
     
@@ -284,43 +169,6 @@ KeeFox.prototype = {
         }
     },
 
-    // holding function in case there are any corrective actions we can
-    // take if certain extensions cause problems in future
-    _checkForConflictingExtensions: function()
-    {
-        return true;
-    },
-
-    // Checks whether the user's sensitive data is being logged for debugging purposes
-    oneOffSensitiveLogCheckHandler: function()
-    {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-        var sensistiveLoggingEnabled = window.keefox_org._keeFoxExtension.prefs.getValue("logSensitiveData", false);
-        if (sensistiveLoggingEnabled)
-            window.keefox_win.UI._showSensitiveLogEnabledNotification();
-    },
-
-    //TODO2: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
-    uninstallHandler: function()
-    {
-    //TODO2: this doesn't work. dunno how to catch the secret FUEL notifications yet...
-    
-        //TODO2: explain to user what will be uninstalled and offer extra
-        // options (e.g. "Uninstall KeePass too?")
-        
-        // Reset prefs to pre-KeeFox settings
-        //var rs = prefs.getValue("originalPreferenceRememberSignons", false);
-        //Application.prefs.setValue("signon.rememberSignons", rs);
-    },
-
-    _registerPlacesListeners: function()
-    {
-        //TODO2: listener for bookmark add/edit events and prompt if URL found in KeePass db...
-    },
-    
     shutdown: function()
     {
         // These log messages never appear. Does this function even get executed?
@@ -363,10 +211,12 @@ KeeFox.prototype = {
         if ((this.os != "WINNT") || (userHasSetMonoLocation != ""))
         {
           this.useMono = true;
+          utils.useMono = true;
         }
         else
         {
           this.useMono = false;
+          utils.useMono = false;
         }
 
         // Set the baseURL to use for Mono vs Windows
@@ -385,6 +235,8 @@ KeeFox.prototype = {
         this.KeePassRPC = new jsonrpcClient();
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
             this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
+        if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
+            this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
         
         // make the initial connection to KeePassRPC
         // (fails silently if KeePassRPC is not reachable)
@@ -415,14 +267,14 @@ KeeFox.prototype = {
             this._keeFoxExtension.prefs.getValue("keePassRememberInstalledLocation",false);
         if (!keePassRememberInstalledLocation)
         {
-            keePassLocation = this._discoverKeePassInstallLocation();
+            keePassLocation = utils._discoverKeePassInstallLocation();
             if (keePassLocation != "not installed")
             {
-                KeePassEXEfound = this._confirmKeePassInstallLocation(keePassLocation);
+                KeePassEXEfound = utils._confirmKeePassInstallLocation(keePassLocation);
                 if (KeePassEXEfound)
                 {
-                    keePassRPCLocation = this._discoverKeePassRPCInstallLocation();
-                    KeePassRPCfound = this._confirmKeePassRPCInstallLocation(keePassRPCLocation);
+                    keePassRPCLocation = utils._discoverKeePassRPCInstallLocation();
+                    KeePassRPCfound = utils._confirmKeePassRPCInstallLocation(keePassRPCLocation);
                     if (!KeePassRPCfound)
                         this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO2: set this to "not installed"?
                 } else
@@ -433,10 +285,10 @@ KeeFox.prototype = {
 
             if (this.useMono)
             {
-              monoLocation = this._discoverMonoLocation();
+              monoLocation = utils._discoverMonoLocation();
               if (monoLocation != "not installed")
               {
-                let monoExecFound = this._confirmMonoLocation(monoLocation);
+                let monoExecFound = utils._confirmMonoLocation(monoLocation);
                 if (!monoExecFound)
                 {
                   this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
@@ -485,302 +337,6 @@ KeeFox.prototype = {
                 }
             }
         }
-    },
-    
-    // works out where KeePass is installed and records it in a Firefox preference
-    _discoverKeePassInstallLocation: function()
-    {
-        var keePassLocation = "not installed";
- 
-        if (this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
-        {
-            keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-            if (keePassLocation != "")
-                this._KFLog.info("KeePass install location found in preferences: " + keePassLocation);
-            else
-                keePassLocation = "not installed";
-        }
-
-        if (keePassLocation == "not installed")
-        {
-          if (!this.useMono)
-          {
-            this._KFLog.debug("Reading KeePass installation location from Windows registry");
-
-            var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
-                            .createInstance(Components.interfaces.nsIWindowsRegKey);
-            var locations = ["SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"];
-			var foundInRegistry = false;
-            for (var i = 0; i < locations.length; i++)
-            {
-				this._KFLog.info("Checking KeePass install location in registry key: HKLM\\" + locations[i]);
-                try
-                {
-                    wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                           locations[i],
-                           wrk.ACCESS_READ);
-                    if (wrk.hasChild("KeePassPasswordSafe2_is1"))
-                    {
-                        var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
-                        if (subkey.hasValue("InstallLocation"))
-                        {
-                            keePassLocation = subkey.readStringValue("InstallLocation");
-                            this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                            foundInRegistry = true;
-                            if (this._KFLog.logSensitiveData)
-                                this._KFLog.info("KeePass install location found: " + keePassLocation);
-                            else
-                                this._KFLog.info("KeePass install location found.");
-                        }
-                        subkey.close();
-                    } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
-                    {
-                        var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
-                        if (subkey.hasValue("InstallLocation"))
-                        {
-                            keePassLocation = subkey.readStringValue("InstallLocation");
-                            this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                            foundInRegistry = true;
-                            if (this._KFLog.logSensitiveData)
-                                this._KFLog.info("KeePass install location found: " + keePassLocation);
-                            else
-                                this._KFLog.info("KeePass install location found.");
-                        }
-                        subkey.close();
-                    }
-                    wrk.close();
-                } catch (ex)
-                {
-                    // Probably just running on an x86 platform so ignore
-                }
-                if (foundInRegistry)
-                    break;
-            }
-
-            // If still not found...
-            // TODO2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
-//            if (keePassLocation == "not installed")
-//            {
-//                var wrko = Components.classes["@mozilla.org/windows-registry-key;1"]
-//                                .createInstance(Components.interfaces.nsIWindowsRegKey);
-//                wrko.open(wrk.ROOT_KEY_CLASSES_ROOT,
-//                       "kdbxfile\\shell\\open",
-//                       wrko.ACCESS_READ);
-//                                       
-//                wrko.close();
-//            }
-            
-          }
-          else
-          {
-            this._KFLog.debug("Checking KeePass installation location from filesystem");
-
-            // Get the users home directory
-            var dirService = Components.classes["@mozilla.org/file/directory_service;1"].  
-              getService(Components.interfaces.nsIProperties);   
-            var keePassFolder = dirService.get("Home", Components.interfaces.nsIFile); // returns an nsIFile object
-            keePassFolder.append("KeePass");
-            var keePassFile = keePassFolder.clone();
-            keePassFile.append("KeePass.exe");
-            if (keePassFile.exists())
-            {
-              keePassLocation = keePassFolder.path;
-              this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);              
-              this._KFLog.debug("***Found "+keePassFolder.path);
-            }
-            else
-            {
-              this._KFLog.debug("Did not find "+keePassFile.path);
-            }
-          }
-        }
-        
-        return keePassLocation;
-    },
-    
-    // works out where KeePassRPC is installed and records it in a Firefox preference
-    _discoverKeePassRPCInstallLocation: function()
-    {
-        var keePassRPCLocation = "not installed";
-        var keePassLocation = "not installed";
-        //return keePassRPCLocation; //HACK: debug (forces install process to start)
-        
-        if (this._keeFoxExtension.prefs.has("keePassRPCInstalledLocation"))
-        {
-            keePassRPCLocation = this._keeFoxExtension.prefs.getValue("keePassRPCInstalledLocation","not installed");
-            if (keePassRPCLocation != "")
-                if (this._KFLog.logSensitiveData)
-                    this._KFLog.info("keePassRPC install location found in preferences: " + keePassRPCLocation);
-                else
-                    this._KFLog.info("keePassRPC install location found in preferences.");
-            else
-                keePassRPCLocation = "not installed";
-        }
-        
-        if (keePassRPCLocation == "not installed" 
-            && this._keeFoxExtension.prefs.has("keePassInstalledLocation") 
-            && this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","") != "")
-        {
-            keePassLocation = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-
-            var folder = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsILocalFile);
-            folder.initWithPath(keePassLocation);
-            folder.append("plugins");
-            keePassRPCLocation = folder.path;
-            this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",keePassRPCLocation);
-            if (this._KFLog.logSensitiveData)
-                this._KFLog.debug("KeePassRPC install location inferred: " + keePassRPCLocation);
-            else
-                this._KFLog.debug("KeePassRPC install location inferred.");
-        }        
-        return keePassRPCLocation;
-    },
-    
-    _confirmKeePassInstallLocation: function(keePassLocation)
-    {
-        var KeePassEXEfound;
-        KeePassEXEfound = false;
-
-        if (this._KFLog.logSensitiveData)
-            this._KFLog.debug("Looking for the KeePass EXE in " + keePassLocation);
-        else
-            this._KFLog.debug("Looking for the KeePass EXE.");
-
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                    .createInstance(Components.interfaces.nsILocalFile);
-        try
-        {
-            file.initWithPath(keePassLocation);
-            if (file.isDirectory())
-            {
-                file.append("KeePass.exe");
-                if (file.isFile())
-                {
-                    KeePassEXEfound = true;
-                    this._KFLog.info("KeePass EXE found in correct location.");
-                }
-            }
-        } catch (ex)
-        {
-            /* no need to do anything */
-        }
-        return KeePassEXEfound;
-    },
-    
-    _confirmKeePassRPCInstallLocation: function(keePassRPCLocation)
-    {
-        var KeePassRPCfound;
-        KeePassRPCfound = false;
-
-        if (this._KFLog.logSensitiveData)
-            this._KFLog.info("Looking for the KeePassRPC plugin plgx in " + keePassRPCLocation);
-        else
-            this._KFLog.info("Looking for the KeePassRPC plugin plgx");
-
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                    .createInstance(Components.interfaces.nsILocalFile);
-        try
-        {
-            file.initWithPath(keePassRPCLocation);
-            if (file.isDirectory())
-            {
-                file.append("KeePassRPC.plgx");
-                if (file.isFile())
-                {
-                    KeePassRPCfound = true;
-                    this._KFLog.info("KeePassRPC plgx found in correct location.");
-                }
-            }
-            
-        } catch (ex)
-        {
-            this._KFLog.debug("KeePassRPC PLGX search threw an exception: " + ex);
-        }
-        
-        try
-        {
-            // if we don't find the PLGX, search for the old-style DLL
-            // just in case this is a development installation of KeeFox
-            // (where a DLL is used rather than PLGX)
-            if (!KeePassRPCfound)
-            {
-                file = Components.classes["@mozilla.org/file/local;1"].
-                    createInstance(Components.interfaces.nsILocalFile)
-                file.initWithPath(keePassRPCLocation);
-                if (file.isDirectory())
-                {
-                    file.append("KeePassRPC.dll");
-                    if (file.isFile())
-                    {
-                        KeePassRPCfound = true;
-                        this._KFLog.info("KeePassRPC DLL found in correct location.");
-                    }
-                }
-            }
-        } catch (ex)
-        {
-            this._KFLog.debug("KeePassRPC DLL search threw an exception: " + ex);
-        }        
-        return KeePassRPCfound;
-    },
-
-    // works out where Mono is installed and records it in a Firefox preference
-    // As far as I know, Mono is typically installed at /usr/bin/mono for Fedora, Debian, Ubuntu, etc.
-    _discoverMonoLocation: function()
-    {
-        var monoLocation = "not installed";
-        
-        if (this._keeFoxExtension.prefs.has("monoLocation"))
-        {
-            monoLocation = this._keeFoxExtension.prefs.getValue("monoLocation", "not installed");
-            if (monoLocation != "")
-              this._KFLog.info("Mono install location found in preferences: " + monoLocation);
-            else
-              monoLocation = "not installed";
-        }
-        
-        if (monoLocation == "not installed")
-        {
-            var mono_exec = Components.classes["@mozilla.org/file/local;1"]
-                             .createInstance(Components.interfaces.nsILocalFile);
-            mono_exec.initWithPath(this.defaultMonoExec);
-            if (mono_exec.exists())
-            {
-              monoLocation = mono_exec.path;            
-              this._keeFoxExtension.prefs.setValue("monoLocation",monoLocation);
-              this._KFLog.debug("Mono install location inferred: " + monoLocation);
-            }
-            else
-            {
-              this._KFLog.debug("Mono install location "+this.defaultMonoExec+ " does not exist!");
-            }
-        }        
-        return monoLocation;
-    },
-    
-    _confirmMonoLocation: function(monoLocation)
-    {
-        var monoExecFound;
-        monoExecFound = false;
-
-        this._KFLog.debug("Looking for the Mono executable in " + monoLocation);
-
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                    .createInstance(Components.interfaces.nsILocalFile);
-        try
-        {
-            file.initWithPath(monoLocation);
-            if (file.isFile())
-            {
-              monoExecFound = true;
-              this._KFLog.info("Mono executable found in correct location.");
-            }
-        } catch (ex)
-        {
-            /* no need to do anything */
-        }
-        return monoExecFound;
     },
     
     // Temporarilly disable KeeFox. Used (for e.g.) when KeePass is shut down.
@@ -990,7 +546,7 @@ KeeFox.prototype = {
         var args = [fileName, params];                
         var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(this._myDepsDir() + "\\KeeFoxElevate.exe");
+        file.initWithPath(this.utils.myDepsDir() + "\\KeeFoxElevate.exe");
 
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess2 || Components.interfaces.nsIProcess);
@@ -1013,7 +569,7 @@ KeeFox.prototype = {
         }
     },
 
-    _launchInstaller: function(currentKFToolbar,currentWindow, upgrade)
+    _launchInstaller: function(currentKFToolbar,currentWindow, upgrade, currentVersion, ourVersion)
     {
         if (this._installerTabLoaded)
             return; // only want to do this once per session to avoid irritation!
@@ -1022,12 +578,15 @@ KeeFox.prototype = {
         
         if (upgrade)
         {
+            let upgradeDetails = "";
             this._KFLog.info("KeeFox not installed correctly. Going to try to launch the upgrade page.");
-            let installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL+"?upgrade=1");
+            if (currentVersion && ourVersion)
+                upgradeDetails = "&downWarning=1&currentKPRPCv="+currentVersion+"&newKPRPCv="+ourVersion;
+            let installTab = this.utils._openAndReuseOneTabPerURL(this.baseInstallURL+"?upgrade=1" + upgradeDetails);
         } else
         {
             this._KFLog.info("KeeFox not installed correctly. Going to try to launch the install page.");
-            let installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
+            let installTab = this.utils._openAndReuseOneTabPerURL(this.baseInstallURL);
         }
         
         //NB: FF < 3.0.5 may fail to open the tab due to bug where "session loaded" event fires too soon.
@@ -1049,7 +608,7 @@ KeeFox.prototype = {
     
     KeeFox_MainButtonClick_install: function(event, temp) {
         this._KFLog.debug("install button clicked. Loading (and focusing) install page.");
-        let installTab = this._openAndReuseOneTabPerURL(this.baseInstallURL);
+        let installTab = this.utils._openAndReuseOneTabPerURL(this.baseInstallURL);
         // remember the installation state (until it might have changed...)
         this._keeFoxStorage.set("KeePassRPCInstalled", false);
     },
@@ -1276,148 +835,6 @@ KeeFox.prototype = {
     },
     
     
-    /*******************************************
-    / General utility functions
-    /*******************************************/
-    
-    IsUserAdministrator: function()
-    {
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                   .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(this._myDepsDir() + "\\CheckForAdminRights.exe");
-
-        var process = Components.classes["@mozilla.org/process/util;1"]
-                      .createInstance(Components.interfaces.nsIProcess);
-        this._KFLog.debug("file path: " + file.path);
-        try {
-            process.init(file);
-            process.run(true, [], 0); //TODO2: make async?
-        } catch (ex)
-        {
-            // assume failure means they are not admin
-            return false;
-        }
-        return process.exitValue;
-    },
-
-    // Helper for making nsURI from string
-    _convert_url: function(url)
-    {
-        var ios = Components.classes["@mozilla.org/network/io-service;1"]
-            .getService(Components.interfaces.nsIIOService);
-        return ios.newURI(url, null, null);
-    },
-
-    _openAndReuseOneTabPerURL: function(url)
-    {
-        if (this._KFLog.logSensitiveData)
-            this._KFLog.debug("trying to find an already open tab with this url:" + url);
-        else
-            this._KFLog.debug("trying to find an already open tab with the requested url");
-        var found = false;
-        
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                   .getService(Components.interfaces.nsIWindowMediator);
-        try
-        {
-        
-            var browserEnumerator = wm.getEnumerator("navigator:browser");
-
-            // Check each browser instance for our URL
-            while (!found && browserEnumerator.hasMoreElements())
-            {
-                var browserWin = browserEnumerator.getNext();
-                var tabbrowser = browserWin.gBrowser;
-
-                // Check each tab of this browser instance
-                var numTabs = tabbrowser.browsers.length;
-                for (var index = 0; index < numTabs; index++)
-                {
-                    var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-                    if (url == currentBrowser.currentURI.spec)
-                    {
-                        // The URL is already opened. Select this tab.
-                        tabbrowser.selectedTab = tabbrowser.tabContainer.childNodes[index];
-
-                        // Focus *this* browser-window
-                        browserWin.focus();
-
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!found)
-            {
-                this._KFLog.debug("tab with this URL not already open so opening one and focussing it now");
-                var newWindow = wm.getMostRecentWindow("navigator:browser") ||
-                    wm.getMostRecentWindow("mail:3pane");
-                var b = newWindow.getBrowser();
-                var newTab = b.loadOneTab( url, null, null, null, false, null );
-                return newTab;
-            }
-        } catch (ex)
-        {
-            // if this fails, it's probably because we are setting up the JS module before FUEL is ready (can't find a way to test it so will just have to try and catch)
-            this._KFLog.debug("browser window not ready yet: " + ex);
-            this.urlToOpenOnStartup = url;            
-            var currentWindow = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            if (currentWindow == null)
-            {
-                this._KFLog.error("No windows open yet");
-                return;
-            }
-            return;
-        }
-    },
-    
-    _myDepsDir: function()
-    {
-        var file = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(this._myInstalledDir());
-        file.append("deps");
-        return file.path;
-    },
-
-    _myInstalledDir: function()
-    {
-        this._KFLog.debug("establishing the directory that KeeFox is installed in");
-
-        // Mozilla rightly says that this approach is rather short-sighted - 
-        // unfortuantely from FF4 onwards, they only provide an async
-        // function as an alternative which won't work for KeeFox
-        var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties);
-        var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-        dir.append("extensions");
-        dir.append("keefox@chris.tomlinson");
-
-        if (this._KFLog.logSensitiveData)
-            this._KFLog.debug("installed in this directory: " + dir.path);
-        else
-            this._KFLog.debug("Found installation directory");
-        return dir.path;
-    },
-
-    _myProfileDir: function()
-    {
-        var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  
-                    getService(Components.interfaces.nsIProperties);
-        var dir = directoryService.get("ProfD", Components.interfaces.nsIFile);
-    
-        var folder = Components.classes["@mozilla.org/file/local;1"]
-            .createInstance(Components.interfaces.nsILocalFile);
-        folder.initWithPath(dir.path);
-        folder.append("keefox");
-
-        if (!folder.exists())
-            folder.create(folder.DIRECTORY_TYPE, parseInt("0775", 8));
-
-        return folder;
-    },
-
     _observer :
     {
         _kf : null,
@@ -1496,7 +913,7 @@ KeeFox.prototype = {
                 case "logSensitiveData":
                     // Allow the change to go ahead but warn the user (in case they did not understand the change that was made)
                     window.keefox_org._KFLog.configureFromPreferences();
-                    window.keefox_org.oneOffSensitiveLogCheckHandler();
+                    utils.oneOffSensitiveLogCheckHandler();
                     break;
 //                case "dynamicFormScanning":
 //                    //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
@@ -1666,7 +1083,7 @@ KeeFox.prototype = {
         kfw.Logger.debug("_checkRescanForAllFrames start");
         var conf = keefox_org.config.getConfigForURL(win.contentDocument.documentURI);
         
-        //TODO1.3: shared code with KFILM.js? refactor?
+        //TODO1.4: shared code with KFILM.js? refactor?
                 
         if (conf.rescanFormDelay >= 500)
         {
@@ -1772,7 +1189,7 @@ KeeFox.prototype = {
 var keefox_org = new KeeFox;
 
 // abort if we find a conflict
-if (!keefox_org._checkForConflictingExtensions())
+if (!utils._checkForConflictingExtensions())
     keefox_org = null;
 
 var launchGroupEditorThread = function(uuid) {
