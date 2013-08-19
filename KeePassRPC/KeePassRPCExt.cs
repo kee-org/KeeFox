@@ -59,7 +59,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,2,5);
+        public static readonly Version PluginVersion = new Version(1,2,6);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -466,7 +466,7 @@ namespace KeePassRPC
         private void EnsureDBIconIsInKPRPCIconCache()
         {
             string cachedBase64 = DataExchangeModel.IconCache<string>
-                .GetIconEncoding(_host.Database.IOConnectionInfo.GetDisplayName());
+                .GetIconEncoding(_host.Database.IOConnectionInfo.Path);
             if (string.IsNullOrEmpty(cachedBase64))
             {
                 // the icon wasn't in the cache so lets calculate its base64 encoding and then add it to the cache
@@ -475,7 +475,7 @@ namespace KeePassRPC
                 imgNew.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 string imageData = Convert.ToBase64String(ms.ToArray());
                 DataExchangeModel.IconCache<string>
-                    .AddIcon(_host.Database.IOConnectionInfo.GetDisplayName(), imageData);
+                    .AddIcon(_host.Database.IOConnectionInfo.Path, imageData);
             }
          }
 

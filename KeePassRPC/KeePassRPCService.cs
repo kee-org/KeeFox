@@ -760,8 +760,8 @@ namespace KeePassRPC
                 rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
             //host.Database.RootGroup.
 
-            Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.GetDisplayName(), rt, (pwd == host.Database) ? true : false,
-                DataExchangeModel.IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.GetDisplayName()) ?? "");
+            Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt, (pwd == host.Database) ? true : false,
+                DataExchangeModel.IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
             //host.MainWindow.Ic
             //  sw.Stop();
             //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
@@ -834,7 +834,7 @@ namespace KeePassRPC
 
         private string dbIconToBase64(PwDatabase db)
         {
-            string cachedBase64 = DataExchangeModel.IconCache<string>.GetIconEncoding(db.IOConnectionInfo.GetDisplayName());
+            string cachedBase64 = DataExchangeModel.IconCache<string>.GetIconEncoding(db.IOConnectionInfo.Path);
             if (string.IsNullOrEmpty(cachedBase64))
             {
                 // Don't think this should ever happen but we'll return a null icon if we have to
@@ -1333,7 +1333,7 @@ namespace KeePassRPC
                 {
                     List<PwDatabase> allDBs = host.MainWindow.DocumentManager.GetOpenDatabases();
                     foreach (PwDatabase db in allDBs)
-                        if (db.IOConnectionInfo.GetDisplayName() == dbFileName)
+                        if (db.IOConnectionInfo.Path == dbFileName)
                         {
                             chosenDB = db;
                             break;
