@@ -221,16 +221,22 @@ kprpcClient.prototype.constructor = kprpcClient;
   		// double check
   		if (data.protocol != "setup")
   			return;
-  		//if (this.srpClientInternals.authenticated)
-        if (this.authenticated)
-  			return; // already authenticated. TODO1.3: handle reauth (close websocket and resend initial auth srp message)
-  		
+  		  		
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                     .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
-                  
-        //TODO1.3: should we tell the server we're rejecting its message?
+
+        if (this.authenticated)
+        {
+            log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart"));
+            this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
+                + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
+            this.resetConnection();
+  			return; // already authenticated so something went wrong. Do the full Auth process again to be safe.
+        }
+
         if (data.error)
         {
             let extra = [];
@@ -362,26 +368,29 @@ kprpcClient.prototype.constructor = kprpcClient;
   	};
 
     this.keyChallengeResponse2 = function(data) {
-  		
-        //TODO1.3: clear all key properties when closing connection (maybe a single function we call that does this and then kills webscoket connection?)
-        
         let sr = utils.hash("0" + this.getStoredKey() + this.sc + this.cc).toLowerCase();
+
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                        .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("common-dialog") ||
+                        wm.getMostRecentWindow("navigator:browser") ||
+                        wm.getMostRecentWindow("mail:3pane");
 
         if (sr != data.key.sr)
         {
-            //TODO1.3: error
-    	    //this.send(JSON.stringify(data2server));
+            log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-failed"));
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-failed") 
+                + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
+            this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
+            this.resetConnection();
+            return;
         }
         else
         {
             // note down our agreed secret key somewhere that we can find it easily later
             this.secretKey = this.getStoredKey();
 
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                        .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("common-dialog") ||
-                            wm.getMostRecentWindow("navigator:browser") ||
-                            wm.getMostRecentWindow("mail:3pane");
+            
             window.setTimeout(function () {
                     
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -431,7 +440,7 @@ kprpcClient.prototype.constructor = kprpcClient;
   	};
   	
   	this.proofToClient = function(data) {
-  		this.srpClientInternals.confirm_authentication(data.srp.M2); // etc.
+  		this.srpClientInternals.confirm_authentication(data.srp.M2);
 
         //TODO1.4: DRY - getMostRecentWindow into KFUtils
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -441,7 +450,14 @@ kprpcClient.prototype.constructor = kprpcClient;
                         wm.getMostRecentWindow("mail:3pane");
 
   		if (!this.srpClientInternals.authenticated)
-  			window.keefox_org._pauseKeeFox(); //TODO1.3: Do something else - retry? notify user?
+        {
+            log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-failed"));
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-failed") 
+                + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
+            this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
+            this.resetConnection();
+            return;
+        }
         else
         {
             // note down our agreed secret key somewhere that we can find it easily later
@@ -474,6 +490,9 @@ kprpcClient.prototype.constructor = kprpcClient;
   	
   	this.receiveJSONRPC = function(data) {
         let fullData = this.decrypt(data.jsonrpc);
+        if (fullData === null)
+            return; // decryption failed; connection has been reset and user will re-enter password for fresh authentication credentials
+
         let obj = JSON.parse(fullData);
                 
         // if we failed to parse an object from the JSON    
@@ -531,9 +550,9 @@ kprpcClient.prototype.constructor = kprpcClient;
             //    session.writeData(JSON.stringify(result));
         } else {
             if (log.logSensitiveData)
-                log.error("Unexpected error processing onDataAvailable:" + data);
+                log.error("Unexpected error processing receiveJSONRPC:" + data);
             else
-                log.error("Unexpected error processing onDataAvailable");
+                log.error("Unexpected error processing receiveJSONRPC");
         }
 
     };
@@ -699,7 +718,6 @@ kprpcClient.prototype.constructor = kprpcClient;
         if (securityLevel == 2)
         {
             // find key
-            //TODO1.3: handle missing key here?
             return this.getNSILMpassword(username);
 
         } else if (securityLevel == 1)
@@ -772,6 +790,7 @@ kprpcClient.prototype.constructor = kprpcClient;
         log.debug("JSON-RPC shut down.");
     }
     
+    //TODO1.3: put some try/catches around many of the function calls in encrypt/decrypt functions
     // Encrypt plaintext
     this.encrypt = function(plaintext)
     {
@@ -808,7 +827,12 @@ kprpcClient.prototype.constructor = kprpcClient;
 
         if (ourHmac !== hmac)
         {
-            //TODO1.3: throw an error
+            log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart"));
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
+                + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
+            this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
+            this.resetConnection();
+            return null;
         }
 
         let encryptedPayload = messageArray;

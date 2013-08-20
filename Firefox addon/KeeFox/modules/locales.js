@@ -1,6 +1,6 @@
 // The KeeFox locale module is loosly based on the Firebug locale code, used under a BSD-style license.
 // In fact there are really just a few similarities in style since most of the extra features I wanted
-// to implement required greater changes to the basic firebug code than I first thought
+// to implement required greater changes to the basic firebug code than I first thought.
 // Modifications to the original Firebug code are copyright Chris Tomlinson.
 // The resulting combined code is released under the same GPL license as the rest of KeeFox:
 /*
@@ -78,347 +78,347 @@ function KFandFAMSLocalisation(chromeURIs, jsonLocales)
 };
 
 KFandFAMSLocalisation.prototype = {
-_log: function (message) {
-    //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-    //    getService(Ci.nsIConsoleService); _logService.logStringMessage("Locale: " + message);
-    //}, // stub logger logs everything to console
-    }, // stub logger logs nothing
+    _log: function (message) {
+        //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
+        //    getService(Ci.nsIConsoleService); _logService.logStringMessage("Locale: " + message);
+        //}, // stub logger logs everything to console
+        }, // stub logger logs nothing
 
-stringBundleService: Services.strings,
-stringBundles: [],
-jsonBundles: [],
-defaultStringBundles: [],
-defaultJsonBundles: [],
-registerStringBundleChromeURI: function(uri)
-{
-    var newBundle = this.stringBundleService.createBundle(uri);
-    if (newBundle) this.stringBundles.push(newBundle);
-    this.defaultStringBundles.push(this.stringBundleService.createBundle(this.getDefaultStringBundleURI(uri)));
-},
-registerStringBundleJSON: function(json)
-{
-    var newBundle = this.getJSONForCurrentLocale(json);
-    if (newBundle) this.jsonBundles.push(newBundle);
-    this.defaultJsonBundles.push(this.getJSONForDefaultLocale(json));
-},
-
-getJSONForCurrentLocale: function(json)
-{
-    // determine current locale
-    var appLocale = this.getCurrentLocale();
-
-    // JSON is optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
-    if (json == null)
+    stringBundleService: Services.strings,
+    stringBundles: [],
+    jsonBundles: [],
+    defaultStringBundles: [],
+    defaultJsonBundles: [],
+    registerStringBundleChromeURI: function(uri)
     {
-        //TODO1.4: get JSON from the right place
-        json = null;
-    }
-
-    var singleLocale = null;
-
-    // The JSON may contain multiple localisations
-    if (json["schemaVersion"] === 1)
+        var newBundle = this.stringBundleService.createBundle(uri);
+        if (newBundle) this.stringBundles.push(newBundle);
+        this.defaultStringBundles.push(this.stringBundleService.createBundle(this.getDefaultStringBundleURI(uri)));
+    },
+    registerStringBundleJSON: function(json)
     {
-        json = json["locales"];
+        var newBundle = this.getJSONForCurrentLocale(json);
+        if (newBundle) this.jsonBundles.push(newBundle);
+        this.defaultJsonBundles.push(this.getJSONForDefaultLocale(json));
+    },
+
+    getJSONForCurrentLocale: function(json)
+    {
+        // determine current locale
+        var appLocale = this.getCurrentLocale();
+
+        // JSON is optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
+        if (json == null)
+        {
+            //TODO1.4: get JSON from the right place
+            json = null;
+        }
+
+        var singleLocale = null;
+
+        // The JSON may contain multiple localisations
+        if (json["schemaVersion"] === 1)
+        {
+            json = json["locales"];
      
-        // Holds the best matching localized resource
-        var bestmatch = null;
-        // The number of locale parts it matched with
-        var bestmatchcount = 0;
-        // The number of locale parts in the match
-        var bestpartcount = 0;
+            // Holds the best matching localized resource
+            var bestmatch = null;
+            // The number of locale parts it matched with
+            var bestmatchcount = 0;
+            // The number of locale parts in the match
+            var bestpartcount = 0;
  
-        var lparts = appLocale.split("-");
-        for (var locale in json)
-        {
-            let found = locale.toLowerCase();
-
-            // Exact match is returned immediately
-            if (appLocale == found)
+            var lparts = appLocale.split("-");
+            for (var locale in json)
             {
-                singleLocale = json[locale];
-                break;
-            }
- 
-            var fparts = found.split("-");
+                let found = locale.toLowerCase();
 
-            // If we have found a possible match and this one isn't any longer
-            // then we dont need to check further.
-            if (bestmatch && fparts.length < bestmatchcount)
-                continue;
- 
-            // Count the number of parts that match
-            var maxmatchcount = Math.min(fparts.length, lparts.length);
-            var matchcount = 0;
-            while (matchcount < maxmatchcount &&
-                    fparts[matchcount] == lparts[matchcount])
-                matchcount++;
- 
-            // If we matched more than the last best match or matched the same and
-            // this locale is less specific than the last best match.
-            if (matchcount > bestmatchcount ||
-                (matchcount == bestmatchcount && fparts.length < bestpartcount))
-            {
-                bestmatch = locale;
-                bestmatchcount = matchcount;
-                bestpartcount = fparts.length;
-            }
-         }
-         if (singleLocale === null)
-            singleLocale = json[bestmatch];
-    } else
-    {
-        // else we assume the JSON is for the current locale only
-        singleLocale = json;
-    }
-
-    // We now have a single object that represents the current locale
-
-    // We check each name and convert from Google Chrome JSON format if required
-    for (var name in singleLocale)
-        if (typeof singleLocale[name] != 'string' && !(singleLocale[name] instanceof String))
-            singleLocale[name] = singleLocale[name]["message"]; //TODO1.4: Hook in some conversion of Chrome parameters
-
-    return singleLocale;    
-},
-
-getJSONForDefaultLocale: function(json)
-{
-    return json["en"];
-},
-
-/*
- * $STR - intended for localization of a static string.
- * $STRF - intended for localization of a string with dynamically inserted values.
- */
-$STR: function(name, bundle)
-{
-    try
-    {
-        if (bundle)
-            return bundle.getString(name);
-        else
-            return this.GetStringFromName(name);
-    }
-    catch (err)
-    {
-        //info("getting string failed: '" + name + "'", err);
-    }
-
-    // return the key if it all went wrong
-    name = name.replace("_", " ", "g");
-    return name;
-},
-
-$STRF: function(name, args, bundle)
-{
-    try
-    {
-        if (bundle)
-            return bundle.getFormattedString(name, args);
-        else
-            return this.FormatStringFromName(name, args, args.length);
-    }
-    catch (err)
-    {
-        //info("getting string failed: '" + name + "'", err);
-    }
-    
-    // return the key if it all went wrong
-    return name;
-},
-
-GetStringFromName: function(name)
-{
-    for (let i=0; i<this.jsonBundles.length; i++)
-    {
-        if (this.jsonBundles[i][name] != null)
-            return this.jsonBundles[i][name];
-    }
-    for (let i=0; i<this.defaultJsonBundles.length; i++)
-    {
-        if (this.defaultJsonBundles[i][name] != null)
-            return this.defaultJsonBundles[i][name];
-    }
-    for (let i=0; i<this.stringBundles.length; i++)
-    {
-        try
-        {
-            let translation = this.stringBundles[i].GetStringFromName(name);
-            return translation;
-        }
-        catch (ex) { }
-    }
-    for (let i=0; i<this.defaultStringBundles.length; i++)
-    {
-        try
-        {
-            let translation = this.defaultStringBundles[i].GetStringFromName(name);
-            return translation;
-        }
-        catch (ex) { }
-    }
-
-    // No match found
-    return name;
-},
-
-printf: function(text, args) {
-    var arg;
-    return msg.replace(/(%s)/g, function(a,val) {
-        arg = args.shift();
-        if (arg !== undefined) {
-            return String(arg);
-        }
-        return val;
-    });
-},
-
-FormatStringFromName: function(name, args)
-{
-    for (let i=0; i<this.jsonBundles.length; i++)
-    {
-        if (this.jsonBundles[i][name] != null)
-            return this.printf(this.jsonBundles[i][name], args);
-    }
-    for (let i=0; i<this.defaultJsonBundles.length; i++)
-    {
-        if (this.defaultJsonBundles[i][name] != null)
-            return this.printf(this.defaultJsonBundles[i][name], args);
-    }
-    for (let i=0; i<this.stringBundles.length; i++)
-    {
-        try
-        {
-            let translation = this.stringBundles[i].formatStringFromName(name, args, args.length);
-            return translation;
-        }
-        catch (ex) { }
-    }
-    for (let i=0; i<this.defaultStringBundles.length; i++)
-    {
-        try
-        {
-            let translation = this.defaultStringBundles[i].formatStringFromName(name, args, args.length);
-            return translation;
-        }
-        catch (ex) { }
-    }
-
-    // No match found
-    return name;
-},
-
-/*
- * Use the current value of the attribute as a key to look up the localized value.
- */
-internationalise: function(element, attr, args)
-{
-    var xulString;
-    // replace callback
-    var that = this;
-    function substituteText  (str, p1, offset, s)
-    {
-        return args ? that.$STRF(p1, args) : that.$STR(p1);
-    }
-
-    if (element)
-    {
-        xulString = undefined;
-        if (attr)
-            xulString = element.getAttribute(attr);
-        else
-            xulString = element.nodeValue;
-
-        if (xulString)
-        {
-            var localised = xulString.replace(/%-(.+?)-%/g,substituteText);
-            // Set localized value of the attribute only if it exists.
-            if (localised)
-            {
-                if (attr)
+                // Exact match is returned immediately
+                if (appLocale == found)
                 {
-                    element.setAttribute(attr, localised);
-                } else
-                {
-                    element.nodeValue = localised;
+                    singleLocale = json[locale];
+                    break;
                 }
+ 
+                var fparts = found.split("-");
+
+                // If we have found a possible match and this one isn't any longer
+                // then we dont need to check further.
+                if (bestmatch && fparts.length < bestmatchcount)
+                    continue;
+ 
+                // Count the number of parts that match
+                var maxmatchcount = Math.min(fparts.length, lparts.length);
+                var matchcount = 0;
+                while (matchcount < maxmatchcount &&
+                        fparts[matchcount] == lparts[matchcount])
+                    matchcount++;
+ 
+                // If we matched more than the last best match or matched the same and
+                // this locale is less specific than the last best match.
+                if (matchcount > bestmatchcount ||
+                    (matchcount == bestmatchcount && fparts.length < bestpartcount))
+                {
+                    bestmatch = locale;
+                    bestmatchcount = matchcount;
+                    bestpartcount = fparts.length;
+                }
+             }
+             if (singleLocale === null)
+                singleLocale = json[bestmatch];
+        } else
+        {
+            // else we assume the JSON is for the current locale only
+            singleLocale = json;
+        }
+
+        // We now have a single object that represents the current locale
+
+        // We check each name and convert from Google Chrome JSON format if required
+        for (var name in singleLocale)
+            if (typeof singleLocale[name] != 'string' && !(singleLocale[name] instanceof String))
+                singleLocale[name] = singleLocale[name]["message"]; //TODO1.4: Hook in some conversion of Chrome parameters
+
+        return singleLocale;    
+    },
+
+    getJSONForDefaultLocale: function(json)
+    {
+        return json["en"];
+    },
+
+    /*
+     * $STR - intended for localization of a static string.
+     * $STRF - intended for localization of a string with dynamically inserted values.
+     */
+    $STR: function(name, bundle)
+    {
+        try
+        {
+            if (bundle)
+                return bundle.getString(name);
+            else
+                return this.GetStringFromName(name);
+        }
+        catch (err)
+        {
+            //info("getting string failed: '" + name + "'", err);
+        }
+
+        // return the key if it all went wrong
+        name = name.replace("_", " ", "g");
+        return name;
+    },
+
+    $STRF: function(name, args, bundle)
+    {
+        try
+        {
+            if (bundle)
+                return bundle.getFormattedString(name, args);
+            else
+                return this.FormatStringFromName(name, args, args.length);
+        }
+        catch (err)
+        {
+            //info("getting string failed: '" + name + "'", err);
+        }
+    
+        // return the key if it all went wrong
+        return name;
+    },
+
+    GetStringFromName: function(name)
+    {
+        for (let i=0; i<this.jsonBundles.length; i++)
+        {
+            if (this.jsonBundles[i][name] != null)
+                return this.jsonBundles[i][name];
+        }
+        for (let i=0; i<this.defaultJsonBundles.length; i++)
+        {
+            if (this.defaultJsonBundles[i][name] != null)
+                return this.defaultJsonBundles[i][name];
+        }
+        for (let i=0; i<this.stringBundles.length; i++)
+        {
+            try
+            {
+                let translation = this.stringBundles[i].GetStringFromName(name);
+                return translation;
+            }
+            catch (ex) { }
+        }
+        for (let i=0; i<this.defaultStringBundles.length; i++)
+        {
+            try
+            {
+                let translation = this.defaultStringBundles[i].GetStringFromName(name);
+                return translation;
+            }
+            catch (ex) { }
+        }
+
+        // No match found
+        return name;
+    },
+
+    printf: function(text, args) {
+        var arg;
+        return msg.replace(/(%s)/g, function(a,val) {
+            arg = args.shift();
+            if (arg !== undefined) {
+                return String(arg);
+            }
+            return val;
+        });
+    },
+
+    FormatStringFromName: function(name, args)
+    {
+        for (let i=0; i<this.jsonBundles.length; i++)
+        {
+            if (this.jsonBundles[i][name] != null)
+                return this.printf(this.jsonBundles[i][name], args);
+        }
+        for (let i=0; i<this.defaultJsonBundles.length; i++)
+        {
+            if (this.defaultJsonBundles[i][name] != null)
+                return this.printf(this.defaultJsonBundles[i][name], args);
+        }
+        for (let i=0; i<this.stringBundles.length; i++)
+        {
+            try
+            {
+                let translation = this.stringBundles[i].formatStringFromName(name, args, args.length);
+                return translation;
+            }
+            catch (ex) { }
+        }
+        for (let i=0; i<this.defaultStringBundles.length; i++)
+        {
+            try
+            {
+                let translation = this.defaultStringBundles[i].formatStringFromName(name, args, args.length);
+                return translation;
+            }
+            catch (ex) { }
+        }
+
+        // No match found
+        return name;
+    },
+
+    /*
+     * Use the current value of the attribute as a key to look up the localized value.
+     */
+    internationalise: function(element, attr, args)
+    {
+        var xulString;
+        // replace callback
+        var that = this;
+        function substituteText  (str, p1, offset, s)
+        {
+            return args ? that.$STRF(p1, args) : that.$STR(p1);
+        }
+
+        if (element)
+        {
+            xulString = undefined;
+            if (attr)
+                xulString = element.getAttribute(attr);
+            else
+                xulString = element.nodeValue;
+
+            if (xulString)
+            {
+                var localised = xulString.replace(/%-(.+?)-%/g,substituteText);
+                // Set localized value of the attribute only if it exists.
+                if (localised)
+                {
+                    if (attr)
+                    {
+                        element.setAttribute(attr, localised);
+                    } else
+                    {
+                        element.nodeValue = localised;
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            //error("Failed to internationalise element with attr "+attr+" args:"+args);
+        }
+    },
+
+    // We will call this when each XUL document loads so that we can avoid using DTDs
+    // and ease any future transistion to a purely script based add-on
+    internationaliseElements: function(doc, elements, attributes)
+    {
+        for (var i=0; i<elements.length; i++)
+        {
+            var element = elements[i];
+            let args = null;
+
+            if (typeof(element) == "string")
+                element = doc.getElementById(elements[i]);
+
+            if (Object.prototype.toString.call(elements[i]) == '[object Array]') {
+                element = doc.getElementById(elements[i][0]);
+                args = elements[i][1];
             }
 
+            if (!element)
+                continue;
+
+            // Replace within text content too. Assumes there are no other subnodes. May need to be more clever here.
+            if (element.childNodes != null && element.childNodes.length > 0)
+                this.internationalise(element.childNodes[0], null, args);
+
+            for (var j=0; j<attributes.length; j++)
+            {
+                if (element.hasAttribute(attributes[j]))
+                    this.internationalise(element, attributes[j], args);
+            }
         }
-    }
-    else
+    },
+
+    internationaliseString: function(orig, args)
     {
-        //error("Failed to internationalise element with attr "+attr+" args:"+args);
-    }
-},
+        // replace callback
+        var that = this;
 
-// We will call this when each XUL document loads so that we can avoid using DTDs
-// and ease any future transistion to a purely script based add-on
-internationaliseElements: function(doc, elements, attributes)
-{
-    for (var i=0; i<elements.length; i++)
-    {
-        var element = elements[i];
-        let args = null;
+        if (orig === undefined || orig === null)
+            return orig;
 
-        if (typeof(element) == "string")
-            element = doc.getElementById(elements[i]);
-
-        if (Object.prototype.toString.call(elements[i]) == '[object Array]') {
-            element = doc.getElementById(elements[i][0]);
-            args = elements[i][1];
-        }
-
-        if (!element)
-            continue;
-
-        // Replace within text content too. Assumes there are no other subnodes. May need to be more clever here.
-        if (element.childNodes != null && element.childNodes.length > 0)
-            this.internationalise(element.childNodes[0], null, args);
-
-        for (var j=0; j<attributes.length; j++)
+        function substituteText  (str, p1, offset, s)
         {
-            if (element.hasAttribute(attributes[j]))
-                this.internationalise(element, attributes[j], args);
+            return that.args ? that.$STRF(p1, that.args) : that.$STR(p1);
         }
-    }
-},
 
-internationaliseString: function(orig, args)
-{
-    // replace callback
-    var that = this;
+        return orig.replace(/%-(.+?)-%/g,substituteText);
+    },
 
-    if (orig === undefined || orig === null)
-        return orig;
-
-    function substituteText  (str, p1, offset, s)
+    getDefaultStringBundleURI: function(bundleURI)
     {
-        return that.args ? that.$STRF(p1, that.args) : that.$STR(p1);
+        var chromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].
+            getService(Ci.nsIChromeRegistry);
+
+        var uri = Services.io.newURI(bundleURI, "UTF-8", null);
+        var fileURI = chromeRegistry.convertChromeURL(uri).spec;
+        var parts = fileURI.split("/");
+        parts[parts.length - 2] = "en-US";
+
+        return parts.join("/");
+    },
+
+    getCurrentLocale: function()
+    {
+        var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
+        var prefBranchRoot = prefService.getBranch("");
+        return prefBranchRoot.getComplexValue("general.useragent.locale", Ci.nsISupportsString).data.toLowerCase();
     }
-
-    return orig.replace(/%-(.+?)-%/g,substituteText);
-},
-
-getDefaultStringBundleURI: function(bundleURI)
-{
-    var chromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].
-        getService(Ci.nsIChromeRegistry);
-
-    var uri = Services.io.newURI(bundleURI, "UTF-8", null);
-    var fileURI = chromeRegistry.convertChromeURL(uri).spec;
-    var parts = fileURI.split("/");
-    parts[parts.length - 2] = "en-US";
-
-    return parts.join("/");
-},
-
-getCurrentLocale: function()
-{
-    var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
-    var prefBranchRoot = prefService.getBranch("");
-    return prefBranchRoot.getComplexValue("general.useragent.locale", Ci.nsISupportsString).data.toLowerCase();
-}
 
 };
