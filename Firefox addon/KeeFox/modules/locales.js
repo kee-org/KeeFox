@@ -48,8 +48,9 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://kfmod/KFLogger.js"); // You can use a different logging mechanism - just ensure the API is similar enough
 
-var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
+var EXPORTED_SYMBOLS = ["Localisation"];
 
 //TODO1.3: we need to work out how to log problems with this module? Can't use KeeFox logger because
 // it doesn't exist yet and might never if we're using the module outside of KeeFox
@@ -57,13 +58,13 @@ var EXPORTED_SYMBOLS = ["KFandFAMSLocalisation"];
 // This module is named conservatively to protect other addon
 // namespaces but maybe should be made more generic in future.
 
-function KFandFAMSLocalisation(chromeURIs, jsonLocales)
+function Localisation(chromeURIs, jsonLocales)
 {
     if (chromeURIs != undefined && chromeURIs != null)
     {
         for (let i=0; i<chromeURIs.length; i++)
         {
-            this._log("registering: " + chromeURIs[i]);
+            log.debug("registering: " + chromeURIs[i]);
             this.registerStringBundleChromeURI(chromeURIs[i]);
         }
     }
@@ -71,19 +72,13 @@ function KFandFAMSLocalisation(chromeURIs, jsonLocales)
     {
         for (let i=0; i<jsonLocales.length; i++)
         {
-            this._log("registering: " + jsonLocales[i]);
+            log.debug("registering: " + jsonLocales[i]);
             this.registerStringBundleJSON(jsonLocales[i]);
         }
     }
 };
 
-KFandFAMSLocalisation.prototype = {
-    _log: function (message) {
-        //    var _logService = Components.classes["@mozilla.org/consoleservice;1"].
-        //    getService(Ci.nsIConsoleService); _logService.logStringMessage("Locale: " + message);
-        //}, // stub logger logs everything to console
-        }, // stub logger logs nothing
-
+Localisation.prototype = {
     stringBundleService: Services.strings,
     stringBundles: [],
     jsonBundles: [],

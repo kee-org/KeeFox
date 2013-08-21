@@ -90,7 +90,7 @@ function KeeFox()
         this._keeFoxExtension.prefs._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
     }
     
-    this.locale = new KFandFAMSLocalisation(["chrome://keefox/locale/keefox.properties"]);
+    this.locale = new Localisation(["chrome://keefox/locale/keefox.properties"]);
         
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
                               getService(Ci.nsIObserverService);
