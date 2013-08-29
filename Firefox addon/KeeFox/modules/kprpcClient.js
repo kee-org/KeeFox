@@ -202,6 +202,13 @@ kprpcClient.prototype.constructor = kprpcClient;
                     {
                         log.error(window.keefox_org.locale.$STR("KeeFox-conn-invalid-message") + " "
                                             + window.keefox_org.locale.$STRF("KeeFox-further-info-may-follow", extra));
+                    } else if (data.error.code == "AUTH_RESTART")
+                    {
+                        log.error(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") + " "
+                            + window.keefox_org.locale.$STRF("KeeFox-further-info-may-follow", extra));
+                        this.removeStoredKey(this.getUsername(this.getSecurityLevel())); //TODO1.3: Check that it's OK to call this from outside of setup protocols
+                        window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
+                            + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
                     } else
                     {
                         log.error(window.keefox_org.locale.$STR("KeeFox-conn-unknown-error") + " "

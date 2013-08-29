@@ -352,6 +352,14 @@ namespace KeePassRPC
                     data2client.version = ProtocolVersion;
                     data2client.jsonrpc = Encrypt(sb.ToString());
 
+                    // If there was a problem encrypting our message, just abort - the
+                    // client won't be able to do anything useful with an error message
+                    if (data2client.jsonrpc == null)
+                    {
+                        if (KPRPC.logger != null) KPRPC.logger.WriteLine("Encryption error when trying to send signal: " + signal);
+                        return;
+                    }
+
                     // Signalling through the websocket needs to be processed on a different thread becuase handling the incoming messages results in a lock on the list of known connections (which also happens before this Signal function is called) so we want to process this as quickly as possible and avoid deadlocks.
                     // Not sure why this doesn't happen on the standard network port implementation in previous versions (maybe the networking stack created threads automatically before passing on the incoming messages?)
 
@@ -716,12 +724,26 @@ namespace KeePassRPC
             data2client.version = ProtocolVersion;
             data2client.jsonrpc = Encrypt(output);
 
+            // If there was a problem encrypting our message, respond to the
+            // client with a non-encrypted error message
+            if (data2client.jsonrpc == null)
+            {
+                data2client = new KPRPCMessage();
+                data2client.protocol = "error";
+                data2client.version = ProtocolVersion;
+                data2client.error = new Error(ErrorCode.AUTH_RESTART, new string[] { "Encryption error" });
+                this.Authorised = false;
+                if (KPRPC.logger != null) KPRPC.logger.WriteLine("Encryption error when trying to reply to client message");
+            }
             _webSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
             
         }
 
         public JSONRPCContainer Encrypt(string plaintext)
         {
+            if (string.IsNullOrEmpty(plaintext))
+                return null;
+
             KeyContainerClass kc = this.KeyContainer;
             SHA1 sha = new SHA1CryptoServiceProvider();
 
@@ -732,9 +754,10 @@ namespace KeePassRPC
             myRijndael.GenerateIV();
             myRijndael.Key = KeePassLib.Utility.MemUtil.HexStringToByteArray(kc.Key);
             ICryptoTransform encryptor = myRijndael.CreateEncryptor();
-            MemoryStream msEncrypt = new MemoryStream();
+            MemoryStream msEncrypt = new MemoryStream(100);
             CryptoStream cryptoStream = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
-            cryptoStream.Write(plaintextBytes, 0, plaintextBytes.Length);
+            -----------
+                cryptoStream.Write(plaintextBytes, 0, plaintextBytes.Length);
             cryptoStream.FlushFinalBlock();
             byte[] encrypted = msEncrypt.ToArray();
             
