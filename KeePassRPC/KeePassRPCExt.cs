@@ -110,8 +110,8 @@ namespace KeePassRPC
             if (allowCommandLineOverride)
             {
                 string portStr;
-                if (webSocket) 
-                    portStr = host.CommandLineArgs["webSocketPort"];
+                if (webSocket)
+                    portStr = host.CommandLineArgs["KeePassRPCWebSocketPort"];
                 else
                     portStr = host.CommandLineArgs["KeePassRPCPort"];
                 if (portStr != null)

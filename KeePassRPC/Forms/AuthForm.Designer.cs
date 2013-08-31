@@ -34,6 +34,8 @@
             this.richTextBoxSecurityLevel = new System.Windows.Forms.RichTextBox();
             this.richTextBoxConfirmInstruction = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonDeny
@@ -64,7 +66,7 @@
             this.richTextBoxPassword.DetectUrls = false;
             this.richTextBoxPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxPassword.ForeColor = System.Drawing.Color.Red;
-            this.richTextBoxPassword.Location = new System.Drawing.Point(337, 290);
+            this.richTextBoxPassword.Location = new System.Drawing.Point(39, 157);
             this.richTextBoxPassword.Name = "richTextBoxPassword";
             this.richTextBoxPassword.ReadOnly = true;
             this.richTextBoxPassword.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -91,7 +93,7 @@
             this.richTextBoxConfirmInstruction.BackColor = System.Drawing.SystemColors.Control;
             this.richTextBoxConfirmInstruction.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxConfirmInstruction.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxConfirmInstruction.Location = new System.Drawing.Point(337, 165);
+            this.richTextBoxConfirmInstruction.Location = new System.Drawing.Point(39, 13);
             this.richTextBoxConfirmInstruction.Name = "richTextBoxConfirmInstruction";
             this.richTextBoxConfirmInstruction.ReadOnly = true;
             this.richTextBoxConfirmInstruction.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -108,21 +110,32 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "This dialog will automatically close when the connection is authorised or denied";
             // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.richTextBoxConfirmInstruction);
+            this.panel1.Controls.Add(this.richTextBoxPassword);
+            this.panel1.ForeColor = System.Drawing.Color.Red;
+            this.panel1.Location = new System.Drawing.Point(298, 156);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(270, 224);
+            this.panel1.TabIndex = 8;
+            // 
             // AuthForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(580, 438);
+            this.ClientSize = new System.Drawing.Size(580, 427);
             this.ControlBox = false;
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.richTextBoxConfirmInstruction);
             this.Controls.Add(this.richTextBoxSecurityLevel);
-            this.Controls.Add(this.richTextBoxPassword);
             this.Controls.Add(this.richTextBoxClientID);
             this.Controls.Add(this.buttonDeny);
             this.Name = "AuthForm";
             this.Text = "Authorise a new connection";
             this.Load += new System.EventHandler(this.AuthForm_Load);
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -135,5 +148,6 @@
         private System.Windows.Forms.RichTextBox richTextBoxSecurityLevel;
         private System.Windows.Forms.RichTextBox richTextBoxConfirmInstruction;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel panel1;
     }
 }

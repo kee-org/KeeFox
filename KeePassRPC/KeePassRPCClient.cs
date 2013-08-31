@@ -639,8 +639,12 @@ namespace KeePassRPC
                     data2client.srp.securityLevel = securityLevel;
 
                     //pass the params through to the main kprpcext thread via begininvoke - that function will then create and show the form as a modal dialog
-
-                    KeePass.Program.MainForm.Invoke(new ShowAuthDialogDelegate(ShowAuthDialog), srp.securityLevel == 1 ? "medium" : "high", srpem.clientDisplayName, srpem.clientDisplayDescription, plainTextPassword);
+                    string secLevel = "low";
+                    if (srp.securityLevel == 2)
+                        secLevel = "medium";
+                    else if (srp.securityLevel == 3)
+                        secLevel = "high";
+                    KeePass.Program.MainForm.Invoke(new ShowAuthDialogDelegate(ShowAuthDialog), secLevel, srpem.clientDisplayName, srpem.clientDisplayDescription, plainTextPassword);
                 }
             }
 	    	    
