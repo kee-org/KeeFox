@@ -44,7 +44,7 @@ function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1,2,4];
+    this.clientVersion = [1,2,7];
     
     // We manually create HMACs to protect the integrity of our AES encrypted messages
     sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."](); 
@@ -193,7 +193,7 @@ kprpcClient.prototype.constructor = kprpcClient;
                     } else if (data.error.code == "VERSION_CLIENT_TOO_LOW")
                     {
                         log.error(window.keefox_org.locale.$STRF("KeeFox-conn-client-v-low", extra));
-                        window.keefox_org._launchInstaller(null,null,true,utils.versionAsString(extra),this.versionAsString(utils.versionAsInt(this.clientVersion)));
+                        window.keefox_org._launchInstaller(null,null,true,utils.versionAsString(extra),utils.versionAsString(utils.versionAsInt(this.clientVersion)));
                     } else if (data.error.code == "UNRECOGNISED_PROTOCOL")
                     {
                         log.error(window.keefox_org.locale.$STR("KeeFox-conn-unknown-protocol") + " "

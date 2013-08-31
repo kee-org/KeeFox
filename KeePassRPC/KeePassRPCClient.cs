@@ -702,6 +702,15 @@ namespace KeePassRPC
                     // We assume the user has checked the client name as part of the initial SRP setup so it's fairly safe to use it to determine the type of client connection to which we want to promote our null connection
                     KPRPC.PromoteNullRPCClient(this, clientName);
                     KeePass.Program.MainForm.Invoke(new HideAuthDialogDelegate(HideAuthDialog));
+
+                    // If we've never shown the user the welcome screen and have never
+                    // known a KeeFox add-on from the previous KPRPC protocol, show it now
+                    bool welcomeDisplayed = KPRPC._host.CustomConfig.GetBool("KeePassRPC.KeeFoxWelcomeDisplayed",false);
+                    if (!welcomeDisplayed
+                        && string.IsNullOrEmpty(KPRPC._host.CustomConfig.GetString("KeePassRPC.knownClients.KeeFox Firefox add-on")))
+                        KeePass.Program.MainForm.Invoke(new KeePassRPCExt.WelcomeKeeFoxUserDelegate(KPRPC.WelcomeKeeFoxUser));
+                    if (!welcomeDisplayed)
+                        KPRPC._host.CustomConfig.SetBool("KeePassRPC.KeeFoxWelcomeDisplayed",true);
                 }
             }
 
@@ -764,6 +773,11 @@ namespace KeePassRPC
             catch (ArgumentException)
             {
                 //The sum of the count and offset parameters is longer than the length of the buffer.
+                return null;
+            }
+            catch (NotSupportedException)
+            {
+                // Underlying stream does not support writing (not sure how this could happen)
                 return null;
             }
 
@@ -926,6 +940,11 @@ namespace KeePassRPC
             catch (ArgumentException)
             {
                 //The sum of the count and offset parameters is longer than the length of the buffer.
+                return null;
+            }
+            catch (NotSupportedException)
+            {
+                // Underlying stream does not support writing (not sure how this could happen)
                 return null;
             }
 

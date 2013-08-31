@@ -623,7 +623,7 @@ keefox_win.UI = {
                         var newWindow = wm.getMostRecentWindow("navigator:browser") ||
                             wm.getMostRecentWindow("mail:3pane");
                         var b = newWindow.getBrowser();
-                        var newTab = b.loadOneTab( "https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive", null, null, null, false, null );
+                        var newTab = b.loadOneTab( "https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-Logging-|-Sensitive", null, null, null, false, null );
                     }
                 }];
             this._showLoginNotification(notifyBox, "keefox-sensitivelog",

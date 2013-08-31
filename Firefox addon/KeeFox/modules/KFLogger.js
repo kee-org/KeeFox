@@ -60,7 +60,7 @@ function KeeFoxLogger()
     this.configureFromPreferences();
     this._log("Logging system initialised at " + Date());
     if (this.logSensitiveData)
-        this._log("WARNING: KeeFox Sensitive logging ENABLED. See: https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive");
+        this._log("WARNING: KeeFox Sensitive logging ENABLED. See: https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-Logging-|-Sensitive");
 }
 
 KeeFoxLogger.prototype = {

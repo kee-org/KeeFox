@@ -60,7 +60,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,2,6);
+        public static readonly Version PluginVersion = new Version(1,2,7);
                 
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
@@ -436,21 +436,13 @@ namespace KeePassRPC
             return icons;
         }
 
-        //public void RegisterKnownClient()
-        //{
-        //    WelcomeKeeFoxUser();
-        //}
-
-        public delegate object WelcomeKeeFoxUserDelegate(PendingRPCClient client);
+        public delegate object WelcomeKeeFoxUserDelegate();
         
 
-        public object WelcomeKeeFoxUser(PendingRPCClient client)
+        public object WelcomeKeeFoxUser()
         {
             WelcomeForm wf = new WelcomeForm();
             DialogResult dr = wf.ShowDialog(_host.MainWindow);
-
-            if (dr == DialogResult.Yes || dr == DialogResult.No)
-                RPCService.AddKnownRPCClient(client);
             if (dr == DialogResult.Yes)
                 CreateNewDatabase();
             if (dr == DialogResult.Yes || dr == DialogResult.No)

@@ -38,8 +38,6 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.richTextBox3 = new System.Windows.Forms.RichTextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.SuspendLayout();
             // 
@@ -67,9 +65,8 @@
             // 
             this.button2.BackgroundImage = global::KeePassRPC.Properties.Resources.buttonGradient;
             this.button2.DialogResult = System.Windows.Forms.DialogResult.No;
-            this.button2.Enabled = false;
             this.button2.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(16, 248);
+            this.button2.Location = new System.Drawing.Point(16, 204);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(420, 54);
             this.button2.TabIndex = 4;
@@ -80,7 +77,7 @@
             // 
             this.linkLabel1.AutoSize = true;
             this.linkLabel1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.linkLabel1.Location = new System.Drawing.Point(16, 315);
+            this.linkLabel1.Location = new System.Drawing.Point(13, 270);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(47, 13);
             this.linkLabel1.TabIndex = 5;
@@ -92,9 +89,8 @@
             // 
             this.button1.BackgroundImage = global::KeePassRPC.Properties.Resources.buttonGradient;
             this.button1.DialogResult = System.Windows.Forms.DialogResult.Yes;
-            this.button1.Enabled = false;
             this.button1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(16, 188);
+            this.button1.Location = new System.Drawing.Point(16, 133);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(420, 54);
             this.button1.TabIndex = 3;
@@ -108,7 +104,7 @@
             this.m_bannerImage.Location = new System.Drawing.Point(0, 0);
             this.m_bannerImage.Name = "m_bannerImage";
             this.m_bannerImage.Padding = new System.Windows.Forms.Padding(10, 0, 0, 10);
-            this.m_bannerImage.Size = new System.Drawing.Size(74, 334);
+            this.m_bannerImage.Size = new System.Drawing.Size(74, 291);
             this.m_bannerImage.TabIndex = 3;
             this.m_bannerImage.TabStop = false;
             // 
@@ -157,36 +153,12 @@
             this.richTextBox3.TabStop = false;
             this.richTextBox3.Text = "Kee";
             // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(16, 129);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(402, 17);
-            this.checkBox1.TabIndex = 1;
-            this.checkBox1.Text = "Please check this box to confirm that you were expecting KeeFox to be installed";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // linkLabel2
-            // 
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(13, 158);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(303, 13);
-            this.linkLabel2.TabIndex = 2;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "Click for help if you are not sure why this window has appeared";
-            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
-            // 
             // WelcomeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(448, 334);
-            this.Controls.Add(this.linkLabel2);
-            this.Controls.Add(this.checkBox1);
+            this.ClientSize = new System.Drawing.Size(448, 291);
             this.Controls.Add(this.richTextBox3);
             this.Controls.Add(this.richTextBox2);
             this.Controls.Add(this.richTextBox1);
@@ -221,7 +193,5 @@
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.RichTextBox richTextBox2;
         private System.Windows.Forms.RichTextBox richTextBox3;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.LinkLabel linkLabel2;
 	}
 }
