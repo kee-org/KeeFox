@@ -803,15 +803,20 @@ namespace KeePassRPC
             byte[] encrypted = msEncrypt.ToArray();
             
             // Get the raw bytes that are used to calculate the HMAC
-            byte[] ourHmacSourceBytes = new byte[myRijndael.Key.Length + encrypted.Length + myRijndael.IV.Length];
+
+            byte[] HmacKey = sha.ComputeHash(myRijndael.Key);
+            byte[] ourHmacSourceBytes = new byte[HmacKey.Length + encrypted.Length + myRijndael.IV.Length];
 
             // These calls can throw a variety of different exceptions but
             // I can't see why they would so we will not try to differentiate the cause of them
             try
             {
-                Array.Copy(myRijndael.Key, ourHmacSourceBytes, myRijndael.Key.Length);
-                Array.Copy(encrypted, 0, ourHmacSourceBytes, myRijndael.Key.Length, encrypted.Length);
-                Array.Copy(myRijndael.IV, 0, ourHmacSourceBytes, myRijndael.Key.Length + encrypted.Length, myRijndael.IV.Length);
+                //TODO2: HMAC calculations might be stengthened against attacks on SHA 
+                // and/or gain improved performance through use of algorithms like AES-CMAC or HKDF
+
+                Array.Copy(HmacKey, ourHmacSourceBytes, HmacKey.Length);
+                Array.Copy(encrypted, 0, ourHmacSourceBytes, HmacKey.Length, encrypted.Length);
+                Array.Copy(myRijndael.IV, 0, ourHmacSourceBytes, HmacKey.Length + encrypted.Length, myRijndael.IV.Length);
 
                 // Calculate the HMAC
                 byte[] ourHmac = sha.ComputeHash(ourHmacSourceBytes);
