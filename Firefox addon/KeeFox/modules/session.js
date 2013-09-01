@@ -35,17 +35,29 @@ var log = KFLog;
 
 function session()
 {
-    this.reconnectionAttemptFrequency = 10000;
+    this.reconnectionAttemptFrequency = 2000;
     this.connectionTimeout = 10000; // short timeout for connections
     this.activityTimeout = 3600000; // long timeout for activity
     this.connectLock = false; // protect the connect function so only one event
                         // thread (e.g. timer) can execute it at the same time
     this.fastRetries = 0;
-                        //this.pendingConnection = false;
+
     this.webSocketPort = 12546;
-    this.webSocketURI = "ws://127.0.0.1";
+    this.webSocketHost = "127.0.0.1";
+    this.webSocketURI = "ws://" + this.webSocketHost + ":" + this.webSocketPort;
     this.webSocket = null;
+
+    // The connectFailCount can be incremented by failed HTTP or WS connections
     this.connectFailCount = 0;
+    
+    // We use a HTTP channel for basic polling of the port listening status of
+    // the KPRPC server because it's quick and not subject to the rate limiting
+    // of webSocket connections as per Firefox bug #711793 and RFC 7.2.3:
+    // http://tools.ietf.org/html/rfc6455#section-7.2.3
+    // See KeeFox issue #189 for connection algorithm overview:
+    // https://github.com/luckyrat/KeeFox/issues/189#issuecomment-23635771
+    this.httpChannel = null;
+    this.httpChannelURI = "http://" + this.webSocketHost + ":" + this.webSocketPort;
 }
 
 session.prototype = new sessionLegacy();
@@ -56,6 +68,11 @@ session.prototype.constructor = session;
     this.reconnectTimer = null;
     this.onConnectDelayTimer = null;
     
+    // It would be neater to pause this timer when we know we are connected
+    // but the overhead is so minimal (and so essential in most cases - i.e.
+    // all times when the user does not have KeePass open) that we just
+    // leave it running to avoid complications that would come from trying
+    // to synchronise the state of the timer with the connection state.
     this.reconnectSoon = function()
     {
         log.debug("Creating a reconnection timer.");
@@ -72,20 +89,57 @@ session.prototype.constructor = session;
     {
         log.debug("Creating a fast reconnection timer.");
         
-        this.fastRetries = 30; // 15 seconds of more frequent connection attempts
+        this.fastRetries = 40; // 10 seconds of more frequent connection attempts
         
          // Create a timer 
          this.reconnectTimer = Components.classes["@mozilla.org/timer;1"]
                     .createInstance(Components.interfaces.nsITimer);
          
          this.reconnectTimer.initWithCallback(this.reconnectNow,
-            500,
+            250,
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     }
+
+    //TODO1.3: Is it OK to call this directly from the close event of the old HTTP connection?
+    // If not, we might need to setTimeout around this function to force it onto another thread
+    // rpc is essentially "this"
+    this.httpConnectionAttemptCallback = function(attemptWebSocket) {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                    .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
+        var rpc = window.keefox_org.KeePassRPC;
+
+        if (attemptWebSocket)
+        {
+            log.debug("Attempting to connect to RPC server webSocket.");
+            var connectResult = rpc.connect();
+            if (connectResult == "alive")
+                log.debug("Connection already established.");
+            if (connectResult == "locked")
+                log.debug("Connection attempt already underway.");
+        } else
+        {
+            rpc.connectFailCount++;
+
+            // It is possible that the initial HTTP connection failed because
+            // only a legacy KPRPC server is listening. However, it's far more
+            // likely that the user has just not got KeePass open at the
+            // moment so we will cut down on some un-necessary legacy connection
+            // attempts at the expense of a longer delay when each user
+            // upgrades from KeeFox 1.2.x
+            //TODO2: Remove this when KeeFox 1.3+ usage is sufficiently high (first check in Jan 2015)
+            if (rpc.connectFailCount >= 10)
+            {
+                log.debug("Failed to init a HTTP connection many times so will try legacy connection instead.");
+                rpc.connectFailCount = 0;
+                rpc.connectLegacy();
+            }
+        }
+    }
     
-    // Initiates a connection to the KPRPC server. First we try a webSocket then legacy TCP connection.
-    // Could do that but what about if KP starts up in between waiting for a webSocket connection timeout and initiating a legacy connection? KP will be connected using old connection method... must be a way to track and avoid this?
-    // failed legacy connect with auth_legacy signal will cause user to see upgrade assistence message. will count those messages and not display until 3 have occurred - in case there is a timing issue and random fault with 2nd attempt.
+    // Initiates a connection to the KPRPC server. First we try a webSocket
+    // then (eventually) a legacy TCP connection.
     this.connect = function()
     {
         if (this.connectLock)
@@ -98,18 +152,14 @@ session.prototype.constructor = session;
         this.connectLock = true;
         try
         {
-            //TODO1.3: Test if this hidden window approach actually works - might be a way to avoid the smell.
-            // This smells.
-            // Don't know whether a websocket created from a given window will hold a ref to that
-            // window. Hopefully not but I can't find any docs on alternative approaches anyway.
-//            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-//                           .getService(Components.interfaces.nsIWindowMediator);
-//            var window = wm.getMostRecentWindow("navigator:browser") ||
-//                        wm.getMostRecentWindow("mail:3pane");
+            // Use the app's hidden window to establish the webSocket.
+            // One day we should be able to use a worker instead but webSocket
+            // support in workers is not an option as of FF17 ESR and I suspect
+            // that a websocket created from a specific window will leak a ref to that window. 
             var window = Components.classes["@mozilla.org/appshell/appShellService;1"]
                              .getService(Components.interfaces.nsIAppShellService)
                              .hiddenDOMWindow;
-            this.webSocket = new window.WebSocket(this.webSocketURI + ":" + this.webSocketPort);
+            this.webSocket = new window.WebSocket(this.webSocketURI);
         } catch (ex)
         {
             // This shouldn't happen much - most errors will be caught in the onerror function below
@@ -119,11 +169,12 @@ session.prototype.constructor = session;
 
             // webSocket spec says that we can't know why there was an error so we must
             // always attempt to establish a legacy connection
-            if (this.connectFailCount >= 3)
+            // but we can be extra conservative here because it is highly unlikely that
+            // the initial HTTP connection attempt status code led us to this point if
+            // a legacy server is listening
+            if (this.connectFailCount >= 30)
             {
-                log.debug("Failed to open a webSocket connection so will try legacy connection instead. Exception: " + ex);
-            
-                // We run the legacy connection attempts at a lower rate since they are very unlikely to work
+                log.debug("Failed to open a webSocket connection many times so will try legacy connection instead. Exception: " + ex);
                 this.connectFailCount = 0;
                 return this.connectLegacy();
             }
@@ -175,11 +226,12 @@ session.prototype.constructor = session;
 
             // webSocket spec says that we can't know why there was an error so we must
             // always attempt to establish a legacy connection
-            if (window.keefox_org.KeePassRPC.connectFailCount >= 3)
+            // but we can be extra conservative here because it is highly unlikely that
+            // the initial HTTP connection attempt status code led us to this point if
+            // a legacy server is listening
+            if (window.keefox_org.KeePassRPC.connectFailCount >= 30)
             {
-                log.debug("Websocket connection failed a few times so going to try legacy connection");
-                
-                // We run the legacy connection attempts at a lower rate since they are very unlikely to work
+                log.debug("Websocket connection failed many times so going to try legacy connection");
                 window.keefox_org.KeePassRPC.connectFailCount = 0;
                 window.keefox_org.KeePassRPC.connectLegacy(); // scope wrong?
             }
@@ -194,40 +246,119 @@ session.prototype.constructor = session;
     this.reconnectNow = { 
         notify: function(timer) 
         { 
-            log.debug("Connection attempt is now due.");
+            //TODO1.3: remove this debug log?
+            //log.debug("Connection attempt is now due.");
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            //window.keefox_org.KeePassRPC.reconnectSoon.next();
             var rpc = window.keefox_org.KeePassRPC;
             
             if (rpc.fastRetries > 0)
             {
-                rpc.fastRetries--; // count this as a fast retry even if it was triggered from standard retry timer and even if we are already connected
+                // count this as a fast retry even if it was triggered from
+                // standard retry timer and even if we are already connected
+                rpc.fastRetries--; 
             
                 if (rpc.fastRetries <= 0)
                 {
                     if (rpc.reconnectTimer != null)
                         rpc.reconnectTimer.cancel();
-                    
                     rpc.reconnectSoon();
-                
                 }
-            
             }
-                
-            log.debug("Attempting to connect to RPC server.");
-            var connectResult = rpc.connect();
-            if (connectResult == "alive")
-                log.debug("Connection already established.");
-            if (connectResult == "locked")
-                log.debug("Connection attempt already underway.");
-            
+
+            // Check current websocket connection state. No point in trying the
+            // HTTP connection if we know we're already successfully connected
+            if (rpc.webSocket !== undefined && rpc.webSocket !== null && rpc.webSocket.readyState != 3)
+                return;
+
+            var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                                      .getService(Components.interfaces.nsIIOService);
+            var uri = ioService.newURI(rpc.httpChannelURI, null, null);
+
+            // get a channel for that nsIURI
+            rpc.httpChannel = ioService.newChannelFromURI(uri);
+
+            var listener = new KPRPCHTTPStreamListener(rpc.httpConnectionAttemptCallback);
+            rpc.httpChannel.notificationCallbacks = listener;
+
+            // Try to connect
+            // There may be more than one concurrent attempted connection.
+            //TODO1.3: Looks like default timeout is <5 seconds but maybe check that
+            // If more than one attempted connection returns the correct status code,
+            // we will see a batch of "alive" or "locked" states for subsequent callbacks
+            // That should be fine but we could implement a more complex request ID
+            // tracking system in future if it becomes a problem
+            rpc.httpChannel.asyncOpen(listener, null);
         } 
     };
 
 }).apply(session.prototype);
 
 
+function KPRPCHTTPStreamListener(aCallbackFunc) {
+  this.mCallbackFunc = aCallbackFunc;
+}
+
+KPRPCHTTPStreamListener.prototype = {
+
+  // nsIStreamListener
+  onStartRequest: function (aRequest, aContext) { },
+
+  // don't expect to receive any data but just in case, we want to handle it properly
+  onDataAvailable: function (aRequest, aContext, aStream, aSourceOffset, aLength) {
+    var scriptableInputStream = 
+      Components.classes["@mozilla.org/scriptableinputstream;1"]
+        .createInstance(Components.interfaces.nsIScriptableInputStream);
+    scriptableInputStream.init(aStream);
+    scriptableInputStream.read(aLength);
+  },
+
+  onStopRequest: function (aRequest, aContext, aStatus) {
+    // Unless connection has been refused, we want to try connecting with the websocket protocol
+    if (aStatus !== 2152398861)
+    {
+        log.info("HTTP connection not refused. We will now attempt a web socket connection.");
+        this.mCallbackFunc(true);
+    }
+    else
+    {
+        log.debug("HTTP connection refused. Will not attempt web socket connection.");
+        this.mCallbackFunc(false);
+    }
+  },
+
+  // nsIInterfaceRequestor
+  getInterface: function (aIID) {
+    try {
+      return this.QueryInterface(aIID);
+    } catch (e) {
+      throw Components.results.NS_NOINTERFACE;
+    }
+  },
+
+  // nsIChannelEventSink (not implementing - no need)
+  onChannelRedirect: function (aOldChannel, aNewChannel, aFlags) { },
+
+  // nsIProgressEventSink (not implementing will cause annoying exceptions)
+  onProgress : function (aRequest, aContext, aProgress, aProgressMax) { },
+  onStatus : function (aRequest, aContext, aStatus, aStatusArg) { },
+
+  // nsIHttpEventSink (not implementing will cause annoying exceptions)
+  onRedirect : function (aOldChannel, aNewChannel) { },
+
+  // we are faking an XPCOM interface, so we need to implement QI
+  QueryInterface : function(aIID) {
+    if (aIID.equals(Components.interfaces.nsISupports) ||
+        aIID.equals(Components.interfaces.nsIInterfaceRequestor) ||
+        aIID.equals(Components.interfaces.nsIChannelEventSink) || 
+        aIID.equals(Components.interfaces.nsIProgressEventSink) ||
+        aIID.equals(Components.interfaces.nsIHttpEventSink) ||
+        aIID.equals(Components.interfaces.nsIStreamListener))
+      return this;
+
+    throw Components.results.NS_NOINTERFACE;
+  }
+};

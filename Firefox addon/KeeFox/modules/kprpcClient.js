@@ -805,7 +805,7 @@ kprpcClient.prototype.constructor = kprpcClient;
         let aes = new sjcl.cipher.aes(secKeyArray);
         let ivHex = utils.BigIntFromRandom(16).toString(16).toLowerCase(); //TODO1.3: This randomly creates ints > 32 bytes which corrupts the IV and AES process
         let ivArray = sjcl.codec.hex.toBits(ivHex); //TODO1.3: Or maybe this
-        for (var i=0; i++; i++)
+        for (var i=0; i<ivArray.length; i++)
             if (ivArray[i] > 214783647)
                 throw new Error("integer overflow");
         let encryptedPayload = sjcl.mode.cbc.encrypt(aes, sjcl.codec.utf8String.toBits(plaintext), ivArray);

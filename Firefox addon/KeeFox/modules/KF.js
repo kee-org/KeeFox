@@ -234,14 +234,12 @@ KeeFox.prototype = {
         this._keeFoxVariableInit();
         this.KeePassRPC = new jsonrpcClient();
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
-            this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
+            this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue(
+                "KeePassRPC.port",this.KeePassRPC.port);
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
-            this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
-        
-        // make the initial connection to KeePassRPC
-        // (fails silently if KeePassRPC is not reachable)
-        this.KeePassRPC.connect();
-        
+            this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue(
+                "KeePassRPC.webSocketPort",this.KeePassRPC.webSocketPort);
+
         // start regular attempts to reconnect to KeePassRPC
         // NB: overheads here include a test whether a socket is alive
         // and regular timer scheduling overheads - hopefully that's insignificant
