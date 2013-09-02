@@ -803,11 +803,30 @@ kprpcClient.prototype.constructor = kprpcClient;
     {
         let secKeyArray = sjcl.codec.hex.toBits(this.secretKey);
         let aes = new sjcl.cipher.aes(secKeyArray);
-        let ivHex = utils.BigIntFromRandom(16).toString(16).toLowerCase(); //TODO1.3: This randomly creates ints > 32 bytes which corrupts the IV and AES process
-        let ivArray = sjcl.codec.hex.toBits(ivHex); //TODO1.3: Or maybe this
+        let ivHexRaw = utils.BigIntFromRandom(16).toString(16);
+
+        // Something isn't quite right with SJCL (possibly bug or docs fail
+        // relating to use of bitArray.clamp within hex code toBits(str)).
+
+        // Whatever the cause, the effect is that we must supply a hex string
+        // with length divisble by 8 in order to ensure the ivArray contains
+        // only 32bit ints.
+
+        // Since the ivHexRaw could be a string with
+        // length anywhere from 1 to 32 characters, we need to zero-pad
+        // before passing the string to the SJCL codec
+        let ivHex = ivHexRaw;
+        for (var i=ivHexRaw.length; i < 32; i++)
+            ivHex = "0" + ivHex;
+
+        let ivArray = sjcl.codec.hex.toBits(ivHex);
+
+        // This shouldn't throw anymore due to above workaround but leaving
+        // here for some beta testing in case there is more than one problem
         for (var i=0; i<ivArray.length; i++)
-            if (ivArray[i] > 214783647)
-                throw new Error("integer overflow");
+            if (ivArray[i] > 2147483648 || ivArray[i] < -2147483647)
+                throw "32bit integer overflow: " + ivHex;
+
         let encryptedPayload = sjcl.mode.cbc.encrypt(aes, sjcl.codec.utf8String.toBits(plaintext), ivArray);
         
         // need to convert all out int arrays (confusingly called bitarrays in sjcl) into byte arrays so we can pass
