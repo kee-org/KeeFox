@@ -1022,7 +1022,6 @@ namespace KeePassRPC
             // before explicitly asking user to log into the correct DB we'll set up a "fake" document in KeePass
             // in the hope that the minimise/restore trick will get KeePass to prompt the user on our behalf
             // (regardless of state of existing documents and newly requested document)
-            //TODO: verify when LockedIoc property was added to plugin API
             if (ioci != null
                 && !(host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.Database.IOConnectionInfo.Path == fileName)
                 && !(!host.MainWindow.DocumentManager.ActiveDocument.Database.IsOpen && host.MainWindow.DocumentManager.ActiveDocument.LockedIoc.Path == fileName))

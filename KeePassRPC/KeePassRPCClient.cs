@@ -125,7 +125,7 @@ namespace KeePassRPC
         /// Whether this client has successfully authenticated to the
         /// server and been authorised to communicate with KeePass
         /// </summary>
-        /// //TODO: verify this is always set and unset at correct times (non-trivial due to required compatibility with old and new KPRPC protocols)
+        /// //TODO1.3: verify this is always set and unset at correct times (non-trivial due to required compatibility with old and new KPRPC protocols)
         public bool Authorised
         {
             get { return _authorised; }
@@ -246,7 +246,7 @@ namespace KeePassRPC
                     }
                     catch (CryptographicException e)
                     {
-                        //TODO: log to KPRPC log
+                        //TODO1.3: log to KPRPC log
                     }
                 }
                 // else we don't persist the key anywhere - no security implications
@@ -363,7 +363,7 @@ namespace KeePassRPC
                     // Signalling through the websocket needs to be processed on a different thread becuase handling the incoming messages results in a lock on the list of known connections (which also happens before this Signal function is called) so we want to process this as quickly as possible and avoid deadlocks.
                     // Not sure why this doesn't happen on the standard network port implementation in previous versions (maybe the networking stack created threads automatically before passing on the incoming messages?)
 
-                    //TODO: Does this work in .NET 2?
+                    //TODO1.3: Does this work in .NET 2?
                     // Respond to each message on a different thread
                     ThreadStart work = delegate
                     {
@@ -501,7 +501,7 @@ namespace KeePassRPC
                 if (clientSecurityLevel < securityLevelClientMinimum)
                 {
                     data2client.error = new Error(ErrorCode.AUTH_CLIENT_SECURITY_LEVEL_TOO_LOW, new string[] { securityLevelClientMinimum.ToString() });
-                    /* TODO: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
+                    /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                      * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                      */
                     this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
@@ -527,7 +527,7 @@ namespace KeePassRPC
                 if (clientSecurityLevel < securityLevelClientMinimum)
                 {
                     data2client.error = new Error(ErrorCode.AUTH_CLIENT_SECURITY_LEVEL_TOO_LOW, new string[] { securityLevelClientMinimum.ToString() });
-                    /* TODO: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
+                    /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                      * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                      */
                     this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
@@ -544,7 +544,7 @@ namespace KeePassRPC
                         {
                             this.userName = null;
                             data2client.error = new Error(ErrorCode.AUTH_FAILED, new string[] { "Stored key not found - Caused by changed Firefox profile or KeePass instance; changed OS user credentials; or KeePass config file may be corrupt" });
-                            /* TODO: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
+                            /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                              * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                              */
                             this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
@@ -554,7 +554,7 @@ namespace KeePassRPC
                         {
                             this.userName = null;
                             data2client.error = new Error(ErrorCode.AUTH_FAILED, new string[] { "Username mismatch - KeePass config file is probably corrupt" });
-                            /* TODO: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
+                            /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                              * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                              */
                             this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
@@ -564,7 +564,7 @@ namespace KeePassRPC
                         {
                             this.userName = null;
                             data2client.error = new Error(ErrorCode.AUTH_EXPIRED);
-                            /* TODO: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
+                            /* TODO1.3: need to disconnect/delete/reset this connection once we've decided we are not interested in letting the client connect. Maybe 
                              * tie in to finding a way to abort if user clicks a "cancel" button on the auth form.
                              */
                             this.WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));

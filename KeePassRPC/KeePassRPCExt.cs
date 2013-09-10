@@ -1098,7 +1098,8 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
             if (connection != null)
                 connection.ReceiveMessage(message, service);
-            //TODO: else send an error to client saying we don't have a corresponding connection?
+            else
+                webSocket.Close();
         }
         
 
