@@ -42,55 +42,55 @@ keefox_org.commandManager = {
         this.default_commands = [
         {
             "name": "installKeeFox",
-            "description": keefox_org.locale.$STR("installKeeFox.label"),
+            "description": "installKeeFox.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "2",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("installKeeFox.label"),
-            "tooltip": keefox_org.locale.$STR("installKeeFox.tip"),
+            "label": "installKeeFox.label",
+            "tooltip": "installKeeFox.tip",
             "accesskey": ""
         },
         {
             "name": "launchKeePass",
-            "description": keefox_org.locale.$STR("launchKeePass.label"),
+            "description": "launchKeePass.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "2",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("launchKeePass.label"),
-            "tooltip": keefox_org.locale.$STR("launchKeePass.tip"),
+            "label": "launchKeePass.label",
+            "tooltip": "launchKeePass.tip",
             "accesskey": ""
         },
         {
             "name": "loginToKeePass",
-            "description": keefox_org.locale.$STR("loggedOut.label"),
+            "description": "loggedOut.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "2",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("loggedOut.label"),
-            "tooltip": keefox_org.locale.$STR("loggedOut.tip"),
+            "label": "loggedOut.label",
+            "tooltip": "loggedOut.tip",
             "accesskey": ""
         },
         {
             "name": "showMenuMatchedLogins",
-            "description": keefox_org.locale.$STR("KeeFox-matched-logins.label"),
+            "description": "KeeFox-matched-logins.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "2",
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_MAIN,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox-matched-logins.label"),
+            "label": "KeeFox-matched-logins.label",
             "tooltip": "", // No tooltip for a menu
             "accesskey": ""
         },
         {
             "name": "fillMatchedLogin",
-            "description": keefox_org.locale.$STR("KeeFox-placeholder-for-best-match"),
+            "description": "KeeFox-placeholder-for-best-match",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "2",
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_MAIN,
@@ -102,52 +102,53 @@ keefox_org.commandManager = {
         },
         {
             "name": "showMenuKeeFox",
-            "description": keefox_org.locale.$STR("KeeFox_Menu-Button.tip"),
+            "description": "KeeFox_Menu-Button.tip",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "1",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Menu-Button.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Menu-Button.tip"),
+            "label": "KeeFox_Menu-Button.label",
+            "tooltip": "KeeFox_Menu-Button.tip",
             "accesskey": ""
         },
         {
             "name": "showMenuChangeDatabase",
-            "description": keefox_org.locale.$STR("KeeFox_Menu-Button.changeDB.label"),
+            "description": "KeeFox_Menu-Button.changeDB.label",
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Menu-Button.changeDB.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Menu-Button.changeDB.tip"),
+            "label": "KeeFox_Menu-Button.changeDB.label",
+            "tooltip": "KeeFox_Menu-Button.changeDB.tip",
             "accesskey": ""
         },
         {
             "name": "detectForms",
-            "description": keefox_org.locale.$STR("KeeFox_Menu-Button.fillCurrentDocument.label"),
+            "description": "KeeFox_Menu-Button.fillCurrentDocument.label",
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Menu-Button.fillCurrentDocument.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Menu-Button.fillCurrentDocument.tip"),
+            "label": "KeeFox_Menu-Button.fillCurrentDocument.label",
+            "tooltip": "KeeFox_Menu-Button.fillCurrentDocument.tip",
             "accesskey": ""
         },
         {
             "name": "generatePassword",
-            "description": keefox_org.locale.$STR("KeeFox_Menu-Button.copyNewPasswordToClipboard.label"),
+            "description": "KeeFox_Menu-Button.copyNewPasswordToClipboard.label",
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT | this.CONTEXT_MAIN,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Menu-Button.copyNewPasswordToClipboard.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Menu-Button.copyNewPasswordToClipboard.tip"),
+            "label": "KeeFox_Menu-Button.copyNewPasswordToClipboard.label",
+            "tooltip": "KeeFox_Menu-Button.copyNewPasswordToClipboard.tip",
             "accesskey": ""
         },
+        /* Not intending to support these features until at least 1.4
         {
             "name": "showMenuGeneratePassword",
             "description": keefox_org.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
@@ -184,7 +185,6 @@ keefox_org.commandManager = {
             "tooltip": keefox_org.locale.$STR("KeeFox-site-options-title"),
             "accesskey": ""
         },
-        /* Not intending to support these features until at least 1.4
         {
             "name": "showPanelSiteOptionsCurrentHost",
             "description": keefox_org.locale.$STR("someKindOfKey"),
@@ -220,7 +220,7 @@ keefox_org.commandManager = {
             "label": keefox_org.locale.$STR("someKindOfKey"),
             "tooltip": keefox_org.locale.$STR("someKindOfKey"),
             "accesskey": ""
-        },*/
+        },
         {
             "name": "showGettingStartedTutorial",
             "description": keefox_org.locale.$STR("KeeFox_Help-GettingStarted-Button.label"),
@@ -244,31 +244,31 @@ keefox_org.commandManager = {
             "label": keefox_org.locale.$STR("KeeFox_Help-Centre-Button.label"),
             "tooltip": keefox_org.locale.$STR("KeeFox_Help-Centre-Button.tip"),
             "accesskey": ""
-        },
+        },*/
         {
             "name": "showMenuLogins",
-            "description": keefox_org.locale.$STR("KeeFox_Logins-Button.label"),
+            "description": "KeeFox_Logins-Button.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
             "key": "3",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Logins-Button.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Logins-Button.tip"),
-            "accesskey": ""
-        },
-        {
-            "name": "autoTypeHere",
-            "description": keefox_org.locale.$STR("KeeFox-auto-type-here.label"),
-            "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "4",
-            "contextLocationFlags": this.CONTEXT_INPUT,
-            "speech": {},
-            "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox-auto-type-here.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox-auto-type-here.tip"),
+            "label": "KeeFox_Logins-Button.label",
+            "tooltip": "KeeFox_Logins-Button.tip",
             "accesskey": ""
         }
+//        {
+//            "name": "autoTypeHere",
+//            "description": keefox_org.locale.$STR("KeeFox-auto-type-here.label"),
+//            "keyboardModifierFlags": this.MOD_DEFAULT,
+//            "key": "4",
+//            "contextLocationFlags": this.CONTEXT_INPUT,
+//            "speech": {},
+//            "gesture": {},
+//            "label": keefox_org.locale.$STR("KeeFox-auto-type-here.label"),
+//            "tooltip": keefox_org.locale.$STR("KeeFox-auto-type-here.tip"),
+//            "accesskey": ""
+//        }
         ];
     },
 
@@ -406,7 +406,7 @@ keefox_org.commandManager = {
             let win = keefox_org.commandManager.getWindow();
             if (!win) return;
 
-            keefox_org.Logger.debug("context detectForms start");
+            keefox_org._KFLog.debug("context detectForms start");
             var currentGBrowser = win.gBrowser;
             win.keefox_win.toolbar.setLogins(null, null);
             win.keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
@@ -415,6 +415,7 @@ keefox_org.commandManager = {
         {
             keefox_org.generatePassword();
         },
+        /* Not intending to support these features until at least 1.4
         showMenuGeneratePassword: function(target)
         {
 
@@ -433,7 +434,6 @@ keefox_org.commandManager = {
                 return;
             container.doCommand();
         },
-        /* Not intending to support these features until at least 1.4
         showPanelSiteOptionsCurrentHost: function()
         {
 
@@ -654,15 +654,15 @@ keefox_org.commandManager = {
                     item = mi;
                 }
                 item.setAttribute("disabled", false);
-                item.setAttribute("label", this.commands[i].label);
-                item.setAttribute("tooltip", this.commands[i].tooltip);
+                item.setAttribute("label", keefox_org.locale.$STR(this.commands[i].label));
+                item.setAttribute("tooltip", keefox_org.locale.$STR(this.commands[i].tooltip));
                 //item.setAttribute("accesskey", this.commands[i].accesskey);                
                 item.keeFoxCommandName = this.commands[i].name;
                 item.keeFoxValidContexts = this.commands[i].contextLocationFlags;
                 item.addEventListener("command", function(event) { keefox_org.commandManager.actions[this.keeFoxCommandName](); }, false);
             }
 
-            //TODO: repeat for submenu context type
+            //TODO1.4: repeat for submenu context type
 
         }
 
@@ -724,5 +724,5 @@ keefox_org.commandManager = {
 
 };
 
-// initialise the command system (maybe do this from somewhere else?)
+// initialise the command system
 keefox_org.commandManager.init();

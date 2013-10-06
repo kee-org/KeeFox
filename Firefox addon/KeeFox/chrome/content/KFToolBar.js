@@ -62,7 +62,7 @@ keefox_win.toolbar = {
 
     // remove matched logins from the menu
 
-    //TODO1.3: think this removes the whole popup menu so we don't get the annoying square effect but we need to change it so it is still somewhere in the document. maybe just set to disabled or hidden?
+    //TODO1.3:?need test case: think this removes the whole popup menu so we don't get the annoying square effect but we need to change it so it is still somewhere in the document. maybe just set to disabled or hidden?
     // actually above may not be problem for toolbar and i think we do it differently for the context menu anyway
     removeLogins: function () {
         // Get the toolbaritem "container" that we added to our XUL markup
@@ -101,7 +101,7 @@ keefox_win.toolbar = {
 
 
 
-    //TODO1.3: load up context menu items too, populate with data and attach/detach the submenu from the main context menu as required (or actually just always attach?)
+    //TODO1.3:?1.4? load up context menu items too, populate with data and attach/detach the submenu from the main context menu as required (or actually just always attach?)
     // how to determine whether we show the matched login menu item? contexct menu showing code could check the length of the popupmenu - if > 0 show the matched logins link, if > 1 show submenu too. so we just need to make sure the popupmenu gets populated and cleared correctly. maybe also need to put in a removal feature above? (e.g. like what is already there but commented out). also ref previous commit with potentially useful commented out sections to pull back in)...
     // add all matched logins to the menu
     setLogins: function (logins, doc) {
@@ -127,7 +127,7 @@ keefox_win.toolbar = {
         }
         this.removeMatchingEventHandlers(container);
 
-        //TODO1.3: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
+        //TODO1.3:?need test case: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
         logins.sort(this.compareRelevanceScores);
 
         
@@ -151,10 +151,10 @@ keefox_win.toolbar = {
 
         this.setLoginsTopMatch(logins, doc, container, merging);
         this.setLoginsAllMatches(logins, doc, menupopup, merging);
-        //TODO1.3: need to assign to menupopup?
+        //TODO1.3:?need test case: need to assign to menupopup?
 
         // Only attach the menupopup to the main button if there is more than one matched item
-        //TODO1.3: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
+        //TODO1.3:?need test case: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
         if (!merging && logins.length > 1) {
             container.setAttribute("type", "menu-button");
             container.appendChild(menupopup);
@@ -184,7 +184,7 @@ keefox_win.toolbar = {
 //        }
 //        this.removeMatchingEventHandlers(container);
 
-        //TODO1.3: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
+        //TODO1.3:?need test case: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
         logins.sort(this.compareRelevanceScores);
 
         
@@ -208,10 +208,10 @@ keefox_win.toolbar = {
 
         this.setLoginsTopMatch(logins, doc, container, merging);
         this.setLoginsAllMatches(logins, doc, menupopup, merging);
-        //TODO1.3: need to assign to menupopup?
+        //TODO1.3:?need test case: need to assign to menupopup?
 
         // Only attach the menupopup to the main button if there is more than one matched item
-        //TODO1.3: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
+        //TODO1.3:?need test case: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
 //        if (!merging && logins.length > 1) {
 //            container.setAttribute("type", "menu-button");
 //            container.appendChild(menupopup);
@@ -273,7 +273,7 @@ keefox_win.toolbar = {
             container.setAttribute("class", "menuitem-iconic");
             container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
         }
-        //TODO1.3: Doing this in the main function but maybe need something here to work when context menus come through?
+        //TODO1.3:?need test case: Doing this in the main function but maybe need something here to work when context menus come through?
         // re-establish the event listener we deleted at the start of the function
         //container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
     },
@@ -347,16 +347,7 @@ keefox_win.toolbar = {
                 tempButton.addEventListener("command", this.mainButtonCommandMatchHandler, false);
                 menupopup.appendChild(tempButton);
             }
-
-//            if (addLoginToContextPopup)
-//            {
-//                let tempButtonContext = tempButton.cloneNode(true);
-//                tempButtonContext.addEventListener("command", this.mainButtonCommandMatchHandler, false);
-//                contextPopup.appendChild(tempButtonContext);
-//            }
         }
-
-        //TODO1.3: maybe need to return menupopup?
     },
 
     // populate the "all logins" menu with every login in this database
@@ -631,11 +622,11 @@ keefox_win.toolbar = {
                 changeDBButton.addEventListener("popupshowing", this.setMRUdatabases, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "false");
             }
-            //TODO1.3: make generate password popupshowing event do something useful or remove it
-            if (generatePasswordButton !== undefined && generatePasswordButton != null) {
-                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
-                generatePasswordButton.setAttribute("disabled", "false");
-            }
+            //TODO1.4: make generate password popupshowing event do something useful or remove it
+//            if (generatePasswordButton !== undefined && generatePasswordButton != null) {
+//                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
+//                generatePasswordButton.setAttribute("disabled", "false");
+//            }
         } else {
             if (changeDBButton !== undefined && changeDBButton != null) {
                 changeDBButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonDisabled.label"));
