@@ -288,8 +288,8 @@
         </tabpanel>
 
         <tabpanel>
-          <vbox align="left">
-            <label id="lab-todo" value="TODO"/>
+          <vbox align="left" id="tab-Commands-Panel">
+            <description id="desc-commands-intro" width="650" class="itemEnd">%-KeeFox-pref-Commands.intro-%</description>
           </vbox>
         </tabpanel>
         

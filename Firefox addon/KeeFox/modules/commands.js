@@ -44,7 +44,7 @@ keefox_org.commandManager = {
             "name": "installKeeFox",
             "description": "installKeeFox.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "2",
+            "key": 50, // '2'
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
@@ -56,7 +56,7 @@ keefox_org.commandManager = {
             "name": "launchKeePass",
             "description": "launchKeePass.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "2",
+            "key": 50,
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
@@ -68,7 +68,7 @@ keefox_org.commandManager = {
             "name": "loginToKeePass",
             "description": "loggedOut.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "2",
+            "key": 50,
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
@@ -80,7 +80,7 @@ keefox_org.commandManager = {
             "name": "showMenuMatchedLogins",
             "description": "KeeFox-matched-logins.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "2",
+            "key": 50,
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_MAIN,
             "speech": {},
             "gesture": {},
@@ -92,7 +92,7 @@ keefox_org.commandManager = {
             "name": "fillMatchedLogin",
             "description": "KeeFox-placeholder-for-best-match",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "2",
+            "key": 50,
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_MAIN,
             "speech": {},
             "gesture": {},
@@ -104,7 +104,7 @@ keefox_org.commandManager = {
             "name": "showMenuKeeFox",
             "description": "KeeFox_Menu-Button.tip",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "1",
+            "key": 49, // '1'
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
@@ -116,7 +116,7 @@ keefox_org.commandManager = {
             "name": "showMenuChangeDatabase",
             "description": "KeeFox_Menu-Button.changeDB.label",
             "keyboardModifierFlags": 0,
-            "key": "",
+            "key": null,
             "contextLocationFlags": this.CONTEXT_SUB,
             "speech": {},
             "gesture": {},
@@ -128,7 +128,7 @@ keefox_org.commandManager = {
             "name": "detectForms",
             "description": "KeeFox_Menu-Button.fillCurrentDocument.label",
             "keyboardModifierFlags": 0,
-            "key": "",
+            "key": null,
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT,
             "speech": {},
             "gesture": {},
@@ -140,7 +140,7 @@ keefox_org.commandManager = {
             "name": "generatePassword",
             "description": "KeeFox_Menu-Button.copyNewPasswordToClipboard.label",
             "keyboardModifierFlags": 0,
-            "key": "",
+            "key": null,
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT | this.CONTEXT_MAIN,
             "speech": {},
             "gesture": {},
@@ -249,7 +249,7 @@ keefox_org.commandManager = {
             "name": "showMenuLogins",
             "description": "KeeFox_Logins-Button.label",
             "keyboardModifierFlags": this.MOD_DEFAULT,
-            "key": "3",
+            "key": 51, // '3'
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
@@ -280,15 +280,15 @@ keefox_org.commandManager = {
     conditions: {
         launchKeePass: function()
         {
-            return (!keefox_org._keeFoxStorage.get("KeePassRPCActive", true)
+            return (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false)
                     && keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false)
-                    && !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", true));
+                    && !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false));
         },
         loginToKeePass: function()
         {
             return (keefox_org._keeFoxStorage.get("KeePassRPCActive", false)
                     && keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false)
-                    && !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", true));
+                    && !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false));
         },
         installKeeFox: function()
         {
@@ -568,18 +568,19 @@ keefox_org.commandManager = {
     resolveConfiguration: function ()
     {
         // initialise every possible modifier key combination (saves us time and complication when processing a key event)
-        
+        this.activeKeys = [];
+
         for (let i=0; i<(this.MOD_SHIFT | this.MOD_ALT | this.MOD_CTRL | this.MOD_META); i++)
             this.activeKeys[i] = {};
 
         for (let i=0; i<this.commands.length; i++)
         {
             // Not interested in keyboard events for this command unless we have a keyboard key configured
-            if (this.commands[i].key != undefined && this.commands[i].key != null && this.commands[i].key.length > 0)
+            if (this.commands[i].key != undefined && this.commands[i].key != null && this.commands[i].key > 0)
             {
-                if (!(this.activeKeys[this.commands[i].keyboardModifierFlags][this.commands[i].key.charCodeAt(0)] instanceof Array))
-                    this.activeKeys[this.commands[i].keyboardModifierFlags][this.commands[i].key.charCodeAt(0)] = [];
-                this.activeKeys[this.commands[i].keyboardModifierFlags][this.commands[i].key.charCodeAt(0)].push(this.commands[i].name);
+                if (!(this.activeKeys[this.commands[i].keyboardModifierFlags][this.commands[i].key] instanceof Array))
+                    this.activeKeys[this.commands[i].keyboardModifierFlags][this.commands[i].key] = [];
+                this.activeKeys[this.commands[i].keyboardModifierFlags][this.commands[i].key].push(this.commands[i].name);
                 this.listenToKeyboard = true;
             }
         }
