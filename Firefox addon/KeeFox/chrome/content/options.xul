@@ -84,7 +84,7 @@
         <tab id="tab-Advanced" label="%-KeeFox-pref-Advanced.heading-%"/>
         <tab id="tab-KeePass" label="%-KeeFox-pref-KeePass.heading-%"/>
         <tab id="tab-ConnectionSecurity" label="%-KeeFox-pref-ConnectionSecurity.heading-%"/>
-        <tab id="tab-AuthorisedConnections" label="%-KeeFox-pref-AuthorisedConnections.heading-%"/>
+        <!-- Don't see this will be useful for v1.3 <tab id="tab-AuthorisedConnections" label="%-KeeFox-pref-AuthorisedConnections.heading-%"/>-->
         <tab id="tab-Commands" label="%-KeeFox-pref-Commands.heading-%"/>
       </tabs>
       <tabpanels flex="1">
@@ -281,11 +281,11 @@
           </vbox>
         </tabpanel>
 
-        <tabpanel>
+        <!--<tabpanel>
           <vbox align="left">
             <label id="lab-todo" value="TODO"/>
           </vbox>
-        </tabpanel>
+        </tabpanel>-->
 
         <tabpanel>
           <vbox align="left" id="tab-Commands-Panel">
