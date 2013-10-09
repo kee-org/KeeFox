@@ -496,6 +496,27 @@ namespace KeePassRPC
 
         }
 
+        // A similar function is defined in KeePass MainForm_functions.cs but only from 2.18 so to retain compatibility with 2.15 we can't use it
+        IOConnectionInfo CompleteConnectionInfoUsingMru(IOConnectionInfo ioc)
+        {
+            if (string.IsNullOrEmpty(ioc.UserName) && string.IsNullOrEmpty(ioc.Password))
+            {
+                for (uint u = 0; u < host.MainWindow.FileMruList.ItemCount; ++u)
+                {
+                    IOConnectionInfo iocMru = (host.MainWindow.FileMruList.GetItem(u).Value as IOConnectionInfo);
+                    if (iocMru == null) { continue; }
+
+                    if (iocMru.Path.Equals(ioc.Path, KeePassLib.Utility.StrUtil.CaseIgnoreCmp))
+                    {
+                        ioc = iocMru.CloneDeep();
+                        break;
+                    }
+                }
+            }
+
+            return ioc;
+        }
+
         #endregion
 
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
@@ -999,13 +1020,14 @@ namespace KeePassRPC
             {
                 ioci = new KeePassLib.Serialization.IOConnectionInfo();
                 ioci.Path = fileName;
+                ioci = CompleteConnectionInfoUsingMru(ioci);
             }
 
             // Set the current document / database to be the one we've been asked to display (may already be the case)
             // This is because the minimise/restore trick utilised a few frames later prompts KeePass into raising an
             // "enter key" dialog for the currently active database. This little check makes sure that the user sees
-            // the database they've asked for first (assuming the database they want is already open but unlocked)
-            // We can't stop an unneccessary prompt being seen if the user has asked for a new password to be opened
+            // the database they've asked for first (assuming the database they want is already open but locked)
+            // We can't stop an unneccessary prompt being seen if the user has asked for a new database to be opened
             // and the current workspace is locked
             //
             // We do this regardless of whether the DB is already open or locked
