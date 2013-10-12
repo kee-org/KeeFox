@@ -30,7 +30,7 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-Cu.import("resource://kfmod/KF.jsm");
+Cu.import("resource://kfmod/KF.js");
 
 var keeFoxDialogManager = {
 

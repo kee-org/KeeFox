@@ -101,7 +101,10 @@ kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
         if (topic == "transport-status-connected")
         {
         //TODO2: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
-            this.request(this, "Authenticate",
+
+            // Only old KPRPC servers will send us the request for authentication
+            // which leads to this point so we do things the old way
+            this.deprecatedRequest(this, "Authenticate",
               [this.clientVersion, "KeeFox Firefox add-on",
                 this.getClientIdSignatureBase64(), this.getUniqueClientIdBase64()],
               function rpc_callback(resultWrapper) {
@@ -111,49 +114,28 @@ kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
                              wm.getMostRecentWindow("navigator:browser") ||
                              wm.getMostRecentWindow("mail:3pane");
 
-                if (resultWrapper.result.result == 0) // successfully authorised by remote RPC server
+                // New clients can't successfully authenticate against the old server version
+                if (resultWrapper.result.result == 4 || resultWrapper.result == 4) // KF and KPRPC capable of SRP auth but have not acheived it for some reason
                 {
-                    window.setTimeout(function () {
-                    
-                        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                 .getService(Components.interfaces.nsIWindowMediator);
-                        var window = wm.getMostRecentWindow("navigator:browser") ||
-                                     wm.getMostRecentWindow("mail:3pane");
-                        window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
-                        window.keefox_org._keeFoxVariableInit();
-                        if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
-                        {
-                            var currentLocation = window.keefox_org._keeFoxExtension.prefs.getValue("currentLocation","");
-                            window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
-                            window.keefox_org.changeLocation(currentLocation);
-                        }
-                        window.keefox_org._refreshKPDB();
-                    }, 100); // 0.1 second delay before we try to do the KeeFox connection startup stuff
+                    // We make sure this happens a few times just in case it's a transient problem due
+                    // to webSocket connection attempts occurring while KeePassRPC server was starting up
+                    window.keefox_org.KeePassRPC.firewalledConnectionCount++;
+                    if (window.keefox_org.KeePassRPC.firewalledConnectionCount >= 3)
+                    {
+                        window.keefox_org.KeePassRPC.firewalledConnectionCount = 0;
+                        window.keefox_win.Logger.warn("Problem authenticating with KeePass. Firewall or other problem preventing SRP protocol negotiation.");
+                        window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-firewall-problem"));
+                    }
+                } else
+                if (resultWrapper.result.result == 3 || resultWrapper.result == 3) // version mismatch (including backwards compatible test)
+                {
+                    window.keefox_win.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
+                    window.keefox_org._launchInstaller(null,null,true);
                 } else
                 {
-                    if (resultWrapper.result.result == 4 || resultWrapper.result == 4) // KF and KPRPC capable of SRP auth but have not acheived it for some reason
-                    {
-                        // We make sure this happens a few times just in case it's a transient problem due
-                        // to webSocket connection attempts occurring while KeePassRPC server was starting up
-                        window.keefox_org.KeePassRPC.firewalledConnectionCount++;
-                        if (window.keefox_org.KeePassRPC.firewalledConnectionCount >= 3)
-                        {
-                            window.keefox_org.KeePassRPC.firewalledConnectionCount = 0;
-                            window.keefox_win.Logger.warn("Problem authenticating with KeePass. Firewall or other problem preventing SRP protocol negotiation.");
-                            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-firewall-problem"));
-                        }
-                    } else
-                    if (resultWrapper.result.result == 3 || resultWrapper.result == 3) // version mismatch (including backwards compatible test)
-                    {
-                        window.keefox_win.Logger.info("Problem authenticating with KeePass. KeePassRPC version upgrade (or downgrade) required.");
-                        window.keefox_org._launchInstaller(null,null,true);
-                    } else
-                    {
-                        window.keefox_win.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result.result);
-                    }
-                    window.keefox_org._pauseKeeFox();
-                } 
-                //TODO2: ? set confirmation that the connection is established and authenticated?
+                    window.keefox_win.Logger.warn("Problem authenticating with KeePass. The error code is: " + resultWrapper.result.result);
+                }
+                window.keefox_org._pauseKeeFox();
             }, this.requestId);
         } else if (topic == "connect-failed")
         {
@@ -164,6 +146,31 @@ kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
                             wm.getMostRecentWindow("mail:3pane");
             window.keefox_win.Logger.warn("Problem connecting to KeePass: " + message);
             } catch(e) {}
+        }
+    }
+
+    //[deprecated]
+    this.deprecatedRequest = function(session, method, params, callback, requestId, callbackData)
+    {
+        if (requestId == undefined || requestId == null || requestId < 0)
+            throw("JSON-RPC communciation requested with no requestID provided.");
+ 
+        this.callbacks[requestId] = callback;
+        if (callbackData != null)
+            this.callbacksData[requestId] = callbackData;
+            
+        var data = JSON.stringify({ "params": params, "method": method, "id": requestId });
+        if (log.logSensitiveData)
+            log.debug("Sending a JSON-RPC request: " + data);
+        else
+            log.debug("Sending a JSON-RPC request");
+            
+        var writeResult = session.writeData(data);
+        if (writeResult <=0)
+        {
+            log.warn("JSON-RPC request could not be sent.");
+            delete this.callbacks[requestId];
+            delete this.callbacksData[requestId];
         }
     }
 

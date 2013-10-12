@@ -300,6 +300,7 @@
       copy "Mono.Security.dll" "%25KPPDir%25\Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPDir%25\Jayrock.Json.dll"
+      copy "Fleck2.dll" "%25KPPDir%25\Fleck2.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs copied to plugins directory
 
@@ -317,6 +318,7 @@
       del /Q "%25KPPDir%25\Mono.Security.dll"
       del /Q "%25KPPDir%25\Jayrock.dll"
       del /Q "%25KPPDir%25\Jayrock.Json.dll"
+      del /Q "%25KPPDir%25\Fleck2.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs deleted
 
@@ -332,6 +334,7 @@
       copy "Mono.Security.dll" "%25KPPTempDir%25\Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPTempDir%25\Jayrock.Json.dll"
+      copy "Fleck2.dll" "%25KPPTempDir%25\Fleck2.dll"
       if errorlevel 1 goto BuildEventFailed
       copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
       if errorlevel 1 goto BuildEventFailed

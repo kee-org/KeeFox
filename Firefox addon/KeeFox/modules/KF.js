@@ -35,6 +35,8 @@ Cu.import("resource://kfmod/jsonrpcClient.js");
 Cu.import("resource://kfmod/locales.js");
 Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/KFExtension.js");
+Cu.import("resource://kfmod/config.js");
+Cu.import("resource://kfmod/commands.js");
 
 // constructor
 function KeeFox()
@@ -1237,3 +1239,24 @@ launchLoginEditorThread.prototype = {
   }
 };
 
+// attach our utils so it can be called from outisde this module
+keefox_org.utils = utils;
+
+    
+// initialise the per-site configuration
+keefox_org.config = KFConfig;
+keefox_org.config.load();
+
+// migrate old data if needed
+if (keefox_org.listOfNoSavePromptURLsToMigrate != null && keefox_org.listOfNoSavePromptURLsToMigrate.length > 0)
+    keefox_org.config.migrateListOfNoSavePromptURLs(keefox_org.listOfNoSavePromptURLsToMigrate);
+
+if (keefox_org._keeFoxExtension.prefs.has("dynamicFormScanning"))
+{
+    keefox_org.config.migrateRescanFormTimeFromFFPrefs(keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false));
+    keefox_org._keeFoxExtension.prefs._prefBranch.clearUserPref("dynamicFormScanning");
+}
+
+// initialise the command system
+keefox_org.commandManager = KFCommands;
+keefox_org.commandManager.init(keefox_org.locale);

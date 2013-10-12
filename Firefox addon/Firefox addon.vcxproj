@@ -109,11 +109,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
 
 REM combine module components into single file
 pushd "$(ProjectDir)KeeFox\modules"
-copy /b KF.js+config.js+commands.js KF.jsm /Y
 copy /b FAMS.js+FAMS-config.js FAMS.jsm /Y
-move KF.js KF.js.temp
-move config.js config.js.temp
-move commands.js commands.js.temp
 move FAMS.js FAMS.js.temp
 move FAMS-config.js FAMS-config.js.temp
 popd
@@ -122,9 +118,6 @@ xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE
 if errorlevel 1 goto BuildEventFailed
 
 pushd "$(ProjectDir)KeeFox\modules"
-move KF.js.temp KF.js
-move config.js.temp config.js
-move commands.js.temp commands.js
 move FAMS.js.temp FAMS.js
 move FAMS-config.js.temp FAMS-config.js
 popd
@@ -149,8 +142,7 @@ echo POSTBUILDSTEP for $(ProjectName) FAILED
 exit 1
 
 :BuildEventOK
-echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
-</Command>
+echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</Command>
     </PostBuildEvent>
     <ClCompile>
       <MinimalRebuild>false</MinimalRebuild>

@@ -16,28 +16,34 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-//"use strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-keefox_org.commandManager = {
+var EXPORTED_SYMBOLS = ["KFCommands"];
+Cu.import("resource://kfmod/KFLogger.js");
+Cu.import("resource://kfmod/utils.js");
+Cu.import("resource://kfmod/KFExtension.js");
+
+function commandManager () {
+    this._KFLog = KFLog;
   
-    MOD_SHIFT: 1,
-    MOD_ALT: 2,
-    MOD_CTRL: 4,
-    MOD_META: 8,
-    CONTEXT_MAIN: 1,
-    CONTEXT_SUB: 2,
-    CONTEXT_INPUT: 4,
-    CONTEXT_BUTTON: 8,
+    this.MOD_SHIFT = 1;
+    this.MOD_ALT = 2;
+    this.MOD_CTRL = 4;
+    this.MOD_META = 8;
+    this.CONTEXT_MAIN = 1;
+    this.CONTEXT_SUB = 2;
+    this.CONTEXT_INPUT = 4;
+    this.CONTEXT_BUTTON = 8;
 
-    MOD_DEFAULT: 5,
+    this.MOD_DEFAULT = 5;
 
-    default_commands: [],
+    this.default_commands = [];
 
-    setDefaultCommands: function()
+    this.setDefaultCommands = function()
     {
         this.default_commands = [
         {
@@ -151,98 +157,98 @@ keefox_org.commandManager = {
         /* Not intending to support these features until at least 1.4
         {
             "name": "showMenuGeneratePassword",
-            "description": keefox_org.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
+            "description": this.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.tip"),
+            "label": this.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
+            "tooltip": this.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.tip"),
             "accesskey": ""
         },
         {
             "name": "showPanelOptions",
-            "description": keefox_org.locale.$STR("KeeFox_Menu-Button.options.label"),
+            "description": this.locale.$STR("KeeFox_Menu-Button.options.label"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Menu-Button.options.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Menu-Button.options.tip"),
+            "label": this.locale.$STR("KeeFox_Menu-Button.options.label"),
+            "tooltip": this.locale.$STR("KeeFox_Menu-Button.options.tip"),
             "accesskey": ""
         },
         {
             "name": "showPanelSiteOptions",
-            "description": keefox_org.locale.$STR("KeeFox-site-options-title"),
+            "description": this.locale.$STR("KeeFox-site-options-title"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox-site-options-title"),
-            "tooltip": keefox_org.locale.$STR("KeeFox-site-options-title"),
+            "label": this.locale.$STR("KeeFox-site-options-title"),
+            "tooltip": this.locale.$STR("KeeFox-site-options-title"),
             "accesskey": ""
         },
         {
             "name": "showPanelSiteOptionsCurrentHost",
-            "description": keefox_org.locale.$STR("someKindOfKey"),
+            "description": this.locale.$STR("someKindOfKey"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("someKindOfKey"),
-            "tooltip": keefox_org.locale.$STR("someKindOfKey"),
+            "label": this.locale.$STR("someKindOfKey"),
+            "tooltip": this.locale.$STR("someKindOfKey"),
             "accesskey": ""
         },
         {
             "name": "showPanelSiteOptionsCurrentPage",
-            "description": keefox_org.locale.$STR("someKindOfKey"),
+            "description": this.locale.$STR("someKindOfKey"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("someKindOfKey"),
-            "tooltip": keefox_org.locale.$STR("someKindOfKey"),
+            "label": this.locale.$STR("someKindOfKey"),
+            "tooltip": this.locale.$STR("someKindOfKey"),
             "accesskey": ""
         },
         {
             "name": "showMenuHelp",
-            "description": keefox_org.locale.$STR("someKindOfKey"),
+            "description": this.locale.$STR("someKindOfKey"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("someKindOfKey"),
-            "tooltip": keefox_org.locale.$STR("someKindOfKey"),
+            "label": this.locale.$STR("someKindOfKey"),
+            "tooltip": this.locale.$STR("someKindOfKey"),
             "accesskey": ""
         },
         {
             "name": "showGettingStartedTutorial",
-            "description": keefox_org.locale.$STR("KeeFox_Help-GettingStarted-Button.label"),
+            "description": this.locale.$STR("KeeFox_Help-GettingStarted-Button.label"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Help-GettingStarted-Button.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Help-GettingStarted-Button.tip"),
+            "label": this.locale.$STR("KeeFox_Help-GettingStarted-Button.label"),
+            "tooltip": this.locale.$STR("KeeFox_Help-GettingStarted-Button.tip"),
             "accesskey": ""
         },
         {
             "name": "showHelpCenter",
-            "description": keefox_org.locale.$STR("KeeFox_Help-Centre-Button.label"),
+            "description": this.locale.$STR("KeeFox_Help-Centre-Button.label"),
             "keyboardModifierFlags": 0,
             "key": "",
             "contextLocationFlags": this.CONTEXT_SUB,
             "speech": {},
             "gesture": {},
-            "label": keefox_org.locale.$STR("KeeFox_Help-Centre-Button.label"),
-            "tooltip": keefox_org.locale.$STR("KeeFox_Help-Centre-Button.tip"),
+            "label": this.locale.$STR("KeeFox_Help-Centre-Button.label"),
+            "tooltip": this.locale.$STR("KeeFox_Help-Centre-Button.tip"),
             "accesskey": ""
         },*/
         {
@@ -259,50 +265,54 @@ keefox_org.commandManager = {
         }
 //        {
 //            "name": "autoTypeHere",
-//            "description": keefox_org.locale.$STR("KeeFox-auto-type-here.label"),
+//            "description": this.locale.$STR("KeeFox-auto-type-here.label"),
 //            "keyboardModifierFlags": this.MOD_DEFAULT,
 //            "key": "4",
 //            "contextLocationFlags": this.CONTEXT_INPUT,
 //            "speech": {},
 //            "gesture": {},
-//            "label": keefox_org.locale.$STR("KeeFox-auto-type-here.label"),
-//            "tooltip": keefox_org.locale.$STR("KeeFox-auto-type-here.tip"),
+//            "label": this.locale.$STR("KeeFox-auto-type-here.label"),
+//            "tooltip": this.locale.$STR("KeeFox-auto-type-here.tip"),
 //            "accesskey": ""
 //        }
         ];
-    },
+    };
 
     // Hard coded set of command conditions that can determine whether a given command is
     // allowed to run (or whether a possibly lower priority command can run instead)
     // sanity checks for valid state should be performed in the main action if you don't
     // want an alternative action to execute instead
     // If a condition evaluates to false then it won't be displayed on a context menu
-    conditions: {
+    this.conditions = {
         launchKeePass: function()
         {
-            return (!keefox_org._keeFoxStorage.get("KeePassRPCActive", false)
-                    && keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false)
-                    && !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false));
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            return (!keeFoxStorage.get("KeePassRPCActive", false)
+                    && keeFoxStorage.get("KeePassRPCInstalled", false)
+                    && !keeFoxStorage.get("KeePassDatabaseOpen", false));
         },
         loginToKeePass: function()
         {
-            return (keefox_org._keeFoxStorage.get("KeePassRPCActive", false)
-                    && keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false)
-                    && !keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false));
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            return (keeFoxStorage.get("KeePassRPCActive", false)
+                    && keeFoxStorage.get("KeePassRPCInstalled", false)
+                    && !keeFoxStorage.get("KeePassDatabaseOpen", false));
         },
         installKeeFox: function()
         {
-            if (!keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false))
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            if (!keeFoxStorage.get("KeePassRPCInstalled", false))
                 return true;
             return false;
         },
         fillMatchedLogin: function()
         {
-            if (!(keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false)))
+            let win = utils.getWindow();
+            let keeFoxStorage = win.keefox_org._keeFoxStorage;
+            if (!(keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false)))
                 return false;
 
-            let win = keefox_org.commandManager.getWindow();
             if (!win) return false;
             var container = win.document.getElementById("KeeFox_Main-Button");
             if (!container)
@@ -314,11 +324,12 @@ keefox_org.commandManager = {
         },
         showMenuMatchedLogins: function(target)
         {
-            if (!(keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false)))
+            let win = utils.getWindow();
+            let keeFoxStorage = win.keefox_org._keeFoxStorage;
+            if (!(keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false)))
                 return false;
 
-            let win = keefox_org.commandManager.getWindow();
             if (!win) return false;
             var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
             if (!loginsPopup)
@@ -330,30 +341,35 @@ keefox_org.commandManager = {
         },
         generatePassword: function()
         {
-            return (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false));
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            return (keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false));
         },
         showMenuChangeDatabase: function()
         {
-            return (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false));
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            return (keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false));
         },
         detectForms: function()
         {
-            return (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false));
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            return (keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false));
         },
         showMenuGeneratePassword: function()
         {
-            return (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false));
+            let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
+            return (keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false));
         },
         showMenuLogins: function()
         {
-            if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                && keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
+            let win = utils.getWindow();
+            let keeFoxStorage = win.keefox_org._keeFoxStorage;
+            if (keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                && keeFoxStorage.get("KeePassRPCActive", false))
             {
-                let win = keefox_org.commandManager.getWindow();
                 if (!win) return false;
                 var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
                 if (!loginsPopup)
@@ -364,21 +380,13 @@ keefox_org.commandManager = {
             }
             return false;
         }
-    },
-
-    getWindow: function()
-    {
-        let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        return wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-    },
+    };
 
     // Hard coded set of command functions that don't care how they were invoked
-    actions: {
+    this.actions = {
         showMenuKeeFox: function()
         {
-            let win = keefox_org.commandManager.getWindow();
+            let win = utils.getWindow();
             if (!win) return;
 
             var loginsPopup = win.document.getElementById("KeeFox_Menu-Button-Popup");
@@ -389,12 +397,12 @@ keefox_org.commandManager = {
         },
         launchKeePass: function()
         {
-            keefox_org._KFLog.debug("woooo");
-            keefox_org.launchKeePass('');
+            let win = utils.getWindow();
+            win.keefox_org.launchKeePass('');
         },
         loginToKeePass: function()
         {
-            keefox_org.loginToKeePass();
+            utils.getWindow().keefox_org.loginToKeePass();
         },
         showMenuChangeDatabase: function(target)
         {
@@ -403,17 +411,17 @@ keefox_org.commandManager = {
         },
         detectForms: function()
         {
-            let win = keefox_org.commandManager.getWindow();
+            let win = utils.getWindow();
             if (!win) return;
 
-            keefox_org._KFLog.debug("context detectForms start");
+            win.keefox_org._KFLog.debug("context detectForms start");
             var currentGBrowser = win.gBrowser;
             win.keefox_win.toolbar.setLogins(null, null);
             win.keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
         },
         generatePassword: function()
         {
-            keefox_org.generatePassword();
+            utils.getWindow().keefox_org.generatePassword();
         },
         /* Not intending to support these features until at least 1.4
         showMenuGeneratePassword: function(target)
@@ -422,12 +430,12 @@ keefox_org.commandManager = {
         },
         showPanelOptions: function()
         {
-            let win = keefox_org.commandManager.getWindow();
+            let win = utils.getWindow();
             if (!win) return;
         },
         showPanelSiteOptions: function()
         {
-            let win = keefox_org.commandManager.getWindow();
+            let win = utils.getWindow();
             if (!win) return;
             var container = win.document.getElementById("menu_ToolsPopup-options");
             if (!container)
@@ -449,7 +457,7 @@ keefox_org.commandManager = {
         */
         showGettingStartedTutorial: function()
         {
-            let win = keefox_org.commandManager.getWindow();
+            let win = utils.getWindow();
             if (!win) return;
             var container = win.document.getElementById("KeeFox_Help-GettingStarted-Button");
             if (!container)
@@ -458,7 +466,7 @@ keefox_org.commandManager = {
         },
         showHelpCenter: function()
         {
-            let win = keefox_org.commandManager.getWindow();
+            let win = utils.getWindow();
             if (!win) return;
             var container = win.document.getElementById("KeeFox_Help-Centre-Button");
             if (!container)
@@ -467,15 +475,15 @@ keefox_org.commandManager = {
         },
         installKeeFox: function()
         {
-            keefox_org.KeeFox_MainButtonClick_install();
+            utils.getWindow().keefox_org.KeeFox_MainButtonClick_install();
         },
         showMenuLogins: function()// could target in future (e.g. if we want to include all logins in a submenu of the context menu?))
         {
-            if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                && keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
+            let win = utils.getWindow();
+            let keeFoxStorage = win.keefox_org._keeFoxStorage;
+            if (keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                && keeFoxStorage.get("KeePassRPCActive", false))
             {
-                let win = keefox_org.commandManager.getWindow();
-                if (!win) return;
                 var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
                 if (!loginsPopup)
                     return;
@@ -486,12 +494,12 @@ keefox_org.commandManager = {
         },
         fillMatchedLogin: function()
         {
-            if (!(keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false)))
+            let win = utils.getWindow();
+            let keeFoxStorage = win.keefox_org._keeFoxStorage;
+            if (!(keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
 
-            let win = keefox_org.commandManager.getWindow();
-            if (!win) return;
             var container = win.document.getElementById("KeeFox_Main-Button");
             if (!container)
                 return;
@@ -502,12 +510,13 @@ keefox_org.commandManager = {
         },
         showMenuMatchedLogins: function(target)
         {
-            if (!(keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keefox_org._keeFoxStorage.get("KeePassRPCActive", false)))
+            let win = utils.getWindow();
+            let keeFoxStorage = win.keefox_org._keeFoxStorage;
+
+            if (!(keeFoxStorage.get("KeePassDatabaseOpen", false) 
+                || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
 
-            let win = keefox_org.commandManager.getWindow();
-            if (!win) return;
             var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
             if (!loginsPopup)
                 return;
@@ -523,17 +532,23 @@ keefox_org.commandManager = {
         {
             
         }
-    },
+    };
 
-    init: function ()
+    this.init = function (locale)
     {
+        this.locale = locale;
+        this.keeFoxStorage = KFExtension.storage;
         this.setDefaultCommands();
         this.load();
         this.resolveConfiguration();
-    },
+    };
 
-    kbEventHandler: function (e)
+    this.kbEventHandler = function (e)
     {
+        //TODO1.3: Can we find the context from the event?
+        let win = utils.getWindow();
+        let keefox_org = win.keefox_org;
+
         // establish which key was pressed
         let key = e.keyCode;
 
@@ -557,15 +572,15 @@ keefox_org.commandManager = {
                 break;
             }
         }
-    },
+    }
 
     // set of keys we are interested in listening to. KB listening events are always passed through to our event handler so we use this 2d "array" to quickly determine if we are interested in the particular key combination the user has just fired. The array is initialised in setupListeners()
-    activeKeys: [],
+    this.activeKeys = [],
 
     // No point in registering a listener if we end up not wanting to respond to any events
-    listenToKeyboard: false,
+    this.listenToKeyboard = false;
 
-    resolveConfiguration: function ()
+    this.resolveConfiguration = function ()
     {
         // initialise every possible modifier key combination (saves us time and complication when processing a key event)
         this.activeKeys = [];
@@ -584,9 +599,9 @@ keefox_org.commandManager = {
                 this.listenToKeyboard = true;
             }
         }
-    },
+    };
 
-    contextSubPopupShowing: function(event)
+    this.contextSubPopupShowing = function(event)
     {
         let children = event.target.ownerDocument.getElementById('keefox-command-context-sub-popup').children;
         for (let i=0; i < children.length; i++)
@@ -594,6 +609,8 @@ keefox_org.commandManager = {
             let mi = children[i];
             if (mi.id.indexOf("keefox-command-context-") != 0)
                 continue;
+
+            let keefox_org = utils.getWindow().keefox_org;
 
             // Set default visibility for this menu item
             // Should always be false but just in case...
@@ -603,9 +620,9 @@ keefox_org.commandManager = {
             if (typeof keefox_org.commandManager.conditions[mi.keeFoxCommandName] === 'function')
                 mi.hidden = mi.hidden || !keefox_org.commandManager.conditions[mi.keeFoxCommandName]();
         }
-    },
+    };
 
-    contextMainPopupShowing: function(event)
+    this.contextMainPopupShowing = function(event)
     {
         if (event.target.ownerDocument.defaultView.gContextMenu == null)
             return; // not a context menu (e.g. tooltip)
@@ -616,6 +633,8 @@ keefox_org.commandManager = {
             let mi = children[i];
             if (mi.id.indexOf("keefox-command-context-") != 0)
                 continue;
+                
+            let keefox_org = utils.getWindow().keefox_org;
 
             // Set default visibility for this menu item
             let textEnabled = mi.keeFoxValidContexts & keefox_org.commandManager.CONTEXT_INPUT;
@@ -627,10 +646,10 @@ keefox_org.commandManager = {
             if (typeof keefox_org.commandManager.conditions[mi.keeFoxCommandName] === 'function')
                 mi.hidden = mi.hidden || !keefox_org.commandManager.conditions[mi.keeFoxCommandName]();
         }
-    },
+    };
 
     // Setup listeners and context menus for the supplied window object
-    setupListeners: function (win)
+    this.setupListeners = function (win)
     {
         for (let i=0; i<this.commands.length; i++)
         {
@@ -655,12 +674,12 @@ keefox_org.commandManager = {
                     item = mi;
                 }
                 item.setAttribute("disabled", false);
-                item.setAttribute("label", keefox_org.locale.$STR(this.commands[i].label));
-                item.setAttribute("tooltip", keefox_org.locale.$STR(this.commands[i].tooltip));
+                item.setAttribute("label", this.locale.$STR(this.commands[i].label));
+                item.setAttribute("tooltip", this.locale.$STR(this.commands[i].tooltip));
                 //item.setAttribute("accesskey", this.commands[i].accesskey);                
                 item.keeFoxCommandName = this.commands[i].name;
                 item.keeFoxValidContexts = this.commands[i].contextLocationFlags;
-                item.addEventListener("command", function(event) { keefox_org.commandManager.actions[this.keeFoxCommandName](); }, false);
+                item.addEventListener("command", function(event) { utils.getWindow().keefox_org.commandManager.actions[this.keeFoxCommandName](); }, false);
             }
 
             //TODO1.4: repeat for submenu context type
@@ -670,27 +689,27 @@ keefox_org.commandManager = {
         if (this.listenToKeyboard)
         {
             // attach our keyboard listener
-            keefox_org._KFLog.debug("Attaching keyboard listener");
+            this._KFLog.debug("Attaching keyboard listener");
             win.addEventListener("keydown", this.kbEventHandler, false);
         } else
         {
-            keefox_org._KFLog.debug("No need to attach keyboard listener");
+            this._KFLog.debug("No need to attach keyboard listener");
         }
 
-    },
+    };
 
-    cloneObj: function (obj)
+    this.cloneObj = function (obj)
     {
         //TODO2: improve speed? See http://jsperf.com/clone/5
         //TODO2: Might be useful in a utils location, not just for config manipulation
         return JSON.parse(JSON.stringify(obj));
-    },
+    };
 
-    commands: [],
+    this.commands = [];
 
-    load: function()
+    this.load = function()
     {
-        keefox_org._KFLog.debug("Loading commands");
+        this._KFLog.debug("Loading commands");
         var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
         var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
 
@@ -706,11 +725,11 @@ keefox_org.commandManager = {
             this.commands = coms;
             this.save();
         }
-    },
+    };
 
-    save: function()
+    this.save = function()
     {
-        keefox_org._KFLog.debug("Saving commands");
+        this._KFLog.debug("Saving commands");
         
         var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
         var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
@@ -721,9 +740,8 @@ keefox_org.commandManager = {
         
         //TODO1.4: Stop forcing this to 1 when we release the first new version
         prefBranch.setIntPref("commandsVersion",1);
-    }
+    };
 
-};
+}
 
-// initialise the command system
-keefox_org.commandManager.init();
+var KFCommands = new commandManager;

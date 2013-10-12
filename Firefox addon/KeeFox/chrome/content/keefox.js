@@ -40,7 +40,6 @@ if (keefox_win.shouldLoad)
     Cu.import("resource://gre/modules/XPCOMUtils.jsm");
     // Load our logging subsystem
     Cu.import("resource://kfmod/KFLogger.js");
-    //Cu.import("resource://kfmod/KF.jsm");
     keefox_win.Logger = KFLog;
     //keefox_win.Logger = KFLog;
     // Load our other javascript
@@ -51,7 +50,7 @@ if (keefox_win.shouldLoad)
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
 
-    Cu.import("resource://kfmod/KF.jsm");
+    Cu.import("resource://kfmod/KF.js");
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
     Cu.import("resource://kfmod/FAMS.jsm",keefox_org);
 
@@ -78,9 +77,9 @@ if (keefox_win.shouldLoad)
             switch (topic) {
                 case "sessionstore-windows-restored":
                     keefox_win.Logger.debug("got sessionstore-windows-restored");
-                    if (keefox_org.urlToOpenOnStartup != null && keefox_org.urlToOpenOnStartup.length > 0) {
-                        var toOpen = keefox_org.urlToOpenOnStartup;
-                        keefox_org.urlToOpenOnStartup = null;
+                    if (keefox_org.utils.urlToOpenOnStartup != null && keefox_org.utils.urlToOpenOnStartup.length > 0) {
+                        var toOpen = keefox_org.utils.urlToOpenOnStartup;
+                        keefox_org.utils.urlToOpenOnStartup = null;
                         keefox_org.utils._openAndReuseOneTabPerURL(toOpen);
                     }
                     break;

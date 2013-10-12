@@ -449,7 +449,7 @@ Utils.prototype = {
                 return;
             } else
             {
-                currentWindow.keefox_org.urlToOpenOnStartup = url;
+                this.urlToOpenOnStartup = url;
             }
             return;
         }
@@ -625,6 +625,15 @@ Utils.prototype = {
         }
 
         return byteArray;
+    },
+
+    
+    getWindow: function()
+    {
+        let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                 .getService(Components.interfaces.nsIWindowMediator);
+        return wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
     }
 
 };
