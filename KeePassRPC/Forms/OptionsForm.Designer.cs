@@ -39,27 +39,29 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.label5 = new System.Windows.Forms.Label();
-            this.labelSecLevelWarning = new System.Windows.Forms.Label();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.comboBoxSecLevelMinClient = new System.Windows.Forms.ComboBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.comboBoxSecLevelKeePass = new System.Windows.Forms.ComboBox();
-            this.textBoxAuthExpiry = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBoxAuthExpiry = new System.Windows.Forms.TextBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.comboBoxSecLevelMinClient = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.comboBoxSecLevelKeePass = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.labelSecLevelWarning = new System.Windows.Forms.Label();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.textBoxPort = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // checkBox1
@@ -147,12 +149,14 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label6);
+            this.tabPage1.Controls.Add(this.textBoxPort);
             this.tabPage1.Controls.Add(this.checkBox2);
             this.tabPage1.Controls.Add(this.checkBox1);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(495, 298);
+            this.tabPage1.Size = new System.Drawing.Size(483, 298);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -171,123 +175,6 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Connection security";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(495, 298);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Authorised clients";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this.label5.Location = new System.Drawing.Point(6, 124);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(467, 17);
-            this.label5.TabIndex = 4;
-            this.label5.Text = " It is possible to set different security levels for KeePass and its clients but " +
-    "this is rarely useful.";
-            // 
-            // labelSecLevelWarning
-            // 
-            this.labelSecLevelWarning.ForeColor = System.Drawing.Color.Red;
-            this.labelSecLevelWarning.Location = new System.Drawing.Point(6, 141);
-            this.labelSecLevelWarning.Name = "labelSecLevelWarning";
-            this.labelSecLevelWarning.Size = new System.Drawing.Size(471, 46);
-            this.labelSecLevelWarning.TabIndex = 5;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.comboBoxSecLevelMinClient);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Location = new System.Drawing.Point(249, 15);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(228, 106);
-            this.groupBox2.TabIndex = 6;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Minimum acceptable client security level";
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(3, 50);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(229, 47);
-            this.label4.TabIndex = 1;
-            this.label4.Text = "This allows you to prevent KeePass from connecting to a client if the client\'s se" +
-    "curity level is set too low.";
-            // 
-            // comboBoxSecLevelMinClient
-            // 
-            this.comboBoxSecLevelMinClient.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxSecLevelMinClient.FormattingEnabled = true;
-            this.comboBoxSecLevelMinClient.Items.AddRange(new object[] {
-            "Low",
-            "Medium",
-            "High"});
-            this.comboBoxSecLevelMinClient.Location = new System.Drawing.Point(6, 20);
-            this.comboBoxSecLevelMinClient.Name = "comboBoxSecLevelMinClient";
-            this.comboBoxSecLevelMinClient.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxSecLevelMinClient.TabIndex = 2;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.comboBoxSecLevelKeePass);
-            this.groupBox3.Controls.Add(this.label3);
-            this.groupBox3.Location = new System.Drawing.Point(6, 15);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(236, 106);
-            this.groupBox3.TabIndex = 7;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "KeePass security level";
-            // 
-            // label3
-            // 
-            this.label3.Location = new System.Drawing.Point(3, 50);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(231, 47);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "This allows you to control how securely KeePass will store the secret communicati" +
-    "on key.";
-            // 
-            // comboBoxSecLevelKeePass
-            // 
-            this.comboBoxSecLevelKeePass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxSecLevelKeePass.FormattingEnabled = true;
-            this.comboBoxSecLevelKeePass.Items.AddRange(new object[] {
-            "Low",
-            "Medium",
-            "High"});
-            this.comboBoxSecLevelKeePass.Location = new System.Drawing.Point(6, 19);
-            this.comboBoxSecLevelKeePass.Name = "comboBoxSecLevelKeePass";
-            this.comboBoxSecLevelKeePass.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxSecLevelKeePass.TabIndex = 3;
-            this.comboBoxSecLevelKeePass.SelectedIndexChanged += new System.EventHandler(this.comboBoxSecLevelKeePass_SelectedIndexChanged);
-            // 
-            // textBoxAuthExpiry
-            // 
-            this.textBoxAuthExpiry.Location = new System.Drawing.Point(11, 19);
-            this.textBoxAuthExpiry.Name = "textBoxAuthExpiry";
-            this.textBoxAuthExpiry.Size = new System.Drawing.Size(62, 20);
-            this.textBoxAuthExpiry.TabIndex = 9;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(79, 22);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(33, 13);
-            this.label8.TabIndex = 10;
-            this.label8.Text = "hours";
-            // 
-            // label9
-            // 
-            this.label9.Location = new System.Drawing.Point(8, 42);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(467, 45);
-            this.label9.TabIndex = 11;
-            this.label9.Text = resources.GetString("label9.Text");
             // 
             // groupBox1
             // 
@@ -310,6 +197,139 @@
             this.label7.Size = new System.Drawing.Size(160, 13);
             this.label7.TabIndex = 12;
             this.label7.Text = "(Only affects new authorisations)";
+            // 
+            // label9
+            // 
+            this.label9.Location = new System.Drawing.Point(8, 42);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(467, 45);
+            this.label9.TabIndex = 11;
+            this.label9.Text = resources.GetString("label9.Text");
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(79, 22);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(33, 13);
+            this.label8.TabIndex = 10;
+            this.label8.Text = "hours";
+            // 
+            // textBoxAuthExpiry
+            // 
+            this.textBoxAuthExpiry.Location = new System.Drawing.Point(11, 19);
+            this.textBoxAuthExpiry.Name = "textBoxAuthExpiry";
+            this.textBoxAuthExpiry.Size = new System.Drawing.Size(62, 20);
+            this.textBoxAuthExpiry.TabIndex = 9;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.comboBoxSecLevelMinClient);
+            this.groupBox2.Controls.Add(this.label4);
+            this.groupBox2.Location = new System.Drawing.Point(249, 15);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(228, 106);
+            this.groupBox2.TabIndex = 6;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Minimum acceptable client security level";
+            // 
+            // comboBoxSecLevelMinClient
+            // 
+            this.comboBoxSecLevelMinClient.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxSecLevelMinClient.FormattingEnabled = true;
+            this.comboBoxSecLevelMinClient.Items.AddRange(new object[] {
+            "Low",
+            "Medium",
+            "High"});
+            this.comboBoxSecLevelMinClient.Location = new System.Drawing.Point(6, 20);
+            this.comboBoxSecLevelMinClient.Name = "comboBoxSecLevelMinClient";
+            this.comboBoxSecLevelMinClient.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxSecLevelMinClient.TabIndex = 2;
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(3, 50);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(229, 47);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "This allows you to prevent KeePass from connecting to a client if the client\'s se" +
+    "curity level is set too low.";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.comboBoxSecLevelKeePass);
+            this.groupBox3.Controls.Add(this.label3);
+            this.groupBox3.Location = new System.Drawing.Point(6, 15);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(236, 106);
+            this.groupBox3.TabIndex = 7;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "KeePass security level";
+            // 
+            // comboBoxSecLevelKeePass
+            // 
+            this.comboBoxSecLevelKeePass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxSecLevelKeePass.FormattingEnabled = true;
+            this.comboBoxSecLevelKeePass.Items.AddRange(new object[] {
+            "Low",
+            "Medium",
+            "High"});
+            this.comboBoxSecLevelKeePass.Location = new System.Drawing.Point(6, 19);
+            this.comboBoxSecLevelKeePass.Name = "comboBoxSecLevelKeePass";
+            this.comboBoxSecLevelKeePass.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxSecLevelKeePass.TabIndex = 3;
+            this.comboBoxSecLevelKeePass.SelectedIndexChanged += new System.EventHandler(this.comboBoxSecLevelKeePass_SelectedIndexChanged);
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(3, 50);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(231, 47);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "This allows you to control how securely KeePass will store the secret communicati" +
+    "on key.";
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(6, 124);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(467, 17);
+            this.label5.TabIndex = 4;
+            this.label5.Text = " It is possible to set different security levels for KeePass and its clients but " +
+    "this is rarely useful.";
+            // 
+            // labelSecLevelWarning
+            // 
+            this.labelSecLevelWarning.ForeColor = System.Drawing.Color.Red;
+            this.labelSecLevelWarning.Location = new System.Drawing.Point(6, 141);
+            this.labelSecLevelWarning.Name = "labelSecLevelWarning";
+            this.labelSecLevelWarning.Size = new System.Drawing.Size(471, 46);
+            this.labelSecLevelWarning.TabIndex = 5;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(483, 298);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Authorised clients";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // textBoxPort
+            // 
+            this.textBoxPort.Location = new System.Drawing.Point(6, 53);
+            this.textBoxPort.Name = "textBoxPort";
+            this.textBoxPort.Size = new System.Drawing.Size(40, 20);
+            this.textBoxPort.TabIndex = 2;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(52, 56);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 13);
+            this.label6.TabIndex = 3;
+            this.label6.Text = "label6";
             // 
             // OptionsForm
             // 
@@ -336,10 +356,10 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -371,5 +391,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label labelSecLevelWarning;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox textBoxPort;
     }
 }

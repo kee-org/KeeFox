@@ -673,7 +673,8 @@ namespace KeePassRPC
         public void ShuttingDown()
         {
             // Hide the auth dialog as long as we're not trying to shut down the main thread at the same time
-            if (!KPRPC.terminating)
+            // (and as long as this isn't a v<1.2 connection)
+            if (KPRPC != null && !KPRPC.terminating)
                 KeePass.Program.MainForm.Invoke(new HideAuthDialogDelegate(HideAuthDialog));
         }
 

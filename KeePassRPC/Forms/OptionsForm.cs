@@ -73,10 +73,31 @@ namespace KeePassRPC.Forms
                 case 2: comboBoxSecLevelMinClient.SelectedItem = "Medium"; break;
                 default: comboBoxSecLevelMinClient.SelectedItem = "High"; break;
             }
+
+            this.label6.Text = "Listen for connections on this TCP/IP port.";
+            this.textBoxPort.Text = _host.CustomConfig.GetLong("KeePassRPC.webSocket.port", 12546).ToString();
+
         }
 
         private void m_btnOK_Click(object sender, EventArgs e)
         {
+            ulong port = 0;
+            try
+            {
+                if (this.textBoxPort.Text.Length > 0)
+                {
+                    port = ulong.Parse(this.textBoxPort.Text);
+                    if (port <= 0 || port > 65535)
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Invalid listening port. Type a number between 1 and 65535 or leave empty to use the default port.");
+                DialogResult = DialogResult.None;
+                return;
+            }
+
             long expTime = 8760;
             try
             {
@@ -85,6 +106,7 @@ namespace KeePassRPC.Forms
             catch (Exception)
             {
                 MessageBox.Show("Invalid expiry time.");
+                DialogResult = DialogResult.None;
                 return;
             }
 
@@ -108,6 +130,9 @@ namespace KeePassRPC.Forms
             _host.CustomConfig.SetLong("KeePassRPC.AuthorisationExpiryTime", expTime * 3600);
             _host.CustomConfig.SetLong("KeePassRPC.SecurityLevel", secLevel);
             _host.CustomConfig.SetLong("KeePassRPC.SecurityLevelClientMinimum", secLevelClientMin);
+
+            if (port > 0)
+                _host.CustomConfig.SetULong("KeePassRPC.webSocket.port", port);
 
             _host.MainWindow.Invoke((MethodInvoker)delegate { _host.MainWindow.SaveConfig(); });
         }

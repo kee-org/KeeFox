@@ -239,8 +239,12 @@ KeeFox.prototype = {
             this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue(
                 "KeePassRPC.port",this.KeePassRPC.port);
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
+        {
             this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue(
                 "KeePassRPC.webSocketPort",this.KeePassRPC.webSocketPort);
+            this.KeePassRPC.webSocketURI = "ws://" + this.KeePassRPC.webSocketHost + ":" + this.KeePassRPC.webSocketPort;
+            this.KeePassRPC.httpChannelURI = "http://" + this.KeePassRPC.webSocketHost + ":" + this.KeePassRPC.webSocketPort;
+        }
 
         // start regular attempts to reconnect to KeePassRPC
         // NB: overheads here include a test whether a socket is alive

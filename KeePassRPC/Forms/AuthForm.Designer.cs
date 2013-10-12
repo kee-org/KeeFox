@@ -66,13 +66,13 @@
             this.richTextBoxPassword.DetectUrls = false;
             this.richTextBoxPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxPassword.ForeColor = System.Drawing.Color.Red;
-            this.richTextBoxPassword.Location = new System.Drawing.Point(39, 157);
+            this.richTextBoxPassword.Location = new System.Drawing.Point(400, 13);
             this.richTextBoxPassword.Name = "richTextBoxPassword";
             this.richTextBoxPassword.ReadOnly = true;
             this.richTextBoxPassword.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.richTextBoxPassword.Size = new System.Drawing.Size(204, 31);
+            this.richTextBoxPassword.Size = new System.Drawing.Size(151, 31);
             this.richTextBoxPassword.TabIndex = 3;
-            this.richTextBoxPassword.Text = "222222222222";
+            this.richTextBoxPassword.Text = "222222222";
             // 
             // richTextBoxSecurityLevel
             // 
@@ -80,11 +80,11 @@
             this.richTextBoxSecurityLevel.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxSecurityLevel.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBoxSecurityLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxSecurityLevel.Location = new System.Drawing.Point(12, 156);
+            this.richTextBoxSecurityLevel.Location = new System.Drawing.Point(12, 242);
             this.richTextBoxSecurityLevel.Name = "richTextBoxSecurityLevel";
             this.richTextBoxSecurityLevel.ReadOnly = true;
             this.richTextBoxSecurityLevel.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.richTextBoxSecurityLevel.Size = new System.Drawing.Size(280, 224);
+            this.richTextBoxSecurityLevel.Size = new System.Drawing.Size(556, 138);
             this.richTextBoxSecurityLevel.TabIndex = 4;
             this.richTextBoxSecurityLevel.Text = "";
             // 
@@ -93,14 +93,14 @@
             this.richTextBoxConfirmInstruction.BackColor = System.Drawing.SystemColors.Control;
             this.richTextBoxConfirmInstruction.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxConfirmInstruction.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxConfirmInstruction.Location = new System.Drawing.Point(39, 13);
+            this.richTextBoxConfirmInstruction.Location = new System.Drawing.Point(15, 13);
             this.richTextBoxConfirmInstruction.Name = "richTextBoxConfirmInstruction";
             this.richTextBoxConfirmInstruction.ReadOnly = true;
             this.richTextBoxConfirmInstruction.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.richTextBoxConfirmInstruction.Size = new System.Drawing.Size(204, 119);
+            this.richTextBoxConfirmInstruction.Size = new System.Drawing.Size(379, 58);
             this.richTextBoxConfirmInstruction.TabIndex = 5;
-            this.richTextBoxConfirmInstruction.Text = "To authorise KeeFox to access your passwords please enter the following password " +
-    "into the box KeeFox has presented to you.";
+            this.richTextBoxConfirmInstruction.Text = "To authorise KeeFox to access your passwords please enter this password into the " +
+    "box KeeFox has presented to you.";
             // 
             // label1
             // 
@@ -116,9 +116,9 @@
             this.panel1.Controls.Add(this.richTextBoxConfirmInstruction);
             this.panel1.Controls.Add(this.richTextBoxPassword);
             this.panel1.ForeColor = System.Drawing.Color.Red;
-            this.panel1.Location = new System.Drawing.Point(298, 156);
+            this.panel1.Location = new System.Drawing.Point(12, 156);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(270, 224);
+            this.panel1.Size = new System.Drawing.Size(556, 80);
             this.panel1.TabIndex = 8;
             // 
             // AuthForm

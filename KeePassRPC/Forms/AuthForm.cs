@@ -39,9 +39,8 @@ namespace KeePassRPC.Forms
              * 
 "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Microsoft Sans Serif;}}\r\n\\viewkind4\\uc1\\pard\\f0\\fs18 This is a test\\par\r\n}\r\n"
              * */
-            richTextBoxSecurityLevel.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0\fs20KeeFox will connect using {\b " + SecurityLevel + @"} security.\par
-
-Please go to this web page to learn about the different levels of security and how to configure your personal security preferences: https://github.com/luckyrat/KeeFox/wiki/en-|-Getting-started#manual-installation\par
+            richTextBoxSecurityLevel.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0\fs20KeeFox will connect using {\b " + SecurityLevel + @"} security. Please go to this web page to learn about the different levels of security and how to configure your personal security preferences:\par
+https://github.com/luckyrat/KeeFox/wiki/en-|-Technical-|-KeePassRPC-|-Security-levels\par\par
 
 If you do not know what ""{\b " + ClientName + @"}"" is or have reason to suspect that a malicious program on your computer is pretending to be ""{\b " + ClientName + @"}"" you can deny the request by clicking the button below.
 }";
@@ -54,7 +53,7 @@ If you do not know what ""{\b " + ClientName + @"}"" is or have reason to suspec
 
             richTextBoxPassword.Text = Password;
 
-            richTextBoxConfirmInstruction.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0To authorise {\b " + ClientName + @"} to access your passwords please enter the following password into the box {\b " + ClientName + @"} has presented to you.}";
+            richTextBoxConfirmInstruction.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0To authorise {\b " + ClientName + @"} to access your passwords please enter this password into the box {\b " + ClientName + @"} has presented to you.}";
             
         }
 
@@ -71,5 +70,6 @@ If you do not know what ""{\b " + ClientName + @"}"" is or have reason to suspec
             // The underlying connection is now closed
             // this form will be closed when this event handler finishes (we've queued an invocation on this thread via the OnClose callback on a different thread)
         }
+
     }
 }
