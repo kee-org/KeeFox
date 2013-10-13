@@ -396,7 +396,7 @@ namespace KeePassRPC
 
         void OnToolsOptions(object sender, EventArgs e)
         {
-            KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host);
+            KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this);
             ofDlg.ShowDialog();
         }
 
@@ -1100,6 +1100,19 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 connection.ReceiveMessage(message, service);
             else
                 webSocket.Close();
+        }
+
+        internal List<KeePassRPCClientConnection> GetConnectedRPCClients()
+        {
+            List<KeePassRPCClientConnection> clients = new List<KeePassRPCClientConnection>();
+            lock (_lockRPCClientManagers)
+            {
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
+                        if (connection.Authorised)
+                            clients.Add(connection);
+            }
+            return clients;
         }
         
 

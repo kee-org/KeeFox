@@ -238,6 +238,11 @@ session.prototype.constructor = session;
             log.debug("Websocket connection error end");
         };
         this.webSocket.onclose = function (event) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                           .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                        wm.getMostRecentWindow("mail:3pane");
+            window.keefox_org._pauseKeeFox();
             log.debug("Websocket connection closed");
         };
 

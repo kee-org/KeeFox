@@ -38,6 +38,8 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textBoxPort = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -53,8 +55,16 @@
             this.label5 = new System.Windows.Forms.Label();
             this.labelSecLevelWarning = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.textBoxPort = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.labelAuthorisedClientsFail = new System.Windows.Forms.Label();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ClientName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.UniqueID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Expires = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Connected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Revoke = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -62,6 +72,8 @@
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // checkBox1
@@ -160,6 +172,22 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(52, 56);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 13);
+            this.label6.TabIndex = 3;
+            this.label6.Text = "label6";
+            // 
+            // textBoxPort
+            // 
+            this.textBoxPort.Location = new System.Drawing.Point(6, 53);
+            this.textBoxPort.Name = "textBoxPort";
+            this.textBoxPort.Size = new System.Drawing.Size(40, 20);
+            this.textBoxPort.TabIndex = 2;
             // 
             // tabPage2
             // 
@@ -308,6 +336,11 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.label12);
+            this.tabPage3.Controls.Add(this.label11);
+            this.tabPage3.Controls.Add(this.label10);
+            this.tabPage3.Controls.Add(this.labelAuthorisedClientsFail);
+            this.tabPage3.Controls.Add(this.dataGridView1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(483, 298);
@@ -315,21 +348,102 @@
             this.tabPage3.Text = "Authorised clients";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // textBoxPort
+            // label12
             // 
-            this.textBoxPort.Location = new System.Drawing.Point(6, 53);
-            this.textBoxPort.Name = "textBoxPort";
-            this.textBoxPort.Size = new System.Drawing.Size(40, 20);
-            this.textBoxPort.TabIndex = 2;
+            this.label12.Location = new System.Drawing.Point(6, 190);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(469, 37);
+            this.label12.TabIndex = 4;
+            this.label12.Text = "Revoking a client will prevent it from accessing your passwords. You can re-autho" +
+    "rise next time the client connects.";
             // 
-            // label6
+            // label11
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(52, 56);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 13);
-            this.label6.TabIndex = 3;
-            this.label6.Text = "label6";
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 263);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(458, 13);
+            this.label11.TabIndex = 3;
+            this.label11.Text = "Expired authorisations are not automatically removed. Just click \"Revoke\" if you " +
+    "want to tidy up.";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(3, 238);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(163, 13);
+            this.label10.TabIndex = 2;
+            this.label10.Text = "Names are supplied by the client.";
+            // 
+            // labelAuthorisedClientsFail
+            // 
+            this.labelAuthorisedClientsFail.Location = new System.Drawing.Point(73, 42);
+            this.labelAuthorisedClientsFail.Name = "labelAuthorisedClientsFail";
+            this.labelAuthorisedClientsFail.Size = new System.Drawing.Size(354, 92);
+            this.labelAuthorisedClientsFail.TabIndex = 1;
+            this.labelAuthorisedClientsFail.Text = "Sorry, you\'re unable to manage the connections you have authorised. You can proba" +
+    "bly fix the problem by (re-)installing the latest version of the Microsoft .NET " +
+    "framework.";
+            this.labelAuthorisedClientsFail.Visible = false;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AllowUserToResizeRows = false;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ClientName,
+            this.UniqueID,
+            this.Expires,
+            this.Connected,
+            this.Revoke});
+            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.Size = new System.Drawing.Size(477, 171);
+            this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            // 
+            // ClientName
+            // 
+            this.ClientName.HeaderText = "Name";
+            this.ClientName.Name = "ClientName";
+            this.ClientName.ReadOnly = true;
+            this.ClientName.Width = 80;
+            // 
+            // UniqueID
+            // 
+            this.UniqueID.HeaderText = "Unique ID";
+            this.UniqueID.Name = "UniqueID";
+            this.UniqueID.ReadOnly = true;
+            this.UniqueID.Width = 115;
+            // 
+            // Expires
+            // 
+            this.Expires.HeaderText = "Expires";
+            this.Expires.Name = "Expires";
+            this.Expires.ReadOnly = true;
+            this.Expires.Width = 115;
+            // 
+            // Connected
+            // 
+            this.Connected.HeaderText = "Connected";
+            this.Connected.Name = "Connected";
+            this.Connected.ReadOnly = true;
+            this.Connected.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Connected.Width = 70;
+            // 
+            // Revoke
+            // 
+            this.Revoke.HeaderText = "";
+            this.Revoke.Name = "Revoke";
+            this.Revoke.ReadOnly = true;
+            this.Revoke.Text = "Revoke";
+            this.Revoke.UseColumnTextForButtonValue = true;
+            this.Revoke.Width = 70;
             // 
             // OptionsForm
             // 
@@ -351,6 +465,7 @@
             this.Name = "OptionsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "KeePassRPC (KeeFox) Options";
+            this.Load += new System.EventHandler(this.OnFormLoad);
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -360,6 +475,9 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -393,5 +511,15 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox textBoxPort;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Label labelAuthorisedClientsFail;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ClientName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn UniqueID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Expires;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Connected;
+        private System.Windows.Forms.DataGridViewButtonColumn Revoke;
     }
 }

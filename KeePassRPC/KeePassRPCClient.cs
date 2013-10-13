@@ -71,6 +71,9 @@ namespace KeePassRPC
         private int securityLevelClientMinimum;
         private string userName;
 
+        // Read-only username is accessible to anyone but only once the connection has been confirmed
+        public string UserName { get { if (Authorised) return userName; else return ""; } }
+
         private KeyChallengeResponse Kcp
         {
             get { return _kcp; }
