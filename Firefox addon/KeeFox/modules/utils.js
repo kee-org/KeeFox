@@ -615,18 +615,35 @@ Utils.prototype = {
 
         return byteArray;
     },
-
+    
     intArrayToByteArray: function(intArray) {
-        var byteArray = [];
+        var byteArray = new Array(intArray.length*4);
 
         for ( var index = 0; index < intArray.length; index ++ ) {
-            byteArray = byteArray.concat(this.intToByteArray(intArray[index]));
-
+            var int = intArray[index];
+            for ( var j = 3; j >= 0; j-- ) {
+                var byte = int & 0xff;
+                byteArray [ (index * 4) + j ] = byte;
+                int = (int - byte) / 256 ;
+            }
         }
 
         return byteArray;
     },
+    
+//    
+//    intArrayToByteArray2: function(intArray) {
+//var byteArray = [];
 
+//for (var index = 0; index < testData.length; index++) {
+//  var int = testData[index];
+//  for (var j = 3; j >= 0; j--) {
+//    var byte = int & 0xff;
+//    byteArray.push(byte); // this is wrong answer - need to reverse inner loop
+//    int = (int - byte) / 256;
+//  }
+//}
+//    },
     
     getWindow: function()
     {

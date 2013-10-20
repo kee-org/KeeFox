@@ -849,16 +849,42 @@ kprpcClient.prototype.constructor = kprpcClient;
 
     this.decrypt = function(encryptedContainer)
     {
+        log.debug("starting decryption");
+        var t = (new Date()).getTime();
         let messageArray = sjcl.codec.base64.toBits(encryptedContainer.message);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 1 took: " + (tn-t));
+        t = tn;
         let ivArray = sjcl.codec.base64.toBits(encryptedContainer.iv);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 2 took: " + (tn-t));
+        t = tn;
         let hmac = encryptedContainer.hmac;
         
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 3 took: " + (tn-t));
+        t = tn;
         let secKeyArray = sjcl.codec.hex.toBits(this.secretKey);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 4 took: " + (tn-t));
+        t = tn;
         let a1 = utils.intArrayToByteArray(sjcl.codec.base64.toBits(utils.hash(utils.intArrayToByteArray(secKeyArray),"base64","SHA1")));
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 5 took: " + (tn-t));
+        t = tn;
         let a2 = utils.intArrayToByteArray(messageArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 6 took: " + (tn-t));
+        t = tn;
         let a3 = utils.intArrayToByteArray(ivArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 7 took: " + (tn-t));
+        t = tn;
         let ourHmac = utils.hash(a1.concat(a2).concat(a3),"base64","SHA1");
 
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 8 took: " + (tn-t));
+        t = tn;
         if (ourHmac !== hmac)
         {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -874,10 +900,22 @@ kprpcClient.prototype.constructor = kprpcClient;
         }
 
         let encryptedPayload = messageArray;
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 9 took: " + (tn-t));
+        t = tn;
         let aes = new sjcl.cipher.aes(secKeyArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 10 took: " + (tn-t));
+        t = tn;
         let decryptedPayload = sjcl.mode.cbc.decrypt(aes, encryptedPayload, ivArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 11 took: " + (tn-t));
+        t = tn;
         let plainText = sjcl.codec.utf8String.fromBits(decryptedPayload);
-
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 12 took: " + (tn-t));
+        t = tn;
+        log.debug("decryption finished");
         return plainText;
     };
     
