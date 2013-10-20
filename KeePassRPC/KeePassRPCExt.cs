@@ -92,7 +92,7 @@ namespace KeePassRPC
 
         private EventHandler<GwmWindowEventArgs> GwmWindowAddedHandler;
 
-        private static object _lockRPCClientManagers = new object();
+        private static LockManager _lockRPCClientManagers = new LockManager();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
         public string CurrentConfigVersion = "1";
         public volatile bool terminating = false;
@@ -321,6 +321,7 @@ namespace KeePassRPC
 
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 //TODO2: Only consider managers of client types that have at least one valid client already authorised
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     if (manager.Name != "Null")
@@ -364,6 +365,7 @@ namespace KeePassRPC
 
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 //TODO2: Only consider managers of client types that have at least one valid client already authorised
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     if (manager.Name != "Null")
@@ -765,6 +767,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 _RPCClientManagers.Add("null", new NullRPCClientManager());
 
                 //TODO2: load managers from plugins, etc.
@@ -776,6 +779,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 ((NullRPCClientManager)_RPCClientManagers["null"]).RemoveRPCClientConnection(connection);
                 destination.AddRPCClientConnection(connection);
             }
@@ -802,6 +806,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             RPCServer.Terminate();
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     manager.Terminate();
                 _RPCClientManagers.Clear();
@@ -1026,6 +1031,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     manager.SignalAll(signal);
             }
@@ -1035,6 +1041,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 _RPCClientManagers["null"].AddRPCClientConnection(keePassRPCClient);
             }
         }
@@ -1043,6 +1050,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 // this generally only happens at connection shutdown time so think we get away with a search like this
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
@@ -1055,6 +1063,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 _RPCClientManagers["null"].AddRPCClientConnection(new KeePassRPCClientConnection(webSocket, false, this));
             }
         }
@@ -1063,6 +1072,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 // this generally only happens at conenction shutdown time so think we get away with a search like this
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
@@ -1081,6 +1091,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                 {
                     foreach (KeePassRPCClientConnection conn in manager.CurrentRPCClientConnections)
@@ -1107,6 +1118,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             List<KeePassRPCClientConnection> clients = new List<KeePassRPCClientConnection>();
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
                         if (connection.Authorised)
@@ -1462,5 +1474,10 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
     //    }
     //}
 
+
+    public class LockManager
+    {
+        public int HeldBy;
+    }
 
 }

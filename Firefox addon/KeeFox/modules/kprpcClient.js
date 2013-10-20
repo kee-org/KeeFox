@@ -508,6 +508,10 @@ kprpcClient.prototype.constructor = kprpcClient;
             
         if ("result" in obj && obj.result !== false)
         {
+        // quick hack test
+        if (obj.result == null)
+            return;
+
             try
             {
                 if (this.callbacks[obj.id] != null)
