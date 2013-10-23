@@ -851,6 +851,7 @@ kprpcClient.prototype.constructor = kprpcClient;
     {
         log.debug("starting decryption");
         var t = (new Date()).getTime();
+        //TODO:perf: Alternative base64 decoder ~ 25%
         let messageArray = sjcl.codec.base64.toBits(encryptedContainer.message);
         var tn = (new Date()).getTime();
         log.debug("decryption stage 1 took: " + (tn-t));
@@ -872,6 +873,7 @@ kprpcClient.prototype.constructor = kprpcClient;
         var tn = (new Date()).getTime();
         log.debug("decryption stage 5 took: " + (tn-t));
         t = tn;
+        //TODO:perf: Further improvements to bit array manipulation ~ 12.5%
         let a2 = utils.intArrayToByteArray(messageArray);
         var tn = (new Date()).getTime();
         log.debug("decryption stage 6 took: " + (tn-t));
@@ -880,6 +882,7 @@ kprpcClient.prototype.constructor = kprpcClient;
         var tn = (new Date()).getTime();
         log.debug("decryption stage 7 took: " + (tn-t));
         t = tn;
+        //TODO:perf: alt. concat impl. ~5%
         let ourHmac = utils.hash(a1.concat(a2).concat(a3),"base64","SHA1");
 
         var tn = (new Date()).getTime();
@@ -907,10 +910,12 @@ kprpcClient.prototype.constructor = kprpcClient;
         var tn = (new Date()).getTime();
         log.debug("decryption stage 10 took: " + (tn-t));
         t = tn;
+        //TODO:perf: Improved AES decryption ~50%
         let decryptedPayload = sjcl.mode.cbc.decrypt(aes, encryptedPayload, ivArray);
         var tn = (new Date()).getTime();
         log.debug("decryption stage 11 took: " + (tn-t));
         t = tn;
+        //TODO:perf: Improved utf8 encoding ~12.5%
         let plainText = sjcl.codec.utf8String.fromBits(decryptedPayload);
         var tn = (new Date()).getTime();
         log.debug("decryption stage 12 took: " + (tn-t));

@@ -186,6 +186,7 @@ keefox_win.ILM = {
         var progress = Cc["@mozilla.org/docloaderservice;1"].
                        getService(Ci.nsIWebProgress);
 
+//TODO: This should not be an error if we never successfully added the listener in the first place
         try {
             progress.removeProgressListener(this._webProgressListener);        
         } catch (e) {

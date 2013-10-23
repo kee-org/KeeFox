@@ -107,8 +107,10 @@ if (keefox_win.shouldLoad)
                 case "load":
                     // We don't need to know about load events anymore for the life of this window
                     window.removeEventListener("load", this, false);
-                    
-                    keefox_org.commandManager.setupListeners(currentWindow);
+
+                    if (window.gBrowser) { // Firefox only
+                        keefox_org.commandManager.setupListeners(currentWindow);
+                    }
 
                     // our toolbar (+ a bit more, maybe needs renaming
                     // in future if I can think of something better)
