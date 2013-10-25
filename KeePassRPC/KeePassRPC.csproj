@@ -96,9 +96,9 @@
       <ExecutableExtension>.exe</ExecutableExtension>
       <HintPath>..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
     </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+    <Reference Include="KeePassRPC.Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Mono.Security.dll</HintPath>
+      <HintPath>KeePassRPC.Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -273,7 +273,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'WINDOWS_NT'">
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>

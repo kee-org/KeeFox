@@ -34,9 +34,9 @@
 using System;
 using System.Collections;
 using System.Security.Cryptography;
-using Mono.Security.X509;
-using Mono.Security.X509.Extensions;
-using Mono.Security;
+using KeePassRPC.Mono.Security.X509;
+using KeePassRPC.Mono.Security.X509.Extensions;
+using KeePassRPC.Mono.Security;
 using System.IO;
 using KeePassRPC;
 

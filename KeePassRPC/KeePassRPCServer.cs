@@ -38,7 +38,7 @@ using Mono.Tools;
 using System.Text.RegularExpressions;
 using Jayrock.Json;
 using System.Windows.Forms;
-using Mono.Security.X509;
+using KeePassRPC.Mono.Security.X509;
 using Fleck2;
 using Fleck2.Interfaces;
 using KeePassRPC.DataExchangeModel;
