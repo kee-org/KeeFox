@@ -271,7 +271,7 @@ KeeFox.prototype = {
             this._keeFoxExtension.prefs.getValue("keePassRememberInstalledLocation",false);
         if (!keePassRememberInstalledLocation)
         {
-            keePassLocation = utils._discoverKeePassInstallLocation();
+            keePassLocation = utils._discoverKeePassInstallLocation(this.defaultMonoExec);
             if (keePassLocation != "not installed")
             {
                 KeePassEXEfound = utils._confirmKeePassInstallLocation(keePassLocation);
