@@ -307,7 +307,7 @@ Utils.prototype = {
 
     // works out where Mono is installed and records it in a Firefox preference
     // As far as I know, Mono is typically installed at /usr/bin/mono for Fedora, Debian, Ubuntu, etc.
-    _discoverMonoLocation: function()
+    _discoverMonoLocation: function(defaultMonoExec)
     {
         var monoLocation = "not installed";
         
@@ -324,7 +324,7 @@ Utils.prototype = {
         {
             var mono_exec = Components.classes["@mozilla.org/file/local;1"]
                              .createInstance(Components.interfaces.nsILocalFile);
-            mono_exec.initWithPath(this.defaultMonoExec);
+            mono_exec.initWithPath(defaultMonoExec);
             if (mono_exec.exists())
             {
               monoLocation = mono_exec.path;            
@@ -333,7 +333,7 @@ Utils.prototype = {
             }
             else
             {
-              this._KFLog.debug("Mono install location "+this.defaultMonoExec+ " does not exist!");
+              this._KFLog.debug("Mono install location " + defaultMonoExec + " does not exist!");
             }
         }        
         return monoLocation;
