@@ -297,7 +297,7 @@
       REM copy output DLLs to KeePass plugins directory
       copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
-      copy "Mono.Security.dll" "%25KPPDir%25\Mono.Security.dll"
+      copy "KeePassRPC.Mono.Security.dll" "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPDir%25\Jayrock.Json.dll"
       copy "Fleck2.dll" "%25KPPDir%25\Fleck2.dll"
@@ -315,7 +315,7 @@
       REM delete the DLLs from any previous Debug build
       del /Q "%25KPPDir%25$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
-      del /Q "%25KPPDir%25\Mono.Security.dll"
+      del /Q "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
       del /Q "%25KPPDir%25\Jayrock.dll"
       del /Q "%25KPPDir%25\Jayrock.Json.dll"
       del /Q "%25KPPDir%25\Fleck2.dll"
@@ -331,7 +331,7 @@
       REM copy relevant project files to temporary directory
       REM (for simple KeePass plugins you may need to
       REM copy only *.cs files and .csproj file)
-      copy "Mono.Security.dll" "%25KPPTempDir%25\Mono.Security.dll"
+      copy "KeePassRPC.Mono.Security.dll" "%25KPPTempDir%25\KeePassRPC.Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPTempDir%25\Jayrock.Json.dll"
       copy "Fleck2.dll" "%25KPPTempDir%25\Fleck2.dll"
