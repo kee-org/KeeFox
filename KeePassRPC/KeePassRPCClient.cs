@@ -647,7 +647,7 @@ namespace KeePassRPC
                         secLevel = "medium";
                     else if (srp.securityLevel == 3)
                         secLevel = "high";
-                    KeePass.Program.MainForm.Invoke(new ShowAuthDialogDelegate(ShowAuthDialog), secLevel, srpem.clientDisplayName, srpem.clientDisplayDescription, plainTextPassword);
+                    KPRPC.InvokeMainThread (new ShowAuthDialogDelegate(ShowAuthDialog), secLevel, srpem.clientDisplayName, srpem.clientDisplayDescription, plainTextPassword);
                 }
             }
 	    	    
@@ -678,7 +678,7 @@ namespace KeePassRPC
             // Hide the auth dialog as long as we're not trying to shut down the main thread at the same time
             // (and as long as this isn't a v<1.2 connection)
             if (KPRPC != null && !KPRPC.terminating)
-                KeePass.Program.MainForm.Invoke(new HideAuthDialogDelegate(HideAuthDialog));
+                KPRPC.InvokeMainThread(new HideAuthDialogDelegate(HideAuthDialog));
         }
 
         string SRPProofToServer(KPRPCMessage srpem)
@@ -709,14 +709,14 @@ namespace KeePassRPC
                     Authorised = true;
                     // We assume the user has checked the client name as part of the initial SRP setup so it's fairly safe to use it to determine the type of client connection to which we want to promote our null connection
                     KPRPC.PromoteNullRPCClient(this, clientName);
-                    KeePass.Program.MainForm.Invoke(new HideAuthDialogDelegate(HideAuthDialog));
+                    KPRPC.InvokeMainThread(new HideAuthDialogDelegate(HideAuthDialog));
 
                     // If we've never shown the user the welcome screen and have never
                     // known a KeeFox add-on from the previous KPRPC protocol, show it now
                     bool welcomeDisplayed = KPRPC._host.CustomConfig.GetBool("KeePassRPC.KeeFoxWelcomeDisplayed",false);
                     if (!welcomeDisplayed
                         && string.IsNullOrEmpty(KPRPC._host.CustomConfig.GetString("KeePassRPC.knownClients.KeeFox Firefox add-on")))
-                        KeePass.Program.MainForm.Invoke(new KeePassRPCExt.WelcomeKeeFoxUserDelegate(KPRPC.WelcomeKeeFoxUser));
+                        KPRPC.InvokeMainThread(new KeePassRPCExt.WelcomeKeeFoxUserDelegate(KPRPC.WelcomeKeeFoxUser));
                     if (!welcomeDisplayed)
                         KPRPC._host.CustomConfig.SetBool("KeePassRPC.KeeFoxWelcomeDisplayed",true);
                 }
