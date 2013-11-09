@@ -61,7 +61,9 @@ namespace KeePassRPC
 
         // version information
         public static readonly Version PluginVersion = new Version(1,2,8);
-                
+
+        private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
+        private AutoResetEvent _BackgroundWorkerAutoResetEvent;
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
 
@@ -170,6 +172,15 @@ namespace KeePassRPC
                     return false;
                 _host = host;
 
+                _BackgroundWorker = new BackgroundWorker ();
+                _BackgroundWorker.WorkerReportsProgress = true;
+                _BackgroundWorker.ProgressChanged += _BackgroundWorker_ProgressChanged;
+                _BackgroundWorkerAutoResetEvent = new AutoResetEvent (false);
+                _BackgroundWorker.DoWork += delegate(object sender, DoWorkEventArgs e) {
+                    _BackgroundWorkerAutoResetEvent.WaitOne ();
+                };
+                _BackgroundWorker.RunWorkerAsync ();
+
                 string debugFileName = host.CommandLineArgs["KPRPCDebug"];
                 if (debugFileName != null)
                 {
@@ -260,6 +271,7 @@ namespace KeePassRPC
             catch (Exception ex)
             {
                 if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
+                _BackgroundWorkerAutoResetEvent.Set (); // terminate _BackgroundWorker
                 return false;
             }
             if (logger != null) logger.WriteLine("KPRPC startup succeeded.");
@@ -825,6 +837,9 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             _host.MainWindow.DocumentManager.ActiveDocumentSelected -= OnKPDBSelected;
 
             GlobalWindowManager.WindowAdded -= GwmWindowAddedHandler;
+
+            // terminate _BackgroundWorker
+            _BackgroundWorkerAutoResetEvent.Set ();
 
             // Remove 'Tools' menu items
             ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
@@ -1443,6 +1458,18 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             {
                 pwe.Strings.Remove(item);
             }
+        }
+
+        public void InvokeMainThread (Delegate method, params object[] args)
+        {
+            _BackgroundWorker.ReportProgress (0, (MethodInvoker)delegate {
+                method.DynamicInvoke (args);
+           });
+        }
+
+        private void _BackgroundWorker_ProgressChanged (object sender, ProgressChangedEventArgs e)
+        {
+            ((MethodInvoker)e.UserState).Invoke ();
         }
     }
 
