@@ -86,7 +86,7 @@ namespace KeePassRPC
         public void Terminate()
         {
             this._tcpListener.Stop();
-            foreach (var thread in activeClientThreads.ToArray()) {
+            foreach (Thread thread in activeClientThreads.ToArray()) {
                 thread.Interrupt();
             }
 			// KRB - there appears to be a race condition here (at least under Mono).

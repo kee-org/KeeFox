@@ -44,7 +44,7 @@ function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1,2,8];
+    this.clientVersion = [1,2,9];
     
     // We manually create HMACs to protect the integrity of our AES encrypted messages
     sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."](); 

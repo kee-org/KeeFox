@@ -7,23 +7,38 @@ namespace KeePassRPC
 {
     class SRP
     {
-        public BigInteger N { get; private set; }
-        public string Nstr { get; private set; }
-        public BigInteger g { get; private set; }
-        public string gHex { get; private set; }
-        public BigInteger k { get; private set; }
-        public string K { get; private set; }
-        public BigInteger x { get; private set; }
-        public BigInteger v { get; private set; }
-        public string s { get; private set; }
-        public string I { get; private set; }
-        public BigInteger B { get; private set; }
-        public string Bstr { get; private set; }
-        public BigInteger b { get; private set; }
+        private BigInteger _N;
+        private string _Nstr;
+        private BigInteger _g;
+        private string _gHex;
+        private BigInteger _k;
+        private string _K;
+        private BigInteger _x;
+        private BigInteger _v;
+        private string _s;
+        private string _I;
+        private BigInteger _B;
+        private string _Bstr;
+        private BigInteger _b;
+
+        public BigInteger N { get { return _N; } }
+        public string Nstr { get { return _Nstr; } }
+        public BigInteger g { get { return _g; } }
+        public string gHex { get { return _gHex; } }
+        public BigInteger k { get { return _k; } }
+        public string K { get { return _K; } }
+        public BigInteger x { get { return _x; } }
+        public BigInteger v { get { return _v; } }
+        public string s { get { return _s; } }
+        public string I { get { return _I; } }
+        public BigInteger B { get { return _B; } }
+        public string Bstr { get { return _Bstr; } }
+        public BigInteger b { get { return _b; } }
         private BigInteger S;
         public string M, M2;
 
-        public bool Authenticated { get; private set; }
+        private bool _Authenticated;
+        public bool Authenticated { get { return _Authenticated; } }
 
         // If someone wants to use the session key for encrypting traffic, they can
         // access the key with this property.
@@ -31,56 +46,56 @@ namespace KeePassRPC
         {
             get
             {
-                if (K == null)
+                if (_K == null)
                 {
                     if (Authenticated)
                     {
-                        K = KeePassLib.Utility.MemUtil.ByteArrayToHexString(Utils.Hash(S.ToString(16))).ToLower();
-                        return K;
+                        _K = KeePassLib.Utility.MemUtil.ByteArrayToHexString(Utils.Hash(S.ToString(16))).ToLower();
+                        return _K;
                     }
                     else
                         throw new System.Security.Authentication.AuthenticationException("User has not been authenticated.");
                 }
                 else
-                    return K;
+                    return _K;
             }
         }
 
         public SRP()
         {
-            Nstr = "d4c7f8a2b32c11b8fba9581ec4ba4f1b04215642ef7355e37c0fc0443ef756ea2c6b8eeb755a1c723027663caa265ef785b8ff6a9b35227a52d86633dbdfca43";
-            N = new BigInteger(Nstr, 16);
-            g = new BigInteger(2);
-            k = new BigInteger("b7867f1299da8cc24ab93e08986ebc4d6a478ad0", 16);
+            _Nstr = "d4c7f8a2b32c11b8fba9581ec4ba4f1b04215642ef7355e37c0fc0443ef756ea2c6b8eeb755a1c723027663caa265ef785b8ff6a9b35227a52d86633dbdfca43";
+            _N = new BigInteger(_Nstr, 16);
+            _g = new BigInteger(2);
+            _k = new BigInteger("b7867f1299da8cc24ab93e08986ebc4d6a478ad0", 16);
         }
 
         internal void CalculatePasswordHash(string password)
         {
             BigInteger sTemp = new BigInteger();
             sTemp.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
-            s = sTemp.ToString();
-            x = new BigInteger(Utils.Hash(s + password));
-            v = g.modPow(x, N);
+            _s = sTemp.ToString();
+            _x = new BigInteger(Utils.Hash(_s + password));
+            _v = g.modPow(_x, _N);
         }
 
         internal void Setup()
         {
-            b = new BigInteger();
-            b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+            _b = new BigInteger();
+            _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
 
-            B = (k * v) + (g.modPow(b, N));
-            while (B % N == 0)
+            _B = (_k * _v) + (_g.modPow(_b, _N));
+            while (_B % _N == 0)
             {
-                b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
-                B = (k * v) + (g.modPow(b, N));
+                _b.genRandomBits(256, new Random((int)DateTime.Now.Ticks));
+                _B = (_k * _v) + (_g.modPow(_b, _N));
             }
-            Bstr = B.ToString(16);
+            _Bstr = _B.ToString(16);
         }
 
         // Send salt to the client and store the parameters they sent to us
         internal Error Handshake(string I, string Astr)
         {
-            this.I = I;
+            this._I = I;
             return Calculations(Astr, v);
         }
 
@@ -113,7 +128,7 @@ namespace KeePassRPC
         {
             if (Mclient.ToLower() == M.ToLower())
             {
-                Authenticated = true;
+                _Authenticated = true;
             }
         }
 
