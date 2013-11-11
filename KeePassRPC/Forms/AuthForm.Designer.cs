@@ -40,6 +40,7 @@
             // 
             // buttonDeny
             // 
+            this.buttonDeny.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.buttonDeny.Location = new System.Drawing.Point(12, 386);
             this.buttonDeny.Name = "buttonDeny";
             this.buttonDeny.Size = new System.Drawing.Size(280, 23);
@@ -51,7 +52,7 @@
             // richTextBoxClientID
             // 
             this.richTextBoxClientID.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBoxClientID.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxClientID.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxClientID.Location = new System.Drawing.Point(12, 12);
             this.richTextBoxClientID.Name = "richTextBoxClientID";
             this.richTextBoxClientID.ReadOnly = true;
@@ -64,7 +65,7 @@
             // 
             this.richTextBoxPassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxPassword.DetectUrls = false;
-            this.richTextBoxPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxPassword.Font = new System.Drawing.Font("Arial", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxPassword.ForeColor = System.Drawing.Color.Red;
             this.richTextBoxPassword.Location = new System.Drawing.Point(400, 13);
             this.richTextBoxPassword.Name = "richTextBoxPassword";
@@ -92,7 +93,7 @@
             // 
             this.richTextBoxConfirmInstruction.BackColor = System.Drawing.SystemColors.Control;
             this.richTextBoxConfirmInstruction.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBoxConfirmInstruction.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxConfirmInstruction.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxConfirmInstruction.Location = new System.Drawing.Point(15, 13);
             this.richTextBoxConfirmInstruction.Name = "richTextBoxConfirmInstruction";
             this.richTextBoxConfirmInstruction.ReadOnly = true;
@@ -104,6 +105,7 @@
             // 
             // label1
             // 
+            this.label1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(364, 386);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(204, 29);
