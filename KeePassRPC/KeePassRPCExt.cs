@@ -210,7 +210,36 @@ namespace KeePassRPC
                 _RPCService = new KeePassRPCService(host,
                     getStandardIconsBase64(host.MainWindow.ClientIcons), this);
                 if (logger != null) logger.WriteLine("RPC service started.");
-                _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host, false), RPCService, this, FindKeePassRPCSSLEnabled(host), FindKeePassRPCPort(host, true));
+                int portOld = FindKeePassRPCPort(host, false);
+                int portNew = FindKeePassRPCPort(host, true);
+
+                try
+                {
+
+                    _RPCServer = new KeePassRPCServer(portOld, RPCService, this, FindKeePassRPCSSLEnabled(host), portNew);
+                }
+                catch (System.Net.Sockets.SocketException ex)
+                {
+                    if (ex.SocketErrorCode == System.Net.Sockets.SocketError.AddressAlreadyInUse)
+                    {
+                        MessageBox.Show(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
+
+See https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-KPRPC-Port
+
+KeePassRPC requires these two ports to be available: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+                        if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires these two ports to be available: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+                    }
+                    else
+                    {
+                        MessageBox.Show(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
+
+KeePassRPC requires these two ports to be working: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+                        if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires these two ports to be working: " + portOld + " and " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
+                    }
+                    if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
+                    _BackgroundWorkerAutoResetEvent.Set(); // terminate _BackgroundWorker
+                    return false;
+                }
                 if (logger != null) logger.WriteLine("RPC server started.");
 
                 // register to recieve events that we need to deal with
