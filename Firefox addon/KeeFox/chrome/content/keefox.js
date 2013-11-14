@@ -52,7 +52,7 @@ if (keefox_win.shouldLoad)
 
     Cu.import("resource://kfmod/KF.js");
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
-    Cu.import("resource://kfmod/FAMS.jsm",keefox_org);
+    Cu.import("resource://kfmod/FAMS.js",keefox_org);
 
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window

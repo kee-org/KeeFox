@@ -107,20 +107,8 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <PostBuildEvent>
       <Command>echo POSTBUILDSTEP for $(ProjectName)
 
-REM combine module components into single file
-pushd "$(ProjectDir)KeeFox\modules"
-copy /b FAMS.js+FAMS-config.js FAMS.jsm /Y
-move FAMS.js FAMS.js.temp
-move FAMS-config.js FAMS-config.js.temp
-popd
-
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
 if errorlevel 1 goto BuildEventFailed
-
-pushd "$(ProjectDir)KeeFox\modules"
-move FAMS.js.temp FAMS.js
-move FAMS-config.js.temp FAMS-config.js
-popd
 
 REM compress the files into the complete XPI
 cd $(SolutionDir)XPIs\current

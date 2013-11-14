@@ -387,9 +387,9 @@ var keeFoxDialogManager = {
                     realmFirst = true;
 
                 currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                regEx = new RegExp(currentRealmL10nPattern);
+                let regEx = new RegExp(currentRealmL10nPattern);
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                let matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                 if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
                 {
                     if (realmFirst)
@@ -422,9 +422,9 @@ var keeFoxDialogManager = {
                     realmFirst = true;
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                regEx = new RegExp(currentProxyL10nPattern);
+                let regEx = new RegExp(currentProxyL10nPattern);
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                let matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                 if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
                     if (realmFirst)
                     {
@@ -453,9 +453,9 @@ var keeFoxDialogManager = {
                 }
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                regEx = new RegExp(currentProxyL10nPattern);
+                let regEx = new RegExp(currentProxyL10nPattern);
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                let matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                 if (matches !== null && typeof matches[1] !== "undefined")  {
                         host = matches[1];
                 }

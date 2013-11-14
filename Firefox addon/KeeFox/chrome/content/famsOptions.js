@@ -20,7 +20,7 @@
 
 let Cu = Components.utils;
 
-Cu.import("resource://kfmod/FAMS.jsm");
+Cu.import("resource://kfmod/FAMS.js");
 
 var FAMS = null;
 var config = null;

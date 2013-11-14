@@ -38,6 +38,7 @@ let Cc = Components.classes;
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/locales.js");
+Cu.import("resource://kfmod/FAMS-config.js");
 
 var _famsInst = null;
 function keeFoxGetFamsInst(id, config, log) {
@@ -689,6 +690,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
     return ""; // All OK
 };
 
+FirefoxAddonMessageService.prototype.defaultConfiguration = FAMSDefaultConfig;
 
 //var famsInst = new FirefoxAddonMessageService;
 
