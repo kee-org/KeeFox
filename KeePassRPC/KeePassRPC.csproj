@@ -255,7 +255,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>
