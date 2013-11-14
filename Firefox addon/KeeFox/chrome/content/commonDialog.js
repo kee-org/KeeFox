@@ -298,14 +298,14 @@ var keeFoxDialogManager = {
                                 prompts[aDialogType].indexOf(aRealmPlaceholder);
                             secondIsUserName[aDialogType] = false;
                         }
-                        prompts[aDialogType] = prompts[aDialogType].replace(aHostPlaceholder, "(.+)");
+                        prompts[aDialogType] = prompts[aDialogType].replace(aHostPlaceholder, "([^\\s]+)");
                         if (aUserPlaceholder != null)
                         {
-                            prompts[aDialogType] = prompts[aDialogType].replace(aUserPlaceholder, "(.+)");
+                            prompts[aDialogType] = prompts[aDialogType].replace(aUserPlaceholder, "([^\\s]+)");
                         }
                         if (aRealmPlaceholder != null)
                         {
-                            prompts[aDialogType] = prompts[aDialogType].replace(aRealmPlaceholder, "(.+)");
+                            prompts[aDialogType] = prompts[aDialogType].replace(aRealmPlaceholder, "([^\\s]+)");
                         }
                         extractUserFromHost[aDialogType] = aExtractUserFromHost;
                     }

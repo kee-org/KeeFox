@@ -763,7 +763,7 @@ keefox_win.ILM = {
             }
         } else
         {
-            this.k.addLogin(login, parentUUID, dbFileName);
+            this._kf.addLogin(login, parentUUID, dbFileName);
         }
     },
     

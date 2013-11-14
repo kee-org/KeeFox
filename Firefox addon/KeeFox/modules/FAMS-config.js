@@ -1,4 +1,3 @@
-
 // The full configuration for this instance of FAMS.
 //
 // You should overwrite this default config with the default config for
