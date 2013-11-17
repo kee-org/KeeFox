@@ -1076,7 +1076,7 @@ KeeFox.prototype = {
                         while (topDoc.defaultView.frameElement)
                             topDoc=topDoc.defaultView.frameElement.ownerDocument;
 
-                this._checkRescanForAllFrames(topDoc.defaultView, kfw, topDoc);
+                event.target.ownerDocument.defaultView.keefox_org._checkRescanForAllFrames(topDoc.defaultView, kfw, topDoc);
             }
         }
     },
@@ -1085,7 +1085,7 @@ KeeFox.prototype = {
     _checkRescanForAllFrames: function (win, kfw, topDoc)
     {
         kfw.Logger.debug("_checkRescanForAllFrames start");
-        var conf = keefox_org.config.getConfigForURL(win.contentDocument.documentURI);
+        var conf = keefox_org.config.getConfigForURL(win.content.document.documentURI);
         
         //TODO1.4: shared code with KFILM.js? refactor?
                 
@@ -1111,7 +1111,7 @@ KeeFox.prototype = {
             kfw.Logger.debug("check Rescan For " + win.frames.length + " sub frames");
             var frames = win.frames;
             for (var i = 0; i < frames.length; i++)
-              this._checkRescanForAllFrames(frames[i], kfw, topDoc);
+              win.keefox_org._checkRescanForAllFrames(frames[i], kfw, topDoc);
         }    
     },
     
