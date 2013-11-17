@@ -24,20 +24,26 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-//"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-keefox_org.config = {
+var EXPORTED_SYMBOLS = ["KFConfig"];
+Cu.import("resource://kfmod/KFLogger.js");
 
-    default_config: [
+// constructor
+function config()
+{
+    this._KFLog = KFLog;
+
+    this.default_config = [
     {
         url: "*",
         config:{
             rescanFormDelay: -1, // to +INTMAX, // if old "rescan forms" set to true - configure to whatever that default was (5 seconds?)
-            /* TODO1.3: In future we can give finer control of form rescanning behaviour from here
+            /* TODO1.4: In future we can give finer control of form rescanning behaviour from here
             rescanDOMevents:
             [{
 
@@ -81,7 +87,7 @@ keefox_org.config = {
             },
             preventSaveNotification: false
             /*
-            TODO1.3: In future we can migrate other preferences to here if they are suited to being overridden per site
+            TODO1.4: In future we can migrate other preferences to here if they are suited to being overridden per site
             ,
             flashOnLoggedOut: true,
             flashOnNotRunning: true,
@@ -123,9 +129,9 @@ keefox_org.config = {
         }
     }
     */
-    ],
+    ];
 
-    valueAllowed: function(val,whitelist,blacklist,def)
+    this.valueAllowed = function(val,whitelist,blacklist,def)
     {
         if (val === undefined || val === null)
             return def;
@@ -133,31 +139,31 @@ keefox_org.config = {
         for (var b in blacklist)
             if (blacklist[b].toLowerCase() == val.toLowerCase())
             {
-                keefox_org._KFLog.debug("Value found in blacklist");
+                this._KFLog.debug("Value found in blacklist");
                 // a blacklist match always overrides the existing default behaviour
                 return false;
             }
         for (var w in whitelist)
             if (whitelist[w].toLowerCase() == val.toLowerCase())
             {
-                keefox_org._KFLog.debug("Value found in whitelist");
+                this._KFLog.debug("Value found in whitelist");
                 // a whitelist match only overrides an unspecified default behaviour
                 if (def == null)
                     return true;
             }
         return def;
-    },
+    };
 
-    configCache: {},
+    this.configCache = {};
 
-    cloneObj: function (obj)
+    this.cloneObj = function (obj)
     {
-        //TODO1.3: improve speed? See http://jsperf.com/clone/5
-        //TODO1.3: Might be useful in a utils location, not just for config manipulation
+        //TODO1.4: improve speed? See http://jsperf.com/clone/5
+        //TODO1.4: Might be useful in a utils location, not just for config manipulation
         return JSON.parse(JSON.stringify(obj));
-    },
+    };
 
-    getConfigDefinitionForURL: function(url)
+    this.getConfigDefinitionForURL = function(url)
     {
         for (var i=1; i<this.current.length; i++) // skip first which is always "*"
         {
@@ -169,9 +175,9 @@ keefox_org.config = {
 
         // No config defined yet
         return {};
-    },
+    };
 
-    getConfigForURL: function(url)
+    this.getConfigForURL = function(url)
     {
         var workingConf;
         if (this.configCache[url] === undefined)
@@ -188,17 +194,17 @@ keefox_org.config = {
                     workingConf = this.applyMoreSpecificConfig(workingConf, this.current[i].config);
                 }
             }
-            keefox_org._KFLog.debug("Adding configuration to cache");
+            this._KFLog.debug("Adding configuration to cache");
             this.configCache[url] = workingConf;
         } else
         {
-            keefox_org._KFLog.debug("Returning configuration from cache");
+            this._KFLog.debug("Returning configuration from cache");
             workingConf = this.configCache[url];
         }
         return workingConf;
-    },
+    };
 
-    applyMoreSpecificConfig: function(workingConfig, extraConfig)
+    this.applyMoreSpecificConfig = function(workingConfig, extraConfig)
     {
         for (var prop in extraConfig)
         {
@@ -226,11 +232,11 @@ keefox_org.config = {
             }
         }
         return workingConfig;
-    },
+    };
 
-    load: function()
+    this.load = function()
     {
-        keefox_org._KFLog.debug("Loading configuration");
+        this._KFLog.debug("Loading configuration");
         // Parse json from storage. If not found in storage assume it's first time run and load default config before calling save()
         var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
         var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
@@ -239,19 +245,19 @@ keefox_org.config = {
         {
             var prefData = prefBranch.getComplexValue("config", Ci.nsISupportsString).data;
             var conf = JSON.parse(prefData);
-            //TODO1.3: In future check version here and apply migrations if needed
+            //TODO1.4: In future check version here and apply migrations if needed
             //var currentVersion = prefBranch.getIntPref("configVersion");
             this.current = conf;
         } catch (ex) {
-            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO1.3: faster clone?
+            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO1.4: faster clone?
             this.current = conf;
             this.save();
         }
-    },
+    };
 
-    save: function()
+    this.save = function()
     {
-        keefox_org._KFLog.debug("Saving configuration");
+        this._KFLog.debug("Saving configuration");
         
         var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
         var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
@@ -260,13 +266,13 @@ keefox_org.config = {
         str.data = JSON.stringify(this.current);
         prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
 
-        //TODO1.3: Stop forcing this to 1 when we release the first new version
+        //TODO1.4: Stop forcing this to 1 when we release the first new version
         prefBranch.setIntPref("configVersion",1);
-    },
+    };
 
-    setConfigForURL: function(url,newConfig)
+    this.setConfigForURL = function(url,newConfig)
     {
-        keefox_org._KFLog.debug("setConfigForURL");
+        this._KFLog.debug("setConfigForURL");
 
         // Clear the current config cache.
         //TODO2: would be more efficient to only remove affected URLs
@@ -314,10 +320,10 @@ keefox_org.config = {
             this.current.push({"url": url, "config": newConfig});
         else
             this.current.splice(insertionPoint,0,{"url": url, "config": newConfig});
-        keefox_org._KFLog.debug(JSON.stringify(this.current));
-    },
+        this._KFLog.debug(JSON.stringify(this.current));
+    };
 
-    migrateListOfNoSavePromptURLs: function(urls)
+    this.migrateListOfNoSavePromptURLs = function(urls)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
 
@@ -327,9 +333,9 @@ keefox_org.config = {
             this.setConfigForURL(urls[i],newConfig);
         }
         this.save();
-    },
+    };
 
-    migrateRescanFormTimeFromFFPrefs: function(enabled)
+    this.migrateRescanFormTimeFromFFPrefs = function(enabled)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
         // this migration only affects the default behaviour "*"
@@ -337,19 +343,8 @@ keefox_org.config = {
         newConfig.rescanFormDelay = enabled ? 2500 : -1;
         this.setConfigForURL("*",newConfig);
         this.save();
-    }
+    };
 
-};
-
-// initialise the configuration (usually from some kind of local storage TBD)
-keefox_org.config.load();
-
-// migrate old data if needed
-if (keefox_org.listOfNoSavePromptURLsToMigrate != null && keefox_org.listOfNoSavePromptURLsToMigrate.length > 0)
-    keefox_org.config.migrateListOfNoSavePromptURLs(keefox_org.listOfNoSavePromptURLsToMigrate);
-
-if (keefox_org._keeFoxExtension.prefs.has("dynamicFormScanning"))
-{
-    keefox_org.config.migrateRescanFormTimeFromFFPrefs(keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false));
-    keefox_org._keeFoxExtension.prefs._prefBranch.clearUserPref("dynamicFormScanning");
 }
+
+var KFConfig = new config;

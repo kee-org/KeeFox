@@ -83,7 +83,7 @@ function setTreeViewURLChooser ()
     var rootURL = "*"; // defaults
     siteURLTreeView.addTopObject(getURLTree(), true);
     tree.view = siteURLTreeView;
-    //TODO1.3: open tree on load if needed - "auto expand"
+    //TODO1.4: open tree on load if needed - "auto expand"
 }
 
 function getURLTree()
@@ -93,7 +93,7 @@ function getURLTree()
         childURLs: []
     }
 
-    // TODO1.3: Group entries by domain and maybe directory
+    // TODO1.4: Group entries by domain and maybe directory
     for (let i=1; i<configMan.current.length; i++) // Skip "*"
     {
         let conf = configMan.current[i];

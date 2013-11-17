@@ -1,9 +1,11 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
   
   This is a file with utility functions to aid with a variety of tasks such as
   downloading files from the internet and running executable installers on the local system.
+
+  This runs in per-window scope. See modules/utils.js for add-on scoped utilities.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,31 +21,9 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cu = Components.utils;
-
-//function KFexecutableInstallerRunner(path, params, reason, mainWindow, browserWindow) {
-//    this.path = path;
-//    this.params = params;
-//    this.reason = reason;
-//    this.mainWindow = mainWindow;
-//    this.browserWindow = browserWindow;
-//}
-//KFexecutableInstallerRunner.prototype = {
-//    QueryInterface: function(iid) {
-//        if (iid.equals(Components.interfaces.nsIRunnable) ||
-//        iid.equals(Components.interfaces.nsISupports))
-//            return this;
-//        throw Components.results.NS_ERROR_NO_INTERFACE;
-//    },
-//    run: function() {
-//        keefox_org.runAnInstaller(this.path,this.params, function () {
-//            var kth = new KFmainThreadHandler("executableInstallerRunner", this.reason, '', this.mainWindow, this.browserWindow);
-//            kth.runit(); 
-//        });
-//    }
-//};
 
 var KeeFoxMainThreadHandler = function(source, reason, result, mainWindow, browserWindow)
 {
@@ -87,15 +67,7 @@ KeeFoxMainThreadHandler.prototype =
             Cu.reportError(err);
         }
     },
-
-//    QueryInterface: function(iid) {
-//        if (iid.equals(Components.interfaces.nsIRunnable) ||
-//        iid.equals(Components.interfaces.nsISupports)) {
-//            return this;
-//        }
-//        throw Components.results.NS_ERROR_NO_INTERFACE;
-//    },
-    
+        
     handleIC1PriDownload: function ()
     {
         // if we've just finished downloading NET
@@ -324,7 +296,7 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
         .createInstance(Components.interfaces.nsIWebBrowserPersist);
     var file = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-    file.initWithFile(keefox_org._myProfileDir());
+    file.initWithFile(keefox_org.utils.myProfileDir());
 
     file.append(destinationFile);
 
@@ -342,17 +314,11 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
 
 keefox_win.KFMD5checksumVerification = function(path, testMD5)
 {
-    // return the two-digit hexadecimal code for a byte
-    function toHexString(charCode)
-    {
-        return ("0" + charCode.toString(16)).slice(-2);
-    }
-
     try
     {
         var f = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-        f.initWithFile(keefox_org._myProfileDir());
+        f.initWithFile(keefox_org.utils.myProfileDir());
         f.append(path);
         var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
                                 .createInstance(Components.interfaces.nsIFileInputStream);
@@ -369,7 +335,7 @@ keefox_win.KFMD5checksumVerification = function(path, testMD5)
         var hash = ch.finish(false);
 
         // convert the binary hash data to a hex string.
-        var s = [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+        var s = [keefox_org.utils.toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
         if (s == testMD5)
             return true;
             

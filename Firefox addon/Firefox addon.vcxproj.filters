@@ -147,9 +147,6 @@
     <None Include="KeeFox\chrome\content\install.js">
       <Filter>JS</Filter>
     </None>
-    <None Include="KeeFox\modules\json.js">
-      <Filter>JS</Filter>
-    </None>
     <None Include="KeeFox\chrome\content\keefox.js">
       <Filter>JS</Filter>
     </None>
@@ -246,6 +243,31 @@
     <None Include="KeeFox\chrome\locale\ru\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\sv-SE\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\zh-CN\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\content\context.xul" />
+    <None Include="KeeFox\modules\sjcl.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\utils.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\KFExtension.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\SRP.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\sessionLegacy.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\kprpcClientLegacy.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\kprpcClient.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\jsonrpcClient.js">
+      <Filter>JS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

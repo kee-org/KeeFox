@@ -21,7 +21,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cu = Components.utils;
 
@@ -61,6 +61,9 @@ keefox_win.toolbar = {
     },
 
     // remove matched logins from the menu
+
+    //TODO1.3:?need test case: think this removes the whole popup menu so we don't get the annoying square effect but we need to change it so it is still somewhere in the document. maybe just set to disabled or hidden?
+    // actually above may not be problem for toolbar and i think we do it differently for the context menu anyway
     removeLogins: function () {
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
@@ -68,9 +71,21 @@ keefox_win.toolbar = {
             return;
 
         // Remove all of the existing buttons
-        for (var i = container.childNodes.length; i > 0; i--) {
+        for (let i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
         }
+
+        // get the context menu popup
+        var contextPopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
+        if (contextPopup === undefined || contextPopup == null)
+            return;
+
+        // Remove all of the existing buttons
+        // the node list changes as we remove items so we always just get rid of the first one
+        for (let i = contextPopup.childNodes.length; i > 0; i--) {
+            contextPopup.removeChild(contextPopup.childNodes[0]);
+        }
+
         this.setupButton_ready(null, this._currentWindow);
     },
 
@@ -78,6 +93,16 @@ keefox_win.toolbar = {
         return b.relevanceScore - a.relevanceScore;
     },
 
+
+
+
+
+
+
+
+
+    //TODO1.3:?1.4? load up context menu items too, populate with data and attach/detach the submenu from the main context menu as required (or actually just always attach?)
+    // how to determine whether we show the matched login menu item? contexct menu showing code could check the length of the popupmenu - if > 0 show the matched logins link, if > 1 show submenu too. so we just need to make sure the popupmenu gets populated and cleared correctly. maybe also need to put in a removal feature above? (e.g. like what is already there but commented out). also ref previous commit with potentially useful commented out sections to pull back in)...
     // add all matched logins to the menu
     setLogins: function (logins, doc) {
         keefox_win.Logger.debug("setLogins started");
@@ -93,6 +118,7 @@ keefox_win.toolbar = {
         if (container.getAttribute('KFLock') == "enabled")
             return;
 
+            
         if (logins == null || logins.length == 0) {
             this.setupButton_ready(null, this._currentWindow);
             return;
@@ -101,12 +127,10 @@ keefox_win.toolbar = {
         }
         this.removeMatchingEventHandlers(container);
 
+        //TODO1.3:?need test case: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
         logins.sort(this.compareRelevanceScores);
 
-        // set up the main button
-        container.setAttribute("class", "login-found");
-        container.setAttribute("disabled", "false");
-
+        
         var merging = true;
         // find or create a popup menu to hold the logins
         var menupopup = this._currentWindow.document.getElementById("KeeFox_Main-ButtonPopup");
@@ -115,11 +139,148 @@ keefox_win.toolbar = {
             menupopup.id = "KeeFox_Main-ButtonPopup";
             merging = false;
         }
+        
+//        var contextPopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
+//        if (contextPopup === undefined || contextPopup == null)
+//            return;
 
         if (merging)
-            keefox_win.Logger.debug("merging " + logins.length + " toolbar logins");
+            keefox_win.Logger.debug("merging " + logins.length + " matched logins");
         else
-            keefox_win.Logger.debug("setting " + logins.length + " toolbar logins");
+            keefox_win.Logger.debug("setting " + logins.length + " matched logins");
+
+        this.setLoginsTopMatch(logins, doc, container, merging);
+        this.setLoginsAllMatches(logins, doc, menupopup, merging);
+        //TODO1.3:?need test case: need to assign to menupopup?
+
+        // Only attach the menupopup to the main button if there is more than one matched item
+        //TODO1.3:?need test case: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
+        if (!merging && logins.length > 1) {
+            container.setAttribute("type", "menu-button");
+            container.appendChild(menupopup);
+        }
+
+        // re-establish the event listener we deleted at the start of the function
+        container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
+
+        if (merging)
+            keefox_win.Logger.debug(logins.length + " matched logins merged!");
+        else
+            keefox_win.Logger.debug(logins.length + " matched logins set!");
+    },
+
+    setLoginsContext: function (logins, doc) {
+        keefox_win.Logger.debug("setLoginsContext started");
+        // Get the toolbaritem "container" that we added to our XUL markup
+        var container = this._currentWindow.document.getElementById("keefox-command-context-fillMatchedLogin");
+        if (container === undefined || container == null)
+            return;
+            
+//        if (logins == null || logins.length == 0) {
+//            this.setupButton_ready(null, this._currentWindow);
+//            return;
+//        } else {
+//            this.removeNonMatchingEventHandlers(container);
+//        }
+//        this.removeMatchingEventHandlers(container);
+
+        //TODO1.3:?need test case: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
+        logins.sort(this.compareRelevanceScores);
+
+        
+        var merging = true;
+        // find or create a popup menu to hold the logins
+        var menupopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
+        if (menupopup.childNodes.length <= 0) {
+            //menupopup = this._currentWindow.document.createElement("menupopup");
+            //menupopup.id = "KeeFox_Main-ButtonPopup";
+            merging = false;
+        }
+        
+//        var contextPopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
+//        if (contextPopup === undefined || contextPopup == null)
+//            return;
+
+        if (merging)
+            keefox_win.Logger.debug("merging " + logins.length + " matched logins");
+        else
+            keefox_win.Logger.debug("setting " + logins.length + " matched logins");
+
+        this.setLoginsTopMatch(logins, doc, container, merging);
+        this.setLoginsAllMatches(logins, doc, menupopup, merging);
+        //TODO1.3:?need test case: need to assign to menupopup?
+
+        // Only attach the menupopup to the main button if there is more than one matched item
+        //TODO1.3:?need test case: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
+//        if (!merging && logins.length > 1) {
+//            container.setAttribute("type", "menu-button");
+//            container.appendChild(menupopup);
+//        }
+
+        // re-establish the event listener we deleted at the start of the function
+        //container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
+
+        if (merging)
+            keefox_win.Logger.debug(logins.length + " matched logins merged!");
+        else
+            keefox_win.Logger.debug(logins.length + " matched logins set!");
+    },
+
+    // add all matched logins to the menu
+    setLoginsTopMatch: function (logins, doc, container, merging) {
+        keefox_win.Logger.debug("setLoginsTopMatch started");
+
+        // set up the main button
+        container.setAttribute("class", "login-found");
+        container.setAttribute("disabled", "false");
+
+
+        var login = logins[0];
+        var usernameValue = "";
+        var usernameDisplayValue = "[" + keefox_org.locale.$STR("noUsername.partial-tip") + "]";
+        var usernameName = "";
+        var usernameId = "";
+        var displayGroupPath = login.database.name + '/' + login.parentGroup.path;
+
+        if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0
+            && login.otherFields != null && login.otherFields.length > 0)
+        {
+            var field = login.otherFields[login.usernameIndex];
+
+            usernameValue = field.value;
+            if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                usernameDisplayValue = usernameValue;
+            usernameName = field.name;
+            usernameId = field.fieldId;
+        }
+
+        if (!merging) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
+        {
+            container.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
+            container.setAttribute('uuid', login.uniqueID, null);
+            container.setAttribute('fileName', login.database.fileName, null);
+            //container.setAttribute("login", login, null);
+            container.setAttribute("context", "KeeFox-login-toolbar-context");
+            container.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
+            //container.setAttribute("oncommand", "keefox_win.ILM.fill('" +
+            //    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','" + usernameId + "',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
+            container.setAttribute('usernameName', usernameName);
+            container.setAttribute('usernameValue', usernameValue);
+            container.setAttribute('formActionURL', login.formActionURL);
+            container.setAttribute('usernameId', usernameId);
+            container.setAttribute('documentURI', doc.documentURI);
+
+            container.setAttribute("class", "menuitem-iconic");
+            container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
+        }
+        //TODO1.3:?need test case: Doing this in the main function but maybe need something here to work when context menus come through?
+        // re-establish the event listener we deleted at the start of the function
+        //container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
+    },
+
+    // add all matched logins to the menu
+    setLoginsAllMatches: function (logins, doc, menupopup, merging) {
+        keefox_win.Logger.debug("setLoginsAllMatches started");
 
         // add every matched login to the popup menu
         for (let i = 0; i < logins.length; i++) {
@@ -129,9 +290,6 @@ keefox_win.toolbar = {
             var usernameName = "";
             var usernameId = "";
             var displayGroupPath = login.database.name + '/' + login.parentGroup.path;
-            //            var groupDivider = this.strbundle.getString("groupDividerCharacter");
-            //            if (groupDivider != ".")
-            //                displayGroupPath = displayGroupPath.replace(/\./g,groupDivider);
 
             if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0
                 && login.otherFields != null && login.otherFields.length > 0) {
@@ -144,38 +302,15 @@ keefox_win.toolbar = {
                 usernameId = field.fieldId;
             }
 
-            if (!merging && i == 0) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
-            {
-                container.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
-                container.setAttribute('uuid', login.uniqueID, null);
-                container.setAttribute('fileName', login.database.fileName, null);
-                //container.setAttribute("login", login, null);
-                container.setAttribute("context", "KeeFox-login-toolbar-context");
-                container.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
-                //container.setAttribute("oncommand", "keefox_win.ILM.fill('" +
-                //    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','" + usernameId + "',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
-                container.setAttribute('usernameName', usernameName);
-                container.setAttribute('usernameValue', usernameValue);
-                container.setAttribute('formActionURL', login.formActionURL);
-                container.setAttribute('usernameId', usernameId);
-                container.setAttribute('documentURI', doc.documentURI);
-                container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
 
-                container.setAttribute("class", "menuitem-iconic");
-                container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
-            } else if (i == 0)
-            {
-                // re-establish the event listener we deleted at the start of the function
-                container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
-            }
-
-            var addLoginToPopup = (logins.length > 1);
+            // prepare toolbar menu popup
+            var addLoginToPopup = true;
             if (merging && addLoginToPopup) {
                 // find any existing item in the popup menu
                 if (menupopup.childElementCount > 0) {
                     for (let j = 0, n = menupopup.children.length; j < n; j++) {
                         var child = menupopup.children[j];
-                        valAttr = child.hasAttribute('uuid') ? child.getAttribute('uuid') : null;
+                        let valAttr = child.hasAttribute('uuid') ? child.getAttribute('uuid') : null;
                         if (valAttr == login.uniqueID) {
                             addLoginToPopup = false;
                             break;
@@ -184,8 +319,12 @@ keefox_win.toolbar = {
                 }
             }
 
-            if (addLoginToPopup) {
-                var tempButton = null;
+
+            var tempButton = null;
+
+            //if (addLoginToContextPopup || addLoginToPopup)
+            if (addLoginToPopup)
+            {
                 tempButton = this._currentWindow.document.createElement("menuitem");
                 tempButton.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
                 tempButton.setAttribute("class", "menuitem-iconic");
@@ -201,20 +340,14 @@ keefox_win.toolbar = {
                 tempButton.setAttribute('formActionURL', login.formActionURL);
                 tempButton.setAttribute('usernameId', usernameId);
                 tempButton.setAttribute('documentURI', doc.documentURI);
+            }
+            
+            // attach to toolbar drop down menu (assuming not a duplicate)
+            if (addLoginToPopup) {
                 tempButton.addEventListener("command", this.mainButtonCommandMatchHandler, false);
                 menupopup.appendChild(tempButton);
             }
         }
-
-        if (!merging && logins.length > 1) {
-            container.setAttribute("type", "menu-button");
-            container.appendChild(menupopup);
-        }
-
-        if (merging)
-            keefox_win.Logger.debug(logins.length + " toolbar logins merged!");
-        else
-            keefox_win.Logger.debug(logins.length + " toolbar logins set!");
     },
 
     // populate the "all logins" menu with every login in this database
@@ -308,7 +441,7 @@ keefox_win.toolbar = {
         var foundLogins = group.childLightEntries;
         //keefox_win.Logger.debug("loga");
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0)) {
-            var noItemsButton = null;
+            let noItemsButton = null;
             noItemsButton = this._currentWindow.document.createElement("menuitem");
             noItemsButton.setAttribute("label", keefox_org.locale.$STR("loginsButtonEmpty.label"));
             noItemsButton.setAttribute("disabled", "true");
@@ -318,7 +451,7 @@ keefox_win.toolbar = {
         }
         //keefox_win.Logger.debug("logb");
         for (var i = 0; i < foundGroups.length; i++) {
-            var group = foundGroups[i];
+            let group = foundGroups[i];
 
             // maybe this duplicated oncommand, etc. is un-needed?
             var newMenu = null;
@@ -489,11 +622,11 @@ keefox_win.toolbar = {
                 changeDBButton.addEventListener("popupshowing", this.setMRUdatabases, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "false");
             }
-            //TODO1.3: make generate password popupshowing event do something useful or remove it
-            if (generatePasswordButton !== undefined && generatePasswordButton != null) {
-                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
-                generatePasswordButton.setAttribute("disabled", "false");
-            }
+            //TODO1.4: make generate password popupshowing event do something useful or remove it
+//            if (generatePasswordButton !== undefined && generatePasswordButton != null) {
+//                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
+//                generatePasswordButton.setAttribute("disabled", "false");
+//            }
         } else {
             if (changeDBButton !== undefined && changeDBButton != null) {
                 changeDBButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonDisabled.label"));
@@ -737,6 +870,7 @@ keefox_win.toolbar = {
 
     removeMatchingEventHandlers: function (node) {
         node.removeEventListener("command", this.mainButtonCommandMatchHandler, false);
+        node.setAttribute('uuid', '', null);
     },
 
     mainButtonCommandInstallHandler: function (event) {

@@ -15,8 +15,11 @@
 // Dates must be strings entered in a format that the Date constructor can parse for Firefox 3.6+
 //
 // Strings should contain %-localisation-placeholders-% if possible. Define the strings themselves in FAMS-strings.js
+"use strict";
 
-FirefoxAddonMessageService.prototype.defaultConfiguration = {
+var EXPORTED_SYMBOLS = ["FAMSDefaultConfig"];
+
+var FAMSDefaultConfig = {
 
     // The uniqueID of the add-on or application using this messaging service (alphanum only)
     id: "KeeFox",

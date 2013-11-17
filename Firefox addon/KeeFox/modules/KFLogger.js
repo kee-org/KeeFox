@@ -42,13 +42,13 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-var EXPORTED_SYMBOLS = ["KeeFoxLogger"];
+var EXPORTED_SYMBOLS = ["KFLog"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // constructor
@@ -60,7 +60,7 @@ function KeeFoxLogger()
     this.configureFromPreferences();
     this._log("Logging system initialised at " + Date());
     if (this.logSensitiveData)
-        this._log("WARNING: KeeFox Sensitive logging ENABLED. See: https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive");
+        this._log("WARNING: KeeFox Sensitive logging ENABLED. See: https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-Logging-|-Sensitive");
 }
 
 KeeFoxLogger.prototype = {
@@ -255,3 +255,5 @@ KeeFoxLogger.prototype = {
     }
 
 };
+
+var KFLog = new KeeFoxLogger();

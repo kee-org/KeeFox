@@ -38,7 +38,10 @@ using Mono.Tools;
 using System.Text.RegularExpressions;
 using Jayrock.Json;
 using System.Windows.Forms;
-using Mono.Security.X509;
+using KeePassRPC.Mono.Security.X509;
+using Fleck2;
+using Fleck2.Interfaces;
+using KeePassRPC.DataExchangeModel;
 
 namespace KeePassRPC
 {
@@ -62,6 +65,8 @@ namespace KeePassRPC
         private bool _useSSL = true;
         private string pkcs12_password = "private"; // Really doesn't matter, but required for Mono
 		private AutoResetEvent wait_event = null;
+        private WebSocketServer _webSocketServer;
+		
         private List<Thread> activeClientThreads;
 
         /// <summary>
@@ -81,7 +86,7 @@ namespace KeePassRPC
         public void Terminate()
         {
             this._tcpListener.Stop();
-            foreach (var thread in activeClientThreads.ToArray()) {
+            foreach (Thread thread in activeClientThreads.ToArray()) {
                 thread.Interrupt();
             }
 			// KRB - there appears to be a race condition here (at least under Mono).
@@ -99,20 +104,58 @@ namespace KeePassRPC
 				wait_event.WaitOne();
 			}
         }
+        
+        void StartWebsockServer(int port)
+        {
+            FleckLog.Level = LogLevel.Debug;
+            _webSocketServer = new WebSocketServer("ws://localhost:" + port);
+            Action<IWebSocketConnection> config = new Action<IWebSocketConnection>(InitSocket);
+            _webSocketServer.Start(config);
+        }
+
+        void InitSocket(IWebSocketConnection socket)
+        {
+            socket.OnOpen = delegate()
+            {
+                KeePassRPCPlugin.AddRPCClientConnection(socket);
+            };
+            socket.OnClose = delegate()
+            {
+                KeePassRPCPlugin.RemoveRPCClientConnection(socket);
+            };
+            socket.OnMessage = delegate(string message)
+            {
+                KeePassRPCPlugin.MessageRPCClientConnection(socket, message, Service);
+            };
+        }
 
         /// <summary>
-        /// Establishes the SSL certificate we will use for communication with
-        /// RPC clients and starts a seperate thread to listen for connections
+        /// Starts the web socket listener and also
+        /// establishes the SSL certificate we will use for legacy communication with
+        /// RPC clients and starts a seperate thread to listen for legacy connections
         /// </summary>
         /// <param name="port">port to listen on</param>
         /// <param name="service">The KeePassRPCService the server should interact with.</param>
-        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin, bool useSSL)
+        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin, bool useSSL, int webSocketPort)
         {
             _useSSL = useSSL;
             if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Starting KPRPCServer");
             Service = service;
             KeePassRPCPlugin = keePassRPCPlugin;
             activeClientThreads = new List<Thread>();
+
+            // We set up the new web socket server first and then the legacy connection system.
+            // KeeFox 1.3+ will connect to the webSocket server first provided that the upgrade has happened...
+            /*
+             * KF 1.3 checks for KPRPC.plgx, determines KPRPC is installed and tries to connect on websock
+             * If success, move on to srp auth
+             * If fail, try to connect to ssl port
+             * if success, will find one of two situations:
+             * 1) old version of KPRPC is running <1.3: Display standard KPRPC setup uprgade notice
+             * 2) this version of KPRPC is running but firewalls or port misconfiguration is preventing websocket
+             * from working: send a new category of auth failure (assuming client v is 1.3+) message to help user with the upgrade problems
+             */
+            StartWebsockServer(webSocketPort);
 
             if (_useSSL)
             {
@@ -228,7 +271,7 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Listens for clients (on a unique thread).
+        /// Listens for legacy clients (on a unique thread).
         /// </summary>
         private void ListenForClients()
         {
@@ -288,7 +331,7 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Handles the client communication
+        /// Handles the legacy client communication
         /// </summary>
         /// <param name="client">The client.</param>
         private void HandleClientComm(object client)

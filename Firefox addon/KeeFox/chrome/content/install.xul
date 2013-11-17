@@ -183,6 +183,7 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
 
               <!-- IC7, IC8 -->
               <vbox id="copyKRPCToKnownKPLocationUpgradeButtonMain" hidden="true">
+                <description class="warning" hidden="true" id="desc_Install_ManualDowngradeWarning">%-KeeFox_Install_Downgrade_Warning.label-%</description>
                 <description id="desc_copyKRPCToKnownKPLocationUpgradeButtonMain" class="warning">%-KeeFox_Install_PleaseCloseKeePass.description-%</description>
                 <button id="but_copyKRPCToKnownKPLocationUpgradeButtonMain" label="%-KeeFox_Install_Upgrade_KeeFox.label-%"
                       oncommand="copyKRPCToKnownKPLocationInstall();"/>

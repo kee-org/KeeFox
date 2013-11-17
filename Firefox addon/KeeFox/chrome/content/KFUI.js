@@ -19,7 +19,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -194,7 +194,6 @@ keefox_win.UI = {
                     if (fn != null)
                         returnValue = fn.apply(this, arguments);
                     
-                    //TODO1.3: remove all event listeners from menu items
                     keefox_win.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
                 } catch(ex)
                 {
@@ -216,7 +215,7 @@ keefox_win.UI = {
                 nmi.setUserData(key, val, null);
             }                  
         }
-        nmi.setUserData('notificationbox',notifyBox,null); //TODO1.3: some way to reference top menu rather than attach to all nodes? or would that be slower anyway?
+        nmi.setUserData('notificationbox',notifyBox,null);
         return nmi;    
     },
 
@@ -420,7 +419,7 @@ keefox_win.UI = {
                 callback:  function() {
                     try 
                     {
-                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO: faster clone?
+                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO1.4: faster clone?
                         keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
                     } finally
                     {
@@ -446,6 +445,41 @@ keefox_win.UI = {
         {
             keefox_win.Logger.debug("Removing save-password notification bar.");
             aNotifyBox.removeNotification(oldBar);
+        }
+    },
+
+    showConnectionMessage : function (message)
+    {
+        var notifyBox = this._getNotifyBox();
+
+        if (notifyBox)
+        {
+            var buttons = [
+//                // "OK" button
+//                {
+//                    label:     this._getLocalizedString("KeeFox_Dialog_OK_Button.label"),
+//                    accessKey: this._getLocalizedString("KeeFox_Dialog_OK_Button.key"),
+//                    popup:     null,
+//                    callback:  function() { /* NOP */ } 
+//                }
+            ];
+            keefox_win.Logger.debug("Adding keefox-connection-message notification bar.");
+            this._showKeeFoxNotification(notifyBox, "keefox-connection-message",
+                 message, buttons);
+        }
+    },
+
+    removeConnectionMessage : function ()
+    {
+        var notifyBox = this._getNotifyBox();
+
+        if (notifyBox)
+        {
+            let oldBar = notifyBox.getNotificationWithValue("keefox-connection-message");
+            if (oldBar) {
+                keefox_win.Logger.debug("Removing keefox-connection-message notification bar.");
+                notifyBox.removeNotification(oldBar);
+            }
         }
     },
 
@@ -588,7 +622,7 @@ keefox_win.UI = {
                         var newWindow = wm.getMostRecentWindow("navigator:browser") ||
                             wm.getMostRecentWindow("mail:3pane");
                         var b = newWindow.getBrowser();
-                        var newTab = b.loadOneTab( "https://sourceforge.net/apps/trac/keefox/wiki/Manual/Configuration/Logging/Sensitive", null, null, null, false, null );
+                        var newTab = b.loadOneTab( "https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-Logging-|-Sensitive", null, null, null, false, null );
                     }
                 }];
             this._showLoginNotification(notifyBox, "keefox-sensitivelog",

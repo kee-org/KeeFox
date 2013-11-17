@@ -24,7 +24,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"use non-strict";
+"use strict";
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -40,8 +40,7 @@ if (keefox_win.shouldLoad)
     Cu.import("resource://gre/modules/XPCOMUtils.jsm");
     // Load our logging subsystem
     Cu.import("resource://kfmod/KFLogger.js");
-    //Cu.import("resource://kfmod/KF.jsm");
-    keefox_win.Logger = new KeeFoxLogger();
+    keefox_win.Logger = KFLog;
     //keefox_win.Logger = KFLog;
     // Load our other javascript
     keefox_win.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
@@ -51,12 +50,10 @@ if (keefox_win.shouldLoad)
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
 
-    Cu.import("resource://kfmod/KF.jsm");
-    keefox_win.Logger.debug("got sessionstore-windows-restored1");
+    Cu.import("resource://kfmod/KF.js");
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js"); 
-    keefox_win.Logger.debug("got sessionstore-windows-restored2");
-    Cu.import("resource://kfmod/FAMS.jsm",keefox_org);
-    keefox_win.Logger.debug("got sessionstore-windows-restored3");
+    Cu.import("resource://kfmod/FAMS.js",keefox_org);
+
     // This object listens for the "window loaded" event, fired after
     // Firefox finishes loading a window
     keefox_win.mainEventHandler =
@@ -80,10 +77,10 @@ if (keefox_win.shouldLoad)
             switch (topic) {
                 case "sessionstore-windows-restored":
                     keefox_win.Logger.debug("got sessionstore-windows-restored");
-                    if (keefox_org.urlToOpenOnStartup != null && keefox_org.urlToOpenOnStartup.length > 0) {
-                        var toOpen = keefox_org.urlToOpenOnStartup;
-                        keefox_org.urlToOpenOnStartup = null;
-                        keefox_org._openAndReuseOneTabPerURL(toOpen);
+                    if (keefox_org.utils.urlToOpenOnStartup != null && keefox_org.utils.urlToOpenOnStartup.length > 0) {
+                        var toOpen = keefox_org.utils.urlToOpenOnStartup;
+                        keefox_org.utils.urlToOpenOnStartup = null;
+                        keefox_org.utils._openAndReuseOneTabPerURL(toOpen);
                     }
                     break;
             }
@@ -110,6 +107,10 @@ if (keefox_win.shouldLoad)
                 case "load":
                     // We don't need to know about load events anymore for the life of this window
                     window.removeEventListener("load", this, false);
+
+                    if (window.gBrowser) { // Firefox only
+                        keefox_org.commandManager.setupListeners(currentWindow);
+                    }
 
                     // our toolbar (+ a bit more, maybe needs renaming
                     // in future if I can think of something better)

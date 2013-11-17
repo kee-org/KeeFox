@@ -29,7 +29,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */ 
-"use non-strict";
+"use strict";
 
 let Ci = Components.interfaces;
 let Cu = Components.utils;
@@ -38,6 +38,7 @@ let Cc = Components.classes;
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/locales.js");
+Cu.import("resource://kfmod/FAMS-config.js");
 
 var _famsInst = null;
 function keeFoxGetFamsInst(id, config, log) {
@@ -65,7 +66,7 @@ function FirefoxAddonMessageService()
                         .createInstance(Ci.nsITimer);
     
     // set up FAMS localisation
-    this.locale = new KFandFAMSLocalisation(["chrome://keefox/locale/keefox.properties","chrome://keefox/locale/FAMS.keefox.properties"]); //TODO2: KeeFox specific
+    this.locale = new Localisation(["chrome://keefox/locale/keefox.properties","chrome://keefox/locale/FAMS.keefox.properties"]); //TODO2: KeeFox specific
 
     this._log("constructed at " + Date());
 }
@@ -143,7 +144,7 @@ FirefoxAddonMessageService.prototype = {
         // Record the first time this init function is run so we know when
         // the service was first installed
         try {
-            installTimeString = this.prefBranch.getCharPref("installTime." + this.configuration.id);
+            var installTimeString = this.prefBranch.getCharPref("installTime." + this.configuration.id);
         } catch (ex) { this.prefBranch.setCharPref("installTime." + this.configuration.id, (new Date()).toUTCString()); }
 
         if (this.isEnabled()) {
@@ -460,7 +461,7 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
 };
 
 FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
-    aNotifyBox = this.getNotifyBox();
+    var aNotifyBox = this.getNotifyBox();
     if (!aNotifyBox)
         return false;
 
@@ -689,6 +690,7 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
     return ""; // All OK
 };
 
+FirefoxAddonMessageService.prototype.defaultConfiguration = FAMSDefaultConfig;
 
 //var famsInst = new FirefoxAddonMessageService;
 

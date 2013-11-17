@@ -107,25 +107,8 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <PostBuildEvent>
       <Command>echo POSTBUILDSTEP for $(ProjectName)
 
-REM combine module components into single file
-pushd "$(ProjectDir)KeeFox\modules"
-copy /b KF.js+config.js KF.jsm /Y
-copy /b FAMS.js+FAMS-config.js FAMS.jsm /Y
-move KF.js KF.js.temp
-move config.js config.js.temp
-move FAMS.js FAMS.js.temp
-move FAMS-config.js FAMS-config.js.temp
-popd
-
 xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
 if errorlevel 1 goto BuildEventFailed
-
-pushd "$(ProjectDir)KeeFox\modules"
-move KF.js.temp KF.js
-move config.js.temp config.js
-move FAMS.js.temp FAMS.js
-move FAMS-config.js.temp FAMS-config.js
-popd
 
 REM compress the files into the complete XPI
 cd $(SolutionDir)XPIs\current
@@ -147,8 +130,7 @@ echo POSTBUILDSTEP for $(ProjectName) FAILED
 exit 1
 
 :BuildEventOK
-echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
-</Command>
+echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK</Command>
     </PostBuildEvent>
     <ClCompile>
       <MinimalRebuild>false</MinimalRebuild>
@@ -200,6 +182,10 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="KeeFox\chrome\content\context.xul">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="KeeFox\chrome\content\install_mono.js" />
     <None Include="KeeFox\chrome\content\install_mono.xul">
       <SubType>Designer</SubType>
@@ -251,7 +237,15 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\main.png" />
     <None Include="KeeFox\modules\config.js" />
     <None Include="KeeFox\modules\FAMS-config.js" />
+    <None Include="KeeFox\modules\jsonrpcClient.js" />
+    <None Include="KeeFox\modules\KFExtension.js" />
+    <None Include="KeeFox\modules\kprpcClient.js" />
+    <None Include="KeeFox\modules\kprpcClientLegacy.js" />
     <None Include="KeeFox\modules\locales.js" />
+    <None Include="KeeFox\modules\sessionLegacy.js" />
+    <None Include="KeeFox\modules\sjcl.js" />
+    <None Include="KeeFox\modules\SRP.js" />
+    <None Include="KeeFox\modules\utils.js" />
     <None Include="Test Pages\LeftFrameContents.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>
@@ -307,7 +301,6 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\modules\FAMS.js" />
     <None Include="KeeFox\chrome\content\famsOptions.js" />
     <None Include="KeeFox\chrome\content\install.js" />
-    <None Include="KeeFox\modules\json.js" />
     <None Include="KeeFox\chrome\content\keefox.js" />
     <None Include="KeeFox\modules\KF.js">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

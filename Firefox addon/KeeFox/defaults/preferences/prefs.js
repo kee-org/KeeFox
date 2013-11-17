@@ -19,3 +19,5 @@ pref("extensions.keefox@chris.tomlinson.rememberMRUDB", true);
 pref("extensions.keefox@chris.tomlinson.keePassRememberInstalledLocation", false);
 pref("extensions.keefox@chris.tomlinson.searchAllOpenDBs", true);
 pref("extensions.keefox@chris.tomlinson.listAllOpenDBs", true);
+pref("extensions.keefox@chris.tomlinson.connSLClient", 2);
+pref("extensions.keefox@chris.tomlinson.connSLServerMin", 2);

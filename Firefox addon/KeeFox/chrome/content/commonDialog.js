@@ -30,7 +30,7 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-Cu.import("resource://kfmod/KF.jsm");
+Cu.import("resource://kfmod/KF.js");
 
 var keeFoxDialogManager = {
 
@@ -146,7 +146,12 @@ var keeFoxDialogManager = {
             document.getElementById("commonDialog").setAttribute("windowtype","common-dialog");
             keeFoxDialogManager.prepareFill();
         } catch (exception) {
-            keefox_org._KFLog.error(exception);
+            try {
+                keefox_org._KFLog.error(exception);
+            } catch (e)
+            {
+                // don't want missing keefox.org object to break standard dialogs
+            }
         }
     },
     
@@ -382,9 +387,9 @@ var keeFoxDialogManager = {
                     realmFirst = true;
 
                 currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                regEx = new RegExp(currentRealmL10nPattern);
+                let regEx = new RegExp(currentRealmL10nPattern);
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                let matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                 if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined")
                 {
                     if (realmFirst)
@@ -417,9 +422,9 @@ var keeFoxDialogManager = {
                     realmFirst = true;
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
-                regEx = new RegExp(currentProxyL10nPattern);
+                let regEx = new RegExp(currentProxyL10nPattern);
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                let matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                 if (matches !== null && typeof matches[1] !== "undefined" && typeof matches[2] !== "undefined") {
                     if (realmFirst)
                     {
@@ -448,9 +453,9 @@ var keeFoxDialogManager = {
                 }
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
-                regEx = new RegExp(currentProxyL10nPattern);
+                let regEx = new RegExp(currentProxyL10nPattern);
 
-                matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
+                let matches = document.getElementById("info.body").firstChild.nodeValue.match(regEx);
                 if (matches !== null && typeof matches[1] !== "undefined")  {
                         host = matches[1];
                 }

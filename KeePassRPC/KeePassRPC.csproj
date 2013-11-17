@@ -80,6 +80,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Fleck2">
+      <HintPath>.\Fleck2.dll</HintPath>
+    </Reference>
     <Reference Include="Jayrock, Version=0.9.12915.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Jayrock.dll</HintPath>
@@ -93,9 +96,9 @@
       <ExecutableExtension>.exe</ExecutableExtension>
       <HintPath>..\..\..\Program Files (x86)\KeePass Password Safe 2 DEV\KeePass.exe</HintPath>
     </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+    <Reference Include="KeePassRPC.Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Mono.Security.dll</HintPath>
+      <HintPath>.\KeePassRPC.Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -103,11 +106,19 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BigInteger.cs" />
     <Compile Include="DataExchangeModel.cs" />
+    <Compile Include="Forms\AuthForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AuthForm.Designer.cs">
+      <DependentUpon>AuthForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\KeeFoxEntryUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -163,6 +174,8 @@
     <Compile Include="Forms\OptionsForm.Designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="KeyChallengeResponse.cs" />
+    <Compile Include="KeyContainerClass.cs" />
     <Compile Include="MakeCertificate.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -172,6 +185,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RPCClientManagers.cs" />
+    <Compile Include="SRP.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -201,6 +216,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\AuthForm.resx">
+      <DependentUpon>AuthForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeeFoxEntryUserControl.resx">
       <DependentUpon>KeeFoxEntryUserControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -255,7 +273,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+  <PropertyGroup Condition="'$(OS)' == 'WINDOWS_NT'">
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -279,9 +297,10 @@
       REM copy output DLLs to KeePass plugins directory
       copy "$(ProjectName).dll" "%25KPPDir%25\$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
-      copy "Mono.Security.dll" "%25KPPDir%25\Mono.Security.dll"
+      copy "KeePassRPC.Mono.Security.dll" "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPDir%25\Jayrock.Json.dll"
+      copy "Fleck2.dll" "%25KPPDir%25\Fleck2.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs copied to plugins directory
 
@@ -296,9 +315,10 @@
       REM delete the DLLs from any previous Debug build
       del /Q "%25KPPDir%25$(ProjectName).dll"
       if errorlevel 1 goto BuildEventFailed
-      del /Q "%25KPPDir%25\Mono.Security.dll"
+      del /Q "%25KPPDir%25\KeePassRPC.Mono.Security.dll"
       del /Q "%25KPPDir%25\Jayrock.dll"
       del /Q "%25KPPDir%25\Jayrock.Json.dll"
+      del /Q "%25KPPDir%25\Fleck2.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs deleted
 
@@ -311,9 +331,10 @@
       REM copy relevant project files to temporary directory
       REM (for simple KeePass plugins you may need to
       REM copy only *.cs files and .csproj file)
-      copy "Mono.Security.dll" "%25KPPTempDir%25\Mono.Security.dll"
+      copy "KeePassRPC.Mono.Security.dll" "%25KPPTempDir%25\KeePassRPC.Mono.Security.dll"
       copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPTempDir%25\Jayrock.Json.dll"
+      copy "Fleck2.dll" "%25KPPTempDir%25\Fleck2.dll"
       if errorlevel 1 goto BuildEventFailed
       copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
       if errorlevel 1 goto BuildEventFailed

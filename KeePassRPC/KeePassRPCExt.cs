@@ -47,6 +47,7 @@ using KeePassLib.Collections;
 
 using System.Runtime.Remoting.Lifetime;
 using KeePassRPC.DataExchangeModel;
+using Fleck2.Interfaces;
 //using System.Web;
 
 namespace KeePassRPC
@@ -59,8 +60,10 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,2,7);
-                
+        public static readonly Version PluginVersion = new Version(1,2,9);
+
+        private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
+        private AutoResetEvent _BackgroundWorkerAutoResetEvent;
         private KeePassRPCServer _RPCServer;
         private KeePassRPCService _RPCService;
 
@@ -91,23 +94,33 @@ namespace KeePassRPC
 
         private EventHandler<GwmWindowEventArgs> GwmWindowAddedHandler;
 
-        private static object _lockRPCClientManagers = new object();
+        private static LockManager _lockRPCClientManagers = new LockManager();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
         public string CurrentConfigVersion = "1";
+        public volatile bool terminating = false;
 
-        private int FindKeePassRPCPort(IPluginHost host)
+        private int FindKeePassRPCPort(IPluginHost host, bool webSocket)
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
-            int KeePassRPCport = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536);
+            int port;
+            
+            if (webSocket)
+                port = (int)host.CustomConfig.GetULong("KeePassRPC.webSocket.port", 12546);
+            else
+                port = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536);
 
             if (allowCommandLineOverride)
             {
-                string KeePassRPCportStr = host.CommandLineArgs["KeePassRPCPort"];
-                if (KeePassRPCportStr != null)
+                string portStr;
+                if (webSocket)
+                    portStr = host.CommandLineArgs["KeePassRPCWebSocketPort"];
+                else
+                    portStr = host.CommandLineArgs["KeePassRPCPort"];
+                if (portStr != null)
                 {
                     try
                     {
-                        KeePassRPCport = int.Parse(KeePassRPCportStr);
+                        port = int.Parse(portStr);
                     }
                     catch
                     {
@@ -115,7 +128,7 @@ namespace KeePassRPC
                     }
                 }
             }
-            return KeePassRPCport;
+            return port;
         }
 
         private bool FindKeePassRPCSSLEnabled(IPluginHost host)
@@ -159,6 +172,15 @@ namespace KeePassRPC
                     return false;
                 _host = host;
 
+                _BackgroundWorker = new BackgroundWorker ();
+                _BackgroundWorker.WorkerReportsProgress = true;
+                _BackgroundWorker.ProgressChanged += _BackgroundWorker_ProgressChanged;
+                _BackgroundWorkerAutoResetEvent = new AutoResetEvent (false);
+                _BackgroundWorker.DoWork += delegate(object sender, DoWorkEventArgs e) {
+                    _BackgroundWorkerAutoResetEvent.WaitOne ();
+                };
+                _BackgroundWorker.RunWorkerAsync ();
+
                 string debugFileName = host.CommandLineArgs["KPRPCDebug"];
                 if (debugFileName != null)
                 {
@@ -178,7 +200,8 @@ namespace KeePassRPC
                 //new ResolveEventHandler(CurrentDomain_AssemblyResolve);
         
 
-
+                // The client managers directly manage the legacy KPRPC connections (i.e. connections from KeeFox < 1.3 in case client and server mismatch is created by user)
+                // The KeeFox client manager also holds objects relating to the web socket connections managed by the Fleck2 library
                 CreateClientManagers();
 
                 if (logger != null) logger.WriteLine("Client managers started.");
@@ -187,7 +210,36 @@ namespace KeePassRPC
                 _RPCService = new KeePassRPCService(host,
                     getStandardIconsBase64(host.MainWindow.ClientIcons), this);
                 if (logger != null) logger.WriteLine("RPC service started.");
-                _RPCServer = new KeePassRPCServer(FindKeePassRPCPort(host), RPCService, this, FindKeePassRPCSSLEnabled(host));
+                int portOld = FindKeePassRPCPort(host, false);
+                int portNew = FindKeePassRPCPort(host, true);
+
+                try
+                {
+
+                    _RPCServer = new KeePassRPCServer(portOld, RPCService, this, FindKeePassRPCSSLEnabled(host), portNew);
+                }
+                catch (System.Net.Sockets.SocketException ex)
+                {
+                    if (ex.SocketErrorCode == System.Net.Sockets.SocketError.AddressAlreadyInUse)
+                    {
+                        MessageBox.Show(@"KeePassRPC is already listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please close all other running instances of KeePass and restart this KeePass. If you want multiple instances of KeePass to be running at the same time, you'll need to configure some of them to connect using a different communication port.
+
+See https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-KPRPC-Port
+
+KeePassRPC requires these two ports to be available: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+                        if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires these two ports to be available: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+                    }
+                    else
+                    {
+                        MessageBox.Show(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
+
+KeePassRPC requires these two ports to be working: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+                        if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires these two ports to be working: " + portOld + " and " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
+                    }
+                    if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
+                    _BackgroundWorkerAutoResetEvent.Set(); // terminate _BackgroundWorker
+                    return false;
+                }
                 if (logger != null) logger.WriteLine("RPC server started.");
 
                 // register to recieve events that we need to deal with
@@ -248,6 +300,7 @@ namespace KeePassRPC
             catch (Exception ex)
             {
                 if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
+                _BackgroundWorkerAutoResetEvent.Set (); // terminate _BackgroundWorker
                 return false;
             }
             if (logger != null) logger.WriteLine("KPRPC startup succeeded.");
@@ -309,6 +362,7 @@ namespace KeePassRPC
 
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 //TODO2: Only consider managers of client types that have at least one valid client already authorised
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     if (manager.Name != "Null")
@@ -352,6 +406,7 @@ namespace KeePassRPC
 
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 //TODO2: Only consider managers of client types that have at least one valid client already authorised
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     if (manager.Name != "Null")
@@ -384,7 +439,7 @@ namespace KeePassRPC
 
         void OnToolsOptions(object sender, EventArgs e)
         {
-            KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host);
+            KeePassRPC.Forms.OptionsForm ofDlg = new KeePassRPC.Forms.OptionsForm(_host, this);
             ofDlg.ShowDialog();
         }
 
@@ -424,21 +479,13 @@ namespace KeePassRPC
             return icons;
         }
 
-        //public void RegisterKnownClient()
-        //{
-        //    WelcomeKeeFoxUser();
-        //}
-
-        public delegate object WelcomeKeeFoxUserDelegate(PendingRPCClient client);
+        public delegate object WelcomeKeeFoxUserDelegate();
         
 
-        public object WelcomeKeeFoxUser(PendingRPCClient client)
+        public object WelcomeKeeFoxUser()
         {
             WelcomeForm wf = new WelcomeForm();
             DialogResult dr = wf.ShowDialog(_host.MainWindow);
-
-            if (dr == DialogResult.Yes || dr == DialogResult.No)
-                RPCService.AddKnownRPCClient(client);
             if (dr == DialogResult.Yes)
                 CreateNewDatabase();
             if (dr == DialogResult.Yes || dr == DialogResult.No)
@@ -761,6 +808,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 _RPCClientManagers.Add("null", new NullRPCClientManager());
 
                 //TODO2: load managers from plugins, etc.
@@ -772,6 +820,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 ((NullRPCClientManager)_RPCClientManagers["null"]).RemoveRPCClientConnection(connection);
                 destination.AddRPCClientConnection(connection);
             }
@@ -782,7 +831,8 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             string managerName = "null";
             switch (clientName)
             {
-                case "KeeFox Firefox add-on": managerName = "KeeFox"; break;
+                case "KeeFox": managerName = "KeeFox"; break; // KeeFox >= 1.3
+                case "KeeFox Firefox add-on": managerName = "KeeFox"; break; // KeeFox <= 1.2
             }
 
             PromoteNullRPCClient(connection,_RPCClientManagers[managerName]);
@@ -793,9 +843,11 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 		/// </summary>
         public override void Terminate()
         {
+            this.terminating = true;
             RPCServer.Terminate();
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     manager.Terminate();
                 _RPCClientManagers.Clear();
@@ -814,6 +866,9 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             _host.MainWindow.DocumentManager.ActiveDocumentSelected -= OnKPDBSelected;
 
             GlobalWindowManager.WindowAdded -= GwmWindowAddedHandler;
+
+            // terminate _BackgroundWorker
+            _BackgroundWorkerAutoResetEvent.Set ();
 
             // Remove 'Tools' menu items
             ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
@@ -1020,6 +1075,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     manager.SignalAll(signal);
             }
@@ -1029,6 +1085,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 _RPCClientManagers["null"].AddRPCClientConnection(keePassRPCClient);
             }
         }
@@ -1037,16 +1094,83 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         {
             lock (_lockRPCClientManagers)
             {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
                 // this generally only happens at connection shutdown time so think we get away with a search like this
                 foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
                     foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
                         if (connection == keePassRPCClient)
                             manager.RemoveRPCClientConnection(keePassRPCClient);
-                //     _RPCClientManagers["null"]
-                // RemoveRPCClientConnection(keePassRPCClient);
             }
         }
 
+        internal void AddRPCClientConnection(IWebSocketConnection webSocket)
+        {
+            lock (_lockRPCClientManagers)
+            {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
+                _RPCClientManagers["null"].AddRPCClientConnection(new KeePassRPCClientConnection(webSocket, false, this));
+            }
+        }
+
+        internal void RemoveRPCClientConnection(IWebSocketConnection webSocket)
+        {
+            lock (_lockRPCClientManagers)
+            {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
+                // this generally only happens at conenction shutdown time so think we get away with a search like this
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
+                        if (connection.WebSocketConnection == webSocket)
+                        {
+                            manager.RemoveRPCClientConnection(connection);
+                            return;
+                        }
+            }
+        }
+
+
+        internal void MessageRPCClientConnection(IWebSocketConnection webSocket, string message, KeePassRPCService service)
+        {
+            KeePassRPCClientConnection connection = null;
+
+            lock (_lockRPCClientManagers)
+            {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                {
+                    foreach (KeePassRPCClientConnection conn in manager.CurrentRPCClientConnections)
+                    {
+                        if (conn.WebSocketConnection == webSocket)
+                        {
+                            connection = conn;
+                            break;
+                        }
+                    }
+                    if (connection != null)
+                        break;
+                }
+            }
+
+            if (connection != null)
+                connection.ReceiveMessage(message, service);
+            else
+                webSocket.Close();
+        }
+
+        internal List<KeePassRPCClientConnection> GetConnectedRPCClients()
+        {
+            List<KeePassRPCClientConnection> clients = new List<KeePassRPCClientConnection>();
+            lock (_lockRPCClientManagers)
+            {
+                _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
+                foreach (KeePassRPCClientManager manager in _RPCClientManagers.Values)
+                    foreach (KeePassRPCClientConnection connection in manager.CurrentRPCClientConnections)
+                        if (connection.Authorised)
+                            clients.Add(connection);
+            }
+            return clients;
+        }
+        
 
 
         public string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
@@ -1364,35 +1488,52 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 pwe.Strings.Remove(item);
             }
         }
+
+        public void InvokeMainThread (Delegate method, params object[] args)
+        {
+            _BackgroundWorker.ReportProgress (0, (MethodInvoker)delegate {
+                method.DynamicInvoke (args);
+           });
+        }
+
+        private void _BackgroundWorker_ProgressChanged (object sender, ProgressChangedEventArgs e)
+        {
+            ((MethodInvoker)e.UserState).Invoke ();
+        }
     }
 
-    public class Log : KeePassLib.Interfaces.IStatusLogger
+    //public class Log : KeePassLib.Interfaces.IStatusLogger
+    //{
+    //    public bool ContinueWork()
+    //    {
+    //        return true;
+    //    }
+
+    //    public void EndLogging()
+    //    {
+    //        return;
+    //    }
+
+    //    public bool SetProgress(uint uPercent)
+    //    {
+    //        return true;
+    //    }
+
+    //    public bool SetText(string strNewText, KeePassLib.Interfaces.LogStatusType lsType)
+    //    {
+    //        return true;
+    //    }
+
+    //    public void StartLogging(string strOperation, bool bWriteOperationToLog)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
+
+
+    public class LockManager
     {
-        public bool ContinueWork()
-        {
-            return true;
-        }
-
-        public void EndLogging()
-        {
-            return;
-        }
-
-        public bool SetProgress(uint uPercent)
-        {
-            return true;
-        }
-
-        public bool SetText(string strNewText, KeePassLib.Interfaces.LogStatusType lsType)
-        {
-            return true;
-        }
-
-        public void StartLogging(string strOperation, bool bWriteOperationToLog)
-        {
-            throw new NotImplementedException();
-        }
+        public int HeldBy;
     }
-
 
 }

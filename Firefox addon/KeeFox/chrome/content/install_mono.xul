@@ -88,6 +88,8 @@
               </vbox>
               
               <vbox id="Install_monoManualUpgrade" hidden="true">
+
+                <description class="warning" hidden="true" id="desc_Install_monoManualDowngradeWarning">%-KeeFox_Install_Downgrade_Warning.label-%</description>
                 <description class="mono-header" id="desc_Install_monoManualUpgrade">%-KeeFox_Install_monoManualUpgrade.description-%</description>
                 <description id="monoManualUpgradeStep1_description">%-KeeFox_Install_monoManualUpgradeStep1.description-%</description>
                 <description id="monoManualUpgradeStep2_description">%-KeeFox_Install_monoManualUpgradeStep2.description-%</description>

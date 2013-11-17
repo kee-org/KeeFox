@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "chrome://browser/locale/browser.dtd">
+ 
+<overlay id="KeeFox-Overlay-Context" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <script>
+   window.addEventListener("load", function () {
+   window.addEventListener("popupshowing",keefox_org.commandManager.contextMainPopupShowing, false);
+   window.document.getElementById("keefox-command-context-sub-popup").addEventListener("popupshowing",keefox_org.commandManager.contextSubPopupShowing, false);
+   }, false);
+ </script>
+
+<popup id="contentAreaContextMenu">
+  <menuseparator/>
+	<menuitem id="keefox-command-context-fillMatchedLogin"
+			disabled="true" />
+
+	<menu id="keefox-command-context-showMenuMatchedLogins" class="" image="" >
+      <menupopup id="keefox-command-context-showMenuMatchedLogins-popup">
+
+      </menupopup>
+    </menu>
+
+	<menu id="keefox-command-context-sub" class="" image="" label="KeeFox...">
+        <menupopup id="keefox-command-context-sub-popup" >
+			<menuitem id="keefox-command-context-sub-fillMatchedLogin"
+					disabled="true" />
+			<menu id="keefox-command-context-sub-showMenuMatchedLogins" class="" image="" >
+				
+			</menu>
+			<menu id="keefox-command-context-sub-showMenuChangeDatabase" class="" image="" >
+				<menupopup id="keefox-command-context-sub-showMenuChangeDatabase-popup">
+          
+				</menupopup>
+			</menu>
+			<menu id="keefox-command-context-sub-showMenuGeneratePassword" class="" image="" >
+				<menupopup id="keefox-command-context-sub-showMenuGeneratePassword-popup">
+          
+				</menupopup>
+			</menu>
+        </menupopup>
+    </menu>
+</popup>
+<!--
+  <menupopup id="keefox-command-context-showMenuMatchedLogins-popup">
+
+  </menupopup>
+-->
+
+
+  <menuitem id="keefox-command-context-generatePassword"
+			disabled="true"
+			insertafter="context-savepage"/>
+	<menuitem id="keefox-command-context-"
+			disabled="true"
+			insertafter="context-savepage"/>
+ 
+</overlay>
