@@ -419,14 +419,16 @@ kprpcClient.prototype.constructor = kprpcClient;
   	};
   	
   	this.identifyToClient = function(data) {
-  		var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                    .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("common-dialog") ||
-                        wm.getMostRecentWindow("navigator:browser") ||
-                        wm.getMostRecentWindow("mail:3pane");
-
         // get the user to type in the one-time password
-        let password = window.prompt(window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password"));
+        let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                        .getService(Components.interfaces.nsIPromptService);
+        let input = {value: null};
+        let result = prompts.prompt(null, 
+            window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password-title"), 
+            window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password"), input, null, null);
+        let password = input.value;
+        if (!result)
+            password = ""; // This will cause authentication to fail (null and/or undefined might work fine too but untested)
 
   		this.srpClientInternals.p = password;
   		this.srpClientInternals.receive_salts(data.srp.s, data.srp.B);
