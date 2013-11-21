@@ -271,7 +271,7 @@ KeeFox.prototype = {
             this._keeFoxExtension.prefs.getValue("keePassRememberInstalledLocation",false);
         if (!keePassRememberInstalledLocation)
         {
-            keePassLocation = utils._discoverKeePassInstallLocation(this.defaultMonoExec);
+            keePassLocation = utils._discoverKeePassInstallLocation();
             if (keePassLocation != "not installed")
             {
                 KeePassEXEfound = utils._confirmKeePassInstallLocation(keePassLocation);
@@ -289,7 +289,7 @@ KeeFox.prototype = {
 
             if (this.useMono)
             {
-              monoLocation = utils._discoverMonoLocation();
+              monoLocation = utils._discoverMonoLocation(this.defaultMonoExec);
               if (monoLocation != "not installed")
               {
                 let monoExecFound = utils._confirmMonoLocation(monoLocation);
