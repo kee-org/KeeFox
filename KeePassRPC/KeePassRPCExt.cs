@@ -172,6 +172,9 @@ namespace KeePassRPC
                     return false;
                 _host = host;
 
+                // Reduce Fleck library logging verbosity
+                Fleck2.FleckLog.Level = Fleck2.LogLevel.Error;
+
                 _BackgroundWorker = new BackgroundWorker ();
                 _BackgroundWorker.WorkerReportsProgress = true;
                 _BackgroundWorker.ProgressChanged += _BackgroundWorker_ProgressChanged;
