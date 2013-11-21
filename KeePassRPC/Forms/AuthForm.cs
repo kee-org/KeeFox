@@ -35,14 +35,18 @@ namespace KeePassRPC.Forms
 
         private void AuthForm_Load(object sender, EventArgs e)
         {
-            /*
+            /*http://git.io/GaKFCA
              * 
 "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Microsoft Sans Serif;}}\r\n\\viewkind4\\uc1\\pard\\f0\\fs18 This is a test\\par\r\n}\r\n"
              * */
-            richTextBoxSecurityLevel.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fArial;}\f0\fs20KeeFox will connect using {\b " + SecurityLevel + @"} security. Please go to this web page to learn about the different levels of security and how to configure your personal security preferences:\par
-{\fs18https://github.com/luckyrat/KeeFox/wiki/en-%7C-Technical-%7C-KeePassRPC-%7C-Security-levels}\par\par
+            richTextBoxSecurityLevel.Rtf = @"{\rtf1\ansi{\fonttbl\f0\fArial;}\f0\fs20KeeFox will connect using {\b " + SecurityLevel + @"} security. Please go to this web page to learn about the different levels of security and how to configure your personal security preferences:\par";
 
-If you do not know what ""{\b " + ClientName + @"}"" is or have reason to suspect that a malicious program on your computer is pretending to be ""{\b " + ClientName + @"}"" you can deny the request by clicking the button below.
+            if (Type.GetType ("Mono.Runtime") != null)
+                richTextBoxSecurityLevel.Rtf += @"{\fs18http://git.io/GaKFCA}\par\par";
+            else
+                richTextBoxSecurityLevel.Rtf += @"{\fs18https://github.com/luckyrat/KeeFox/wiki/en-%7C-Technical-%7C-KeePassRPC-%7C-Security-levels}\par\par";
+
+            richTextBoxSecurityLevel.Rtf += @"If you do not know what ""{\b " + ClientName + @"}"" is or have reason to suspect that a malicious program on your computer is pretending to be ""{\b " + ClientName + @"}"" you can deny the request by clicking the button below.
 }";
             richTextBoxSecurityLevel.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBoxSecurityLevel_LinkClicked);
 
