@@ -419,13 +419,19 @@ kprpcClient.prototype.constructor = kprpcClient;
   	};
   	
   	this.identifyToClient = function(data) {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                    .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("common-dialog") ||
+                        wm.getMostRecentWindow("navigator:browser") ||
+                        wm.getMostRecentWindow("mail:3pane");
+
         // get the user to type in the one-time password
         let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                         .getService(Components.interfaces.nsIPromptService);
         let input = {value: null};
         let result = prompts.prompt(null, 
             window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password-title"), 
-            window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password"), input, null, null);
+            window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password"), input, null, {});
         let password = input.value;
         if (!result)
             password = ""; // This will cause authentication to fail (null and/or undefined might work fine too but untested)
@@ -850,6 +856,112 @@ kprpcClient.prototype.constructor = kprpcClient;
     };
 
     this.decrypt = function(encryptedContainer)
+    {
+        log.debug("starting decryption");
+        var t = (new Date()).getTime();
+        
+        let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                     .getService(Components.interfaces.nsIWindowMediator);
+        let window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
+            
+        let binary = window.atob(encryptedContainer.message);
+        let len = binary.length;
+        log.debug("decryption data length: " + len);
+        let buffer = new ArrayBuffer(len);
+        let messageArray = new Uint8Array(buffer);
+        for (let i=0; i < len; i++) {
+            messageArray[i] = binary.charCodeAt(i);
+        }
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 1a took: " + (tn-t));
+        t = tn;
+        let arrayBuffer = messageArray.buffer;
+
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 1b took: " + (tn-t));
+        t = tn;
+        let encryptedPayload = sjcl.codec.bytes.toBits(messageArray);
+        
+        //TODO:perf: Maybe we can just throw a new View over our buffer and push that through to the sjcl decrypt function when sjcl supports ArrayBuffers
+        //let encryptedPayload = new Uint32Array(arrayBuffer);
+
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 1c took: " + (tn-t));
+        t = tn;
+        let ivArray = sjcl.codec.base64.toBits(encryptedContainer.iv);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 2 took: " + (tn-t));
+        t = tn;
+        let hmac = encryptedContainer.hmac;
+        
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 3 took: " + (tn-t));
+        t = tn;
+        let secKeyArray = sjcl.codec.hex.toBits(this.secretKey);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 4 took: " + (tn-t));
+        t = tn;
+        let a1 = utils.intArrayToByteArray(sjcl.codec.base64.toBits(utils.hash(utils.intArrayToByteArray(secKeyArray),"base64","SHA1")));
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 5 took: " + (tn-t));
+        t = tn;
+
+        let a2 = messageArray;
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 6 took: " + (tn-t));
+        t = tn;
+        let a3 = utils.intArrayToByteArray(ivArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 7 took: " + (tn-t));
+        t = tn;
+        //TODO:perf: alt. concat impl. ~5%
+        //let ourHmac = utils.hash(a1.concat(messageArray).concat(a3),"base64","SHA1");
+        let tmp = new Uint8Array(a1.length + a2.byteLength + a3.length);
+        tmp.set(a1, 0);
+        tmp.set(a2, a1.length);
+        tmp.set(a3, a1.length + a2.byteLength);
+        let ourHmac = utils.hash(tmp,"base64","SHA1");
+
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 8 took: " + (tn-t));
+        t = tn;
+        if (ourHmac !== hmac)
+        {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
+            log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart"));
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
+                + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
+            this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
+            this.resetConnection();
+            return null;
+        }
+
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 9 took: " + (tn-t));
+        t = tn;
+        let aes = new sjcl.cipher.aes(secKeyArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 10 took: " + (tn-t));
+        t = tn;
+        //TODO:perf: Improved AES decryption ~50%
+        let decryptedPayload = sjcl.mode.cbc.decrypt(aes, encryptedPayload, ivArray);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 11 took: " + (tn-t));
+        t = tn;
+        //TODO:perf: Improved utf8 encoding ~12.5%
+        let plainText = sjcl.codec.utf8String.fromBits(decryptedPayload);
+        var tn = (new Date()).getTime();
+        log.debug("decryption stage 12 took: " + (tn-t));
+        t = tn;
+        log.debug("decryption finished");
+        return plainText;
+    };
+    
+    this.decrypt_deprecated = function(encryptedContainer)
     {
         log.debug("starting decryption");
         var t = (new Date()).getTime();
