@@ -623,10 +623,10 @@ keefox_win.toolbar = {
                 changeDBButton.setAttribute("disabled", "false");
             }
             //TODO1.4: make generate password popupshowing event do something useful or remove it
-//            if (generatePasswordButton !== undefined && generatePasswordButton != null) {
+            if (generatePasswordButton !== undefined && generatePasswordButton != null) {
 //                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
-//                generatePasswordButton.setAttribute("disabled", "false");
-//            }
+                generatePasswordButton.setAttribute("disabled", "false");
+            }
         } else {
             if (changeDBButton !== undefined && changeDBButton != null) {
                 changeDBButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonDisabled.label"));
