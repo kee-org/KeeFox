@@ -1,11 +1,15 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
   
 This hooks onto every common dialog in Firefox and for any dialog that contains one
 username and one password (with the usual Firefox field IDs) it will discover
 any matching logins and depending on preferences, etc. it will fill in the
 dialog fields and/or populate a drop down box containing all of the matching logins.
+
+Also looks for a dialog with a single text box which has the same text description
+content as the KeeFox Authorisation dialog popup so that we can cancel the dialog
+if the underlying KPRPC connection is dropped while we are blocked on this modal dialog.
 
 Some ideas and code snippets from AutoAuth Firefox extension:
 https://addons.mozilla.org/en-US/firefox/addon/4949
@@ -24,11 +28,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"can't use strict"; // no errors - it just doesn't work
+"can't use strict"; //TODO1.3: retry before 1.3 release
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
+//if (!Cc)
+    let Cc = Components.classes;
+//if (!Ci)
+    let Ci = Components.interfaces;
+//if (!Cu)
+    let Cu = Components.utils;
 
 Cu.import("resource://kfmod/KF.js");
 
@@ -160,7 +167,7 @@ var keeFoxDialogManager = {
     
     prepareFill : function()
     {
-        if (Dialog.args.promptType == "prompt" || // username only
+        if (Dialog.args.promptType == "prompt" || // username only (or other single text box dialog)
             Dialog.args.promptType == "promptUserAndPass" || // user and pass
             Dialog.args.promptType == "promptPassword") // password only
         {        
@@ -174,9 +181,20 @@ var keeFoxDialogManager = {
             var mustAutoSubmit = false;            
             var host, realm, username;
             
-            /* handle cases for username only prompt */
             if (Dialog.args.promptType == "prompt") {
-                // are there any cases where we are asked for username only?
+                //TODO: are there any cases where we are asked for username only?
+
+                keefox_org._KFLog.debug("Looking for KeeFox Authorisation description text"); 
+                // find out if this is KeePassRPC authentication popup
+                let authTextString = keefox_org.locale.$STR("KeeFox-conn-setup-enter-password");
+                if (document.getElementById("info.body").firstChild.nodeValue == authTextString)
+                {
+                    keefox_org._KFLog.debug("Starting KPRPCConnectionObserver"); 
+                    // Start listening for notifications that the KPRPC connection has been closed
+                    this.kprpcConnObserver = new KPRPCConnectionObserver();
+                    window.addEventListener("unload", this.KPRPCAuthDialogClosing, false);
+                    return;
+                }
             }
             
             if (parentWindow.gBrowser)
@@ -760,7 +778,44 @@ var keeFoxDialogManager = {
             // Do nothing (probably KeeFox has not initialised yet / properly)
         }
         Dialog.onButton0();
+    },
+
+    KPRPCAuthDialogClosing : function ()
+    {
+        //TODO: why doesn't this work? Doesn't seem to be needed though so not urgent.
+        //this.kprpcConnObserver.unregister();
     }
+
 };
+
+function KPRPCConnectionObserver()
+{
+  this.register();
+}
+KPRPCConnectionObserver.prototype = {
+  observe: function(subject, topic, data) {
+     if (topic == "KPRPCConnectionClosed")
+     {
+        // Just close the dialog, SRP protocol will handle the cancellation process
+        // but we need to tell it why we are closing
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                         .getService(Components.interfaces.nsIWindowMediator);
+        var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
+        parentWindow.keefox_org.KeePassRPC.authPromptAborted = true;
+        close();
+     }
+  },
+  register: function() {
+    var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                          .getService(Components.interfaces.nsIObserverService);
+    observerService.addObserver(this, "KPRPCConnectionClosed", false);
+  },
+  unregister: function() {
+    var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+    observerService.removeObserver(this, "KPRPCConnectionClosed");
+  }
+}
 
 window.addEventListener("load", keeFoxDialogManager.dialogInit, false); //ael - does this need to be removed, if so where from?

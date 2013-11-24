@@ -45,6 +45,7 @@ function kprpcClient() {
     this.callbacks = {};
     this.callbacksData = {};
     this.clientVersion = [1,2,9];
+    this.authPromptAborted = false;
     
     // We manually create HMACs to protect the integrity of our AES encrypted messages
     sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."](); 
@@ -429,13 +430,33 @@ kprpcClient.prototype.constructor = kprpcClient;
         let prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                         .getService(Components.interfaces.nsIPromptService);
         let input = {value: null};
+        this.authPromptAborted = false;
         let result = prompts.prompt(null, 
             window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password-title"), 
             window.keefox_org.locale.$STR("KeeFox-conn-setup-enter-password"), input, null, {});
         let password = input.value;
         if (!result)
-            password = ""; // This will cause authentication to fail (null and/or undefined might work fine too but untested)
+        {
+            let minutesToDelay = 2;
 
+            // if any errors were shown, they are now superseeded by this new one
+            window.keefox_win.UI.removeConnectionMessage();
+
+            // Also remove all other KeeFox notification windows
+            window.keefox_win.UI._removeOLDKFNotifications();
+            
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STRF("KeeFox-conn-setup-aborted",[minutesToDelay]));
+            // Make sure that the regular reconnection timer and any other
+            // connection attempts are blocked until minutesToDelay has passed
+            this.connectionProhibitedUntil = new Date();
+            this.connectionProhibitedUntil.setTime(
+                    this.connectionProhibitedUntil.getTime() + 60000 * minutesToDelay);
+            // Cancel the current connection (unless it has already be cancelled,
+            // in which case, the observer within the prompt has already been unregistered)
+            if (!this.authPromptAborted)
+                this.resetConnection();
+            return;
+        }
   		this.srpClientInternals.p = password;
   		this.srpClientInternals.receive_salts(data.srp.s, data.srp.B);
   		

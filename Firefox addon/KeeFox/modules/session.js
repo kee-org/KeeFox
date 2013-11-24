@@ -67,7 +67,8 @@ session.prototype.constructor = session;
 
     this.reconnectTimer = null;
     this.onConnectDelayTimer = null;
-    
+    this.connectionProhibitedUntil = new Date(0);
+
     // It would be neater to pause this timer when we know we are connected
     // but the overhead is so minimal (and so essential in most cases - i.e.
     // all times when the user does not have KeePass open) that we just
@@ -146,6 +147,8 @@ session.prototype.constructor = session;
             return "locked";
         if (this.webSocket !== undefined && this.webSocket !== null && this.webSocket.readyState != 3)
             return "alive";
+        if (this.connectionProhibitedUntil.getTime() > (new Date()).getTime())
+            return "locked";
 
         log.debug("Trying to open a webSocket connection");
 
@@ -242,6 +245,11 @@ session.prototype.constructor = session;
                            .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
+            
+            log.debug("Notifying interested observers that the websocket has closed");
+            Components.classes["@mozilla.org/observer-service;1"]
+              .getService(Components.interfaces.nsIObserverService)
+              .notifyObservers(null, "KPRPCConnectionClosed", null);
             window.keefox_org._pauseKeeFox();
             log.debug("Websocket connection closed");
         };
@@ -273,6 +281,10 @@ session.prototype.constructor = session;
                     rpc.reconnectSoon();
                 }
             }
+
+            // Check we are allowed to connect
+            if (rpc.connectionProhibitedUntil.getTime() > (new Date()).getTime())
+                return;
 
             // Check current websocket connection state. No point in trying the
             // HTTP connection if we know we're already successfully connected
