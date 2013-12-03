@@ -651,6 +651,15 @@ Utils.prototype = {
                  .getService(Components.interfaces.nsIWindowMediator);
         return wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
+    },
+
+    newGUID: function()
+    {
+        let uuidGenerator = Components.classes["@mozilla.org/uuid-generator;1"]
+                        .getService(Components.interfaces.nsIUUIDGenerator);
+        let uuid = uuidGenerator.generateUUID();
+        let guid = uuid.toString();
+        return guid.substr(1,guid.length-2);
     }
 
 };

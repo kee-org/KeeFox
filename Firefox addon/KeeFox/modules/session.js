@@ -84,7 +84,7 @@ session.prototype.constructor = session;
          this.reconnectTimer.initWithCallback(this.reconnectNow,
             this.reconnectionAttemptFrequency,
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-    }
+    };
     
     this.reconnectVerySoon = function()
     {
@@ -99,11 +99,25 @@ session.prototype.constructor = session;
          this.reconnectTimer.initWithCallback(this.reconnectNow,
             250,
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-    }
+    };
 
-    //TODO1.3: Is it OK to call this directly from the close event of the old HTTP connection?
-    // If not, we might need to setTimeout around this function to force it onto another thread
-    // rpc is essentially "this"
+    this.webSocketTimer;
+
+    this.tryToconnectToWebsocket = function() {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                    .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+            wm.getMostRecentWindow("mail:3pane");
+        var rpc = window.keefox_org.KeePassRPC;
+
+        log.debug("Attempting to connect to RPC server webSocket.");
+        var connectResult = rpc.connect();
+        if (connectResult == "alive")
+            log.debug("Connection already established.");
+        if (connectResult == "locked")
+            log.debug("Connection attempt already underway.");
+    };
+
     this.httpConnectionAttemptCallback = function(attemptWebSocket) {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                     .getService(Components.interfaces.nsIWindowMediator);
@@ -113,12 +127,15 @@ session.prototype.constructor = session;
 
         if (attemptWebSocket)
         {
-            log.debug("Attempting to connect to RPC server webSocket.");
-            var connectResult = rpc.connect();
-            if (connectResult == "alive")
-                log.debug("Connection already established.");
-            if (connectResult == "locked")
-                log.debug("Connection attempt already underway.");
+            // We can't try to connect straight away because the old HTTP ephemeral
+            // TCP port is still hanging around during this onClose callback and on some
+            // machines, ephemeral ports flout IANA guidelines including using
+            // KeePassRPC's TCP port. If we tried to connect now, we risk connecting
+            // back to Firefox and causing a deadlock. A small delay gives Firefox
+            // a chance to cleanly close the old port
+            rpc.webSocketTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+            rpc.webSocketTimer.initWithCallback(rpc.tryToconnectToWebsocket,
+                50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);            
         } else
         {
             rpc.connectFailCount++;
@@ -137,7 +154,7 @@ session.prototype.constructor = session;
                 rpc.connectLegacy();
             }
         }
-    }
+    };
     
     // Initiates a connection to the KPRPC server. First we try a webSocket
     // then (eventually) a legacy TCP connection.
@@ -284,6 +301,10 @@ session.prototype.constructor = session;
 
             // Check we are allowed to connect
             if (rpc.connectionProhibitedUntil.getTime() > (new Date()).getTime())
+                return;
+
+            // Check we're not in the middle of trying to connect to the websocket
+            if (rpc.connectLock)
                 return;
 
             // Check current websocket connection state. No point in trying the

@@ -257,6 +257,11 @@ function prepareInstallPage()
             //TODO2:? update 7 and 8 to show Upgrade text, etc.       
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
+
+    // Record key parts of above info to help find problems and plan future KeeFox priorities
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "displayed", 
+        { "installCase": installCase, 
+          "downgrade": (args.downWarning == "1" && args.currentKPRPCv && args.newKPRPCv) });
 }
 
 function installationError(error)
@@ -273,12 +278,12 @@ function installationError(error)
     }
     showSection('restartInstallationOption');
     resetInstallation();
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "error", { "reason": error });
 }
 
 function resetInstallation()
 {
     mainWindow.keefox_org._keeFoxStorage.set("KFinstallProcessStarted",false);
-    
 }
 
 function cancelCurrentDownload()
@@ -288,6 +293,7 @@ function cancelCurrentDownload()
     showSection("ERRORInstallDownloadCanceled");
     showSection('restartInstallationOption');
     resetInstallation();    
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "error", { "reason": "ERRORInstallDownloadCanceled" });
 }
 
 function hideInstallView() {
@@ -314,6 +320,7 @@ function checksumFailed() {
 mainWindow.keefox_win.Logger.error("File checksum failed. Download corrupted?");
 showSection("ERRORInstallDownloadChecksumFailed");
 showSection('restartInstallationOption');
+mainWindow.keefox_org.metricsManager.pushEvent ("setup", "error", { "reason": "ERRORInstallDownloadChecksumFailed" });
 }
 
 /********************
@@ -768,6 +775,7 @@ functions initiated by user choice in UI
  */
 function setupExeInstall()
 {
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "installing", { "type": "dotNet.exe" });
     hideInstallView();
     showProgressView();
     
@@ -787,6 +795,7 @@ function setupExeInstall()
  */
 function KPsetupExeSilentInstall()
 {
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "installing", { "type": "KeePass.exe-silent" });
     hideInstallView();
     showProgressView();
     
@@ -808,6 +817,7 @@ function KPsetupExeSilentInstall()
  */
 function copyKRPCToKnownKPLocationInstall()
 {
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "installing", { "type": "copyKRPCToKnownKPLocation" });
     hideInstallView();
     
     let keePassLocation = mainWindow.keefox_org._keeFoxExtension.prefs
@@ -844,6 +854,7 @@ function copyKRPCToKnownKPLocationInstall()
  */
 function copyKPToSpecificLocationInstall()
 {
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "installing", { "type": "copyKPToSpecificLocation" });
     // Cancel any automatically started downloads
     try {
         persist.cancelSave();
@@ -883,6 +894,7 @@ function copyKPToSpecificLocationInstall()
  */
 function KPsetupExeInstall()
 {
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "installing", { "type": "KeePass.exe" });
     hideInstallView();
     showProgressView();
     
@@ -919,6 +931,8 @@ function launchAndConnectToKeePass()
         mainWindow.keefox_org.KeePassRPC.reconnectTimer.cancel();
     
     mainWindow.keefox_org.KeePassRPC.reconnectVerySoon();
+
+    mainWindow.keefox_org.metricsManager.pushEvent ("setup", "success");
     
     // launch KeePass and then try to connect to KeePassRPC
     mainWindow.keefox_org.launchKeePass();

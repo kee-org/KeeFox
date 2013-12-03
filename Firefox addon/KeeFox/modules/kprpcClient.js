@@ -414,6 +414,7 @@ kprpcClient.prototype.constructor = kprpcClient;
                     window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
                     window.keefox_org.changeLocation(currentLocation);
                 }
+                window.keefox_org.metricsManager.pushEvent ("KeePass", "connected", { "type": "CR" });
                 window.keefox_org._refreshKPDB();
             }, 50); // 0.05 second delay before we try to do the KeeFox connection startup stuff
         }
@@ -517,6 +518,7 @@ kprpcClient.prototype.constructor = kprpcClient;
                     window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
                     window.keefox_org.changeLocation(currentLocation);
                 }
+                window.keefox_org.metricsManager.pushEvent ("KeePass", "connected", { "type": "SRP" });
                 window.keefox_org._refreshKPDB();
             }, 50); // 0.05 second delay before we try to do the KeeFox connection startup stuff
                 
@@ -681,11 +683,7 @@ kprpcClient.prototype.constructor = kprpcClient;
 
         if (username.length <= 0)
         {
-            var uuidGenerator = Components.classes["@mozilla.org/uuid-generator;1"]
-                            .getService(Components.interfaces.nsIUUIDGenerator);
-            var uuid = uuidGenerator.generateUUID();
-            username = uuid.toString();
-            username = username.substr(1,username.length-2);
+            username = window.keefox_org.utils.newGUID();
             window.keefox_org._keeFoxExtension.prefs.setValue("KPRPCUsername",username);
         }
         return username;
