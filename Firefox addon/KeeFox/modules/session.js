@@ -347,6 +347,7 @@ KPRPCHTTPStreamListener.prototype = {
 
   // don't expect to receive any data but just in case, we want to handle it properly
   onDataAvailable: function (aRequest, aContext, aStream, aSourceOffset, aLength) {
+    log.debug("HTTP data available.");
     var scriptableInputStream = 
       Components.classes["@mozilla.org/scriptableinputstream;1"]
         .createInstance(Components.interfaces.nsIScriptableInputStream);
