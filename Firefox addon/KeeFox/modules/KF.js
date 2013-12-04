@@ -1139,7 +1139,8 @@ KeeFox.prototype = {
             kfw.Logger.debug("check Rescan For " + win.frames.length + " sub frames");
             var frames = win.frames;
             for (var i = 0; i < frames.length; i++)
-              win.keefox_org._checkRescanForAllFrames(frames[i], kfw, topDoc);
+                if (win.keefox_org) //TODO1.3: Not sure why this is sometimes undefined. Rescan may be failing unexpectedly.
+                    win.keefox_org._checkRescanForAllFrames(frames[i], kfw, topDoc);
         }    
     },
     
