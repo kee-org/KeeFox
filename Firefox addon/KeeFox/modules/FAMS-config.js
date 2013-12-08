@@ -33,7 +33,7 @@ var FAMSDefaultConfig = {
     // Version number of this configuration. If you add new messages to existing groups, increment this value
     // In future, more complex migration from older versions may
     // be possible (e.g. to enable addition of new messageGroups, modified descriptions, etc.)
-    version: 2,
+    version: 3,
 
     //TODO2: This message service will not function before this time
     startTime: "8 Jul, 2005 23:34:54 UTC",
@@ -1424,6 +1424,63 @@ var FAMSDefaultConfig = {
 
                 // The priority of this message compared to all others that Firefox needs to display
                 displayPriorityName: "medium",
+
+                // Higher numbers increase the time that Firefox displays the
+                // message for (it's not feasible to convert the number into
+                // a number of seconds)
+                displayPersistence: 10,
+
+                // The minimum time (ms) that must elapse between displaying this message
+                minTimeBetweenDisplay: 2419200000, // 4 weeks
+
+                // The time that this message was last displayed [A]
+                lastDisplayedTime: "8 Jul, 2005 23:34:54 UTC"
+
+            },
+            {
+                // A unique ID for the message. Not sure what this will be used for yet
+                // although logging errors and warnings is a likely candidate
+                id: "messages201312080000a",
+
+                // The title of the message. Should be text only.
+                // Perhaps basic formatting codes can be supported in future.
+                title: "%-messages-help-keefox-%",
+
+                // The main content of the message. Should be text only.
+                // Perhaps basic formatting codes can be supported in future.
+                body: "%-messages201312080000a-body-%",
+
+                // The more info link can be different for different languages
+                // but in many cases a single link in the default language
+                // will suffice
+                moreInfoLink: "%-messages201312080000a-link-%",
+
+                // The name (id) of the action button to be displayed to the user
+                // - localisation of these strings is done in the main
+                // application localisation files
+                // LearnMore, VisitSite, Donate or Rate
+                actionButtonName: "LearnMore",
+
+                // The earliest time that this message will be displayed to the user
+                earliestDisplayTime: "8 Jul, 2005 23:34:54 UTC",
+
+                // The latest time that this message will be displayed to the user
+                latestDisplayTime: "8 Jul, 2111 23:34:54 UTC",
+
+                // The priority of this message above others in its group
+                priority: 0,
+
+                // The maximum number of times that this message can be displayed to the end-user
+                maxDisplayTimes: 1,
+
+                // The number of times this message has been displayed to the user [A]
+                displayCount: 0,
+
+                // The minimum time (ms) after first install that must have elapsed before displaying this message to the end-user
+                minTimeAfterInstall: 3600000, // 1 hour - they've already seen privacy policy upon install so don't bombard them with info straight away
+
+                // The priority of this message compared to all others that Firefox needs to display
+                displayPriorityName: "high",
 
                 // Higher numbers increase the time that Firefox displays the
                 // message for (it's not feasible to convert the number into
