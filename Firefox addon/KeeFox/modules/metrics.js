@@ -48,8 +48,10 @@ function ImmutableInformation()
     this.sessionStart;
     this.screenWidth;
     this.screenHeight;
-    this.windowWidth;
-    this.windowHeight;
+    this.windowWidth; //TODO: Not accurate
+    this.windowHeight; //TODO: Not accurate
+    this.keePassVersion; //TODO: Not implemented
+    this.netRuntimeVersion; //TODO: Not implemented
 }
 
 function mm () {
@@ -216,37 +218,82 @@ function mm () {
                         mm.nextId = 1;
                     }
 
-                    // push initial session start message
-                    mm.startSession(function () {
-                        mm._KFLog.debug("Started a metrics session.");
+                    // count how many entries we already have queued up. Should 
+                    // usually be 0 or a small number but when the profile has
+                    // been unable to send data for many months or years, the 
+                    // number of queued events could start to eat into 
+                    // available disk space so we put a limit on the total 
+                    // number of entries.
+                    let req = objectStore.count();
+                    req.onsuccess = function(evt) {
+                        if (evt.target.result >= 100000)
+                        {
+                            // Too many stored entries: 100000 = 25MB @ 0.25KB per message
+                            mm._KFLog.error("Too many metrics messages. No new messages will be recorded.");
 
-                        // We know we've sent the startSession message now so
-                        // we can push any events that were queued temporarilly
-                        mm.messagesReady = true;
+                            // overwrite last stored message to record this error state
+                            mm.nextId--;
+                            let msg = {
+                                "type": "event",
+                                "userId": mm.ii.userId,
+                                "sessionId": mm.ii.sessionId,
+                                "category": "error",
+                                "name": "indexedDBFull",
+                                "params": { "message": "Too many messages" },
+                                "ts": ISO8601DateUtils.create(new Date())
+                            };
+                            mm.set("message",JSON.stringify(msg));
 
-                        // If any messages have been sent to us while initialising, process them now
-                        for (let i=0; i < mm.messagesQueue.length; i++)
-                            mm.set("message", mm.messagesQueue[i].message);
-                        mm.messagesQueue = [];
-
-                        // Remove the old session data now it has been sent
-                        mm.resetAggregates(function () {
-                            mm.aggregatesReady = true;
-
-                            // If any aggregate values have been sent to us while initialising, evaluate them now
-                            for (let i=0; i < mm.aggregatesQueue.length; i++)
-                                mm.adjustAggregate(mm.aggregatesQueue[i].key, mm.aggregatesQueue[i].value);
-                            mm.aggregatesQueue = [];
-
-                            // Start a regular check for queued items that need pushing to the metrics server
+                            // Keep trying to clear the message queue backlog
                             mm._KFLog.debug("Creating a metrics timer.");
                             mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
          
                             mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
-                               15000,
-                               Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                15000,
+                                Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+
+                            // Don't do the usual session init. Therefore any
+                            // messages created during this session will be logged
+                            // into the temporary arrays but never get pushed
+                            // into the main message database.
+                            return;
+                        }
+
+                        // push initial session start message
+                        mm.startSession(function () {
+                            mm._KFLog.debug("Started a metrics session.");
+
+                            // We know we've sent the startSession message now so
+                            // we can push any events that were queued temporarilly
+                            mm.messagesReady = true;
+
+                            // If any messages have been sent to us while initialising, process them now
+                            for (let i=0; i < mm.messagesQueue.length; i++)
+                                mm.set("message", mm.messagesQueue[i].message);
+                            mm.messagesQueue = [];
+
+                            // Remove the old session data now it has been sent
+                            mm.resetAggregates(function () {
+                                mm.aggregatesReady = true;
+
+                                // If any aggregate values have been sent to us while initialising, evaluate them now
+                                for (let i=0; i < mm.aggregatesQueue.length; i++)
+                                    mm.adjustAggregate(mm.aggregatesQueue[i].key, mm.aggregatesQueue[i].value);
+                                mm.aggregatesQueue = [];
+
+                                // Start a regular check for queued items that need pushing to the metrics server
+                                // For users that have disabled the user data component, this is technically
+                                // un-necessary unless they re-enable the collection during this session but
+                                // it's a very cheap operation so firing the timer for everyone makes things simpler
+                                mm._KFLog.debug("Creating a metrics timer.");
+                                mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+         
+                                mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
+                                   15000,
+                                   Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                            });
                         });
-                    });
+                    };
                 };
             };
         }
@@ -281,6 +328,9 @@ function mm () {
     
     this.pushEvent = function(category, name, params) // string, string, object of keys/vals
     {
+        if (Services.prefs.getBoolPref("extensions.keefox@chris.tomlinson.metricsUsageDisabled"))
+            return;
+
         let msg = {
             "type": "event",
             "userId": this.ii.userId,
@@ -298,6 +348,12 @@ function mm () {
 
     this.calculatePreviousSessionMetrics = function (callback)
     {
+        if (Services.prefs.getBoolPref("extensions.keefox@chris.tomlinson.metricsUsageDisabled"))
+        {
+            this.previousSessionMetrics = null;
+            callback();
+            return;
+        }
         this.previousSessionMetrics = {};
         var mm = this;
         var cb = callback;
@@ -332,7 +388,7 @@ function mm () {
         {
             var newMessage = { "id": mm.nextId++, "msg": value };
             var request = mm.db.transaction(["keefox@chris.tomlinson-metrics-messages"], "readwrite")
-                        .objectStore("keefox@chris.tomlinson-metrics-messages").add(newMessage);
+                        .objectStore("keefox@chris.tomlinson-metrics-messages").put(newMessage);
             request.onsuccess = function(e) {
                 if (cb) cb();
             }
@@ -516,6 +572,8 @@ function mm () {
     // spot changes quickly.
     this.resetAggregates = function (callback)
     {
+        // We do this even if aggregate data collection has been disabled by
+        // the user because they might re-enable it during this session
         let cb = callback;
         let mm = this;
         this._KFLog.debug("resetAggregates started");
@@ -534,6 +592,9 @@ function mm () {
 
     this.adjustAggregate = function (key, value)
     {
+        if (Services.prefs.getBoolPref("extensions.keefox@chris.tomlinson.metricsUsageDisabled"))
+            return;
+
         var mm = this;
         if (this.aggregatesReady)
         {
