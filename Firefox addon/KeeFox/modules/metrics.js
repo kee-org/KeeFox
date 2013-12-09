@@ -135,9 +135,15 @@ function mm () {
                 mm.IDBKeyRange = IDBKeyRange;
             }
             if (!mm.indexedDB) {
-              let idbManager = Cc["@mozilla.org/dom/indexeddb/manager;1"].
-                               getService(Ci.nsIIndexedDatabaseManager);
-              idbManager.initWindowless(mm);
+                try {
+                    let idbManager = Cc["@mozilla.org/dom/indexeddb/manager;1"].
+                                    getService(Ci.nsIIndexedDatabaseManager);
+                    idbManager.initWindowless(mm);
+                } catch (e)
+                {
+                    mm._KFLog.info("KeeFox metrics system disabled - browser version probably too low.");
+                    return;
+                }
             }
 
             // Open a uniquely named database
@@ -168,12 +174,9 @@ function mm () {
                 mm.set("message",JSON.stringify(msg));
             };
 
-            //TODO: What is a "recent browser"? What is the alternative if FF11 is too old?
-            //TODO: Download FF11 and test KF beta on that.
             // This event handles the event whereby a new version of the database needs to be created
             // Either one has not been created before, or a new version number has been submitted via the
             // window.indexedDB.open line above
-            //it is only implemented in recent browsers
             request.onupgradeneeded = function(event) {
                 mm._KFLog.debug("Metrics indexedDB version upgrade started");
                 var db = event.target.result;
@@ -544,21 +547,18 @@ function mm () {
             request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); 
 
             // If supported, we'll set a timeout to prevent the metrics collection
-            // hanging forever following a single dodgy connection. FF11 is our only
-            // supported version that doesn't understand this feature
-            if (this.ii.browserVersion.indexOf("11.0" != 0))
-            {
-                request.timeout = 60000; // 60 seconds
-                //TODO2: Auto-adjust timeouts to allow us to be more strict initially?
-                request.ontimeout = function(event) {
-                    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                 .getService(Ci.nsIWindowMediator);
-                    var window = wm.getMostRecentWindow("navigator:browser") ||
-                        wm.getMostRecentWindow("mail:3pane");
-                    var mm = window.keefox_org.metricsManager;
-                    mm.metricsTimerRespawn();
-                };
-            }
+            // hanging forever following a single dodgy connection.
+
+            request.timeout = 60000; // 60 seconds
+            //TODO2: Auto-adjust timeouts to allow us to be more strict initially?
+            request.ontimeout = function(event) {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                .getService(Ci.nsIWindowMediator);
+                var window = wm.getMostRecentWindow("navigator:browser") ||
+                    wm.getMostRecentWindow("mail:3pane");
+                var mm = window.keefox_org.metricsManager;
+                mm.metricsTimerRespawn();
+            };
             request.send(msg);
         } catch (ex)
         {
