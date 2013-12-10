@@ -1000,7 +1000,7 @@ var FAMSDefaultConfig = {
                 // The more info link can be different for different languages
                 // but in many cases a single link in the default language
                 // will suffice
-                mmoreInfoLink: "%-tips201201040000p-link-%",
+                moreInfoLink: "%-tips201201040000p-link-%",
 
                 // The name (id) of the action button to be displayed to the user
                 // - localisation of these strings is done in the main
@@ -1057,7 +1057,7 @@ var FAMSDefaultConfig = {
                 // The more info link can be different for different languages
                 // but in many cases a single link in the default language
                 // will suffice
-                mmoreInfoLink: "%-tips201211040000a-link-%",
+                moreInfoLink: "%-tips201211040000a-link-%",
 
                 // The name (id) of the action button to be displayed to the user
                 // - localisation of these strings is done in the main
@@ -1114,7 +1114,7 @@ var FAMSDefaultConfig = {
                 // The more info link can be different for different languages
                 // but in many cases a single link in the default language
                 // will suffice
-                mmoreInfoLink: "%-tips201312040000a-link-%",
+                moreInfoLink: "%-tips201312040000a-link-%",
 
                 // The name (id) of the action button to be displayed to the user
                 // - localisation of these strings is done in the main
@@ -1171,7 +1171,7 @@ var FAMSDefaultConfig = {
                 // The more info link can be different for different languages
                 // but in many cases a single link in the default language
                 // will suffice
-                mmoreInfoLink: "%-tips201312040000b-link-%",
+                moreInfoLink: "%-tips201312040000b-link-%",
 
                 // The name (id) of the action button to be displayed to the user
                 // - localisation of these strings is done in the main
