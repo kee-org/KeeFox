@@ -276,9 +276,6 @@ session.prototype.constructor = session;
     this.reconnectNow = { 
         notify: function(timer) 
         { 
-            //TODO1.3: remove this debug log?
-            //log.debug("Connection attempt is now due.");
-            
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
@@ -343,7 +340,19 @@ function KPRPCHTTPStreamListener(aCallbackFunc) {
 KPRPCHTTPStreamListener.prototype = {
 
   // nsIStreamListener
-  onStartRequest: function (aRequest, aContext) { },
+  onStartRequest: function (aRequest, aContext) {
+    // aRequest.status = 2152398868 = successful connect to KPRPC
+    // aRequest.status = 0 = deadlocked connection to ourselves
+
+    // If we're successful, make sure the connection is cancelled.
+    // This is our only hope of preventing simultaneous TCP connect
+    // bugs using the FF interfaces. We may be able to get away with testing for just status === 0?
+    if (aRequest.status !== 2152398861)
+    {
+        log.info("HTTP connection not refused. We will now cancel the connection, maintaining the existing status code.");
+        aRequest.cancel(aRequest.status);
+    }
+   },
 
   // don't expect to receive any data but just in case, we want to handle it properly
   onDataAvailable: function (aRequest, aContext, aStream, aSourceOffset, aLength) {
@@ -354,7 +363,7 @@ KPRPCHTTPStreamListener.prototype = {
     scriptableInputStream.init(aStream);
     scriptableInputStream.read(aLength);
   },
-
+  
   onStopRequest: function (aRequest, aContext, aStatus) {
     // Unless connection has been refused, we want to try connecting with the websocket protocol
     if (aStatus !== 2152398861)

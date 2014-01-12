@@ -65,6 +65,7 @@
       <preference id="KeeFox-pref-saveFavicons" name="extensions.keefox@chris.tomlinson.saveFavicons" type="bool"/>
       <preference id="KeeFox-pref-keePassDBToOpen" name="extensions.keefox@chris.tomlinson.keePassDBToOpen" type="string"/>
       <preference id="KeeFox-pref-rememberMRUDB" name="extensions.keefox@chris.tomlinson.rememberMRUDB" type="bool"/>
+      <preference id="KeeFox-pref-sendUsageMetrics" name="extensions.keefox@chris.tomlinson.metricsUsageDisabled" type="bool" inverted="true"/>
 
       <preference id="KeeFox-pref-keePassRPCInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRPCInstalledLocation" type="string"/>
       <preference id="KeeFox-pref-keePassInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassInstalledLocation" type="string"/>
@@ -216,10 +217,18 @@
             <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                       label="%-KeeFox-pref-rememberMRUDB.label-%"  class="itemEnd"/>
 
+            <description id="desc-metrics" width="650">%-KeeFox-pref-metrics-desc-% <html:a id="desc-metrics-link" class="text-link" onclick='javascript:openDialog(
+               "https://github.com/luckyrat/KeeFox/wiki/en-%7C-Metrics-collection",
+               "",
+               "centerscreen,width=770,height=560,dialog=no,chrome,resizable,dependent,modal"
+              );'>%-KeeFox-pref-metrics-link-%</html:a>
+          </description>
+            
+            <checkbox id="lab-sendUsageMetrics" preference="KeeFox-pref-sendUsageMetrics"
+                      label="%-KeeFox-pref-metrics-label-%" class="itemEnd" />
           </vbox>
         </tabpanel>
-
-
+        
         <tabpanel>
           <vbox align="left">
             <label id="lab-keePassRPCInstalledLocation" control="keePassRPCInstalledLocation" value="%-KeeFox-pref-keePassRPCInstalledLocation.label-%:"/>            
