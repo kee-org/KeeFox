@@ -37,6 +37,7 @@ Cu.import("resource://kfmod/biginteger.js");
 Cu.import("resource://kfmod/sjcl.js");
 Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/SRP.js");
+Cu.import("resource://kfmod/CtypesCrypto.js");
 
 var log = KFLog;
 
@@ -48,7 +49,10 @@ function kprpcClient() {
     this.authPromptAborted = false;
     
     // We manually create HMACs to protect the integrity of our AES encrypted messages
-    sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."](); 
+    sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."]();
+
+    // Init ctypes NSS crypto library
+    CtypesCrypto.init();
 }
 
 kprpcClient.prototype = new kprpcClientLegacy();
@@ -824,12 +828,18 @@ kprpcClient.prototype.constructor = kprpcClient;
             this.certFailedReconnectTimer.cancel();
         if (this.onConnectDelayTimer)
             this.onConnectDelayTimer.cancel();
-        this.disconnect();     
+        this.disconnect();
+        CtypesCrypto.shutdown();
         log.debug("JSON-RPC shut down.");
     }
     
-    //TODO1.3: put some try/catches around many of the function calls in encrypt/decrypt functions
-    // Encrypt plaintext
+    // Encrypt plaintext using sjcl.
+    // Note that the ctypes-based approach used for decryption has not yet been
+    // used for encryption. Since the data being sent from KeeFox is tiny in
+    // comparison to that received (if a large password database is used) this
+    // has not been a development priority but it should be fairly easy to
+    // upgrade this code if it's needed and/or when we no longer need sjcl for
+    // the decryption fallback function.
     this.encrypt = function(plaintext)
     {
         let secKeyArray = sjcl.codec.hex.toBits(this.secretKey);
@@ -853,7 +863,8 @@ kprpcClient.prototype.constructor = kprpcClient;
         let ivArray = sjcl.codec.hex.toBits(ivHex);
 
         // This shouldn't throw anymore due to above workaround but leaving
-        // here for some beta testing in case there is more than one problem
+        // here for one release in case there is more than one problem
+        //TODO:1.4: remove this
         for (var i=0; i<ivArray.length; i++)
             if (ivArray[i] > 2147483648 || ivArray[i] < -2147483647)
                 throw "32bit integer overflow: " + ivHex;
@@ -874,9 +885,101 @@ kprpcClient.prototype.constructor = kprpcClient;
                 }
     };
 
+    // Decrypt incoming data from KeePassRPC using AES-CBC and a separate HMAC
+    // We rely on a few of SJCLs features here but the bulk of the heavy lifting
+    // is offloaded to the AES implementation in CtypesCrypto.js since it's faster
     this.decrypt = function(encryptedContainer)
     {
-        log.debug("starting decryption");
+        try {
+            log.debug("starting decryption");
+            var t = (new Date()).getTime();
+        
+            let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                         .getService(Components.interfaces.nsIWindowMediator);
+            let window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
+            
+            let message = encryptedContainer.message;        
+            let iv = encryptedContainer.iv;       
+            let hmac = encryptedContainer.hmac;        
+            let secretKey = sjcl.codec.base64.fromBits(sjcl.codec.hex.toBits(this.secretKey));
+
+            var tn = (new Date()).getTime();
+            log.debug("decryption stage A took: " + (tn-t));
+            t = tn;
+            let keyArray = utils.base64toByteArray(utils.hash(utils.base64toByteArray(secretKey),"base64","SHA1"));
+            var tn = (new Date()).getTime();
+            // Typically this stage takes about double that of the actual decryption
+            // process on a modern PC. Some possible efficiency gains would include
+            // somehow getting access to raw bytes coming in on the wire from KeePass 
+            // (difficult since the encrypted data is encapsulated in JSON); some kind 
+            // of ctypes-based base64 conversion (but we are somewhat limited by the 
+            // speed of the JS-to-native data conversion no matter which native 
+            // approach we take); A faster alternative to charCodeAt(), which seems to
+            // consume a large proportion of CPU time but is presumably already about 
+            // as well optimised as possible.
+            log.debug("decryption stage B took: " + (tn-t));
+            t = tn;
+            let messageArray = utils.base64toByteArray(message);
+            var tn = (new Date()).getTime();
+            log.debug("decryption stage C took: " + (tn-t));
+            t = tn;
+            let ivArray = utils.base64toByteArray(iv);
+            var tn = (new Date()).getTime();
+            log.debug("decryption stage D took: " + (tn-t));
+            t = tn;
+            
+            //TODO:perf: alternative concatenation implementation. Maybe include 
+            // space for key and iv in the large messageArray and set the 
+            // relevant parts straight into that buffer in order to avoid 
+            // creating another copy?
+            let hmacArray = new Uint8Array(keyArray.length + messageArray.byteLength + ivArray.length);
+            hmacArray.set(keyArray, 0);
+            hmacArray.set(messageArray, keyArray.length);
+            hmacArray.set(ivArray, keyArray.length + messageArray.byteLength);
+            let ourHmac = utils.hash(hmacArray,"base64","SHA1");
+
+            var tn = (new Date()).getTime();
+            log.debug("decryption stage E took: " + (tn-t));
+
+            t = tn;
+            if (ourHmac !== hmac)
+            {
+                log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart"));
+                window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
+                    + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
+                this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
+                this.resetConnection();
+                return null;
+            }
+            
+            // Send our message array and base64 encoded key and IV to the ctypes decryption routine.
+            //TODO: Possible (very small) performance improvement to be had (and some sanity) if we
+            // send the ArrayBuffer versions of the key and IV too but the benefit is too small to
+            // justify further tweaking with the established Weave code at this late beta testing stage
+            let decryptedPayload = CtypesCrypto.decrypt(messageArray, secretKey, iv);
+            var tn = (new Date()).getTime();
+            log.debug("decryption stage F took: " + (tn-t));
+            let plainText = decryptedPayload;
+            log.debug("decryption finished");
+            return plainText;
+
+        } catch (e)
+        {
+            log.info("Failed to decrypt using NSS. Falling back to much slower JS implementation because: " + e);
+            return this.decrypt_JS(encryptedContainer);
+        }
+    };
+
+    // A legacy decryption routine that uses sjcl to do the actual AES decryption.
+    // Typically 10x slower than the current ctypes based implementation but it 
+    // has been more widely beta tested; acts as a safety net incase the 
+    // undocumented NSS library functions accessed via ctypes change/dissapear 
+    // in a future Firefox build; and may be required for older (but still 
+    // supported) versions of Firefox too
+    this.decrypt_JS = function(encryptedContainer)
+    {
+        log.debug("starting decryption using JS");
         var t = (new Date()).getTime();
         
         let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -902,7 +1005,8 @@ kprpcClient.prototype.constructor = kprpcClient;
         t = tn;
         let encryptedPayload = sjcl.codec.bytes.toBits(messageArray);
         
-        //TODO:perf: Maybe we can just throw a new View over our buffer and push that through to the sjcl decrypt function when sjcl supports ArrayBuffers
+        //TODO:perf: Maybe we can just throw a new View over our buffer and 
+        //push that through to the sjcl decrypt function when sjcl supports ArrayBuffers
         //let encryptedPayload = new Uint32Array(arrayBuffer);
 
         var tn = (new Date()).getTime();
@@ -921,7 +1025,8 @@ kprpcClient.prototype.constructor = kprpcClient;
         var tn = (new Date()).getTime();
         log.debug("decryption stage 4 took: " + (tn-t));
         t = tn;
-        let a1 = utils.intArrayToByteArray(sjcl.codec.base64.toBits(utils.hash(utils.intArrayToByteArray(secKeyArray),"base64","SHA1")));
+        let a1 = utils.intArrayToByteArray(sjcl.codec.base64.toBits(
+                    utils.hash(utils.intArrayToByteArray(secKeyArray),"base64","SHA1")));
         var tn = (new Date()).getTime();
         log.debug("decryption stage 5 took: " + (tn-t));
         t = tn;
@@ -979,83 +1084,5 @@ kprpcClient.prototype.constructor = kprpcClient;
         log.debug("decryption finished");
         return plainText;
     };
-    
-    this.decrypt_deprecated = function(encryptedContainer)
-    {
-        log.debug("starting decryption");
-        var t = (new Date()).getTime();
-        //TODO:perf: Alternative base64 decoder ~ 25%
-        let messageArray = sjcl.codec.base64.toBits(encryptedContainer.message);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 1 took: " + (tn-t));
-        t = tn;
-        let ivArray = sjcl.codec.base64.toBits(encryptedContainer.iv);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 2 took: " + (tn-t));
-        t = tn;
-        let hmac = encryptedContainer.hmac;
-        
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 3 took: " + (tn-t));
-        t = tn;
-        let secKeyArray = sjcl.codec.hex.toBits(this.secretKey);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 4 took: " + (tn-t));
-        t = tn;
-        let a1 = utils.intArrayToByteArray(sjcl.codec.base64.toBits(utils.hash(utils.intArrayToByteArray(secKeyArray),"base64","SHA1")));
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 5 took: " + (tn-t));
-        t = tn;
-        //TODO:perf: Further improvements to bit array manipulation ~ 12.5%
-        let a2 = utils.intArrayToByteArray(messageArray);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 6 took: " + (tn-t));
-        t = tn;
-        let a3 = utils.intArrayToByteArray(ivArray);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 7 took: " + (tn-t));
-        t = tn;
-        //TODO:perf: alt. concat impl. ~5%
-        let ourHmac = utils.hash(a1.concat(a2).concat(a3),"base64","SHA1");
-
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 8 took: " + (tn-t));
-        t = tn;
-        if (ourHmac !== hmac)
-        {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart"));
-            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
-                + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
-            this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
-            this.resetConnection();
-            return null;
-        }
-
-        let encryptedPayload = messageArray;
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 9 took: " + (tn-t));
-        t = tn;
-        let aes = new sjcl.cipher.aes(secKeyArray);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 10 took: " + (tn-t));
-        t = tn;
-        //TODO:perf: Improved AES decryption ~50%
-        let decryptedPayload = sjcl.mode.cbc.decrypt(aes, encryptedPayload, ivArray);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 11 took: " + (tn-t));
-        t = tn;
-        //TODO:perf: Improved utf8 encoding ~12.5%
-        let plainText = sjcl.codec.utf8String.fromBits(decryptedPayload);
-        var tn = (new Date()).getTime();
-        log.debug("decryption stage 12 took: " + (tn-t));
-        t = tn;
-        log.debug("decryption finished");
-        return plainText;
-    };
-    
 }).apply(kprpcClient.prototype);
 

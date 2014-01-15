@@ -631,6 +631,18 @@ Utils.prototype = {
         return byteArray;
     },
     
+    base64toByteArray: function (input) {
+        var binary = atob(input);
+        var len = binary.length;
+        var buffer = new ArrayBuffer(len);
+        var view = new Uint8Array(buffer);
+        for (var i = 0; i < len; i++)
+        {
+            view[i] = binary.charCodeAt(i);
+        }
+        return view;
+    },
+    
 //    
 //    intArrayToByteArray2: function(intArray) {
 //var byteArray = [];
