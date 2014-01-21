@@ -235,7 +235,10 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\KeeOrange24.png" />
     <None Include="KeeFox\chrome\skin\key-highlighted.png" />
     <None Include="KeeFox\chrome\skin\main.png" />
+    <None Include="KeeFox\modules\biginteger.js" />
+    <None Include="KeeFox\modules\commands.js" />
     <None Include="KeeFox\modules\config.js" />
+    <None Include="KeeFox\modules\CtypesCrypto.js" />
     <None Include="KeeFox\modules\FAMS-config.js" />
     <None Include="KeeFox\modules\jsonrpcClient.js" />
     <None Include="KeeFox\modules\KFExtension.js" />

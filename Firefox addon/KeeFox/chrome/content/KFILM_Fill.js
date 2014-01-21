@@ -683,6 +683,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
                 window.keefox_win.ILM._fillManyFormFields(otherFields, matchingLogin.otherFields,
                     findLoginDoc.currentTabPage, findLoginDoc.overWriteFieldsAutomatically);
                 findLoginDoc.formsReadyForSubmit++; //TODO2: could we fill more than one form before? i don't think so but why is it a count rather than bool?!
+                window.keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "AutoFill");
             }            
         }
     }
@@ -798,6 +799,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
         && findLoginDoc.formsReadyForSubmit == 1)
     {
         keefox_win.Logger.info("Auto-submitting form...");
+        window.keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "AutoSubmit");
         keefox_win.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
@@ -1037,7 +1039,13 @@ keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
     
     // now we can submit the form if desired    
     if (autoSubmitForm)
+    {
+        window.keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "MatchedFill");
         window.keefox_win.ILM.submitForm(form);
+    } else
+    {
+        window.keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "MatchedSubmit");
+    }
 };
 
 keefox_win.ILM._fillAllFrames = function (window, initialPageLoad)

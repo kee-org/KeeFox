@@ -344,6 +344,7 @@ keefox_win.UI = {
                         };
                         
                         keefox_win.toolbar.clearTabFormRecordingData();
+                        keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "SaveGroupChooser");
                         window.openDialog("chrome://keefox/content/groupChooser.xul",
                           "group", "chrome,centerscreen", 
                           onOK,
@@ -391,6 +392,7 @@ keefox_win.UI = {
                         };
                         
                         keefox_win.toolbar.clearTabFormRecordingData();
+                        keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "SaveGroupChooser");
                         window.openDialog("chrome://keefox/content/groupChooser.xul",
                           "group", "chrome,centerscreen", 
                           onOK,
@@ -408,7 +410,9 @@ keefox_win.UI = {
             {
                 label:     notNowButtonText,
                 accessKey: notNowButtonAccessKey,
-                callback: function(evt) { keefox_win.toolbar.clearTabFormRecordingData(); }
+                callback: function(evt) { 
+                    keefox_org.metricsManager.pushEvent ("feature", "SaveNotNow"); 
+                    keefox_win.toolbar.clearTabFormRecordingData(); }
             },
                 
             // "Never" button
@@ -417,6 +421,7 @@ keefox_win.UI = {
                 accessKey: neverButtonAccessKey,
                 popup:     null,
                 callback:  function() {
+                    keefox_org.metricsManager.pushEvent ("feature", "SaveNever");
                     try 
                     {
                         let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO1.4: faster clone?

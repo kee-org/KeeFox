@@ -307,6 +307,12 @@ function setMainPanelConfig(url, newConfig, effectiveConfig)
 function addSite()
 {
     let newURL = window.prompt("Type the new URL, remembering the http:// or https:// at the start");
+    var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+        .getService(Ci.nsIWindowMediator);
+    var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
+    wm.getMostRecentWindow("mail:3pane");
+        
+    mainWindow.keefox_org.metricsManager.pushEvent("feature", "SiteSpecificAdd");
     configMan.setConfigForURL(newURL,{});
     configMan.save();
     go(newURL);

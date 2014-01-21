@@ -271,6 +271,15 @@
     <None Include="KeeFox\modules\metrics.js">
       <Filter>JS</Filter>
     </None>
+    <None Include="KeeFox\modules\CtypesCrypto.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\commands.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\modules\biginteger.js">
+      <Filter>JS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

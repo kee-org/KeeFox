@@ -858,7 +858,9 @@ keefox_win.toolbar = {
     },
 
     generatePassword: function () {
-        this._currentWindow.keefox_org.generatePassword();
+        let kf = this._currentWindow.keefox_org;
+        kf.metricsManager.pushEvent ("feature", "generatePassword");
+        kf.generatePassword();
     },
 
     removeNonMatchingEventHandlers: function (node) {

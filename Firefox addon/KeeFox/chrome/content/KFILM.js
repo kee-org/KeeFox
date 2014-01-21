@@ -724,6 +724,8 @@ keefox_win.ILM = {
         }
 
         var primaryURL = login.URLs[0];
+
+        this._kf.metricsManager.pushEvent ("feature", "addLogin");
         
         if (this._kf._keeFoxExtension.prefs.getValue("saveFavicons",false))
         {
@@ -1047,6 +1049,8 @@ keefox_win.ILM = {
             keefox_win.Logger.debug("loading and auto submitting button " + button + ctrlClick + ":" + actionURL); 
         else
             keefox_win.Logger.debug("loading and auto submitting button " + button + ctrlClick + "..."); 
+
+        this._kf.metricsManager.pushEvent ("feature", "loadAndAutoSubmit");
                
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);

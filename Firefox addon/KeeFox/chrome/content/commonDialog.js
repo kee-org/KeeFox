@@ -738,11 +738,13 @@ var keeFoxDialogManager = {
         if (autoFill)
         {
             // fill in the best matching login
+            keefox_org.metricsManager.pushEvent ("feature", "AutoFillDialog");
             dialogFindLoginStorage.document.getElementById("loginTextbox").value = matchedLogins[bestMatch].username;
             dialogFindLoginStorage.document.getElementById("password1Textbox").value = matchedLogins[bestMatch].password;
         }
         if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
         {            
+            keefox_org.metricsManager.pushEvent ("feature", "AutoSubmitDialog");
             Dialog.onButton0();            
             close();
         }
@@ -751,6 +753,7 @@ var keeFoxDialogManager = {
     
     fill : function (username, password)
     {
+        keefox_org.metricsManager.pushEvent ("feature", "MatchedSubmitDialog");
         document.getElementById("loginTextbox").value = username;
         document.getElementById("password1Textbox").value = password;        
         Dialog.onButton0();

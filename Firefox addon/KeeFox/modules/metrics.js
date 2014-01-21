@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
   
   The metrics module collects anonymous statistics about key metrics and
   behaviours so we can improve KeeFox.
@@ -128,11 +128,15 @@ function mm () {
             mm.ii.addonVersion = addon.version;
 
             // Make sure indexedDB is available somewhere consistent regardless
-            // of old Firefox differences
+            // of old Firefox differences.
+            //
+            // We can't assume that indexedDB and IDBKeyRange are accessed in the same 
+            // way because there are definitely some non-release builds of Firefox
+            // where they differ but it does appear that they are consistently available
+            // if initWindowless() works.
             if (typeof indexedDB !== "undefined")
             {
                 mm.indexedDB = indexedDB;
-                mm.IDBKeyRange = IDBKeyRange;
             }
             if (!mm.indexedDB) {
                 try {
@@ -141,7 +145,37 @@ function mm () {
                     idbManager.initWindowless(mm);
                 } catch (e)
                 {
-                    mm._KFLog.info("KeeFox metrics system disabled - browser version probably too low.");
+                    // May have just failed becuase the API changed again so that 
+                    // calls to initWindowless now need to be replaced by...
+                    try
+                    {
+                        Cu.importGlobalProperties(["indexedDB"]);
+                        mm.indexedDB = indexedDB;
+                    }
+                    catch (ie)
+                    {
+                        // Still broken, we'll have to accept that the whole metrics
+                        // system is fragile until Firefox settles on a stable API for IndexedDB...
+                        mm._KFLog.info("KeeFox metrics system disabled due to exception: " + e + " and 2nd exception: " + ie);
+                        return;
+                    }
+                }
+            }
+
+            if (!mm.IDBKeyRange) {
+                mm.IDBKeyRange = IDBKeyRange;
+            }
+            if (!mm.IDBKeyRange) {
+                try
+                {
+                    Cu.importGlobalProperties(["IDBKeyRange"]);
+                    mm.IDBKeyRange = IDBKeyRange;
+                }
+                catch (e)
+                {
+                    // Still broken, we'll have to accept that the whole metrics
+                    // system is fragile until Firefox settles on a stable API for IndexedDB...
+                    mm._KFLog.info("KeeFox metrics system disabled because IDBKeyRange is not available in this Firefox build. Exception: " + e);
                     return;
                 }
             }
@@ -612,7 +646,10 @@ function mm () {
                     let agg = result.value;
                     if (agg.value != undefined)
                     {
-                        agg.value = value;
+                        if (agg.value > 0)
+                            agg.value = agg.value + value;
+                        else
+                            agg.value = value;
                     } else if (agg.avg != undefined)
                     {
                         let newCount = agg.count + 1.0;

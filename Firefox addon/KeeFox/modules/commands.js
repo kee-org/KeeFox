@@ -414,6 +414,7 @@ function commandManager () {
             let win = utils.getWindow();
             if (!win) return;
 
+            win.keefox_org.metricsManager.pushEvent ("feature", "detectForms");
             win.keefox_org._KFLog.debug("context detectForms start");
             var currentGBrowser = win.gBrowser;
             win.keefox_win.toolbar.setLogins(null, null);
@@ -421,6 +422,7 @@ function commandManager () {
         },
         generatePassword: function()
         {
+            utils.getWindow().keefox_org.metricsManager.pushEvent ("feature", "generatePassword");
             utils.getWindow().keefox_org.generatePassword();
         },
         /* Not intending to support these features until at least 1.4
@@ -567,6 +569,7 @@ function commandManager () {
                     if (!keefox_org.commandManager.conditions[commandName]())
                         continue;
                 keefox_org._KFLog.debug("Executing command action: " + commandName);
+                keefox_org.metricsManager.adjustAggregate("keyboardShortcutsPressed", 1);
                 //TODO: Pass event target information to action
                 keefox_org.commandManager.actions[commandName]();
                 break;
@@ -679,7 +682,11 @@ function commandManager () {
                 //item.setAttribute("accesskey", this.commands[i].accesskey);                
                 item.keeFoxCommandName = this.commands[i].name;
                 item.keeFoxValidContexts = this.commands[i].contextLocationFlags;
-                item.addEventListener("command", function(event) { utils.getWindow().keefox_org.commandManager.actions[this.keeFoxCommandName](); }, false);
+                item.addEventListener("command", function(event) {
+                        let kf = utils.getWindow().keefox_org;
+                        kf.metricsManager.adjustAggregate("contextMenuItemsPressed", 1);
+                        kf.commandManager.actions[this.keeFoxCommandName]();
+                    }, false);
             }
 
             //TODO1.4: repeat for submenu context type
