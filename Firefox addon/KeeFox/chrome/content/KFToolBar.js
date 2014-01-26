@@ -29,6 +29,9 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
 keefox_win.toolbar = {
+
+    _observerService : null,
+
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
 
@@ -43,7 +46,23 @@ keefox_win.toolbar = {
             }, false); //AET: OK
 
         }
+        this._observerService = Components.classes["@mozilla.org/observer-service;1"]
+                    .getService(Components.interfaces.nsIObserverService);
+        this._observerService.addObserver(this,"keefox_matchedLoginsChanged",false);
+
     },
+
+    observe: function (aSubject, aTopic, aData)
+    {
+        if (aTopic == "keefox_matchedLoginsChanged")
+        {
+            // Both the toolbar and context menu are handled here at the moment but we
+            // are now able to move the context menu stuff to a more appropriately named script.
+            this.setLogins(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
+            this.setLoginsContext(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
+        }
+    },
+
     _currentWindow: null,
 
     shutdown: function () {
@@ -104,7 +123,7 @@ keefox_win.toolbar = {
     //TODO1.3:?1.4? load up context menu items too, populate with data and attach/detach the submenu from the main context menu as required (or actually just always attach?)
     // how to determine whether we show the matched login menu item? contexct menu showing code could check the length of the popupmenu - if > 0 show the matched logins link, if > 1 show submenu too. so we just need to make sure the popupmenu gets populated and cleared correctly. maybe also need to put in a removal feature above? (e.g. like what is already there but commented out). also ref previous commit with potentially useful commented out sections to pull back in)...
     // add all matched logins to the menu
-    setLogins: function (logins, doc) {
+    setLogins: function (logins, documentURI) {
         keefox_win.Logger.debug("setLogins started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
@@ -149,8 +168,8 @@ keefox_win.toolbar = {
         else
             keefox_win.Logger.debug("setting " + logins.length + " matched logins");
 
-        this.setLoginsTopMatch(logins, doc, container, merging);
-        this.setLoginsAllMatches(logins, doc, menupopup, merging);
+        this.setLoginsTopMatch(logins, documentURI, container, merging);
+        this.setLoginsAllMatches(logins, documentURI, menupopup, merging);
         //TODO1.3:?need test case: need to assign to menupopup?
 
         // Only attach the menupopup to the main button if there is more than one matched item
@@ -169,20 +188,15 @@ keefox_win.toolbar = {
             keefox_win.Logger.debug(logins.length + " matched logins set!");
     },
 
-    setLoginsContext: function (logins, doc) {
+    setLoginsContext: function (logins, documentURI) {
         keefox_win.Logger.debug("setLoginsContext started");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("keefox-command-context-fillMatchedLogin");
         if (container === undefined || container == null)
             return;
             
-//        if (logins == null || logins.length == 0) {
-//            this.setupButton_ready(null, this._currentWindow);
-//            return;
-//        } else {
-//            this.removeNonMatchingEventHandlers(container);
-//        }
-//        this.removeMatchingEventHandlers(container);
+        if (logins == null || logins.length == 0)
+            return;
 
         //TODO1.3:?need test case: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
         logins.sort(this.compareRelevanceScores);
@@ -206,9 +220,8 @@ keefox_win.toolbar = {
         else
             keefox_win.Logger.debug("setting " + logins.length + " matched logins");
 
-        this.setLoginsTopMatch(logins, doc, container, merging);
-        this.setLoginsAllMatches(logins, doc, menupopup, merging);
-        //TODO1.3:?need test case: need to assign to menupopup?
+        this.setLoginsTopMatch(logins, documentURI, container, merging);
+        this.setLoginsAllMatches(logins, documentURI, menupopup, merging);
 
         // Only attach the menupopup to the main button if there is more than one matched item
         //TODO1.3:?need test case: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
@@ -227,7 +240,7 @@ keefox_win.toolbar = {
     },
 
     // add all matched logins to the menu
-    setLoginsTopMatch: function (logins, doc, container, merging) {
+    setLoginsTopMatch: function (logins, documentURI, container, merging) {
         keefox_win.Logger.debug("setLoginsTopMatch started");
 
         // set up the main button
@@ -268,7 +281,7 @@ keefox_win.toolbar = {
             container.setAttribute('usernameValue', usernameValue);
             container.setAttribute('formActionURL', login.formActionURL);
             container.setAttribute('usernameId', usernameId);
-            container.setAttribute('documentURI', doc.documentURI);
+            container.setAttribute('documentURI', documentURI);
 
             container.setAttribute("class", "menuitem-iconic");
             container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
@@ -279,7 +292,7 @@ keefox_win.toolbar = {
     },
 
     // add all matched logins to the menu
-    setLoginsAllMatches: function (logins, doc, menupopup, merging) {
+    setLoginsAllMatches: function (logins, documentURI, menupopup, merging) {
         keefox_win.Logger.debug("setLoginsAllMatches started");
 
         // add every matched login to the popup menu
@@ -339,7 +352,7 @@ keefox_win.toolbar = {
                 tempButton.setAttribute('usernameValue', usernameValue);
                 tempButton.setAttribute('formActionURL', login.formActionURL);
                 tempButton.setAttribute('usernameId', usernameId);
-                tempButton.setAttribute('documentURI', doc.documentURI);
+                tempButton.setAttribute('documentURI', documentURI);
             }
             
             // attach to toolbar drop down menu (assuming not a duplicate)

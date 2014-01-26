@@ -1096,7 +1096,12 @@ KeeFox.prototype = {
         {
             if (kfw.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
-                kfw.toolbar.setLogins(null, null);
+                // Notify all parts of the UI that might need to clear old matched logins data
+                let observ = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+                let subject = {logins:null,uri:null};
+                subject.wrappedJSObject = subject;
+                observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
                 kfw.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
 
                 var topDoc = event.originalTarget.linkedBrowser.contentDocument;
@@ -1272,7 +1277,7 @@ launchLoginEditorThread.prototype = {
   }
 };
 
-// attach our utils so it can be called from outisde this module
+// attach our utils so it can be called from outside this module
 keefox_org.utils = utils;
 
     

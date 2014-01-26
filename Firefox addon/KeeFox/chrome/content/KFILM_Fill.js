@@ -804,8 +804,13 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
         keefox_win.Logger.info("Using toolbar password fill.");
-        keefox_win.toolbar.setLogins(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
-        keefox_win.toolbar.setLoginsContext(findLoginDoc.allMatchingLogins, findLoginDoc.doc);
+
+        // Notify all parts of the UI that might need to be updated with new matched logins data
+        let observ = Components.classes["@mozilla.org/observer-service;1"]
+                    .getService(Components.interfaces.nsIObserverService);
+        let subject = {logins:findLoginDoc.allMatchingLogins,uri:findLoginDoc.doc.documentURI};
+        subject.wrappedJSObject = subject;
+        observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
         
     } else 
     {
