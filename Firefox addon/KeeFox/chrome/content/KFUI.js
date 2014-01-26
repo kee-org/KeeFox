@@ -185,7 +185,8 @@ keefox_win.UI = {
         nmi.setAttribute("accesskey", itemDef.accessKey);
         if (itemDef.tooltip != undefined) nmi.setAttribute("tooltiptext", itemDef.tooltip);
         nmi.setAttribute("class", "menuitem-iconic");
-        nmi.setAttribute("image", itemDef.image);
+        if (itemDef.image != undefined)
+            nmi.setAttribute("image", itemDef.image);
         var callbackWrapper = function(fn, name){
             return function() {
                 try

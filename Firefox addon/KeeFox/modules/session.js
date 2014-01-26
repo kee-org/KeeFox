@@ -81,7 +81,7 @@ session.prototype.constructor = session;
          this.reconnectTimer = Components.classes["@mozilla.org/timer;1"]
                     .createInstance(Components.interfaces.nsITimer);
          
-         this.reconnectTimer.initWithCallback(this.reconnectNow,
+         this.reconnectTimer.init(this,
             this.reconnectionAttemptFrequency,
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     };
@@ -96,7 +96,7 @@ session.prototype.constructor = session;
          this.reconnectTimer = Components.classes["@mozilla.org/timer;1"]
                     .createInstance(Components.interfaces.nsITimer);
          
-         this.reconnectTimer.initWithCallback(this.reconnectNow,
+         this.reconnectTimer.init(this,
             250,
             Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
     };
@@ -273,61 +273,59 @@ session.prototype.constructor = session;
 
     };
 
-    this.reconnectNow = { 
-        notify: function(timer) 
-        { 
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-            var rpc = window.keefox_org.KeePassRPC;
-            
-            if (rpc.fastRetries > 0)
+    // nsObserver
+    this.observe = function (timer, topic, data)
+        {
+            if (topic == "timer-callback")
             {
-                // count this as a fast retry even if it was triggered from
-                // standard retry timer and even if we are already connected
-                rpc.fastRetries--; 
+                var rpc = this;
             
-                if (rpc.fastRetries <= 0)
+                if (rpc.fastRetries > 0)
                 {
-                    if (rpc.reconnectTimer != null)
-                        rpc.reconnectTimer.cancel();
-                    rpc.reconnectSoon();
+                    // count this as a fast retry even if it was triggered from
+                    // standard retry timer and even if we are already connected
+                    rpc.fastRetries--; 
+            
+                    if (rpc.fastRetries <= 0)
+                    {
+                        if (rpc.reconnectTimer != null)
+                            rpc.reconnectTimer.cancel();
+                        rpc.reconnectSoon();
+                    }
                 }
-            }
 
-            // Check we are allowed to connect
-            if (rpc.connectionProhibitedUntil.getTime() > (new Date()).getTime())
-                return;
+                // Check we are allowed to connect
+                if (rpc.connectionProhibitedUntil.getTime() > (new Date()).getTime())
+                    return;
 
-            // Check we're not in the middle of trying to connect to the websocket
-            if (rpc.connectLock)
-                return;
+                // Check we're not in the middle of trying to connect to the websocket
+                if (rpc.connectLock)
+                    return;
 
-            // Check current websocket connection state. No point in trying the
-            // HTTP connection if we know we're already successfully connected
-            if (rpc.webSocket !== undefined && rpc.webSocket !== null && rpc.webSocket.readyState != 3)
-                return;
+                // Check current websocket connection state. No point in trying the
+                // HTTP connection if we know we're already successfully connected
+                if (rpc.webSocket !== undefined && rpc.webSocket !== null && rpc.webSocket.readyState != 3)
+                    return;
 
-            var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                      .getService(Components.interfaces.nsIIOService);
-            var uri = ioService.newURI(rpc.httpChannelURI, null, null);
+                var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                                          .getService(Components.interfaces.nsIIOService);
+                var uri = ioService.newURI(rpc.httpChannelURI, null, null);
 
-            // get a channel for that nsIURI
-            rpc.httpChannel = ioService.newChannelFromURI(uri);
+                // get a channel for that nsIURI
+                rpc.httpChannel = ioService.newChannelFromURI(uri);
 
-            var listener = new KPRPCHTTPStreamListener(rpc.httpConnectionAttemptCallback);
-            rpc.httpChannel.notificationCallbacks = listener;
+                var listener = new KPRPCHTTPStreamListener(rpc.httpConnectionAttemptCallback);
+                rpc.httpChannel.notificationCallbacks = listener;
 
-            // Try to connect
-            // There may be more than one concurrent attempted connection.
-            //TODO1.3: Looks like default timeout is <5 seconds but maybe check that
-            // If more than one attempted connection returns the correct status code,
-            // we will see a batch of "alive" or "locked" states for subsequent callbacks
-            // That should be fine but we could implement a more complex request ID
-            // tracking system in future if it becomes a problem
-            rpc.httpChannel.asyncOpen(listener, null);
-        } 
+                // Try to connect
+                // There may be more than one concurrent attempted connection.
+                //TODO1.3: Looks like default timeout is <5 seconds but maybe check that
+                // If more than one attempted connection returns the correct status code,
+                // we will see a batch of "alive" or "locked" states for subsequent callbacks
+                // That should be fine but we could implement a more complex request ID
+                // tracking system in future if it becomes a problem
+                rpc.httpChannel.asyncOpen(listener, null);
+           }
     };
 
 }).apply(session.prototype);
