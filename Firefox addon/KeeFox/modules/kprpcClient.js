@@ -606,65 +606,81 @@ kprpcClient.prototype.constructor = kprpcClient;
 
         
   	this.setup = function() {
-  		let setupKey = null;
-        let setupSRP = null;
-
-        
-        //this.getSecurityLevelServerMinimum();
-        
-    //this.securityLevel = 3;
-    //this.securityLevelServerMinimum = 3;
-        let securityLevel = this.getSecurityLevel();
-        
-  		let username = this.getUsername(securityLevel);
-
-        // If we find a secure key already, lets send the unique username for this client instead of the srp object. Server will then enter challenge-response handshake phase
-        let storedKey = this.getStoredKey(username, securityLevel);
-
-        
-        if (storedKey)
+  		// Sometimes things go wrong (e.g. user cancels master password
+        // dialog box; maybe startup windows disappear)
+        try
         {
-            // send a setup message asking to mutally authenticate using the shared key
-            setupKey =
+            let setupKey = null;
+            let setupSRP = null;
+
+        
+            //this.getSecurityLevelServerMinimum();
+        
+        //this.securityLevel = 3;
+        //this.securityLevelServerMinimum = 3;
+            let securityLevel = this.getSecurityLevel();
+        
+  		    let username = this.getUsername(securityLevel);
+
+            // If we find a secure key already, lets send the unique username for this client instead of the srp object. Server will then enter challenge-response handshake phase
+            let storedKey = this.getStoredKey(username, securityLevel);
+
+        
+            if (storedKey)
             {
-	        	username: username,
-                securityLevel: securityLevel
-	        };
-        } else
-        {
-            // start the SRP authentication procedure
-  		    this.srpClientInternals = new SRPc();
-            this.srpClientInternals.setup(username);
-            setupSRP = 
+                // send a setup message asking to mutally authenticate using the shared key
+                setupKey =
+                {
+	        	    username: username,
+                    securityLevel: securityLevel
+	            };
+            } else
             {
-	        	stage: "identifyToServer",
-	            I: this.srpClientInternals.I,
-	            A: this.srpClientInternals.Astr,
-                securityLevel: securityLevel
-	        };
-        }
+                // start the SRP authentication procedure
+  		        this.srpClientInternals = new SRPc();
+                this.srpClientInternals.setup(username);
+                setupSRP = 
+                {
+	        	    stage: "identifyToServer",
+	                I: this.srpClientInternals.I,
+	                A: this.srpClientInternals.Astr,
+                    securityLevel: securityLevel
+	            };
+            }
   		
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
 
-  		var data2server = 
-  		{
-  			protocol: "setup",
-	        srp: setupSRP,
-            key: setupKey,
-	        version: utils.versionAsInt(this.clientVersion),
+  		    var data2server = 
+  		    {
+  			    protocol: "setup",
+	            srp: setupSRP,
+                key: setupKey,
+	            version: utils.versionAsInt(this.clientVersion),
 	        
-            // these parameters allows KPRPC to identify which type of client is making
-            // this request. We can't trust it but it can help the user to understand what's going on.
-            clientTypeId: "keefox", 
-	        clientDisplayName: "KeeFox",
-            clientDisplayDescription: window.keefox_org.locale.$STR("KeeFox-conn-display-description")
-    	}
+                // these parameters allows KPRPC to identify which type of client is making
+                // this request. We can't trust it but it can help the user to understand what's going on.
+                clientTypeId: "keefox", 
+	            clientDisplayName: "KeeFox",
+                clientDisplayDescription: window.keefox_org.locale.$STR("KeeFox-conn-display-description")
+    	    }
     	
-    	this.send(JSON.stringify(data2server));
-    	
+    	    this.send(JSON.stringify(data2server));
+    	} catch (ex)
+        {
+            // Need to make sure that the underlying web socket connection has been
+            // closed so we are able to retry the connection a bit later but we'll
+            // enforce a little delay just in case the reason for the problem is 
+            // that the application startup is progressing very slowly for some other reason
+            log.warn("An attempt to setup the KPRPC secure channel has failed. It will not be retried for at least 10 seconds. If you see this message regularly and are not sure why, please ask on the help forum. Technical detail about the problem follows: " + ex);
+            this.connectionProhibitedUntil = new Date();
+            this.connectionProhibitedUntil.setTime(
+                    this.connectionProhibitedUntil.getTime() + 10000);
+            this.resetConnection();
+            log.debug("Connection state reset ready for next attempt in at least 10 seconds");
+        }
     	
   	};
 
