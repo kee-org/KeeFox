@@ -506,7 +506,9 @@ function mm () {
     // Send a message containing one or more metrics messages
     this.deliverMessage = function (msg) 
     {
-        this._KFLog.debug("METRIC to be sent: " + msg);
+        // No need to debug metric data in normal circumstances, only dev work
+        //this._KFLog.debug("METRIC to be sent: " + msg);
+        this._KFLog.debug("metrics being sent");
         
         function createXMLHttpRequest() {
             const { XMLHttpRequest } = Components.classes["@mozilla.org/appshell/appShellService;1"]
