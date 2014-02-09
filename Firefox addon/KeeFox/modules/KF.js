@@ -579,7 +579,9 @@ KeeFox.prototype = {
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess);
         process.init(file);
-        process.run(false, args, args.length);
+
+        // Run the application (including support for Unicode characters in the path)
+        process.runw(false, args, args.length);
     },   
     
     runAnInstaller: function (fileName, params, callback)
