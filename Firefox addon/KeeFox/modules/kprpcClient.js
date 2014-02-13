@@ -982,7 +982,10 @@ kprpcClient.prototype.constructor = kprpcClient;
 
         } catch (e)
         {
-            log.info("Failed to decrypt using NSS. Falling back to much slower JS implementation because: " + e);
+            if (log.logSensitiveData)
+                log.info("Failed to decrypt using NSS. Falling back to much slower JS implementation because: " + e);
+            else
+                log.info("Failed to decrypt using NSS. Falling back to much slower JS implementation.");
             return this.decrypt_JS(encryptedContainer);
         }
     };
