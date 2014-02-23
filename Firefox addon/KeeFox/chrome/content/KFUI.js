@@ -185,7 +185,8 @@ keefox_win.UI = {
         nmi.setAttribute("accesskey", itemDef.accessKey);
         if (itemDef.tooltip != undefined) nmi.setAttribute("tooltiptext", itemDef.tooltip);
         nmi.setAttribute("class", "menuitem-iconic");
-        nmi.setAttribute("image", itemDef.image);
+        if (itemDef.image != undefined)
+            nmi.setAttribute("image", itemDef.image);
         var callbackWrapper = function(fn, name){
             return function() {
                 try
@@ -243,9 +244,11 @@ keefox_win.UI = {
                                 priority, aButtons);
 
         // The page we're going to hasn't loaded yet, so we want to persist
-        // across the first location change.
-        newBar.persistence++;
+        // across the first 5 location changes.
+        newBar.persistence = 5;
 
+        //TODO1.4: This property is no longer documented and may no longer
+        // work. Need to investigate alternative options.
         // Sites like Gmail perform a funky redirect dance before you end up
         // at the post-authentication page. I don't see a good way to
         // heuristically determine when to ignore such location changes, so

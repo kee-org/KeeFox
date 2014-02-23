@@ -83,20 +83,6 @@ function mm () {
         this.ii.browserType = Services.appinfo.name;
         this.ii.browserVersion = Services.appinfo.version;
 
-        let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Ci.nsIWindowMediator);
-        let mainWindow = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-
-        // Screen and window size
-        this.ii.screenWidth = mainWindow.screen.width;
-        this.ii.screenHeight = mainWindow.screen.height;
-
-        //TODO: These values are usually incorrect (presumably because the module
-        // initialises before or during main window init but I've not verified that)
-        this.ii.windowWidth = mainWindow.top.outerWidth;
-        this.ii.windowHeight = mainWindow.top.outerHeight;
-
         // OS type
         this.ii.OSType = Services.appinfo.OS;
 
@@ -353,11 +339,7 @@ function mm () {
                 "OSType": mm.ii.OSType,
                 "OSversion": mm.ii.OSversion,
                 "locale": mm.ii.locale,
-                "addonVersion": mm.ii.addonVersion,
-                "screenWidth": mm.ii.screenWidth,
-                "screenHeight": mm.ii.screenHeight,
-                "windowWidth": mm.ii.windowWidth,
-                "windowHeight": mm.ii.windowHeight
+                "addonVersion": mm.ii.addonVersion
             };
             mm.set("message",JSON.stringify(msg),function () { cb(); });
         });
@@ -524,7 +506,9 @@ function mm () {
     // Send a message containing one or more metrics messages
     this.deliverMessage = function (msg) 
     {
-        this._KFLog.debug("METRIC to be sent: " + msg);
+        // No need to debug metric data in normal circumstances, only dev work
+        //this._KFLog.debug("METRIC to be sent: " + msg);
+        this._KFLog.debug("metrics being sent");
         
         function createXMLHttpRequest() {
             const { XMLHttpRequest } = Components.classes["@mozilla.org/appshell/appShellService;1"]

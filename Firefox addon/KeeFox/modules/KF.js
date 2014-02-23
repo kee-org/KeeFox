@@ -496,10 +496,13 @@ KeeFox.prototype = {
     / Launching and installing
     /*******************************************/    
     
-    launchKeePass: function(params)
+    launchKeePass: function()
     {
         var fileName = "unknown";
         
+        //TODO: Looks like this needs work if we want Mono to support
+        // launching KeePass with custom ports, specific databases, etc.
+        // Doesn't look like it ever worked though so not top priority
         if (this.useMono)
         {
             // Get location of the mono executable, defaults location of /usr/bin/mono
@@ -523,10 +526,7 @@ KeeFox.prototype = {
               keepass_exec = keepassLoc+"/KeePass.exe";
             }
             
-            if (params != "")
-                params = keepass_exec+' '+ params;
-            else
-                params = keepass_exec;
+            params = keepass_exec;
             
         } else if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
@@ -541,25 +541,34 @@ KeeFox.prototype = {
             else
                 fileName = directory + "\\KeePass.exe";
         }
-        
+        let portParam = "", portLegacyParam = "";
+
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
         {
-            if (params != "")
-                params = params + " ";
-            params = "-KeePassRPCPort:" +
+            // User interface only allows the web socket port to be configured now but 
+            // the legacy port may have been customised in an earlier version of KeeFox
+            portLegacyParam = "-KeePassRPCPort:" +
                 this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
+        }
+        if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
+        {
+            portParam += "-KeePassRPCWebSocketPort:" +
+                this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
         }
         var args = [];
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
 
-        if (params != "" && mruparam != "")
-            args = [params, "-iocredfromrecent", '' + mruparam + ''];
-        else if (params != "")
-            args = [params];
-        else if (mruparam != "")
-            args = ["-iocredfromrecent", '' + mruparam + ''];
+        if (portLegacyParam != "")
+            args.push(portLegacyParam);
+        if (portParam != "")
+            args.push(portParam);
+        if (mruparam != "")
+        {
+            args.push("-iocredfromrecent");
+            args.push('' + mruparam + '');
+        }
 
         var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
@@ -570,7 +579,9 @@ KeeFox.prototype = {
         var process = Components.classes["@mozilla.org/process/util;1"]
                       .createInstance(Components.interfaces.nsIProcess);
         process.init(file);
-        process.run(false, args, args.length);
+
+        // Run the application (including support for Unicode characters in the path)
+        process.runw(false, args, args.length);
     },   
     
     runAnInstaller: function (fileName, params, callback)

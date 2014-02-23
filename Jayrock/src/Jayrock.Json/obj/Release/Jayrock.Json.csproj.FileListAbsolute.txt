@@ -3,4 +3,3 @@ C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.Json.dll
 C:\development\KeeFox\Jayrock\bin\net-4.0\release\Jayrock.Json.pdb
 C:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.dll
 C:\development\KeeFox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.pdb
-C:\development\keefox\Jayrock\src\Jayrock.Json\obj\Release\Jayrock.Json.csprojResolveAssemblyReference.cache

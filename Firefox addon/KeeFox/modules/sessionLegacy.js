@@ -344,7 +344,7 @@ sessionLegacy.prototype =
         this.certFailedReconnectTimer = Components.classes["@mozilla.org/timer;1"]
                     .createInstance(Components.interfaces.nsITimer);
          
-        this.certFailedReconnectTimer.initWithCallback(this.reconnectNow,
+        this.certFailedReconnectTimer.initWithCallback(this,
             500,
             Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO2: ?OK so far...? does the timer stay in scope?
         log.debug("Timer created.");

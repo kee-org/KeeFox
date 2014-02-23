@@ -564,7 +564,6 @@ function commandManager () {
                             (e.shiftKey ? keefox_org.commandManager.MOD_SHIFT : 0) | 
                             (e.metaKey ? keefox_org.commandManager.MOD_META : 0);
         let keyConfig = keefox_org.commandManager.activeKeys[modifierIndex][key];
-        keefox_org._KFLog.debug("keys: " + key + ":" + modifierIndex);
         if (keyConfig)
         {
             for (let i=0; i<keyConfig.length; i++)

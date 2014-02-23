@@ -115,16 +115,32 @@ kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
                              wm.getMostRecentWindow("mail:3pane");
 
                 // New clients can't successfully authenticate against the old server version
-                if (resultWrapper.result.result == 4 || resultWrapper.result == 4) // KF and KPRPC capable of SRP auth but have not acheived it for some reason
+                if (resultWrapper.result.result == 4 || resultWrapper.result == 4) // KF and KPRPC capable of SRP auth but have not achieved it for some reason
                 {
-                    // We make sure this happens a few times just in case it's a transient problem due
-                    // to webSocket connection attempts occurring while KeePassRPC server was starting up
-                    window.keefox_org.KeePassRPC.firewalledConnectionCount++;
-                    if (window.keefox_org.KeePassRPC.firewalledConnectionCount >= 3)
+                    // Check that websockets are enabled.
+                    // This is the default setting so we only bother checking now when we think there
+                    // might actually be a problem.
+                    let webSocketsEnabled = false;
+                    try {
+                        webSocketsEnabled = window.keefox_org._keeFoxExtension.prefs._prefBranchRoot
+                                            .getBoolPref("network.websocket.enabled");
+                    } catch (e) {}
+                    if (!webSocketsEnabled)
                     {
-                        window.keefox_org.KeePassRPC.firewalledConnectionCount = 0;
-                        window.keefox_win.Logger.warn("Problem authenticating with KeePass. Firewall or other problem preventing SRP protocol negotiation.");
-                        window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-firewall-problem"));
+                        window.keefox_win.Logger.warn("Problem authenticating with KeePass. WebSockets must be enabled.");
+                        window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-websockets-disabled"));
+                    }
+                    else
+                    {
+                        // We make sure this happens a few times just in case it's a transient problem due
+                        // to webSocket connection attempts occurring while KeePassRPC server was starting up
+                        window.keefox_org.KeePassRPC.firewalledConnectionCount++;
+                        if (window.keefox_org.KeePassRPC.firewalledConnectionCount >= 3)
+                        {
+                            window.keefox_org.KeePassRPC.firewalledConnectionCount = 0;
+                            window.keefox_win.Logger.warn("Problem authenticating with KeePass. Firewall or other problem preventing SRP protocol negotiation.");
+                            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-firewall-problem"));
+                        }
                     }
                 } else
                 if (resultWrapper.result.result == 3 || resultWrapper.result == 3) // version mismatch (including backwards compatible test)
