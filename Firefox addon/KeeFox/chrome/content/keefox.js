@@ -1,14 +1,14 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the main KeeFox javascript file. It is executed once for each firefox
   window (with a different scope each time). javascript files included using 
   Cu.import() are shared across all scopes (windows) while those
   included using loadSubScript() are not. The overall aim is to keep data and
-  functions relating to KeePass and other global settings in a shared
-  objects while those objects which interact with specific windows and toolbars are
-  loaded and initialised in each scope.
+  functions relating to KeePass and other global settings in shared
+  objects while those objects which interact with specific windows and UI
+  elements are loaded and initialised in each scope.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,12 +41,21 @@ if (keefox_win.shouldLoad)
     // Load our logging subsystem
     Cu.import("resource://kfmod/KFLogger.js");
     keefox_win.Logger = KFLog;
-    //keefox_win.Logger = KFLog;
+
+    // Determine if we are in legacy UI mode (pre-Australis)
+    let versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"].
+        getService(Ci.nsIVersionComparator);
+    keefox_win.legacyUI = versionComparator.compare(Application.version, "29.0a1") >= 0;
+
     // Load our other javascript
     keefox_win.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
                            .getService(Components.interfaces.mozIJSSubScriptLoader); 
     Cu.import("resource://kfmod/kfDataModel.js");
-    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
+    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/tabState.js"); 
+    if (keefox_win.legacyUI)
+        keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
+    else
+        keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/panel.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
 
@@ -112,9 +121,16 @@ if (keefox_win.shouldLoad)
                         keefox_org.commandManager.setupListeners(currentWindow);
                     }
 
-                    // our toolbar (+ a bit more, maybe needs renaming
-                    // in future if I can think of something better)
-                    keefox_win.toolbar.construct(currentWindow);
+                    // An object to help us manage login state for a particular
+                    // tab, even across different page requests
+                    keefox_win.tabState.construct(currentWindow);
+
+                    // our legacy toolbar for FF < Australis
+                    // or our user interface panel for FF >= Australis
+                    if (keefox_win.legacyUI)
+                        keefox_win.toolbar.construct(currentWindow);
+                    else
+                        keefox_win.panel.construct(currentWindow);
 
                     // an event listener on the toolbar clears session data relating to
                     // the form filling process. ATOW only called in response to user
@@ -125,7 +141,7 @@ if (keefox_win.shouldLoad)
                     // between the user visible code and the KeeFox module / JSON-RPC    
                     keefox_win.ILM.construct(keefox_org, keefox_win.toolbar, currentWindow);
 
-                    // the main UI code including things like
+                    // Other UI code including things like
                     // the generation of notification boxes
                     keefox_win.UI.init(keefox_org, keefox_win.ILM);
 
@@ -158,7 +174,7 @@ if (keefox_win.shouldLoad)
                     keefox_win.Logger.info("Window shut down.");
                     return;
                 case "KeeFoxClearTabFormFillData":
-                    keefox_win.toolbar.clearTabFormFillData(event);
+                    keefox_win.tabState.clearTabFormFillData(event);
                     return;
                 default:
                     keefox_win.Logger.warn("This event was unexpected and has been ignored.");

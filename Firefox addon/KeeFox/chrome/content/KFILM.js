@@ -424,8 +424,8 @@ keefox_win.ILM = {
                 {
                     // remove the data that helps us track multi-page logins, etc.
                     keefox_win.Logger.debug("Removing the data that helps us track multi-page logins, etc.");
-                    keefox_win.toolbar.clearTabFormRecordingData();
-                    keefox_win.toolbar.clearTabFormFillData();                
+                    keefox_win.tabState.clearTabFormRecordingData();
+                    keefox_win.tabState.clearTabFormFillData();                
                 }
                     
                 // Fastback doesn't fire DOMContentLoaded, so process forms now.

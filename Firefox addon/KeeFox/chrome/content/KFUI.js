@@ -1,9 +1,9 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
   
-  This is the KeeFox Improved Login Manager javascript file. The KFUI object
-  is concerned only with user-visible interface behaviour.
+  This is the KeeFox User Interface javascript file. The KFUI object
+  is concerned with user-visible interface behaviour.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -90,6 +90,16 @@ keefox_win.UI = {
         this._kf = kf;
         this._kfilm = kfilm;
         this._window = this._kfilm._currentWindow;
+    },
+    
+    fillCurrentDocument: function () {
+        keefox_win.Logger.debug("fillCurrentDocument start");
+        var currentGBrowser = this._window.gBrowser;
+        if (keefox_win.legacyUI)
+            keefox_win.toolbar.setLogins(null, null);
+        else
+            keefox_win.panel.setLogins(null, null);
+        keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
     },
 
     promptToSavePassword : function (aLogin, isMultiPage)
@@ -325,7 +335,7 @@ keefox_win.UI = {
                 label:     this._getLocalizedString("notifyBarRememberDBButton.label", [db.name]),
                 accessKey: "",
                 popup:     null,
-                callback:  function(evt) { evt.stopPropagation(); keefox_win.ILM.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename')); keefox_win.toolbar.clearTabFormRecordingData();}, // this line is broken?????
+                callback:  function(evt) { evt.stopPropagation(); keefox_win.ILM.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename')); keefox_win.tabState.clearTabFormRecordingData();}, // this line is broken?????
                 tooltip: this._getLocalizedString("notifyBarRememberDBButton.tooltip", [db.name]),
                 image: "data:image/png;base64,"+db.iconImageData,
                 values: [ { key: "login", value: aLogin }, { key: "filename", value: keefox_org.KeePassDatabases[dbi].fileName } ]
@@ -346,7 +356,7 @@ keefox_win.UI = {
                             }
                         };
                         
-                        keefox_win.toolbar.clearTabFormRecordingData();
+                        keefox_win.tabState.clearTabFormRecordingData();
                         keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "SaveGroupChooser");
                         window.openDialog("chrome://keefox/content/groupChooser.xul",
                           "group", "chrome,centerscreen", 
@@ -373,7 +383,7 @@ keefox_win.UI = {
                 accessKey: rememberButtonAccessKey,
                 popup: popupSave,
                 callback: function(evt) { var result = keefox_win.ILM.addLogin(evt.currentTarget.getUserData('login'), null, null);
-                         keefox_win.toolbar.clearTabFormRecordingData(); evt.stopPropagation(); },
+                         keefox_win.tabState.clearTabFormRecordingData(); evt.stopPropagation(); },
                 tooltip: rememberButtonTooltip,
                 image: "data:image/png;base64,"+ keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].iconImageData,
                 values: [ { key: "login", value: aLogin } ]
@@ -394,7 +404,7 @@ keefox_win.UI = {
                             }
                         };
                         
-                        keefox_win.toolbar.clearTabFormRecordingData();
+                        keefox_win.tabState.clearTabFormRecordingData();
                         keefox_win.ILM._kf.metricsManager.pushEvent ("feature", "SaveGroupChooser");
                         window.openDialog("chrome://keefox/content/groupChooser.xul",
                           "group", "chrome,centerscreen", 
@@ -415,7 +425,7 @@ keefox_win.UI = {
                 accessKey: notNowButtonAccessKey,
                 callback: function(evt) { 
                     keefox_org.metricsManager.pushEvent ("feature", "SaveNotNow"); 
-                    keefox_win.toolbar.clearTabFormRecordingData(); }
+                    keefox_win.tabState.clearTabFormRecordingData(); }
             },
                 
             // "Never" button
@@ -431,7 +441,7 @@ keefox_win.UI = {
                         keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
                     } finally
                     {
-                        keefox_win.toolbar.clearTabFormRecordingData();
+                        keefox_win.tabState.clearTabFormRecordingData();
                     }
                 } 
             }

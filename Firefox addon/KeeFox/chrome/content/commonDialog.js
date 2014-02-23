@@ -237,8 +237,8 @@ var keeFoxDialogManager = {
                 {
                     // remove the data that helps us track multi-page logins, etc.
                     keefox_org._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                    parentWindow.keefox_win.toolbar.clearTabFormRecordingData();
-                    parentWindow.keefox_win.toolbar.clearTabFormFillData();                
+                    parentWindow.keefox_win.tabState.clearTabFormRecordingData();
+                    parentWindow.keefox_win.tabState.clearTabFormFillData();                
                 }
             } // end if (parentWindow.gBrowser)
             
