@@ -280,6 +280,16 @@
     <None Include="KeeFox\modules\biginteger.js">
       <Filter>JS</Filter>
     </None>
+    <None Include="KeeFox\chrome\content\tabState.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\panel.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="KeeFox\chrome\content\context.js">
+      <Filter>JS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

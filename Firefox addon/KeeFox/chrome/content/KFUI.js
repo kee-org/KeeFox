@@ -95,10 +95,7 @@ keefox_win.UI = {
     fillCurrentDocument: function () {
         keefox_win.Logger.debug("fillCurrentDocument start");
         var currentGBrowser = this._window.gBrowser;
-        if (keefox_win.legacyUI)
-            keefox_win.toolbar.setLogins(null, null);
-        else
-            keefox_win.panel.setLogins(null, null);
+        keefox_win.mainUI.setLogins(null, null);
         keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
     },
 

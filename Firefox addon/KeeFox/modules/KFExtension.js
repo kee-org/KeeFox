@@ -32,6 +32,8 @@ function KFE()
 {
     this._KFLog = KFLog;
 
+    this.legacyUI = false; //TODO: browser version detection
+
     this._myProfileDir = function()
     {
         var directoryService = Components.classes["@mozilla.org/file/directory_service;1"].  

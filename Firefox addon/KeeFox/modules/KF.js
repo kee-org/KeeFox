@@ -388,9 +388,10 @@ KeeFox.prototype = {
             try
             {
                 var win = enumerator.getNext();
-                win.keefox_win.toolbar.removeLogins(); // remove matched logins           
-                win.keefox_win.toolbar.setAllLogins(); // remove list of all logins
-                win.keefox_win.toolbar.setupButton_ready(win);
+                win.keefox_win.mainUI.removeLogins(); // remove matched logins
+                win.keefox_win.mainUI.setAllLogins(); // remove list of all logins
+                win.keefox_win.context.removeLogins();
+                win.keefox_win.mainUI.setupButton_ready(win);
                 win.keefox_win.UI._removeOLDKFNotifications(true);
             } catch (exception)
             {
@@ -445,9 +446,10 @@ KeeFox.prototype = {
             try
             {
                 var win = enumerator.getNext();
-                win.keefox_win.toolbar.removeLogins();
-                win.keefox_win.toolbar.setAllLogins();
-                win.keefox_win.toolbar.setupButton_ready(win);
+                win.keefox_win.mainUI.removeLogins();
+                win.keefox_win.context.removeLogins();
+                win.keefox_win.mainUI.setAllLogins();
+                win.keefox_win.mainUI.setupButton_ready(win);
                 win.keefox_win.UI._removeOLDKFNotifications();
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))

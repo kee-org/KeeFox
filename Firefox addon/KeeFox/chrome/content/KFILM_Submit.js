@@ -59,7 +59,7 @@ keefox_win.ILM._onFormSubmit = function (form)
     
     var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
              .getService(Components.interfaces.nsISessionStore);
-    var currentGBrowser = keefox_win.toolbar._currentWindow.gBrowser;
+    var currentGBrowser = keefox_win.mainUI._currentWindow.gBrowser;
     var topDoc = doc;
     if (doc.defaultView.frameElement)
         while (topDoc.defaultView.frameElement)

@@ -38,12 +38,12 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
 keefox_win.ILM = {
-    construct : function(kf,keeFoxToolbar,currentWindow) {
+    construct : function(kf,keeFoxMainUI,currentWindow) {
         this.findLoginOps = [];
         this.findLoginDocs = [];
         this.dialogFindLoginStorages = [];
         this._kf = kf;
-        this._toolbar = keeFoxToolbar;
+        this._mainUI = keeFoxMainUI;
         this._currentWindow = currentWindow;
         this._refillTimer = Components.classes["@mozilla.org/timer;1"]
                             .createInstance(Components.interfaces.nsITimer);
@@ -55,7 +55,7 @@ keefox_win.ILM = {
     _currentWindow : null,
     _remember : true,  // (eventually) mirrors extension.keeFox.rememberSignons preference
     _kf : null, // KeeFox object (e.g. for KeePassRPC access)
-    _toolbar : null, // the keefox toolbar in this scope
+    _mainUI : null, // the keefox toolbar or panel in this scope
     _refillTimer : null, // timer to cause re-filling of
                         // forms every x seconds (if option enabled)
     _refillTimerURL : null, // the URL on which we expect to re-fill forms
@@ -468,8 +468,9 @@ keefox_win.ILM = {
             else
                 keefox_win.Logger.debug("Location changed.");
                 
-            // remove all the old logins from the toolbar
-            keefox_win.toolbar.removeLogins();
+            // remove all the old logins from the main UI element and context menus
+            keefox_win.mainUI.removeLogins();
+            keefox_win.context.removeLogins();
          },
 
         // stubs for the nsIWebProgressListener interfaces which we don't use.

@@ -250,7 +250,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
     var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
                 .getService(Components.interfaces.nsISessionStore);
     findLoginDoc.ss = ss;
-    findLoginDoc.currentGBrowser = keefox_win.toolbar._currentWindow.gBrowser;
+    findLoginDoc.currentGBrowser = keefox_win.mainUI._currentWindow.gBrowser;
     var topDoc = doc;
     if (doc.defaultView.frameElement)
         while (topDoc.defaultView.frameElement)
@@ -373,8 +373,8 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         var flashIconWhenKeePassRPCInactive = keefox_org._keeFoxExtension.prefs.getValue("flashIconWhenKeePassRPCInactive",true);
 
         if (flashIconWhenKeePassRPCInactive && initialPageLoad)
-            keefox_win.toolbar._currentWindow.setTimeout(keefox_win.toolbar.flashItem, 10,
-                keefox_win.toolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.toolbar._currentWindow);
+            keefox_win.mainUI._currentWindow.setTimeout(keefox_win.mainUI.flashItem, 10,
+                keefox_win.mainUI._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.mainUI._currentWindow);
         return;
     } else if (!keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
@@ -390,8 +390,8 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         var flashIconWhenLoggedOut = keefox_org._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
         
         if (flashIconWhenLoggedOut && initialPageLoad)
-            keefox_win.toolbar._currentWindow.setTimeout(keefox_win.toolbar.flashItem, 10,
-                keefox_win.toolbar._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.toolbar._currentWindow);
+            keefox_win.mainUI._currentWindow.setTimeout(keefox_win.mainUI.flashItem, 10,
+                keefox_win.mainUI._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.mainUI._currentWindow);
         return;
     }
 
@@ -529,7 +529,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
                     
                     // determine the relevance of each login entry to this form
                     // we could skip this when autofilling based on uniqueID but we would have to check for
-                    // matches first or else we risk no match and no alternative matching logins on the toolbar
+                    // matches first or else we risk no match and no alternative matching logins on the mainUI
                     for (var v = 0; v < findLoginDoc.logins[i].length; v++)
                     {
                         findLoginDoc.logins[i][v].relevanceScore = window.keefox_win.ILM.
@@ -696,7 +696,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
     // to auto-submit again (to avoid getting stuck in a loop)
     
     // We only do this if any forms were auto-filled successfully
-    // (filling via the "matched logins" toolbar button
+    // (filling via the "matched logins" mainUI button
     // could result in these values being recalculated
     // anyway so no point in wasting time here)
     if (findLoginDoc.formsReadyForSubmit >= 1)
@@ -803,7 +803,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
         keefox_win.ILM.submitForm(form);
     } else if (findLoginDoc.allMatchingLogins.length > 0)
     {
-        keefox_win.Logger.info("Using toolbar password fill.");
+        keefox_win.Logger.info("Using mainUI password fill.");
 
         // Notify all parts of the UI that might need to be updated with new matched logins data
         let observ = Components.classes["@mozilla.org/observer-service;1"]
@@ -859,7 +859,7 @@ keefox_win.ILM.fill = function (usernameName,usernameValue,
     fillDocumentDataStorage.formID = formID;
     fillDocumentDataStorage.uniqueID = uniqueID;
     fillDocumentDataStorage.docURI = docURI;
-    fillDocumentDataStorage.gBrowser = keefox_win.toolbar._currentWindow.gBrowser;
+    fillDocumentDataStorage.gBrowser = keefox_win.mainUI._currentWindow.gBrowser;
     fillDocumentDataStorage.doc = this._findDocumentByURI(
             gBrowser.contentDocument.defaultView, docURI);
     fillDocumentDataStorage.dbFileName = dbFileName;

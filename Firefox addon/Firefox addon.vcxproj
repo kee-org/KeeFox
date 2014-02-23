@@ -182,6 +182,8 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="KeeFox\chrome\content\context.js" />
     <None Include="KeeFox\chrome\content\context.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SubType>Designer</SubType>
@@ -191,10 +193,12 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
       <SubType>Designer</SubType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </None>
+    <None Include="KeeFox\chrome\content\panel.js" />
     <None Include="KeeFox\chrome\content\siteOptions.js" />
     <None Include="KeeFox\chrome\content\siteOptions.xul">
       <SubType>Designer</SubType>
     </None>
+    <None Include="KeeFox\chrome\content\tabState.js" />
     <None Include="KeeFox\chrome\locale\cs\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\da\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\da\keefox.properties" />

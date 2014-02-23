@@ -1,11 +1,13 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
   
-  This KFToolBar.js file contains functions and data related to the visible
-  toolbar buttons that kefox.xul defines. It also contains some other related
-  functions such as displaying popup menus and serves as a known access
-  point for a given window's KeeFox features.
+  This panel.js file contains functions and data related to the visible
+  user interface panel.
+  
+  It contains significant amounts of code duplicated (and usually slightly tweaked) from KFToolbar. We have no intention of modifying the legacy code in KFToolbar so while the code may diverge over time, it is prety independent of the rest of the addon and we'll eventually just delete the old version.
+
+  KFtoolbar also contains the code for in-page context menus but this will also not be modified - hopefully in 1.4 or 1.5 I'll update it but only after refactoring into a seperate file.
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +30,7 @@ let Cu = Components.utils;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
-keefox_win.toolbar = {
+keefox_win.panel = {
 
     _observerService : null,
 
@@ -36,6 +38,7 @@ keefox_win.toolbar = {
         this._currentWindow = currentWindow;
 
         // Lock menu updates when menu is visible
+        //TODO: container will need to be changed, probably after creating the basic panel in this constructor (attach the viewpanel to that list of view panels and then create the widget... need to find out how to do that in a way that respects user's previous choice of where the widget goes... might happen automatically?)
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
         if (container != undefined && container != null) {
             container.addEventListener("popupshowing", function (event) {
@@ -77,6 +80,9 @@ keefox_win.toolbar = {
     },
 
     // remove matched logins from the menu
+
+    //TODO1.3:?need test case: think this removes the whole popup menu so we don't get the annoying square effect but we need to change it so it is still somewhere in the document. maybe just set to disabled or hidden?
+    // actually above may not be problem for toolbar and i think we do it differently for the context menu anyway
     removeLogins: function () {
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
@@ -86,6 +92,17 @@ keefox_win.toolbar = {
         // Remove all of the existing buttons
         for (let i = container.childNodes.length; i > 0; i--) {
             container.removeChild(container.childNodes[0]);
+        }
+
+        // get the context menu popup
+        var contextPopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
+        if (contextPopup === undefined || contextPopup == null)
+            return;
+
+        // Remove all of the existing buttons
+        // the node list changes as we remove items so we always just get rid of the first one
+        for (let i = contextPopup.childNodes.length; i > 0; i--) {
+            contextPopup.removeChild(contextPopup.childNodes[0]);
         }
 
         this.setupButton_ready(null, this._currentWindow);
@@ -103,7 +120,8 @@ keefox_win.toolbar = {
 
 
 
-    
+    //TODO1.3:?1.4? load up context menu items too, populate with data and attach/detach the submenu from the main context menu as required (or actually just always attach?)
+    // how to determine whether we show the matched login menu item? contexct menu showing code could check the length of the popupmenu - if > 0 show the matched logins link, if > 1 show submenu too. so we just need to make sure the popupmenu gets populated and cleared correctly. maybe also need to put in a removal feature above? (e.g. like what is already there but commented out). also ref previous commit with potentially useful commented out sections to pull back in)...
     // add all matched logins to the menu
     setLogins: function (logins, documentURI) {
         keefox_win.Logger.debug("setLogins started");
@@ -128,6 +146,7 @@ keefox_win.toolbar = {
         }
         this.removeMatchingEventHandlers(container);
 
+        //TODO1.3:?need test case: can we sort here or does it have to be in each seperate function so that we can correctly sort the context menus too from elsewhere?
         logins.sort(this.compareRelevanceScores);
 
         
@@ -140,6 +159,10 @@ keefox_win.toolbar = {
             merging = false;
         }
         
+//        var contextPopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
+//        if (contextPopup === undefined || contextPopup == null)
+//            return;
+
         if (merging)
             keefox_win.Logger.debug("merging " + logins.length + " matched logins");
         else
@@ -212,6 +235,9 @@ keefox_win.toolbar = {
             container.setAttribute("class", "menuitem-iconic");
             container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
         }
+        //TODO1.3:?need test case: Doing this in the main function but maybe need something here to work when context menus come through?
+        // re-establish the event listener we deleted at the start of the function
+        //container.addEventListener("command", this.mainButtonCommandMatchHandler, false);
     },
 
     // add all matched logins to the menu
@@ -442,6 +468,18 @@ keefox_win.toolbar = {
         }
     },
 
+
+
+
+
+
+
+
+
+
+
+
+
     setupButton_install: function (targetWindow) {
         keefox_win.Logger.debug("setupButton_install start");
         var mainWindow = targetWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -594,7 +632,7 @@ keefox_win.toolbar = {
         else
             flashyItem.setAttribute("class", "highlight");
 
-        theWindow.setTimeout(keefox_win.toolbar.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
+        theWindow.setTimeout(keefox_win.mainUI.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
     },
 
     detachMRUpopup: function () {
@@ -616,7 +654,7 @@ keefox_win.toolbar = {
         if (event != undefined && event != null)
             event.stopPropagation();
 
-        var popupContainer = keefox_win.toolbar._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
+        var popupContainer = keefox_win.mainUI._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
         if (popupContainer === undefined || popupContainer == null)
             return;
 
@@ -627,13 +665,13 @@ keefox_win.toolbar = {
 
         // Set up a loading message while we wait
         var noItemsButton = null;
-        noItemsButton = keefox_win.toolbar._currentWindow.document.createElement("menuitem");
+        noItemsButton = keefox_win.mainUI._currentWindow.document.createElement("menuitem");
         noItemsButton.setAttribute("label", keefox_org.locale.$STR("loading") + '...');
         noItemsButton.setAttribute("disabled", "true");
         popupContainer.appendChild(noItemsButton);
 
         // calls setMRUdatabasesCallback after KeePassRPC responds
-        keefox_win.toolbar._currentWindow.keefox_org.getAllDatabaseFileNames();
+        keefox_win.mainUI._currentWindow.keefox_org.getAllDatabaseFileNames();
     },
 
     setMRUdatabasesCallback: function (result) {

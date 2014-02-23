@@ -88,7 +88,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {
                 if (resultWrapper.result !== null)
-                    window.keefox_win.toolbar.setMRUdatabasesCallback(resultWrapper.result);
+                    window.keefox_win.mainUI.setMRUdatabasesCallback(resultWrapper.result);
                 
             } 
         }, ++this.requestId); 
@@ -166,7 +166,6 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 wm.getMostRecentWindow("mail:3pane");
             
             var passwordGenerated = false;
-            var tb = window.keefox_win.toolbar;
             
             if ("result" in resultWrapper && resultWrapper.result !== false)
             {

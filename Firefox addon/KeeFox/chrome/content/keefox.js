@@ -127,10 +127,21 @@ if (keefox_win.shouldLoad)
 
                     // our legacy toolbar for FF < Australis
                     // or our user interface panel for FF >= Australis
+                    // most parts of KeeFox don't care whether we are showing
+                    // a toolbar or panel so mainUI gives us a common access point
                     if (keefox_win.legacyUI)
+                    {
                         keefox_win.toolbar.construct(currentWindow);
+                        keefox_win.mainUI = keefox_win.toolbar;
+                    }
                     else
+                    {
                         keefox_win.panel.construct(currentWindow);
+                        keefox_win.mainUI = keefox_win.panel;
+                    }
+
+                    // our context menu handler
+                    keefox_win.context.construct(currentWindow);
 
                     // an event listener on the toolbar clears session data relating to
                     // the form filling process. ATOW only called in response to user
@@ -139,7 +150,7 @@ if (keefox_win.shouldLoad)
 
                     // the improved login manager which acts (a bit) like a bridge
                     // between the user visible code and the KeeFox module / JSON-RPC    
-                    keefox_win.ILM.construct(keefox_org, keefox_win.toolbar, currentWindow);
+                    keefox_win.ILM.construct(keefox_org, keefox_win.mainUI, currentWindow);
 
                     // Other UI code including things like
                     // the generation of notification boxes
@@ -150,7 +161,7 @@ if (keefox_win.shouldLoad)
                         window.gBrowser.tabContainer.addEventListener("TabSelect", keefox_org._onTabSelected, false);
                         window.gBrowser.tabContainer.addEventListener("TabOpen", keefox_org._onTabOpened, false);
                     }
-                    this.startupKeeFox(keefox_win.toolbar, currentWindow);
+                    this.startupKeeFox();
                     keefox_win.FAMS = keefox_org.keeFoxGetFamsInst("KeeFox", keefox_org.FirefoxAddonMessageService.prototype.defaultConfiguration, function (msg) { keefox_win.Logger.info.call(this, msg); });
                                                             
                     return;
@@ -170,7 +181,7 @@ if (keefox_win.shouldLoad)
 
                     keefox_win.ILM.shutdown();
                     document.removeEventListener("KeeFoxClearTabFormFillData", keefox_win.mainEventHandler, false);
-                    keefox_win.toolbar.shutdown();
+                    keefox_win.mainUI.shutdown();
                     keefox_win.Logger.info("Window shut down.");
                     return;
                 case "KeeFoxClearTabFormFillData":
@@ -182,14 +193,12 @@ if (keefox_win.shouldLoad)
             }
         },
 
-        startupKeeFox: function (currentKFToolbar, currentWindow) {
+        startupKeeFox: function () {
             keefox_win.Logger.info("Testing to see if we've already established whether KeePassRPC is connected.");
 
             if (keefox_org._keeFoxStorage.get("KeePassRPCActive", false)) {
                 keefox_org._KFLog.debug("Setup has already been done but we will make sure that the window that this scope is a part of has been set up to properly reflect KeeFox status");
                 keefox_org._refreshKPDB();
-                //currentKFToolbar.setupButton_ready(currentWindow);
-                //currentKFToolbar.setAllLogins();
                 return;
             }
         }
