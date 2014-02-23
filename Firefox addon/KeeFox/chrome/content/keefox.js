@@ -45,7 +45,7 @@ if (keefox_win.shouldLoad)
     // Determine if we are in legacy UI mode (pre-Australis)
     let versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"].
         getService(Ci.nsIVersionComparator);
-    keefox_win.legacyUI = versionComparator.compare(Application.version, "29.0a1") >= 0;
+    keefox_win.legacyUI = versionComparator.compare(Application.version, "29.0a1") < 0;
 
     // Load our other javascript
     keefox_win.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
@@ -56,6 +56,7 @@ if (keefox_win.shouldLoad)
         keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFToolBar.js"); 
     else
         keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/panel.js"); 
+    keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/context.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFILM.js"); 
     keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js"); 
 

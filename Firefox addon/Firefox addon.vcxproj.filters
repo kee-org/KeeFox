@@ -290,6 +290,7 @@
     <None Include="KeeFox\chrome\content\context.js">
       <Filter>JS</Filter>
     </None>
+    <None Include="KeeFox\chrome\content\toolbar.xul" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

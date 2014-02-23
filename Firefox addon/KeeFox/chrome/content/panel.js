@@ -34,8 +34,44 @@ keefox_win.panel = {
 
     _observerService : null,
 
+    // The Firefox CustomisableUI widget that our panel is attached to
+    _widget : null,
+
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
+
+        try
+        {
+            // Get or create the main KeeFox widget (it's shared across windows)
+            Components.utils.import("resource:///modules/CustomizableUI.jsm");
+            let wrapperGroup = CustomizableUI.getWidget('toolbarbutton-keefox-1-4');
+            if (wrapperGroup == null)
+            {
+                wrapperGroup = CustomizableUI.createWidget({
+                    id: "toolbarbutton-keefox-1-4",
+                    type:"view",
+                    viewId:"keefox-1-4-viewpanel",
+                    defaultArea: "nav-bar",
+                    removable: true,
+                    label: "My button",
+                    tooltiptext: "My tooltip text",
+                    onClick: function()
+                    {
+                        //TODO: track cumulative interaction metrics here?
+                        //alert("Clicked2");
+                    }
+                    //onViewShowing - do some init or localisation checks in here?
+                });
+            }
+            this._widget = wrapperGroup.forWindow(this._currentWindow);
+        }
+        catch (e)
+        {
+            // We only create the panel in FF > Australis so should be able to rely on it working... but just in case...
+            keefox_win.Logger.error("Failed to create KeeFox widget because: " + e);
+        }
+
+        this.buildPanel();
 
         // Lock menu updates when menu is visible
         //TODO: container will need to be changed, probably after creating the basic panel in this constructor (attach the viewpanel to that list of view panels and then create the widget... need to find out how to do that in a way that respects user's previous choice of where the widget goes... might happen automatically?)
@@ -77,6 +113,43 @@ keefox_win.panel = {
             container.setAttribute("disabled", "true");
 
 
+    },
+
+    buildPanel: function () {
+        let panelview = this._currentWindow.document.createElement('panelview');
+        panelview.id = 'keefox-1-4-viewpanel';
+        panelview.className = 'testClass';
+        
+        this.populatePanel(panelview);
+
+        // Inject our panel view into the multiView panel
+        let multiview = this._currentWindow.document.getElementById('PanelUI-multiView');
+        multiview.appendChild(panelview);
+    },
+
+    populatePanel: function (panel) {
+        var element = this._currentWindow.document.createElement('textbox');
+        // This definitely works (although running scratchpad a 2nd time breaks it)
+        var element2 = this.createUIElement('div');
+        var element3 = this.createUIElement('hr');
+        element2.appendChild(element3);
+        panel.appendChild(element);
+        panel.appendChild(element2);
+    },
+
+    // don't think we'll need this...
+//    emptyPanel: function () {
+//        let panelview = this._currentWindow.document.getElementById('keefox-1-4-viewpanel');
+//        let fc = panelview.firstChild;
+//        while (fc) {
+//            panelview.removeChild(fc);
+//            fc = panelview.firstChild;
+//        }
+//    },
+
+    createUIElement: function (tag)
+    {
+        return this._currentWindow.document.createElementNS('http://www.w3.org/1999/xhtml', tag);
     },
 
     // remove matched logins from the menu

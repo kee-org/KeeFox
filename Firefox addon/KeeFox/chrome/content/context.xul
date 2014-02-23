@@ -6,7 +6,11 @@
    window.addEventListener("load", function () {
    window.addEventListener("popupshowing",keefox_org.commandManager.contextMainPopupShowing, false);
    window.document.getElementById("keefox-command-context-sub-popup").addEventListener("popupshowing",keefox_org.commandManager.contextSubPopupShowing, false);
+   this.keefox_org.locale.internationaliseElements(this.document,
+   ['KeeFox-login-toolbar-context-edit','KeeFox-login-context-edit','KeeFox-group-context-edit','KeeFox-menu_ToolsPopup-options'],
+   ['label']);
    }, false);
+
  </script>
 
 <popup id="contentAreaContextMenu">
@@ -53,5 +57,38 @@
 	<menuitem id="keefox-command-context-"
 			disabled="true"
 			insertafter="context-savepage"/>
- 
+
+
+
+  <popupset>
+    <menupopup id="KeeFox-login-toolbar-context" position="after_start">
+      <!--<menuitem label="Login in new tab"/>-->
+      <menuitem id="KeeFox-login-toolbar-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
+    </menupopup>
+    <menupopup id="KeeFox-login-context" position="after_start">
+      <!--<menuitem label="Login in new tab"/>-->
+      <menuitem id="KeeFox-login-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
+    </menupopup>
+    <menupopup id="KeeFox-group-context" position="after_start">
+      <!--<menuitem label="Login all in tabs"/>-->
+      <menuitem id="KeeFox-group-context-edit" label="%-KeeFox_Logins-Context-Edit-Group.label-%" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
+    </menupopup>
+  </popupset>
+
+  <menupopup id="menu_ToolsPopup">
+    <menuitem id="KeeFox-menu_ToolsPopup-options" label="%-KeeFox_Tools-Menu.options.label-%..."
+              insertafter="devToolsSeparator"
+              oncommand='openDialog(
+               "chrome://keefox/content/options.xul",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              );' />
+  </menupopup>
+
+
+  <!-- e.g. of removal:
+  <menupopup id="menu_ToolsPopup" removeelement="true">
+-->
+  
+  
 </overlay>
