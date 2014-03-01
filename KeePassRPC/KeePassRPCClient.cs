@@ -140,7 +140,7 @@ namespace KeePassRPC
             get
             {
                 // read from config file
-                return KPRPC._host.CustomConfig.GetLong("KeePassRPC.AuthorisationExpiryTime", 1209600); //TODO1.3: 31536000
+                return KPRPC._host.CustomConfig.GetLong("KeePassRPC.AuthorisationExpiryTime", 31536000); //TODO1.3: 31536000
             }
         }
 
