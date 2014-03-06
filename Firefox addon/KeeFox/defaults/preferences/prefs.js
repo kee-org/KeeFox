@@ -22,3 +22,5 @@ pref("extensions.keefox@chris.tomlinson.listAllOpenDBs", true);
 pref("extensions.keefox@chris.tomlinson.connSLClient", 2);
 pref("extensions.keefox@chris.tomlinson.connSLServerMin", 2);
 pref("extensions.keefox@chris.tomlinson.metricsUsageDisabled", false);
+pref("extensions.keefox@chris.tomlinson.maxMatchedLoginsInMainPanel", 5);
+pref("extensions.keefox@chris.tomlinson.maxAllLoginsInMainPanel", 0);

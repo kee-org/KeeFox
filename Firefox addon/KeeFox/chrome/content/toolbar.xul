@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<?xml-stylesheet href="chrome://keefox/skin/keefox.css" type="text/css"?>
 
 <!DOCTYPE overlay>
 
@@ -26,6 +27,8 @@
 
 <overlay id="KeeFox-Overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+  <script type="application/x-javascript" src="chrome://keefox/content/keefox.js" />
+  
   <script>
     // Localise this window. We use a fixed list of elements since it's known in
     // advance and more performant but we could always come up with a more

@@ -1,9 +1,16 @@
 content keefox chrome/content/
-overlay chrome://browser/content/browser.xul chrome://keefox/content/keefox.xul
-overlay chrome://browser/content/browser.xul chrome://keefox/content/context.xul
+
+# Panel UI for Australis Firefox versions; old toolbar for everyone else
+overlay chrome://browser/content/browser.xul chrome://keefox/content/panel.xul appversion>=29.0a1
 overlay chrome://browser/content/browser.xul chrome://keefox/content/toolbar.xul appversion<29.0a1
+
+overlay chrome://browser/content/browser.xul chrome://keefox/content/context.xul
 overlay	chrome://global/content/commonDialog.xul chrome://keefox/content/protocolAuth.xul
-overlay chrome://messenger/content/messenger.xul chrome://keefox/content/keefox.xul
+
+# Leaving Thunderbird with the old UI files since shouldn't make much difference
+# but we'll need to swap and test eventually so we can remove the old code in 2015
+overlay chrome://messenger/content/messenger.xul chrome://keefox/content/toolbar.xul
+
 skin keefox classic/1.0 chrome/skin/
 resource kfmod modules/
 

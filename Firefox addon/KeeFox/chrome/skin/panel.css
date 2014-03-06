@@ -1,0 +1,19 @@
+#toolbarbutton-keefox-1-4
+{
+    list-style-image: url("chrome://keefox/skin/KeeFox16.png");  
+}
+
+#toolbarbutton-keefox-1-4.disabled
+{
+	list-style-image: url("chrome://keefox/skin/KeeFoxGrey16.png");  
+}
+
+#toolbarbutton-keefox-1-4 .disabled
+{
+	display:none;
+}
+
+#toolbarbutton-keefox-1-4 .enabled
+{
+	display:block;
+}

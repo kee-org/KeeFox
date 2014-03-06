@@ -199,7 +199,6 @@
     <None Include="KeeFox\chrome\locale\zh-CN\keefox.properties" />
     <None Include="KeeFox\chrome\locale\de\keefox.properties" />
     <None Include="KeeFox\chrome\locale\sv-SE\keefox.properties" />
-    <None Include="KeeFox\chrome\content\keefox.xul" />
     <None Include="KeeFox\chrome\locale\ru-RU\options.dtd" />
     <None Include="KeeFox\chrome\content\protocolAuth.xul" />
     <None Include="XPIPackageExclusions.txt" />
@@ -291,6 +290,10 @@
       <Filter>JS</Filter>
     </None>
     <None Include="KeeFox\chrome\content\toolbar.xul" />
+    <None Include="KeeFox\chrome\skin\panel.css">
+      <Filter>CSS</Filter>
+    </None>
+    <None Include="KeeFox\chrome\content\panel.xul" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

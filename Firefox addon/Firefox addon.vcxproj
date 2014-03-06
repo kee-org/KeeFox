@@ -230,6 +230,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />
     <None Include="KeeFox\chrome\skin\icon.png" />
+    <None Include="KeeFox\chrome\skin\panel.css" />
     <None Include="KeeFox\icon.png" />
     <None Include="KeeFox\chrome\skin\KeeFox16.png" />
     <None Include="KeeFox\chrome\skin\KeeFox24.png" />
@@ -353,7 +354,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\locale\zh-CN\keefox.properties" />
     <None Include="KeeFox\chrome\locale\de\keefox.properties" />
     <None Include="KeeFox\chrome\locale\sv-SE\keefox.properties" />
-    <None Include="KeeFox\chrome\content\keefox.xul">
+    <None Include="KeeFox\chrome\content\panel.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SubType>Designer</SubType>
     </None>
