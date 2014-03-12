@@ -499,6 +499,7 @@ KeeFox.prototype = {
     launchKeePass: function()
     {
         var fileName = "unknown";
+        var args = [];
         
         //TODO: Looks like this needs work if we want Mono to support
         // launching KeePass with custom ports, specific databases, etc.
@@ -526,7 +527,7 @@ KeeFox.prototype = {
               keepass_exec = keepassLoc+"/KeePass.exe";
             }
             
-            params = keepass_exec;
+            args.push(keepass_exec);
             
         } else if (!this._keeFoxExtension.prefs.has("keePassInstalledLocation"))
         {
@@ -555,7 +556,6 @@ KeeFox.prototype = {
             portParam += "-KeePassRPCWebSocketPort:" +
                 this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
         }
-        var args = [];
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
