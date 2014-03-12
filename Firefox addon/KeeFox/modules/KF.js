@@ -501,9 +501,6 @@ KeeFox.prototype = {
         var fileName = "unknown";
         var args = [];
         
-        //TODO: Looks like this needs work if we want Mono to support
-        // launching KeePass with custom ports, specific databases, etc.
-        // Doesn't look like it ever worked though so not top priority
         if (this.useMono)
         {
             // Get location of the mono executable, defaults location of /usr/bin/mono
