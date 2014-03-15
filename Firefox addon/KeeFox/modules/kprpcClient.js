@@ -34,7 +34,11 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kprpcClientLegacy.js");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/biginteger.js");
-Cu.import("resource://kfmod/sjcl.js");
+
+let scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+                           .getService(Components.interfaces.mozIJSSubScriptLoader); 
+scriptLoader.loadSubScript("resource://kfmod/sjcl.js");
+
 Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/SRP.js");
 Cu.import("resource://kfmod/CtypesCrypto.js");

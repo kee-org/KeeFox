@@ -1,11 +1,4 @@
-/* custom compiled version of sjcl.js:
-0) https://github.com/bitwiseshiftleft/sjcl/tree/28d8573235787113fd60daf9d786418695797824
-1) ./configure --without-all --with-aes --with-cbc --with-codecHex --with-codecString --with-codecBase64 --with-codecBytes
-2) make
-3) make tidy
-4) add 'var EXPORTED_SYMBOLS=["sjcl"];' after "use strict";
-*/
-"use strict";var EXPORTED_SYMBOLS=["sjcl"];var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
+"use strict";var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){if(!this.a[0][0][0]){var b=this.a[0],d=this.a[1],c=b[4],e=d[4],h,g,f,k=[],p=[],q,m,l,n;for(h=0;0x100>h;h++)p[(k[h]=h<<1^283*(h>>7))^h]=h;for(g=f=0;!c[g];g^=q||1,f=p[f]||1){l=f^f<<1^f<<2^f<<3^f<<4;l=l>>8^l&255^99;c[g]=l;e[l]=g;m=k[h=k[q=k[g]]];n=0x1010101*m^0x10001*h^0x101*q^0x1010100*g;m=0x101*k[l]^0x1010100*l;for(h=0;4>h;h++)b[h][g]=m=m<<24^m>>>8,d[h][l]=n=n<<24^n>>>8}for(h=0;5>h;h++)b[h]=b[h].slice(0),d[h]=d[h].slice(0)}b=this.a[0][4];d=this.a[1];f=a.length;k=1;if(4!==f&&6!==f&&
 8!==f)throw new sjcl.exception.invalid("invalid aes key size");this.e=[e=a.slice(0),g=[]];for(a=f;a<4*f+28;a++){c=e[a-1];if(0===a%f||8===f&&4===a%f)c=b[c>>>24]<<24^b[c>>16&255]<<16^b[c>>8&255]<<8^b[c&255],0===a%f&&(c=c<<8^c>>>24^k<<24,k=k<<1^283*(k>>7));e[a]=e[a-f]^c}for(f=0;a;f++,a--)c=e[f&3?a:a-4],g[f]=4>=a||4>f?c:d[0][b[c>>>24]]^d[1][b[c>>16&255]]^d[2][b[c>>8&255]]^d[3][b[c&255]]};
