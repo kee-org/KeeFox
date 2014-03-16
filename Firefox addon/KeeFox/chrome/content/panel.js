@@ -44,17 +44,17 @@ keefox_win.panel = {
         {
             // Get or create the main KeeFox widget (it's shared across windows)
             Components.utils.import("resource:///modules/CustomizableUI.jsm");
-            let wrapperGroup = CustomizableUI.getWidget('toolbarbutton-keefox-1-4');
+            let wrapperGroup = CustomizableUI.getWidget('keefox-toolbarbutton');
             if (wrapperGroup == null)
             {
                 wrapperGroup = CustomizableUI.createWidget({
-                    id: "toolbarbutton-keefox-1-4",
+                    id: "keefox-toolbarbutton",
                     type:"view",
-                    viewId:"keefox-1-4-viewpanel",
+                    viewId:"keefox-viewpanel",
                     defaultArea: "nav-bar",
                     removable: true,
-                    label: "My button",
-                    tooltiptext: "My tooltip text",
+                    label: "KeeFox",
+                    tooltiptext: "KeeFox",
                     onClick: function()
                     {
                         //TODO: track cumulative interaction metrics here?
@@ -79,10 +79,10 @@ keefox_win.panel = {
         if (container != undefined && container != null) {
             container.addEventListener("popupshowing", function (event) {
                 this.setAttribute('KFLock', 'enabled');
-            }, false);  //AET: OK
+            }, false);
             container.addEventListener("popuphiding", function (event) {
                 this.setAttribute('KFLock', 'disabled');
-            }, false); //AET: OK
+            }, false);
 
         }
         this._observerService = Components.classes["@mozilla.org/observer-service;1"]
@@ -102,24 +102,12 @@ keefox_win.panel = {
 
     _currentWindow: null,
 
-    shutdown: function () {
-        var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
-        if (container != undefined || container != null)
-            container.setAttribute("disabled", "true");
-        container = this._currentWindow.document.getElementById("KeeFox_Logins-Button");
-        if (container != undefined || container != null)
-            container.setAttribute("disabled", "true");
-        container = this._currentWindow.document.getElementById("KeeFox_Menu-Button");
-        if (container != undefined || container != null)
-            container.setAttribute("disabled", "true");
-
-
-    },
+    shutdown: function () { },
 
     buildPanel: function () {
         let panelview = this._currentWindow.document.createElement('panelview');
-        panelview.id = 'keefox-1-4-viewpanel';
-        panelview.className = 'testClass';
+        panelview.id = 'keefox-viewpanel';
+        //panelview.className = 'testClass';
         
         this.populatePanel(panelview);
 
@@ -146,6 +134,18 @@ keefox_win.panel = {
             ['id','KeeFox-PanelSection-status-text']
         ]);
         status.insertBefore(statusTextContainer,status.lastChild);
+        
+        // This close panel will be displayed only when a subpanel is being displayed
+        let subPanelCloser = this.createPanelSection(
+            'KeeFox-PanelSection-close',
+            function () { closure.hideSubSections(); },
+            'whatever'
+        );
+//        let subPanelCloserTextContainer = this.createUIElement('div', [
+//            ['id','KeeFox-PanelSection-close-text']
+//        ]);
+//        subPanelCloser.insertBefore(subPanelCloserTextContainer,subPanelCloser.lastChild);
+        
         
 
         // For some reason it's impossible to focus on this box when first opening the panel through the javascript below. manually clicking on it seems to work fine though so we can live with that bug at least for the time being
@@ -251,6 +251,7 @@ keefox_win.panel = {
         
         //var element3 = this.createUIElement('hr',[]);
         panel.appendChild(status);
+        panel.appendChild(subPanelCloser);
         panel.appendChild(searchBox);
         panel.appendChild(matchedLogins);
         panel.appendChild(allLogins);
@@ -291,7 +292,7 @@ keefox_win.panel = {
     // elements that are neither enabled nor disabled should inherit the state of their parent
     enableUIElement: function (id)
     {
-    return;
+    //return;
         let elem = this._currentWindow.document.getElementById(id);
         if (!elem)
             return;
@@ -300,7 +301,7 @@ keefox_win.panel = {
     },
     disableUIElement: function (id)
     {
-    return;
+    //return;
         let elem = this._currentWindow.document.getElementById(id);
         if (!elem)
             return;
@@ -316,9 +317,20 @@ keefox_win.panel = {
         return elem;
     },
     
+    hideSubSections: function ()
+    {
+        let elem = this._currentWindow.document.getElementById('keefox-viewpanel');
+        elem.classList.remove('subpanel-enabled');
+        let toHide = elem.getElementsByClassName('enabled KeeFox-PanelSubSection');
+        for (let i=0; i<toHide.length; i++)
+            toHide[i].classList.remove('enabled');
+    },
+
     showSubSection: function (id)
     {
-        alert(id);
+        enableUIElement(id);
+        let elem = this._currentWindow.document.getElementById('keefox-viewpanel');
+        elem.classList.add('subpanel-enabled');
     },
     
     showSubSectionMatchedLogins: function ()
@@ -341,6 +353,9 @@ keefox_win.panel = {
     showSubSectionChangeDatabase: function ()
     {
         //TODO: Show spinner, fire off usual KPRPC request and update the callback code to ensure the results get put into a new subpanel rather than a submenu
+        let dbcontainer = this._currentWindow.document.getElementById('KeeFox-DatabaseList');
+        dbcontainer.spinner = true;
+        this.showSubSection('KeeFox-DatabaseList');
     },
     
 
@@ -826,7 +841,7 @@ keefox_win.panel = {
     // reports to the user the state of KeeFox and the KeePassRPC connection
     setWidgetStatus: function (enabled, buttonLabel, tooltip, detailedInfo, buttonAction)
     {
-        let widgetButton = this._currentWindow.document.getElementById("toolbarbutton-keefox-1-4");
+        let widgetButton = this._currentWindow.document.getElementById("keefox-toolbarbutton");
         let statusPanel = this._currentWindow.document.getElementById("KeeFox-PanelSection-status");
         let statusPanelText = this._currentWindow.document.getElementById("KeeFox-PanelSection-status-text");
         let statusPanelButton = this._currentWindow.document.getElementById("KeeFox-PanelSection-status-main-action");
@@ -853,12 +868,12 @@ keefox_win.panel = {
         {
             statusPanel.classList.remove("enabled");
             statusPanel.classList.add("disabled");
-            widgetButton.setAttribute("tooltip",""); //TODO: widget API
+            //widgetButton.setAttribute("tooltiptext","KeeFox enabled"); //TODO: widget API?
         } else
         {
             statusPanel.classList.add("enabled");
             statusPanel.classList.remove("disabled");
-            widgetButton.setAttribute("tooltip",tooltip); //TODO: widget API
+            //widgetButton.setAttribute("tooltiptext",tooltip); //TODO: widget API?
             statusPanelText.innerHTML = detailedInfo;
             statusPanelButton.setAttribute("value", buttonLabel);
             statusPanelButton.setAttribute("tooltip",tooltip);
@@ -894,7 +909,7 @@ keefox_win.panel = {
         keefox_win.Logger.debug("setupButton_ready start");
         var mainButton;
         var mainWindow = this._currentWindow;
-        mainButton = mainWindow.document.getElementById("toolbarbutton-keefox-1-4");
+        mainButton = mainWindow.document.getElementById("keefox-toolbarbutton");
         if (mainButton === undefined || mainButton == null)
             return;
 
@@ -973,21 +988,6 @@ keefox_win.panel = {
         }
 
         keefox_win.Logger.debug("setupButton_ready end");
-    },
-
-    flashItem: function (flashyItem, numberOfTimes, theWindow) {
-        if (flashyItem === undefined || flashyItem == null)
-            return;
-
-        if (numberOfTimes < 1)
-            return;
-
-        if (numberOfTimes % 2 == 1)
-            flashyItem.setAttribute("class", "");
-        else
-            flashyItem.setAttribute("class", "highlight");
-
-        theWindow.setTimeout(keefox_win.mainUI.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
     },
 
     detachMRUpopup: function () {
@@ -1092,10 +1092,114 @@ keefox_win.panel = {
 
     },
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     generatePassword: function () {
         let kf = this._currentWindow.keefox_org;
         kf.metricsManager.pushEvent ("feature", "generatePassword");
         kf.generatePassword();
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    flashItem: function (flashyItem, numberOfTimes, theWindow) {
+        if (flashyItem === undefined || flashyItem == null)
+            return;
+
+        if (numberOfTimes < 1)
+            return;
+
+        if (numberOfTimes % 2 == 1)
+            flashyItem.setAttribute("class", "");
+        else
+            flashyItem.setAttribute("class", "highlight");
+
+        theWindow.setTimeout(keefox_win.mainUI.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
     },
 
     removeNonMatchingEventHandlers: function (node) {

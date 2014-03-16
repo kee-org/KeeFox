@@ -1,19 +1,32 @@
-#toolbarbutton-keefox-1-4
+#keefox-toolbarbutton
 {
     list-style-image: url("chrome://keefox/skin/KeeFox16.png");  
 }
 
-#toolbarbutton-keefox-1-4.disabled
+#keefox-toolbarbutton.disabled
 {
 	list-style-image: url("chrome://keefox/skin/KeeFoxGrey16.png");  
 }
 
-#toolbarbutton-keefox-1-4 .disabled
+#keefox-panel .disabled
 {
 	display:none;
 }
 
-#toolbarbutton-keefox-1-4 .enabled
+#keefox-panel .enabled
 {
+	display:block;
+}
+
+/* Hide all panel contents when in subpanel mode unless specifically overridden later */
+#keefox-panel.subpanel-enabled *
+{
+	display:none;
+}
+
+#keefox-panel.subpanel-enabled .KeeFox-PanelSubSection,
+#keefox-panel.subpanel-enabled #KeeFox-PanelSection-close
+{
+	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
 	display:block;
 }
