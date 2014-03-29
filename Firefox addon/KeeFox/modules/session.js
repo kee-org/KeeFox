@@ -68,6 +68,7 @@ session.prototype.constructor = session;
     this.reconnectTimer = null;
     this.onConnectDelayTimer = null;
     this.connectionProhibitedUntil = new Date(0);
+    this.speculativeWebSocketAttemptProhibitedUntil = new Date(0);
 
     // It would be neater to pause this timer when we know we are connected
     // but the overhead is so minimal (and so essential in most cases - i.e.
@@ -253,7 +254,7 @@ session.prototype.constructor = session;
             {
                 log.debug("Websocket connection failed many times so going to try legacy connection");
                 window.keefox_org.KeePassRPC.connectFailCount = 0;
-                window.keefox_org.KeePassRPC.connectLegacy(); // scope wrong?
+                window.keefox_org.KeePassRPC.connectLegacy();
             }
             log.debug("Websocket connection error end");
         };
@@ -302,29 +303,45 @@ session.prototype.constructor = session;
                 if (rpc.connectLock)
                     return;
 
-                // Check current websocket connection state. No point in trying the
-                // HTTP connection if we know we're already successfully connected
+                // Check current websocket connection state. No point in trying 
+                // if we know we're already successfully connected
                 if (rpc.webSocket !== undefined && rpc.webSocket !== null && rpc.webSocket.readyState != 3)
                     return;
 
-                var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                          .getService(Components.interfaces.nsIIOService);
-                var uri = ioService.newURI(rpc.httpChannelURI, null, null);
+                // Every 73 seconds we can try to connect to the WebSocket directly.
+                // This allows for the 60 second web socket connection block timeout,
+                // a 10 second connection timeout, 1 second for the extra delay introduced
+                // by the web socket connection block and 2 seconds for luck (we really
+                // don't want this to have any chance of affecting the normal situation
+                // 99.9% of users will be in).
+                if ((new Date()).getTime() > rpc.speculativeWebSocketAttemptProhibitedUntil.getTime())
+                {
+                    log.debug("Speculatively trying to open a webSocket connection");
+                    rpc.speculativeWebSocketAttemptProhibitedUntil = new Date();
+                    rpc.speculativeWebSocketAttemptProhibitedUntil.setTime(
+                        rpc.speculativeWebSocketAttemptProhibitedUntil.getTime() + 73000);
+                    rpc.httpConnectionAttemptCallback(true);
+                } else
+                {
+                    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                                              .getService(Components.interfaces.nsIIOService);
+                    var uri = ioService.newURI(rpc.httpChannelURI, null, null);
 
-                // get a channel for that nsIURI
-                rpc.httpChannel = ioService.newChannelFromURI(uri);
+                    // get a channel for that nsIURI
+                    rpc.httpChannel = ioService.newChannelFromURI(uri);
 
-                var listener = new KPRPCHTTPStreamListener(rpc.httpConnectionAttemptCallback);
-                rpc.httpChannel.notificationCallbacks = listener;
+                    var listener = new KPRPCHTTPStreamListener(rpc.httpConnectionAttemptCallback);
+                    rpc.httpChannel.notificationCallbacks = listener;
 
-                // Try to connect
-                // There may be more than one concurrent attempted connection.
-                //TODO1.3: Looks like default timeout is <5 seconds but maybe check that
-                // If more than one attempted connection returns the correct status code,
-                // we will see a batch of "alive" or "locked" states for subsequent callbacks
-                // That should be fine but we could implement a more complex request ID
-                // tracking system in future if it becomes a problem
-                rpc.httpChannel.asyncOpen(listener, null);
+                    // Try to connect
+                    // There may be more than one concurrent attempted connection.
+                    //TODO1.3: Looks like default timeout is <5 seconds but maybe check that
+                    // If more than one attempted connection returns the correct status code,
+                    // we will see a batch of "alive" or "locked" states for subsequent callbacks
+                    // That should be fine but we could implement a more complex request ID
+                    // tracking system in future if it becomes a problem
+                    rpc.httpChannel.asyncOpen(listener, null);
+                }
            }
     };
 
