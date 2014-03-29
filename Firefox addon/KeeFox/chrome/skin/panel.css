@@ -1,32 +1,144 @@
-#keefox-toolbarbutton
+#keefox-button
 {
     list-style-image: url("chrome://keefox/skin/KeeFox16.png");  
 }
 
-#keefox-toolbarbutton.disabled
+#keefox-button.disabled
 {
 	list-style-image: url("chrome://keefox/skin/KeeFoxGrey16.png");  
 }
 
-#keefox-panel .disabled
+#keefox-panelview .disabled
 {
 	display:none;
 }
 
-#keefox-panel .enabled
+#keefox-panelview .enabled
 {
 	display:block;
+}
+
+/* Hide subpanels (unless user has enabled them) */
+#keefox-panelview .KeeFox-PanelSubSection,
+#keefox-panelview #KeeFox-PanelSection-close
+{
+	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
+	display:none;
 }
 
 /* Hide all panel contents when in subpanel mode unless specifically overridden later */
-#keefox-panel.subpanel-enabled *
+#keefox-panelview.subpanel-enabled .KeeFox-PanelSection,
+#keefox-panelview.subpanel-enabled .KeeFox-Search,
+#keefox-panelview.subpanel-enabled .KeeFox-PanelSection .KeeFox-Action
 {
 	display:none;
 }
 
-#keefox-panel.subpanel-enabled .KeeFox-PanelSubSection,
-#keefox-panel.subpanel-enabled #KeeFox-PanelSection-close
+#keefox-panelview.subpanel-enabled .subpanel-enabled .KeeFox-PanelSubSection,
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close,
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action
 {
 	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
 	display:block;
+    background-color:whitesmoke;
+    margin:5px;
+}
+
+#keefox-panelview.subpanel-enabled .subpanel-enabled
+{
+	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
+	display:block;
+    background-color:green;
+    margin:5px;
+}
+
+/* Default login list item and group style */
+#keefox-panelview li
+{
+    min-height:26px;
+    padding:0px 0px 0px 22px;
+    margin:0px;
+    background-repeat:no-repeat;
+    background-position:2px 4px;
+    cursor:default;
+    line-height:26px;
+}
+
+#keefox-panelview li.group-item {
+    
+    /* Default group folder icons are a bit top heavy but user might have 
+    customised them. compromise is a 1px shift down so they look a little
+    more aligned most of the time */
+    background-position:2px 5px;
+}
+
+/* Unless in the presence of a containing group defined below, display all login items */
+#keefox-panelview li.login-item
+{
+    display:list-item;
+}
+
+/* Hide all groups and their contents by default */
+#keefox-panelview li.group-item,
+#keefox-panelview li.group-item > ul > li
+{
+    display:none;
+}
+
+/* Make sure top-level groups are always displayed
+#KeeFox-PanelSection-allLogins 
+*/
+#keefox-panelview div.KeeFox-LoginList > ul > li.group-item
+{
+    display:list-item;
+}
+
+/* Make sure siblings of the active group are displayed */
+#keefox-panelview li.active-group-parent > ul > li
+{
+    display:list-item;
+}
+
+/* Display the currently active group and all login or group items directly under that group */
+#keefox-panelview div.KeeFox-LoginList > ul li.active-group
+{
+    display:list-item;
+}
+#keefox-panelview li.active-group > ul > li.login-item,
+#keefox-panelview li.active-group > ul > li.group-item
+{
+    display:list-item;
+}
+
+#keefox-panelview div.KeeFox-LoginList > ul li.active-group-parent
+{
+    display:list-item;
+}
+
+/* Basic login list styles */
+#keefox-panelview ul {
+    list-style-position:none;
+    margin:0 0 0 -22px;
+    padding:0px 0px 0px 8px;
+    background:linear-gradient(to right, #C9DAE8 0px, #C9DAE8 8px, transparent 9px);
+    list-style:none;
+}
+
+/* specific level login list overrides (after 4 levels deep we revert to defaults above) */
+#keefox-panelview div.KeeFox-LoginList > ul {
+    background:none;
+    padding-left:0px;
+    margin:0px;
+}
+#keefox-panelview div.KeeFox-LoginList > ul > li > ul {
+    background:linear-gradient(to right, #284898  0px, #506dac 8px, transparent 9px);
+}
+#keefox-panelview div.KeeFox-LoginList > ul > li > ul > li > ul {
+    background:linear-gradient(to right, #506dac 0px, #7891c0 8px, transparent 9px);
+}
+#keefox-panelview div.KeeFox-LoginList > ul > li > ul > li > ul > li > ul {
+    background:linear-gradient(to right, #7891c0 0px, #a1b5d4 8px, transparent 9px);
+}
+#keefox-panelview div.KeeFox-LoginList > ul > li > ul > li > ul > li > ul > li > ul {
+    background:linear-gradient(to right, #a1b5d4 0px, #C9DAE8 8px, transparent 9px);
 }

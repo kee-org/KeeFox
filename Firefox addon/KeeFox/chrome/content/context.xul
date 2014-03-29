@@ -58,23 +58,6 @@
 			disabled="true"
 			insertafter="context-savepage"/>
 
-
-
-  <popupset>
-    <menupopup id="KeeFox-login-toolbar-context" position="after_start">
-      <!--<menuitem label="Login in new tab"/>-->
-      <menuitem id="KeeFox-login-toolbar-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.getElementById('KeeFox_Main-Button').getAttribute('uuid'), document.getElementById('KeeFox_Main-Button').getAttribute('fileName'));"/>
-    </menupopup>
-    <menupopup id="KeeFox-login-context" position="after_start">
-      <!--<menuitem label="Login in new tab"/>-->
-      <menuitem id="KeeFox-login-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
-    </menupopup>
-    <menupopup id="KeeFox-group-context" position="after_start">
-      <!--<menuitem label="Login all in tabs"/>-->
-      <menuitem id="KeeFox-group-context-edit" label="%-KeeFox_Logins-Context-Edit-Group.label-%" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('uuid'),document.popupNode.getAttribute('fileName'));"/>
-    </menupopup>
-  </popupset>
-
   <menupopup id="menu_ToolsPopup">
     <menuitem id="KeeFox-menu_ToolsPopup-options" label="%-KeeFox_Tools-Menu.options.label-%..."
               insertafter="devToolsSeparator"
