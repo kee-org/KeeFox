@@ -218,8 +218,9 @@ namespace KeePassRPC
 
                 try
                 {
-
-                    _RPCServer = new KeePassRPCServer(portOld, RPCService, this, FindKeePassRPCSSLEnabled(host), portNew);
+                    _RPCServer = new KeePassRPCServer(portOld, RPCService, this,
+                        FindKeePassRPCSSLEnabled(host), portNew,
+                        host.CustomConfig.GetBool("KeePassRPC.webSocket.bindOnlyToLoopback", true));
                 }
                 catch (System.Net.Sockets.SocketException ex)
                 {
