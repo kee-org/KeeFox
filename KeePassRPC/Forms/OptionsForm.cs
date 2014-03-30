@@ -187,11 +187,19 @@ namespace KeePassRPC.Forms
                     port = ulong.Parse(this.textBoxPort.Text);
                     if (port <= 0 || port > 65535)
                         throw new ArgumentOutOfRangeException();
+                    if (port == _host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536))
+                        throw new ArgumentException();
                 }
             }
-            catch (Exception)
+            catch (ArgumentOutOfRangeException)
             {
                 MessageBox.Show("Invalid listening port. Type a number between 1 and 65535 or leave empty to use the default port.");
+                DialogResult = DialogResult.None;
+                return;
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("The legacy KeePassRPC connection system is configured to use the port you have selected so please select a different port.");
                 DialogResult = DialogResult.None;
                 return;
             }
