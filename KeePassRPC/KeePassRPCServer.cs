@@ -105,10 +105,10 @@ namespace KeePassRPC
 			}
         }
         
-        void StartWebsockServer(int port)
+        void StartWebsockServer(int port, bool bindOnlyToLoopback)
         {
             FleckLog.Level = LogLevel.Debug;
-            _webSocketServer = new WebSocketServer("ws://localhost:" + port);
+            _webSocketServer = new WebSocketServer(port, "ws://localhost", bindOnlyToLoopback);
             Action<IWebSocketConnection> config = new Action<IWebSocketConnection>(InitSocket);
             _webSocketServer.Start(config);
         }
@@ -136,7 +136,8 @@ namespace KeePassRPC
         /// </summary>
         /// <param name="port">port to listen on</param>
         /// <param name="service">The KeePassRPCService the server should interact with.</param>
-        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin, bool useSSL, int webSocketPort)
+        public KeePassRPCServer(int port, KeePassRPCService service, KeePassRPCExt keePassRPCPlugin,
+            bool useSSL, int webSocketPort, bool bindOnlyToLoopback)
         {
             _useSSL = useSSL;
             if (keePassRPCPlugin.logger != null) keePassRPCPlugin.logger.WriteLine("Starting KPRPCServer");
@@ -155,7 +156,7 @@ namespace KeePassRPC
              * 2) this version of KPRPC is running but firewalls or port misconfiguration is preventing websocket
              * from working: send a new category of auth failure (assuming client v is 1.3+) message to help user with the upgrade problems
              */
-            StartWebsockServer(webSocketPort);
+            StartWebsockServer(webSocketPort, bindOnlyToLoopback);
 
             if (_useSSL)
             {
