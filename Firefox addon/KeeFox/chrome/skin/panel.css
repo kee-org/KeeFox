@@ -5,8 +5,74 @@
 
 #keefox-button.disabled
 {
-	list-style-image: url("chrome://keefox/skin/KeeFoxGrey16.png");  
+	list-style-image: url("chrome://keefox/skin/KeeFoxGrey16.png");
 }
+
+/* bigger icons in the Firefox menu and toolbar palette */
+#keefox-button[cui-areatype="menu-panel"],
+toolbarpaletteitem[place="palette"] > #keefox-button {
+  list-style-image: url("chrome://keefox/skin/KeeFox32.png");
+}
+#keefox-button.disabled[cui-areatype="menu-panel"] {
+  list-style-image: url("chrome://keefox/skin/KeeFoxGrey32.png");
+}
+
+/* Display a notification on the button icon when a match has been found on this page */
+#keefox-button[keefox-match-count]
+{
+    list-style-image: url("chrome://keefox/skin/KeeFox16Matched-Plus.png");  
+}
+#keefox-button[keefox-match-count="1"]
+{
+    list-style-image: url("chrome://keefox/skin/KeeFox16Matched-Star.png");  
+}
+#keefox-button[cui-areatype="menu-panel"][keefox-match-count]
+{
+    list-style-image: url("chrome://keefox/skin/KeeFox32Matched-Plus.png");  
+}
+#keefox-button[cui-areatype="menu-panel"][keefox-match-count="1"]
+{
+    list-style-image: url("chrome://keefox/skin/KeeFox32Matched-Star.png");  
+}
+
+/* default appearence of list items to match australis look and feel
+TODO: everything except groups */
+#keefox-panelview li
+{
+    background-color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+    margin: 0px 5px !important;
+}
+
+#keefox-panelview li:active
+{
+    background-color: #E3E3E3;
+    border: 1px solid #C6C6C7;
+    border-radius: 5px;
+}
+
+#keefox-panelview li:hover
+{
+    background-color: #EDEDED;
+    border: 1px solid #D6D6D6;   
+    border-radius: 5px; 
+}
+
+#keefox-panelview li.group-item
+{
+    border-left-width:0px;
+    border-bottom-left-radius: 0px; 
+    border-top-left-radius: 0px;
+    margin-right:0px !important;
+}
+
+/*
+:hover EDEDED
+bottom action button EEEEEE
+seperators DDDDDD
+subpanel title color: 7F7F7F
+subpanel title bg : F4F4F4
+*/
 
 #keefox-panelview .disabled
 {
@@ -142,3 +208,74 @@
 #keefox-panelview div.KeeFox-LoginList > ul > li > ul > li > ul > li > ul > li > ul {
     background:linear-gradient(to right, #a1b5d4 0px, #C9DAE8 8px, transparent 9px);
 }
+
+#KeeFox-PanelSubSection-DatabaseList[loading]
+{
+    height:32px;
+    background-image: url("chrome://browser/skin/tabbrowser/loading.png");
+    background-repeat:no-repeat;
+    background-position:50% 8px;
+}
+
+#KeeFox-PanelSubSection-DatabaseList > ul {
+    list-style-position:none;
+    margin:0 0 0 0px;
+    padding:0px 0px 0px 0px;
+    list-style:none;
+    background:none;
+}
+
+
+#KeeFox-PanelSubSection-DatabaseList > ul > li
+{
+    min-height:26px;
+    padding:0px 5px 0px 26px;
+    margin:0px;
+    background-repeat:no-repeat;
+    background-position:6px 5px;
+    cursor:default;
+    line-height:26px;
+    background-image: url("chrome://keefox/skin/KeeLock.png");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+this may be useful to help with auto-sizing the panel?
+
+#customization-panelHolder > #PanelUI-mainView {
+  display: flex;
+  flex-direction: column;
+  /* Hack alert - by manually setting the preferred height to 0, we convince
+     #PanelUI-mainView to shrink when the window gets smaller in customization
+     mode. Not sure why that is - might have to do with our intermingling of
+     XUL flex, and CSS3 Flexbox. *//*
+  height: 0;
+}
+
+#customization-panelHolder > #PanelUI-mainView > #PanelUI-contents-scroller {
+  display: flex;
+  flex: auto;
+  flex-direction: column;
+}
+
+#customization-panel-container {
+  overflow-y: auto;
+}
+
+*/

@@ -55,12 +55,11 @@ keefox_win.panel = {
                     defaultArea: "nav-bar",
                     removable: true,
                     label: "KeeFox",
-                    tooltiptext: "KeeFox",
-                    onClick: function()
-                    {
-                        //TODO: track cumulative interaction metrics here?
-                        //alert("Clicked2");
-                    }
+                    tooltiptext: "KeeFox"
+//                    onClick: function()
+//                    {
+//                        //Maybe track cumulative interaction metrics here?
+//                    }
                     //onViewShowing - do some init or localisation checks in here?
                 });
                 keefox_win.Logger.info("Created KeeFox widget");
@@ -130,8 +129,6 @@ keefox_win.panel = {
         // starting with each main component in a div with a button to invoke the main
         // action. After some design work, I expect this will look significantly different
         
-        //TODO: Lots of default disabling going on here. Probably want to consolidate to a seperate function
-
         // May contain optional extra text at some point but basically this replicates the functionaility of the main toolbar button from previous versions so we have something to click on to setup, launch KeePass, etc.
         let status = this.createPanelSection(
             'KeeFox-PanelSection-status',
@@ -219,7 +216,7 @@ keefox_win.panel = {
         this.disableUIElement('KeeFox-PanelSection-generatePassword-main-action');
         let generatePasswordListContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelSubSection KeeFox-PasswordProfileList enabled'],
-            ['id','KeeFox-PasswordProfileList']
+            ['id','KeeFox-PanelSubSection-PasswordProfileList']
         ]);
         generatePassword.appendChild(generatePasswordListContainer);
         
@@ -231,7 +228,7 @@ keefox_win.panel = {
         this.disableUIElement('KeeFox-PanelSection-changeDatabase-main-action');
         let changeDatabaseListContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelSubSection KeeFox-DatabaseList enabled'],
-            ['id','KeeFox-DatabaseList']
+            ['id','KeeFox-PanelSubSection-DatabaseList']
         ]);
         changeDatabase.appendChild(changeDatabaseListContainer);
         
@@ -299,9 +296,12 @@ keefox_win.panel = {
             ['value',keefox_org.locale.$STR(stringKeyBase + '.label')],
             ['title',keefox_org.locale.$STR(stringKeyBase + '.tip')]
         ]);
-        //TODO: onCommand instead of onClick so Keyboard nav works (assuming australis supports this)
+        
         if (onCommand)
+        {
             button.addEventListener("mouseup", onCommand, false);
+            //TODO: onKeyboard enter key
+        }
         elem.appendChild(button);
         return elem;
     },
@@ -348,14 +348,10 @@ keefox_win.panel = {
         let elem = this._currentWindow.document.getElementById('keefox-panelview');
         elem.classList.remove('subpanel-enabled');
         let toHide = elem.getElementsByClassName('enabled KeeFox-PanelSubSection');
-        for (let i=0; i<toHide.length; i++)
-        {
-            //TODO: toHide is a live list so this needs fixing for > 1 elements to hide
-            //TODO: initial state is not sufficient to hide the elements. Probably has no "enabled" class on KeeFox-PanelSubSection?
-            if (i==0)
-                toHide[i].parentNode.classList.remove('subpanel-enabled');
-            this.disableUIElementNode(toHide[i]);
-        }
+        if (toHide.length > 0)
+            toHide[0].parentNode.classList.remove('subpanel-enabled');
+        while (toHide.length)
+            this.disableUIElementNode(toHide[0]); // remove's enabled class and thus deletes from the toHide list
     },
 
     showSubSection: function (id)
@@ -387,18 +383,16 @@ keefox_win.panel = {
     
     showSubSectionChangeDatabase: function ()
     {
-        //TODO: Show spinner, fire off usual KPRPC request and update the callback code to ensure the results get put into a new subpanel rather than a submenu
-        let dbcontainer = this._currentWindow.document.getElementById('KeeFox-DatabaseList');
-        dbcontainer.spinner = true;
-        this.showSubSection('KeeFox-DatabaseList');
+        let dbcontainer = this._currentWindow.document.getElementById('KeeFox-PanelSubSection-DatabaseList');
+        dbcontainer.setAttribute("loading", "true");
+        keefox_win.mainUI._currentWindow.keefox_org.getAllDatabaseFileNames();
+        this.showSubSection('KeeFox-PanelSubSection-DatabaseList');
     },
     
 
     // remove matched logins from the menu
-
-    //TODO1.3:?need test case: think this removes the whole popup menu so we don't get the annoying square effect but we need to change it so it is still somewhere in the document. maybe just set to disabled or hidden?
-    // actually above may not be problem for toolbar and i think we do it differently for the context menu anyway
     removeLogins: function () {
+        keefox_win.Logger.debug("Removing all matched logins");
         // Get the toolbaritem "container" that we added to our XUL markup
         var container = this._currentWindow.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
         if (container === undefined || container == null)
@@ -647,6 +641,7 @@ keefox_win.panel = {
                     event.stopPropagation();
                     keefox_win.panel.CustomizableUI.hidePanelForNode(
                         keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                    keefox_win.panel.hideSubSections();
                 } 
                 if (event.button == 2)
                 {
@@ -849,8 +844,8 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
         // make any changes. In future, maybe we could delay the change rather than
         // completely ignore it but for now, the frequent "dynamic form polling"
         // feature will ensure a minimal wait for update once the lock is released.
-        if (container.getAttribute('KFLock') == "enabled")
-            return;
+        //if (container.getAttribute('KFLock') == "enabled")
+        //    return;
 
         // Disable all matched logins UI elements, perhaps just for a jiffy while 
         // we work out which ones need to be revealed again
@@ -860,6 +855,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
         this.disableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
         
         if (logins == null || logins.length == 0) {
+            this.removeLogins();
             this.setupButton_ready(null, this._currentWindow);
             return;
         //} else {
@@ -888,7 +884,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
             this.enableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
         }
         
-        //TODO: Set icon overlay on main panel widget button icon to say how many matches there were
+        // Set icon overlay on main panel widget button icon to say how many matches there were
         this.setWidgetNotificationForMatchedLogins(container.childElementCount + overflowPanelContainer.childElementCount);
 
         keefox_win.Logger.debug(logins.length + " matched panel logins set!");
@@ -997,9 +993,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
 
         // We can't know if this is going to be called just once (usual) or multiple times 
         // (e.g. for iframes) so we must make sure any race conditions are avoided or at least benign
-
-
-
+        this._currentWindow.document.getElementById("keefox-button").setAttribute("keefox-match-count",count);
     },
 
     // Sets the overall widget status including the status panel
@@ -1020,6 +1014,8 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
         widgetButton.classList.add(enabled ? "enabled" : "disabled");
         statusPanel.classList.remove(!enabled ? "disabled" : "enabled");
         statusPanel.classList.add(!enabled ? "enabled" : "disabled");
+
+        widgetButton.removeAttribute("keefox-match-count");
 
         // Remove all known possible event handlers
         statusPanelButton.removeEventListener("mouseup", this.mainButtonCommandInstallHandler, false);
@@ -1137,6 +1133,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
             this.disableUIElement("KeeFox-PanelSection-generatePassword");
             this.disableUIElement("KeeFox-PanelSection-changeDatabase");
             this.disableUIElement("KeeFox-PanelSection-detectForms");
+            this.hideSubSections();
         } else {
             this.setWidgetStatus(false,
                 keefox_org.locale.$STR("loginToKeePass.label"), 
@@ -1150,74 +1147,36 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
             this.enableUIElement("KeeFox-PanelSection-generatePassword");
             this.enableUIElement("KeeFox-PanelSection-changeDatabase");
             this.disableUIElement("KeeFox-PanelSection-detectForms");
+            this.hideSubSections();
         }
 
         keefox_win.Logger.debug("setupButton_ready end");
     },
 
-    detachMRUpopup: function () {
-        alert("detach");
-        var container = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Button");
+    setMRUdatabasesCallback: function (result) {
+
+        let container = this.getEmptyContainerFor("KeeFox-PanelSubSection-DatabaseList");
         if (container === undefined || container == null)
             return;
 
-        //var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
-        // Remove all of the existing popup containers
-        for (var i = container.childNodes.length; i > 0; i--) {
-            container.removeChild(container.childNodes[0]);
-        }
-
-
-    },
-
-    setMRUdatabases: function (event) {
-        if (event != undefined && event != null)
-            event.stopPropagation();
-
-        var popupContainer = keefox_win.mainUI._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
-        if (popupContainer === undefined || popupContainer == null)
-            return;
-
-        // Remove all of the existing buttons
-        for (var i = popupContainer.childNodes.length; i > 0; i--) {
-            popupContainer.removeChild(popupContainer.childNodes[0]);
-        }
-
-        // Set up a loading message while we wait
-        var noItemsButton = null;
-        noItemsButton = keefox_win.mainUI._currentWindow.document.createElement("menuitem");
-        noItemsButton.setAttribute("label", keefox_org.locale.$STR("loading") + '...');
-        noItemsButton.setAttribute("disabled", "true");
-        popupContainer.appendChild(noItemsButton);
-
-        // calls setMRUdatabasesCallback after KeePassRPC responds
-        keefox_win.mainUI._currentWindow.keefox_org.getAllDatabaseFileNames();
-    },
-
-    setMRUdatabasesCallback: function (result) {
-
-        var popupContainer = this._currentWindow.document.getElementById("KeeFox_ChangeDB-Popup");
-        if (popupContainer === undefined || popupContainer == null)
-            return;
-
         // Remove the loading message
-        for (var i = popupContainer.childNodes.length; i > 0; i--) {
-            popupContainer.removeChild(popupContainer.childNodes[0]);
-        }
+        container.parentNode.removeAttribute("loading");
 
-        var mruArray = result.knownDatabases;
+        let mruArray = result.knownDatabases;
+        let noItemsButton;
         if (mruArray == null || mruArray.length == 0) {
-            var noItemsButton = null;
-            noItemsButton = this._currentWindow.document.createElement("menuitem");
-            noItemsButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonEmpty.label"));
-            noItemsButton.setAttribute("disabled", "true");
-            noItemsButton.setAttribute("tooltiptext", keefox_org.locale.$STR("changeDBButtonEmpty.tip"));
-            popupContainer.appendChild(noItemsButton);
+            noItemsButton = this.createUIElement('li', [
+                ['class',''],
+                ['title',keefox_org.locale.$STR("changeDBButtonEmpty.tip")]
+            ]);
+            noItemsButton.innerHTML = keefox_org.locale.$STR("changeDBButtonEmpty.label");
+            container.appendChild(noItemsButton);
             return;
         } else {
 
-            for (let i = 0; i < mruArray.length; i++) {
-                var displayName = mruArray[i];
+            for (let i = 0; i < mruArray.length; i++)
+            {
+                let displayName = mruArray[i];
                 let suffix, prefix;
                 if (displayName.length > 50) {
                     var fileNameStartLocation = displayName.lastIndexOf('\\');
@@ -1237,68 +1196,29 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
                         displayName = prefix + ' ... ' + suffix;
                     } // otherwise there's not much we can do anyway so just leave it to truncate the end of the file name
                 }
+            
+                let mruToUse = mruArray[i].replace(/[\\]/g, '\\');
+                let loginItem = this.createUIElement('li', [
+                    ['class',''],
+                    ['mruToUse',mruToUse],
+                    ['title',keefox_org.locale.$STRF("changeDBButtonListItem.tip", [mruArray[i]])]
+                ]);
+                loginItem.innerHTML = displayName;
+                loginItem.addEventListener("mouseup", function (event) { 
+                    if (event.button == 0 || event.button == 1)
+                    {
+                        keefox_org.changeDatabase(this.getAttribute('mruToUse'), false); 
+                        event.stopPropagation();
+                        keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.document.getElementById('keefox-panelview'));
+                        keefox_win.panel.hideSubSections();
+                    }
+                }, false);
 
-                var tempButton = null;
-                tempButton = this._currentWindow.document.createElement("menuitem");
-                tempButton.setAttribute("label", displayName);
-                tempButton.setAttribute("tooltiptext", keefox_org.locale.$STRF("changeDBButtonListItem.tip", [mruArray[i]]));
-                var mruToUse = mruArray[i].replace(/[\\]/g, '\\');
-                //tempButton.setAttribute("oncommand", "keefox_org.changeDatabase('" +
-                //    mruArray[i].replace(/[\\]/g, '\\\\') + "',false);  event.stopPropagation();");
-                tempButton.addEventListener("command", function (event) { keefox_org.changeDatabase(this.getAttribute('mruToUse'), false); event.stopPropagation(); }, false); //AET: OK
-                tempButton.setAttribute("class", "menuitem-iconic");
-                //tempButton.setAttribute("context", "KeeFox-login-context"); in future this could enable "set to default for this location..." etc. ?
-                tempButton.setAttribute("image", "chrome://keefox/skin/KeeLock.png");
-                tempButton.setAttribute("mruToUse", mruToUse);
-
-                popupContainer.appendChild(tempButton);
+                container.appendChild(loginItem);
             }
         }
 
     },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     generatePassword: function () {
         let kf = this._currentWindow.keefox_org;
@@ -1415,6 +1335,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
             );
             keefox_win.panel.CustomizableUI.hidePanelForNode(
                 keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+            keefox_win.panel.hideSubSections();
         } 
         if (event.button == 2)
         {
