@@ -531,8 +531,7 @@ keefox_win.panel = {
 
                                 var dbName = keefox_org.KeePassDatabases[i].name;
 
-                                let groupItem = this.createGroupItem(rootGroup,dbFileName);
-                                groupItem.innerHTML = dbName + ' / ' + rootGroup.title;
+                                let groupItem = this.createGroupItem(rootGroup,dbFileName, null, dbName + ' / ' + rootGroup.title);
                                 container.appendChild(groupItem);
 
                             } else
@@ -675,7 +674,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
         }
     },
 
-    createGroupItem: function (group, dbFileName, extraCSSClasses)
+    createGroupItem: function (group, dbFileName, extraCSSClasses, displayName)
     {
         let groupItem = this.createUIElement('li', [
             ['class','group-item'],
@@ -685,7 +684,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
             //   ['id', 'KeeFox_Group-' + rootGroup.uniqueID],
             ['title',keefox_org.locale.$STR("loginsButtonGroup.tip")]
         ]);
-        groupItem.innerHTML = group.title;
+        groupItem.innerHTML = displayName || group.title;
             
         groupItem.addEventListener("mouseup", function (event) {
             keefox_win.Logger.debug("mouseup fired: " + event.button);
