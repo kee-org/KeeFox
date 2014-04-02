@@ -250,59 +250,6 @@ namespace KeePassRPC
             return embeddedPublicKey;
         }
 
-        /// <summary>
-        /// Creates a private/public key pair for use with signing
-        /// and verifying the claimed identity of RPC client signatures.
-        /// Also creates a signature for the supplied client identity.
-        /// This function will be used exceedingly rarely and may
-        /// require modification before each use. Interaction within
-        /// a debug session is currently the only way to extract the
-        /// required information from this function.
-        /// </summary>
-        /// <param name="clientId">The text to identify a particular RPC client</param>
-        //        private void SetupPrivateKeySignatures(string clientId)
-        //        {
-        //            byte[] data = Encoding.UTF8.GetBytes(clientId);
-        //            //sha1 crypto service, digital signatures are created from the hash
-        //            SHA1 sha = new SHA1CryptoServiceProvider();
-        //            byte[] hash = sha.ComputeHash(data);
-
-        //            //Create a new instance of DSACryptoServiceProvider.
-        //            //DSA contains asymmetric public and private key information
-        //            DSACryptoServiceProvider DSA1 = new DSACryptoServiceProvider();
-
-
-        //            //RSA subjectKey = (RSA)RSA.Create();
-        //            //subjectKey.
-        //            //DSA.ImportCspBlob();
-        //            //TODO2: load the sender private key into DSACryptoService here? or is it created automatically? breakpoint to investigate...
-
-        //            // store staight into Truecrypt
-        //            System.IO.File.WriteAllBytes(
-        //                "X:\\" + "KPRPCclientSignaturePrivateKey.key",
-        //                DSA1.ExportCspBlob(true));
-
-        //            DSACryptoServiceProvider DSA2 = new DSACryptoServiceProvider();
-
-        //            DSA2.ImportCspBlob(System.IO.File.ReadAllBytes(
-        //"X:\\" + "KPRPCclientSignaturePrivateKey.key"));
-
-        //            byte[] publicKey = DSA2.ExportCspBlob(false);
-        //            //EXPORT: store these bytes in source code
-        //            string pubkeyencoded = Convert.ToBase64String(publicKey);
-
-        //            DSASignatureFormatter DSAFormatter = new DSASignatureFormatter(DSA2);
-
-        //            //Set the hash algorithm to SHA1.
-        //            DSAFormatter.SetHashAlgorithm("SHA1");
-
-        //            //Create a signature from the hash using the private key
-        //            byte[] signature = DSAFormatter.CreateSignature(hash);
-
-        //            string encodedClientIdSignature = Convert.ToBase64String(signature);
-        //            //EXPORT: Client must send encodedClientIdSignature to KeePassRPC
-        //        }
-
         #endregion
 
         #region KeePass GUI routines
@@ -980,6 +927,74 @@ namespace KeePassRPC
 
             Configuration currentConfig = new Configuration(MRUList, autoCommit);
             return currentConfig;
+        }
+
+        [JsonRpcMethod]
+        public ApplicationMetadata GetApplicationMetadata()
+        {
+            string KeePassVersion;
+            bool IsMono = false;
+            string NETCLR;
+            string NETversion;
+            string MonoVersion = "unknown";
+            // No point in outputting KeePassRPC version here since we know it has
+            // to match in order to be able to call this function
+            
+            NETCLR = Environment.Version.Major.ToString();
+            KeePassVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            Type type = Type.GetType("Mono.Runtime");
+            if (type != null)
+            {
+                IsMono = true;
+                NETversion = "";
+                try
+                {
+                    MethodInfo displayName = type.GetMethod("GetDisplayName",
+                        BindingFlags.NonPublic | BindingFlags.Static);
+                    if (displayName != null)
+                        MonoVersion = (string)displayName.Invoke(null, null);
+                }
+                catch (Exception)
+                {
+                    MonoVersion = "unknown";
+                }
+            }
+            else
+            {
+                // Normally looking in the registry is the thing to try here but that means pulling
+                // in lots of Win32 libraries into Mono so this alternative gets us some useful,
+                // albeit incomplete, information. There shouldn't be any need to call this service
+                // on a regular basis so it shouldn't matter that the use of reflection is a little inefficient
+
+                // v3.0 is of no interest to us and difficult to detect so we ignore
+                // it and bundle those users in the v2 group
+                NETversion = 
+                    IsNet451OrNewer() ? "4.5.1" : 
+                    IsNet45OrNewer() ? "4.5" : 
+                    NETCLR == "4" ? "4.0" : 
+                    IsNet35OrNewer() ? "3.5" :
+                    NETCLR == "2" ? "2.0" : 
+                    "unknown";
+            }
+
+            ApplicationMetadata appMetadata = new ApplicationMetadata(KeePassVersion, IsMono, NETCLR, NETversion, MonoVersion);
+            return appMetadata;
+        }
+
+        public static bool IsNet35OrNewer()
+        {
+            return Type.GetType("System.GCCollectionMode", false) != null;
+        }
+        
+        public static bool IsNet45OrNewer()
+        {
+            return Type.GetType("System.Reflection.ReflectionContext", false) != null;
+        }
+
+        public static bool IsNet451OrNewer()
+        {
+            return Type.GetType("System.Runtime.GCLargeObjectHeapCompactionMode", false) != null;
         }
 
         #endregion
