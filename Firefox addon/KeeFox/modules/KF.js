@@ -38,6 +38,7 @@ Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/KFExtension.js");
 Cu.import("resource://kfmod/config.js");
 Cu.import("resource://kfmod/commands.js");
+Cu.import("resource://kfmod/search.js");
 
 // constructor
 function KeeFox()
@@ -120,6 +121,10 @@ function KeeFox()
         this.metricsManager.pushEvent = function () {};
         this.metricsManager.adjustAggregate = function () {};
     }
+
+    this.search = new Search(this, {
+        version: 1
+    });
 
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
                               getService(Ci.nsIObserverService);
@@ -1231,6 +1236,13 @@ KeeFox.prototype = {
                 throw "We couldn't find a favicon BECAUSE: " + ex;
             }
         }
+    },
+
+    onSearchCompleted: function (results)
+    {
+        // a default search results handler. In practice I expect that each search 
+        // execution will want to supply its own callback but this might be useful 
+        // if we find it neater to integrate with an Observer pattern, etc.
     }
 };
 

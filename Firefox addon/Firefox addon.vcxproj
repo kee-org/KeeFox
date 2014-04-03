@@ -183,6 +183,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
     <None Include="KeeFox\chrome\content\context.js" />
     <None Include="KeeFox\chrome\content\context.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -255,6 +256,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\modules\kprpcClientLegacy.js" />
     <None Include="KeeFox\modules\locales.js" />
     <None Include="KeeFox\modules\metrics.js" />
+    <None Include="KeeFox\modules\search.js" />
     <None Include="KeeFox\modules\sessionLegacy.js" />
     <None Include="KeeFox\modules\sjcl.js" />
     <None Include="KeeFox\modules\SRP.js" />

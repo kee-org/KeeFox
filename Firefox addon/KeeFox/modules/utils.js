@@ -673,7 +673,6 @@ Utils.prototype = {
         let guid = uuid.toString();
         return guid.substr(1,guid.length-2);
     }
-
 };
 
 var utils = new Utils();

@@ -294,6 +294,10 @@
       <Filter>CSS</Filter>
     </None>
     <None Include="KeeFox\chrome\content\panel.xul" />
+    <None Include="KeeFox\modules\search.js">
+      <Filter>JS</Filter>
+    </None>
+    <None Include="ClassDiagram2.cd" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />
