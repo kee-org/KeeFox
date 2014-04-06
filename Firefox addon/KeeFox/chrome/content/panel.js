@@ -37,8 +37,12 @@ keefox_win.panel = {
     // The Firefox CustomisableUI widget that our panel is attached to
     _widget : null,
 
+    viewShowingHackTimer : null,
+
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
+        
+        this.buildPanel();
 
         try
         {
@@ -55,12 +59,37 @@ keefox_win.panel = {
                     defaultArea: "nav-bar",
                     removable: true,
                     label: "KeeFox",
-                    tooltiptext: "KeeFox"
+                    tooltiptext: "KeeFox",
 //                    onClick: function()
 //                    {
 //                        //Maybe track cumulative interaction metrics here?
 //                    }
-                    //onViewShowing - do some init or localisation checks in here?
+                    onViewShowing: function (evt)
+                    {
+                        // This is called before the view is moved to the DOM location ready for
+                        // display so events attached here will be deleted before the view is 
+                        // actually displayed. The hack below wraps the creation of the event 
+                        // listener in a timeout which will (most of the time) allow us to work 
+                        // around this Firefox bug
+                        var targetDoc = evt.target.ownerDocument;
+                        let panel = evt.target.ownerGlobal.keefox_win.panel;
+                        panel.viewShowingHackTimer = Components.classes["@mozilla.org/timer;1"]
+                                .createInstance(Components.interfaces.nsITimer);
+                        panel.viewShowingHackTimer.initWithCallback(
+                                function () { targetDoc.getElementById('KeeFox-PanelSection-searchbox').focus(); },
+                            50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+
+                    },
+                    onViewHiding: function (evt)
+                    {
+                        //TODO: Re-enable these hiding events once dev work is finished
+                        // Clear search terms
+                        //evt.target.ownerDocument.getElementById('KeeFox-PanelSection-searchbox').value = "";
+                        // Clear search results
+                        //evt.target.ownerGlobal.keefox_win.panel.onSearchComplete([]);
+                        // Close subpanels
+                        //evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
+                    }
                 });
                 keefox_win.Logger.info("Created KeeFox widget");
             }
@@ -73,20 +102,6 @@ keefox_win.panel = {
             keefox_win.Logger.error("Failed to create KeeFox widget because: " + e);
         }
 
-        this.buildPanel();
-
-        // Lock menu updates when menu is visible
-        //TODO: container will need to be changed, probably after creating the basic panel in this constructor (attach the panelview to that list of view panels and then create the widget... need to find out how to do that in a way that respects user's previous choice of where the widget goes... might happen automatically?)
-//        var container = this._currentWindow.document.getElementById("KeeFox_Main-Button");
-//        if (container != undefined && container != null) {
-//            container.addEventListener("popupshowing", function (event) {
-//                this.setAttribute('KFLock', 'enabled');
-//            }, false);
-//            container.addEventListener("popuphiding", function (event) {
-//                this.setAttribute('KFLock', 'disabled');
-//            }, false);
-
-//        }
 
         // Listen for mouseup and mousedown events so we can fire command events ala XUL
         //this.currentWindow.document.addEventListener("mouseup",this.accurateClickTracker,false);
@@ -102,8 +117,10 @@ keefox_win.panel = {
     {
         if (aTopic == "keefox_matchedLoginsChanged")
         {
-            //keefox_win.Logger.debug("observed");
-            this.setLogins(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
+            // Don't want to do anything if this window is not displaying 
+            // the URL for which the matched logins have changed
+            if (this._currentWindow.content.document.location.href == aSubject.wrappedJSObject.uri) 
+                this.setLogins(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
         }
     },
 
@@ -155,14 +172,29 @@ keefox_win.panel = {
         
 
         // For some reason it's impossible to focus on this box when first opening the panel through the javascript below. manually clicking on it seems to work fine though so we can live with that bug at least for the time being
-        //TODO: change to div panel containing input field
+        let searchPanel = this.createUIElement('div', [
+            ['class','KeeFox-PanelSection enabled'],
+            ['id','KeeFox-PanelSection-search']
+        ]);
         let searchBox = this.createUIElement('input', [
             ['class','KeeFox-Search'],
-            ['id','KeeFox-PanelSection-search'],
+            ['id','KeeFox-PanelSection-searchbox'],
             ['type','text'],
-            ['value','Search...'],
+            ['placeholder','Search...'],
             ['title','Do a search']
         ]);
+        searchBox.addEventListener('input',function(e){
+         console.log("keyup event detected! coming from this element:", e.target);
+         //TODO: rate limit searches?
+         keefox_org.search.execute(e.target.value, closure.onSearchComplete);
+        }, false);
+        searchPanel.appendChild(searchBox);
+        let searchResultsContainer = this.createUIElement('div', [
+            ['class','KeeFox-PanelInlineSection KeeFox-SearchResults enabled'],
+            ['id','KeeFox-PanelSubSection-SearchResults']
+        ]);
+        searchPanel.appendChild(searchResultsContainer);
+        
         
         // although strangly, even textbox no longer allows interaction despite creating it using exactly the same code as earlier. maybe the containing panel is somehow different?
         //let searchBox = this._currentWindow.document.createElement('textbox');
@@ -266,7 +298,7 @@ keefox_win.panel = {
         //var element3 = this.createUIElement('hr',[]);
         panel.appendChild(status);
         panel.appendChild(subPanelCloser);
-        panel.appendChild(searchBox);
+        panel.appendChild(searchPanel);
         panel.appendChild(matchedLogins);
         panel.appendChild(allLogins);
         panel.appendChild(generatePassword);
@@ -377,7 +409,7 @@ keefox_win.panel = {
     {
         this.generatePassword();
         this.CustomizableUI.hidePanelForNode(this._currentWindow.document.getElementById('keefox-panelview'));
-        //TODO: Immediately fire a generate password request using the most recent profile (& update growl message?)
+        //TODO1.5: Immediately fire a generate password request using the most recent profile (& update growl message?)
         // we might not have time to implement this for v1.4: this.showSubSection('KeeFox-SubSection-generatePassword');
     },
     
@@ -616,7 +648,10 @@ keefox_win.panel = {
                 ['title',keefox_org.locale.$STRF(
                 "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue])]
             ]);
-            loginItem.innerHTML = login.title;
+            if (keefox_org._keeFoxExtension.prefs.getValue("alwaysDisplayUsernameWhenTitleIsShown",false))
+                loginItem.innerHTML = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+            else
+                loginItem.innerHTML = login.title;
             
             //tempButton.addEventListener("command", function (event) { keefox_win.ILM.loadAndAutoSubmit(0, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); }, false); //ael: works
             loginItem.addEventListener("mouseup", function (event) {
@@ -986,6 +1021,97 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
         }
     },
 
+    onSearchComplete: function (logins)
+    {
+        keefox_win.panel.showSearchResults.call(keefox_win.panel,logins);
+    },
+
+    // Calling this function with null or empty logins array will clear all existing search results
+    showSearchResults: function (logins)
+    {
+        keefox_win.Logger.debug("panel showSearchResults started");
+        // Get the container that we want to add our search results to.
+
+        var container = this.getEmptyContainerFor("KeeFox-PanelSubSection-SearchResults");
+        this.disableUIElement("KeeFox-PanelSubSection-SearchResults");
+        if (container === undefined || container == null || logins == null || logins.length == 0)
+            return;
+            
+        keefox_win.Logger.debug(logins.length + " search results found");
+
+        for (var i = 0; i < logins.length; i++) {
+            var login = logins[i];
+            var usernameValue = "";
+            var usernameName = "";
+            var usernameDisplayValue = "[" + keefox_org.locale.$STR("noUsername.partial-tip") + "]";
+            usernameValue = login.usernameValue;
+            if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                usernameDisplayValue = usernameValue;
+            usernameName = login.usernameName;
+
+            var loginItem = this.createUIElement('li', [
+                ['class','login-item'],
+                //['data-fileName',dbFileName],
+                ['data-usernameName',usernameName],
+                ['data-usernameValue',usernameValue],
+                ['data-url',login.url],
+                ['data-uuid',login.uniqueID],
+                ['style','background-image:url(data:image/png;base64,' + login.iconImageData + ')'],
+            //    ['id', 'KeeFox_Group-' + rootGroup.uniqueID],
+                ['title',keefox_org.locale.$STRF(
+                "loginsButtonLogin.tip", [login.url, usernameDisplayValue])]
+            ]);
+            if (keefox_org._keeFoxExtension.prefs.getValue("alwaysDisplayUsernameWhenTitleIsShown",false))
+                loginItem.innerHTML = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+            else
+                loginItem.innerHTML = login.title;
+            
+            loginItem.addEventListener("mouseup", function (event) {
+                keefox_win.Logger.debug("mouseup fired: " + event.button);
+
+                // Make sure no parent groups override the actions of this handler
+                event.stopPropagation();
+
+                if (event.button == 0 || event.button == 1)
+                {
+                    keefox_win.ILM.loadAndAutoSubmit(event.button,
+                                                     event.ctrlKey,
+                                                     this.getAttribute('data-usernameName'), 
+                                                     this.getAttribute('data-usernameValue'),
+                                                     this.getAttribute('data-url'),
+                                                     null,
+                                                     null,
+                                                     this.getAttribute('data-uuid')//, 
+                                                     //this.getAttribute('data-fileName')
+                                                    );
+                    event.stopPropagation();
+                    keefox_win.panel.CustomizableUI.hidePanelForNode(
+                        keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                    keefox_win.panel.hideSubSections();
+                } 
+                if (event.button == 2)
+                {
+                //TODO: effing mouse position 
+                //keefox_win.Logger.debug("mouseup fired: " + event.screenX + " : "  + event.screenY + " : "  + event.clientX + " : "  + event.clientY ); //+ " : "  + keefox_win.panel._currentWindow.document.top + " : "  + event.screenX + " : "  + event.screenX + " : "  + event.screenX + " : " );
+
+                    //TODO: support keyboard context menu button too
+//                    keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').openPopup(null,null,event.clientX, event.clientY, true, false, event);
+//keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').openPopupAtScreen(event.screenX -keefox_win.panel._currentWindow.mozInnerScreenX, event.screenY, true);
+keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').openPopup(event.target,"after_pointer",0,0, true, false, event);
+                }
+            },
+            false); //ael: works
+            
+            container.appendChild(loginItem);
+        }
+        
+        // Update the UI state to reflect the number of logins found
+        if (container.childElementCount > 0)
+            this.enableUIElement("KeeFox-PanelSubSection-SearchResults");
+        
+        keefox_win.Logger.debug(logins.length + " search results set.");
+    },
+    
     setWidgetNotificationForMatchedLogins: function (count)
     {
         keefox_win.Logger.debug("Going to notify that we have matched " + count + " logins");

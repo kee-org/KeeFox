@@ -182,8 +182,6 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram2.cd" />
     <None Include="KeeFox\chrome\content\context.js" />
     <None Include="KeeFox\chrome\content\context.xul">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -231,6 +229,14 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />
     <None Include="KeeFox\chrome\skin\icon.png" />
+    <None Include="KeeFox\chrome\skin\install_mono.css" />
+    <None Include="KeeFox\chrome\skin\KeeFox16Matched-Plus.png" />
+    <None Include="KeeFox\chrome\skin\KeeFox16Matched-Star.png" />
+    <None Include="KeeFox\chrome\skin\KeeFox32.png" />
+    <None Include="KeeFox\chrome\skin\KeeFox32Matched-Plus.png" />
+    <None Include="KeeFox\chrome\skin\KeeFox32Matched-Star.png" />
+    <None Include="KeeFox\chrome\skin\KeeFoxGrey16.png" />
+    <None Include="KeeFox\chrome\skin\KeeFoxGrey32.png" />
     <None Include="KeeFox\chrome\skin\panel.css" />
     <None Include="KeeFox\icon.png" />
     <None Include="KeeFox\chrome\skin\KeeFox16.png" />
@@ -245,6 +251,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\skin\KeeOrange24.png" />
     <None Include="KeeFox\chrome\skin\key-highlighted.png" />
     <None Include="KeeFox\chrome\skin\main.png" />
+    <None Include="KeeFox\icon64.png" />
     <None Include="KeeFox\modules\biginteger.js" />
     <None Include="KeeFox\modules\commands.js" />
     <None Include="KeeFox\modules\config.js" />

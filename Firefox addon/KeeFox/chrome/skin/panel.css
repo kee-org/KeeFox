@@ -35,27 +35,52 @@ toolbarpaletteitem[place="palette"] > #keefox-button {
     list-style-image: url("chrome://keefox/skin/KeeFox32Matched-Star.png");  
 }
 
+/* overall panelview container style */
+#keefox-panelview
+{
+    background-color: #FFFFFF;
+    padding:5px;
+    /*display: flex;
+    flex-direction: column;
+    flex: auto;
+    
+    */
+}
+
+/* search box */
+#KeeFox-PanelSection-searchbox
+{
+    width: calc(100% - 12px);
+    padding: 3px 5px;
+    margin-bottom:5px;
+}
+
 /* default appearence of list items to match australis look and feel
 TODO: everything except groups */
 #keefox-panelview li
 {
     background-color: #FFFFFF;
     border: 1px solid #FFFFFF;
-    margin: 0px 5px !important;
+    margin: 0px 0px;
+}
+
+#KeeFox-PanelSection-search li
+{
+    margin: 0px 0px !important;
 }
 
 #keefox-panelview li:active
 {
     background-color: #E3E3E3;
     border: 1px solid #C6C6C7;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 #keefox-panelview li:hover
 {
     background-color: #EDEDED;
     border: 1px solid #D6D6D6;   
-    border-radius: 5px; 
+    border-radius: 3px; 
 }
 
 #keefox-panelview li.group-item
@@ -64,6 +89,23 @@ TODO: everything except groups */
     border-bottom-left-radius: 0px; 
     border-top-left-radius: 0px;
     margin-right:0px !important;
+}
+
+#keefox-panelview input[type=button] {
+    background: #F4F4F4;
+    border: #DDDDDD solid 1px;
+    border-top-width: 1px;
+    border-radius: 3px;
+    width: calc(100% - 0px);
+    padding: 3px 5px;
+    line-height:26px;
+    min-height: 26px;
+    margin: 3px 0px;
+}
+
+#keefox-panelview input[type=button]:hover {
+    background: #EDEDED;
+    
 }
 
 /*
@@ -104,25 +146,27 @@ subpanel title bg : F4F4F4
 #keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close,
 #keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action
 {
-	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
 	display:block;
-    background-color:whitesmoke;
-    margin:5px;
 }
 
 #keefox-panelview.subpanel-enabled .subpanel-enabled
 {
-	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
 	display:block;
-    background-color:green;
-    margin:5px;
+}
+
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action
+{
+    background-image: url("chrome://keefox/skin/back.png"); 
+    padding:0px 5px 0px 22px;
+    background-repeat:no-repeat;
+    background-position:2px 3px;
 }
 
 /* Default login list item and group style */
 #keefox-panelview li
 {
     min-height:26px;
-    padding:0px 0px 0px 22px;
+    padding:0px 5px 0px 22px;
     margin:0px;
     background-repeat:no-repeat;
     background-position:2px 4px;
@@ -190,8 +234,10 @@ subpanel title bg : F4F4F4
     list-style:none;
 }
 
+
 /* specific level login list overrides (after 4 levels deep we revert to defaults above) */
-#keefox-panelview div.KeeFox-LoginList > ul {
+#keefox-panelview div.KeeFox-LoginList > ul,
+#KeeFox-PanelSection-search ul {
     background:none;
     padding-left:0px;
     margin:0px;
@@ -239,43 +285,28 @@ subpanel title bg : F4F4F4
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-this may be useful to help with auto-sizing the panel?
-
-#customization-panelHolder > #PanelUI-mainView {
-  display: flex;
-  flex-direction: column;
-  /* Hack alert - by manually setting the preferred height to 0, we convince
-     #PanelUI-mainView to shrink when the window gets smaller in customization
-     mode. Not sure why that is - might have to do with our intermingling of
-     XUL flex, and CSS3 Flexbox. *//*
-  height: 0;
+/* put a seperator after each section that contains logins */
+#KeeFox-PanelSection-search ul,
+#KeeFox-PanelSubSection-MatchedLoginsList ul,
+#KeeFox-PanelSubSection-AllLoginsList ul {
+    padding-bottom: 2px;
+    border-bottom: 2px #DDDDDD solid;
+    margin-bottom: 5px;
+}
+#KeeFox-PanelSection-search ul:empty,
+#KeeFox-PanelSubSection-MatchedLoginsList ul:empty,
+#KeeFox-PanelSubSection-AllLoginsList ul:empty {
+    padding-bottom: 0px;
+    border-bottom: 0px;
+    margin-bottom: 0px;
 }
 
-#customization-panelHolder > #PanelUI-mainView > #PanelUI-contents-scroller {
-  display: flex;
-  flex: auto;
-  flex-direction: column;
-}
 
-#customization-panel-container {
-  overflow-y: auto;
-}
 
-*/
+
+
+
+
+
+
+

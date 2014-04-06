@@ -285,7 +285,6 @@
     <None Include="KeeFox\chrome\content\panel.js">
       <Filter>JS</Filter>
     </None>
-    <None Include="ClassDiagram1.cd" />
     <None Include="KeeFox\chrome\content\context.js">
       <Filter>JS</Filter>
     </None>
@@ -297,7 +296,33 @@
     <None Include="KeeFox\modules\search.js">
       <Filter>JS</Filter>
     </None>
-    <None Include="ClassDiagram2.cd" />
+    <None Include="KeeFox\icon64.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFoxGrey32.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox32.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox32Matched-Plus.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox32Matched-Star.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFoxGrey16.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox16Matched-Star.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\KeeFox16Matched-Plus.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="KeeFox\chrome\skin\install_mono.css">
+      <Filter>CSS</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />

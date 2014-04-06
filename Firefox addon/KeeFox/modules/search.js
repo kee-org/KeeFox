@@ -94,13 +94,33 @@ Search.prototype = {
 
     execute: function(query, onComplete)
     {
+        let abort = false;
+
         if (!this.configIsValid)
         {
             KFLog.error("You can't execute a search while the search configuration is invalid. Please fix it by calling reconfigure().");
-            return [];
+            abort = true;
         }
 
-        //TODO: check we have some data to search
+        if (!query || query.length == 0)
+            abort = true;
+
+        if (this._keefox_org.KeePassDatabases.length == 0)
+            abort = true;
+
+        onComplete = onComplete || this._config.onComplete;
+
+        if (abort)
+        {
+            if (onComplete)
+            {
+                onComplete([]);
+                return;
+            } else
+            {
+                return [];
+            }
+        }
 
         var results = [];
         function addResult(result) {
@@ -114,12 +134,12 @@ Search.prototype = {
                 results.push(result);
 		};
 
-        //TODO: allow pre-tokenised search terms to be supplied
-        //let keywords;
-        //if (query is Array )
-        //    let keywords = query;
-        //else
-            let keywords = this.tokenise(query);
+        // allow pre-tokenised search terms to be supplied
+        let keywords;
+        if (Array.isArray(query))
+            keywords = query;
+        else
+            keywords = this.tokenise(query);
 
         function actualSearch ()
         {
@@ -135,9 +155,8 @@ Search.prototype = {
                 let root = this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex].root;
 		        this.treeTraversal(root, '', false, keywords, addResult.bind(this));
             }
+            onComplete(results);
         }
-
-        onComplete = onComplete || this._config.onComplete;
 
         if (onComplete)
         {
@@ -146,7 +165,7 @@ Search.prototype = {
                     .createInstance(Components.interfaces.nsITimer);
             this.makeAsyncTimer.initWithCallback(
             actualSearch.bind(this), 1, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-            //TODO: use a background worker instead?
+            //TODO2: use a background worker instead?
             return;
         } else
         {
@@ -157,10 +176,81 @@ Search.prototype = {
 
     validateConfig: function ()
     {
-        this.configIsValid = false;
-        //TODO: validate
         this.configIsValid = true;
-        return true;
+
+        if (this._config.version != 1)
+        {
+            KFLog.warn("Unknown config version");
+            this.configIsValid = false;
+        }
+
+        if (this._config.searchAllDatabases !== true && this._config.searchAllDatabases !== false)
+        {
+            KFLog.warn("searchAllDatabases should be a boolean");
+            this.configIsValid = false;
+        }
+
+        if (this._config.searchTitles !== true && this._config.searchTitles !== false)
+        {
+            KFLog.warn("searchTitles should be a boolean");
+            this.configIsValid = false;
+        }
+
+        if (this._config.searchUsernames !== true && this._config.searchUsernames !== false)
+        {
+            KFLog.warn("searchUsernames should be a boolean");
+            this.configIsValid = false;
+        }
+
+        if (this._config.searchGroups !== true && this._config.searchGroups !== false)
+        {
+            KFLog.warn("searchGroups should be a boolean");
+            this.configIsValid = false;
+        }
+
+        if (this._config.searchURLs !== true && this._config.searchURLs !== false)
+        {
+            KFLog.warn("searchURLs should be a boolean");
+            this.configIsValid = false;
+        }
+
+        if (isNaN(this._config.weightTitles) || this._config.weightTitles <= 0)
+        {
+            KFLog.warn("weightTitles should be a positive number");
+            this.configIsValid = false;
+        }
+
+        if (isNaN(this._config.weightUsernames) || this._config.weightUsernames <= 0)
+        {
+            KFLog.warn("weightUsernames should be a positive number");
+            this.configIsValid = false;
+        }
+
+        if (isNaN(this._config.weightGroups) || this._config.weightGroups <= 0)
+        {
+            KFLog.warn("weightGroups should be a positive number");
+            this.configIsValid = false;
+        }
+
+        if (isNaN(this._config.weightURLs) || this._config.weightURLs <= 0)
+        {
+            KFLog.warn("weightURLs should be a positive number");
+            this.configIsValid = false;
+        }
+
+        if (this._config.onComplete != null && typeof(this._config.onComplete) !== 'function')
+        {
+            KFLog.warn("onComplete should be a function (or ommitted)");
+            this.configIsValid = false;
+        }
+
+        if (this._config.onMatch != null && typeof(this._config.onMatch) !== 'function')
+        {
+            KFLog.warn("onMatch should be a function (or ommitted)");
+            this.configIsValid = false;
+        }
+    
+        return this.configIsValid;
     },
     
     tokenise: function(text) {
@@ -204,12 +294,13 @@ Search.prototype = {
 		//	item.title = path + '/' + node.title;
 		//	item.url = item.user = '';
 		//} else {
-			item.image = node.iconImageData;
-			item.username = node.usernameValue;
+			item.iconImageData = node.iconImageData;
+			item.usernameValue = node.usernameValue;
+            item.usernameName = node.usernameName;
 			item.path = path;
 			item.title = node.title;
 			item.url = url;
-            item.uniqueId = node.uniqueId;
+            item.uniqueID = node.uniqueID;
 		//}
 		return item;
 	},
