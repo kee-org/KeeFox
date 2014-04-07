@@ -122,8 +122,8 @@ function commandManager () {
         {
             "name": "showMenuChangeDatabase",
             "description": "KeeFox_Menu-Button.changeDB.label",
-            "keyboardModifierFlags": 0,
-            "key": null,
+            "keyboardModifierFlags": this.MOD_DEFAULT,
+            "key": 53, // '5'
             "contextLocationFlags": this.CONTEXT_SUB,
             "speech": {},
             "gesture": {},
@@ -134,8 +134,8 @@ function commandManager () {
         {
             "name": "detectForms",
             "description": "KeeFox_Menu-Button.fillCurrentDocument.label",
-            "keyboardModifierFlags": 0,
-            "key": null,
+            "keyboardModifierFlags": this.MOD_DEFAULT,
+            "key": 54, // '6'
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT,
             "speech": {},
             "gesture": {},
@@ -146,8 +146,8 @@ function commandManager () {
         {
             "name": "generatePassword",
             "description": "KeeFox_Menu-Button.copyNewPasswordToClipboard.label",
-            "keyboardModifierFlags": 0,
-            "key": null,
+            "keyboardModifierFlags": this.MOD_DEFAULT,
+            "key": 52, // '4'
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT | this.CONTEXT_MAIN,
             "speech": {},
             "gesture": {},
@@ -158,14 +158,14 @@ function commandManager () {
         /* Not intending to support these features until at least 1.4
         {
             "name": "showMenuGeneratePassword",
-            "description": this.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
+            "description": "KeeFox_Menu-Button.generatePasswordFromProfile.label",
             "keyboardModifierFlags": 0,
-            "key": "",
+            "key": 52, // '4' (enabled by an option, otherwise single generation above)
             "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT,
             "speech": {},
             "gesture": {},
-            "label": this.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.label"),
-            "tooltip": this.locale.$STR("KeeFox_Menu-Button.generatePasswordFromProfile.tip"),
+            "label": "KeeFox_Menu-Button.generatePasswordFromProfile.label",
+            "tooltip": "KeeFox_Menu-Button.generatePasswordFromProfile.tip",
             "accesskey": ""
         },
         {
@@ -242,14 +242,14 @@ function commandManager () {
         },
         {
             "name": "showHelpCenter",
-            "description": this.locale.$STR("KeeFox_Help-Centre-Button.label"),
-            "keyboardModifierFlags": 0,
-            "key": "",
-            "contextLocationFlags": this.CONTEXT_SUB,
+            "description": "KeeFox_Help-Centre-Button.label",
+            "keyboardModifierFlags": this.MOD_DEFAULT,
+            "key": 54, // '6'
+            "contextLocationFlags": 0,
             "speech": {},
             "gesture": {},
-            "label": this.locale.$STR("KeeFox_Help-Centre-Button.label"),
-            "tooltip": this.locale.$STR("KeeFox_Help-Centre-Button.tip"),
+            "label": "KeeFox_Help-Centre-Button.label",
+            "tooltip": "KeeFox_Help-Centre-Button.tip",
             "accesskey": ""
         },*/
         {
@@ -356,7 +356,7 @@ function commandManager () {
         {
             let keeFoxStorage = utils.getWindow().keefox_org._keeFoxStorage;
             return (keeFoxStorage.get("KeePassDatabaseOpen", false) 
-                || keeFoxStorage.get("KeePassRPCActive", false));
+                && keeFoxStorage.get("KeePassRPCActive", false));
         },
         showMenuGeneratePassword: function()
         {
@@ -390,11 +390,17 @@ function commandManager () {
             let win = utils.getWindow();
             if (!win) return;
 
-            var loginsPopup = win.document.getElementById("KeeFox_Menu-Button-Popup");
-            if (!loginsPopup)
-                return;
+            if (win.keefox_win.legacyUI)
+            {
+                var loginsPopup = win.document.getElementById("KeeFox_Menu-Button-Popup");
+                if (!loginsPopup)
+                    return;
 
-            loginsPopup.openPopup(win.document.getElementById("KeeFox_Menu-Button"), "after_start", 0, 0, false, false);
+                loginsPopup.openPopup(win.document.getElementById("KeeFox_Menu-Button"), "after_start", 0, 0, false, false);
+            } else
+            {
+                //ds
+            }
         },
         launchKeePass: function()
         {
@@ -407,8 +413,13 @@ function commandManager () {
         },
         showMenuChangeDatabase: function(target)
         {
-            //target = id of element to attach to. if needed, attachment behaviour can vary based on the id.
+            let win = utils.getWindow();
+            if (!win) return;
 
+            if (!win.keefox_win.legacyUI)
+            {
+                //sdf
+            }
         },
         detectForms: function()
         {
@@ -476,10 +487,17 @@ function commandManager () {
         {
             let win = utils.getWindow();
             if (!win) return;
-            var container = win.document.getElementById("KeeFox_Help-Centre-Button");
-            if (!container)
-                return;
-            container.doCommand();
+
+            if (win.keefox_win.legacyUI)
+            {
+                var container = win.document.getElementById("KeeFox_Help-Centre-Button");
+                if (!container)
+                    return;
+                container.doCommand();
+            } else
+            {
+                //sdf
+            }
         },
         installKeeFox: function()
         {
@@ -492,12 +510,18 @@ function commandManager () {
             if (keeFoxStorage.get("KeePassDatabaseOpen", false) 
                 && keeFoxStorage.get("KeePassRPCActive", false))
             {
-                var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
-                if (!loginsPopup)
-                    return;
-                loginsPopup.openPopup(win.document.getElementById("KeeFox_Logins-Button"), "after_start", 0, 0, false, false);
+                if (win.keefox_win.legacyUI)
+                {
+                    var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
+                    if (!loginsPopup)
+                        return;
+                    loginsPopup.openPopup(win.document.getElementById("KeeFox_Logins-Button"), "after_start", 0, 0, false, false);
                 
-                return;
+                    return;
+                } else
+                {
+                    //sdsdf
+                }
             }
         },
         fillMatchedLogin: function()
@@ -507,14 +531,20 @@ function commandManager () {
             if (!(keeFoxStorage.get("KeePassDatabaseOpen", false) 
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
-
-            var container = win.document.getElementById("KeeFox_Main-Button");
-            if (!container)
+                
+            if (win.keefox_win.legacyUI)
+            {
+                var container = win.document.getElementById("KeeFox_Main-Button");
+                if (!container)
+                    return;
+                if (!container.getAttribute('uuid'))
+                    return;
+                container.doCommand();
                 return;
-            if (!container.getAttribute('uuid'))
-                return;
-            container.doCommand();
-            return;
+            } else
+            {
+                //kjhgjhg
+            }
         },
         showMenuMatchedLogins: function(target)
         {
@@ -525,15 +555,21 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
 
-            var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
-            if (!loginsPopup)
-                return;
-
-            if (target == "context")
+            if (win.keefox_win.legacyUI)
             {
-                loginsPopup.openPopup(win.document.getElementById("keefox-command-context-showMenuMatchedLogins"), "after_start", 0, 0, true, false);
-            } else {
-                loginsPopup.openPopup(win.document.getElementById("KeeFox_Main-Button"), "after_start", 0, 0, false, false);
+                var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
+                if (!loginsPopup)
+                    return;
+
+                if (target == "context")
+                {
+                    loginsPopup.openPopup(win.document.getElementById("keefox-command-context-showMenuMatchedLogins"), "after_start", 0, 0, true, false);
+                } else {
+                    loginsPopup.openPopup(win.document.getElementById("KeeFox_Main-Button"), "after_start", 0, 0, false, false);
+                }
+            } else
+            {
+                //kjhgjhg
             }
         },
         autoTypeHere: function()

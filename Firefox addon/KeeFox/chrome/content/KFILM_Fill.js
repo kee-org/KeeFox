@@ -780,7 +780,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
     {
         findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
         keefox_win.Logger.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
-        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName); //TODO1.4: FF31?: setTabValue only accepts string values. Happens only when first loading a page, refreshes, tab switches, etc. do not cause it
         keefox_win.Logger.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
         
         // only auto fill / submit if we expect another page for this login.

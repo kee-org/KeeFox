@@ -288,9 +288,11 @@ keefox_win.panel = {
         let help = this.createPanelSection(
             'KeeFox-PanelSection-help', 
             function () {
-                keefox_org.utils._openAndReuseOneTabPerURL('http://keefox.org/help'); 
-                closure.CustomizableUI.hidePanelForNode(
-                    closure._currentWindow.document.getElementById('keefox-panelview'));
+                //TODO: Make this actually load help instead of hack the resize test
+                closure.resizePanel();
+//                keefox_org.utils._openAndReuseOneTabPerURL('http://keefox.org/help'); 
+//                closure.CustomizableUI.hidePanelForNode(
+//                    closure._currentWindow.document.getElementById('keefox-panelview'));
             },
             'KeeFox_Help-Centre-Button'
         );
@@ -384,6 +386,7 @@ keefox_win.panel = {
             toHide[0].parentNode.classList.remove('subpanel-enabled');
         while (toHide.length)
             this.disableUIElementNode(toHide[0]); // remove's enabled class and thus deletes from the toHide list
+        this.resizePanel();
     },
 
     showSubSection: function (id)
@@ -393,6 +396,7 @@ keefox_win.panel = {
         elem.parentNode.classList.add('subpanel-enabled');
         let panel = this._currentWindow.document.getElementById('keefox-panelview');
         panel.classList.add('subpanel-enabled');
+        this.resizePanel();
     },
     
     showSubSectionMatchedLogins: function ()
@@ -607,7 +611,7 @@ keefox_win.panel = {
             //    ['id', 'KeeFox_Group-' + rootGroup.uniqueID],
                 ['title',keefox_org.locale.$STR("loginsButtonEmpty.tip")]
             ]);
-            noItemsButton.innerHTML = keefox_org.locale.$STR("loginsButtonEmpty.label");
+            noItemsButton.textContent = keefox_org.locale.$STR("loginsButtonEmpty.label");
 
             // Unless we are allowed to display one or more logins in the main panel, we need to switch to the overflow panel now
             if (isTopLevelContainer && keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0) == 0)
@@ -649,9 +653,9 @@ keefox_win.panel = {
                 "loginsButtonLogin.tip", [login.uRLs[0], usernameDisplayValue])]
             ]);
             if (keefox_org._keeFoxExtension.prefs.getValue("alwaysDisplayUsernameWhenTitleIsShown",false))
-                loginItem.innerHTML = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+                loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
             else
-                loginItem.innerHTML = login.title;
+                loginItem.textContent = login.title;
             
             //tempButton.addEventListener("command", function (event) { keefox_win.ILM.loadAndAutoSubmit(0, event.ctrlKey, this.getAttribute('usernameName'), this.getAttribute('usernameValue'), this.getAttribute('url'), null, null, this.getAttribute('uuid'), this.getAttribute('fileName')); event.stopPropagation(); }, false); //ael: works
             loginItem.addEventListener("mouseup", function (event) {
@@ -688,18 +692,7 @@ keefox_win.panel = {
 keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').openPopup(event.target,"after_pointer",0,0, true, false, event);
                 }
             },
-            false); //ael: works
-
-//            loginItem.addEventListener("contextmenu", function (event) {
-
-//                KeeFox-login-context
-//            },
-//            false);
-
-            //tempButton.setAttribute("class", "menuitem-iconic");
-            
-            //tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
-            //tempButton.setAttribute("uuid", login.uniqueID);
+            false);
 
             // If the combined total of all groups and the current login index exceeds 
             // our allowed number of items in the main panel, we must switch to the overflow container
@@ -719,7 +712,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
             //   ['id', 'KeeFox_Group-' + rootGroup.uniqueID],
             ['title',keefox_org.locale.$STR("loginsButtonGroup.tip")]
         ]);
-        groupItem.innerHTML = displayName || group.title;
+        groupItem.textContent = displayName || group.title;
             
         groupItem.addEventListener("mouseup", function (event) {
             keefox_win.Logger.debug("mouseup fired: " + event.button);
@@ -780,7 +773,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
 
                     //TODO: If user clicked on something in the same active hierachy, we should close the one they clicked on and activate its parent (if it exists)
                 }
-                        
+                keefox_win.panel.resizePanel();
             } 
             if (event.button == 2)
             {
@@ -794,11 +787,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
             }
         },
         false); //ael: works
-
-        //newMenu.setAttribute("context", "KeeFox-group-context");
-        //newMenu.setAttribute("image", "data:image/png;base64," + group.iconImageData);
-            
-            
+                    
         let groupContainer = this.createUIElement('ul', [
             ['class',' ' + extraCSSClasses],
             ['id', 'KeeFox_Group-' + group.uniqueID]
@@ -844,14 +833,6 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
         panelSection.appendChild(groupContainer);
         return groupContainer;
     },
-
-
-
-
-
-
-
-
 
 
 
@@ -924,7 +905,6 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
         keefox_win.Logger.debug(logins.length + " matched panel logins set!");
     },
 
-
     setLoginsAllMatches: function (logins, documentURI, container) {
         keefox_win.Logger.debug("setLoginsAllMatches started");
         
@@ -980,9 +960,6 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
                 }
             }
 
-
-
-            
             if (addLoginToPopup)
             {
 
@@ -998,7 +975,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
                     ['data-uuid',login.uniqueID],
                     ['title',keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue])]
                 ]);
-                loginItem.innerHTML = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+                loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
             
                 //loginItem.addEventListener("command", this.mainButtonCommandMatchHandler, false);
                 loginItem.addEventListener("mouseup", this.MatchedLoginOnInvokeHandler, false);
@@ -1016,14 +993,13 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
                 }
                 container.appendChild(loginItem);
             }
-
-
         }
     },
 
     onSearchComplete: function (logins)
     {
         keefox_win.panel.showSearchResults.call(keefox_win.panel,logins);
+        keefox_win.panel.resizePanel();
     },
 
     // Calling this function with null or empty logins array will clear all existing search results
@@ -1062,9 +1038,9 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-group-context').
                 "loginsButtonLogin.tip", [login.url, usernameDisplayValue])]
             ]);
             if (keefox_org._keeFoxExtension.prefs.getValue("alwaysDisplayUsernameWhenTitleIsShown",false))
-                loginItem.innerHTML = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+                loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
             else
-                loginItem.innerHTML = login.title;
+                loginItem.textContent = login.title;
             
             loginItem.addEventListener("mouseup", function (event) {
                 keefox_win.Logger.debug("mouseup fired: " + event.button);
@@ -1160,7 +1136,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
             statusPanel.classList.add("enabled");
             statusPanel.classList.remove("disabled");
             widgetButton.setAttribute("tooltiptext",tooltip); //TODO: widget API?
-            statusPanelText.innerHTML = detailedInfo;
+            statusPanelText.textContent = detailedInfo;
             statusPanelButton.setAttribute("value", buttonLabel);
             statusPanelButton.setAttribute("tooltip",tooltip);
             statusPanelButton.addEventListener("mouseup", buttonAction, false);
@@ -1294,7 +1270,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
                 ['class',''],
                 ['title',keefox_org.locale.$STR("changeDBButtonEmpty.tip")]
             ]);
-            noItemsButton.innerHTML = keefox_org.locale.$STR("changeDBButtonEmpty.label");
+            noItemsButton.textContent = keefox_org.locale.$STR("changeDBButtonEmpty.label");
             container.appendChild(noItemsButton);
             return;
         } else {
@@ -1328,7 +1304,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
                     ['mruToUse',mruToUse],
                     ['title',keefox_org.locale.$STRF("changeDBButtonListItem.tip", [mruArray[i]])]
                 ]);
-                loginItem.innerHTML = displayName;
+                loginItem.textContent = displayName;
                 loginItem.addEventListener("mouseup", function (event) { 
                     if (event.button == 0 || event.button == 1)
                     {
@@ -1351,66 +1327,7 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
         kf.generatePassword();
     },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     
-
-    flashItem: function (flashyItem, numberOfTimes, theWindow) {
-        if (flashyItem === undefined || flashyItem == null)
-            return;
-
-        if (numberOfTimes < 1)
-            return;
-
-        if (numberOfTimes % 2 == 1)
-            flashyItem.setAttribute("class", "");
-        else
-            flashyItem.setAttribute("class", "highlight");
-
-        theWindow.setTimeout(keefox_win.mainUI.flashItem, 600 - (numberOfTimes * 40), flashyItem, numberOfTimes - 1, theWindow);
-    },
 
     removeNonMatchingEventHandlers: function (node) {
         // only one should be set but we don't know which one so try to remove all
@@ -1490,8 +1407,35 @@ keefox_win.panel._currentWindow.document.getElementById('KeeFox-login-context').
 
     keyboardNavTracker: function (event) {
 
+    },
+
+    resizePanelCallback: function () {
+        let pv = this._currentWindow.document.getElementById('keefox-panelview');
+        pv.style.height = pv.parentNode.parentNode.parentNode.clientHeight + "px";
+    },
+
+    resizePanelTimer: null,
+
+    // For an unknown reason, bug or limitation, we must tell Firefox to recalculate
+    // the size of the panel container so that it matches the size that the outer 
+    // panel has reserved for us. This process occurs when the panel first opens
+    // but fails to occur when the size of the panel changes once its open. Maybe
+    // there is some kind of mutation observer I should subscribe to but until that
+    // is documented somewhere, this setTimeout hack seems to do the trick.
+    resizePanel: function () {
+        let pv = this._currentWindow.document.getElementById('keefox-panelview');
+        if (!pv || !pv.parentNode)
+            return;
+
+        pv.style.height = "";
+
+        this.resizePanelTimer = Components.classes["@mozilla.org/timer;1"]
+                                .createInstance(Components.interfaces.nsITimer);
+        this.resizePanelTimer.initWithCallback(
+                this.resizePanelCallback.bind(this),
+            10, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+
     }
 
 };
-
 
