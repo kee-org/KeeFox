@@ -302,17 +302,12 @@ subpanel title bg : F4F4F4
     margin-bottom: 0px;
 }
 
-*:focus
+#keefox-panelview li:focus,
+#keefox-panelview button:focus,
+#keefox-panelview input[type="button"]:focus
 {
-	background-color:Red !important;
+    background-color: #DDDDDD;
 }
-
-
-
-
-
-
-
 
 
 .FAMSmessageGroup
