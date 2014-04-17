@@ -11,9 +11,9 @@ function onLoad(){
     window.keefox_org.locale.internationaliseElements(document,
       ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','tab-ConnectionSecurity','tab-AuthorisedConnections','tab-Commands','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
       'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
-      'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs',
-      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut','flashIconWhenKeePassRPCInactive',
-      'flashIconWhenLoggedOut','famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
+      'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs','check-alwaysDisplayUsernameWhenTitleIsShown',
+      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut',
+      'famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
       'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
       'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
       'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
@@ -52,7 +52,7 @@ function createCommandPanel()
     // To start with, we'll just do the simplest approach for the
     // user by showing three combined commands
     //var commands = window.keefox_org.commandManager.commands;
-    var key1, key2, key3, modifiers1, modifiers2, modifiers3;
+    var key1, key2, key3, key4, key5, key6, modifiers1, modifiers2, modifiers3, modifiers4, modifiers5, modifiers6;
 
     for (var i=0; i < window.keefox_org.commandManager.commands.length; i++)
     {
@@ -70,6 +70,21 @@ function createCommandPanel()
         {
             key3 = window.keefox_org.commandManager.commands[i].key;
             modifiers3 = window.keefox_org.commandManager.commands[i].keyboardModifierFlags;
+        }
+        if (window.keefox_org.commandManager.commands[i].name == "generatePassword")
+        {
+            key4 = window.keefox_org.commandManager.commands[i].key;
+            modifiers4 = window.keefox_org.commandManager.commands[i].keyboardModifierFlags;
+        }
+        if (window.keefox_org.commandManager.commands[i].name == "showMenuChangeDatabase")
+        {
+            key5 = window.keefox_org.commandManager.commands[i].key;
+            modifiers5 = window.keefox_org.commandManager.commands[i].keyboardModifierFlags;
+        }
+        if (window.keefox_org.commandManager.commands[i].name == "detectForms")
+        {
+            key6 = window.keefox_org.commandManager.commands[i].key;
+            modifiers6 = window.keefox_org.commandManager.commands[i].keyboardModifierFlags;
         }
     }
  
@@ -90,6 +105,24 @@ function createCommandPanel()
         description: "KeeFox-KB-shortcut-simple-3.desc",
         key: key3,
         keyboardModifierFlags: modifiers3
+    },
+    {
+        tooltip: "KeeFox_Menu-Button.copyNewPasswordToClipboard.tip",
+        description: "KeeFox_Menu-Button.copyNewPasswordToClipboard.label",
+        key: key4,
+        keyboardModifierFlags: modifiers4
+    },
+    {
+        tooltip: "KeeFox_Menu-Button.changeDB.tip",
+        description: "KeeFox_Menu-Button.changeDB.label",
+        key: key5,
+        keyboardModifierFlags: modifiers5
+    },
+    {
+        tooltip: "KeeFox_Menu-Button.fillCurrentDocument.tip",
+        description: "KeeFox_Menu-Button.fillCurrentDocument.label",
+        key: key6,
+        keyboardModifierFlags: modifiers6
     }];
 
     for (var i=0; i < commands.length; i++)
@@ -114,7 +147,7 @@ function createCommandPanel()
     }
 
     grid.appendChild(grows);
-    //TODO1.4: Find a way to cancel inline editing if user clicks somewhere else. below line causes problems.
+    //TODO1.5: Find a way to cancel inline editing if user clicks somewhere else. below line causes problems.
     //grid.addEventListener("click", onCommandBlur, false);
     commandPanelContainer.appendChild(grid);
 }
@@ -206,6 +239,18 @@ function onCommandKeyDown(evt)
     {
         names.push("showMenuLogins");
     }
+    else if (evt.target.id=="commands-key-3-textbox")
+    {
+        names.push("generatePassword");
+    }
+    else if (evt.target.id=="commands-key-4-textbox")
+    {
+        names.push("showMenuChangeDatabase");
+    }
+    else if (evt.target.id=="commands-key-5-textbox")
+    {
+        names.push("detectForms");
+    }
 
     for (var i=0; i < window.keefox_org.commandManager.commands.length; i++)
     {
@@ -293,10 +338,7 @@ function onsyncfrompreferenceMatchStandard()
 
 function onsynctopreferenceMatchStandard()
 {
-    var valElement = document.getElementById("KeeFox-pref-matchStandard-list").selectedItem;
-
-    document.getElementById("KeeFox-pref-matchStandard-list").value = valElement.label;
-    switch (valElement.value)
+    switch (document.getElementById("KeeFox-pref-matchStandard-list").selectedItem.getAttribute("value"))
     {
         case "FillAndSubmit": document.getElementById("KeeFox-pref-autoFillForms").value = true; return true;
         case "Fill": document.getElementById("KeeFox-pref-autoFillForms").value = true; return false;
@@ -325,9 +367,7 @@ function onsyncfrompreferenceMatchHTTP()
 
 function onsynctopreferenceMatchHTTP()
 {
-    var valElement = document.getElementById("KeeFox-pref-matchHTTP-list").selectedItem;
-    document.getElementById("KeeFox-pref-matchHTTP-list").value = valElement.label;
-    switch (valElement.value)
+    switch (document.getElementById("KeeFox-pref-matchHTTP-list").selectedItem.getAttribute("value"))
     {
         case "FillAndSubmit": document.getElementById("KeeFox-pref-autoFillDialogs").value = true; return true;
         case "Fill": document.getElementById("KeeFox-pref-autoFillDialogs").value = true; return false;

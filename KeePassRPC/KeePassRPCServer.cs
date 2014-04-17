@@ -104,11 +104,19 @@ namespace KeePassRPC
 				wait_event.WaitOne();
 			}
         }
+
+        void FleckLogger(LogLevel ll, string s, Exception e)
+        {
+            if (KeePassRPCPlugin.logger != null)
+                KeePassRPCPlugin.logger.WriteLine("Fleck says: " + s + (e != null ? (". Exception: " + e) : ""));
+        }
         
         void StartWebsockServer(int port, bool bindOnlyToLoopback)
         {
             FleckLog.Level = LogLevel.Debug;
-            _webSocketServer = new WebSocketServer(port, "ws://localhost", bindOnlyToLoopback);
+            FleckLog.LogAction = new Fleck2Extensions.Action<LogLevel, string, Exception>(FleckLogger);
+            // Fleck library changed behaviour with recent .NET versions so we have to supply the port in the location string
+            _webSocketServer = new WebSocketServer("ws://localhost:" + port, bindOnlyToLoopback);
             Action<IWebSocketConnection> config = new Action<IWebSocketConnection>(InitSocket);
             _webSocketServer.Start(config);
         }

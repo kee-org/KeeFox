@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
   
 This install.js file helps manage the installation of .NET, KeePass and KeePassRPC.
 
@@ -22,23 +22,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 "use strict";
 
-//Math.round((d.getTime()/1000)-10)
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.24/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.24.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.24.zip";
-const KF_KPZIP_FILE_CHECKSUM = "800452a0d9ba78769c63d42fe04fcd74";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.24/"; //"http://ovh.dl.sourceforge.net/project/keepass/KeePass%202.x/2.16/";
-const KF_KP_FILE_NAME = "KeePass-2.24-Setup.exe?r=&ts=";//KeePass-2.10-Setup.exe?use_mirror=kent //1312236867
-const KF_KP_SAVE_NAME = "KeePass-2.24-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "edcb9cc55bcbfe4cbd6e87f0eef39c3f";
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.26/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.26.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.26.zip";
+const KF_KPZIP_FILE_CHECKSUM = "289292df57d8d10789fa978d6c4bfb11";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.26/";
+const KF_KP_FILE_NAME = "KeePass-2.26-Setup.exe?r=&ts=";
+const KF_KP_SAVE_NAME = "KeePass-2.26-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "653222ac6b246b20eb2aee1f2952e8c5";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
 const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
 const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
-//const KF_NET35_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/";
-//const KF_NET35_FILE_NAME = "dotNetFx35setup.exe";
-//const KF_NET35_FILE_CHECKSUM = "c626670633ddcc2a66b0d935195cf2a1";
 const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
-
 
 const KF_INSTALL_STATE_SELECTED_PRI = 1; // user has asked to run default installation routine
 const KF_INSTALL_STATE_NET_DOWNLOADING = 2;
@@ -56,10 +51,6 @@ const KF_INSTALL_STATE_KRPC_EXECUTED = 4096;  // KeePassRPC files have been copi
 
 const KF_INSTALL_STATE_SELECTED_SEC = 8192; // user has asked to run secondary installation routine
 const KF_INSTALL_STATE_SELECTED_TER = 16384; // user has asked to run tertiary installation routine
-//const KF_INSTALL_STATE_NET35_DOWNLOADING = 32768;
-//const KF_INSTALL_STATE_NET35_DOWNLOADED = 65536;
-//const KF_INSTALL_STATE_NET35_EXECUTING = 131072;
-//const KF_INSTALL_STATE_NET35_EXECUTED = 262144; // .NET35 installer has been executed
 const KF_INSTALL_STATE_KPZIP_DOWNLOADING = 524288;
 const KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
 const KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;

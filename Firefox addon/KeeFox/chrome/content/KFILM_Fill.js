@@ -482,6 +482,9 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             findLoginOp.forms = forms;
             findLoginOp.formIndexes = [i];
             findLoginOp.wrappedBy = findLoginDoc;
+
+            //TODO1.5: bug here: when opening a new window, the getmostrecentwindow function below will return the new window but the callback data was set on the first window. On its own, this is quite uninteresting but maybe there are side-effects? not deleting the callback data on the first window? definite side effect is that the logins in the current window get deleted and never get re-added.
+            // Can we store the window context somewhere with the callback function that jsonrpc uses? but if we can do that, why not just store findLoginOps and findLoginDoc in the same way?
             findLoginOp.callback = function (resultWrapper) // the above vars are missing when callback occurs, dunno why but workaround in place anyway
             {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -778,10 +781,16 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
     // loaded then we can (re)populate these values now
     if (findLoginDoc.uniqueID != undefined && findLoginDoc.uniqueID != null && findLoginDoc.uniqueID != "")
     {
-        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
-        keefox_win.Logger.debug("Set KF_uniqueID to: " + findLoginDoc.uniqueID);
-        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName); //TODO1.4: FF31?: setTabValue only accepts string values. Happens only when first loading a page, refreshes, tab switches, etc. do not cause it
-        keefox_win.Logger.debug("Set KF_dbFileName to: " + findLoginDoc.dbFileName);
+        if (findLoginDoc.uniqueID)
+        {
+            keefox_win.Logger.debug("Setting KF_uniqueID to: " + findLoginDoc.uniqueID);
+            findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_uniqueID", findLoginDoc.uniqueID);
+        }
+        if (findLoginDoc.dbFileName)
+        {
+            keefox_win.Logger.debug("Setting KF_dbFileName to: " + findLoginDoc.dbFileName);
+            findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName); //TODO1.4: FF31?: setTabValue only accepts string values. Happens only when first loading a page, refreshes, tab switches, etc. do not cause it
+        }
         
         // only auto fill / submit if we expect another page for this login.
         // This may fail in some cases, not sure yet but it should reduce

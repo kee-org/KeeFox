@@ -5,7 +5,7 @@
   The metrics module collects anonymous statistics about key metrics and
   behaviours so we can improve KeeFox.
 
-  TODO: Link to privacy policy when live.
+  https://addons.mozilla.org/en-US/firefox/addon/keefox/privacy/
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -48,10 +48,8 @@ function ImmutableInformation()
     this.sessionStart;
     this.screenWidth;
     this.screenHeight;
-    this.windowWidth; //TODO: Not accurate
-    this.windowHeight; //TODO: Not accurate
-    this.keePassVersion; //TODO: Not implemented
-    this.netRuntimeVersion; //TODO: Not implemented
+    this.keePassVersion; //TODO1.4: Not implemented
+    this.netRuntimeVersion; //TODO1.4: Not implemented
 }
 
 function mm () {

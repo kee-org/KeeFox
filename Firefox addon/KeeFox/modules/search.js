@@ -2,6 +2,8 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
 
+  Contributions from https://github.com/haoshu
+
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -58,14 +60,19 @@ function Search(keefox_org, config)
     
         // Custom weights allow the order of results to be manipulated in a way
         // that best fits the context in which those results will be displayed
+        // A relevanceScore will be returned with each result item - it's up to
+        // the caller whether they are interested in processing this score data (e.g.
+        // ordering results in relevance order)
         weightTitles: config.weightTitles || 2,
         weightUsernames: config.weightUsernames || 1,
         weightGroups: config.weightGroups || 0.25,
         weightURLs: config.weightURLs || 0.75,
     
-        // not needed once implementation updated for version 1?
-        matchMask: 1031,
-    
+        // Maximum number of results to return, it's up to the caller to decide if
+        // they want to accept a result. Return a falsey value from onMatch to indicate that
+        // the match was not accepted and it will then not be counted towards this maximum.
+        maximumResults: 30,
+
         // Include a callback function if you want to run the search asynchronously, if
         // omitted the search will block and return the full set of results.
         // You can also set a unique callback for each call: Search.execute(query, useThisCallbackInstead);
@@ -78,7 +85,7 @@ function Search(keefox_org, config)
     };
     this.validateConfig();
     
-        //TODO: Check KF is in valid state for searching and validate incoming params
+        //TODO1.4: Check KF is in valid state for searching and validate incoming params
 
 }
 
@@ -129,9 +136,12 @@ Search.prototype = {
                 result = this._config.onMatch(result);
                 if (result)
                     results.push(result);
+                else
+                    return false;
             }
             else
                 results.push(result);
+            return true;
 		};
 
         // allow pre-tokenised search terms to be supplied
@@ -238,6 +248,12 @@ Search.prototype = {
             this.configIsValid = false;
         }
 
+        if (isNaN(this._config.maximumResults) || this._config.maximumResults <= 0)
+        {
+            KFLog.warn("maximumResults should be a positive number");
+            this.configIsValid = false;
+        }
+        
         if (this._config.onComplete != null && typeof(this._config.onComplete) !== 'function')
         {
             KFLog.warn("onComplete should be a function (or ommitted)");
@@ -263,60 +279,86 @@ Search.prototype = {
 		return tokens;
 	},
 
-	isMatched: function(item, keywords) {
-		var attributes = ['url', 'username', 'title'];
-		
-        //Sometimes the attribute is not found. This try catch is a quick
-        // hack to skip the result and keep things moving in the POC.
-        try
+	isMatched: function(item, keywords, isInMatchingGroup) {
+        if (!item.url)
         {
-            NEXT:
-		    for (var keyword of keywords) {
-			    for (var j = 0; j < attributes.length; j++) {
-				    if ((((this._config.matchMask >>> j) % 2) == 1) && (item[attributes[j]].toLowerCase().indexOf(keyword) > -1)) {
-					    continue NEXT;
-				    }
-			    }
-			    return false;
-		    }
-        } catch (e)
-        {
+            // must be a group.
+            // If we know that a parent group has already matched, no point in searching further
+            if (isInMatchingGroup)
+                return true;
+            for (var keyword of keywords) {
+                if (item.title.toLowerCase().indexOf(keyword) >= 0)
+                    return true;
+            }
             return false;
         }
-		return true;
+
+        let matchScore = 0.0;
+		
+        // Sometimes the attribute is not found. This try catch is a quick
+        // hack to skip the result and keep things moving in the POC.
+        //try
+        //{
+		    for (var keyword of keywords) {
+                let keywordScore = 0;
+                if (this._config.searchTitles && item.title && item.title.toLowerCase().indexOf(keyword) >= 0)
+                    keywordScore += this._config.weightTitles;
+                if (this._config.searchUsernames && item.usernameValue && item.usernameValue.toLowerCase().indexOf(keyword) >= 0)
+                    keywordScore += this._config.weightUsernames;
+                if (this._config.searchURLs && item.uRLs &&
+                    item.uRLs.filter(function (i) { return (i.toLowerCase().indexOf(keyword) >= 0); }).length > 0)
+                    keywordScore += this._config.weightURLs;
+		        
+                // Increment the relevance score proportionally to the number of keywords
+                matchScore += keywordScore * (1/keywords.length);
+            }
+
+            if (isInMatchingGroup)
+                matchScore += this._config.weightGroups
+
+            return matchScore;
+
+        //} catch (e)
+        //{
+        //    return false;
+        //}
+		//return 0.0;
 	},
 
-	convertItem: function(path, node, url) {
+	convertItem: function(path, node) {
 		var item = new Object();
-		
-        //if (! url) {
-        // What's the point of this block?
-		//	item.title = path + '/' + node.title;
-		//	item.url = item.user = '';
-		//} else {
-			item.iconImageData = node.iconImageData;
-			item.usernameValue = node.usernameValue;
-            item.usernameName = node.usernameName;
-			item.path = path;
-			item.title = node.title;
-			item.url = url;
-            item.uniqueID = node.uniqueID;
-		//}
+		item.iconImageData = node.iconImageData;
+		item.usernameValue = node.usernameValue;
+        item.usernameName = node.usernameName;
+		item.path = path;
+		item.title = node.title;
+		item.uRLs = node.uRLs;
+        item.url = node.uRLs[0];
+        item.uniqueID = node.uniqueID;
 		return item;
 	},
 
     /* TODO: track total results found and abort early when display limit reached
         */
-	treeTraversal: function(branch, path, flag, keywords, addResult) {
+	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult) {
 		for (var leaf of branch.childLightEntries) {
-			for (var url of leaf.uRLs) {
-				var item = this.convertItem(path, leaf, url);
-				(flag || this.isMatched(item, keywords)) && (addResult(item));
-			}
+			var item = this.convertItem(path, leaf);
+
+            // We might already know this is a match if the item is contained within
+            // a matching group but we check again because we probably want to update
+            // the relevance score for the item
+			let matchResult = this.isMatched(item, keywords, isInMatchingGroup);
+            if (matchResult > 0.0)
+            {
+                item.relevanceScore = matchResult;
+                let accepted = addResult(item);
+                if (accepted)
+                    continue; //TODO1.4: max results check
+            }
 		}
 		for (var subBranch of branch.childGroups) {
-			var subFlag = (flag) || (((this._config.matchMask >>> 10) % 2) == 1) && (this.isMatched(this.convertItem(path, subBranch, null), keywords));
-			this.treeTraversal(subBranch, path + '/' + subBranch.title, subFlag, keywords, addResult);
+			var subIsInMatchingGroup = this.isMatched({ title: subBranch.title}, keywords, isInMatchingGroup);
+			this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult);
 		}
 	}
 };

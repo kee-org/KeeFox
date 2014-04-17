@@ -882,13 +882,6 @@ kprpcClient.prototype.constructor = kprpcClient;
 
         let ivArray = sjcl.codec.hex.toBits(ivHex);
 
-        // This shouldn't throw anymore due to above workaround but leaving
-        // here for one release in case there is more than one problem
-        //TODO:1.4: remove this
-        for (var i=0; i<ivArray.length; i++)
-            if (ivArray[i] > 2147483648 || ivArray[i] < -2147483647)
-                throw "32bit integer overflow: " + ivHex;
-
         let encryptedPayload = sjcl.mode.cbc.encrypt(aes, sjcl.codec.utf8String.toBits(plaintext), ivArray);
         
         // need to convert all out int arrays (confusingly called bitarrays in sjcl) into byte arrays so we can pass

@@ -47,12 +47,11 @@
       <preference id="KeeFox-pref-autoFillFormsWithMultipleMatches" name="extensions.keefox@chris.tomlinson.autoFillFormsWithMultipleMatches" type="bool"/>
       <preference id="KeeFox-pref-searchAllOpenDBs" name="extensions.keefox@chris.tomlinson.searchAllOpenDBs" type="bool"/>
       <preference id="KeeFox-pref-listAllOpenDBs" name="extensions.keefox@chris.tomlinson.listAllOpenDBs" type="bool"/>
-      
+      <preference id="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" name="extensions.keefox@chris.tomlinson.alwaysDisplayUsernameWhenTitleIsShown" type="bool"/>
+
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.notifyBarWhenKeePassRPCInactive" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyBarWhenLoggedOut" type="bool"/>
-      <preference id="KeeFox-pref-flashIconWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.flashIconWhenKeePassRPCInactive" type="bool"/>
-      <preference id="KeeFox-pref-flashIconWhenLoggedOut" name="extensions.keefox@chris.tomlinson.flashIconWhenLoggedOut" type="bool"/>
 
       <preference id="KeeFox-pref-logMethodAlert" name="extensions.keefox@chris.tomlinson.logMethodAlert" type="bool"/>
       <preference id="KeeFox-pref-logMethodConsole" name="extensions.keefox@chris.tomlinson.logMethodConsole" type="bool"/>
@@ -141,7 +140,8 @@
                 <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
                 <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" class="itemEnd" />
                 <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
-                <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" />
+                <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" class="itemEnd" />
+                <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" />
               </rows>
 
             </grid>
@@ -165,10 +165,6 @@
                       label="%-KeeFox-pref-notifyBarWhenKeePassRPCInactive.label-%" />
             <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
                     label="%-KeeFox-pref-notifyBarWhenLoggedOut.label-%" class="itemEnd"/>
-            <checkbox id="flashIconWhenKeePassRPCInactive" preference="KeeFox-pref-flashIconWhenKeePassRPCInactive"
-                    label="%-KeeFox-pref-flashIconWhenKeePassRPCInactive.label-%" />
-            <checkbox id="flashIconWhenLoggedOut" preference="KeeFox-pref-flashIconWhenLoggedOut"
-                    label="%-KeeFox-pref-flashIconWhenLoggedOut.label-%" class="itemEnd"/>
             <button id="famsOptionsButton" label="%-KeeFox-FAMS-Options.label-%..." oncommand='openDialog(
                "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox",
                "",

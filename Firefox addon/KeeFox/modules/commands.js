@@ -43,6 +43,7 @@ function commandManager () {
     this.MOD_DEFAULT = 5;
 
     this.default_commands = [];
+    this.commandsConfigVersion = 2;
 
     this.setDefaultCommands = function()
     {
@@ -313,13 +314,30 @@ function commandManager () {
             if (!(keeFoxStorage.get("KeePassDatabaseOpen", false) 
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return false;
+            let container;
 
-            if (!win) return false;
-            var container = win.document.getElementById("KeeFox_Main-Button");
-            if (!container)
-                return false;
-            if (!container.getAttribute('uuid'))
-                return false;
+            if (win.keefox_win.legacyUI)
+            {
+                if (!win) return false;
+                container = win.document.getElementById("KeeFox_Main-Button");
+                if (!container)
+                    return false;
+                if (!container.getAttribute('uuid'))
+                    return false;
+            } else
+            {
+                container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+                if (!container)
+                    return false;
+                let matches = container.getElementsByTagName('li');
+                if (!matches)
+                    return false;
+                let firstMatch = matches[0];
+                if (!firstMatch)
+                    return false;
+                if (!firstMatch.getAttribute('uuid'))
+                    return false;
+            }
 
             return true;
         },
@@ -331,13 +349,26 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return false;
 
-            if (!win) return false;
-            var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
-            if (!loginsPopup)
-                return false;
-            if (loginsPopup.childNodes.length <= 1)
-                return false;
-
+            if (win.keefox_win.legacyUI)
+            {
+                if (!win) return false;
+                var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
+                if (!loginsPopup)
+                    return false;
+                if (loginsPopup.childNodes.length <= 1)
+                    return false;
+            } else
+            {
+                //TODO1.5: Needs more work to support alternative matched logins configuration that puts all logins into the overflow div
+                let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+                if (!container)
+                    return false;
+                let matches = container.getElementsByTagName('li');
+                if (!matches)
+                    return false;
+                if (matches.length <= 1)
+                    return false;
+            }
             return true;
         },
         generatePassword: function()
@@ -371,12 +402,16 @@ function commandManager () {
             if (keeFoxStorage.get("KeePassDatabaseOpen", false) 
                 && keeFoxStorage.get("KeePassRPCActive", false))
             {
-                if (!win) return false;
-                var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
-                if (!loginsPopup)
-                    return false;
-                if (loginsPopup.childNodes.length < 1)
-                    return false;
+                if (win.keefox_win.legacyUI)
+                {
+                    if (!win) return false;
+                    var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
+                    if (!loginsPopup)
+                        return false;
+                    if (loginsPopup.childNodes.length < 1)
+                        return false;
+                }
+                // For panelview UI we don't need to check anything beyond that we are logged in to at least one database
                 return true;
             }
             return false;
@@ -399,7 +434,8 @@ function commandManager () {
                 loginsPopup.openPopup(win.document.getElementById("KeeFox_Menu-Button"), "after_start", 0, 0, false, false);
             } else
             {
-                //ds
+                win.keefox_win.panel.displayPanel();
+                win.keefox_win.panel.hideSubSections();
             }
         },
         launchKeePass: function()
@@ -418,7 +454,9 @@ function commandManager () {
 
             if (!win.keefox_win.legacyUI)
             {
-                //sdf
+                win.keefox_win.panel.displayPanel();
+                win.keefox_win.panel.hideSubSections();
+                win.keefox_win.panel.showSubSectionChangeDatabase();
             }
         },
         detectForms: function()
@@ -496,7 +534,7 @@ function commandManager () {
                 container.doCommand();
             } else
             {
-                //sdf
+                win.keefox_org.utils._openAndReuseOneTabPerURL('http://keefox.org/help'); 
             }
         },
         installKeeFox: function()
@@ -520,7 +558,9 @@ function commandManager () {
                     return;
                 } else
                 {
-                    //sdsdf
+                    win.keefox_win.panel.displayPanel();
+                    win.keefox_win.panel.hideSubSections();
+                    win.keefox_win.panel.showSubSectionAllLogins();
                 }
             }
         },
@@ -543,7 +583,21 @@ function commandManager () {
                 return;
             } else
             {
-                //kjhgjhg
+                //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+                var container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+                if (!container)
+                    return;
+                let matches = container.getElementsByTagName('li');
+                if (!matches)
+                    return;
+                let firstMatch = matches[0];
+                if (!firstMatch)
+                    return;
+                if (!container.getAttribute('uuid'))
+                    return;
+
+                container.dispatchEvent(new Event("keefoxCommand"));
+                return;
             }
         },
         showMenuMatchedLogins: function(target)
@@ -569,7 +623,19 @@ function commandManager () {
                 }
             } else
             {
-                //kjhgjhg
+                //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+                win.keefox_win.panel.displayPanel();
+                win.keefox_win.panel.hideSubSections();
+                let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+                if (!container)
+                    return;
+                let matches = container.getElementsByTagName('li');
+                if (!matches)
+                    return;
+                let firstMatch = matches[0];
+                if (!firstMatch)
+                    return;
+                firstMatch.focus();
             }
         },
         autoTypeHere: function()
@@ -698,7 +764,7 @@ function commandManager () {
     {
         for (let i=0; i<this.commands.length; i++)
         {
-            //TODO: Need to work on what constitutes a disabled/hidden menu item. need to be invisible and detached in an ideal world.
+            //TODO1.5: Need to work on what constitutes a disabled/hidden menu item. need to be invisible and detached in an ideal world.
             if (this.commands[i].contextLocationFlags & this.CONTEXT_MAIN 
                 || this.commands[i].contextLocationFlags & this.CONTEXT_INPUT
                 || this.commands[i].contextLocationFlags & this.CONTEXT_BUTTON)
@@ -731,7 +797,7 @@ function commandManager () {
                     }, false);
             }
 
-            //TODO1.4: repeat for submenu context type
+            //TODO1.5: repeat for submenu context type
 
         }
 
@@ -766,9 +832,12 @@ function commandManager () {
         {
             var prefData = prefBranch.getComplexValue("commands", Ci.nsISupportsString).data;
             var coms = JSON.parse(prefData);
-            //TODO1.4: In future check version here and apply migrations if needed
-            //var currentVersion = prefBranch.getIntPref("commandsVersion");
-            this.commands = coms;
+            var currentVersion = prefBranch.getIntPref("commandsVersion");
+            // Backwards migrations are not supported
+            if (currentVersion < this.commandsConfigVersion)
+                this.migrateConfig(currentVersion, this.commandsConfigVersion, coms);
+            else
+                this.commands = coms;
         } catch (ex) {
             var coms = JSON.parse(JSON.stringify(this.default_commands)); //TODO2: faster clone?
             this.commands = coms;
@@ -787,8 +856,36 @@ function commandManager () {
         str.data = JSON.stringify(this.commands);
         prefBranch.setComplexValue("commands", Ci.nsISupportsString, str);
         
-        //TODO1.4: Stop forcing this to 1 when we release the first new version
-        prefBranch.setIntPref("commandsVersion",1);
+        prefBranch.setIntPref("commandsVersion",this.commandsConfigVersion);
+    };
+
+    this.migrateConfig = function(currentVersion, newVersion, currentConfig)
+    {
+        // If anything goes wrong with the migration, we just let the catch 
+        // in load() deal with it (reset to the latest defaults)
+
+        // Nice and easy to start with; we have only one possible migration path ...
+        if (currentVersion == 1 && newVersion == 2)
+        {
+            // ... and that migration path makes no modifications to the default
+            // configuration of the handful of commands that were supported in 
+            // version 1 so we just start with the default v2 config and overwrite
+            // some select objects from the existing configuration
+            let newConfig = this.default_commands;
+            let commandsToMigrate = ["installKeeFox","launchKeePass","loginToKeePass",
+                "showMenuMatchedLogins","fillMatchedLogin","showMenuKeeFox","showMenuLogins"];
+            let mergedConfig = newConfig.map(function (newItem) { 
+                if (commandsToMigrate.indexOf(newItem.name) >= 0)
+                    return currentConfig.filter(function (currentItem) { 
+                        return currentItem.name === newItem.name;
+                    })[0];
+                else
+                    return newItem;
+            });
+            // need to debug this. for some reason, the new config is identical to the old one, although i've checked that the new data is available in the default config array
+            this.commands = mergedConfig;
+            this.save();
+        }
     };
 
 }
