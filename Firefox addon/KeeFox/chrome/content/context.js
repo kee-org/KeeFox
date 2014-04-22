@@ -235,7 +235,7 @@ keefox_win.context = {
                 menupopup.appendChild(tempButton);
             }
         }
-    }
+    },
 
     /*
     generatePassword: function () {
@@ -267,6 +267,7 @@ keefox_win.context = {
     mainButtonCommandLoginKPHandler: function (event) {
         keefox_org.loginToKeePass();
     },
+    */
 
     mainButtonCommandMatchHandler: function (event) {
         keefox_win.ILM.fill(
@@ -280,7 +281,7 @@ keefox_win.context = {
             this.hasAttribute('fileName') ? this.getAttribute('fileName') : null
         );
         event.stopPropagation();
-    }*/
+    }
 
 };
 

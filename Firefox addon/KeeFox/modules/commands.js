@@ -335,7 +335,7 @@ function commandManager () {
                 let firstMatch = matches[0];
                 if (!firstMatch)
                     return false;
-                if (!firstMatch.getAttribute('uuid'))
+                if (!firstMatch.getAttribute('data-uuid'))
                     return false;
             }
 
@@ -593,10 +593,10 @@ function commandManager () {
                 let firstMatch = matches[0];
                 if (!firstMatch)
                     return;
-                if (!container.getAttribute('uuid'))
+                if (!firstMatch.getAttribute('data-uuid'))
                     return;
 
-                container.dispatchEvent(new Event("keefoxCommand"));
+                firstMatch.dispatchEvent(new Event("keefoxCommand"));
                 return;
             }
         },
