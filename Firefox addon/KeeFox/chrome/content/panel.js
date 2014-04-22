@@ -1446,8 +1446,6 @@ keefox_win.panel = {
     },
     
     focusAdjacentPanelItem: function (startNode, reverse) {
-
-        
         let node = startNode;
         let isVisible = false;
 
@@ -1460,14 +1458,33 @@ keefox_win.panel = {
             return;
         }
 
-        //TODO1.4: if we're in reverse and the next element is a group item and it is active (open) and it is not a group that our startnode is in, we find the last child of the group item's list and focus that. if the last child is also a group, we recurse until we find a last child that is a login-item or a closed group-item
+        let maxParentNodeHeight = 100;
+        if (reverse && node && node.parentNode && node.parentNode.parentNode && node.parentNode.parentNode.classList.contains("group-item") )
+            maxParentNodeHeight = 2;
 
         while (true)
         {
-            node = reverse ? this._getPreviousSiblingOrParent(node) : this._getNextSiblingOrParent(node);
+            node = reverse ? this._getPreviousSiblingOrParent(node,maxParentNodeHeight) : this._getNextSiblingOrParent(node);
 
             if (node != null)
             {
+                // If we're going backwards and have found a sibling node that is an active (open) group
+                if (reverse && node.parentNode == startNode.parentNode && node.classList.contains("group-item") 
+                    && (node.classList.contains("active-group") || node.classList.contains("active-group-parent")))
+                {
+                    // we need to find the last child in the group's heirachy (because it will be visually displayed directly above our start node)
+                    let childNode = node;
+                    while (true)
+                    {
+                        childNode = this._findFirstFocusableChildItem(childNode.firstElementChild, true);
+                        if (childNode.classList.contains("group-item") 
+                            && (childNode.classList.contains("active-group") || childNode.classList.contains("active-group-parent")))
+                            continue;
+                        node = childNode;
+                        break;
+                    }
+                }
+
                 let focusableNode = this._findFirstFocusableChildItem(node, reverse);
                 if (focusableNode != null)
                 {
@@ -1482,7 +1499,6 @@ keefox_win.panel = {
 
         if (node != null)
         {
-            //node = this._findFirstFocusableChildItem(node);
             // We found a node to focus to
             node.focus();
         }
@@ -1519,10 +1535,13 @@ keefox_win.panel = {
         }
         return null;
     },
-
-    _getPreviousSiblingOrParent: function (startNode) {
+    
+    _getPreviousSiblingOrParent: function (startNode, height) {
+        // If our height tracker goes below 0 we know we've now gone too far up the heirachy
+        if (height <= 0)
+           return startNode;
         if (startNode.tagName == 'ul')
-            return this._getPreviousSiblingOrParent(startNode.parentNode);
+           return this._getPreviousSiblingOrParent(startNode.parentNode, --height);
         let node = startNode;
 
         if (node == null)
@@ -1536,7 +1555,7 @@ keefox_win.panel = {
 
             // As long as we've gone too far up the DOM tree, keep going until we find a previous element sibling
             if (node.id != 'keefox-panelview')
-                node = this._getPreviousSiblingOrParent(node);
+                node = this._getPreviousSiblingOrParent(node, --height);
             else
                 node = null;
         }
