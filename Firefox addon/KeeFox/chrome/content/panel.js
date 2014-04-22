@@ -120,13 +120,40 @@ keefox_win.panel = {
     {
         if (aTopic == "keefox_matchedLoginsChanged")
         {
-            // Don't want to do anything if this window is not displaying 
+            // Only react if this window or one of its frames is displaying 
             // the URL for which the matched logins have changed
-            if (this._currentWindow.content.document.location.href == aSubject.wrappedJSObject.uri) 
+            if (keefox_win.ILM._findDocumentByURI(this._currentWindow, aSubject.wrappedJSObject.uri)) 
                 this.setLogins(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
         }
     },
 
+    /*
+    _windowDisplayingURI: function (uri) {
+        if (this._currentWindow.content.document.location.href == uri)
+            return true;
+        else 
+    },
+
+    keefox_win.ILM._findDocumentByURI = function (window, URI)
+{
+    if (window.frames.length > 0)
+    {
+        keefox_win.Logger.debug("Searching through " + window.frames.length + " sub frames");
+        var frames = window.frames;
+        for (var i = 0; i < frames.length; i++)
+        { 
+            var subResult = this._findDocumentByURI (frames[i], URI);
+            if ( subResult != null)
+                return subResult;
+        }
+    }
+    
+    if (window.document.documentURI == URI)
+        return window.document;
+    else
+        return null;
+};
+*/
     _currentWindow: null,
 
     shutdown: function () { },

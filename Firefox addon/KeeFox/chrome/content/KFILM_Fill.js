@@ -370,11 +370,6 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             keefox_win.UI._showLaunchKFNotification();
         }
         
-        var flashIconWhenKeePassRPCInactive = keefox_org._keeFoxExtension.prefs.getValue("flashIconWhenKeePassRPCInactive",true);
-
-        if (flashIconWhenKeePassRPCInactive && initialPageLoad)
-            keefox_win.mainUI._currentWindow.setTimeout(keefox_win.mainUI.flashItem, 10,
-                keefox_win.mainUI._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.mainUI._currentWindow);
         return;
     } else if (!keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false))
     {
@@ -386,12 +381,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             keefox_win.UI.setDocument(doc);
             keefox_win.UI._showLoginToKFNotification();
         }
-        
-        var flashIconWhenLoggedOut = keefox_org._keeFoxExtension.prefs.getValue("flashIconWhenLoggedOut",true);
-        
-        if (flashIconWhenLoggedOut && initialPageLoad)
-            keefox_win.mainUI._currentWindow.setTimeout(keefox_win.mainUI.flashItem, 10,
-                keefox_win.mainUI._currentWindow.document.getElementById('KeeFox_Main-Button'), 12, keefox_win.mainUI._currentWindow);
+
         return;
     }
 
