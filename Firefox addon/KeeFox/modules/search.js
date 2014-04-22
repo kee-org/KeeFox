@@ -84,8 +84,6 @@ function Search(keefox_org, config)
     
     };
     this.validateConfig();
-    
-        //TODO1.4: Check KF is in valid state for searching and validate incoming params
 
 }
 
@@ -158,12 +156,12 @@ Search.prototype = {
                 for (let i=0; i<this._keefox_org.KeePassDatabases.length; i++)
                 {
                     let root = this._keefox_org.KeePassDatabases[i].root;
-		            this.treeTraversal(root, '', false, keywords, addResult.bind(this));
+		            this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0);
                 }
             } else
             {
                 let root = this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex].root;
-		        this.treeTraversal(root, '', false, keywords, addResult.bind(this));
+		        this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0);
             }
             onComplete(results);
         }
@@ -338,9 +336,8 @@ Search.prototype = {
 		return item;
 	},
 
-    /* TODO: track total results found and abort early when display limit reached
-        */
-	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult) {
+	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult, currentResultCount) {
+        let totalResultCount = currentResultCount;
 		for (var leaf of branch.childLightEntries) {
 			var item = this.convertItem(path, leaf);
 
@@ -353,12 +350,18 @@ Search.prototype = {
                 item.relevanceScore = matchResult;
                 let accepted = addResult(item);
                 if (accepted)
-                    continue; //TODO1.4: max results check
+                {
+                    totalResultCount++;
+                    if (totalResultCount >= this._config.maximumResults)
+                        return totalResultCount;
+                }
             }
 		}
 		for (var subBranch of branch.childGroups) {
 			var subIsInMatchingGroup = this.isMatched({ title: subBranch.title}, keywords, isInMatchingGroup);
-			this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult);
+			totalResultCount = this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult, totalResultCount);
+            if (totalResultCount >= this._config.maximumResults)
+                return totalResultCount;
 		}
 	}
 };

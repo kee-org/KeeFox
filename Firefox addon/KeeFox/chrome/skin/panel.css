@@ -8,7 +8,7 @@
 	list-style-image: url("chrome://keefox/skin/KeeFoxGrey16.png");
 }
 
-/* bigger icons in the Firefox menu and toolbar palette */
+/* Bigger icons in the Firefox menu and toolbar palette */
 #keefox-button[cui-areatype="menu-panel"],
 toolbarpaletteitem[place="palette"] > #keefox-button {
   list-style-image: url("chrome://keefox/skin/KeeFox32.png");
@@ -56,8 +56,7 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     margin-bottom:5px;
 }
 
-/* default appearence of list items to match australis look and feel
-TODO1.4: everything except groups */
+/* default appearence of list items to match australis look and feel */
 #keefox-panelview li
 {
     background-color: #FFFFFF;
@@ -87,6 +86,7 @@ TODO1.4: everything except groups */
 #keefox-panelview li.group-item
 {
     border-left-width:0px;
+    border-right-width:0px;
     border-bottom-left-radius: 0px; 
     border-top-left-radius: 0px;
     margin-right:0px !important;
@@ -109,14 +109,6 @@ TODO1.4: everything except groups */
     
 }
 
-/*
-:hover EDEDED
-bottom action button EEEEEE
-seperators DDDDDD
-subpanel title color: 7F7F7F
-subpanel title bg : F4F4F4
-*/
-
 #keefox-panelview .disabled
 {
 	display:none;
@@ -131,7 +123,6 @@ subpanel title bg : F4F4F4
 #keefox-panelview .KeeFox-PanelSubSection,
 #keefox-panelview #KeeFox-PanelSection-close
 {
-	/* think this won't work - need to use classes instead of KeeFox-PanelSection-close ID due to specificity ordering */
 	display:none;
 }
 
@@ -178,15 +169,18 @@ subpanel title bg : F4F4F4
 #keefox-panelview li.group-item {
     
     /* Default group folder icons are a bit top heavy but user might have 
-    customised them. compromise is a 1px shift down so they look a little
+    customised them. Compromise is a 1px shift down so they look a little
     more aligned most of the time */
     background-position:2px 5px;
+    padding-right:0px;
 }
 
 /* Unless in the presence of a containing group defined below, display all login items */
 #keefox-panelview li.login-item
 {
     display:list-item;
+    border-left-width:0px;
+    border-right-width:0px;
 }
 
 /* Hide all groups and their contents by default */
@@ -196,9 +190,7 @@ subpanel title bg : F4F4F4
     display:none;
 }
 
-/* Make sure top-level groups are always displayed
-#KeeFox-PanelSection-allLogins 
-*/
+/* Make sure top-level groups are always displayed */
 #keefox-panelview div.KeeFox-LoginList > ul > li.group-item
 {
     display:list-item;
@@ -215,6 +207,7 @@ subpanel title bg : F4F4F4
 {
     display:list-item;
 }
+
 #keefox-panelview li.active-group > ul > li.login-item,
 #keefox-panelview li.active-group > ul > li.group-item
 {
@@ -234,7 +227,6 @@ subpanel title bg : F4F4F4
     background:linear-gradient(to right, #C9DAE8 0px, #C9DAE8 8px, transparent 9px);
     list-style:none;
 }
-
 
 /* specific level login list overrides (after 4 levels deep we revert to defaults above) */
 #keefox-panelview div.KeeFox-LoginList > ul,
@@ -294,6 +286,7 @@ subpanel title bg : F4F4F4
     border-bottom: 2px #DDDDDD solid;
     margin-bottom: 5px;
 }
+
 #KeeFox-PanelSection-search ul:empty,
 #KeeFox-PanelSubSection-MatchedLoginsList ul:empty,
 #KeeFox-PanelSubSection-AllLoginsList ul:empty {
@@ -302,6 +295,7 @@ subpanel title bg : F4F4F4
     margin-bottom: 0px;
 }
 
+/* Shade the item that has keyboard focus */
 #keefox-panelview li:focus,
 #keefox-panelview button:focus,
 #keefox-panelview input[type="button"]:focus
@@ -309,7 +303,7 @@ subpanel title bg : F4F4F4
     background-color: #DDDDDD;
 }
 
-
+/* FAMS and other notification bar styles */
 .FAMSmessageGroup
 {
 	border: solid 1px #000 !important;

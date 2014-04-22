@@ -487,7 +487,7 @@ kprpcClient.prototype.constructor = kprpcClient;
   	this.proofToClient = function(data) {
   		this.srpClientInternals.confirm_authentication(data.srp.M2);
 
-        //TODO1.4: DRY - getMostRecentWindow into KFUtils
+        //TODO1.5: DRY - getMostRecentWindow into KFUtils
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                     .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("common-dialog") ||

@@ -441,7 +441,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
             interestingForm = keefox_org.config.valueAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
             interestingForm = keefox_org.config.valueAllowed(otherFields[f].name,conf.interestingForms.f_name_w,conf.interestingForms.f_name_b,interestingForm);
                 
-            //TODO1.4: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
+            //TODO1.5: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
         }
         
         if (interestingForm === false)
@@ -462,7 +462,7 @@ keefox_win.ILM._fillDocument = function (doc, initialPageLoad)
         findLoginDoc.passwordFieldsArray[i] = passwordFields;
         findLoginDoc.otherFieldsArray[i] = otherFields;
         
-        //TODO1.4: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC?
+        //TODO1.5: Don't think this assumption holds anymore - e.g. on pages with javascript actions to modify actionOrigin onsubmit, etc. - need to ALWAYS talk to KPRPC?
         // Only the actionOrigin might be changing, so if it's the same
         // as the last form on the page we can reuse the same logins.
         var actionOrigin = this._getURIHostAndPort(this._getActionOrigin(form));
@@ -779,7 +779,7 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
         if (findLoginDoc.dbFileName)
         {
             keefox_win.Logger.debug("Setting KF_dbFileName to: " + findLoginDoc.dbFileName);
-            findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName); //TODO1.4: FF31?: setTabValue only accepts string values. Happens only when first loading a page, refreshes, tab switches, etc. do not cause it
+            findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_dbFileName", findLoginDoc.dbFileName);
         }
         
         // only auto fill / submit if we expect another page for this login.
@@ -969,7 +969,7 @@ keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
         otherFields = otherFieldsList[mostRelevantFormIndex];
     }
     
-    //TODO1.4: This should work fine but maybe needs refinement now that we allow filling fields with just text fields too?
+    //TODO1.5: This should work fine but maybe needs refinement now that we allow filling fields with just text fields too?
     if ((passwords == null || passwords.length == 0) && (otherFields == null || otherFields.length == 0))
     {
         keefox_win.Logger.info("Can't find any form with a password or text field. This could indicate that this page uses some odd javascript to delete forms dynamically after the page has loaded.");

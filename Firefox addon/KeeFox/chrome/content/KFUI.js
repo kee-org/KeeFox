@@ -254,7 +254,7 @@ keefox_win.UI = {
         // across the first 5 location changes.
         newBar.persistence = 5;
 
-        //TODO1.4: This property is no longer documented and may no longer
+        //TODO1.5: This property is no longer documented and may no longer
         // work. Need to investigate alternative options.
         // Sites like Gmail perform a funky redirect dance before you end up
         // at the post-authentication page. I don't see a good way to
@@ -434,7 +434,7 @@ keefox_win.UI = {
                     keefox_org.metricsManager.pushEvent ("feature", "SaveNever");
                     try 
                     {
-                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO1.4: faster clone?
+                        let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO1.5: faster clone?
                         keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
                     } finally
                     {

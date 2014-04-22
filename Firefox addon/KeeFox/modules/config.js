@@ -43,7 +43,7 @@ function config()
         url: "*",
         config:{
             rescanFormDelay: -1, // to +INTMAX, // if old "rescan forms" set to true - configure to whatever that default was (5 seconds?)
-            /* TODO1.4: In future we can give finer control of form rescanning behaviour from here
+            /* TODO1.5: In future we can give finer control of form rescanning behaviour from here
             rescanDOMevents:
             [{
 
@@ -87,7 +87,7 @@ function config()
             },
             preventSaveNotification: false
             /*
-            TODO1.4: In future we can migrate other preferences to here if they are suited to being overridden per site
+            TODO1.5: In future we can migrate other preferences to here if they are suited to being overridden per site
             ,
             flashOnLoggedOut: true,
             flashOnNotRunning: true,
@@ -158,8 +158,8 @@ function config()
 
     this.cloneObj = function (obj)
     {
-        //TODO1.4: improve speed? See http://jsperf.com/clone/5
-        //TODO1.4: Might be useful in a utils location, not just for config manipulation
+        //TODO1.5: improve speed? See http://jsperf.com/clone/5
+        //TODO1.5: Might be useful in a utils location, not just for config manipulation
         return JSON.parse(JSON.stringify(obj));
     };
 
@@ -245,11 +245,11 @@ function config()
         {
             var prefData = prefBranch.getComplexValue("config", Ci.nsISupportsString).data;
             var conf = JSON.parse(prefData);
-            //TODO1.4: In future check version here and apply migrations if needed
+            //TODO1.5: In future check version here and apply migrations if needed
             //var currentVersion = prefBranch.getIntPref("configVersion");
             this.current = conf;
         } catch (ex) {
-            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO1.4: faster clone?
+            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO1.5: faster clone?
             this.current = conf;
             this.save();
         }
@@ -266,7 +266,7 @@ function config()
         str.data = JSON.stringify(this.current);
         prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
 
-        //TODO1.4: Stop forcing this to 1 when we release the first new version
+        //TODO1.5: Stop forcing this to 1 when we release the first new version
         prefBranch.setIntPref("configVersion",1);
     };
 

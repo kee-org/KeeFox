@@ -10,9 +10,6 @@
   while the code may diverge over time, it is pretty independent of the rest of the
   addon and we'll eventually just delete the old version.
 
-  //TODO1.4: This is probably innacurate:
-  KFtoolbar also contains the code for in-page context menus but this will also not be modified - hopefully in 1.4 or 1.5 I'll update it but only after refactoring into a seperate file.
-  
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -97,7 +94,6 @@ keefox_win.panel = {
                         // data or state (such as the _currentWindow)
                         let win = doc.ownerGlobal;
                         win.keefox_win.panel.buildPanel.call(win.keefox_win.panel, win);
-                        //TODO1.4: is the call with this necessary?
                     }
                 });
                 keefox_win.Logger.info("Created KeeFox widget");
@@ -127,40 +123,11 @@ keefox_win.panel = {
         }
     },
 
-    /*
-    _windowDisplayingURI: function (uri) {
-        if (this._currentWindow.content.document.location.href == uri)
-            return true;
-        else 
-    },
-
-    keefox_win.ILM._findDocumentByURI = function (window, URI)
-{
-    if (window.frames.length > 0)
-    {
-        keefox_win.Logger.debug("Searching through " + window.frames.length + " sub frames");
-        var frames = window.frames;
-        for (var i = 0; i < frames.length; i++)
-        { 
-            var subResult = this._findDocumentByURI (frames[i], URI);
-            if ( subResult != null)
-                return subResult;
-        }
-    }
-    
-    if (window.document.documentURI == URI)
-        return window.document;
-    else
-        return null;
-};
-*/
     _currentWindow: null,
 
     shutdown: function () { },
 
     buildPanel: function (win) {
-        
-        // We set the current window here. No idea if it will stay in the right place for long enough...
         this._currentWindow = win;
 
         let panelview = win.document.createElement('panelview');
@@ -176,7 +143,6 @@ keefox_win.panel = {
     },
     
     populatePanel: function (panel) {
-        //TODO1.4: Can this ever work? Surely we won't have access to the required scope even when user starts interacting with the hundreds of events we define during setup?! Maybe we have to abandon the closure idea and force a search for most recent window? horrible horrible horrible.
         let closure = this;
 
         // Each main component is a div with a button to invoke the main action.
@@ -799,8 +765,6 @@ keefox_win.panel = {
                 if (fc) fc = fc.firstElementChild;
                 if (fc) fc.focus();
                 
-
-                //TODO?: If user clicked on something in the same active hierachy, we should close the one they clicked on ensure their parent is activated (if it exists) and ensure keyboard focus is on the item they clicked on (now in a closed state) - the latter will happen automatically if the even was fired from a mouse click.
             }
             keefox_win.panel.resizePanel();
         },
@@ -1085,7 +1049,6 @@ keefox_win.panel = {
                     // function to which the event is passed next, they have a value that is relative to the main widget
                     // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
                     // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
-                    //this.dispatchEvent(new CustomEvent("keefoxContext", { 'detail': { 'layerX': event.layerX, 'layerY': event.layerY }}));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
@@ -1184,8 +1147,6 @@ keefox_win.panel = {
     
     setupButton_install: function () {
         keefox_win.Logger.debug("setupButton_install start");
-        
-        //TODO1.4: Remove all of the existing logins, etc.? already done elsewhere?
 
         this.setWidgetStatus(false,
             keefox_org.locale.$STR("installKeeFox.label"), 
@@ -1229,20 +1190,6 @@ keefox_win.panel = {
                     loggedInText = keefox_org.locale.$STRF("loggedInMultiple.tip", [numberOfDBs,mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
             } else
             {
-                //TODO1.4: We used to just return like this but maybe we need to set 
-                // up some kind of state? Not sure why we'd end up in this situation, nor how to describe it to users anyway!
-
-//                this.setWidgetStatus(false,
-//                    keefox_org.locale.$STR("installKeeFox.label"), 
-//                    keefox_org.locale.$STR("installKeeFox.tip"),
-//                    keefox_org.locale.$STR("installKeeFox.tip"),
-//                    this.mainButtonCommandInstallHandler);
-//                this.disableUIElement("KeeFox-PanelSection-search");
-//                this.disableUIElement("KeeFox-PanelSection-matchedLogins");
-//                this.disableUIElement("KeeFox-PanelSection-allLogins");
-//                this.disableUIElement("KeeFox-PanelSection-generatePassword");
-//                this.disableUIElement("KeeFox-PanelSection-changeDatabase");
-//                this.disableUIElement("KeeFox-PanelSection-detectForms");
                 return;
             }
 
@@ -1461,8 +1408,6 @@ keefox_win.panel = {
                 if (event.target.parentNode && event.target.parentNode.parentNode 
                     && event.target.parentNode.parentNode.nodeName == "li")
                     event.target.parentNode.parentNode.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': 0, 'ctrlKey': event.ctrlKey }} ));
-    //TODO1.4: Keyboard focus - maybe can just use the default behaviour of the command object?
-
             }
         } else if (event.keyCode == 39) // right
         {
@@ -1515,7 +1460,7 @@ keefox_win.panel = {
             return;
         }
 
-                //TODO1.4: if we're in reverse and the next element is a group item and it is active (open) and it is not a group that our startnode is in, we find the last child of the group item's list and focus that. if the last child is also a group, we recurse until we find a last child that is a login-item or a closed group-item
+        //TODO1.4: if we're in reverse and the next element is a group item and it is active (open) and it is not a group that our startnode is in, we find the last child of the group item's list and focus that. if the last child is also a group, we recurse until we find a last child that is a login-item or a closed group-item
 
         while (true)
         {

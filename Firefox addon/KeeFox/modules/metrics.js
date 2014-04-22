@@ -48,8 +48,8 @@ function ImmutableInformation()
     this.sessionStart;
     this.screenWidth;
     this.screenHeight;
-    this.keePassVersion; //TODO1.4: Not implemented
-    this.netRuntimeVersion; //TODO1.4: Not implemented
+    this.keePassVersion; //TODO1.5: Not implemented
+    this.netRuntimeVersion; //TODO1.5: Not implemented
 }
 
 function mm () {

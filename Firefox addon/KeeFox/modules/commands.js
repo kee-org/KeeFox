@@ -28,7 +28,6 @@ Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/KFExtension.js");
 
 function commandManager () {
-    this.legacyUI = false;
     this._KFLog = KFLog;
   
     this.MOD_SHIFT = 1;
@@ -646,7 +645,6 @@ function commandManager () {
 
     this.init = function (locale)
     {
-        this.legacyUI = KFExtension.legacyUI;
         this.locale = locale;
         this.keeFoxStorage = KFExtension.storage;
         this.setDefaultCommands();

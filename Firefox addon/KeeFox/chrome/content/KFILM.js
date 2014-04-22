@@ -142,7 +142,7 @@ keefox_win.ILM = {
         else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
             score += 1;
 
-        //TODO1.4: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
+        //TODO1.5: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
 
         keefox_win.Logger.info("Relevance for " + login.uniqueID + " is: "+score);
         return score;

@@ -105,7 +105,7 @@ Localisation.prototype = {
         // JSON is optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
         if (json == null)
         {
-            //TODO1.4: get JSON from the right place
+            //TODO1.5: get JSON from the right place
             json = null;
         }
 
@@ -172,7 +172,7 @@ Localisation.prototype = {
         // We check each name and convert from Google Chrome JSON format if required
         for (var name in singleLocale)
             if (typeof singleLocale[name] != 'string' && !(singleLocale[name] instanceof String))
-                singleLocale[name] = singleLocale[name]["message"]; //TODO1.4: Hook in some conversion of Chrome parameters
+                singleLocale[name] = singleLocale[name]["message"]; //TODO1.5: Hook in some conversion of Chrome parameters
 
         return singleLocale;    
     },

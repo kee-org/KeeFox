@@ -558,23 +558,16 @@ keefox_win.toolbar = {
                 changeDBButton.addEventListener("popupshowing", this.setMRUdatabases, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "false");
             }
-            //TODO1.4: make generate password popupshowing event do something useful or remove it
             if (generatePasswordButton !== undefined && generatePasswordButton != null) {
-//                generatePasswordButton.addEventListener("popupshowing", function (event) { keefox_win.toolbar.generatePassword(); event.stopPropagation(); }, false);  //AET: OK; but remove event listeners for memory?
                 generatePasswordButton.setAttribute("disabled", "false");
             }
         } else {
             if (changeDBButton !== undefined && changeDBButton != null) {
                 changeDBButton.setAttribute("label", keefox_org.locale.$STR("changeDBButtonDisabled.label"));
                 changeDBButton.setAttribute("tooltiptext", keefox_org.locale.$STR("changeDBButtonDisabled.tip"));
-                //changeDBButton.setAttribute("onpopupshowing", "");
-                //changeDBButton.addEventListener("popupshowing", function (event) { return; }, false);  //AET: OK; but remove event listeners for memory?
                 changeDBButton.setAttribute("disabled", "true");
             }
             if (generatePasswordButton !== undefined && generatePasswordButton != null) {
-                //generatePasswordButton.setAttribute("label", this.strbundle.getString("changeDBButtonDisabled.label"));
-                //generatePasswordButton.setAttribute("tooltiptext", this.strbundle.getString("changeDBButtonDisabled.tip") );
-                //generatePasswordButton.setAttribute("onpopupshowing", "");
                 generatePasswordButton.addEventListener("popupshowing", function (event) { return; }, false);  //AET: OK; but remove event listeners for memory?
                 generatePasswordButton.setAttribute("disabled", "true");
             }

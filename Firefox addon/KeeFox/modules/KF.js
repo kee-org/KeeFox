@@ -1135,7 +1135,7 @@ KeeFox.prototype = {
         kfw.Logger.debug("_checkRescanForAllFrames start");
         var conf = keefox_org.config.getConfigForURL(win.content.document.documentURI);
         
-        //TODO1.4: shared code with KFILM.js? refactor?
+        //TODO1.5: shared code with KFILM.js? refactor?
                 
         if (conf.rescanFormDelay >= 500)
         {
@@ -1150,7 +1150,7 @@ KeeFox.prototype = {
             if (kfw.ILM._refillTimerURL != topDoc.documentURI)
             {
                 kfw.ILM._refillTimer.cancel();
-                //TODO1.2: do we need to store the url of the document we have decided we aren't interested in? Might protect against a problem with tabbing to and from different instances of the same website?
+                //TODO1.5: do we need to store the url of the document we have decided we aren't interested in? Might protect against a problem with tabbing to and from different instances of the same website?
             }
         }
     
