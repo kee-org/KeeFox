@@ -249,7 +249,7 @@ namespace KeePassRPC
                     }
                     catch (CryptographicException e)
                     {
-                        //TODO1.3: log to KPRPC log
+                        if (KPRPC.logger != null) KPRPC.logger.WriteLine("Could not store KeePassRPC's secret key so you will have to re-authenticate clients such as KeeFox. The following exception caused this problem: " + e);
                     }
                 }
                 // else we don't persist the key anywhere - no security implications
