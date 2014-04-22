@@ -662,7 +662,7 @@ keefox_win.panel = {
 
                 if (event.button == 0 || event.button == 1)
                 {
-                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'button': event.button, 'ctrlKey': event.ctrlKey }));
+                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': event.button, 'ctrlKey': event.ctrlKey }}));
                 } 
                 if (event.button == 2)
                 {
@@ -671,8 +671,8 @@ keefox_win.panel = {
                 }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
-                keefox_win.ILM.loadAndAutoSubmit(event.button,
-                                                     event.ctrlKey,
+                keefox_win.ILM.loadAndAutoSubmit(event.detail.button,
+                                                     event.detail.ctrlKey,
                                                      this.getAttribute('data-usernameName'), 
                                                      this.getAttribute('data-usernameValue'),
                                                      this.getAttribute('data-url'),
@@ -714,7 +714,7 @@ keefox_win.panel = {
 
             if (event.button == 0 || event.button == 1)
             {
-                this.dispatchEvent(new CustomEvent("keefoxCommand", { 'button': event.button, 'ctrlKey': event.ctrlKey }));
+                this.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': event.button, 'ctrlKey': event.ctrlKey }}));
             } 
             if (event.button == 2)
             {
@@ -1077,7 +1077,7 @@ keefox_win.panel = {
 
                 if (event.button == 0 || event.button == 1)
                 {
-                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'button': event.button, 'ctrlKey': event.ctrlKey }));
+                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': event.button, 'ctrlKey': event.ctrlKey }}));
                 } 
                 if (event.button == 2)
                 {
@@ -1085,13 +1085,13 @@ keefox_win.panel = {
                     // function to which the event is passed next, they have a value that is relative to the main widget
                     // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
                     // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
-                    //this.dispatchEvent(new CustomEvent("keefoxContext", { 'layerX': event.layerX, 'layerY': event.layerY, 'target': event.target }));
+                    //this.dispatchEvent(new CustomEvent("keefoxContext", { 'detail': { 'layerX': event.layerX, 'layerY': event.layerY }}));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
-                keefox_win.ILM.loadAndAutoSubmit(event.button,
-                                                    event.ctrlKey,
+                keefox_win.ILM.loadAndAutoSubmit(event.detail.button,
+                                                    event.detail.ctrlKey,
                                                     this.getAttribute('data-usernameName'), 
                                                     this.getAttribute('data-usernameValue'),
                                                     this.getAttribute('data-url'),
@@ -1438,7 +1438,7 @@ keefox_win.panel = {
         {
             event.preventDefault();
             event.stopPropagation();
-            this.dispatchEvent(new CustomEvent("keefoxCommand", { 'button': 0, 'ctrlKey': event.ctrlKey } ));
+            this.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': 0, 'ctrlKey': event.ctrlKey }} ));
         } else if (event.keyCode == 40) // down
         {
             event.preventDefault();
@@ -1460,7 +1460,7 @@ keefox_win.panel = {
                 // if it has a parent group, behave as if the user had clicked on the parent and then focus the keyboard on the parent group item
                 if (event.target.parentNode && event.target.parentNode.parentNode 
                     && event.target.parentNode.parentNode.nodeName == "li")
-                    event.target.parentNode.parentNode.dispatchEvent(new CustomEvent("keefoxCommand", { 'button': 0, 'ctrlKey': event.ctrlKey } ));
+                    event.target.parentNode.parentNode.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': 0, 'ctrlKey': event.ctrlKey }} ));
     //TODO1.4: Keyboard focus - maybe can just use the default behaviour of the command object?
 
             }
@@ -1477,7 +1477,7 @@ keefox_win.panel = {
                 event.stopPropagation();
                 // Only issue the toggle command if the target element is not the active-group
                 if (!event.target.classList.contains("active-group"))
-                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'button': 0, 'ctrlKey': event.ctrlKey } ));
+                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': 0, 'ctrlKey': event.ctrlKey }} ));
                 else
                 {
                     let fc = event.target.firstElementChild;
@@ -1490,12 +1490,12 @@ keefox_win.panel = {
         {
             event.preventDefault();
             event.stopPropagation();
-            this.dispatchEvent(new CustomEvent("keefoxEscape", { 'button': 0, 'ctrlKey': event.ctrlKey } ));
+            this.dispatchEvent(new CustomEvent("keefoxEscape", { 'detail': { 'button': 0, 'ctrlKey': event.ctrlKey }} ));
         } else if (event.keyCode == 93) // context
         {
             event.preventDefault();
             event.stopPropagation();
-            this.dispatchEvent(new CustomEvent("keefoxContext", { 'layerX': 10, 'layerY': 10 } ));
+            this.dispatchEvent(new CustomEvent("keefoxContext", { 'detail': { 'layerX': 10, 'layerY': 10 }} ));
         }
 
     },
