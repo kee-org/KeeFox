@@ -344,7 +344,7 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
 
             <!-- everything in this box is displayed when everything is installed correctly -->
             <vbox id="InstallFinished" hidden="true">
-              <description id="desc_InstallFinished">%-KeeFox_Install_InstallFinished-2013.description-%</description>
+              <description id="desc_InstallFinished">%-KeeFox_Install_InstallFinished-2014.description-%</description>
               <description id="nextStepsIntro">%-KeeFox_Install_NextSteps.description-%</description>
               <hbox width="500px">
                 <description id="nextStep1" width="50px">1)</description>
@@ -359,8 +359,6 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
                 <label width="450px" id="nextStepsImportLink" href="http://keefox.org/migration" class="text-link">%-KeeFox_Install_NextStep3.description-%</label>
               </hbox>
 
-
-              <!--<description>%-KeeFox_Install_NextStep2extra.description-%</description>-->
               <description id="nextStepsFinally">%-KeeFox_Install_Finally.description-% <label href="http://keefox.org/help" class="text-link">http://keefox.org/help</label></description>
             </vbox>
           </vbox> <!-- end KFInstallPageContent -->
