@@ -359,7 +359,8 @@ keefox_win.ILM = {
                 {
                     keefox_win.Logger.debug("has uid");                
                     ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                    ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
+                    if (currentTab.hasAttribute("KF_dbFileName"))
+                        ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
                     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
                     currentTab.removeAttribute("KF_uniqueID");
                     currentTab.removeAttribute("KF_dbFileName");
@@ -400,9 +401,9 @@ keefox_win.ILM = {
                             formSubmitTrackerCount = 0;
                             pageLoadSinceSubmitTrackerCount = 0;
                             removeTabSessionStoreData = true;
-                            ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", formSubmitTrackerCount);
+                            ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", "" + formSubmitTrackerCount);
                         }            
-                        ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", pageLoadSinceSubmitTrackerCount);
+                        ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", "" + pageLoadSinceSubmitTrackerCount);
                     } 
                 }
                 //keefox_win.Logger.debug("temp:" + currentTab.KF_uniqueID);

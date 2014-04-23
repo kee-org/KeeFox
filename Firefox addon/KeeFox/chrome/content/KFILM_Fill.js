@@ -722,8 +722,8 @@ keefox_win.ILM.allSearchesComplete = function (findLoginDoc)
             findLoginDoc.numberOfTabFillsRemaining = 0;
         
         // next we update (or set for the first time) the values attached to this tab
-        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining", findLoginDoc.numberOfTabFillsRemaining);
-        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget", findLoginDoc.numberOfTabFillsTarget);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsRemaining", "" + findLoginDoc.numberOfTabFillsRemaining);
+        findLoginDoc.ss.setTabValue(findLoginDoc.currentTab, "KF_numberOfTabFillsTarget", "" + findLoginDoc.numberOfTabFillsTarget);
         keefox_win.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + findLoginDoc.numberOfTabFillsRemaining);
         keefox_win.Logger.debug("Set KF_numberOfTabFillsTarget to: " + findLoginDoc.numberOfTabFillsTarget);
         
@@ -1030,11 +1030,13 @@ keefox_win.ILM.fillFindLoginsComplete = function (resultWrapper, fillDocumentDat
             topDoc=topDoc.defaultView.frameElement.ownerDocument;
     var currentTab = currentGBrowser.mTabs[currentGBrowser.getBrowserIndexForDocument(topDoc)];
     
-    ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", numberOfTabFillsRemaining);
-    ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", numberOfTabFillsTarget);
+    ss.setTabValue(currentTab, "KF_numberOfTabFillsRemaining", "" + numberOfTabFillsRemaining);
+    ss.setTabValue(currentTab, "KF_numberOfTabFillsTarget", "" + numberOfTabFillsTarget);
     ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-    ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
-    ss.setTabValue(currentTab, "KF_dbFileName", fillDocumentDataStorage.dbFileName);
+    if (fillDocumentDataStorage.uniqueID)
+        ss.setTabValue(currentTab, "KF_uniqueID", fillDocumentDataStorage.uniqueID);
+    if (fillDocumentDataStorage.dbFileName)
+        ss.setTabValue(currentTab, "KF_dbFileName", fillDocumentDataStorage.dbFileName);
     keefox_win.Logger.debug("Set KF_numberOfTabFillsRemaining to: " + numberOfTabFillsRemaining);
     keefox_win.Logger.debug("Set KF_numberOfTabFillsTarget to: " + numberOfTabFillsTarget);
     keefox_win.Logger.debug("Set KF_autoSubmit to: yes");

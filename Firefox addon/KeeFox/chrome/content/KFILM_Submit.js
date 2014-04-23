@@ -79,8 +79,8 @@ keefox_win.ILM._onFormSubmit = function (form)
     // track when pages are being navigated without form
     // submissions and hence aid automatic cancellation
     // of multi-page login forms 
-    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 1);
-    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);
+    ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", "" + 1);
+    ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", "" + 0);
     
     var currentPage = ss.getTabValue(currentTab, "KF_recordFormCurrentPage");
     var savePageCountToTab = true;
@@ -320,8 +320,8 @@ keefox_win.ILM._onHTTPAuthSubmit = function (window, username, password, schemeA
         // track when pages are being navigated without form
         // submissions and hence aid automatic cancellation
         // of multi-page login forms 
-        ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", 1);
-        ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", 0);    
+        ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", "" + 1);
+        ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", "" + 0);    
         
         // always reset for HTTP Auth dialogs - multi-page logins not supported.
         var currentPage = 1;
@@ -491,7 +491,7 @@ keefox_win.ILM._onFormSubmitFindLoginsComplete = function (resultWrapper, submit
     
     if (submitDocumentDataStorage.savePageCountToTab)
     {
-        submitDocumentDataStorage.ss.setTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentPage", nextPage);
+        submitDocumentDataStorage.ss.setTabValue(submitDocumentDataStorage.currentTab, "KF_recordFormCurrentPage", "" + nextPage);
     } 
     
     if (nextPage > 2)
