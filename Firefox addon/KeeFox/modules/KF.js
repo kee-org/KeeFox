@@ -852,13 +852,7 @@ KeeFox.prototype = {
     {
         try
         {
-            //this.KeePassRPC.findLogins(null, null, null, null, null, "pizzahut", null, null);
             this.KeePassRPC.launchLoginEditor(uuid, dbFileName);
-            
-            //var thread = Components.classes["@mozilla.org/thread-manager;1"]
-            //                        .getService(Components.interfaces.nsIThreadManager)
-            //                        .newThread(0);
-            // thread.dispatch(new launchLoginEditorThread(uuid), thread.DISPATCH_NORMAL);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -870,18 +864,14 @@ KeeFox.prototype = {
     {
         try
         {
-        this.KeePassRPC.launchGroupEditor(uuid, dbFileName);
-             //var thread = Components.classes["@mozilla.org/thread-manager;1"]
-            //                        .getService(Components.interfaces.nsIThreadManager)
-             //                       .newThread(0);
-             //thread.dispatch(new launchGroupEditorThread(uuid), thread.DISPATCH_NORMAL);
+            this.KeePassRPC.launchGroupEditor(uuid, dbFileName);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
-    
+
     generatePassword: function()
     {
         try

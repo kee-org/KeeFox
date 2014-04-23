@@ -201,11 +201,7 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 if (resultWrapper.result !== null)
                 {
                     passwordGenerated = true;
-                    
-                    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
-                    getService(Components.interfaces.nsIClipboardHelper);
-                    gClipboardHelper.copyString(resultWrapper.result);
-                    
+                    window.keefox_org.utils.copyStringToClipboard(resultWrapper.result);
                     window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.copied"));
                 }
             }

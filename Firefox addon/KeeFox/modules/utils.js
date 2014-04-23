@@ -672,7 +672,16 @@ Utils.prototype = {
         let uuid = uuidGenerator.generateUUID();
         let guid = uuid.toString();
         return guid.substr(1,guid.length-2);
+    },
+
+    
+    copyStringToClipboard: function(value)
+    {
+        let gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
+                    getService(Components.interfaces.nsIClipboardHelper);
+        gClipboardHelper.copyString(value);
     }
+    
 };
 
 var utils = new Utils();

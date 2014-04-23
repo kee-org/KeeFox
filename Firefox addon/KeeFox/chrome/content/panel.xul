@@ -31,11 +31,9 @@
 
   <popupset>
     <menupopup id="KeeFox-login-context" position="after_start">
-      <!--<menuitem label="Login in new tab"/>-->
       <menuitem id="KeeFox-login-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('data-uuid'),document.popupNode.getAttribute('data-fileName')); keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));"/>
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
-      <!--<menuitem label="Login all in tabs"/>-->
       <menuitem id="KeeFox-group-context-edit" label="%-KeeFox_Logins-Context-Edit-Group.label-%" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('data-uuid'),document.popupNode.getAttribute('data-fileName')); keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));"/>
     </menupopup>
   </popupset>
