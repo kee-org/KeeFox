@@ -157,6 +157,35 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
+    this.getApplicationMetadata = function()
+    {
+        var result = this.request(this, "GetApplicationMetadata", null,function rpc_callback(resultWrapper) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
+            
+            if ("result" in resultWrapper && resultWrapper.result !== false)
+            {
+                if (resultWrapper.result !== null)
+                {
+                    let netRuntimeVersion = "";
+                    if (resultWrapper.result.isMono)
+                        netRuntimeVersion = "Mono " + resultWrapper.result.monoVersion;
+                    else
+                        netRuntimeVersion = ".NET " + resultWrapper.result.nETversion;
+
+                    window.keefox_org.metricsManager.setApplicationMetadata(
+                        resultWrapper.result.keePassVersion, netRuntimeVersion);
+                
+                }
+
+            } 
+        }, ++this.requestId);
+        
+        return;
+    }
+
     this.generatePassword = function()
     {
         this.request(this, "GeneratePassword", [""], function rpc_callback(resultWrapper) {

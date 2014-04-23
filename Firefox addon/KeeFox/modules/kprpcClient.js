@@ -424,6 +424,7 @@ kprpcClient.prototype.constructor = kprpcClient;
                 }
                 window.keefox_org.metricsManager.pushEvent ("KeePass", "connected", { "type": "CR" });
                 window.keefox_org._refreshKPDB();
+                window.keefox_org.getApplicationMetadata();
             }, 50); // 0.05 second delay before we try to do the KeeFox connection startup stuff
         }
   	};
@@ -528,6 +529,7 @@ kprpcClient.prototype.constructor = kprpcClient;
                 }
                 window.keefox_org.metricsManager.pushEvent ("KeePass", "connected", { "type": "SRP" });
                 window.keefox_org._refreshKPDB();
+                window.keefox_org.getApplicationMetadata();
             }, 50); // 0.05 second delay before we try to do the KeeFox connection startup stuff
                 
         } 

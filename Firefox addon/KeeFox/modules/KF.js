@@ -120,6 +120,7 @@ function KeeFox()
         this.metricsManager = {};
         this.metricsManager.pushEvent = function () {};
         this.metricsManager.adjustAggregate = function () {};
+        this.metricsManager.setApplicationMetadata = function () {};
     }
 
     this.search = new Search(this, {
@@ -822,7 +823,19 @@ KeeFox.prototype = {
             throw e;
         }
     },
-    
+
+    getApplicationMetadata: function ()
+    {
+        try
+        {
+            return this.KeePassRPC.getApplicationMetadata();
+        } catch (e)
+        {
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
+            throw e;
+        }
+    },
+
     findLogins: function(fullURL, formSubmitURL, httpRealm, uniqueID, dbFileName, freeText, username, callback, callbackData)
     {
         try

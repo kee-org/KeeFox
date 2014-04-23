@@ -941,7 +941,7 @@ namespace KeePassRPC
             // to match in order to be able to call this function
             
             NETCLR = Environment.Version.Major.ToString();
-            KeePassVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            KeePassVersion = PwDefs.VersionString;
 
             Type type = Type.GetType("Mono.Runtime");
             if (type != null)

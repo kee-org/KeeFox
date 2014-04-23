@@ -48,8 +48,8 @@ function ImmutableInformation()
     this.sessionStart;
     this.screenWidth;
     this.screenHeight;
-    this.keePassVersion; //TODO1.5: Not implemented
-    this.netRuntimeVersion; //TODO1.5: Not implemented
+    this.keePassVersion;
+    this.netRuntimeVersion;
 }
 
 function mm () {
@@ -280,38 +280,44 @@ function mm () {
                             return;
                         }
 
-                        // push initial session start message
-                        mm.startSession(function () {
-                            mm._KFLog.debug("Started a metrics session.");
+                        // Get server versions (these are probably unknown to start with
+                        // but following a successful KeePassRPC connection, they will
+                        // be stored for use in the next session)
+                        mm.getApplicationMetadata(function () {
 
-                            // We know we've sent the startSession message now so
-                            // we can push any events that were queued temporarilly
-                            mm.messagesReady = true;
+                            // push initial session start message
+                            mm.startSession(function () {
+                                mm._KFLog.debug("Started a metrics session.");
 
-                            // If any messages have been sent to us while initialising, process them now
-                            for (let i=0; i < mm.messagesQueue.length; i++)
-                                mm.set("message", mm.messagesQueue[i].message);
-                            mm.messagesQueue = [];
+                                // We know we've sent the startSession message now so
+                                // we can push any events that were queued temporarilly
+                                mm.messagesReady = true;
 
-                            // Remove the old session data now it has been sent
-                            mm.resetAggregates(function () {
-                                mm.aggregatesReady = true;
+                                // If any messages have been sent to us while initialising, process them now
+                                for (let i=0; i < mm.messagesQueue.length; i++)
+                                    mm.set("message", mm.messagesQueue[i].message);
+                                mm.messagesQueue = [];
 
-                                // If any aggregate values have been sent to us while initialising, evaluate them now
-                                for (let i=0; i < mm.aggregatesQueue.length; i++)
-                                    mm.adjustAggregate(mm.aggregatesQueue[i].key, mm.aggregatesQueue[i].value);
-                                mm.aggregatesQueue = [];
+                                // Remove the old session data now it has been sent
+                                mm.resetAggregates(function () {
+                                    mm.aggregatesReady = true;
 
-                                // Start a regular check for queued items that need pushing to the metrics server
-                                // For users that have disabled the user data component, this is technically
-                                // un-necessary unless they re-enable the collection during this session but
-                                // it's a very cheap operation so firing the timer for everyone makes things simpler
-                                mm._KFLog.debug("Creating a metrics timer.");
-                                mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+                                    // If any aggregate values have been sent to us while initialising, evaluate them now
+                                    for (let i=0; i < mm.aggregatesQueue.length; i++)
+                                        mm.adjustAggregate(mm.aggregatesQueue[i].key, mm.aggregatesQueue[i].value);
+                                    mm.aggregatesQueue = [];
+
+                                    // Start a regular check for queued items that need pushing to the metrics server
+                                    // For users that have disabled the user data component, this is technically
+                                    // un-necessary unless they re-enable the collection during this session but
+                                    // it's a very cheap operation so firing the timer for everyone makes things simpler
+                                    mm._KFLog.debug("Creating a metrics timer.");
+                                    mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
          
-                                mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
-                                   15000,
-                                   Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                    mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
+                                       15000,
+                                       Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                                });
                             });
                         });
                     };
@@ -337,7 +343,9 @@ function mm () {
                 "OSType": mm.ii.OSType,
                 "OSversion": mm.ii.OSversion,
                 "locale": mm.ii.locale,
-                "addonVersion": mm.ii.addonVersion
+                "addonVersion": mm.ii.addonVersion,
+                "netRuntimeVersion": mm.ii.netRuntimeVersion,
+                "keePassVersion": mm.ii.keePassVersion
             };
             mm.set("message",JSON.stringify(msg),function () { cb(); });
         });
@@ -395,7 +403,31 @@ function mm () {
         });
         // future: timing e.g. time logged in to database, time taken to decrypt messages, time from setup screen displayed to successful login , etc. - some of these might be more suited to specific event params
     }
-    
+
+    this.getApplicationMetadata = function (callback)
+    {
+        this.ii.keePassVersion = "unknown";
+        this.ii.netRuntimeVersion = "unknown";
+
+        var mm = this;
+        var cb = callback;
+        this.get("keePassVersion", function (event) {
+            if (event.target.result)
+                mm.ii.keePassVersion = event.target.result.value;
+            mm.get("netRuntimeVersion", function (event) {
+                if (event.target.result)
+                    mm.ii.netRuntimeVersion = event.target.result.value;
+                if (cb) cb();
+            });
+        });
+    };
+
+    this.setApplicationMetadata = function (keePassVersion, netRuntimeVersion)
+    {
+        this.set("keePassVersion", keePassVersion);
+        this.set("netRuntimeVersion", netRuntimeVersion);
+    };
+
     this.set = function (key, value, callback)
     {
         let cb = callback;
