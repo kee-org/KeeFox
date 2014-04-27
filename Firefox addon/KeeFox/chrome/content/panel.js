@@ -585,11 +585,15 @@ keefox_win.panel = {
 
         for (let i = 0; i < foundGroups.length; i++) {
             let group = foundGroups[i];
-            let groupItem = this.createGroupItem(group,dbFileName);
-
-            if (isTopLevelContainer && i == keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
-                container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
-            container.appendChild(groupItem);
+            
+            if ((group.childGroups != null && group.childGroups.length > 0) 
+                || (group.childLightEntries != null && group.childLightEntries.length > 0))
+            {
+                let groupItem = this.createGroupItem(group,dbFileName);
+                if (isTopLevelContainer && i == keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
+                    container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
+                container.appendChild(groupItem);
+            }
         }
 
         for (let i = 0; i < foundLogins.length; i++) {
