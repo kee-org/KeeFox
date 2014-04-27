@@ -19,7 +19,7 @@ resource kfmod modules/
 locale keefox cs chrome/locale/cs/
 locale keefox da chrome/locale/da/
 locale keefox de chrome/locale/de/
-#locale keefox el chrome/locale/el/
+locale keefox el chrome/locale/el/
 locale keefox en-US chrome/locale/en-US/
 locale keefox es-AR chrome/locale/es-AR/
 #locale keefox es-ES chrome/locale/es-ES/
