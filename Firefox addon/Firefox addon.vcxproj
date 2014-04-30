@@ -207,8 +207,12 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\locale\da\keefox.properties" />
     <None Include="KeeFox\chrome\locale\de\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\en-US\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-AR\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-AR\keefox.properties" />
     <None Include="KeeFox\chrome\locale\es-ES\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\es-ES\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fi\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fi\keefox.properties" />
     <None Include="KeeFox\chrome\locale\fr\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\fr\keefox.properties" />
     <None Include="KeeFox\chrome\locale\ko-KR\FAMS.keefox.properties" />
@@ -225,6 +229,7 @@ echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
     <None Include="KeeFox\chrome\locale\ru\keefox.properties" />
     <None Include="KeeFox\chrome\locale\sv-SE\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\zh-CN\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\skin\back.png" />
     <None Include="KeeFox\chrome\skin\buttonGradient.png" />
     <None Include="KeeFox\chrome\skin\buttonGradientHover.png" />
     <None Include="KeeFox\chrome\skin\install\header.png" />

@@ -323,6 +323,13 @@
     <None Include="KeeFox\chrome\skin\install_mono.css">
       <Filter>CSS</Filter>
     </None>
+    <None Include="KeeFox\chrome\locale\fi\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-AR\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-AR\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fi\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\skin\back.png">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="KeeFox\chrome.manifest" />
