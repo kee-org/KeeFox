@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>keefox@chris.tomlinson</em:id>
-    <em:version>1.4.1</em:version>
+    <em:version>1.4.1b1</em:version>
     <em:type>2</em:type>
     <em:unpack>true</em:unpack>
 
@@ -34,6 +34,8 @@
 
     <em:targetPlatform>WINNT</em:targetPlatform>
     <em:targetPlatform>Linux</em:targetPlatform>
+    <em:targetPlatform>Darwin</em:targetPlatform>
+    <em:targetPlatform>FreeBSD</em:targetPlatform>
     
     <!-- Front End MetaData -->
     <em:name>KeeFox</em:name>
