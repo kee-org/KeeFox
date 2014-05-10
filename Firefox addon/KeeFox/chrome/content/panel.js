@@ -524,7 +524,8 @@ keefox_win.panel = {
 
                                 // Switch to the overflow container if we reach the limit of the main panel container
                                 // By default, we won't show any items in the main panel
-                                if (i == keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
+                                if (container.id != "KeeFox-PanelSubSection-AllLoginsList-Overflow-Container" 
+                                    && i >= keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
                                     container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
 
                                 var dbName = keefox_org.KeePassDatabases[i].name;
@@ -590,7 +591,9 @@ keefox_win.panel = {
                 || (group.childLightEntries != null && group.childLightEntries.length > 0))
             {
                 let groupItem = this.createGroupItem(group,dbFileName);
-                if (isTopLevelContainer && i == keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
+                if (isTopLevelContainer 
+                    && container.id != "KeeFox-PanelSubSection-AllLoginsList-Overflow-Container" 
+                    && i >= keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
                     container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
                 container.appendChild(groupItem);
             }
@@ -658,7 +661,9 @@ keefox_win.panel = {
             
             // If the combined total of all groups and the current login index exceeds 
             // our allowed number of items in the main panel, we must switch to the overflow container
-            if (isTopLevelContainer && (i + foundGroups.length) == keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
+            if (isTopLevelContainer 
+                && container.id != "KeeFox-PanelSubSection-AllLoginsList-Overflow-Container" 
+                && (i + foundGroups.length) >= keefox_org._keeFoxExtension.prefs.getValue("maxAllLoginsInMainPanel",0))
                 container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
             container.appendChild(loginItem);
         }
