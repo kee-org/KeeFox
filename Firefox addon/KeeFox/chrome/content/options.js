@@ -18,7 +18,7 @@ function onLoad(){
       'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
       'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
       'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation',
-      'desc-site-specific','desc-site-specific-savepass','desc-site-specific-link','desc-site-specific-savepass-link','desc-ConnSL','desc-ConnSL-ManualLink-link','desc-conn-sl-client','slc-Low','slc-Medium','slc-High','sls-Low','sls-Medium','sls-High','desc-conn-sl-client-detail','desc-conn-sl-server','desc-conn-sl-server-detail','desc-conn-sl-low','desc-conn-sl-high','desc-commands-intro','desc-metrics','desc-metrics-link','lab-sendUsageMetrics'
+      'desc-site-specific','desc-site-specific-savepass','desc-site-specific-link','desc-site-specific-savepass-link','desc-ConnSL','desc-ConnSL-ManualLink-link','desc-conn-sl-client','slc-Low','slc-Medium','slc-High','sls-Low','sls-Medium','sls-High','desc-conn-sl-client-detail','desc-conn-sl-server','desc-conn-sl-server-detail','desc-conn-sl-low','desc-conn-sl-high','desc-commands-intro','desc-metrics','desc-metrics-link','lab-sendUsageMetrics','lab-maxMatchedLoginsInMainPanel'
       ],
       ['title','label','tooltiptext','accesskey','value']);
 

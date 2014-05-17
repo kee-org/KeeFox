@@ -126,8 +126,10 @@ namespace KeePassRPC
                     {
                         // just stick with what we had already decided
                     }
+
                 }
             }
+            //TODO:port 0
             return port;
         }
 

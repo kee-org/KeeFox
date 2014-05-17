@@ -48,6 +48,7 @@
       <preference id="KeeFox-pref-searchAllOpenDBs" name="extensions.keefox@chris.tomlinson.searchAllOpenDBs" type="bool"/>
       <preference id="KeeFox-pref-listAllOpenDBs" name="extensions.keefox@chris.tomlinson.listAllOpenDBs" type="bool"/>
       <preference id="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" name="extensions.keefox@chris.tomlinson.alwaysDisplayUsernameWhenTitleIsShown" type="bool"/>
+      <preference id="KeeFox-pref-maxMatchedLoginsInMainPanel" name="extensions.keefox@chris.tomlinson.maxMatchedLoginsInMainPanel" type="int"/>
 
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyBarWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.notifyBarWhenKeePassRPCInactive" type="bool"/>
@@ -137,15 +138,17 @@
                     </menupopup>
                   </menulist>
                 </row>
-                <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
-                <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" class="itemEnd" />
-                <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
-                <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" class="itemEnd" />
-                <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" />
               </rows>
 
             </grid>
 
+            <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
+            <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" />
+            <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
+            <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" />
+            <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" class="itemEnd" />
+            <label id="lab-maxMatchedLoginsInMainPanel" control="maxMatchedLoginsInMainPanel" value="%-KeeFox-pref-maxMatchedLoginsInMainPanel.label-%:"/>
+            <textbox preference="KeeFox-pref-maxMatchedLoginsInMainPanel" id="maxMatchedLoginsInMainPanel" maxlength="3" size="3" class="itemEnd"/>
 
           </vbox>
         </tabpanel>

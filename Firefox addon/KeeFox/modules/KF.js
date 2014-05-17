@@ -274,6 +274,7 @@ KeeFox.prototype = {
         {
             this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue(
                 "KeePassRPC.webSocketPort",this.KeePassRPC.webSocketPort);
+            //TODO:port 0
             this.KeePassRPC.webSocketURI = "ws://" + this.KeePassRPC.webSocketHost + ":" + this.KeePassRPC.webSocketPort;
             this.KeePassRPC.httpChannelURI = "http://" + this.KeePassRPC.webSocketHost + ":" + this.KeePassRPC.webSocketPort;
         }
@@ -560,6 +561,7 @@ KeeFox.prototype = {
         {
             portParam += "-KeePassRPCWebSocketPort:" +
                 this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
+                //TODO:port 0
         }
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
@@ -976,6 +978,11 @@ KeeFox.prototype = {
                     //tell KeePass this has changed
                     keefox_org.changeLocation(keefox_org._keeFoxExtension.prefs.getValue("currentLocation",false));
                     break;
+                case "maxMatchedLoginsInMainPanel":
+                    //recalculate matched logins so current results match user's new preference
+                    window.keefox_win.mainUI.setLogins(null,null);
+                    keefox_org.commandManager.actions.detectForms();
+                    break;
             }
         },
         
@@ -1115,11 +1122,12 @@ KeeFox.prototype = {
             if (kfw.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
             {
                 // Notify all parts of the UI that might need to clear old matched logins data
-                let observ = Components.classes["@mozilla.org/observer-service;1"]
-                            .getService(Components.interfaces.nsIObserverService);
-                let subject = {logins:null,uri:null};
-                subject.wrappedJSObject = subject;
-                observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
+//                let observ = Components.classes["@mozilla.org/observer-service;1"]
+//                            .getService(Components.interfaces.nsIObserverService);
+//                let subject = {logins:null,uri:null};
+//                subject.wrappedJSObject = subject;
+//                observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
+                kfw.mainUI.removeLogins();
                 kfw.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
 
                 var topDoc = event.originalTarget.linkedBrowser.contentDocument;

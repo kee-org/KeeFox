@@ -464,14 +464,14 @@ function commandManager () {
             if (!win) return;
 
             win.keefox_org.metricsManager.pushEvent ("feature", "detectForms");
-            win.keefox_org._KFLog.debug("context detectForms start");
             var currentGBrowser = win.gBrowser;
             // Notify all parts of the UI that might need to clear their matched logins data
-            let observ = Components.classes["@mozilla.org/observer-service;1"]
-                        .getService(Components.interfaces.nsIObserverService);
-            let subject = {logins:null,uri:null};
-            subject.wrappedJSObject = subject;
-            observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
+//            let observ = Components.classes["@mozilla.org/observer-service;1"]
+//                        .getService(Components.interfaces.nsIObserverService);
+//            let subject = {logins:null,uri:null};
+//            subject.wrappedJSObject = subject;
+//            observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
+            win.keefox_win.mainUI.removeLogins();
             win.keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
         },
         generatePassword: function()

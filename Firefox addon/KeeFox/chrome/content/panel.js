@@ -470,6 +470,8 @@ keefox_win.panel = {
             containeroverflow.removeChild(containeroverflow.childNodes[0]);
         }
 
+        this.disableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
+
         // get the context menu popup
         var contextPopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
         if (contextPopup === undefined || contextPopup == null)
@@ -980,7 +982,7 @@ keefox_win.panel = {
                 }, false);
 
                 // If we've exceeded our allowed number of items in the main panel, we must switch to the overflow container
-                if ((i + mainPanelContainer.childElementCount) >= keefox_org._keeFoxExtension.prefs.getValue("maxMatchedLoginsInMainPanel",5))
+                if (mainPanelContainer.childElementCount >= keefox_org._keeFoxExtension.prefs.getValue("maxMatchedLoginsInMainPanel",5))
                 {
                     container = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
                     overflowPanelContainer = container;
