@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{256F6D35-700C-44D9-B7B2-DC9F0AD213D4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Firefox_addon</RootNamespace>
+    <AssemblyName>Firefox addon</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'XPI|AnyCPU'">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\XPI\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Beta|AnyCPU'">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Beta\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Aurora|AnyCPU'">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Aurora\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="debugXPIPackageExclusions.txt" />
+    <Content Include="KeeFox\chrome\content\commonDialog.js" />
+    <Content Include="KeeFox\chrome\content\context.js" />
+    <Content Include="KeeFox\chrome\content\famsOptions.js" />
+    <Content Include="KeeFox\chrome\content\install.js" />
+    <Content Include="KeeFox\chrome\content\install_mono.js" />
+    <Content Include="KeeFox\chrome\content\keefox.js" />
+    <Content Include="KeeFox\chrome\content\KFILM.js" />
+    <Content Include="KeeFox\chrome\content\KFILM_Fill.js" />
+    <Content Include="KeeFox\chrome\content\KFILM_Submit.js" />
+    <Content Include="KeeFox\chrome\content\KFToolBar.js" />
+    <Content Include="KeeFox\chrome\content\KFUI.js" />
+    <Content Include="KeeFox\chrome\content\KFUtils.js" />
+    <Content Include="KeeFox\chrome\content\options.js" />
+    <Content Include="KeeFox\chrome\content\panel.js" />
+    <Content Include="KeeFox\chrome\content\siteOptions.js" />
+    <Content Include="KeeFox\chrome\content\tabState.js" />
+    <Content Include="KeeFox\chrome\skin\back.png" />
+    <Content Include="KeeFox\chrome\skin\buttonGradient.png" />
+    <Content Include="KeeFox\chrome\skin\buttonGradientHover.png" />
+    <Content Include="KeeFox\chrome\skin\icon.png" />
+    <Content Include="KeeFox\chrome\skin\install.css" />
+    <Content Include="KeeFox\chrome\skin\install\header.png" />
+    <Content Include="KeeFox\chrome\skin\install_mono.css" />
+    <Content Include="KeeFox\chrome\skin\keefox.css" />
+    <Content Include="KeeFox\chrome\skin\KeeFox16.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFox16Matched-Plus.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFox16Matched-Star.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFox24.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFox32.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFox32Matched-Plus.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFox32Matched-Star.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFoxGrey16.png" />
+    <Content Include="KeeFox\chrome\skin\KeeFoxGrey32.png" />
+    <Content Include="KeeFox\chrome\skin\KeeGrey.png" />
+    <Content Include="KeeFox\chrome\skin\KeeGrey24.png" />
+    <Content Include="KeeFox\chrome\skin\KeeLock.png" />
+    <Content Include="KeeFox\chrome\skin\KeeLock24.png" />
+    <Content Include="KeeFox\chrome\skin\KeeLockGrey.png" />
+    <Content Include="KeeFox\chrome\skin\KeeLockGrey24.png" />
+    <Content Include="KeeFox\chrome\skin\KeeOrange.png" />
+    <Content Include="KeeFox\chrome\skin\KeeOrange24.png" />
+    <Content Include="KeeFox\chrome\skin\options.css" />
+    <Content Include="KeeFox\chrome\skin\panel.css" />
+    <Content Include="KeeFox\defaults\preferences\prefs.js" />
+    <Content Include="KeeFox\icon.png" />
+    <Content Include="KeeFox\icon64.png" />
+    <Content Include="KeeFox\modules\biginteger.js" />
+    <Content Include="KeeFox\modules\commands.js" />
+    <Content Include="KeeFox\modules\config.js" />
+    <Content Include="KeeFox\modules\CtypesCrypto.js" />
+    <Content Include="KeeFox\modules\FAMS-config.js" />
+    <Content Include="KeeFox\modules\FAMS.js" />
+    <Content Include="KeeFox\modules\jsonrpcClient.js" />
+    <Content Include="KeeFox\modules\KF.js" />
+    <Content Include="KeeFox\modules\kfDataModel.js" />
+    <Content Include="KeeFox\modules\KFExtension.js" />
+    <Content Include="KeeFox\modules\KFLogger.js" />
+    <Content Include="KeeFox\modules\kprpcClient.js" />
+    <Content Include="KeeFox\modules\kprpcClientLegacy.js" />
+    <Content Include="KeeFox\modules\locales.js" />
+    <Content Include="KeeFox\modules\metrics.js" />
+    <Content Include="KeeFox\modules\search.js" />
+    <Content Include="KeeFox\modules\session.js" />
+    <Content Include="KeeFox\modules\sessionLegacy.js" />
+    <Content Include="KeeFox\modules\sjcl.js" />
+    <Content Include="KeeFox\modules\SRP.js" />
+    <Content Include="KeeFox\modules\utils.js" />
+    <Content Include="XPIPackageExclusions.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KeeFox\chrome.manifest" />
+    <None Include="KeeFox\chrome\content\context.xul" />
+    <None Include="KeeFox\chrome\content\famsOptions.xul" />
+    <None Include="KeeFox\chrome\content\groupChooser.xul" />
+    <None Include="KeeFox\chrome\content\install.xul" />
+    <None Include="KeeFox\chrome\content\install_mono.xul" />
+    <None Include="KeeFox\chrome\content\options.xul" />
+    <None Include="KeeFox\chrome\content\panel.xul" />
+    <None Include="KeeFox\chrome\content\protocolAuth.xul" />
+    <None Include="KeeFox\chrome\content\siteOptions.xul" />
+    <None Include="KeeFox\chrome\content\toolbar.xul" />
+    <None Include="KeeFox\chrome\locale\cs\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\cs\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\de\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\de\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\el\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\el\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\en-US\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\en-US\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-AR\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\es-AR\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fi\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fi\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fr\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\fr\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\nl\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\nl\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ru\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\ru\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\sv-SE\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\sv-SE\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\tr\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\tr\keefox.properties" />
+    <None Include="KeeFox\chrome\locale\zh-CN\FAMS.keefox.properties" />
+    <None Include="KeeFox\chrome\locale\zh-CN\keefox.properties" />
+    <None Include="KeeFox\install.rdf" />
+    <None Include="KeeFox\modules\ClassTreeView.jsm" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF NOT "$(ConfigurationName)"=="XPI" Goto :NotXPI
+
+echo POSTBUILDSTEP for $(ProjectName)
+
+xcopy "$(ProjectDir)KeeFox\*" "$(SolutionDir)XPIs\current\" /i /d /y /e /EXCLUDE:$(SolutionDir)Firefo~1\XPIPackageExclusions.txt
+if errorlevel 1 goto BuildEventFailed
+
+REM compress the files into the complete XPI
+cd $(SolutionDir)XPIs\current
+del ..\current.xpi
+"c:\Program Files (x86)\ZipGenius 6\zg.exe" -add "..\current.xpi" R1 K0 C5 +"*"
+if errorlevel 1 goto BuildEventFailed
+
+REM xcopy "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)$(OutDir)" /i /d /y
+REM if errorlevel 1 goto BuildEventFailed
+
+
+REM Exit properly because the build will not fail
+REM unless the final step exits with an error code
+
+goto BuildEventOK
+
+:BuildEventFailed
+echo POSTBUILDSTEP for $(ProjectName) FAILED
+exit 1
+
+:BuildEventOK
+echo POSTBUILDSTEP for $(ProjectName) COMPLETED OK
+
+:NotXPI</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

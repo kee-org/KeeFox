@@ -1,8 +1,7 @@
 
-/KeeFox.suo
 /KeeFox.ncb
 *.user
-/Jayrock/src/Jayrock.suo
+*.suo
 /XPIs
 /CheckForAdminRights/Release
 /Firefox addon/KeeFox/deps/CheckForAdminRights.exe
@@ -22,9 +21,8 @@
 /Firefox addon/Debug/ResolveAssemblyReference.cache
 /Firefox addon/Release/ResolveAssemblyReference.cache
 *.opensdf
-/KeePassRPCTest/obj/Release/ResolveAssemblyReference.cache
-/KeePassRPCTest/obj/Release/DesignTimeResolveAssemblyReferencesInput.cache
-/KeePassRPCTest/obj/Release/build.force
+/KeePassRPCTest/obj
+/KeePassRPCTest/bin
 /UpgradeLog.XML
 *.sdf
 /Firefox addon/Release/Firefox addon.lastbuildstate
@@ -38,3 +36,5 @@
 /Firefox addon/KeeFox/modules/FAMS.jsm
 /Firefox addon/Release/Firefox addon.vcxprojResolveAssemblyReference.cache
 tx.exe
+/Firefox addon/bin
+/Firefox addon/obj
