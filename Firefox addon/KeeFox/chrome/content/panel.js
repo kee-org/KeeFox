@@ -133,9 +133,12 @@ keefox_win.panel = {
 
         let panelview = win.document.createElement('panelview');
         panelview.id = 'keefox-panelview';
-        panelview.setAttribute('tooltip','aHTMLTooltip');
+        panelview.setAttribute('tooltip', 'aHTMLTooltip');
+        panelview.setAttribute('flex', '1');
         
-        this.wrapPanelContents(panelview);
+        // wrapping the content avoids the scrollbar most of the time but when it is really needed, we get given double scrollbars
+        //this.wrapPanelContents(panelview);
+        this.populatePanel(panelview);
 
         // Inject our panel view into the multiView panel
         let multiview = win.document.getElementById('PanelUI-multiView');

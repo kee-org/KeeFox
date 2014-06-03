@@ -35,14 +35,34 @@ toolbarpaletteitem[place="palette"] > #keefox-button {
     list-style-image: url("chrome://keefox/skin/KeeFox32Matched-Star.png");  
 }
 
+/* option A - with wrapper 
 panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 {
     max-width: 45em;
     min-width: 10em;
-	display: flex;
-	box-flex: 1;
-    flex-direction: column;
+    overflow-x: hidden;
+}
+
+#keefox-panelview
+{
+    background-color: #FFFFFF;
+    padding:5px;
+}
+
+#KeeFox-PanelSection-div-wrapper
+{
+	display: block;
     overflow-y: auto;
+    overflow-x: hidden;
+}
+    */
+
+/* option B - no wrapper */
+panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
+{
+    max-width: 45em;
+    min-width: 10em;
+    overflow-x: hidden;
 }
 
 /* overall panelview container style */
@@ -52,11 +72,13 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     padding:5px;
 }
 
-/* Panel wrapper style */
+
+/* backup max height option: Panel wrapper style *
 #KeeFox-PanelSection-div-wrapper
 {
     max-height: 400px;
 }
+    */
 
 /* search box */
 #KeeFox-PanelSection-searchbox
