@@ -39,6 +39,10 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 {
     max-width: 45em;
     min-width: 10em;
+	display: flex;
+	box-flex: 1;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 /* overall panelview container style */
@@ -46,6 +50,12 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 {
     background-color: #FFFFFF;
     padding:5px;
+}
+
+/* Panel wrapper style */
+#KeeFox-PanelSection-div-wrapper
+{
+    max-height: 400px;
 }
 
 /* search box */
@@ -129,24 +139,32 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 /* Hide all panel contents when in subpanel mode unless specifically overridden later */
 #keefox-panelview.subpanel-enabled .KeeFox-PanelSection,
 #keefox-panelview.subpanel-enabled .KeeFox-Search,
-#keefox-panelview.subpanel-enabled .KeeFox-PanelSection .KeeFox-Action
+#keefox-panelview.subpanel-enabled .KeeFox-PanelSection .KeeFox-Action,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper .KeeFox-PanelSection,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper .KeeFox-Search,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper .KeeFox-PanelSection .KeeFox-Action
 {
 	display:none;
 }
 
 #keefox-panelview.subpanel-enabled .subpanel-enabled .KeeFox-PanelSubSection,
 #keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close,
-#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper .subpanel-enabled .KeeFox-PanelSubSection,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper #KeeFox-PanelSection-close,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper #KeeFox-PanelSection-close .KeeFox-Action
 {
 	display:block;
 }
 
-#keefox-panelview.subpanel-enabled .subpanel-enabled
+#keefox-panelview.subpanel-enabled .subpanel-enabled,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper .subpanel-enabled
 {
 	display:block;
 }
 
-#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper #KeeFox-PanelSection-close .KeeFox-Action
 {
     background-image: url("chrome://keefox/skin/back.png"); 
     padding:0px 5px 0px 22px;

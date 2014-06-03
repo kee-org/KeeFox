@@ -42,6 +42,7 @@ keefox_win.panel = {
 
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
+        this.panelContainerId = "KeeFox-PanelSection-div-wrapper";
 
         try
         {
@@ -83,7 +84,7 @@ keefox_win.panel = {
                         // Clear search results
                         evt.target.ownerGlobal.keefox_win.panel.onSearchComplete([]);
                         // Close subpanels
-                        evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
+                        //evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
                     },
                     onBeforeCreated: function (doc)
                     {
@@ -134,12 +135,24 @@ keefox_win.panel = {
         panelview.id = 'keefox-panelview';
         panelview.setAttribute('tooltip','aHTMLTooltip');
         
-        this.populatePanel(panelview);
+        this.wrapPanelContents(panelview);
 
         // Inject our panel view into the multiView panel
         let multiview = win.document.getElementById('PanelUI-multiView');
         multiview.appendChild(panelview);
         try { keefox_win.Logger.debug("Injected KeeFox panel"); } catch (e) {}
+    },
+
+    wrapPanelContents: function (panel) {
+        let panelContentsWrapper = this.createUIElement('div', [
+            ['id','KeeFox-PanelSection-div-wrapper']
+        ]);
+        
+        this.populatePanel(panelContentsWrapper);
+
+        // Inject our content wrapper into the panelview
+        panel.appendChild(panelContentsWrapper);
+        try { keefox_win.Logger.debug("Wrapped KeeFox panel"); } catch (e) {}
     },
     
     populatePanel: function (panel) {
@@ -384,7 +397,7 @@ keefox_win.panel = {
     
     hideSubSections: function ()
     {
-        let elem = this._currentWindow.document.getElementById('keefox-panelview');
+        let elem = this._currentWindow.document.getElementById(this.panelContainerId);
         elem.classList.remove('subpanel-enabled');
         let toHide = elem.getElementsByClassName('enabled KeeFox-PanelSubSection');
         if (toHide.length > 0)
@@ -402,7 +415,7 @@ keefox_win.panel = {
         let elem = this._currentWindow.document.getElementById(id);
         this.enableUIElementNode(elem);
         elem.parentNode.classList.add('subpanel-enabled');
-        let panel = this._currentWindow.document.getElementById('keefox-panelview');
+        let panel = this._currentWindow.document.getElementById(this.panelContainerId);
         panel.classList.add('subpanel-enabled');
         this.resizePanel();
         
@@ -1565,7 +1578,7 @@ keefox_win.panel = {
             node = startNode.parentNode;
 
             // As long as we've gone too far up the DOM tree, keep going until we find a previous element sibling
-            if (node.id != 'keefox-panelview')
+            if (node.id != this.panelContainerId)
                 node = this._getPreviousSiblingOrParent(node, --height);
             else
                 node = null;
@@ -1591,7 +1604,7 @@ keefox_win.panel = {
             node = startNode.parentNode;
 
             // As long as we've not gone too far up the DOM tree, keep going until we find a next element sibling
-            if (node.id != 'keefox-panelview')
+            if (node.id != this.panelContainerId)
                 node = this._getNextSiblingOrParent(node);
             else
                 node = null;
@@ -1614,17 +1627,18 @@ keefox_win.panel = {
     // there is some kind of mutation observer I should subscribe to but until that
     // is documented somewhere, this setTimeout hack seems to do the trick.
     resizePanel: function () {
-        let pv = this._currentWindow.document.getElementById('keefox-panelview');
-        if (!pv || !pv.parentNode)
-            return;
+        return;
+        //let pv = this._currentWindow.document.getElementById('keefox-panelview');
+        //if (!pv || !pv.parentNode)
+        //    return;
 
-        pv.style.height = "";
+        //pv.style.height = "";
 
-        this.resizePanelTimer = Components.classes["@mozilla.org/timer;1"]
-                                .createInstance(Components.interfaces.nsITimer);
-        this.resizePanelTimer.initWithCallback(
-                this.resizePanelCallback.bind(this),
-            10, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+        //this.resizePanelTimer = Components.classes["@mozilla.org/timer;1"]
+        //                        .createInstance(Components.interfaces.nsITimer);
+        //this.resizePanelTimer.initWithCallback(
+        //        this.resizePanelCallback.bind(this),
+        //    10, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 
     }
 
