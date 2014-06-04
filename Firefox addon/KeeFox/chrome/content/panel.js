@@ -42,7 +42,7 @@ keefox_win.panel = {
 
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
-        this.panelContainerId = "KeeFox-PanelSection-div-wrapper";
+        this.panelContainerId = "keefox-panelview";
 
         try
         {
@@ -84,7 +84,7 @@ keefox_win.panel = {
                         // Clear search results
                         evt.target.ownerGlobal.keefox_win.panel.onSearchComplete([]);
                         // Close subpanels
-                        //evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
+                        evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
                     },
                     onBeforeCreated: function (doc)
                     {
@@ -407,7 +407,6 @@ keefox_win.panel = {
             toHide[0].parentNode.classList.remove('subpanel-enabled');
         while (toHide.length)
             this.disableUIElementNode(toHide[0]); // removes enabled class and thus deletes from the toHide list
-        this.resizePanel();
 
         //TODO1.5: Might make more sense to remember which subpanel was just closed and focus that button instead
         this._currentWindow.document.getElementById('KeeFox-PanelSection-searchbox').focus();
@@ -420,7 +419,6 @@ keefox_win.panel = {
         elem.parentNode.classList.add('subpanel-enabled');
         let panel = this._currentWindow.document.getElementById(this.panelContainerId);
         panel.classList.add('subpanel-enabled');
-        this.resizePanel();
         
         // Try to focus on the first item in the newly displayed sub section
         let matches = elem.getElementsByTagName('li');
@@ -766,7 +764,6 @@ keefox_win.panel = {
                                     parent.parentNode.parentNode.classList.remove("active-group-parent");
                                     parent.parentNode.parentNode.classList.add("active-group");
                                     parent.parentNode.parentNode.focus();
-                                    keefox_win.panel.resizePanel();
                                     return;
                                 }
                             }
@@ -793,7 +790,6 @@ keefox_win.panel = {
                 if (fc) fc.focus();
                 
             }
-            keefox_win.panel.resizePanel();
         },
 
     getContainerFor: function (id)
@@ -1018,7 +1014,6 @@ keefox_win.panel = {
             return 0;
         });
         keefox_win.panel.showSearchResults.call(keefox_win.panel,logins);
-        keefox_win.panel.resizePanel();
     },
 
     // Calling this function with null or empty logins array will clear all existing search results
@@ -1335,7 +1330,6 @@ keefox_win.panel = {
                 container.appendChild(loginItem);
             }
         }
-        keefox_win.panel.resizePanel();
         
         // Try to focus on the first item in the newly displayed sub section
         let matches = container.getElementsByTagName('li');
@@ -1614,35 +1608,6 @@ keefox_win.panel = {
         }
         // Either the next sibling or null if we couldn't find a sibling before we got to the top of the DOM tree 
         return node;
-    },
-
-    resizePanelCallback: function () {
-        let pv = this._currentWindow.document.getElementById('keefox-panelview');
-        pv.style.height = pv.parentNode.parentNode.parentNode.clientHeight + "px";
-    },
-
-    resizePanelTimer: null,
-
-    // For an unknown reason, bug or limitation, we must tell Firefox to recalculate
-    // the size of the panel container so that it matches the size that the outer 
-    // panel has reserved for us. This process occurs when the panel first opens
-    // but fails to occur when the size of the panel changes once its open. Maybe
-    // there is some kind of mutation observer I should subscribe to but until that
-    // is documented somewhere, this setTimeout hack seems to do the trick.
-    resizePanel: function () {
-        return;
-        //let pv = this._currentWindow.document.getElementById('keefox-panelview');
-        //if (!pv || !pv.parentNode)
-        //    return;
-
-        //pv.style.height = "";
-
-        //this.resizePanelTimer = Components.classes["@mozilla.org/timer;1"]
-        //                        .createInstance(Components.interfaces.nsITimer);
-        //this.resizePanelTimer.initWithCallback(
-        //        this.resizePanelCallback.bind(this),
-        //    10, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-
     }
 
 };

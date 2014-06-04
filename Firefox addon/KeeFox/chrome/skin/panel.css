@@ -131,9 +131,10 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     border-radius: 3px;
     width: calc(100% - 0px);
     padding: 3px 5px;
-    line-height:26px;
-    min-height: 26px;
+    line-height:21px;
+    min-height: 21px;
     margin: 3px 0px;
+    display: inline-flex;
 }
 
 #keefox-panelview input[type=button]:hover {
@@ -141,7 +142,8 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     
 }
 
-#keefox-panelview .disabled
+#keefox-panelview .disabled,
+#keefox-panelview input[type=button].disabled
 {
 	display:none;
 }
@@ -177,6 +179,14 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 #keefox-panelview.KeeFox-PanelSection-div-wrapper #KeeFox-PanelSection-close .KeeFox-Action
 {
 	display:block;
+}
+
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close,
+#keefox-panelview.subpanel-enabled #KeeFox-PanelSection-close .KeeFox-Action,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper #KeeFox-PanelSection-close,
+#keefox-panelview.KeeFox-PanelSection-div-wrapper #KeeFox-PanelSection-close .KeeFox-Action
+{
+	display:inline-flex;
 }
 
 #keefox-panelview.subpanel-enabled .subpanel-enabled,
