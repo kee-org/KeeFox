@@ -173,7 +173,7 @@ keefox_win.panel = {
             // set it to something relevant before displaying the status panel section
             'do-a-thing' 
         );
-        this.disableUIElement('KeeFox-PanelSection-status');
+        this.disableUIElementNode(status);
         let statusTextContainer = this.createUIElement('div', [
             ['id','KeeFox-PanelSection-status-text']
         ]);
@@ -229,7 +229,7 @@ keefox_win.panel = {
             function () { closure.showSubSectionMatchedLogins(); },
             'KeeFox_Matched-Logins-Button'
         );
-        this.disableUIElement('KeeFox-PanelSection-matchedLogins-main-action');
+        this.disableUIElementNode(matchedLogins);
         let matchedLoginsListContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelInlineSection KeeFox-LoginList enabled'],
             ['id','KeeFox-PanelSubSection-MatchedLoginsList']
@@ -249,7 +249,7 @@ keefox_win.panel = {
         );
 
         // is it really an PanelInlineSection? what about when user changes setting from 0 to 1+ items to display? then it will ahve to start behaving differently...
-        this.disableUIElement('KeeFox-PanelSection-allLogins-main-action');
+        this.disableUIElementNode(allLogins);
         let allLoginsListContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelInlineSection KeeFox-LoginList enabled'],
             ['id','KeeFox-PanelSubSection-AllLoginsList']
@@ -267,7 +267,7 @@ keefox_win.panel = {
             function () { closure.showSubSectionGeneratePassword(); },
             'KeeFox_Menu-Button.copyNewPasswordToClipboard'
         );
-        this.disableUIElement('KeeFox-PanelSection-generatePassword-main-action');
+        this.disableUIElementNode(generatePassword);
         let generatePasswordListContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelSubSection KeeFox-PasswordProfileList enabled'],
             ['id','KeeFox-PanelSubSection-PasswordProfileList']
@@ -279,7 +279,7 @@ keefox_win.panel = {
             function () { closure.showSubSectionChangeDatabase(); },
             'KeeFox_Menu-Button.changeDB'
         );
-        this.disableUIElement('KeeFox-PanelSection-changeDatabase-main-action');
+        this.disableUIElementNode(changeDatabase);
         let changeDatabaseListContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelSubSection KeeFox-DatabaseList enabled'],
             ['id','KeeFox-PanelSubSection-DatabaseList']
@@ -296,7 +296,7 @@ keefox_win.panel = {
             },
             'KeeFox_Menu-Button.fillCurrentDocument'
         );
-        this.disableUIElement('KeeFox-PanelSection-detectForms-main-action');
+        this.disableUIElementNode(detectForms);
         
         let options = this.createPanelSection(
             'KeeFox-PanelSection-options', 
@@ -1122,13 +1122,23 @@ keefox_win.panel = {
     // reports to the user the state of KeeFox and the KeePassRPC connection
     setWidgetStatus: function (enabled, buttonLabel, tooltip, detailedInfo, buttonAction)
     {
+        keefox_win.Logger.debug("Setting widget status");
         let widgetButton = this._currentWindow.document.getElementById("keefox-button");
         let statusPanel = this._currentWindow.document.getElementById("KeeFox-PanelSection-status");
         let statusPanelText = this._currentWindow.document.getElementById("KeeFox-PanelSection-status-text");
         let statusPanelButton = this._currentWindow.document.getElementById("KeeFox-PanelSection-status-main-action");
         
+        if (widgetButton === undefined || widgetButton == null)
+            widgetButton = this._widget.node;
+        if (statusPanel === undefined || statusPanel == null)
+            statusPanel = widgetButton.querySelector("#KeeFox-PanelSection-status");
+        if (statusPanelText === undefined || statusPanelText == null)
+            statusPanelText = widgetButton.querySelector("#KeeFox-PanelSection-status-text");
+        if (statusPanelButton === undefined || statusPanelButton == null)
+            statusPanelButton = widgetButton.querySelector("#KeeFox-PanelSection-status-main-action");
         if (widgetButton === undefined || widgetButton == null 
             || statusPanel === undefined || statusPanel == null
+            || statusPanelText === undefined || statusPanelText == null
             || statusPanelButton === undefined || statusPanelButton == null)
             return;
 
@@ -1191,9 +1201,12 @@ keefox_win.panel = {
         keefox_win.Logger.debug("setupButton_ready start");
         var mainButton;
         var mainWindow = this._currentWindow;
-        mainButton = mainWindow.document.getElementById("keefox-button");
+        mainButton = this._widget.node;
         if (mainButton === undefined || mainButton == null)
+        {
+            keefox_win.Logger.warn("widget node missing.");
             return;
+        }
 
         if (keefox_org._keeFoxStorage.get("KeePassDatabaseOpen", false)) {
 
@@ -1212,6 +1225,7 @@ keefox_win.panel = {
                     loggedInText = keefox_org.locale.$STRF("loggedInMultiple.tip", [numberOfDBs,mainWindow.keefox_org.KeePassDatabases[activeDBIndex].name]);
             } else
             {
+                keefox_win.Logger.warn("KeePass database open but details unavailable.");
                 return;
             }
 
