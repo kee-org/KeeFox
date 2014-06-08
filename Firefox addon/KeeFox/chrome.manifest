@@ -17,7 +17,7 @@ resource kfmod modules/
 # locales
 # commented out locales are not complete enough on Transifex
 locale keefox cs chrome/locale/cs/
-locale keefox da chrome/locale/da/
+#locale keefox da chrome/locale/da/
 locale keefox de chrome/locale/de/
 locale keefox el chrome/locale/el/
 locale keefox en-US chrome/locale/en-US/
@@ -26,17 +26,18 @@ locale keefox es-AR chrome/locale/es-AR/
 locale keefox fi chrome/locale/fi/
 locale keefox fr chrome/locale/fr/
 locale keefox hu chrome/locale/hu/
-locale keefox it chrome/locale/it/
+#locale keefox it chrome/locale/it/
 #locale keefox ja chrome/locale/ja/
-locale keefox ko-KR chrome/locale/ko-KR/
-locale keefox nb-NO chrome/locale/nb-NO/
+#locale keefox ko-KR chrome/locale/ko-KR/
+#locale keefox nb-NO chrome/locale/nb-NO/
 locale keefox nl chrome/locale/nl/
-locale keefox pl chrome/locale/pl/
-locale keefox pt-BR chrome/locale/pt-BR/
-locale keefox pt-PT chrome/locale/pt-PT/
-locale keefox ro chrome/locale/ro/
+#locale keefox pl chrome/locale/pl/
+#locale keefox pt-BR chrome/locale/pt-BR/
+#locale keefox pt-PT chrome/locale/pt-PT/
+#locale keefox ro chrome/locale/ro/
 locale keefox ru chrome/locale/ru/
 locale keefox sv-SE chrome/locale/sv-SE/
+#locale keefox tr chrome/locale/tr/
 #locale keefox vi-VN chrome/locale/vi-VN/
 locale keefox zh-CN chrome/locale/zh-CN/
 #locale keefox zh-TW chrome/locale/zh-TW/

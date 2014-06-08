@@ -125,7 +125,6 @@
     <Content Include="XPIPackageExclusions.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="KeeFox\chrome.manifest.beta" />
     <None Include="KeeFox\chrome.manifest" />
     <None Include="KeeFox\chrome\content\context.xul" />
     <None Include="KeeFox\chrome\content\famsOptions.xul" />
