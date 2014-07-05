@@ -311,7 +311,7 @@ KeeFox.prototype = {
                 if (KeePassEXEfound)
                 {
                     keePassRPCLocation = utils._discoverKeePassRPCInstallLocation();
-                    KeePassRPCfound = utils._confirmKeePassRPCInstallLocation(keePassRPCLocation);
+                    KeePassRPCfound = utils._confirmKeePassRPCInstallLocation(keePassLocation, keePassRPCLocation);
                     if (!KeePassRPCfound)
                         this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO2: set this to "not installed"?
                 } else

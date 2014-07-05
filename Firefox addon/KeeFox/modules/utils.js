@@ -178,7 +178,8 @@ Utils.prototype = {
         return keePassLocation;
     },
     
-    // works out where KeePassRPC is installed and records it in a Firefox preference
+    // if the KeePassRPC install location has been customised, we'll return that. If not, we assume 
+    // it is installed in the default location and allow the confirmation step to check if it can be found there.
     _discoverKeePassRPCInstallLocation: function()
     {
         var keePassRPCLocation = "not installed";
@@ -189,10 +190,29 @@ Utils.prototype = {
         {
             keePassRPCLocation = KFExtension.prefs.getValue("keePassRPCInstalledLocation","not installed");
             if (keePassRPCLocation != "")
+            {
                 if (this._KFLog.logSensitiveData)
                     this._KFLog.info("keePassRPC install location found in preferences: " + keePassRPCLocation);
                 else
                     this._KFLog.info("keePassRPC install location found in preferences.");
+                
+                try
+                {
+                    var defaultFolder = Components.classes["@mozilla.org/file/local;1"]
+                        .createInstance(Components.interfaces.nsILocalFile);
+                    defaultFolder.initWithPath(KFExtension.prefs.getValue("keePassInstalledLocation","not installed"));
+                    defaultFolder.append("plugins");
+
+                    if (keePassRPCLocation == defaultFolder.path)
+                    {
+                        KFExtension.prefs.setValue("keePassRPCInstalledLocation","");
+                    }
+                } catch (ex)
+                {
+                    this._KFLog.debug("Failed to tidy up old KPRPC plugin preference.");
+                }
+                
+            }
             else
                 keePassRPCLocation = "not installed";
         }
@@ -208,7 +228,6 @@ Utils.prototype = {
             folder.initWithPath(keePassLocation);
             folder.append("plugins");
             keePassRPCLocation = folder.path;
-            KFExtension.prefs.setValue("keePassRPCInstalledLocation",keePassRPCLocation);
             if (this._KFLog.logSensitiveData)
                 this._KFLog.debug("KeePassRPC install location inferred: " + keePassRPCLocation);
             else
@@ -248,13 +267,13 @@ Utils.prototype = {
         return KeePassEXEfound;
     },
     
-    _confirmKeePassRPCInstallLocation: function(keePassRPCLocation)
+    _confirmKeePassRPCInstallLocation: function(keePassLocation, keePassRPCLocation)
     {
         var KeePassRPCfound;
         KeePassRPCfound = false;
 
         if (this._KFLog.logSensitiveData)
-            this._KFLog.info("Looking for the KeePassRPC plugin plgx in " + keePassRPCLocation);
+            this._KFLog.info("Looking for the KeePassRPC plugin plgx in " + keePassRPCLocation + " and " + keePassLocation);
         else
             this._KFLog.info("Looking for the KeePassRPC plugin plgx");
 
@@ -269,13 +288,34 @@ Utils.prototype = {
                 if (file.isFile())
                 {
                     KeePassRPCfound = true;
-                    this._KFLog.info("KeePassRPC plgx found in correct location.");
+                    this._KFLog.info("KeePassRPC plgx found in specified or default location.");
                 }
             }
             
         } catch (ex)
         {
             this._KFLog.debug("KeePassRPC PLGX search threw an exception: " + ex);
+        }
+
+        if (!KeePassRPCfound)
+        {
+            try
+            {
+                file.initWithPath(keePassLocation);
+                if (file.isDirectory())
+                {
+                    file.append("KeePassRPC.plgx");
+                    if (file.isFile())
+                    {
+                        KeePassRPCfound = true;
+                        this._KFLog.info("KeePassRPC plgx found in KeePass location.");
+                    }
+                }
+            
+            } catch (ex)
+            {
+                this._KFLog.debug("KeePassRPC PLGX search threw an exception: " + ex);
+            }
         }
         
         try

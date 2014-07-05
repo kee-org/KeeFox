@@ -22,7 +22,46 @@ function onLoad(){
       ],
       ['title','label','tooltiptext','accesskey','value']);
 
-      createCommandPanel();
+    hideIrrelevantOptions();
+
+    createCommandPanel();
+}
+
+function hideIrrelevantOptions()
+{
+    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                    .getService(Components.interfaces.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser") ||
+        wm.getMostRecentWindow("mail:3pane");
+
+    if (window.keefox_win.legacyUI) {
+        document.getElementById("lab-maxMatchedLoginsInMainPanel").classList.add('keefox-hide');
+        document.getElementById("maxMatchedLoginsInMainPanel").classList.add('keefox-hide');
+    }
+    var isWindows = Components.classes["@mozilla.org/xre/app-info;1"]  
+                    .getService(Components.interfaces.nsIXULRuntime).OS == "WINNT";
+
+    var forceShowMonoLocation = false;
+    var monoLocation = document.getElementById("KeeFox-pref-monoLocation");
+    // .value === undefined means the preference is set to the default value
+    if (monoLocation.value === undefined || monoLocation.value === null || monoLocation.value.length <= 0)
+        forceShowMonoLocation = true;
+
+    if (isWindows && !forceShowMonoLocation) {
+        document.getElementById("lab-monoLocation").classList.add('keefox-hide');
+        document.getElementById("hbox-monoLocation").classList.add('keefox-hide');
+    }
+
+    var forceShowKPRPCLocation = false;
+    var KPRPCLocation = document.getElementById("KeeFox-pref-keePassRPCInstalledLocation");
+    // .value === undefined means the preference is set to the default value
+    if (KPRPCLocation.value === undefined || KPRPCLocation.value === null || KPRPCLocation.value.length <= 0)
+        forceShowKPRPCLocation = true;
+
+    if (!forceShowKPRPCLocation) {
+        document.getElementById("lab-keePassRPCInstalledLocation").classList.add('keefox-hide');
+        document.getElementById("hbox-keePassRPCInstalledLocation").classList.add('keefox-hide');
+    }
 }
 
 function createCommandPanel()

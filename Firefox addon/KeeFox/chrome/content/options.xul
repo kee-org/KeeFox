@@ -231,7 +231,7 @@
         <tabpanel>
           <vbox align="left">
             <label id="lab-keePassRPCInstalledLocation" control="keePassRPCInstalledLocation" value="%-KeeFox-pref-keePassRPCInstalledLocation.label-%:"/>            
-            <hbox class="itemEnd">
+            <hbox class="itemEnd" id="hbox-keePassRPCInstalledLocation">
               <textbox preference="KeeFox-pref-keePassRPCInstalledLocation" id="keePassRPCInstalledLocation" maxlength="255" size="80" />
               <button id="keePassRPCInstalledLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForKPRPCLocation(document.getElementById('keePassRPCInstalledLocation').value);"/>
             </hbox>
@@ -242,8 +242,8 @@
               <button id="keePassInstalledLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForKeePassLocation(document.getElementById('keePassInstalledLocation').value);"/>
             </hbox>
             
-            <label id="lab-monoLocation" control="monoLocation" value="%-KeeFox-pref-monoLocation.label-%:"/>
-            <hbox class="itemEnd">
+            <label id="lab-monoLocation" control="monoLocation" value="%-KeeFox-pref-monoLocation.label-%:" />
+            <hbox class="itemEnd" id="hbox-monoLocation">
               <textbox preference="KeeFox-pref-monoLocation" id="monoLocation" maxlength="255" size="80" />
               <button id="monoLocationBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForMonoLocation(document.getElementById('monoLocation').value);"/>
             </hbox>
