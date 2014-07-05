@@ -41,6 +41,11 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Aurora\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Nightly|AnyCPU'">
+    <OutputPath>bin\Nightly\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -160,7 +165,9 @@
     <None Include="KeeFox\chrome\locale\tr\keefox.properties" />
     <None Include="KeeFox\chrome\locale\zh-CN\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\zh-CN\keefox.properties" />
-    <None Include="KeeFox\install.rdf" />
+    <None Include="KeeFox\install.rdf">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="KeeFox\modules\ClassTreeView.jsm" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
