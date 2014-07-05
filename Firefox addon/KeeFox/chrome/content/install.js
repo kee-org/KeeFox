@@ -1131,7 +1131,7 @@ function extractKPZip (zipFilePath, storeLocation)
 {
     var zipFile = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-        zipFile.initWithPath(mainWindow.keefox_org.utils.myDepsDir());
+        zipFile.initWithPath(mainWindow.keefox_org.utils.myProfileDir());
 
         zipFile.append(zipFilePath);
         
