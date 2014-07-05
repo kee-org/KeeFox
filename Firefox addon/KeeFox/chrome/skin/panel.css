@@ -271,7 +271,6 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 
 /* Basic login list styles */
 #keefox-panelview ul {
-    list-style-position:none;
     margin:0 0 0 -22px;
     padding:0px 0px 0px 8px;
     background:linear-gradient(to right, #C9DAE8 0px, #C9DAE8 8px, transparent 9px);
@@ -307,7 +306,6 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 #KeeFox-PanelSubSection-DatabaseList > ul {
-    list-style-position:none;
     margin:0 0 0 0px;
     padding:0px 0px 0px 0px;
     list-style:none;
