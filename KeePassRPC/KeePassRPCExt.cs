@@ -129,7 +129,19 @@ namespace KeePassRPC
 
                 }
             }
-            //TODO:port 0
+
+            if (port <= 0 || port > 65535)
+            {
+                if (webSocket)
+                    port = 12546;
+                else
+                    port = 12536;
+            }
+            if (webSocket && port == 12536)
+                port = 12546;
+            if (!webSocket && port == 12546)
+                port = 12536; 
+            
             return port;
         }
 

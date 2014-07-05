@@ -267,14 +267,27 @@ KeeFox.prototype = {
         
         this._keeFoxVariableInit();
         this.KeePassRPC = new jsonrpcClient();
-        if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
+        if (this._keeFoxExtension.prefs.has("KeePassRPC.port")) {
             this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue(
-                "KeePassRPC.port",this.KeePassRPC.port);
+                "KeePassRPC.port", this.KeePassRPC.port);
+
+            // Don't allow user to select an invalid port
+            if (this.KeePassRPC.port <= 0 || this.KeePassRPC.port > 65535 || this.KeePassRPC.port == 12546) {
+                this._keeFoxExtension.prefs.setValue("KeePassRPC.port", 12536);
+                this.KeePassRPC.port = 12536;
+            }
+        }
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
         {
             this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue(
-                "KeePassRPC.webSocketPort",this.KeePassRPC.webSocketPort);
-            //TODO:port 0
+                "KeePassRPC.webSocketPort", this.KeePassRPC.webSocketPort);
+
+            // Don't allow user to select an invalid port
+            if (this.KeePassRPC.webSocketPort <= 0 || this.KeePassRPC.webSocketPort > 65535 || this.KeePassRPC.webSocketPort == 12536)
+            {
+                this._keeFoxExtension.prefs.setValue("KeePassRPC.webSocketPort", 12546);
+                this.KeePassRPC.webSocketPort = 12546;
+            }
             this.KeePassRPC.webSocketURI = "ws://" + this.KeePassRPC.webSocketHost + ":" + this.KeePassRPC.webSocketPort;
             this.KeePassRPC.httpChannelURI = "http://" + this.KeePassRPC.webSocketHost + ":" + this.KeePassRPC.webSocketPort;
         }
