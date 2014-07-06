@@ -41,11 +41,11 @@ function hideIrrelevantOptions()
     var isWindows = Components.classes["@mozilla.org/xre/app-info;1"]  
                     .getService(Components.interfaces.nsIXULRuntime).OS == "WINNT";
 
-    var forceShowMonoLocation = false;
+    var forceShowMonoLocation = true;
     var monoLocation = document.getElementById("KeeFox-pref-monoLocation");
     // .value === undefined means the preference is set to the default value
     if (monoLocation.value === undefined || monoLocation.value === null || monoLocation.value.length <= 0)
-        forceShowMonoLocation = true;
+        forceShowMonoLocation = false;
 
     if (isWindows && !forceShowMonoLocation) {
         document.getElementById("lab-monoLocation").classList.add('keefox-hide');
