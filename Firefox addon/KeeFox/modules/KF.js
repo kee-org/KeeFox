@@ -522,6 +522,7 @@ KeeFox.prototype = {
     {
         var fileName = "unknown";
         var args = [];
+        let fileNameIsRelative = false;
         
         if (this.useMono)
         {
@@ -556,11 +557,23 @@ KeeFox.prototype = {
         {
             var directory = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation",
                         "C:\\Program files\\KeePass Password Safe 2\\");
+
             if (directory.substr(-1) === "\\")
                 fileName = directory + "KeePass.exe";
             else
                 fileName = directory + "\\KeePass.exe";
         }
+
+        // If user has defined a relative URL, convert it to a format that is valid for use with setRelativeDescriptor
+        if (fileName.startsWith('.\\') || fileName.startsWith('..\\'))
+            fileName = fileName.replace('\\', '/', 'g');
+        if (fileName.startsWith('./') || fileName.startsWith('../'))
+        {
+            if (fileName.startsWith('./'))
+                fileName = fileName.substr(2);
+            fileNameIsRelative = true;
+        }
+
         let portParam = "", portLegacyParam = "";
 
         if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
@@ -592,7 +605,20 @@ KeeFox.prototype = {
 
         var file = Components.classes["@mozilla.org/file/local;1"]
                    .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(fileName);
+        if (fileNameIsRelative) {
+            var ffDir = Components.classes["@mozilla.org/file/directory_service;1"]
+                        .getService(Components.interfaces.nsIProperties)
+                        .get("CurProcD", Components.interfaces.nsIFile);
+            // recent FF versions don't have a valid variable to represent
+            // "installation location" so this is the best we can do
+            if (ffDir.leafName == "browser")
+                ffDir = ffDir.parent;
+
+            file.setRelativeDescriptor(ffDir, fileName);
+        } else
+        {
+            file.initWithPath(fileName);
+        }
 
         this._KFLog.info("About to execute: " + file.path + " " + args.join(' '));
         
