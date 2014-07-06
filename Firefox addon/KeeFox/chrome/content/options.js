@@ -52,11 +52,11 @@ function hideIrrelevantOptions()
         document.getElementById("hbox-monoLocation").classList.add('keefox-hide');
     }
 
-    var forceShowKPRPCLocation = false;
+    var forceShowKPRPCLocation = true;
     var KPRPCLocation = document.getElementById("KeeFox-pref-keePassRPCInstalledLocation");
     // .value === undefined means the preference is set to the default value
     if (KPRPCLocation.value === undefined || KPRPCLocation.value === null || KPRPCLocation.value.length <= 0)
-        forceShowKPRPCLocation = true;
+        forceShowKPRPCLocation = false;
 
     if (!forceShowKPRPCLocation) {
         document.getElementById("lab-keePassRPCInstalledLocation").classList.add('keefox-hide');

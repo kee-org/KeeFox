@@ -203,7 +203,7 @@ Utils.prototype = {
                     defaultFolder.initWithPath(KFExtension.prefs.getValue("keePassInstalledLocation","not installed"));
                     defaultFolder.append("plugins");
 
-                    if (keePassRPCLocation == defaultFolder.path)
+                    if (keePassRPCLocation == defaultFolder.path || keePassRPCLocation.slice(0,-1) == defaultFolder.path)
                     {
                         KFExtension.prefs.setValue("keePassRPCInstalledLocation","");
                     }
