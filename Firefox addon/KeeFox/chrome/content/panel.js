@@ -62,18 +62,20 @@ keefox_win.panel = {
                     tooltiptext: "KeeFox",
                     onViewShowing: function (evt)
                     {
-                        // This is called before the view is moved to the DOM location ready for
-                        // display so events attached here will be deleted before the view is 
-                        // actually displayed. The hack below wraps the creation of the event 
-                        // listener in a timeout which will (most of the time) allow us to work 
-                        // around this Firefox bug
+                        // We need this delay because the _findFirstFocusableChildItem code needs
+                        // to consider only elements that are currently visible and the only way
+                        // to do this is to allow the view to be rendered before inspecting it.
+                        // What we really want is something like an onViewShown event, fired when
+                        // we know that the user is already seeing the finished rendered view.
                         var targetDoc = evt.target.ownerDocument;
                         let panel = evt.target.ownerGlobal.keefox_win.panel;
                         panel.viewShowingHackTimer = Components.classes["@mozilla.org/timer;1"]
                                 .createInstance(Components.interfaces.nsITimer);
                         panel.viewShowingHackTimer.initWithCallback(
                             function () {
-                                panel._findFirstFocusableChildItem(targetDoc.getElementById('keefox-panelview')).focus();
+                                let pv = targetDoc.getElementById('keefox-panelview');
+                                //evt.target.ownerGlobal.keefox_win.Logger.debug("Found panelview: " + pv);
+                                panel._findFirstFocusableChildItem(pv).focus();
                             },
                             50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
                     },
