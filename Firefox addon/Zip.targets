@@ -1,0 +1,71 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Simple ZIP task that utilize .NET 4.5 Zip Compression -->
+  <!--
+
+    Example
+
+    <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+         ToolsVersion="4.0" DefaultTargets="Sample" >
+
+      <Import Project="Zip.targets" />
+
+      <Target Name="Sample" >
+          <Zip SourceFolder="C:\SomeFolder\" OutputFileName="output.zip" />
+      </Target>
+
+    </Project>
+
+    you can run this project with msbuild    
+
+  -->
+  <UsingTask TaskName="Zip" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <SourceFolder ParameterType="System.String" Required="true"/>
+      <OutputFileName ParameterType="System.String" Required="true" />
+      <NoBackup ParameterType="System.Boolean" Required="false" />      
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Reference Include="Microsoft.CSharp" />
+      <Reference Include="System.IO.Compression" />
+      <Reference Include="System.IO.Compression.FileSystem" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Net" />
+      <Using Namespace="System.Linq" />      
+      <Using Namespace="System.Reflection" />
+      <Using Namespace="Microsoft.Build.Framework" />
+      <Using Namespace="Microsoft.Build.Utilities" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+                try {
+                    SourceFolder = Path.GetFullPath(SourceFolder);
+                    OutputFileName = Path.GetFullPath(OutputFileName);
+                      
+                    Log.LogMessage("Package zip... (" + OutputFileName + " )");
+                    
+                    // Prepare output temp file
+                    var tmpFile = Path.ChangeExtension(OutputFileName, ".zip.tmp");
+                    File.Delete(tmpFile);
+
+                    // Zip folder
+                    ZipFile.CreateFromDirectory(SourceFolder, tmpFile);
+
+                    // Replace output file
+                    File.Delete(OutputFileName);
+                    File.Move(tmpFile, OutputFileName);
+
+                    return true;
+                }
+                catch (Exception ex) {
+                    Log.LogErrorFromException(ex);
+                    return false;
+                }
+            ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+</Project>
