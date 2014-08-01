@@ -327,15 +327,15 @@ function config()
     {
         if(url == "*") return;
         for (var i=0; i<this.current.length; i++)
-		{
+        {
             if (url == this.current[i].url) 
-			{
-				this.current.splice(i, 1);
-				if (typeof this.configCache[url] != "undefined") delete this.configCache[url];
-				this._KFLog.debug("URL '"+url+"' removed");
-				break;
-			}
-        }		       
+            {
+                this.current.splice(i, 1);
+                if (typeof this.configCache[url] != "undefined") delete this.configCache[url];
+                this._KFLog.debug("URL '"+url+"' removed");
+                break;
+            }
+        }               
     };
 
     this.migrateListOfNoSavePromptURLs = function(urls)

@@ -336,8 +336,8 @@ function removeSite()
     var selectedURL = tree.view.getCellText(tree.currentIndex, tree.columns.getColumnAt(0));
     configMan.removeUrl(selectedURL);
     configMan.save();
-	setTreeViewURLChooser();
-	go(0);
+    setTreeViewURLChooser();
+    go(0);
 }
 
 function getMainPanelConfig()

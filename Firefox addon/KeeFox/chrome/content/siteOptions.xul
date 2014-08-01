@@ -132,10 +132,10 @@
         <button id="saveSite" label="%-KeeFox-save-site-settings-%" oncommand="saveSite()" />
         <spacer flex="1"/>
       </row>
-	  <row>
+      <row>
         <spacer flex="1"/>
-		<button id="removeSite" label="%-KeeFox-remove-site-%" oncommand="removeSite()" />
-	  </row>
+        <button id="removeSite" label="%-KeeFox-remove-site-%" oncommand="removeSite()" />
+      </row>
     </rows>
   </grid>
 </dialog>
