@@ -323,21 +323,6 @@ function config()
         this._KFLog.debug(JSON.stringify(this.current));
     };
 
-    this.removeUrl = function(url)
-    {
-        if(url == "*") return;
-        for (var i=0; i<this.current.length; i++)
-		{
-            if (url == this.current[i].url) 
-			{
-				this.current.splice(i, 1);
-				if (typeof this.configCache[url] != "undefined") delete this.configCache[url];
-				this._KFLog.debug("URL '"+url+"' removed");
-				break;
-			}
-        }		       
-    };
-
     this.migrateListOfNoSavePromptURLs = function(urls)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
