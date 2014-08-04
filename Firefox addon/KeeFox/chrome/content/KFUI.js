@@ -436,6 +436,7 @@ keefox_win.UI = {
                     {
                         let newConfig = keefox_org.config.applyMoreSpecificConfig(JSON.parse(JSON.stringify(keefox_org.config.getConfigDefinitionForURL(urlSchemeHostPort))),{"preventSaveNotification": true}); //TODO1.5: faster clone?
                         keefox_org.config.setConfigForURL(urlSchemeHostPort,newConfig);   
+                        keefox_org.config.save();
                     } finally
                     {
                         keefox_win.tabState.clearTabFormRecordingData();
