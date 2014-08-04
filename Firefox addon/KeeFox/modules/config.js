@@ -201,6 +201,7 @@ function config()
             this._KFLog.debug("Returning configuration from cache");
             workingConf = this.configCache[url];
         }
+        this._KFLog.debug(JSON.stringify(workingConf));
         return workingConf;
     };
 
