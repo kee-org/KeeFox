@@ -1070,10 +1070,6 @@ kprpcClient.prototype.constructor = kprpcClient;
         t = tn;
         if (ourHmac !== hmac)
         {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                     .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
             log.warn(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart"));
             window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
                 + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
