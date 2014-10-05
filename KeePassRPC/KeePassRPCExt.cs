@@ -60,7 +60,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,4,3);
+        public static readonly Version PluginVersion = new Version(1,4,4);
 
         private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
         private AutoResetEvent _BackgroundWorkerAutoResetEvent;
@@ -516,7 +516,10 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 
         public Image GetIcon(int iconIndex)
         {
-            return _host.MainWindow.ClientIcons.Images[(int)iconIndex];
+            Image im = _host.MainWindow.ClientIcons.Images[(int)iconIndex];
+            if (DpiUtil.ScalingRequired)
+                im = DpiFix.ScaleImageTo16x16(im, false);
+            return im;
         }
 
 

@@ -113,6 +113,7 @@
   <ItemGroup>
     <Compile Include="BigInteger.cs" />
     <Compile Include="DataExchangeModel.cs" />
+    <Compile Include="DpiFix.cs" />
     <Compile Include="Forms\AuthForm.cs">
       <SubType>Form</SubType>
     </Compile>

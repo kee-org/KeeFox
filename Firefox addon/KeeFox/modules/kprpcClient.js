@@ -49,7 +49,7 @@ function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1,4,3];
+    this.clientVersion = [1,4,4];
     this.authPromptAborted = false;
     
     // We manually create HMACs to protect the integrity of our AES encrypted messages
