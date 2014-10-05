@@ -517,8 +517,8 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
         public Image GetIcon(int iconIndex)
         {
             Image im = _host.MainWindow.ClientIcons.Images[(int)iconIndex];
-            if (DpiUtil.ScalingRequired)
-                im = DpiFix.ScaleImageTo16x16(im, false);
+            // can't do this until we drop support for KP <2.28: if (DpiUtil.ScalingRequired)
+            im = DpiFix.ScaleImageTo16x16(im, false);
             return im;
         }
 
