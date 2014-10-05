@@ -63,7 +63,7 @@ function onLoad()
     mainWindow.keefox_org.locale.internationaliseElements(document,
         ['siteIntro','notifyBarRequestPasswordSave','monitorTime','validFormIntro','listExplain','invisibleTip','gb-form-name-caption','gb-form-name-wl-lab','gb-form-name-bl-lab'
         ,'gb-form-id-caption','gb-form-id-wl-lab','gb-form-id-bl-lab','gb-field-name-caption','gb-field-name-wl-lab','gb-field-name-bl-lab'
-        ,'gb-field-id-caption','gb-field-id-wl-lab','gb-field-id-bl-lab','addSite','saveSite', 'removeSite'
+        ,'gb-field-id-caption','gb-field-id-wl-lab','gb-field-id-bl-lab','addSite','saveSite'
         ],
         ['title','label','tooltiptext','accesskey','value']);
 
@@ -328,16 +328,6 @@ function saveSite()
     }
     configMan.setConfigForURL(url,getMainPanelConfig());
     configMan.save();
-}
-
-function removeSite()
-{
-    var tree = document.getElementById("siteURLTree");
-    var selectedURL = tree.view.getCellText(tree.currentIndex, tree.columns.getColumnAt(0));
-    configMan.removeUrl(selectedURL);
-    configMan.save();
-    setTreeViewURLChooser();
-    go(0);
 }
 
 function getMainPanelConfig()

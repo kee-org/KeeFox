@@ -1,7 +1,7 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
-
+  
   Configuration of KeeFox behaviour occurs in several places. This config
   file is the newest as of Oct 2012. Ultimately other configuration will be
   added to this config file, either directly or via abstractions to existing
@@ -9,7 +9,7 @@
   preferences system and a keefox.sqlite file.
   Entry-specific configuration is stored in KeePass but in future maybe
   we'll still make it available from this interface.
-
+  
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -75,7 +75,7 @@ function config()
                 f_name_b: ["search","q","query"],
                 f_id_w: ["username","j_username","user_name","user","user-name","login","vb_login_username","name","user-id","userid","email","e-mail","id","form_loginname","wpname","mail","loginid","login_name","openid_identifier","authentication_email","openid","auth_email","auth_id","authentication_identifier","authentication_id","customer_number","customernumber","onlineid"],
                 f_id_b: ["search","q"],
-
+                
                 // simple string comparisons won't work here becuase multiple
                 // xpaths could lead to the same element. Each xpath listed here
                 // will have to be found and any discovered element's parent
@@ -120,7 +120,7 @@ function config()
             rescanFormDelay: 2500
         }
     }
-
+    
     /*,
     {
         url:"http://domain.name/page.html?...",
@@ -204,17 +204,6 @@ function config()
         return workingConf;
     };
 
-    this.removeURLFromCache = function(url){
-        for(var curl in this.configCache)
-        {
-            if(curl.match(new RegExp(url.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "i")))
-            {
-                delete this.configCache[curl];
-                this._KFLog.debug("Remove config cache entry '"+curl+"' for URL '"+url+"'");
-            }
-        }
-    };
-
     this.applyMoreSpecificConfig = function(workingConfig, extraConfig)
     {
         for (var prop in extraConfig)
@@ -269,7 +258,7 @@ function config()
     this.save = function()
     {
         this._KFLog.debug("Saving configuration");
-
+        
         var prefService = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
         var prefBranch = prefService.getBranch("extensions.keefox@chris.tomlinson.");
 
@@ -332,21 +321,6 @@ function config()
         else
             this.current.splice(insertionPoint,0,{"url": url, "config": newConfig});
         this._KFLog.debug(JSON.stringify(this.current));
-    };
-
-    this.removeUrl = function(url)
-    {
-        if(url == "*") return;
-        for (var i=0; i<this.current.length; i++)
-        {
-            if (url == this.current[i].url)
-            {
-                this.current.splice(i, 1);
-                this.removeURLFromCache(url);
-                this._KFLog.debug("URL '"+url+"' removed");
-                break;
-            }
-        }
     };
 
     this.migrateListOfNoSavePromptURLs = function(urls)
