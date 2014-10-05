@@ -1043,7 +1043,7 @@ keefox_win.panel = {
 
             var loginItem = this.createUIElement('li', [
                 ['class','login-item'],
-                //['data-fileName',dbFileName],
+                ['data-fileName',login.dbFileName],
                 ['data-usernameName',usernameName],
                 ['data-usernameValue',usernameValue],
                 ['data-url',login.url],
@@ -1084,8 +1084,8 @@ keefox_win.panel = {
                                                     this.getAttribute('data-url'),
                                                     null,
                                                     null,
-                                                    this.getAttribute('data-uuid')//, 
-                                                    //this.getAttribute('data-fileName')
+                                                    this.getAttribute('data-uuid'), 
+                                                    this.getAttribute('data-fileName')
                                                 );
                 keefox_win.panel.CustomizableUI.hidePanelForNode(
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));

@@ -156,12 +156,14 @@ Search.prototype = {
                 for (let i=0; i<this._keefox_org.KeePassDatabases.length; i++)
                 {
                     let root = this._keefox_org.KeePassDatabases[i].root;
-		            this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0);
+                    let dbFileName = this._keefox_org.KeePassDatabases[i].fileName;
+                    this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0, dbFileName);
                 }
             } else
             {
                 let root = this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex].root;
-		        this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0);
+                let dbFileName = this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex].fileName;
+                this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0, dbFileName);
             }
             onComplete(results);
         }
@@ -323,7 +325,7 @@ Search.prototype = {
 		//return 0.0;
 	},
 
-	convertItem: function(path, node) {
+	convertItem: function(path, node, dbFileName) {
 		var item = new Object();
 		item.iconImageData = node.iconImageData;
 		item.usernameValue = node.usernameValue;
@@ -333,13 +335,14 @@ Search.prototype = {
 		item.uRLs = node.uRLs;
         item.url = node.uRLs[0];
         item.uniqueID = node.uniqueID;
+        item.dbFileName = dbFileName;
 		return item;
 	},
 
-	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult, currentResultCount) {
+	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult, currentResultCount, dbFileName) {
         let totalResultCount = currentResultCount;
 		for (var leaf of branch.childLightEntries) {
-			var item = this.convertItem(path, leaf);
+			var item = this.convertItem(path, leaf, dbFileName);
 
             // We might already know this is a match if the item is contained within
             // a matching group but we check again because we probably want to update
@@ -359,7 +362,7 @@ Search.prototype = {
 		}
 		for (var subBranch of branch.childGroups) {
 			var subIsInMatchingGroup = this.isMatched({ title: subBranch.title}, keywords, isInMatchingGroup);
-			totalResultCount = this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult, totalResultCount);
+			totalResultCount = this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult, totalResultCount, dbFileName);
             if (totalResultCount >= this._config.maximumResults)
                 return totalResultCount;
 		}
