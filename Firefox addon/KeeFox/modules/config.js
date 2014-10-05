@@ -207,7 +207,7 @@ function config()
     this.removeURLFromCache = function(url){
         for(var curl in this.configCache)
         {
-            if(curl.match(new RegExp(url.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "i")))
+            if(curl.startsWith(url))
             {
                 delete this.configCache[curl];
                 this._KFLog.debug("Remove config cache entry '"+curl+"' for URL '"+url+"'");
