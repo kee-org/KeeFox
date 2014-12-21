@@ -302,6 +302,8 @@ var keeFoxDialogManager = {
                         protocols[aDialogType] = aDialogType.split("-")[0];
                         titles[aDialogType] = aStringBundle.GetStringFromName(aTitlePropertyName);
                         prompts[aDialogType] = aStringBundle.GetStringFromName(aPromptPropertyName);
+                        titles[aDialogType] = titles[aDialogType].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+                        prompts[aDialogType] = prompts[aDialogType].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
                         // use null as a flag to indicate that there was only one
                         // placeholder and hostIsFirst and secondIsUserName are not applicable
                         hostIsFirst[aDialogType] = null;
