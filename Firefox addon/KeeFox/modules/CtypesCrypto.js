@@ -53,10 +53,13 @@ var CtypesCrypto = {
 
   init : function WC_init() {
     // Full path to NSS via js-ctypes
-      let path = Services.dirsvc.get("GreD", Ci.nsILocalFile);
-      let libName = ctypes.libraryName("nss3"); // platform specific library name
-      path.append(libName);
-      let fullPath = path.path;
+    let path = Services.dirsvc.get("GreD", Ci.nsILocalFile);
+    // Firefox 34 added GreBinD key
+    if (Services.dirsvc.has("GreBinD"))
+      path = Services.dirsvc.get("GreBinD", Ci.nsILocalFile);
+    let libName = ctypes.libraryName("nss3"); // platform specific library name
+    path.append(libName);
+    let fullPath = path.path;
 
     try {
           this.initNSS(libName);
