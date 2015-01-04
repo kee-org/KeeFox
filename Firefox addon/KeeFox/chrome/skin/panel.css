@@ -352,6 +352,37 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 /* FAMS and other notification bar styles */
+
+#KeeFox-PanelSection-notifications-tab input[type="button"],
+#KeeFox-PanelSection-notifications-window input[type="button"]
+{
+    width: auto;
+}
+
+#KeeFox-PanelSection-notifications-tab,
+#KeeFox-PanelSection-notifications-window
+{
+    background:red;
+}
+
+#keefox-panelview input.KeeFox-Close-Notification
+{
+    float:right;
+    width:20px;
+    height:20px;
+    padding:0px;
+    margin:0px;
+    line-height:1;
+}
+
+
+
+
+
+
+
+
+
 .FAMSmessageGroup
 {
 	border: solid 1px #000 !important;

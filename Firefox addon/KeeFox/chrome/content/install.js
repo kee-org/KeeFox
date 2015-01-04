@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
 This install.js file helps manage the installation of .NET, KeePass and KeePassRPC.
 
@@ -70,14 +70,12 @@ var setupNETThread;
 // The nsWebBrowserPersist object used to download installation content from the internet
 var persist;
 
-var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIWebNavigation)
 .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
 .rootTreeItem
 .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIDOMWindow);
-
-var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
 function prepareInstallPage()
 {
@@ -126,7 +124,8 @@ function prepareInstallPage()
     'but_IC1setupNETdownloading','desc_IC1setupNETdownloaded','desc_IC1setupKPdownloading','but_IC1setupKPdownloading','desc_IC1setupKPdownloaded',
     'desc_IC1KRPCdownloaded','desc_IC2setupKPdownloading','but_IC2setupKPdownloading','desc_IC2setupKPdownloaded','desc_IC2KRPCdownloaded',
     'desc_IC3installing','desc_IC5zipKPdownloading','lab_IC5zipKPdownloading','desc_IC5zipKPdownloaded','desc_IC5installing',
-    'desc_InstallFinished','nextStepsIntro','desc_nextStep1','nextStepsTutorialLink','nextStepsImportLink','nextStepsFinally','KFInstallPageTitle_description',downgradeWarning
+    'desc_InstallFinished', 'nextStepsIntro', 'desc_nextStep1', 'nextStepsTutorialLink', 'nextStepsImportLink', 'nextStepsFinally',
+    'KFInstallPageTitle_description', downgradeWarning
     ],
     ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
         
@@ -402,13 +401,12 @@ function IC1setupKP(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"/silent",
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -460,13 +458,12 @@ function IC1setupNET(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"", 
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -573,13 +570,12 @@ function IC2setupKP(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"/silent",
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -624,13 +620,12 @@ function IC2setupCustomKP(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"",
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }

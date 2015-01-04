@@ -6,7 +6,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the KeeFox options XUL file which describes the interface for 
   viewing and editing the various preferences which KeeFox understands.
@@ -51,10 +51,8 @@
       <preference id="KeeFox-pref-maxMatchedLoginsInMainPanel" name="extensions.keefox@chris.tomlinson.maxMatchedLoginsInMainPanel" type="int"/>
 
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
-      <preference id="KeeFox-pref-notifyBarWhenKeePassRPCInactive" name="extensions.keefox@chris.tomlinson.notifyBarWhenKeePassRPCInactive" type="bool"/>
-      <preference id="KeeFox-pref-notifyBarWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyBarWhenLoggedOut" type="bool"/>
+      <preference id="KeeFox-pref-notifyWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyWhenLoggedOut" type="bool"/>
 
-      <preference id="KeeFox-pref-logMethodAlert" name="extensions.keefox@chris.tomlinson.logMethodAlert" type="bool"/>
       <preference id="KeeFox-pref-logMethodConsole" name="extensions.keefox@chris.tomlinson.logMethodConsole" type="bool"/>
       <preference id="KeeFox-pref-logMethodStdOut" name="extensions.keefox@chris.tomlinson.logMethodStdOut" type="bool"/>
       <preference id="KeeFox-pref-logMethodFile" name="extensions.keefox@chris.tomlinson.logMethodFile" type="bool"/>
@@ -164,10 +162,8 @@
               );'>%-KeeFox-pref-site-options-find.link-%</html:a>
             </description>
             
-            <checkbox id="notifyBarWhenKeePassRPCInactive" preference="KeeFox-pref-notifyBarWhenKeePassRPCInactive"
-                      label="%-KeeFox-pref-notifyBarWhenKeePassRPCInactive.label-%" />
-            <checkbox id="notifyBarWhenLoggedOut" preference="KeeFox-pref-notifyBarWhenLoggedOut"
-                    label="%-KeeFox-pref-notifyBarWhenLoggedOut.label-%" class="itemEnd"/>
+            <checkbox id="notifyWhenLoggedOut" preference="KeeFox-pref-notifyWhenLoggedOut"
+                    label="%-KeeFox-pref-notifyWhenLoggedOut.label-%" class="itemEnd"/>
             <button id="famsOptionsButton" label="%-KeeFox-FAMS-Options.label-%..." oncommand='openDialog(
                "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox",
                "",
@@ -180,7 +176,6 @@
           <vbox align="left">
 
             <description id="desc-log-method">%-KeeFox-pref-logMethod.desc-%</description>
-            <checkbox id="check-log-method-alert" preference="KeeFox-pref-logMethodAlert" label="%-KeeFox-pref-logMethodAlert-%"/>
             <checkbox id="check-log-method-console" preference="KeeFox-pref-logMethodConsole" label="%-KeeFox-pref-logMethodConsole-%"/>
             <checkbox id="check-log-method-stdout" preference="KeeFox-pref-logMethodStdOut" label="%-KeeFox-pref-logMethodStdOut-%"/>
             <checkbox id="check-log-method-file" preference="KeeFox-pref-logMethodFile" label="%-KeeFox-pref-logMethodFile-%" class="itemEnd"/>

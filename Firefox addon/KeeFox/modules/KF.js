@@ -52,35 +52,7 @@ function KeeFox()
     this.os = this.appInfo.OS;
         
     this._keeFoxExtension = KFExtension;
-    
-    if (this._keeFoxExtension.db.conn.tableExists("meta"))
-    {
-        var statement = this._keeFoxExtension.db.conn.createStatement("SELECT * FROM meta WHERE id = 1");
-
-        var currentSchemaVersion = 0;
-        while (statement.executeStep())
-            currentSchemaVersion = statement.row.schemaVersion;
-
-        if (currentSchemaVersion == 1)
-        {
-            // No actual change to shema for v2 but we're not using this sqlite DB any more, at least for the time being.
-            this.listOfNoSavePromptURLsToMigrate = [];
-
-            // find all URLs we want to exclude
-            var statement = this._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE preventSaveNotification = 1");
-
-            // These URLs will be processed by the config object which is initialised after this main constructor executes
-            // Combined impact and liklihood of problems with this migration are low enough to just assume everything is OK
-            while (statement.executeStep())
-                this.listOfNoSavePromptURLsToMigrate.push(statement.row.url);
-
-            var statementMigrateSchemaBump = this._keeFoxExtension.db.conn.createStatement('UPDATE "meta" SET schemaVersion=2 WHERE id=1');
-            statementMigrateSchemaBump.execute(); 
-            var statementMigrateDrop = this._keeFoxExtension.db.conn.createStatement('DELETE FROM "sites"');
-            statementMigrateDrop.execute(); 
-        }
-    }
-    
+        
     this._keeFoxStorage = this._keeFoxExtension.storage;
     
     if (this._keeFoxExtension.firstRun)
@@ -474,7 +446,11 @@ KeeFox.prototype = {
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
-                    win.keefox_win.ILM._fillDocument(win.content.document,false);
+                    win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage("keefox:findMatches", {
+                        autofillOnSuccess: false,
+                        autosubmitOnSuccess: false,
+                        notifyUserOnSuccess: false
+                    });
                 }
             } catch (exception)
             {
@@ -997,7 +973,6 @@ KeeFox.prototype = {
                     }
                     break;
                 case "logLevel":
-                case "logMethodAlert":
                 case "logMethodFile":
                 case "logMethodConsole":
                 case "logMethodStdOut":
@@ -1019,7 +994,6 @@ KeeFox.prototype = {
                     break;
                 case "maxMatchedLoginsInMainPanel":
                     //recalculate matched logins so current results match user's new preference
-                    window.keefox_win.mainUI.setLogins(null,null);
                     keefox_org.commandManager.actions.detectForms();
                     break;
             }
@@ -1136,83 +1110,6 @@ KeeFox.prototype = {
         keefox_org._KFLog.debug("RegularKPRPCListenerQueueHandler has finished executing the item");
     },
 
-    _onTabOpened: function(event)
-    {
-    //event.target.ownerDocument.defaultView.keefox_win.Logger.debug("_onTabOpened.");
-
-    },
-
-//TODO2: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM?
-    _onTabSelected: function(event)
-    {
-        var kfw = event.target.ownerDocument.defaultView.keefox_win;
-        
-        if (kfw.Logger.logSensitiveData)
-            kfw.Logger.debug("_onTabSelected:" + kfw.ILM._loadingKeeFoxLogin);
-        else
-            kfw.Logger.debug("_onTabSelected.");
-        
-        if (kfw.ILM._loadingKeeFoxLogin != undefined
-        && kfw.ILM._loadingKeeFoxLogin != null)
-        {
-            kfw.ILM._loadingKeeFoxLogin = null;
-        } else
-        {
-            if (kfw.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
-            {
-                // Notify all parts of the UI that might need to clear old matched logins data
-//                let observ = Components.classes["@mozilla.org/observer-service;1"]
-//                            .getService(Components.interfaces.nsIObserverService);
-//                let subject = {logins:null,uri:null};
-//                subject.wrappedJSObject = subject;
-//                observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
-                kfw.mainUI.removeLogins();
-                kfw.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
-
-                var topDoc = event.originalTarget.linkedBrowser.contentDocument;
-                    if (topDoc.defaultView.frameElement)
-                        while (topDoc.defaultView.frameElement)
-                            topDoc=topDoc.defaultView.frameElement.ownerDocument;
-
-                event.target.ownerDocument.defaultView.keefox_org._checkRescanForAllFrames(topDoc.defaultView, kfw, topDoc);
-            }
-        }
-    },
-    
-    // This checks every frame within the document in the selected tab but it needs to store the URL of the topmost tab so that detection of changed URIs will work correctly.
-    _checkRescanForAllFrames: function (win, kfw, topDoc)
-    {
-        kfw.Logger.debug("_checkRescanForAllFrames start");
-        var conf = keefox_org.config.getConfigForURL(win.content.document.documentURI);
-        
-        //TODO1.5: shared code with KFILM.js? refactor?
-                
-        if (conf.rescanFormDelay >= 500)
-        {
-            // make sure a timer is running
-                kfw.ILM._refillTimer.cancel();
-                kfw.ILM._refillTimer.init(kfw.ILM._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                kfw.ILM._refillTimerURL = topDoc.documentURI;
-        } else // We don't want to scan for new forms reguarly
-        {
-            // but we'll only cancel the existing timer if we're definitley now on a new page
-            // I.e. this is the first frame we've looked at on a new tab
-            if (kfw.ILM._refillTimerURL != topDoc.documentURI)
-            {
-                kfw.ILM._refillTimer.cancel();
-                //TODO1.5: do we need to store the url of the document we have decided we aren't interested in? Might protect against a problem with tabbing to and from different instances of the same website?
-            }
-        }
-    
-        if (win.frames.length > 0)
-        {
-            kfw.Logger.debug("check Rescan For " + win.frames.length + " sub frames");
-            var frames = win.frames;
-            for (var i = 0; i < frames.length; i++)
-                if (win.keefox_org) //TODO1.3: Not sure why this is sometimes undefined. Rescan may be failing unexpectedly.
-                    win.keefox_org._checkRescanForAllFrames(frames[i], kfw, topDoc);
-        }    
-    },
     
     loadFavicon: function(url, faviconLoader)
     {
@@ -1356,10 +1253,6 @@ keefox_org.utils = utils;
 // initialise the per-site configuration
 keefox_org.config = KFConfig;
 keefox_org.config.load();
-
-// migrate old data if needed
-if (keefox_org.listOfNoSavePromptURLsToMigrate != null && keefox_org.listOfNoSavePromptURLsToMigrate.length > 0)
-    keefox_org.config.migrateListOfNoSavePromptURLs(keefox_org.listOfNoSavePromptURLsToMigrate);
 
 if (keefox_org._keeFoxExtension.prefs.has("dynamicFormScanning"))
 {

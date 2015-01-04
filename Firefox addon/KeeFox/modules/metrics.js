@@ -683,3 +683,9 @@ function mm () {
 }
 
 var metricsManager = new mm;
+
+let globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+globalMM.addMessageListener("keefox:metrics-pushEvent", function (message) { 
+    metricsManager.pushEvent(message.data.category, message.data.name, message.data.params); });
+globalMM.addMessageListener("keefox:metrics-adjustAggregate", function (message) { 
+    metricsManager.adjustAggregate(message.data.key, message.data.value); });

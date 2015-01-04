@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
 This hooks onto every common dialog in Firefox and for any dialog that contains one
 username and one password (with the usual Firefox field IDs) it will discover
@@ -28,14 +28,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"can't use strict"; //TODO1.3: retry before 1.3 release
+"use strict";
 
-//if (!Cc)
-    let Cc = Components.classes;
-//if (!Ci)
-    let Ci = Components.interfaces;
-//if (!Cu)
-    let Cu = Components.utils;
+if (!Cc)
+    var Cc = Components.classes;
+if (!Ci)
+    var Ci = Components.interfaces;
+if (!Cu)
+    var Cu = Components.utils;
 
 Cu.import("resource://kfmod/KF.js");
 
@@ -187,7 +187,9 @@ var keeFoxDialogManager = {
             var host, realm, username;
             
             if (Dialog.args.promptType == "prompt") {
-                //TODO: are there any cases where we are asked for username only?
+                //This assumes there are no cases where we are asked for username
+                // only. Haven't come across any for two years so hopefully this was
+                // a safe assumption.
 
                 keefox_org._KFLog.debug("Looking for KeeFox Authorisation description text"); 
                 // find out if this is KeePassRPC authentication popup
@@ -204,48 +206,11 @@ var keeFoxDialogManager = {
             
             if (parentWindow.gBrowser)
             { // firefox (or other application that understands gBrowser)
-                var currentGBrowser = parentWindow.gBrowser;
-                var domWin = parentWindow;
-                var domDoc = currentGBrowser.contentDocument;                    
-                var mainWindow = domWin.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                        .getInterface(Components.interfaces.nsIWebNavigation)
-                        .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                        .rootTreeItem
-                        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                        .getInterface(Components.interfaces.nsIDOMWindow); 
-                               
-                var currentTab = currentGBrowser.selectedTab;
-                var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
-                        .getService(Components.interfaces.nsISessionStore);
-                    
-                // we always remove this - multi-page HTTP Auth forms are not supported.
-                var removeTabSessionStoreData = true;                            
-                                    
-                // see if this tab has our special attributes and promote them to session data
-                //TODO2: Some of this block is probably redundant
-                // unless we add support for multi-page logins
-                if (currentTab.hasAttribute("KF_uniqueID"))
-                {
-                    keefox_org._KFLog.debug("has uid");                
-                    ss.setTabValue(currentTab, "KF_uniqueID", currentTab.getAttribute("KF_uniqueID"));
-                    if (currentTab.hasAttribute("KF_dbFileName"))
-                        ss.setTabValue(currentTab, "KF_dbFileName", currentTab.getAttribute("KF_dbFileName"));
-                    ss.setTabValue(currentTab, "KF_autoSubmit", "yes");
-                    mustAutoSubmit = true;
-                    currentTab.removeAttribute("KF_uniqueID");
-                    currentTab.removeAttribute("KF_dbFileName");
-                }
-                    
-                ss.setTabValue(currentTab, "KF_formSubmitTrackerCount", "0");
-                ss.setTabValue(currentTab, "KF_pageLoadSinceSubmitTrackerCount", "0");       
-                
-                if (removeTabSessionStoreData)
-                {
-                    // remove the data that helps us track multi-page logins, etc.
-                    keefox_org._KFLog.debug("Removing the data that helps us track multi-page logins, etc.");
-                    parentWindow.keefox_win.tabState.clearTabFormRecordingData();
-                    parentWindow.keefox_win.tabState.clearTabFormFillData();                
-                }
+
+                // e10s: I've removed loads of code here that might have used to allow
+                // one-click logins via a HTTP auth dialog. Looks like e10s prevents
+                // us from doing that now :-(
+                  
             } // end if (parentWindow.gBrowser)
             
             host = "";
@@ -504,10 +469,9 @@ var keeFoxDialogManager = {
                 var uri = ioService.newURI(host, null, null);
                 host = uri.host;            
             } catch (exception) {
-                if (keefox_org._KFLog.logSensitiveData)
-                    keefox_org._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
-                else
-                    keefox_org._KFLog.debug("Exception occured while trying to extract the host from a string");
+                keefox_org._KFLog.debug(
+                    "Exception occured while trying to extract the host from this string",
+                    ": " + host + ". " + exception);
             }
             
             this.realm = realm;
@@ -594,16 +558,15 @@ var keeFoxDialogManager = {
             dialogFindLoginStorage.username = keeFoxDialogManager.username;
             dialogFindLoginStorage.document = document;
             dialogFindLoginStorage.mustAutoSubmit = keeFoxDialogManager.mustAutoSubmit;
-            // find all the logins
+
             var requestId = keefox_org.findLogins(keeFoxDialogManager.originalHost,
                 null, keeFoxDialogManager.realm, null, null, null,
-                keeFoxDialogManager.username, keeFoxDialogManager.autoFill);
-            window.keefox_win.ILM.dialogFindLoginStorages[requestId] = dialogFindLoginStorage;
+                keeFoxDialogManager.username, keeFoxDialogManager.autoFill, dialogFindLoginStorage);
         }
     },
     
     // fill in the dialog with the first matched login found and/or the list of all matched logins
-    autoFill : function(resultWrapper)
+    autoFill: function (resultWrapper, dialogFindLoginStorage)
     {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -616,7 +579,7 @@ var keeFoxDialogManager = {
         
         if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
         {
-            logins = resultWrapper.result; 
+            let logins = resultWrapper.result; 
             
             for (var i in logins)
             {
@@ -629,12 +592,12 @@ var keeFoxDialogManager = {
         if (convertedResult.length == 0)
         {
             // set "no passwords" message
-            document.getElementById("keefox-autoauth-description").setAttribute("value",keefox_org.locale.$STR("httpAuth.noMatches"));
+            document.getElementById("keefox-autoauth-description")
+                .setAttribute("value", keefox_org.locale.$STR("httpAuth.noMatches"));
             return;
         }        
         
-        foundLogins = convertedResult;            
-        var dialogFindLoginStorage = window.keefox_win.ILM.dialogFindLoginStorages[resultWrapper.id];
+        foundLogins = convertedResult;
         
         // auto fill the dialog by default unless a preference or tab variable tells us otherwise
         var autoFill = keefox_org._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
@@ -664,9 +627,11 @@ var keeFoxDialogManager = {
         }        
 
         if (keefox_org._KFLog.logSensitiveData)
-            keefox_org._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
+            keefox_org._KFLog.info("dialog: found " + foundLogins.length
+                + " matching logins for '" + dialogFindLoginStorage.realm + "' realm.");
         else
-            keefox_org._KFLog.info("dialog: found " + foundLogins.length + " matching logins for a realm.");
+            keefox_org._KFLog.info("dialog: found " + foundLogins.length
+                + " matching logins for a realm.");
         
         if (foundLogins.length <= 0)
             return;
@@ -716,7 +681,9 @@ var keeFoxDialogManager = {
                     [matchedLogins[i].username, matchedLogins[i].host]));
                 item.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip",
                     [matchedLogins[i].title, matchedLogins[i].displayGroupPath, matchedLogins[i].username]));
-                item.addEventListener("command", function (event) { keeFoxDialogManager.fill(this.username, this.password); }, false);
+                item.addEventListener("command", function (event) {
+                    keeFoxDialogManager.fill(this.username, this.password);
+                }, false);
                 item.username = matchedLogins[i].username;
                 item.password = matchedLogins[i].password;
                 popup.appendChild(item);
@@ -774,24 +741,35 @@ var keeFoxDialogManager = {
     
     kfCommonDialogOnAccept : function ()
     {
+        keefox_org._KFLog.debug("kfCommonDialogOnAccept started");
         try
         {
             if (Dialog.args.promptType == "prompt" ||
                 Dialog.args.promptType == "promptUserAndPass" ||
                 Dialog.args.promptType == "promptPassword")
             {
+                //if (this.host === undefined || this.host === null || this.host.length < 1)
+                //    return;
+
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                          .getService(Components.interfaces.nsIWindowMediator);
                 var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
                     wm.getMostRecentWindow("mail:3pane");
-                if (parentWindow.keefox_win.ILM._getSaveOnSubmitForSite(this.host))
-                    parentWindow.keefox_win.ILM._onHTTPAuthSubmit(parentWindow,document.getElementById("loginTextbox").value,
+
+                if (parentWindow.keefox_win._getSaveOnSubmitForSite(this.host)) {
+                    keefox_org._KFLog.debug("kfCommonDialogOnAccept5");
+
+                    parentWindow.keefox_win.onHTTPAuthSubmit(
+                        parentWindow, document.getElementById("loginTextbox").value,
                         document.getElementById("password1Textbox").value, this.host, this.realm);
+                }
             }
         } catch (ex)
         {
+            keefox_org._KFLog.warn("KeeFox failed to process the data submitted to a dialog. Exception: " + ex);
             // Do nothing (probably KeeFox has not initialised yet / properly)
         }
+        keefox_org._KFLog.debug("kfCommonDialogOnAccept finished");
         Dialog.onButton0();
     },
 

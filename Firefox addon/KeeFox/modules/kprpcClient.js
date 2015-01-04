@@ -30,6 +30,7 @@ let Cu = Components.utils;
 var EXPORTED_SYMBOLS = ["kprpcClient"];
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/Timer.jsm");
 
 Cu.import("resource://kfmod/kprpcClientLegacy.js");
 Cu.import("resource://kfmod/KFLogger.js");
@@ -90,9 +91,16 @@ kprpcClient.prototype.constructor = kprpcClient;
             this.sendJSONRPC(data);
         } catch (ex)
         {
-            log.warn("JSON-RPC request could not be sent.");
-            delete this.callbacks[requestId];
-            delete this.callbacksData[requestId];
+            log.warn("JSON-RPC request could not be sent. Expect an async error soon.");
+            setTimeout(function () {
+                this.processJSONRPCresponse({
+                    "id": requestId,
+                    "error": {
+                        "message": "Send failure. Maybe the server went away?"
+                    },
+                    "message": "error"
+                });
+            }.bind(this),50);
         }
     }
 
@@ -417,26 +425,8 @@ kprpcClient.prototype.constructor = kprpcClient;
             // note down our agreed secret key somewhere that we can find it easily later
             this.secretKey = this.getStoredKey();
 
-            
-            setTimeout(function () {
-                    
-                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                            .getService(Components.interfaces.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser") ||
-                                wm.getMostRecentWindow("mail:3pane");
-                window.keefox_win.UI.removeConnectionMessage(); // if any errors were shown, they are now resolved
-                window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
-                window.keefox_org._keeFoxVariableInit();
-                if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
-                {
-                    var currentLocation = window.keefox_org._keeFoxExtension.prefs.getValue("currentLocation","");
-                    window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
-                    window.keefox_org.changeLocation(currentLocation);
-                }
-                window.keefox_org.metricsManager.pushEvent ("KeePass", "connected", { "type": "CR" });
-                window.keefox_org._refreshKPDB();
-                window.keefox_org.getApplicationMetadata();
-            }, 50); // 0.05 second delay before we try to do the KeeFox connection startup stuff
+            // 0.025 second delay before we try to do the KeeFox connection startup stuff
+            setTimeout(this.onConnectStartup, 50, "CR", this.onConnectStartup);
         }
   	};
   	
@@ -523,28 +513,43 @@ kprpcClient.prototype.constructor = kprpcClient;
             // store the key somewhere persistent (according to the security level rules)
             this.setStoredKey(this.srpClientInternals.I, this.getSecurityLevel(), this.srpClientInternals.key());
 
-            setTimeout(function () {
-                    
-                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                            .getService(Components.interfaces.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser") ||
-                                wm.getMostRecentWindow("mail:3pane");
-                window.keefox_win.UI.removeConnectionMessage(); // if any errors were shown, they are now resolved
-                window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true); // is this the right place to do this?
-                window.keefox_org._keeFoxVariableInit();
-                if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
-                {
-                    var currentLocation = window.keefox_org._keeFoxExtension.prefs.getValue("currentLocation","");
-                    window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
-                    window.keefox_org.changeLocation(currentLocation);
-                }
-                window.keefox_org.metricsManager.pushEvent ("KeePass", "connected", { "type": "SRP" });
-                window.keefox_org._refreshKPDB();
-                window.keefox_org.getApplicationMetadata();
-            }, 50); // 0.05 second delay before we try to do the KeeFox connection startup stuff
-                
+  		    // 0.025 second delay before we try to do the KeeFox connection startup stuff
+            setTimeout(this.onConnectStartup, 50, "SRP", this.onConnectStartup);
         } 
         
+  	};
+
+  	this.onConnectStartup = function (type, thisFunction, timeout) {
+  	    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+  	    var window = wm.getMostRecentWindow("navigator:browser") ||
+                        wm.getMostRecentWindow("mail:3pane");
+
+  	    // I think that sometimes the main application interface has not been loaded by
+  	    // this point so we check and then try again later if not ready
+  	    if (window == undefined || window == null
+        || window.keefox_org == undefined || window.keefox_org == null
+            || window.keefox_win == undefined || window.keefox_win == null) {
+  	        let newTimeout = timeout * 1.2;
+  	        log.warn("Could not find initialised window. Will try again in " + newTimeout + "ms");
+  	        setTimeout(thisFunction, newTimeout, type, thisFunction, newTimeout);
+  	        return;
+  	    }
+
+  	    window.keefox_win.UI.removeConnectionMessage(); // if any errors were shown, they are now resolved
+  	    window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true);
+  	    window.keefox_org._keeFoxVariableInit();
+  	    if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
+  	    {
+  	        var currentLocation = window.keefox_org._keeFoxExtension.prefs.getValue("currentLocation", "");
+  	        window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
+  	        window.keefox_org.changeLocation(currentLocation);
+  	    }
+  	    window.keefox_org.metricsManager.pushEvent("KeePass", "connected", { "type": type });
+  	    window.keefox_org._refreshKPDB();
+  	    window.keefox_org.getApplicationMetadata();
+
+
   	};
 
     // No need to return anything from this function so sync or async implementation is fine
@@ -563,19 +568,24 @@ kprpcClient.prototype.constructor = kprpcClient;
   	this.receiveJSONRPCDecrypted = function(data) {
         
   	    if (data === null)
-            return; // decryption failed; connection has been reset and user will re-enter password for fresh authentication credentials
+  	        return; // decryption failed; connection has been reset and user will re-enter password for fresh authentication credentials
 
   	    let obj = JSON.parse(data);
-                
-        // if we failed to parse an object from the JSON    
-        if (!obj)
-            return;
-            
+
+  	    // if we failed to parse an object from the JSON    
+  	    if (!obj)
+  	        return;
+
+  	    this.processJSONRPCresponse(obj);
+  	};
+
+    this.processJSONRPCresponse = function(obj) {
+                    
         if ("result" in obj && obj.result !== false)
         {
-        // quick hack test
-        if (obj.result == null)
-            return;
+            // quick hack test
+            if (obj.result == null)
+                return;
 
             try
             {
@@ -1083,8 +1093,6 @@ kprpcClient.prototype.constructor = kprpcClient;
                 .catch(function (e) {
                     log.error("Failed to decrypt. Exception: " + e);
 
-                    //TODO:e10s: use messages instead of recent window. Also deduplicate code 
-                    // in other exception handlers by using a shared message handler for failed connections.
                     let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                                     .getService(Components.interfaces.nsIWindowMediator);
                     let window = wm.getMostRecentWindow("navigator:browser") ||
@@ -1101,8 +1109,6 @@ kprpcClient.prototype.constructor = kprpcClient;
         .catch(function (e) {
             log.error("Failed to hash secret key. Exception: " + e);
 
-            //TODO:e10s: use messages instead of recent window. Also deduplicate code
-            // in other exception handlers by using a shared message handler for failed connections.
             let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                          .getService(Components.interfaces.nsIWindowMediator);
             let window = wm.getMostRecentWindow("navigator:browser") ||

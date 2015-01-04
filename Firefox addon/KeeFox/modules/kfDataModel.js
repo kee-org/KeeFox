@@ -106,7 +106,12 @@ kfLoginInfo.prototype =
 	neverAutoFill : false,
 	neverAutoSubmit : false,
 	
-	database : null,
+	database: null,
+
+	asJSONifiable : function ()
+	{
+	    return this.toJSON();
+	},
 		
 	toJSON : function ()
     {
@@ -253,7 +258,7 @@ kfLoginInfo.prototype =
         this.database = entry.db;
     },
         
-    _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils)
     {    
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -270,11 +275,11 @@ kfLoginInfo.prototype =
             {
                 var url2 = this.URLs[j];
             //window.keefox_win.Logger.debug("ac:"+url1+":"+url2);
-                if (!ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                if (!ignoreURIPathsAndSchemes && uriUtils.getURISchemeHostAndPort(url1) != uriUtils.getURISchemeHostAndPort(url2))
                     return false;
-                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIHostAndPort(url1) != uriUtils.getURIHostAndPort(url2))
                     return false;
-                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIExcludingQS(url1) != keeFoxILM._getURIExcludingQS(url2))
+                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIExcludingQS(url1) != uriUtils.getURIExcludingQS(url2))
                     return false;
             }
         }
@@ -327,7 +332,7 @@ kfLoginInfo.prototype =
     },
 
     
-    _allURLsContainedIn : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    _allURLsContainedIn: function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils)
     {    
         var matches = 0;
 
@@ -338,14 +343,14 @@ kfLoginInfo.prototype =
             {
                 var url2 = URLs[j];
                 if (!ignoreURIPathsAndSchemes && url1.indexOf("://") > 0 &&
-                        keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                        uriUtils.getURISchemeHostAndPort(url1) != uriUtils.getURISchemeHostAndPort(url2))
                     { continue; }
                 else if (!ignoreURIPathsAndSchemes && url1.indexOf("://") <= 0
-                        && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                        && uriUtils.getURIHostAndPort(url1) != uriUtils.getURIHostAndPort(url2))
                     { continue; }
-                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIHostAndPort(url1) != uriUtils.getURIHostAndPort(url2))
                     { continue; }
-                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIExcludingQS(url1) != keeFoxILM._getURIExcludingQS(url2))
+                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIExcludingQS(url1) != uriUtils.getURIExcludingQS(url2))
                     { continue; }
                 else
                     { matches++; break; }
@@ -397,14 +402,9 @@ kfLoginInfo.prototype =
     // determines if this matches another supplied login object, with a number
     // of controllable definitions of "match" to support various use cases
     matches : function (aLogin, ignorePasswords, ignoreURIPaths,
-         ignoreURIPathsAndSchemes, ignoreUsernames)
+         ignoreURIPathsAndSchemes, ignoreUsernames, uriUtils)
     {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-
-        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_win.ILM))
+        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils))
             return false;
 
         if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
@@ -420,12 +420,12 @@ kfLoginInfo.prototype =
         if (this.formActionURL != "" && aLogin.formActionURL != "")
         {
             if (ignoreURIPathsAndSchemes 
-                && window.keefox_win.ILM._getURISchemeHostAndPort(aLogin.formActionURL)
-                    != window.keefox_win.ILM._getURISchemeHostAndPort(this.formActionURL))
+                && uriUtils.getURISchemeHostAndPort(aLogin.formActionURL)
+                    != uriUtils.getURISchemeHostAndPort(this.formActionURL))
                 return false;
             else if (!ignoreURIPathsAndSchemes 
-                && ignoreURIPaths && window.keefox_win.ILM._getURIHostAndPort(aLogin.formActionURL) 
-                    != window.keefox_win.ILM._getURIHostAndPort(this.formActionURL))
+                && ignoreURIPaths && uriUtils.getURIHostAndPort(aLogin.formActionURL)
+                    != uriUtils.getURIHostAndPort(this.formActionURL))
                 return false;
             else if (!ignoreURIPathsAndSchemes 
                 && !ignoreURIPaths 
@@ -439,14 +439,9 @@ kfLoginInfo.prototype =
     // determines if this login is contained within a supplied login object, with a number
     // of controllable definitions of "containedIn" to support various use cases
     containedIn : function (aLogin, ignorePasswords, ignoreURIPaths,
-         ignoreURIPathsAndSchemes, ignoreUsernames)
+         ignoreURIPathsAndSchemes, ignoreUsernames, uriUtils)
     {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-
-        if (!this._allURLsContainedIn(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_win.ILM))
+        if (!this._allURLsContainedIn(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils))
             return false;
 
         if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))

@@ -370,7 +370,12 @@ function config()
         this.setConfigForURL("*",newConfig);
         this.save();
     };
-
 }
 
 var KFConfig = new config;
+
+let globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+globalMM.addMessageListener("keefox:config-valueAllowed", function (message) { 
+    return KFConfig.valueAllowed(message.data.val, message.data.whitelist, message.data.blacklist, message.data.def); });
+globalMM.addMessageListener("keefox:config-getConfigForURL", function (message) { 
+    return KFConfig.getConfigForURL(message.data.url); });

@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"can't use strict"; // don't know why yet
+"use strict"; //TODO: Verify which version of FF fixed the bug that prevented this from working
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -75,7 +75,7 @@ function onLoad()
 function setTreeViewURLChooser ()
 {
     var tree = document.getElementById("siteURLTree");
-    siteURLTreeView = new ClassTreeView(this.getObjectChildren);
+    siteURLTreeView = new ClassTreeView(getObjectChildren);
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");

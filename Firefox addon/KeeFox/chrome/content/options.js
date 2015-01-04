@@ -1,4 +1,4 @@
-"can't use strict"; // global/binding/preferences.xul can't handle events in strict mode
+"use strict"; //TODO: Verify which version of FF fixed the bug that prevented this from working
 
 let Cu = Components.utils;
 
@@ -12,7 +12,7 @@ function onLoad(){
       ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','tab-ConnectionSecurity','tab-AuthorisedConnections','tab-Commands','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
       'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
       'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs','check-alwaysDisplayUsernameWhenTitleIsShown',
-      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut',
+      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyWhenLoggedOut',
       'famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
       'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
       'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
@@ -34,10 +34,6 @@ function hideIrrelevantOptions()
     var window = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
 
-    if (window.keefox_win.legacyUI) {
-        document.getElementById("lab-maxMatchedLoginsInMainPanel").classList.add('keefox-hide');
-        document.getElementById("maxMatchedLoginsInMainPanel").classList.add('keefox-hide');
-    }
     var isWindows = Components.classes["@mozilla.org/xre/app-info;1"]  
                     .getService(Components.interfaces.nsIXULRuntime).OS == "WINNT";
 

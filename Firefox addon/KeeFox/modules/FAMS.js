@@ -41,11 +41,12 @@ Cu.import("resource://kfmod/locales.js");
 Cu.import("resource://kfmod/FAMS-config.js");
 
 var _famsInst = null;
-function keeFoxGetFamsInst(id, config, log) {
+function keeFoxGetFamsInst(id, config, log, notificationService) {
     if (!_famsInst) {
         _famsInst = new FirefoxAddonMessageService();
         _famsInst.initConfig(id, config);
         _famsInst.init(log);
+        _famsInst.notificationService = notificationService;
     }
     return _famsInst;
 };
@@ -235,7 +236,7 @@ FirefoxAddonMessageService.prototype.canDisplayNowShared = function(item)
         return false;
         
     // If it's too recent since application startup
-    if (item.minTimeAfterStartup > this.getTimeSinceStartup())
+    if (typeof (item.minTimeAfterStartup) !== "undefined" && item.minTimeAfterStartup > this.getTimeSinceStartup())
         return false;
         
     // If it's too soon to display this item
@@ -460,11 +461,14 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
     var newTab = b.loadOneTab( link, null, null, null, false, null );
 };
 
-FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
-    var aNotifyBox = this.getNotifyBox();
-    if (!aNotifyBox)
+FirefoxAddonMessageService.prototype.showMessageNotification = function (name, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
+    var notifyBox = this.notificationService();
+    if (!notifyBox)
+    {
+        fams._log("Notification service not found");
         return false;
-
+    }
+    
     var actionButtonText =
               this.getLocalisedString("NotifyBar-A-" + actionName + "-Button.label");
     var actionButtonAccessKey =
@@ -524,31 +528,63 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
             }
         ];
 
-    var oldBar = aNotifyBox.getNotificationWithValue(aName);
     var priority;
 
     if (priorityName == "high")
-        priority = aNotifyBox.PRIORITY_WARNING_HIGH;
+        priority = notifyBox.PRIORITY_WARNING_HIGH;
     else if (priorityName == "low")
-        priority = aNotifyBox.PRIORITY_INFO_LOW;
+        priority = notifyBox.PRIORITY_INFO_LOW;
     else
-        priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
+        priority = notifyBox.PRIORITY_INFO_MEDIUM;
 
+    // if we've been supplied a notificationManager instead of notifyBox we must be in the new
+    // world order (technically the new world-order could wrap and re-implement the old way if you
+    // need to but I've skipped that refactoring to save time)
+    if (notifyBox.tabNotificationMap !== undefined) {
 
-    this._log("Adding new " + aName + " notification bar");
-    var newBar = aNotifyBox.appendNotification(
-                                aText, aName,
-                                "chrome://keefox/skin/KeeFox16.png", //TODO2: KeeFox specific
-                                priority, buttons);
+        let notification = {
+            name: name,
+            render: function (container) {
 
-    if (!persistence)
-        newBar.persistence = persistence;
+                // We will append the rendered view of our own notification information to the
+                // standard notification container that we have been supplied
 
-    if (oldBar) {
-        this._log("(...and removing old " + aName + " notification bar)");
-        aNotifyBox.removeNotification(oldBar);
+                var doc = container.ownerDocument;
+
+                var text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                text.textContent = aText;
+                text.setAttribute('class', 'KeeFox-message');
+                container.appendChild(text);
+
+                // We might customise other aspects of the notifications but when we want
+                // to display buttons we can treat them all the same
+                container = doc.ownerGlobal.keefox_win.notificationManager.renderButtons(buttons, doc, notifyBox, name, container);
+
+                return container;
+            },
+            thisTabOnly: false,
+            priority: priority
+        };
+        notifyBox.add(notification);
+
+    } else {
+        var oldBar = notifyBox.getNotificationWithValue(name);
+        
+        this._log("Adding new " + name + " notification bar");
+        var newBar = notifyBox.appendNotification(
+                                    aText, name,
+                                    "chrome://keefox/skin/KeeFox16.png", //TODO2: KeeFox specific
+                                    priority, buttons);
+
+        if (!persistence)
+            newBar.persistence = persistence;
+
+        if (oldBar) {
+            this._log("(...and removing old " + name + " notification bar)");
+            notifyBox.removeNotification(oldBar);
+        }
+        return newBar;
     }
-    return newBar;
 };
 
 /*

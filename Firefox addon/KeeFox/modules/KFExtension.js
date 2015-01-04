@@ -25,12 +25,10 @@ let Ci = Components.interfaces;
 let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["KFExtension"];
-Cu.import("resource://kfmod/KFLogger.js");
 
 // constructor
 function KFE()
 {
-    this._KFLog = KFLog;
 
     this._myProfileDir = function()
     {
@@ -48,7 +46,7 @@ function KFE()
 
         return folder;
     };
-
+    
     this.storage = {
         _storage: {},
         has: function ss_has(aName) {
@@ -64,21 +62,6 @@ function KFE()
         }
     };
 
-    //TODO2: abstract database access away from main KeeFox features in order to provide cached representation of critical and oft-requested data?
-    this.db = {};
-
-    var folder = this._myProfileDir();
-
-    this.db.file = Components.classes["@mozilla.org/file/local;1"]
-            .createInstance(Components.interfaces.nsILocalFile);
-    this.db.file.initWithFile(folder);
-    this.db.file.append("keefox.sqlite");
-
-    this.db.storageService = Components.classes["@mozilla.org/storage/service;1"]
-                            .getService(Components.interfaces.mozIStorageService);
-    this.db.conn = this.db.storageService
-                            .openDatabase(this.db.file); // Will also create the file if it does not exist
-                        
     this.prefs = {};
     this.prefs._prefService = 
         Components.classes["@mozilla.org/preferences-service;1"]

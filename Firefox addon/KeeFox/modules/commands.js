@@ -315,28 +315,17 @@ function commandManager () {
                 return false;
             let container;
 
-            if (win.keefox_win.legacyUI)
-            {
-                if (!win) return false;
-                container = win.document.getElementById("KeeFox_Main-Button");
-                if (!container)
-                    return false;
-                if (!container.getAttribute('uuid'))
-                    return false;
-            } else
-            {
-                container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
-                if (!container)
-                    return false;
-                let matches = container.getElementsByTagName('li');
-                if (!matches)
-                    return false;
-                let firstMatch = matches[0];
-                if (!firstMatch)
-                    return false;
-                if (!firstMatch.getAttribute('data-uuid'))
-                    return false;
-            }
+            container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+            if (!container)
+                return false;
+            let matches = container.getElementsByTagName('li');
+            if (!matches)
+                return false;
+            let firstMatch = matches[0];
+            if (!firstMatch)
+                return false;
+            if (!firstMatch.getAttribute('data-uuid'))
+                return false;
 
             return true;
         },
@@ -348,26 +337,16 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return false;
 
-            if (win.keefox_win.legacyUI)
-            {
-                if (!win) return false;
-                var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
-                if (!loginsPopup)
-                    return false;
-                if (loginsPopup.childNodes.length <= 1)
-                    return false;
-            } else
-            {
-                //TODO1.5: Needs more work to support alternative matched logins configuration that puts all logins into the overflow div
-                let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
-                if (!container)
-                    return false;
-                let matches = container.getElementsByTagName('li');
-                if (!matches)
-                    return false;
-                if (matches.length <= 1)
-                    return false;
-            }
+            //TODO1.5: Needs more work to support alternative matched logins configuration that puts all logins into the overflow div
+            let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+            if (!container)
+                return false;
+            let matches = container.getElementsByTagName('li');
+            if (!matches)
+                return false;
+            if (matches.length <= 1)
+                return false;
+
             return true;
         },
         generatePassword: function()
@@ -400,20 +379,9 @@ function commandManager () {
             let keeFoxStorage = win.keefox_org._keeFoxStorage;
             if (keeFoxStorage.get("KeePassDatabaseOpen", false) 
                 && keeFoxStorage.get("KeePassRPCActive", false))
-            {
-                if (win.keefox_win.legacyUI)
-                {
-                    if (!win) return false;
-                    var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
-                    if (!loginsPopup)
-                        return false;
-                    if (loginsPopup.childNodes.length < 1)
-                        return false;
-                }
-                // For panelview UI we don't need to check anything beyond that we are logged in to at least one database
                 return true;
-            }
-            return false;
+            else
+                return false;
         }
     };
 
@@ -424,18 +392,8 @@ function commandManager () {
             let win = utils.getWindow();
             if (!win) return;
 
-            if (win.keefox_win.legacyUI)
-            {
-                var loginsPopup = win.document.getElementById("KeeFox_Menu-Button-Popup");
-                if (!loginsPopup)
-                    return;
-
-                loginsPopup.openPopup(win.document.getElementById("KeeFox_Menu-Button"), "after_start", 0, 0, false, false);
-            } else
-            {
-                win.keefox_win.panel.displayPanel();
-                win.keefox_win.panel.hideSubSections();
-            }
+            win.keefox_win.panel.displayPanel();
+            win.keefox_win.panel.hideSubSections();
         },
         launchKeePass: function()
         {
@@ -450,13 +408,9 @@ function commandManager () {
         {
             let win = utils.getWindow();
             if (!win) return;
-
-            if (!win.keefox_win.legacyUI)
-            {
-                win.keefox_win.panel.displayPanel();
-                win.keefox_win.panel.hideSubSections();
-                win.keefox_win.panel.showSubSectionChangeDatabase();
-            }
+            win.keefox_win.panel.displayPanel();
+            win.keefox_win.panel.hideSubSections();
+            win.keefox_win.panel.showSubSectionChangeDatabase();
         },
         detectForms: function()
         {
@@ -466,13 +420,12 @@ function commandManager () {
             win.keefox_org.metricsManager.pushEvent ("feature", "detectForms");
             var currentGBrowser = win.gBrowser;
             // Notify all parts of the UI that might need to clear their matched logins data
-//            let observ = Components.classes["@mozilla.org/observer-service;1"]
-//                        .getService(Components.interfaces.nsIObserverService);
-//            let subject = {logins:null,uri:null};
-//            subject.wrappedJSObject = subject;
-//            observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
             win.keefox_win.mainUI.removeLogins();
-            win.keefox_win.ILM._fillAllFrames(currentGBrowser.selectedBrowser.contentDocument.defaultView, false);
+            win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage("keefox:findMatches", {
+                autofillOnSuccess: true,
+                autosubmitOnSuccess: false,
+                notifyUserOnSuccess: false
+            });
         },
         generatePassword: function()
         {
@@ -547,20 +500,9 @@ function commandManager () {
             if (keeFoxStorage.get("KeePassDatabaseOpen", false) 
                 && keeFoxStorage.get("KeePassRPCActive", false))
             {
-                if (win.keefox_win.legacyUI)
-                {
-                    var loginsPopup = win.document.getElementById("KeeFox_Logins-Button-root");
-                    if (!loginsPopup)
-                        return;
-                    loginsPopup.openPopup(win.document.getElementById("KeeFox_Logins-Button"), "after_start", 0, 0, false, false);
-                
-                    return;
-                } else
-                {
-                    win.keefox_win.panel.displayPanel();
-                    win.keefox_win.panel.hideSubSections();
-                    win.keefox_win.panel.showSubSectionAllLogins();
-                }
+                win.keefox_win.panel.displayPanel();
+                win.keefox_win.panel.hideSubSections();
+                win.keefox_win.panel.showSubSectionAllLogins();
             }
         },
         fillMatchedLogin: function()
@@ -571,33 +513,21 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
                 
-            if (win.keefox_win.legacyUI)
-            {
-                var container = win.document.getElementById("KeeFox_Main-Button");
-                if (!container)
-                    return;
-                if (!container.getAttribute('uuid'))
-                    return;
-                container.doCommand();
+            //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+            var container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+            if (!container)
                 return;
-            } else
-            {
-                //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
-                var container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
-                if (!container)
-                    return;
-                let matches = container.getElementsByTagName('li');
-                if (!matches)
-                    return;
-                let firstMatch = matches[0];
-                if (!firstMatch)
-                    return;
-                if (!firstMatch.getAttribute('data-uuid'))
-                    return;
+            let matches = container.getElementsByTagName('li');
+            if (!matches)
+                return;
+            let firstMatch = matches[0];
+            if (!firstMatch)
+                return;
+            if (!firstMatch.getAttribute('data-uuid'))
+                return;
 
-                firstMatch.dispatchEvent(new Event("keefoxCommand"));
-                return;
-            }
+            firstMatch.dispatchEvent(new Event("keefoxCommand"));
+            return;
         },
         showMenuMatchedLogins: function(target)
         {
@@ -608,34 +538,19 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
 
-            if (win.keefox_win.legacyUI)
-            {
-                var loginsPopup = win.document.getElementById("KeeFox_Main-ButtonPopup");
-                if (!loginsPopup)
-                    return;
-
-                if (target == "context")
-                {
-                    loginsPopup.openPopup(win.document.getElementById("keefox-command-context-showMenuMatchedLogins"), "after_start", 0, 0, true, false);
-                } else {
-                    loginsPopup.openPopup(win.document.getElementById("KeeFox_Main-Button"), "after_start", 0, 0, false, false);
-                }
-            } else
-            {
-                //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
-                win.keefox_win.panel.displayPanel();
-                win.keefox_win.panel.hideSubSections();
-                let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
-                if (!container)
-                    return;
-                let matches = container.getElementsByTagName('li');
-                if (!matches)
-                    return;
-                let firstMatch = matches[0];
-                if (!firstMatch)
-                    return;
-                firstMatch.focus();
-            }
+            //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+            win.keefox_win.panel.displayPanel();
+            win.keefox_win.panel.hideSubSections();
+            let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
+            if (!container)
+                return;
+            let matches = container.getElementsByTagName('li');
+            if (!matches)
+                return;
+            let firstMatch = matches[0];
+            if (!firstMatch)
+                return;
+            firstMatch.focus();
         },
         autoTypeHere: function()
         {
