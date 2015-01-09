@@ -33,7 +33,7 @@ var FAMSDefaultConfig = {
     // Version number of this configuration. If you add new messages to existing groups, increment this value
     // In future, more complex migration from older versions may
     // be possible (e.g. to enable addition of new messageGroups, modified descriptions, etc.)
-    version: 3,
+    version: 4,
 
     //TODO2: This message service will not function before this time
     startTime: "8 Jul, 2005 23:34:54 UTC",
@@ -1293,7 +1293,7 @@ var FAMSDefaultConfig = {
                 actionButtonName: "VisitSite",
 
                 // The earliest time that this message will be displayed to the user
-                earliestDisplayTime: "8 Jan, 2015 23:34:54 UTC",
+                earliestDisplayTime: "8 Jan, 2017 23:34:54 UTC",
 
                 // The latest time that this message will be displayed to the user
                 latestDisplayTime: "8 Jul, 2111 23:34:54 UTC",
