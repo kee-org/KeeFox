@@ -148,6 +148,7 @@ var keeFoxDialogManager = {
         .getService(Components.interfaces.nsIXULAppInfo),
     
     dialogInit : function(e) {
+        window.removeEventListener("load", keeFoxDialogManager.dialogInit);
         try
         {
             document.getElementById("commonDialog").setAttribute("windowtype","common-dialog");
@@ -828,4 +829,4 @@ KPRPCConnectionObserver.prototype = {
   }
 }
 
-window.addEventListener("load", keeFoxDialogManager.dialogInit, false); //ael - does this need to be removed, if so where from?
+window.addEventListener("load", keeFoxDialogManager.dialogInit, false);
