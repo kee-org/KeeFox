@@ -300,7 +300,7 @@ var keeFoxDialogManager = {
                 {
                     if (aStringBundle != null)
                     {
-                        let regexChars = /[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g;
+                        let regexChars = /[\[\{\(\)\*\+\?\.\\\^\$\|]/g;
                         protocols[aDialogType] = aDialogType.split("-")[0];
                         titles[aDialogType] = aStringBundle.GetStringFromName(aTitlePropertyName);
                         prompts[aDialogType] = aStringBundle.GetStringFromName(aPromptPropertyName);
