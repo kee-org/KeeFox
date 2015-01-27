@@ -109,7 +109,6 @@
     <Content Include="KeeFox\modules\biginteger.js" />
     <Content Include="KeeFox\modules\commands.js" />
     <Content Include="KeeFox\modules\config.js" />
-    <Content Include="KeeFox\modules\CtypesCrypto.js" />
     <Content Include="KeeFox\modules\FAMS-config.js" />
     <Content Include="KeeFox\modules\FAMS.js" />
     <Content Include="KeeFox\modules\jsonrpcClient.js" />

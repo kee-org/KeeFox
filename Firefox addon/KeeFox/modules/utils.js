@@ -670,6 +670,34 @@ Utils.prototype = {
 
         return byteArray;
     },
+
+    stringToByteArray: function(str)
+    {
+        var sBytes = new Uint8Array(str.length);
+        for (var i=0; i<str.length; i++) {
+            sBytes[i] = str.charCodeAt(i);
+        }
+        return sBytes;
+    },
+
+    // A variation of base64toByteArray which allows us to calculate a HMAC far
+    // more efficiently than with seperate memory buffers
+    base64toByteArrayForHMAC: function (input, extraLength, view) {
+        var binary = atob(input);
+        var len = binary.length;
+        var offset = 0;
+        if (!view)
+        {
+            var buffer = new ArrayBuffer(len + extraLength);
+            view = new Uint8Array(buffer);
+            offset = 20;
+        }
+        for (var i = 0; i < len; i++)
+        {
+            view[(i+offset)] = binary.charCodeAt(i);
+        }
+        return view;
+    },
     
     base64toByteArray: function (input) {
         var binary = atob(input);
@@ -682,20 +710,72 @@ Utils.prototype = {
         }
         return view;
     },
-    
-//    
-//    intArrayToByteArray2: function(intArray) {
-//var byteArray = [];
 
-//for (var index = 0; index < testData.length; index++) {
-//  var int = testData[index];
-//  for (var j = 3; j >= 0; j--) {
-//    var byte = int & 0xff;
-//    byteArray.push(byte); // this is wrong answer - need to reverse inner loop
-//    int = (int - byte) / 256;
-//  }
-//}
-//    },
+    byteArrayToBase64: function (arrayBuffer) {
+        let base64 = '';
+        let encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; 
+        let bytes = new Uint8Array(arrayBuffer);
+        let byteLength = bytes.byteLength;
+        let byteRemainder = byteLength % 3;
+        let mainLength = byteLength - byteRemainder; 
+        let a, b, c, d;
+        let chunk;
+ 
+        // Main loop deals with bytes in chunks of 3
+        for (let i = 0; i < mainLength; i = i + 3)
+        {
+            // Combine into a single integer
+            chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+ 
+            // Use bitmasks to extract 6-bit segments from the triplet
+            a = (chunk & 16515072) >> 18; // 16515072 = (2^6 - 1) << 18
+            b = (chunk & 258048) >> 12; // 258048 = (2^6 - 1) << 12
+            c = (chunk & 4032) >>  6; // 4032 = (2^6 - 1) << 6
+            d = chunk & 63; // 63 = 2^6 - 1
+ 
+            // Convert the raw binary segments to the appropriate ASCII encoding
+            base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d];
+        }
+ 
+        // Deal with the remaining bytes and padding
+        if (byteRemainder == 1)
+        {
+            chunk = bytes[mainLength];
+ 
+            a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
+ 
+            // Set the 4 least significant bits to zero
+            b = (chunk & 3) << 4; // 3 = 2^2 - 1
+ 
+            base64 += encodings[a] + encodings[b] + '==';
+        } else if (byteRemainder == 2)
+        {
+            chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
+ 
+            a = (chunk & 64512) >> 10; // 64512 = (2^6 - 1) << 10
+            b = (chunk & 1008) >> 4; // 1008  = (2^6 - 1) << 4
+ 
+            // Set the 2 least significant bits to zero
+            c = (chunk & 15) << 2; // 15 = 2^4 - 1
+ 
+            base64 += encodings[a] + encodings[b] + encodings[c] + '=';
+        }
+  
+        return base64;
+    },
+    
+    hexStringToByteArray: function (hexString, byteArray) {
+        if (hexString.length % 2 !== 0) {
+            throw Error("Must have an even number of hex digits to convert to bytes");
+        }
+        var numBytes = hexString.length / 2;
+        if (!byteArray)
+            byteArray = new Uint8Array(numBytes);
+        for (var i=0; i<numBytes; i++) {
+            byteArray[i] = parseInt(hexString.substr(i*2, 2), 16);
+        }
+        return byteArray;
+    },
     
     getWindow: function()
     {
