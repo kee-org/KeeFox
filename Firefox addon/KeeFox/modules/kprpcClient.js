@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
 
 kprpcClient.js provides functionality for
 communication using the KeePassRPC protocol >= version 1.3.
@@ -137,8 +137,21 @@ kprpcClient.prototype.constructor = kprpcClient;
         },5);
     };
 
-    this.sendJSONRPC = function(data) {
-        let encryptedContainer = this.encrypt(data);
+    
+    // No need to return anything from this function so sync or async implementation is fine
+    this.sendJSONRPC = function (data) {
+        // async webcrypto:
+        if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
+            this.encrypt(data, this.sendJSONRPCDecrypted);
+            return;
+        }
+
+        // legacy Javascript approach
+        let encryptedContainer = this.encrypt_JS(data);
+        this.sendJSONRPCDecrypted(encryptedContainer);
+    };
+
+    this.sendJSONRPCDecrypted = function(encryptedContainer) {
 
         var data2server = 
   		{
@@ -871,14 +884,80 @@ kprpcClient.prototype.constructor = kprpcClient;
         log.debug("JSON-RPC shut down.");
     }
     
+
+    // Encrypt plaintext using web crypto api
+    this.encrypt = function (plaintext, callback) {
+
+        log.debug("starting webcrypto encryption");
+
+        let KPRPC = this;
+        let wc = crypto.subtle;
+        let iv = crypto.getRandomValues(new Uint8Array(16));
+        let secretKey = this.secretKey;
+        let messageAB = utils.stringToByteArray(plaintext);
+
+        // get our secret key
+        let secretKeyAB = utils.hexStringToByteArray(secretKey);
+
+        wc.importKey(
+            "raw",                            // Exported key format
+            secretKeyAB,                      // The exported key
+            { name: "AES-CBC", length: 256 }, // Algorithm the key will be used with
+            true,                             // Can extract key value to binary string
+            ["encrypt", "decrypt"]            // Use for these operations
+        )
+        .then(function (pwKey) {
+            let alg = { name: "AES-CBC", iv: iv };
+            return wc.encrypt(alg, pwKey, messageAB);
+        })
+        .then(function (encrypted) {
+            
+            wc.digest({ name: "SHA-1" }, secretKeyAB).then(function (secretkeyHash) {
+
+                let hmacData = new Uint8Array(20 + encrypted.byteLength + 16);
+                let len = hmacData.byteLength;
+
+                // fill the hmacData bytearray with the data
+                hmacData.set(new Uint8Array(secretkeyHash));
+                hmacData.set(new Uint8Array(encrypted), 20);
+                hmacData.set(iv, encrypted.byteLength + 20);
+
+                // We could get a promise from crypto.subtle.digest({name: "SHA-1"}, hmacData)
+                // but that takes quite a lot longer than our existing hash utility
+                // presumably because the base64 implementation within the Firefox
+                // XPCOM hash component is native rather than running in Javascript
+                // when the promise completes
+                let ourHMAC = utils.hash(hmacData, "base64", "SHA1");
+
+                let ivAB = hmacData.subarray(len - 16);
+                let encryptedMessage = {
+                    message: utils.byteArrayToBase64(encrypted),
+                    iv: utils.byteArrayToBase64(ivAB),
+                    hmac: ourHMAC
+                }
+
+                let callbackTarget = function (func, data) {
+                    func(data);
+                };
+
+                // Do the callback async because we don't want exceptions in
+                // JSONRPC handling being treated as encryption errors
+                setTimeout(callbackTarget, 1, callback.bind(KPRPC), encryptedMessage);
+            })
+            .catch(function (e) {
+                log.error("Failed to calculate HMAC. Exception: " + e);
+                callback(null);
+            });
+
+        })
+        .catch(function (e) {
+            log.error("Failed to encrypt. Exception: " + e);
+            callback(null);
+        });
+    };
+
     // Encrypt plaintext using sjcl.
-    // Note that the ctypes-based approach used for decryption has not yet been
-    // used for encryption. Since the data being sent from KeeFox is tiny in
-    // comparison to that received (if a large password database is used) this
-    // has not been a development priority but it should be fairly easy to
-    // upgrade this code if it's needed and/or when we no longer need sjcl for
-    // the decryption fallback function.
-    this.encrypt = function(plaintext)
+    this.encrypt_JS = function(plaintext)
     {
         let secKeyArray = sjcl.codec.hex.toBits(this.secretKey);
         let aes = new sjcl.cipher.aes(secKeyArray);

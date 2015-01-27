@@ -671,6 +671,15 @@ Utils.prototype = {
         return byteArray;
     },
 
+    stringToByteArray: function(str)
+    {
+        var sBytes = new Uint8Array(str.length);
+        for (var i=0; i<str.length; i++) {
+            sBytes[i] = str.charCodeAt(i);
+        }
+        return sBytes;
+    },
+
     // A variation of base64toByteArray which allows us to calculate a HMAC far
     // more efficiently than with seperate memory buffers
     base64toByteArrayForHMAC: function (input, extraLength, view) {
