@@ -25,6 +25,7 @@ locale keefox es-AR chrome/locale/es-AR/
 locale keefox es-ES chrome/locale/es-ES/
 locale keefox fi chrome/locale/fi/
 locale keefox fr chrome/locale/fr/
+locale keefox hi chrome/locale/hi/
 locale keefox hu chrome/locale/hu/
 locale keefox it chrome/locale/it/
 #locale keefox ja chrome/locale/ja/
@@ -36,6 +37,7 @@ locale keefox pt-BR chrome/locale/pt-BR/
 locale keefox pt-PT chrome/locale/pt-PT/
 locale keefox ro chrome/locale/ro/
 locale keefox ru chrome/locale/ru/
+locale keefox sl chrome/locale/sl/
 locale keefox sv-SE chrome/locale/sv-SE/
 locale keefox tr chrome/locale/tr/
 locale keefox uk chrome/locale/uk/
