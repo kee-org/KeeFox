@@ -111,9 +111,13 @@ var keeFoxDialogManager = {
                                     // (false). Change was made in Thunderbird 25
     get _imapBundleUsesStrings() {
         if (this.__imapBundleUsesStrings === null) {
-            var versionComparator = Components.classes["@mozilla.org/xpcom/version-comparator;1"].
-                getService(Components.interfaces.nsIVersionComparator);
-            this.__imapBundleUsesStrings = versionComparator.compare(Application.version, "25.0a1") >= 0;
+            try {
+                // GetStringFromName will throw an exception if the numeric id is not found
+                this._imapMsgsBundle.GetStringFromName("5051");
+                this.__imapBundleUsesStrings = false;
+            } catch (exception) {
+                this.__imapBundleUsesStrings = true;
+            }
         }
         return this.__imapBundleUsesStrings;
     },
