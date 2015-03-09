@@ -468,6 +468,32 @@ namespace KeePassRPC
 
         #region Utility functions to convert between KeePassRPC object schema and KeePass schema
 
+        private Entry[] ConfirmOrNotifyAccess(Entry[] entries)
+        {
+            if (entries.Length == 0) // no confirmation needed for an empty result
+                return entries;
+
+            var notifyAccess = host.CustomConfig.GetBool("KeePassRPC.NotifyAccess", false);
+            if (!notifyAccess)
+                return entries;
+
+            foreach (var entry in entries)
+            {
+                if (entry.FormFieldList != null && entry.FormFieldList.Length > 0)
+                {
+                    KeePassRPCPlugin.AddLastAccessedEntry(entry);
+                }
+            }
+
+            return entries;
+        }
+
+        private LightEntry[] ConfirmOrNotifyAccess(LightEntry[] entries)
+        {
+            // LightEntries do not contain sensitive information, access allowed by default
+            return entries;
+        }
+
         private LightEntry GetEntryFromPwEntry(PwEntry pwe, bool isExactMatch, bool fullDetails, PwDatabase db)
         {
             return GetEntryFromPwEntry(pwe, isExactMatch, fullDetails, db, false);
@@ -1640,7 +1666,7 @@ namespace KeePassRPC
                 return e1.Title.CompareTo(e2.Title);
             });
 
-            return allEntries.ToArray();
+            return ConfirmOrNotifyAccess(allEntries.ToArray());
         }
 
         private bool EntryIsInRecycleBin(PwEntry pwe, PwDatabase db)
@@ -1726,7 +1752,7 @@ namespace KeePassRPC
                     {
                         return e1.Title.CompareTo(e2.Title);
                     });
-                    return allEntries.ToArray();
+                    return ConfirmOrNotifyAccess(allEntries.ToArray());
                 }
                 else
                 {
@@ -1734,7 +1760,7 @@ namespace KeePassRPC
                     {
                         return e1.Title.CompareTo(e2.Title);
                     });
-                    return allLightEntries.ToArray();
+                    return ConfirmOrNotifyAccess(allLightEntries.ToArray());
                 }
 
 
@@ -1936,7 +1962,7 @@ namespace KeePassRPC
                     Entry[] logins = new Entry[1];
                     logins[0] = (Entry)GetEntryFromPwEntry(matchedLogin, true, true, db);
                     if (logins[0] != null)
-                        return logins;
+                        return ConfirmOrNotifyAccess(logins);
                 }
             }
 
@@ -2216,7 +2242,7 @@ namespace KeePassRPC
                 return e1.Title.CompareTo(e2.Title);
             });
 
-            return allEntries.ToArray();
+            return ConfirmOrNotifyAccess(allEntries.ToArray());
         }
 
 

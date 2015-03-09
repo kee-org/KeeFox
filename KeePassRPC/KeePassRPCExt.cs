@@ -99,6 +99,19 @@ namespace KeePassRPC
         public string CurrentConfigVersion = "1";
         public volatile bool terminating = false;
 
+	    struct LastAccessedEntry
+	    {
+	        public DateTime AccessedAt;
+	        public string Title;
+	    }
+
+        private List<LastAccessedEntry> _lastAccessedEntries = new List<LastAccessedEntry>();
+        private const int _lastAccessedEntriesNotificationUpdateInterval = 200;
+        private const int _lastAccessedEntriesNotificationBalloonTimeout = 10000;
+        private const int _lastAccessedEntriesNotificationExpireInterval = 10000;
+        private string _lastAccessedEntriesNotificationString = null;
+	    private System.Timers.Timer _lastAccessedEntriesNotificationTimer = new System.Timers.Timer();
+
         private int FindKeePassRPCPort(IPluginHost host, bool webSocket)
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
@@ -197,6 +210,9 @@ namespace KeePassRPC
                     _BackgroundWorkerAutoResetEvent.WaitOne ();
                 };
                 _BackgroundWorker.RunWorkerAsync ();
+
+                _lastAccessedEntriesNotificationTimer.Interval = _lastAccessedEntriesNotificationUpdateInterval;
+                _lastAccessedEntriesNotificationTimer.Elapsed += LastAccessedEntriesNotificationTimerOnElapsed;
 
                 string debugFileName = host.CommandLineArgs["KPRPCDebug"];
                 if (debugFileName != null)
@@ -325,7 +341,40 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 			return true; // Initialization successful
 		}
 
-        //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        internal void AddLastAccessedEntry(Entry entry)
+        {
+            _lastAccessedEntries.Add(new LastAccessedEntry() { AccessedAt = DateTime.Now, Title = entry.Title });
+            _lastAccessedEntriesNotificationTimer.Enabled = true;
+        }
+
+	    private void LastAccessedEntriesNotificationShow()
+	    {
+            var notificationText = new StringBuilder();
+            foreach (var entry in _lastAccessedEntries)
+                notificationText.AppendFormat("{0:T}: {1}\n", entry.AccessedAt, entry.Title);
+	        var notificationString = notificationText.ToString();
+
+            if (!notificationString.Equals(_lastAccessedEntriesNotificationString))
+                _host.MainWindow.MainNotifyIcon.ShowBalloonTip(_lastAccessedEntriesNotificationBalloonTimeout, "KeePassRPC", notificationString, ToolTipIcon.None);
+	        _lastAccessedEntriesNotificationString = notificationString;
+	    }
+
+	    private void LastAccessedEntriesNotificationTimerOnElapsed(object sender, System.Timers.ElapsedEventArgs elapsedEventArgs)
+	    {
+	        if (_lastAccessedEntries.Count == 0) // no more notifications to show
+	        {
+	            _lastAccessedEntriesNotificationTimer.Enabled = false; // stop showing notification
+	            return;
+	        }
+
+	        LastAccessedEntriesNotificationShow();
+
+            // remove all expired notifications
+            var expiration = DateTime.Now.AddMilliseconds(-_lastAccessedEntriesNotificationExpireInterval);
+            _lastAccessedEntries.RemoveAll(x => x.AccessedAt < expiration);
+	    }
+
+	    //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         //{
         //    MessageBox.Show("assembly: " + args.Name);
         //    AssemblyName name = new AssemblyName(args.Name);
