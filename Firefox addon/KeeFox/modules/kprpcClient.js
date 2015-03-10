@@ -121,14 +121,8 @@ kprpcClient.prototype.constructor = kprpcClient;
 
     this.KPRPCListener = function (signal)
     {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                 .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("common-dialog") ||
-                     wm.getMostRecentWindow("navigator:browser") ||
-                     wm.getMostRecentWindow("mail:3pane");
-        
         // call this async so that json reader can get back to listening ASAP and prevent deadlocks
-        window.setTimeout(function () {
+        setTimeout(function () {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
@@ -424,7 +418,7 @@ kprpcClient.prototype.constructor = kprpcClient;
             this.secretKey = this.getStoredKey();
 
             
-            window.setTimeout(function () {
+            setTimeout(function () {
                     
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
@@ -529,7 +523,7 @@ kprpcClient.prototype.constructor = kprpcClient;
             // store the key somewhere persistent (according to the security level rules)
             this.setStoredKey(this.srpClientInternals.I, this.getSecurityLevel(), this.srpClientInternals.key());
 
-            window.setTimeout(function () {
+            setTimeout(function () {
                     
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
