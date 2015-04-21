@@ -103,17 +103,18 @@ keefox_win.mainEventHandler =
 
                 if (window.gBrowser) { // Firefox only
                     keefox_org.commandManager.setupListeners(currentWindow);
+
+                    // load our user interface panel for FF >= Australis
+                    keefox_win.panel.construct(currentWindow);
+                    keefox_win.mainUI = keefox_win.panel;
+
+                    // our context menu handler
+                    keefox_win.context.construct(currentWindow);
+
+                    // a persistent panel (e.g. for save password notifications)
+                    keefox_win.persistentPanel.init();
                 }
 
-                // load our user interface panel for FF >= Australis
-                keefox_win.panel.construct(currentWindow);
-                keefox_win.mainUI = keefox_win.panel;
-
-                // our context menu handler
-                keefox_win.context.construct(currentWindow);
-
-                // a persistent panel (e.g. for save password notifications)
-                keefox_win.persistentPanel.init();
                 
                 this.startupKeeFox();
                 keefox_win.FAMS = keefox_org.keeFoxGetFamsInst("KeeFox",
