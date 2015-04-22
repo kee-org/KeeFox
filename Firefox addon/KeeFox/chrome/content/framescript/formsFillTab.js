@@ -1078,8 +1078,10 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             matchResult.dbFileName = null;
         }
         
+        let checkMatchingLoginRelevanceThreshold = false;
         if (matchingLogin == null && matchResult.logins[mostRelevantFormIndex].length == 1) {
             matchingLogin = matchResult.logins[mostRelevantFormIndex][0];
+            checkMatchingLoginRelevanceThreshold = true;
         } else if (matchResult.UUID != undefined && matchResult.UUID != null && matchResult.UUID != "") {
             // Skip the relevance tests if we have been told to use a specific UUID
             Logger.debug("We've been told to use a login with this UUID: " + matchResult.UUID);
@@ -1108,6 +1110,15 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                 matchResult.wantToAutoFillForm = false; //false by default
             //if (!matchResult.wantToAutoSubmitFormWithMultipleMatches)
             //    matchResult.wantToAutoSubmitForm = false; // wanttosubmtiforms will always be false for multiple matched entries
+
+            checkMatchingLoginRelevanceThreshold = true;
+        }
+
+        if (checkMatchingLoginRelevanceThreshold && matchingLogin != null 
+            && matchingLogin.relevanceScore < 1)
+        {
+            Logger.info("Our selected login is not relevant enough to exceed our threshold.");
+            matchingLogin = null;
         }
 
         if (matchingLogin != null)
