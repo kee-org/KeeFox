@@ -1543,7 +1543,7 @@ namespace KeePassRPC
                 PwGroup matchedGroup = pwd.RootGroup.Uuid == pwuuid ? pwd.RootGroup : pwd.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group.");
+                    throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
 
                 return matchedGroup;
             }
@@ -1677,7 +1677,7 @@ namespace KeePassRPC
             }
 
             if (matchedGroup == null)
-                throw new Exception("Could not find requested group.");
+                throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
 
             return (Entry[])GetChildEntries(host.Database, matchedGroup, true);
         }
@@ -1765,7 +1765,7 @@ namespace KeePassRPC
             }
 
             if (matchedGroup == null)
-                throw new Exception("Could not find requested group.");
+                throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
 
             return GetChildGroups(host.Database, matchedGroup, false, true);
         }
@@ -1834,7 +1834,7 @@ namespace KeePassRPC
                 PwGroup matchedGroup = host.Database.RootGroup.Uuid == pwuuid ? host.Database.RootGroup : host.Database.RootGroup.FindGroup(pwuuid, true);
 
                 if (matchedGroup == null)
-                    throw new Exception("Could not find requested group.");
+                    throw new Exception("Could not find requested group. Have you deleted your KeeFox start/home group? Set a new one and try again.");
 
                 groups = new Group[1];
                 groups[0] = GetGroupFromPwGroup(matchedGroup);
