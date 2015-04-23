@@ -168,8 +168,17 @@ kprpcClient.prototype.constructor = kprpcClient;
     	this.send(JSON.stringify(data2server));
   	};
 
-    this.send = function(data) {
-  		this.webSocket.send(data);
+    this.send = function (data) {
+        // I have seen this throw NS_ERROR_UNEXPECTED while testing cycling KeePass open/closed
+        // using Nightly 40 so now try/catch in case I can learn more about what might have
+        // caused that. See #400
+        try
+        {
+            this.webSocket.send(data);
+        } catch (ex)
+        {
+            log.error("Failed to send a websocket message. Exception details: " + ex + ", stack: " + ex.stack);
+        }
   	};
   	
     this.srpClientInternals = null;
