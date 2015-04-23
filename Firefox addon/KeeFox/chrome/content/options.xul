@@ -96,15 +96,17 @@
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );'>%-KeeFox-pref-site-options-find.link-%</html:a>
             </description>
-            <description id="desc-when-user-chooses">%-KeeFox-pref-when-user-chooses.desc-%: </description>
-            <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();" class="itemEnd">
-              <menupopup>
-                <menuitem id="mi-FillForm" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
-                <menuitem id="mi-FillAndSubmitForm" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
-              </menupopup>
-            </menulist>
-
-            <grid flex="1" class="itemEnd findEntryGrid">
+            <hbox align="center" class="itemEnd">
+              <label control="KeeFox-pref-matchSelected-list" id="desc-when-user-chooses">%-KeeFox-pref-when-user-chooses.desc-%: </label>
+              <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();">
+                <menupopup>
+                  <menuitem id="mi-FillForm" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
+                  <menuitem id="mi-FillAndSubmitForm" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+            
+            <grid class="findEntryGrid">
 
               <columns>
                 <column flex="1"/>
@@ -113,22 +115,22 @@
               </columns>
 
               <rows>
-                <row>
+                <row align="center">
                   <description id="desc-when-keefox-chooses">%-KeeFox-pref-when-keefox-chooses.desc-%:</description>
-                  <description id="desc-a-standard-form">%-KeeFox-pref-a-standard-form.desc-%</description>
-                  <description id="desc-a-prompt">%-KeeFox-pref-a-prompt.desc-%</description>
+                  <label control="KeeFox-pref-matchStandard-list" id="desc-a-standard-form">%-KeeFox-pref-a-standard-form.desc-%</label>
+                  <label control="KeeFox-pref-matchHTTP-list" id="desc-a-prompt">%-KeeFox-pref-a-prompt.desc-%</label>
 
                 </row>
-                <row>
+                <row align="center">
                   <description id="desc-keefox-should" class="tableLeftName">%-KeeFox-pref-KeeFoxShould.desc-%:</description>
-                  <menulist id="KeeFox-pref-matchStandard-list" preference="KeeFox-pref-autoSubmitForms" onsyncfrompreference="return onsyncfrompreferenceMatchStandard();" onsynctopreference="return onsynctopreferenceMatchStandard();" class="itemEnd kfMenu">
+                  <menulist id="KeeFox-pref-matchStandard-list" preference="KeeFox-pref-autoSubmitForms" onsyncfrompreference="return onsyncfrompreferenceMatchStandard();" onsynctopreference="return onsynctopreferenceMatchStandard();" class="kfMenu">
                     <menupopup>
                       <menuitem id="mi-do-nothing" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
                       <menuitem id="mi-FillForm2" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
                       <menuitem id="mi-FillAndSubmitForm2" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
                     </menupopup>
                   </menulist>
-                  <menulist id="KeeFox-pref-matchHTTP-list" preference="KeeFox-pref-autoSubmitDialogs" onsyncfrompreference="return onsyncfrompreferenceMatchHTTP();" onsynctopreference="return onsynctopreferenceMatchHTTP();" class="itemEnd kfMenu">
+                  <menulist id="KeeFox-pref-matchHTTP-list" preference="KeeFox-pref-autoSubmitDialogs" onsyncfrompreference="return onsyncfrompreferenceMatchHTTP();" onsynctopreference="return onsynctopreferenceMatchHTTP();" class="kfMenu">
                     <menupopup>
                       <menuitem id="mi-do-nothing2" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
                       <menuitem id="mi-FillForm3" label="%-KeeFox-pref-FillPrompt.desc-%" value="Fill"/>
@@ -139,15 +141,17 @@
               </rows>
 
             </grid>
-
             <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
+            
             <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" />
             <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
             <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" />
             <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" class="itemEnd" />
-            <label id="lab-maxMatchedLoginsInMainPanel" control="maxMatchedLoginsInMainPanel" value="%-KeeFox-pref-maxMatchedLoginsInMainPanel.label-%:"/>
-            <textbox preference="KeeFox-pref-maxMatchedLoginsInMainPanel" id="maxMatchedLoginsInMainPanel" maxlength="3" size="3" class="itemEnd"/>
-
+            <hbox align="center" class="itemEnd">
+              <label id="lab-maxMatchedLoginsInMainPanel" control="maxMatchedLoginsInMainPanel" value="%-KeeFox-pref-maxMatchedLoginsInMainPanel.label-%:"/>
+              <textbox preference="KeeFox-pref-maxMatchedLoginsInMainPanel" id="maxMatchedLoginsInMainPanel" maxlength="3" size="3" />
+            </hbox>
+            
           </vbox>
         </tabpanel>
 
@@ -174,13 +178,13 @@
 
         <tabpanel>
           <vbox align="left">
-
-            <description id="desc-log-method">%-KeeFox-pref-logMethod.desc-%</description>
-            <checkbox id="check-log-method-console" preference="KeeFox-pref-logMethodConsole" label="%-KeeFox-pref-logMethodConsole-%"/>
-            <checkbox id="check-log-method-stdout" preference="KeeFox-pref-logMethodStdOut" label="%-KeeFox-pref-logMethodStdOut-%"/>
-            <checkbox id="check-log-method-file" preference="KeeFox-pref-logMethodFile" label="%-KeeFox-pref-logMethodFile-%" class="itemEnd"/>
-
-            <description id="desc-log-level">%-KeeFox-pref-logLevel.desc-%</description>
+            <groupbox>
+              <caption label="%-KeeFox-pref-logMethod.desc-%" id="desc-log-method"/>
+              <checkbox id="check-log-method-console" preference="KeeFox-pref-logMethodConsole" label="%-KeeFox-pref-logMethodConsole-%"/>
+              <checkbox id="check-log-method-stdout" preference="KeeFox-pref-logMethodStdOut" label="%-KeeFox-pref-logMethodStdOut-%"/>
+              <checkbox id="check-log-method-file" preference="KeeFox-pref-logMethodFile" label="%-KeeFox-pref-logMethodFile-%" class="itemEnd"/>
+            </groupbox>
+            <label control="KeeFox-pref-logLevel-list" id="desc-log-level">%-KeeFox-pref-logLevel.desc-%: </label>
             <menulist id="KeeFox-pref-logLevel-list" preference="KeeFox-pref-logLevel" onsyncfrompreference="return onsyncfrompreferenceLogLevel();" onsynctopreference="return onsynctopreferenceLogLevel();" class="itemEnd kfMenu">
               <menupopup>
                 <!-- TODO2: verify changing label doesn't break functionality and then localise them -->
@@ -196,8 +200,10 @@
 
         <tabpanel>
           <vbox align="left">
-            <label id="lab-keePassRPCPort" control="keePassRPCPort" value="%-KeeFox-pref-keePassRPCPort.label-%:"/>
-            <textbox preference="KeeFox-pref-keePassRPCPort" id="keePassRPCPort" maxlength="5" size="5"/>
+            <hbox align="center">
+              <label id="lab-keePassRPCPort" control="keePassRPCPort" value="%-KeeFox-pref-keePassRPCPort.label-%:"/>
+              <textbox preference="KeeFox-pref-keePassRPCPort" id="keePassRPCPort" maxlength="5" size="5"/>
+            </hbox>
             <label id="lab-keePassRPCPortWarning" value="%-KeeFox-pref-keePassRPCPortWarning.label-%" class="itemEnd note"/>
             <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
                       label="%-KeeFox-pref-saveFavicons.label-%" class="itemEnd" />
@@ -256,25 +262,28 @@
             <description id="desc-ConnSL-ManualLink" class="itemEnd">
                <html:a id="desc-ConnSL-ManualLink-link" target="_blank" class="text-link" href="https://github.com/luckyrat/KeeFox/wiki/en-%7C-Technical-%7C-KeePassRPC-%7C-Security-levels">%-KeeFox-conn-sl.link-%</html:a>
             </description>
-
-            <description id="desc-conn-sl-client">%-KeeFox-conn-sl-client-%: </description>
-            <menulist id="KeeFox-pref-sl-client-list" preference="KeeFox-pref-connSLClient">
-              <menupopup>
-                <menuitem id="slc-Low" label="%-KeeFox-conn-sl-low-%" value="1"/>
-                <menuitem id="slc-Medium" label="%-KeeFox-conn-sl-medium-%" value="2"/>
-                <menuitem id="slc-High" label="%-KeeFox-conn-sl-high-%" value="3"/>
-              </menupopup>
-            </menulist>
+            <hbox align="center">
+              <label control="KeeFox-pref-sl-client-list" id="desc-conn-sl-client">%-KeeFox-conn-sl-client-%: </label>
+              <menulist id="KeeFox-pref-sl-client-list" preference="KeeFox-pref-connSLClient">
+                <menupopup>
+                  <menuitem id="slc-Low" label="%-KeeFox-conn-sl-low-%" value="1"/>
+                  <menuitem id="slc-Medium" label="%-KeeFox-conn-sl-medium-%" value="2"/>
+                  <menuitem id="slc-High" label="%-KeeFox-conn-sl-high-%" value="3"/>
+                </menupopup>
+              </menulist>
+            </hbox>
             <description id="desc-conn-sl-client-detail" width="650" class="itemEnd">%-KeeFox-conn-sl-client.desc-%</description>
 
-            <description id="desc-conn-sl-server">%-KeeFox-conn-sl-server-min-%: </description>
-            <menulist id="KeeFox-pref-sl-server-list" preference="KeeFox-pref-connSLServerMin">
-              <menupopup>
-                <menuitem id="sls-Low" label="%-KeeFox-conn-sl-low-%" value="1"/>
-                <menuitem id="sls-Medium" label="%-KeeFox-conn-sl-medium-%" value="2"/>
-                <menuitem id="sls-High" label="%-KeeFox-conn-sl-high-%" value="3"/>
-              </menupopup>
-            </menulist>
+            <hbox align="center">
+              <label control="KeeFox-pref-sl-server-list" id="desc-conn-sl-server">%-KeeFox-conn-sl-server-min-%: </label>
+              <menulist id="KeeFox-pref-sl-server-list" preference="KeeFox-pref-connSLServerMin">
+                <menupopup>
+                  <menuitem id="sls-Low" label="%-KeeFox-conn-sl-low-%" value="1"/>
+                  <menuitem id="sls-Medium" label="%-KeeFox-conn-sl-medium-%" value="2"/>
+                  <menuitem id="sls-High" label="%-KeeFox-conn-sl-high-%" value="3"/>
+                </menupopup>
+              </menulist>
+            </hbox>
             <description id="desc-conn-sl-server-detail" width="650" class="itemEnd">%-KeeFox-conn-sl-server-min.desc-%</description>
 
             <description id="desc-conn-sl-low" width="650" class="itemEnd">%-KeeFox-conn-sl-low-warning.desc-%</description>
