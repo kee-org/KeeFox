@@ -4,7 +4,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2012 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2012-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the FAMS options XUL file which describes the interface for 
   viewing and editing the various preferences which FAMS understands.
@@ -33,7 +33,7 @@
   <grid flex="1" >
     <columns>
       <column flex="1" />
-      <column width="600px" />
+      <column width="800px" />
       <column flex="1" />
     </columns>
 
