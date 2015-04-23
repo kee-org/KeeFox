@@ -1138,7 +1138,7 @@ namespace KeePassRPC
                     null
                 );
 
-                object[] inputParameters = new object[] { null, profile, null, null };
+                object[] inputParameters = new object[] { null, profile, null, this.host.PwGeneratorPool };
                 result = (PwgError)mi.Invoke(null, inputParameters);
                 newPassword = (ProtectedString)inputParameters[0];
             }
@@ -1154,7 +1154,7 @@ namespace KeePassRPC
                     null
                 );
 
-                object[] inputParameters = new object[] { newPassword, profile, null, null };
+                object[] inputParameters = new object[] { newPassword, profile, null, this.host.PwGeneratorPool };
                 result = (PwgError)mi.Invoke(null, inputParameters);
 
                 // If an exception is thrown here it would be unexpected and
