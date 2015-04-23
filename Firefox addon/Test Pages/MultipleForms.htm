@@ -1,0 +1,26 @@
+<html>
+<head>
+<title>KeeFox Test - Multiple forms 1U1P</title>
+</head>
+<body>
+<div>This is a page to assist in testing KeeFox features. Submitting a variety of inputs through this form while a KeePass database is open could help identify any unexpected issues or incomplete features.</div>
+<br />
+<div style="font-weight:bold">This page is an example of a page with two similar login forms, one (bottom) has standard name/ID and the other (top) has more unusual ones.</div>
+<br />
+<div>Use the KeeFox toolbar and submit button below to test fill and save functionality. Note that the form just submits to a test results page and performs no action on the submitted data.</div>
+<br />
+    <form action="testResults.htm" method="get">
+        <label for="ABCDE">Username2</label>: <input type="text" id="ABCDE" name="ABCDE" /><br />
+        <label for="ABCDEF">Password2</label>: <input type="password" id="ABCDEF" name="ABCDEF" /><br />
+        <br />
+        <input type="submit" name="Test" value="Perform test" id="ABCDEFG" />
+    </form>
+
+    <form action="testResults.htm" method="get">
+        <label for="username">Username1</label>: <input type="text" id="username" name="username" /><br />
+        <label for="password">Password1</label>: <input type="password" id="password" name="password" /><br />
+        <br />
+        <input type="submit" name="Test" value="Perform test" id="submit" />
+    </form>
+</body>
+</html>

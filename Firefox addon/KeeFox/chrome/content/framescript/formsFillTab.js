@@ -1444,13 +1444,15 @@ var submitForm = function (form)
 
 var calculateRelevanceScore = function (login, form,
     usernameIndex, passwordFields, currentPage, otherFields) {
-    // entry priorities override any relevance based on URL,
-    // etc. (remember that we are already dealing only with
-    // those entries that KeePassRPC says are relevant for this domain).
-    if (login.priority > 0)
-        return (1000000 - login.priority);
-
+    
     let score = 0;
+
+    // entry priorities provide a large score such that no other combination of relevance
+    // can override them but there will still be differences in relevance for the same
+    // entry when compared against different forms
+    if (login.priority > 0)
+        score = 1000000000 - login.priority * 1000;
+
     // KeeFox 1.5+ no longer considers action URLs in relevance weighting. Since the only
     // login entries of interest are already pre-matched by KeePass, this should have been
     // adding negligable accuracy to the form matching.
