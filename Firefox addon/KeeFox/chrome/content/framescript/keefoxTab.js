@@ -185,6 +185,10 @@ keefox_tab.locationChanged = function (uri) {
     // but at least resetting it will avoid knock-on effects later in the liftetime of this tab)
     keefox_tab.tabState.KeeFoxTriggeredThePendingFormSubmission = false;
 
+    // We don't want to bother responding to the password fields added to the page during
+    // page load since we already have a more comprehensive way to find those fields
+    keefox_tab.tabState.respondDirectlyToNewDOMElements = false;
+
     // Reset all our other tracking data
     keefox_tab.tabState.latestFindMatchesResults = [];
     keefox_tab.tabState.frameResponseCount = 0;
@@ -197,6 +201,49 @@ keefox_tab.locationChanged = function (uri) {
     keefox_tab.tabState.findMatchesASAP = false;
 };
 
+keefox_tab.onInterestingDOMElementAdded = function (event) {
+    // As well as searching the DOM for form fields in response to page load events
+    // we also look out for notifications that an element has been added to the DOM.
+    // Initially this will be limited to the Firefox 26+ DOMFormHasPassword event
+    // but we could extend it in future to also look out for the potential DOMDocHasPassword
+    // Firefox event or elements that match patterns defined elsewhere (e.g. a DOM 
+    // mutation event for a new form or input element or maybe for a user-defined 
+    // selector in per-site configuration). In theory this will ensure all login 
+    // fields on all websites can be found but the difficulty will be in finding 
+    // the time to implement the complete feature and updating the selector definitions 
+    // for unusual websites (hopefully we'll one day be able to crowd-source this 
+    // sort of information but I don't see it being practical for us to set up the
+    // infrastructure for that in the foreseable future).
+
+    // We don't always allow these events to trigger a search - mainly we are protecting
+    // against Firefox events being fired from the DOM build process before we have
+    // been given a chance to start scanning all frames for forms of interest. Either
+    // way we still have to check that there is not already a search underway for 
+    // another reason but this definitely protects against at least one unnecessary 
+    // search per page load.
+    if (!keefox_tab.tabState.respondDirectlyToNewDOMElements)
+        return;
+
+    if (keefox_tab.tabState.findMatchesUnderway) {
+        // We queue up an extra search even if we only just triggered one from the previously
+        // added DOM element. At the moment the DOMFormHasPassword event is only
+        // fired once per form so this shouldn't result in any unnecessary login
+        // searches but in future it is likely we'll need to do some more checks
+        // here to try to set keefox_tab.tabState.respondDirectlyToNewDOMElements=false
+        // more aggressively.
+
+        keefox_tab.tabState.findMatchesASAP = true;
+    }
+    else {
+        //TODO:e10s: Not sure exactly when this function can be triggered so might need to
+        // do setTimeout to slightly delay the search for forms if we find that they are
+        // incomplete when we inspect the DOM for forms.
+        keefox_tab.Logger.debug("Found an interesting DOM element so will try to find new login matches.");
+        keefox_tab.findMatchesInAllFrames(true, false, true);
+    }
+
+};
+
 addMessageListener("keefox:findMatches", keefox_tab.FindMatchesRequestHandler);
 addMessageListener("keefox:prepareForOneClickLogin", keefox_tab.PrepareForOneClickLoginHandler);
 addMessageListener("keefox:findLoginsResult", keefox_tab.findLoginsResultHandler);
@@ -206,6 +253,7 @@ addMessageListener("keefox:findLoginsForSubmittedFormResult", keefox_tab.findLog
 addMessageListener("keefox:cancelFormRecording", keefox_tab.cancelFormRecordingHandler);
 
 addEventListener("DOMContentLoaded", keefox_tab.onDOMContentLoaded, false);
+addEventListener("DOMFormHasPassword", keefox_tab.onInterestingDOMElementAdded, false);
 
 keefox_tab.progressListener = {
     onLocationChange: function (aWebProgress, aReq, aLoc, aFlags) {
@@ -305,5 +353,6 @@ keefox_tab.formSubmitObserver.register();
 keefox_tab.tabState.currentPage = 0;
 keefox_tab.tabState.maximumPage = 0;
 keefox_tab.tabState.userRecentlyDemandedAutoSubmit = false;
+keefox_tab.tabState.respondDirectlyToNewDOMElements = false;
 
 keefox_tab.Logger.debug("KeeFox loaded into a frame/tab/browser");

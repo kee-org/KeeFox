@@ -903,6 +903,12 @@ var findMatchesNoLongerUnderway = function()
     {
         tabState.findMatchesASAP = false;
         findMatchesInAllFrames(false, false, true);
+    } else
+    {
+        // When we know we've handled all onLoad related searches for matches we can
+        // start paying attention to any notifications that specific DOM elements
+        // were added to the page
+        tabState.respondDirectlyToNewDOMElements = true;
     }
 }
 
