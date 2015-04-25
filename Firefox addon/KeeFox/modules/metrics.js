@@ -216,6 +216,8 @@ function mm () {
                 mm._KFLog.debug("Metrics indexedDB version upgrade finished");
             };
             request.onsuccess = function(event) {
+                if (!request.result) return;
+
                 mm.db = request.result;
                 mm.db.onerror = function(event) {
                     let errMsg = "";
@@ -430,6 +432,8 @@ function mm () {
 
     this.set = function (key, value, callback)
     {
+        if (!this.db) return;
+
         let cb = callback;
         let mm = this;
 
@@ -464,6 +468,8 @@ function mm () {
     // Grab the messages waiting to be sent to the remote server
     this.processQueue = function ()
     {
+        if (!this.db) return;
+
         let completeMessage = "";
         var objectStore = this.db.transaction("keefox@chris.tomlinson-metrics-messages")
                         .objectStore("keefox@chris.tomlinson-metrics-messages");
