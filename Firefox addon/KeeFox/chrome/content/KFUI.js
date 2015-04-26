@@ -70,116 +70,38 @@ keefox_win.UI = {
             keefox_win.UI._showSaveLoginNotification(notifyBox, login, isMultiPage, browser);
     },
     
-    removeNotification : function (nb, name)
-    {
-        var n = nb.getNotificationWithValue(name);
-        if(n){n.close();}
-    },
-    
     _showKeeFoxNotification: function (notifyBox, name, notificationText, buttons, thisTabOnly, priority, persist)
     {
-        // if we've been supplied a notificationManager instead of notifyBox we must be in the new world order
-        if (notifyBox.tabNotificationMap !== undefined)
-        {
-            let notification = {
-                name: name,
-                render: function (container) {
+        let notification = {
+            name: name,
+            render: function (container) {
                      
-                    // We will append the rendered view of our own notification information to the
-                    // standard notification container that we have been supplied
+                // We will append the rendered view of our own notification information to the
+                // standard notification container that we have been supplied
 
-                    var doc = container.ownerDocument;
+                var doc = container.ownerDocument;
                             
-                    var text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-                    text.textContent = notificationText;
-                    text.setAttribute('class', 'KeeFox-message');
-                    container.appendChild(text);
+                var text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                text.textContent = notificationText;
+                text.setAttribute('class', 'KeeFox-message');
+                container.appendChild(text);
                     
-                    // We might customise other aspects of the notifications but when we want
-                    // to display buttons we can treat them all the same
-                    container = doc.ownerGlobal.keefox_win.notificationManager
-                        .renderButtons(buttons, doc, notifyBox, name, container);
+                // We might customise other aspects of the notifications but when we want
+                // to display buttons we can treat them all the same
+                container = doc.ownerGlobal.keefox_win.notificationManager
+                    .renderButtons(buttons, doc, notifyBox, name, container);
 
-                    return container;
-                },
-                onClose: function(browser) {
-                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                },
-                thisTabOnly: thisTabOnly,
-                priority: priority,
-                persist: persist
-            };
-            notifyBox.add(notification);
-            return;
-        }
-
-        // We're using the old notification bar system from now on...
-
-        if (this._showLoginNotification(notifyBox, name,
-             notificationText, []) == null)
-            return;
-             
-        // improve the notification bar
-        var bar = notifyBox.getNotificationWithValue(name);
-        var p = bar.ownerDocument.getAnonymousElementByAttribute(bar, 'anonid', 'details');
-
-        var b = bar.ownerDocument.createElement("hbox");
-        b.setAttribute('flex', '1');
-        //b.setAttribute('align', 'right');
-        b.setAttribute('pack', 'end');
-        
-        var img = bar.ownerDocument.createElement('image');
-        img.setAttribute('src', 'chrome://keefox/skin/KeeFox24.png'); //16??
-        img.setAttribute('class', 'keeFoxNotificationImage messageImage');
-        b.appendChild(img);
-
-        var text = bar.ownerDocument.createElement('description');
-        text.setAttribute('value', notificationText);
-        text.setAttribute('class', 'keefoxMessageText messageText');
-        text.setAttribute('flex', '1');
-        b.appendChild(text);
-
-        var spacer = bar.ownerDocument.createElement('spacer');
-        spacer.setAttribute('flex', '1');
-        b.appendChild(spacer);
-
-        var bx = bar.ownerDocument.createElement('hbox');
-        bx.setAttribute('flex', '1');
-        bx.setAttribute('pack', 'end');
-        bx.setAttribute('class', 'keeFoxNotificationButtons');
-
-        for(var bi=0; bi < buttons.length; bi++)
-        {
-            var butDef = buttons[bi];
-            var newMenu = null;
-            newMenu = bar.ownerDocument.createElement("toolbarbutton");
-            newMenu = this._prepareNotificationBarMenuItem(newMenu, butDef, notifyBox, name);
-            
-            if (butDef.popup != null)
-            {
-                newMenu.setAttribute("type", "menu-button");
-                
-                var newMenuPopup = null;
-                newMenuPopup = bar.ownerDocument.createElement("menupopup");
-                    
-                // cycle through all popup button definitions to set up and attach the popup menu and convert class into drop down button style
-                for(var pi=0; pi < butDef.popup.length; pi++)
-                {
-                    var popDef = butDef.popup[pi];
-                    var nmi = bar.ownerDocument.createElement("menuitem");
-                    nmi = this._prepareNotificationBarMenuItem(nmi, popDef, notifyBox, name);
-                    newMenuPopup.appendChild(nmi);                    
-                }
-                newMenu.appendChild(newMenuPopup);
-                
-            }
-
-            bx.appendChild(newMenu);
-        }
-        
-        b.appendChild(bx);
-        p.parentNode.replaceChild(b, p);   
-        b.parentNode.setAttribute('flex', '1');
+                return container;
+            },
+            onClose: function(browser) {
+                browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
+            },
+            thisTabOnly: thisTabOnly,
+            priority: priority,
+            persist: persist
+        };
+        notifyBox.add(notification);
+        return;
     },
 
     _prepareNotificationMenuItem : function (nmi, itemDef, notifyBox, name)
@@ -223,91 +145,6 @@ keefox_win.UI = {
         return nmi;    
     },
     
-    // For old-style notification bar notifications only (e.g. thunderbird?)
-    _prepareNotificationBarMenuItem : function (nmi, itemDef, notifyBox, name)
-    {
-        nmi.setAttribute("label", itemDef.label);
-        nmi.setAttribute("accesskey", itemDef.accessKey);
-        if (itemDef.tooltip != undefined) nmi.setAttribute("tooltiptext", itemDef.tooltip);
-        nmi.setAttribute("class", "menuitem-iconic");
-        if (itemDef.image != undefined)
-            nmi.setAttribute("image", itemDef.image);
-        var callbackWrapper = function(fn, name){
-            return function() {
-                try
-                {
-                    var returnValue = 0;
-                    if (fn != null)
-                        returnValue = fn.apply(this, arguments);
-                    
-                    keefox_win.UI.removeNotification(arguments[0].currentTarget.getUserData('notificationbox'),name);    
-                } catch(ex)
-                {
-                    keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
-                }
-            };
-        };
-
-        var callback = callbackWrapper(itemDef.callback, name);
-        nmi.addEventListener('command', callback, false);
-        if (itemDef.id != null)
-            nmi.setAttribute("id", itemDef.id);
-        if (itemDef.values != null)
-        {
-            for(var pi=0; pi < itemDef.values.length; pi++)
-            {
-                var key = itemDef.values[pi].key;
-                var val = itemDef.values[pi].value;
-                nmi.setUserData(key, val, null);
-            }                  
-        }
-        nmi.setUserData('notificationbox',notifyBox,null);
-        return nmi;    
-    },
-
-    /*
-     * _showLoginNotification
-     *
-     * Displays a notification bar.
-     *
-     */
-    _showLoginNotification : function (aNotifyBox, aName, aText, aButtons, priority)
-    {
-        if (aNotifyBox === undefined || aNotifyBox === null)
-        {
-            keefox_win.Logger.warn("Could not display " + aName + " notification bar. Apparently this happens sometimes - don't know why yet!");
-            return null;
-        }
-
-        var oldBar = aNotifyBox.getNotificationWithValue(aName);
-        priority = priority || aNotifyBox.PRIORITY_INFO_MEDIUM;
-
-        keefox_win.Logger.debug("Adding new " + aName + " notification bar");
-        var newBar = aNotifyBox.appendNotification(
-                                aText, aName,
-                                "chrome://keefox/skin/KeeFox16.png",
-                                priority, aButtons);
-
-        // The page we're going to hasn't loaded yet, so we want to persist
-        // across the first 5 location changes.
-        newBar.persistence = 5;
-
-        //TODO1.5: This property is no longer documented and may no longer
-        // work. Need to investigate alternative options.
-        // Sites like Gmail perform a funky redirect dance before you end up
-        // at the post-authentication page. I don't see a good way to
-        // heuristically determine when to ignore such location changes, so
-        // we'll try ignoring location changes based on a time interval.
-        newBar.timeout = Date.now() + 20000; // 20 seconds
-
-        if (oldBar) {
-            keefox_win.Logger.debug("(...and removing old " + aName + " notification bar)");
-            aNotifyBox.removeNotification(oldBar);
-        }
-        return newBar;
-    },
-
-
     /*
      * _showSaveLoginNotification
      *
@@ -495,20 +332,6 @@ keefox_win.UI = {
             notificationText, buttons, true, null, true);
     },
 
-    _removeSaveLoginNotification : function (aNotifyBox)
-    {
-        if (aNotifyBox == null)
-            return;
-
-        var oldBar = aNotifyBox.getNotificationWithValue("password-save");
-
-        if (oldBar)
-        {
-            keefox_win.Logger.debug("Removing save-password notification bar.");
-            aNotifyBox.removeNotification(oldBar);
-        }
-    },
-
     showConnectionMessage : function (message)
     {
         var notifyBox = this._getNotificationManager();
@@ -586,39 +409,6 @@ keefox_win.UI = {
         }
     },
     
-    _removeOLDKFNotifications : function (keepLaunchBar)
-    {
-        var notifyBox = this._getNotifyBox();
-        
-        if (notifyBox)
-        {
-            var oldBar = notifyBox.getNotificationWithValue("password-save");
-
-            if (oldBar) {
-                keefox_win.Logger.debug("Removing save-password notification bar.");
-                notifyBox.removeNotification(oldBar);
-            }
-            
-            oldBar = notifyBox.getNotificationWithValue("keefox-login");
-
-            if (oldBar) {
-                keefox_win.Logger.debug("Removing keefox-login notification bar.");
-                notifyBox.removeNotification(oldBar);
-            }
-            
-            if (!keepLaunchBar)
-            {
-                oldBar = notifyBox.getNotificationWithValue("keefox-launch");
-
-                if (oldBar) {
-                    keefox_win.Logger.debug("Removing keefox-launch notification bar.");
-                    notifyBox.removeNotification(oldBar);
-                }
-            }
-        }
-    },
-    
-
     _getNotificationManager : function ()
     {
         return keefox_win.notificationManager;
@@ -630,91 +420,6 @@ keefox_win.UI = {
         of the world. See old _getNotifyBox code for initial implementation ideas. */
     },
 
-    /*
-     * _getNotifyBox
-     *
-     * Returns the notification box to this prompter, or null if there isn't
-     * a notification box available.
-     */
-    _getNotifyBox : function (browser)
-    {
-        try
-        {
-            // We allow the browser to be specified (e.g. if it's a background tab)
-            // but otherwise just work out what the current browser is for the
-            // current window.
-            if (!browser)
-                browser = gBrowser.selectedBrowser;
-
-            let contentWindow = browser.isRemoteBrowser ? browser.contentWindowAsCPOW : browser.contentWindow;
-
-            return browser.ownerGlobal.getNotificationBox(contentWindow);
-
-            //console.log(browser);
-            //console.log(browser.getNotificationBox());
-            /*
-            // Get topmost window, in case we're in a frame.
-            var notifyWindow = this._window.top
-            
-            // Some sites pop up a temporary login window, when disappears
-            // upon submission of credentials. We want to put the notification
-            // bar in the opener window if this seems to be happening.
-            if (notifyWindow.opener)
-            {
-                var webnav = notifyWindow
-                                    .QueryInterface(Ci.nsIInterfaceRequestor)
-                                    .getInterface(Ci.nsIWebNavigation);
-                var chromeWin = webnav
-                                    .QueryInterface(Ci.nsIDocShellTreeItem)
-                                    .rootTreeItem
-                                    .QueryInterface(Ci.nsIInterfaceRequestor)
-                                    .getInterface(Ci.nsIDOMWindow);
-                var chromeDoc = chromeWin.document.documentElement;
-
-                // Check to see if the current window was opened with chrome
-                // disabled, and if so use the opener window. But if the window
-                // has been used to visit other pages (ie, has a history),
-                // assume it'll stick around and *don't* use the opener.
-                if (chromeDoc.getAttribute("chromehidden") &&
-                    webnav.sessionHistory.count == 1)
-                {
-                    keefox_win.Logger.debug("Using opener window for notification bar.");
-                    notifyWindow = notifyWindow.opener; //not convinced this will work - maybe change this._document
-                }
-            }
-            
-
-            // Find the <browser> which contains notifyWindow, by looking
-            // through all the open windows and all the <browsers> in each.
-            var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
-                     getService(Ci.nsIWindowMediator);
-            var enumerator = wm.getEnumerator("navigator:browser");
-            var tabbrowser = null;
-            var foundBrowser = null;
-            while (!foundBrowser && enumerator.hasMoreElements())
-            {
-                var win = enumerator.getNext();
-                keefox_win.Logger.debug("found window with name:" + win.name);
-                tabbrowser = win.getBrowser(); 
-                foundBrowser = tabbrowser.getBrowserForDocument(
-                                                  this._document);
-            }
-            */
-
-
-            
-            // Return the notificationBox associated with the browser.
-            //keefox_win.Logger.debug("found a browser for this window.");
-            //return browser.getNotificationBox()
-
-        } catch (e) {
-            // If any errors happen, just assume no notification box.
-            keefox_win.Logger.error("No notification box available: " + e)
-        }
-
-        return null;
-    },
-    
     /*
      * _getLocalizedString
      *
@@ -735,42 +440,7 @@ keefox_win.UI = {
         else
             return keefox_org.locale.$STR(key);
     },
-
-
-    /*
-     * _getFormattedHostname
-     *
-     * The aURI parameter may either be a string uri, or an nsIURI instance.
-     *
-     * Returns the hostname to use in a nsILoginInfo object (for example,
-     * "http://example.com").
-     */
-    _getFormattedHostname : function (aURI)
-    {
-        var uri;
-        if (aURI instanceof Ci.nsIURI)
-        {
-            uri = aURI;
-        } else {
-            uri = this._ioService.newURI(aURI, null, null);
-        }
-        var scheme = uri.scheme;
-
-        var hostname = scheme + "://" + uri.host;
-
-        // If the URI explicitly specified a port, only include it when
-        // it's not the default. (We never want "http://foo.com:80")
-        port = uri.port;
-        if (port != -1)
-        {
-            var handler = this._ioService.getProtocolHandler(scheme);
-            if (port != handler.defaultPort)
-                hostname += ":" + port;
-        }
-
-        return hostname;
-    },
-
+    
     // Closes all popups that are ancestors of the node.
     closeMenus : function(node)
     {
