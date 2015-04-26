@@ -628,7 +628,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             matchResult.otherFieldsArray[i] = otherFields;
         
             // The logins returned from KeePass for every form will be identical (based on tab/frame URL)
-            if (i == 0)
+            if (previousRequestId == 0)
             {
                 var findLoginOp = {};
                 findLoginOp.forms = forms;
@@ -649,11 +649,15 @@ var findMatchesInSingleFrame = function (doc, behaviour)
                 previousRequestId = requestId;
             } else {
                 Logger.debug("form[" + i + "]: reusing logins from last form.");
-                if (previousRequestId > 0)
-                    findLoginOps[previousRequestId].formIndexes.push(i);
+                findLoginOps[previousRequestId].formIndexes.push(i);
             }
 
         }  // end of form for loop
+
+        // If we didn't find a form we want to search, mark this frame as complete immediately
+        if (previousRequestId == 0)
+            aSearchComplete(fak);
+
     } // end of non-cached behaviour
 };
 
