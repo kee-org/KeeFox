@@ -98,11 +98,7 @@ var _onFormSubmit = function (form)
     // fill. Site failures might lead to problems here but probably not big ones very often.
     if (tabState.currentPage > tabState.maximumPage)
     {
-        tabState.currentPage = 0;
-        tabState.maximumPage = 0;
-        tabState.forceAutoSubmit = null;
-        tabState.userRecentlyDemandedAutoSubmit = false;
-        Logger.debug("Reset form-filling session (page = 0 and cancelled any forced autosubmit).");
+        resetFormFillSession();
     }
 
     // do nothing if KeeFox auto-submitted the form

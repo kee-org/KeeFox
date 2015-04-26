@@ -195,3 +195,18 @@ var _getSaveOnSubmitForSite = function (siteURL)
     }
     return showSaveNotification;
 };
+
+//TODO:e10s: Do we need to clear UUID and DBfilename here too?
+var resetFormFillSession = function () {
+    if (resetFormFillTimer != null) {
+        clearTimeout(resetFormFillTimer);
+        resetFormFillTimer = null;
+    }
+    tabState.currentPage = 0;
+    tabState.maximumPage = 0;
+    tabState.forceAutoSubmit = null;
+    tabState.userRecentlyDemandedAutoSubmit = false;
+    Logger.debug("Reset form-filling session (page = 0 and cancelled any forced autosubmit).");
+};
+
+var resetFormFillTimer = null;

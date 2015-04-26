@@ -255,6 +255,8 @@ var PrepareForOneClickLoginHandler = function (message) {
 
     Logger.debug("PrepareForOneClickLoginHandler accepted a request.");
 
+    resetFormFillSession();
+
     if (message.data.stateOverride)
     {
         if (message.data.stateOverride.UUID && message.data.stateOverride.UUID.length > 0)
@@ -1177,6 +1179,12 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                 Logger.debug("currentPage is: " + tabState.currentPage);
                 Logger.debug("maximumPage is: " + tabState.maximumPage);
             }
+
+            // Make sure that the state of this tab is reset after a short time ready 
+            // for the next website's login form
+            if (resetFormFillTimer)
+                clearTimeout(resetFormFillTimer);
+            resetFormFillTimer = setTimeout(resetFormFillSession, KFExtension.prefs.getValue("resetFormFillTimeout", 60) * 1000);
 
             // update fill and submit preferences from per-entry configuration options
             if (matchingLogin.alwaysAutoFill)

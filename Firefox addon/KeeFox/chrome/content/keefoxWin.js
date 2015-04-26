@@ -246,6 +246,7 @@ keefox_win._onTabSelected = function(event)
     if (keefox_win._loadingKeeFoxLogin != undefined
     && keefox_win._loadingKeeFoxLogin != null)
     {
+        //TODO:e10s: Race condition?
         // Might not work if it takes too long for the message to get through. if so, need 
         // to find a way to make framescript onload function do a sync query to chrome to
         // find out if it is expected to do a one-click login.
