@@ -996,6 +996,12 @@ KeeFox.prototype = {
                         searchAllDatabases: keefox_org._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
                     });
                     break;
+                case "listAllOpenDBs":
+                    keefox_org._refreshKPDB();
+                    break;
+                case "alwaysDisplayUsernameWhenTitleIsShown":
+                    keefox_org._refreshKPDB();
+                    break;
             }
         },
         
