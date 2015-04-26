@@ -96,7 +96,8 @@ function KeeFox()
     }
 
     this.search = new Search(this, {
-        version: 1
+        version: 1,
+        searchAllDatabases: this._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
     });
 
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
@@ -981,13 +982,6 @@ KeeFox.prototype = {
                     window.keefox_org._KFLog.configureFromPreferences();
                     utils.oneOffSensitiveLogCheckHandler();
                     break;
-//                case "dynamicFormScanning":
-//                    //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
-//                    if (keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-//                        window.keefox_org.ILM._refillTimer.init(window.keefox_win.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-//                    else
-//                        window.keefox_org.ILM._refillTimer.cancel();
-//                    break;
                 case "currentLocation":
                     //tell KeePass this has changed
                     keefox_org.changeLocation(keefox_org._keeFoxExtension.prefs.getValue("currentLocation",false));
@@ -995,6 +989,12 @@ KeeFox.prototype = {
                 case "maxMatchedLoginsInMainPanel":
                     //recalculate matched logins so current results match user's new preference
                     keefox_org.commandManager.actions.detectForms();
+                    break;
+                case "searchAllOpenDBs":
+                    keefox_org.search.reconfigure({
+                        version: 1,
+                        searchAllDatabases: keefox_org._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
+                    });
                     break;
             }
         },
