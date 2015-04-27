@@ -461,9 +461,6 @@ kprpcClient.prototype.constructor = kprpcClient;
 
             // if any errors were shown, they are now superseeded by this new one
             window.keefox_win.UI.removeConnectionMessage();
-
-            // Also remove all other KeeFox notification windows
-            window.keefox_win.UI._removeOLDKFNotifications();
             
             window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STRF("KeeFox-conn-setup-aborted",[minutesToDelay]));
             // Make sure that the regular reconnection timer and any other

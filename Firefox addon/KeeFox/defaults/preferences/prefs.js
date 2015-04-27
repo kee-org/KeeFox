@@ -23,3 +23,4 @@ pref("extensions.keefox@chris.tomlinson.metricsUsageDisabled", false);
 pref("extensions.keefox@chris.tomlinson.maxMatchedLoginsInMainPanel", 5);
 pref("extensions.keefox@chris.tomlinson.maxAllLoginsInMainPanel", 0);
 pref("extensions.keefox@chris.tomlinson.tabResultsCacheEnabled", true);
+pref("extensions.keefox@chris.tomlinson.rememberMRUGroup", true);

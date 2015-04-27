@@ -94,7 +94,6 @@ keefox_win.UI = {
                 return container;
             },
             onClose: function(browser) {
-                browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
             },
             thisTabOnly: thisTabOnly,
             priority: priority,
@@ -145,168 +144,48 @@ keefox_win.UI = {
         return nmi;    
     },
     
-    /*
-     * _showSaveLoginNotification
-     *
-     * Displays a notification bar (rather than a popup), to allow the user to
-     * save the specified login. This allows the user to see the results of
-     * their login, and only save a login which they know worked.
-     *
-     */
-    _showSaveLoginNotification : function (aNotifyBox, aLogin, isMultiPage, browser) {
+    // Displays a notification, to allow the user to save the specified login.
+    _showSaveLoginNotification: function (aNotifyBox, aLogin, isMultiPage, browser) {
         var notificationText = "";
             
         var neverButtonText =
-              this._getLocalizedString("notifyBarNeverForSiteButton.label");
+              keefox_org.locale.$STR("notifyBarNeverForSiteButton.label");
         var neverButtonAccessKey =
-              this._getLocalizedString("notifyBarNeverForSiteButton.key");
+              keefox_org.locale.$STR("notifyBarNeverForSiteButton.key");
         var rememberButtonText =
-              this._getLocalizedString("notifyBarRememberButton.label");
+              keefox_org.locale.$STR("notifyBarRememberButton.label");
         var rememberButtonAccessKey =
-              this._getLocalizedString("notifyBarRememberButton.key");
-        var rememberAdvancedButtonText =
-              this._getLocalizedString("notifyBarRememberAdvancedButton.label");
-        var rememberAdvancedButtonAccessKey =
-              this._getLocalizedString("notifyBarRememberAdvancedButton.key");
-        var notNowButtonText =
-              this._getLocalizedString("notifyBarNotNowButton.label");
-        var notNowButtonAccessKey =
-              this._getLocalizedString("notifyBarNotNowButton.key");   
-        
-        
-        var rememberButtonTooltip =
-              this._getLocalizedString("notifyBarRememberButton.tooltip",
-                [keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].name]);
-        var rememberAdvancedButtonTooltip =
-              this._getLocalizedString("notifyBarRememberAdvancedButton.tooltip",
-                [keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].name]);
-        var rememberButtonDBTooltip =
-              this._getLocalizedString("notifyBarRememberDBButton.tooltip");
-        var rememberAdvancedDBButtonTooltip =
-              this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip");
+              keefox_org.locale.$STR("notifyBarRememberButton.key");
               
-        var url=aLogin.URLs[0];
+        //var url=aLogin.URLs[0];
         var urlSchemeHostPort=keefox_win.getURISchemeHostAndPort(aLogin.URLs[0]);
         
-        var popupName = "rememberAdvancedButtonPopup";
         if (isMultiPage)
         {
-            popupName = "rememberAdvancedButtonPopup2";
-            notificationText = this._getLocalizedString("saveMultiPagePasswordText");
+            notificationText = keefox_org.locale.$STR("saveMultiPagePasswordText");
         } else
         {
-            notificationText = this._getLocalizedString("savePasswordText");
+            notificationText = keefox_org.locale.$STR("savePasswordText");
         }
-        var popupSave = [];
-        var popupSaveToGroup = [];        
-        for (var dbi = 0; dbi < keefox_org.KeePassDatabases.length; dbi++)
-        {
-            var db = keefox_org.KeePassDatabases[dbi];
-            popupSave[dbi] = {
-                label:     this._getLocalizedString("notifyBarRememberDBButton.label", [db.name]),
-                accessKey: "",
-                popup:     null,
-                callback: function (evt) {
-                    evt.stopPropagation();
-                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                    keefox_org.addLogin(evt.currentTarget.getUserData('login'), null, evt.currentTarget.getUserData('filename'));
-                },
-                tooltip: this._getLocalizedString("notifyBarRememberDBButton.tooltip", [db.name]),
-                image: "data:image/png;base64,"+db.iconImageData,
-                values: [ { key: "login", value: aLogin }, { key: "filename", value: keefox_org.KeePassDatabases[dbi].fileName } ]
-            };
-            popupSaveToGroup[dbi] = {
-                label:     this._getLocalizedString("notifyBarRememberAdvancedDBButton.label", [db.name]),
-                accessKey: "",
-                popup:     null,
-                callback:  function(evt) { 
-                    function onCancel() {
-                    };
-                        
-                    function onOK(uuid, filename) {
-                        var result = keefox_org.addLogin(aLogin, uuid, filename);
-                        if (result == "This login already exists.")
-                        {
-                            //TODO2: create a new notification bar for 2 seconds with an error message?
-                        }
-                    };
-
-                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                    keefox_org.metricsManager.pushEvent ("feature", "SaveGroupChooser");
-                    window.openDialog("chrome://keefox/content/groupChooser.xul",
-                      "group", "chrome,centerscreen", 
-                      onOK,
-                      onCancel,
-                      evt.currentTarget.getUserData('filename'));
-                    
-                    evt.stopPropagation();
-                },
-                tooltip: this._getLocalizedString("notifyBarRememberAdvancedDBButton.tooltip", [db.name]),
-                image: "data:image/png;base64,"+db.iconImageData,
-                values: [ { key: "login", value: aLogin }, { key: "filename", value: keefox_org.KeePassDatabases[dbi].fileName } ]
-            };
-        }    
-        if (popupSave.length == 0)
-            popupSave = null;    
-        if (popupSaveToGroup.length == 0)
-            popupSaveToGroup = null;
 
         var buttons = [
             // "Save" button
             {
                 label:     rememberButtonText,
                 accessKey: rememberButtonAccessKey,
-                popup: popupSave,
                 callback: function (evt) {
                     evt.stopPropagation();
                     browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                    var result = keefox_org.addLogin(evt.currentTarget.getUserData('login'), null, null);
-                },
-                tooltip: rememberButtonTooltip,
-                image: "data:image/png;base64,"+ keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].iconImageData,
-                values: [ { key: "login", value: aLogin } ]
-            },
-            {
-                label:     rememberAdvancedButtonText,
-                accessKey: rememberAdvancedButtonAccessKey,
-                popup: popupSaveToGroup,
-                callback: function(evt) { 
-                    function onCancel() {
-                    };
-                        
-                    function onOK(uuid) {
-                        var result = keefox_org.addLogin(aLogin, uuid, null);
-                        if (result == "This login already exists.")
-                        {
-                            //TODO2: create a new notification bar for 2 seconds with an error message?
-                        }
-                    };
-                        
-                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                    keefox_org.metricsManager.pushEvent("feature", "SaveGroupChooser");
-                    window.openDialog("chrome://keefox/content/groupChooser.xul",
-                      "group", "chrome,centerscreen", 
-                      onOK,
-                      onCancel,
-                      null);                  
-                    
-                    evt.stopPropagation();
-                },
-                tooltip: rememberAdvancedButtonTooltip,
-                image: "data:image/png;base64,"+ keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex].iconImageData,
-                values: [ { key: "login", value: aLogin } ]
-            },
-            
-            // Not now
-            {
-                label:     notNowButtonText,
-                accessKey: notNowButtonAccessKey,
-                callback: function (evt) {
-                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                    keefox_org.metricsManager.pushEvent("feature", "SaveNotNow");
+                    keefox_org.metricsManager.pushEvent("feature", "addLogin");
+                  
+                    //TODO:e10s: Re-implement favicon saving code from KFILM.addLogin() - possibly as part of the getLogin function?
+                  
+                    var result = keefox_org.addLogin(saveData.getLogin(), saveData.group, saveData.db);
+                    if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
+                        keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
                 }
             },
-                
+            
             // "Never" button
             {
                 label:     neverButtonText,
@@ -327,9 +206,171 @@ keefox_win.UI = {
             }
         ];
         
-        
-        this._showKeeFoxNotification(aNotifyBox, "password-save",
-            notificationText, buttons, true, null, true);
+        let saveData = {};      
+        saveData.getLogin = function () {
+            //TODO: Create a new login based on potentially modified field data
+            return aLogin;
+        }
+  
+        let name="password-save";
+  
+        let notification = {
+            name: name,
+            render: function (container) {
+                     
+                // We will append the rendered view of our own notification information to the
+                // standard notification container that we have been supplied
+
+                let doc = container.ownerDocument;
+                            
+                let text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                text.textContent = notificationText;
+                text.setAttribute('class', 'KeeFox-message');
+                container.appendChild(text);
+              
+                let dbSel = doc.ownerGlobal.keefox_win.UI.createDBSelect(doc, saveData);
+                dbSel.style.backgroundImage = dbSel.selectedOptions[0].style.backgroundImage;
+                let groupSel = doc.ownerGlobal.keefox_win.UI.createGroupSelect(doc, saveData);
+                doc.ownerGlobal.keefox_win.UI.updateGroups(doc, 
+                   keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel, saveData);
+                
+              
+                let dbSelContainer = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                dbSelContainer.setAttribute('class', 'keeFox-save-password');
+                let dbSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+                dbSelLabel.setAttribute('for', dbSel.id);
+                dbSelLabel.textContent = keefox_org.locale.$STR("database.label");
+                let groupSelContainer = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                groupSelContainer.setAttribute('class', 'keeFox-save-password');
+                let groupSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+                groupSelLabel.setAttribute('for', groupSel.id);
+                groupSelLabel.textContent = keefox_org.locale.$STR("group.label");
+              
+                dbSelContainer.appendChild(dbSelLabel);
+                dbSelContainer.appendChild(dbSel);
+                groupSelContainer.appendChild(groupSelLabel);
+                groupSelContainer.appendChild(groupSel);
+                            
+                if (dbSel.options.length <= 1)
+                    dbSelContainer.classList.add('disabled');
+              
+                container.appendChild(dbSelContainer);
+              
+                container.appendChild(groupSelContainer);
+              
+                // We might customise other aspects of the notifications but when we want
+                // to display buttons we can treat them all the same
+                container = doc.ownerGlobal.keefox_win.notificationManager
+                    .renderButtons(buttons, doc, aNotifyBox, name, container);
+
+                return container;
+            },
+            onClose: function(browser) {
+                browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
+            },
+            thisTabOnly: true,
+            priority: null,
+            persist: true
+        };
+        aNotifyBox.add(notification);
+    },
+
+    createDBSelect: function (doc, saveData) {
+  
+        let dbOptions = [];
+              
+        for (var dbi = 0; dbi < keefox_org.KeePassDatabases.length; dbi++)
+        {
+            var db = keefox_org.KeePassDatabases[dbi];
+            let opt = doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
+            opt.setAttribute("value", db.fileName);
+            opt.textContent = db.name;
+            if (dbi == keefox_org.ActiveKeePassDatabaseIndex)
+                opt.selected = true;
+            opt.style.paddingLeft = "20px";
+            opt.style.backgroundImage = "url(data:image/png;base64," + db.iconImageData + ")";
+            dbOptions.push(opt);
+        }
+              
+        let changeHandler = function (event) {
+            let opt = event.target.selectedOptions[0];
+            event.target.style.backgroundImage = opt.style.backgroundImage;
+            updateGroups(doc,keefox_org.getDBbyFilename(event.target.value),
+                doc.getElementById('keefox-save-password-group-select'), saveData);
+            saveData.db = opt.value;
+        };
+
+        let sel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
+        sel.setAttribute("id","keefox-save-password-db-select");
+        sel.addEventListener("change", changeHandler, false);
+        for (let o of dbOptions)
+          sel.appendChild(o);
+
+        saveData.db = sel.selectedOptions[0].value;
+  
+        return sel;
+    },
+    
+    createGroupSelect: function (doc, saveData) {
+  
+        let changeHandler = function (event) {
+            let opt = event.target.selectedOptions[0];
+            event.target.style.backgroundImage = opt.style.backgroundImage;
+            event.target.style.paddingLeft = opt.style.paddingLeft;
+            event.target.style.backgroundPosition = opt.style.backgroundPosition;
+            saveData.group = opt.value;
+        };
+              
+        let sel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
+        sel.addEventListener("change", changeHandler, false);
+        sel.setAttribute("id","keefox-save-password-group-select");
+  
+        return sel;
+    },
+
+    updateGroups: function (doc, db, sel, saveData) {
+  
+        let groupOptions = [];
+        let mruGroup = "";
+        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
+        {
+            mruGroup = keefox_org._keeFoxExtension.prefs.getValue("MRUGroup-"+db.fileName,"");
+        }
+  
+        function generateGroupOptions (group, depth) {
+    
+            let opt = doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
+            opt.setAttribute("value", group.uniqueID);
+            opt.textContent = group.title;
+    
+            if (mruGroup == group.uniqueID)
+                opt.setAttribute("selected", "true");
+    
+            let indent = 20 + depth * 16;
+            opt.style.paddingLeft = indent + "px";
+            opt.style.backgroundPosition = indent-20 + "px 2px";
+            opt.style.backgroundImage = "url(data:image/png;base64," + group.iconImageData + ")";
+    
+            groupOptions.push(opt);
+    
+            for (let c of group.childGroups)
+            generateGroupOptions(c, depth+1);
+        }
+  
+        generateGroupOptions(db.root, 0);
+  
+        for (var opt in sel){
+            sel.remove(opt);
+        }
+        for (let o of groupOptions)
+          sel.appendChild(o);
+  
+        let currentOpt = sel.selectedOptions[0];
+        sel.style.backgroundImage = currentOpt.style.backgroundImage;
+        sel.style.paddingLeft = currentOpt.style.paddingLeft;
+        sel.style.backgroundPosition = currentOpt.style.backgroundPosition;
+
+        saveData.group = currentOpt.value;
     },
 
     showConnectionMessage : function (message)

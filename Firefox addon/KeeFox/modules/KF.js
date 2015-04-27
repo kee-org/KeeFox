@@ -385,7 +385,6 @@ KeeFox.prototype = {
                 win.keefox_win.mainUI.setAllLogins(); // remove list of all logins
                 win.keefox_win.context.removeLogins();
                 win.keefox_win.mainUI.setupButton_ready(win);
-                win.keefox_win.UI._removeOLDKFNotifications(true);
             } catch (exception)
             {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
@@ -443,7 +442,6 @@ KeeFox.prototype = {
                 win.keefox_win.context.removeLogins();
                 win.keefox_win.mainUI.setAllLogins();
                 win.keefox_win.mainUI.setupButton_ready(win);
-                win.keefox_win.UI._removeOLDKFNotifications();
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {

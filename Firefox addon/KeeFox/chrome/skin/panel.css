@@ -363,21 +363,42 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 #KeeFox-PanelSection-notifications-window
 {
     background:red;
+    font-size:1.2em;
 }
 
-#keefox-panelview input.KeeFox-Close-Notification
+#keefox-panelview input.KeeFox-Close-Notification,
+input.KeeFox-Close-Notification
 {
     float:right;
-    width:20px;
-    height:20px;
+    width:32px;
+    min-width:32px;
+    height:32px;
     padding:0px;
     margin:0px;
     line-height:1;
+    font-size:1.25em;
 }
 
+#keefox-save-password-db-select,
+#keefox-save-password-group-select
+{
+    padding-left:20px;
+    background-repeat: no-repeat;
+}
+            
+#keefox-save-password-db-select option{
+padding: 2px 0 2px 20px;
+    background-repeat: no-repeat;
+    background-position: 1px 2px;
+}
 
-
-
+#keefox-save-password-group-select option {
+background-repeat: no-repeat;
+}
+        
+#keefox-persistent-panel .disabled {
+    display:none;
+}
 
 
 

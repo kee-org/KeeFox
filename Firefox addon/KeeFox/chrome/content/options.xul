@@ -58,11 +58,11 @@
       <preference id="KeeFox-pref-logMethodFile" name="extensions.keefox@chris.tomlinson.logMethodFile" type="bool"/>
       <preference id="KeeFox-pref-logLevel" name="extensions.keefox@chris.tomlinson.logLevel" type="int"/>
 
-      <preference id="KeeFox-pref-dynamicFormScanning" name="extensions.keefox@chris.tomlinson.dynamicFormScanning" type="bool"/>
       <preference id="KeeFox-pref-keePassRPCPort" name="extensions.keefox@chris.tomlinson.KeePassRPC.webSocketPort" type="int"/>
       <preference id="KeeFox-pref-saveFavicons" name="extensions.keefox@chris.tomlinson.saveFavicons" type="bool"/>
       <preference id="KeeFox-pref-keePassDBToOpen" name="extensions.keefox@chris.tomlinson.keePassDBToOpen" type="string"/>
       <preference id="KeeFox-pref-rememberMRUDB" name="extensions.keefox@chris.tomlinson.rememberMRUDB" type="bool"/>
+      <preference id="KeeFox-pref-rememberMRUGroup" name="extensions.keefox@chris.tomlinson.rememberMRUGroup" type="bool"/>
       <preference id="KeeFox-pref-sendUsageMetrics" name="extensions.keefox@chris.tomlinson.metricsUsageDisabled" type="bool" inverted="true"/>
 
       <preference id="KeeFox-pref-keePassRPCInstalledLocation" name="extensions.keefox@chris.tomlinson.keePassRPCInstalledLocation" type="string"/>
@@ -213,10 +213,12 @@
               <textbox preference="KeeFox-pref-keePassDBToOpen" id="keePassDBToOpen" maxlength="255" size="80" />
               <button id="keePassDBToOpenBrowseButton" label="%-KeeFox-browse.label-%..." oncommand="browseForDefaultKDBXLocation(document.getElementById('keePassDBToOpen').value);"/>
             </hbox>
-            
+
             <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                       label="%-KeeFox-pref-rememberMRUDB.label-%"  class="itemEnd"/>
-
+            <checkbox id="rememberMRUGroup" preference="KeeFox-pref-rememberMRUGroup"
+                      label="%-KeeFox-pref-rememberMRUGroup.label-%"  class="itemEnd"/>
+            
             <description id="desc-metrics" width="650">%-KeeFox-pref-metrics-desc-% <html:a id="desc-metrics-link" class="text-link" onclick='javascript:openDialog(
                "https://github.com/luckyrat/KeeFox/wiki/en-%7C-Metrics-collection",
                "",

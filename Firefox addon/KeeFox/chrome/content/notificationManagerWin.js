@@ -138,7 +138,7 @@ keefox_win.notificationManager = {
         
         var close = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
         close.setAttribute('type', 'button');
-        close.setAttribute('value', 'x');
+        close.setAttribute('value', 'X');
         close.setAttribute('title', 'Dismiss this notification without taking any action');
         close.setAttribute('tooltip', 'Dismiss this notification without taking any action');
         close.setAttribute('class', 'KeeFox-Close-Notification');
@@ -162,27 +162,9 @@ keefox_win.notificationManager = {
 
             var butDef = buttons[bi];
             var newMenu = null;
-            newMenu = doc.createElement("toolbarbutton");
-            newMenu = keefox_win.UI._prepareNotificationMenuItem(newMenu, butDef, notifyBox, name);
+            newMenu = doc.createElement("button");
+            newMenu = keefox_win.UI._prepareNotificationMenuItem(newMenu, butDef, notifyBox, name, container);
             
-            if (butDef.popup != null)
-            {
-                newMenu.setAttribute("type", "menu-button");
-                
-                var newMenuPopup = null;
-                newMenuPopup = doc.createElement("menupopup");
-                    
-                // cycle through all popup button definitions to set up and attach the popup menu and convert class into drop down button style
-                for(var pi=0; pi < butDef.popup.length; pi++)
-                {
-                    var popDef = butDef.popup[pi];
-                    var nmi = doc.createElement("menuitem");
-                    nmi = keefox_win.UI._prepareNotificationMenuItem(nmi, popDef, notifyBox, name);
-                    newMenuPopup.appendChild(nmi);                    
-                }
-                newMenu.appendChild(newMenuPopup);
-                
-            }
             buttonContainer.appendChild(newMenu);
             container.appendChild(buttonContainer);
         }
