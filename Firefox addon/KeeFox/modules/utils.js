@@ -673,11 +673,8 @@ Utils.prototype = {
 
     stringToByteArray: function(str)
     {
-        var sBytes = new Uint8Array(str.length);
-        for (var i=0; i<str.length; i++) {
-            sBytes[i] = str.charCodeAt(i);
-        }
-        return sBytes;
+        let e = new TextEncoder("utf-8");
+        return e.encode(str);
     },
 
     // A variation of base64toByteArray which allows us to calculate a HMAC far
