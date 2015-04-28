@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>KeeFox Test - Submit button outside form</title>
+</head>
+<body>
+    <div>This is a page to assist in testing KeeFox features.</div>
+    <br />
+    <div style="font-weight:bold"></div>
+    <br />
+    <div>Note that the form just submits to a test results page and performs no action on the submitted data.</div>
+    <br />
+    <form action="testResults.htm" method="get" id="testform">
+        <label for="username">Username</label>: <input type="text" id="username" name="username" /><br />
+        <label for="password">Password</label>: <input type="password" id="password" name="password" /><br />
+    </form>
+    <button type="submit" form="testform">Click me</button>
+</body>
+</html>

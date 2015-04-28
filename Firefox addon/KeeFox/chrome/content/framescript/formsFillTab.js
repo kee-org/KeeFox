@@ -1361,19 +1361,61 @@ var _findDocumentByURI = function (window, URI)
 // Submit a form
 var submitForm = function (form)
 {
+    // Priority 1: button within form provided: @type != reset
+    // Priority 1: button outside form with @form attribute provided: @type != reset
+    // Priority 2: input @type=submit within form
+    // Priority 3: input @type=image within form
+    // Priority 4: <any element>@role=button within form provided: there is only 1 match
+    // Priority 5: <any element>@role=button outside form provided: there is only 1 match
+
+    // Priority 1-3 can all be prioritised over each other if the element in question matches
+    // a goodWord or deprioritised if it matches a badWord (images can only be affected
+    // indirectly due to deprioritisation of other possibilities) but all things equal, they will
+    // follow the stated priority.
+    
+    var goodWords = ["submit","login","enter"]; //TODO: other languages
+    var badWords = ["reset","cancel","back","abort","undo","exit"]; //TODO: other languages
+
+    let buttonElements = form.ownerDocument.getElementsByTagName("button");
     var inputElements = form.getElementsByTagName("input");
+    let roleElementsForm = form.querySelectorAll("[role=button]");
+    let roleElementsDoc = form.ownerDocument.querySelectorAll("[role=button]");
     var submitElement = null;
     var submitElements = [];
     
-    // Rank the submit buttons
+    // Rank the buttons
+    for(let i = 0; i < buttonElements.length; i++)
+    {
+        if(!buttonElements[i].type || buttonElements[i].type != "reset")
+        {
+            var score = 0;
+            if (buttonElements[i].form && buttonElements[i].form == form)
+                score = 6;
+            else
+                continue;
+
+            if (buttonElements[i].name !== undefined && buttonElements[i].name !== null)
+            {
+                for (let gw in goodWords)
+                    if(buttonElements[i].name.toLowerCase().indexOf(goodWords[gw]) >= 0)
+                        score += 5;
+                for (let bw in badWords)
+                    if(buttonElements[i].name.toLowerCase().indexOf(badWords[bw]) >= 0)
+                        score -= 5;
+            }
+
+            //TODO2: compare values and/or textcontent?
+
+            submitElements.push({'score':score, 'el': buttonElements[i]});
+        }
+    }
+
+    // Rank the input buttons
     for(let i = 0; i < inputElements.length; i++)
 	{
 		if(inputElements[i].type != null && inputElements[i].type == "submit")
 		{
-            var goodWords = ["submit","login","enter","go"]; //TODO: other languages
-            var badWords = ["reset","cancel","back","abort","undo","exit"]; //TODO: other languages
-
-            var score = 1;
+            var score = 4;
             if (inputElements[i].name !== undefined && inputElements[i].name !== null)
             {
                 for (let gw in goodWords)
@@ -1396,8 +1438,16 @@ var submitForm = function (form)
                         score -= 4;
             }
 			submitElements.push({'score':score, 'el': inputElements[i]});
-	    }
-	}
+		} else if(inputElements[i].type != null && inputElements[i].type == "image")
+		{
+		    submitElements.push({'score': 3, 'el': inputElements[i]});
+		}
+    }
+
+    if (roleElementsForm.length == 1)
+        submitElements.push({'score': 2, 'el': roleElementsForm[0]});
+    if (roleElementsDoc.length == 1)
+        submitElements.push({'score': 1, 'el': roleElementsDoc[0]});
 
     // Find the best submit button   
     var largestScore = 0; 
@@ -1411,20 +1461,7 @@ var submitForm = function (form)
 	}
     //TODO2: more accurate searching of submit buttons, etc. to avoid password resets if possible
     // maybe special cases for common HTML output patterns (e.g. javascript-only ASP.NET forms)
-    
-    // if no submit button found, try to find an image button
-    if(submitElement == null)
-    {
-        for(var i = 0; i < inputElements.length; i++)
-		{
-		    if(inputElements[i].type != null && inputElements[i].type == "image")
-		    {
-			    submitElement = inputElements[i];
-			    break;
-		    }
-	    }
-    }
-    
+        
     // Remember that it was KeeFox which initiated this form submission so we can
     // avoid searching for matching passwords upon submission
     tabState.KeeFoxTriggeredThePendingFormSubmission = true;
@@ -1437,6 +1474,7 @@ var submitForm = function (form)
     }
     else
     {
+        Logger.debug("Submiting using form");
 		form.submit();
     }
 		
