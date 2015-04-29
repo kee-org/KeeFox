@@ -178,8 +178,6 @@ keefox_win.UI = {
                     browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
                     keefox_org.metricsManager.pushEvent("feature", "addLogin");
                   
-                    //TODO:e10s: Re-implement favicon saving code from KFILM.addLogin() - possibly as part of the getLogin function?
-                  
                     saveData.getLogin(function (login) {
                         var result = keefox_org.addLogin(login, saveData.group, saveData.db);
                         if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
@@ -221,12 +219,7 @@ keefox_win.UI = {
             {
                 try
                 {
-                    // Ask Firefox to give us the favicon data
-                    // For recent versions it will be done async
-                    // For older versions it will be done sync
-                    // in both cases the callback function will be executed
-                    // Since we're already off the main thread it doesn't 
-                    // really matter whether it's done async or not
+                    // Ask Firefox to give us the favicon data async
                     var faviconLoader = {
                         onComplete: function (aURI, aDataLen, aData, aMimeType)
                         {
