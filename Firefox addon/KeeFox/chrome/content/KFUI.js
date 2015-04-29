@@ -180,9 +180,12 @@ keefox_win.UI = {
                   
                     //TODO:e10s: Re-implement favicon saving code from KFILM.addLogin() - possibly as part of the getLogin function?
                   
-                    var result = keefox_org.addLogin(saveData.getLogin(), saveData.group, saveData.db);
-                    if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
-                        keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
+                    saveData.getLogin(function (login) {
+                        var result = keefox_org.addLogin(login, saveData.group, saveData.db);
+                        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
+                            keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
+                    });
+                    
                 }
             },
             
@@ -207,9 +210,47 @@ keefox_win.UI = {
         ];
         
         let saveData = {};      
-        saveData.getLogin = function () {
+        saveData.getLogin = function (callback) {
             //TODO: Create a new login based on potentially modified field data
-            return aLogin;
+
+            let login = aLogin;
+
+            var primaryURL = login.URLs[0];
+        
+            if (keefox_org._keeFoxExtension.prefs.getValue("saveFavicons",false))
+            {
+                try
+                {
+                    // Ask Firefox to give us the favicon data
+                    // For recent versions it will be done async
+                    // For older versions it will be done sync
+                    // in both cases the callback function will be executed
+                    // Since we're already off the main thread it doesn't 
+                    // really matter whether it's done async or not
+                    var faviconLoader = {
+                        onComplete: function (aURI, aDataLen, aData, aMimeType)
+                        {
+                            if (aURI == null || aDataLen <= 0)
+                            {
+                                keefox_win.Logger.info("No favicon found");
+                            } else
+                            {
+                                // Convert the favicon data into a form that KPRPC will understand
+                                var faviconBytes = String.fromCharCode.apply(null, aData);
+                                login.iconImageData = btoa(faviconBytes);
+                            }
+                            callback(login);
+                        }
+                    };
+                    keefox_org.loadFavicon(primaryURL, faviconLoader);
+                } catch (ex) 
+                {
+                    keefox_win.Logger.info("Failed to process add login request");
+                }
+            } else
+            {
+                callback(login);
+            }
         }
   
         let name="password-save";
