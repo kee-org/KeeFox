@@ -1373,8 +1373,8 @@ var submitForm = function (form)
     // indirectly due to deprioritisation of other possibilities) but all things equal, they will
     // follow the stated priority.
     
-    var goodWords = ["submit","login","enter"]; //TODO: other languages
-    var badWords = ["reset","cancel","back","abort","undo","exit"]; //TODO: other languages
+    var goodWords = ["submit","login","enter","log in","signin","sign in"]; //TODO: other languages
+    var badWords = ["reset","cancel","back","abort","undo","exit","empty","clear"]; //TODO: other languages
 
     let buttonElements = form.ownerDocument.getElementsByTagName("button");
     var inputElements = form.getElementsByTagName("input");
