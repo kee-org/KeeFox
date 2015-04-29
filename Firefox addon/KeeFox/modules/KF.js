@@ -385,6 +385,7 @@ KeeFox.prototype = {
                 win.keefox_win.mainUI.setAllLogins(); // remove list of all logins
                 win.keefox_win.context.removeLogins();
                 win.keefox_win.mainUI.setupButton_ready(win);
+                win.keefox_win.notificationManager.remove("password-save");
             } catch (exception)
             {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
