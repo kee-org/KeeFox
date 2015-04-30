@@ -668,6 +668,29 @@ keefox_win.panel = {
                 if (event.button == 2)
                 {
                     //TODO1.5: support keyboard context menu button too.
+                    
+                    let context = document.getElementById('KeeFox-login-context');
+                    let loadingMessage = document.createElement('menuitem');
+                    loadingMessage.setAttribute("label", keefox_org.locale.$STR("loading") + "...");
+                    loadingMessage.id = "KeeFox-login-context-loading";
+                    loadingMessage.setAttribute("data-uuid", this.getAttribute('data-uuid'));
+                    loadingMessage.setAttribute("data-fileName", this.getAttribute('data-fileName'));
+                    context.appendChild(loadingMessage);
+                    keefox_org.findLogins(null, null, null, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'), null, null, keefox_win.panel.setLoginActions);
+                    
+                    context.addEventListener("popuphidden", function (event) {
+                        let context = document.getElementById('KeeFox-login-context');
+                        let loading = document.getElementById('KeeFox-login-context-loading');
+                        let copyUser = document.getElementById('KeeFox-login-context-copyuser');
+                        let copyPass = document.getElementById('KeeFox-login-context-copypass');
+                        let copyOther = document.getElementById('KeeFox-login-context-copyother');
+
+                        if (loading) context.removeChild(loading);
+                        if (copyUser) context.removeChild(copyUser);
+                        if (copyPass) context.removeChild(copyPass);
+                        if (copyOther) context.removeChild(copyOther);
+                    });
+
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
@@ -733,72 +756,142 @@ keefox_win.panel = {
     },
 
     navigateGroupHierachy: function (event) { 
-            // Find the currently displayed subgroup (if any)
-            let currentGroup = document.getElementById("KeeFox-PanelSection-allLogins")
-                                .querySelector(".active-group");
+        // Find the currently displayed subgroup (if any)
+        let currentGroup = document.getElementById("KeeFox-PanelSection-allLogins")
+                            .querySelector(".active-group");
                 
-            // Mark it as no longer active
-            if (currentGroup != null)
-                currentGroup.classList.remove("active-group");
+        // Mark it as no longer active
+        if (currentGroup != null)
+            currentGroup.classList.remove("active-group");
                 
-            // If user clicked on the active group or any of its parents, make sure that its direct parent (if any) is activated
-            if (currentGroup == event.target)
+        // If user clicked on the active group or any of its parents, make sure that its direct parent (if any) is activated
+        if (currentGroup == event.target)
+        {
+            // ignore the containing ul node, but note that we may end up selecting some higher part of the panel rather than a group
+            let parentGroup = currentGroup.parentNode.parentNode;
+            if (parentGroup != null && parentGroup.classList.contains("group-item"))
             {
-                // ignore the containing ul node, but note that we may end up selecting some higher part of the panel rather than a group
-                let parentGroup = currentGroup.parentNode.parentNode;
-                if (parentGroup != null && parentGroup.classList.contains("group-item"))
-                {
-                    parentGroup.classList.remove("active-group-parent");
-                    parentGroup.classList.add("active-group");
-                }
-                currentGroup.focus();
-            } else
+                parentGroup.classList.remove("active-group-parent");
+                parentGroup.classList.add("active-group");
+            }
+            currentGroup.focus();
+        } else
+        {
+            let parent;
+
+            // remove active marker from all parents. If we find the target node in the parent list, we'll set its parent as active (if it has one) and finish
+            if (currentGroup)
             {
-                let parent;
-
-                // remove active marker from all parents. If we find the target node in the parent list, we'll set its parent as active (if it has one) and finish
-                if (currentGroup)
-                {
-                    parent = currentGroup.parentNode;
-                    while (parent.nodeName == "ul" || parent.nodeName == "li")
-                    {
-                        if (parent.nodeName == "li")
-                        {
-                            parent.classList.remove("active-group-parent");
-                            if (parent == event.target)
-                            {
-                                if (parent.parentNode && parent.parentNode.parentNode && parent.parentNode.parentNode.nodeName == "li")
-                                {
-                                    parent.parentNode.parentNode.classList.remove("active-group-parent");
-                                    parent.parentNode.parentNode.classList.add("active-group");
-                                    parent.parentNode.parentNode.focus();
-                                    return;
-                                }
-                            }
-                        }
-                        parent = parent.parentNode;
-                    }
-                }
-
-                // add active marker to all parents of new node
-                parent = event.target.parentNode;
+                parent = currentGroup.parentNode;
                 while (parent.nodeName == "ul" || parent.nodeName == "li")
                 {
                     if (parent.nodeName == "li")
-                        parent.classList.add("active-group-parent");
+                    {
+                        parent.classList.remove("active-group-parent");
+                        if (parent == event.target)
+                        {
+                            if (parent.parentNode && parent.parentNode.parentNode && parent.parentNode.parentNode.nodeName == "li")
+                            {
+                                parent.parentNode.parentNode.classList.remove("active-group-parent");
+                                parent.parentNode.parentNode.classList.add("active-group");
+                                parent.parentNode.parentNode.focus();
+                                return;
+                            }
+                        }
+                    }
                     parent = parent.parentNode;
                 }
-
-                // Set our new active group
-                event.target.classList.add("active-group");
-
-                // Focus keyboard on first child
-                let fc = event.target.firstElementChild;
-                if (fc) fc = fc.firstElementChild;
-                if (fc) fc.focus();
-                
             }
-        },
+
+            // add active marker to all parents of new node
+            parent = event.target.parentNode;
+            while (parent.nodeName == "ul" || parent.nodeName == "li")
+            {
+                if (parent.nodeName == "li")
+                    parent.classList.add("active-group-parent");
+                parent = parent.parentNode;
+            }
+
+            // Set our new active group
+            event.target.classList.add("active-group");
+
+            // Focus keyboard on first child
+            let fc = event.target.firstElementChild;
+            if (fc) fc = fc.firstElementChild;
+            if (fc) fc.focus();
+                
+        }
+    },
+
+    setLoginActions: function (resultWrapper)
+    {
+        let isError = false;
+
+        try
+        {
+            if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
+            {
+                let foundLogin = resultWrapper.result[0]; 
+                    
+                var kfl = keeFoxLoginInfo();
+                kfl.initFromEntry(foundLogin);
+
+                let context = document.getElementById('KeeFox-login-context');
+                let loadingMessage = document.getElementById('KeeFox-login-context-loading');
+
+                if (kfl.uniqueID == loadingMessage.getAttribute('data-uuid')
+                    && kfl.database.fileName == loadingMessage.getAttribute('data-fileName'))
+                {
+                    // We got an answer for the correct login
+
+                    // later we'll ignore the one marked as username
+                    let otherFieldCount = (kfl.otherFields != null && kfl.otherFields.length > 0) ? kfl.otherFields.length : 0;
+                    let usernameField = (otherFieldCount > 0) ? kfl.otherFields[kfl.usernameIndex] : null;
+
+                    // later we'll ignore the first password in the list
+                    let passwordFieldCount = (kfl.passwords != null && kfl.passwords.length > 0) ? kfl.passwords.length : 0;
+                    let passwordField = (passwordFieldCount > 0) ? kfl.passwords[0] : null;
+
+                    if (usernameField != null)
+                    {
+                        let copyUsername = document.createElement('menuitem');
+                        copyUsername.setAttribute("label", keefox_org.locale.$STR("copy-username.label"));
+                        copyUsername.id = "KeeFox-login-context-copyuser";
+                        copyUsername.addEventListener("command", function (event) {
+                            keefox_org.utils.copyStringToClipboard(usernameField.value);
+                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                        });
+                        context.appendChild(copyUsername);
+                    }
+                    if (passwordField != null) {
+                        let copyPassword = document.createElement('menuitem');
+                        copyPassword.setAttribute("label", keefox_org.locale.$STR("copy-password.label"));
+                        copyPassword.id = "KeeFox-login-context-copypass";
+                        copyPassword.addEventListener("command", function (event) {
+                            keefox_org.utils.copyStringToClipboard(passwordField.value);
+                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                        });
+                        context.appendChild(copyPassword);
+                    }
+                    //TODO: all other fields and other passwords - display: [field name] ([field id])
+
+
+
+                    context.removeChild(loadingMessage);
+
+                } else
+                {
+                    isError = true;
+                }
+            } else
+            {
+                isError = true;
+            }
+        } catch (e) {
+            isError = true;
+        }
+        return;
+    },
 
     getContainerFor: function (id)
     {
@@ -1428,7 +1521,7 @@ keefox_win.panel = {
                 ,"topleft topleft",event.layerX+2,event.layerY+2, true, false);
 //    doc.getElementById(id)
 //            .openPopup(event.target
-//                ,"topleft topleft",0,0, true, false, event);
+        //                ,"topleft topleft",0,0, true, false, event);
     },
 
     keyboardNavHandler: function (event) {
