@@ -706,22 +706,25 @@ keefox_win.panel = {
         context.appendChild(loadingMessage);
         keefox_org.findLogins(null, null, null, uuid, fileName, null, null, keefox_win.panel.setLoginActions);
                     
-        context.addEventListener("popuphidden", function (event) {
-            keefox_win.panel.removeLoginContextActions(document);
-        });
+        context.addEventListener("popuphidden", keefox_win.panel.removeLoginContextActions);
     },
 
-    removeLoginContextActions: function (document) {
-    let context = document.getElementById('KeeFox-login-context');
-                        let loading = document.getElementById('KeeFox-login-context-loading');
-let copyUser = document.getElementById('KeeFox-login-context-copyuser');
-let copyPass = document.getElementById('KeeFox-login-context-copypass');
-let copyOther = document.getElementById('KeeFox-login-context-copyother');
+    removeLoginContextActions: function (event) {
+        if (event.target.id != "KeeFox-login-context")
+            return;
 
-if (loading) context.removeChild(loading);
-if (copyUser) context.removeChild(copyUser);
-if (copyPass) context.removeChild(copyPass);
-if (copyOther) context.removeChild(copyOther);
+        let context = document.getElementById('KeeFox-login-context');
+        context.removeEventListener("popuphidden", keefox_win.panel.removeLoginContextActions);
+
+        let loading = document.getElementById('KeeFox-login-context-loading');
+        let copyUser = document.getElementById('KeeFox-login-context-copyuser');
+        let copyPass = document.getElementById('KeeFox-login-context-copypass');
+        let copyOther = document.getElementById('KeeFox-login-context-copyother');
+
+        if (loading) context.removeChild(loading);
+        if (copyUser) context.removeChild(copyUser);
+        if (copyPass) context.removeChild(copyPass);
+        if (copyOther) context.removeChild(copyOther);
     },
 
     createGroupItem: function (group, dbFileName, extraCSSClasses, displayName)
@@ -881,12 +884,43 @@ if (copyOther) context.removeChild(copyOther);
                         });
                         context.appendChild(copyPassword);
                     }
-                    //TODO: all other fields and other passwords - display: [field name] ([field id])
+                    if (otherFieldCount > 1 || passwordFieldCount > 1) {
+                        let copyOther = document.createElement('menu');
+                        copyOther.setAttribute("label", keefox_org.locale.$STR("copy-other.label"));
+                        copyOther.id = "KeeFox-login-context-copyother";
+                        let copyOtherPopup = document.createElement('menupopup');
+                        copyOther.appendChild(copyOtherPopup);
 
-
+                        if (otherFieldCount > 1) {
+                            kfl.otherFields.forEach(function (o, i) {
+                                if (i != kfl.usernameIndex && o.type != "checkbox") {
+                                    let other = document.createElement('menuitem');
+                                    other.setAttribute("label", o.name + " (" + o.fieldId + ")");
+                                    other.addEventListener("command", function (event) {
+                                        keefox_org.utils.copyStringToClipboard(o.value);
+                                        keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                    });
+                                    copyOtherPopup.appendChild(other);
+                                }
+                            });
+                        }
+                        if (passwordFieldCount > 1) {
+                            kfl.passwords.forEach(function (p, i) {
+                                if (i != 0 && p.type != "checkbox") {
+                                    let pass = document.createElement('menuitem');
+                                    pass.setAttribute("label", p.name + " (" + p.fieldId + ")");
+                                    pass.addEventListener("command", function (event) {
+                                        keefox_org.utils.copyStringToClipboard(p.value);
+                                        keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                    });
+                                    copyOtherPopup.appendChild(pass);
+                                }
+                            });
+                        }
+                        context.appendChild(copyOther);
+                    }
 
                     context.removeChild(loadingMessage);
-
                 } else
                 {
                     isError = true;
