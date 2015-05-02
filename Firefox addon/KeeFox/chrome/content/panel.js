@@ -669,28 +669,7 @@ keefox_win.panel = {
                 {
                     //TODO1.5: support keyboard context menu button too.
                     
-                    let context = document.getElementById('KeeFox-login-context');
-                    let loadingMessage = document.createElement('menuitem');
-                    loadingMessage.setAttribute("label", keefox_org.locale.$STR("loading") + "...");
-                    loadingMessage.id = "KeeFox-login-context-loading";
-                    loadingMessage.setAttribute("data-uuid", this.getAttribute('data-uuid'));
-                    loadingMessage.setAttribute("data-fileName", this.getAttribute('data-fileName'));
-                    context.appendChild(loadingMessage);
-                    keefox_org.findLogins(null, null, null, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'), null, null, keefox_win.panel.setLoginActions);
-                    
-                    context.addEventListener("popuphidden", function (event) {
-                        let context = document.getElementById('KeeFox-login-context');
-                        let loading = document.getElementById('KeeFox-login-context-loading');
-                        let copyUser = document.getElementById('KeeFox-login-context-copyuser');
-                        let copyPass = document.getElementById('KeeFox-login-context-copypass');
-                        let copyOther = document.getElementById('KeeFox-login-context-copyother');
-
-                        if (loading) context.removeChild(loading);
-                        if (copyUser) context.removeChild(copyUser);
-                        if (copyPass) context.removeChild(copyPass);
-                        if (copyOther) context.removeChild(copyOther);
-                    });
-
+                    keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
@@ -714,6 +693,35 @@ keefox_win.panel = {
                 container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
             container.appendChild(loginItem);
         }
+    },
+
+    addLoginContextActions: function (document, uuid, fileName)
+    {
+        let context = document.getElementById('KeeFox-login-context');
+        let loadingMessage = document.createElement('menuitem');
+        loadingMessage.setAttribute("label", keefox_org.locale.$STR("loading") + "...");
+        loadingMessage.id = "KeeFox-login-context-loading";
+        loadingMessage.setAttribute("data-uuid", uuid);
+        loadingMessage.setAttribute("data-fileName", fileName);
+        context.appendChild(loadingMessage);
+        keefox_org.findLogins(null, null, null, uuid, fileName, null, null, keefox_win.panel.setLoginActions);
+                    
+        context.addEventListener("popuphidden", function (event) {
+            keefox_win.panel.removeLoginContextActions(document);
+        });
+    },
+
+    removeLoginContextActions: function (document) {
+    let context = document.getElementById('KeeFox-login-context');
+                        let loading = document.getElementById('KeeFox-login-context-loading');
+let copyUser = document.getElementById('KeeFox-login-context-copyuser');
+let copyPass = document.getElementById('KeeFox-login-context-copypass');
+let copyOther = document.getElementById('KeeFox-login-context-copyother');
+
+if (loading) context.removeChild(loading);
+if (copyUser) context.removeChild(copyUser);
+if (copyPass) context.removeChild(copyPass);
+if (copyOther) context.removeChild(copyOther);
     },
 
     createGroupItem: function (group, dbFileName, extraCSSClasses, displayName)
@@ -1096,8 +1104,10 @@ keefox_win.panel = {
                 event.stopPropagation();
                 if (event.button == 0 || event.button == 1)
                     this.dispatchEvent(new Event("keefoxCommand"));
-                else if (event.button == 2)
-                    keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
+                else if (event.button == 2) {
+                    keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
+                    keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document, event, 'KeeFox-login-context');
+                }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
                 keefox_win.fillAndSubmit(false,
@@ -1188,6 +1198,7 @@ keefox_win.panel = {
                     // function to which the event is passed next, they have a value that is relative to the main widget
                     // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
                     // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
+                    keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
@@ -1203,6 +1214,7 @@ keefox_win.panel = {
                 keefox_win.panel.hideSubSections();
             }, false);
             loginItem.addEventListener("keefoxContext", function (event) {
+                keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
             }, false);
             
