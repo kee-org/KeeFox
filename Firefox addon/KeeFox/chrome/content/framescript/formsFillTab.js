@@ -761,20 +761,27 @@ var findLoginsResultHandler = function (message)
 
 var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findLoginOp, matchResult)
 {
+    let crString = JSON.stringify(convertedResult);
+
     for (var i=0; i < findLoginOp.forms.length; i++)
     {
         // Skip any form that we don't want to match against this set of logins
         if (findLoginOp.formIndexes.indexOf(i) == -1)
             continue;
-                        
-        matchResult.logins[i] = convertedResult;
+        
+        // if there is more than one form, we have to work with clones of the login result so
+        // that we can manipulate the relevancy scores, etc. independently for each 
+        // form and login combination. We could be more efficient for the common case of 1 form 
+        // by avoiding the clone then but keeping the same behaviour gives us a higher chance 
+        // of noticing bugs.
+        matchResult.logins[i] = JSON.parse(crString); //TODO2: faster clone?
 
         // Nothing to do if we have no matching logins available.
         if (matchResult.logins[i].length == 0)
             continue;
                     
         Logger.info("match found!");
-                    
+        
         // determine the relevance of each login entry to this form
         // we could skip this when autofilling based on uniqueID but we would have to check for
         // matches first or else we risk no match and no alternative matching logins on the mainUI
@@ -784,28 +791,29 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
                     findLoginOp.forms[i],matchResult.usernameIndexArray[i],
                     matchResult.passwordFieldsArray[i], matchResult.currentPage,
                     matchResult.otherFieldsArray[i]);
-
+            
             // also set the form ID and login ID on the internal login object so
             // it will persist when later passed to the UI and we can ultimately 
             // find the same login object when processing a matched login
             matchResult.logins[i][v].formIndex = i;
             matchResult.logins[i][v].loginIndex = v;
             matchResult.logins[i][v].frameKey = findLoginOp.frameArrayKey;
+            
+            // Remember the best form for each login
+            if (i == 0 || matchResult.logins[i][v].relevanceScore > matchResult.allMatchingLogins[v].relevanceScore)
+            {
+                Logger.debug("Higher relevance score found for login " + v + " with formIndex " 
+                    + matchResult.logins[i][v].formIndex + " (" + findLoginOp.forms[i].id + ")");
+                matchResult.allMatchingLogins[v] = matchResult.logins[i][v];
+            }
         }
-                    
+        
         matchResult.logins[i].forEach(function(c) {
             if (c.relevanceScore > matchResult.formRelevanceScores[i])
                 matchResult.formRelevanceScores[i] = c.relevanceScore;
         } );
-        Logger.debug("Relevance of form " + i + " is " + matchResult.formRelevanceScores[i]);
-                    
-        // only remember the logins which are not already in our list of matching logins
-        var newUniqueLogins = matchResult.logins[i].filter(function(d) {
-            return (matchResult.allMatchingLogins.every(function(e) {
-                return (d.uniqueid != e.uniqueid);
-            }));
-        });
-        matchResult.allMatchingLogins = matchResult.allMatchingLogins.concat(newUniqueLogins);
+
+        Logger.debug("Relevance of form " + i + " (" + findLoginOp.forms[i].id + ") is " + matchResult.formRelevanceScores[i]);
     }
     return matchResult;
 };
@@ -1024,7 +1032,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             return;
         mostRelevantFormIndex = getMostRelevantFormForFrame(selectedFrame).bestFormIndex;
     }
-    
+
     // Check if we've been told to fill in a specific frame
     if (!selectedFrame && frameKey && frameKey.length > 0)
     {
@@ -1035,7 +1043,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
         selectedFrame = getWindowFromFrameArrayKey(frameKey);
         mostRelevantFormIndex = getMostRelevantFormForFrame(selectedFrame).bestFormIndex;
     }
-    
+
     // Do this for every frame until we find the best match (if any).
     if (!selectedFrame)
     {
@@ -1297,8 +1305,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
         {
             if (!prop.startsWith("top"))
                 continue;
-
-            let nextLogins = tabState.latestFindMatchesResults[prop].allMatchingLogins
+            let nextLogins = tabState.latestFindMatchesResults[prop].allMatchingLogins;
             matchingLoginsFromAllFrames = matchingLoginsFromAllFrames.concat(nextLogins);
         }
 
@@ -1538,25 +1545,45 @@ var calculateRelevanceScore = function (login, form,
         
     score += maxURLscore;
     
-    // Prioritise forms with the correct number of fields
-    // These scores and difference values are fairly arbitrary so some
-    // experimenting could help improve them in future
+    // This is similar to _fillManyFormFields so might be able to reuse the results in future
+    // (but need to watch for changes that invalidate the earlier calculations).
+    let totalRelevanceScore = 0;
 
-    if (passwordFields.length == login.passwords.length)
-        score += 10;
-    else if (Math.abs(passwordFields.length - login.passwords.length) == 1)
-        score += 3;
+    for (var i = 0; i < otherFields.length; i++)
+    {
+        let mostRelevantScore = 0;
+        for (var j = 0; j < login.otherFields.length; j++)
+        {
+            let score = this._calculateFieldMatchScore(
+                otherFields[i],login.otherFields[j],currentPage,true);
+            Logger.debug("Suitablility of putting other field "+j+" into form field "+i
+                +" (id: "+otherFields[i].fieldId + ") is " + score);
+            if (score > mostRelevantScore)
+                mostRelevantScore = score;
+        }
+        totalRelevanceScore += mostRelevantScore;
+    }
+    for (var i = 0; i < passwordFields.length; i++)
+    {
+        let mostRelevantScore = 0;
+        for (var j = 0; j < login.passwords.length; j++)
+        {
+            let score = this._calculateFieldMatchScore(
+                passwordFields[i],login.passwords[j],currentPage,true);
+            Logger.debug("Suitablility of putting password field "+j+" into form field "+i
+                +" (id: "+passwordFields[i].fieldId + ") is " + score);
+            if (score > mostRelevantScore)
+                mostRelevantScore = score;
+        }
+        totalRelevanceScore += mostRelevantScore;
+    }
 
-    if (otherFields.length == login.otherFields.length)
-        score += 8;
-    else if (Math.abs(otherFields.length - login.otherFields.length) == 1)
-        score += 6;
-    else if (Math.abs(otherFields.length - login.otherFields.length) == 2)
-        score += 3;
-    else if (Math.abs(otherFields.length - login.otherFields.length) == 3)
-        score += 1;
+    let formFieldCount = passwordFields.length + otherFields.length;
+    let loginFieldCount = login.passwords.length + login.otherFields.length;
+    let averageFieldRelevance = totalRelevanceScore / Math.max(formFieldCount, loginFieldCount);
+    let adjustedRelevance = averageFieldRelevance / (Math.abs(formFieldCount - loginFieldCount) + 1);
 
-    //TODO1.5: Maybe inspect each field in detail as per the fill algorithms in KFILM_Fill.js?
+    score += adjustedRelevance;
 
     Logger.info("Relevance for " + login.uniqueID + " is: " + score);
     return score;
