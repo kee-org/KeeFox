@@ -1520,30 +1520,9 @@ var calculateRelevanceScore = function (login, form,
     // login entries of interest are already pre-matched by KeePass, this should have been
     // adding negligable accuracy to the form matching.
     
-    // We also need to improve accuracy when logins were matched via a regex (see github #) //TODO:e10s: #
-
-    let maxURLscore = 0;
-    let URL = form.ownerDocument.URL;
-        
-    for (let i = 0; i < login.URLs.length; i++)
-    {
-        let URLscore=0;
-        let loginURL = login.URLs[i];
-
-        if (URL == loginURL)
-            URLscore = 42;
-        else if (getURIExcludingQS(URL) == getURIExcludingQS(loginURL))
-            URLscore = 35;
-        else if (getURISchemeHostAndPort(URL) == getURISchemeHostAndPort(loginURL))
-            URLscore = 29;
-        else if (getURIHostAndPort(URL) == getURIHostAndPort(loginURL))
-            URLscore = 24;
-            
-        if (URLscore > maxURLscore)
-            maxURLscore = URLscore;
-    }
-        
-    score += maxURLscore;
+    // New values will be a little different (e.g. 50 vs 42 for an exact URL
+    // match) but that shouldn't be a problem.
+    score += login.matchAccuracy;
     
     // This is similar to _fillManyFormFields so might be able to reuse the results in future
     // (but need to watch for changes that invalidate the earlier calculations).

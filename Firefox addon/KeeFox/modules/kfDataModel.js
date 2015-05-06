@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   keeFoxLoginInfo:
   This was loosly based on the LoginInfo object that Mozilla provided with Firefox 3.0
@@ -61,6 +61,10 @@ kfLoginInfo.prototype =
     // or with multiple pages on that site)
     URLs      : null,
     
+    // How accurate is the best URL match for this login (only set if login
+    // was supplied in response to certain search requests). Higher = closer match
+    matchAccuracy : null,
+
     // The "action" parameter of the form (for multi-page
     // logins, this is always the first page)
     formActionURL : null,
@@ -117,7 +121,7 @@ kfLoginInfo.prototype =
     {
         var intermediateObject = {};
         intermediateObject.URLs = this.URLs;
-        intermediateObject.formActionURL = this.formActionURL;
+        intermediateObject.matchAccuracy = this.matchAccuracy;
         intermediateObject.httpRealm = this.httpRealm;
         intermediateObject.usernameIndex = this.usernameIndex;
         intermediateObject.passwords = this.passwords;
@@ -143,7 +147,7 @@ kfLoginInfo.prototype =
     {
         var intermediateObject = JSON.parse(json);
         this.URLs = intermediateObject.URLs;
-        this.formActionURL = intermediateObject.formActionURL;
+        this.matchAccuracy = intermediateObject.matchAccuracy;
         this.httpRealm = intermediateObject.httpRealm;
         this.usernameIndex = intermediateObject.usernameIndex;
         this.passwords = intermediateObject.passwords
@@ -181,13 +185,12 @@ kfLoginInfo.prototype =
             +" , deserialisedOutputPasswords , "+uniqueIDParam+" , "+titleParam+" , deserialisedOutputOtherFields , "+this.maximumPage+" )";
     },
 
-    init : function (aURLs, aFormActionURL, aHttpRealm,
+    init : function (aURLs, unusedParameter, aHttpRealm,
                      aUsernameIndex,      aPasswords,
                      aUniqueID, aTitle, otherFieldsArray, aMaximumPage) {
 
         this.otherFields = otherFieldsArray;   
         this.URLs      = aURLs;
-        this.formActionURL = aFormActionURL;
         this.httpRealm     = aHttpRealm;
         this.usernameIndex      = aUsernameIndex;
         this.passwords      = aPasswords;
@@ -200,6 +203,7 @@ kfLoginInfo.prototype =
 	    this.alwaysAutoSubmit = false;
 	    this.neverAutoFill = false;
 	    this.neverAutoSubmit = false;
+	    this.matchAccuracy = 0;
     },
     
     initFromEntry : function (entry)
@@ -246,7 +250,7 @@ kfLoginInfo.prototype =
             }
         }
 
-        this.init(entry.uRLs, entry.formActionURL, entry.hTTPRealm, usernameIndex,
+        this.init(entry.uRLs, null, entry.hTTPRealm, usernameIndex,
                   passwords, entry.uniqueID, entry.title, otherFields, maximumPage);
         this.parentGroup = entry.parent;
         this.iconImageData = entry.iconImageData;
@@ -256,6 +260,7 @@ kfLoginInfo.prototype =
         this.neverAutoSubmit = entry.neverAutoSubmit;
         this.priority = entry.priority;
         this.database = entry.db;
+        this.matchAccuracy = entry.matchAccuracy;
     },
         
     _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils)
@@ -416,23 +421,6 @@ kfLoginInfo.prototype =
         if (!ignorePasswords && !this._allPasswordsMatch(aLogin.passwords))
             return false;
 
-        // If either formActionURL is blank (but not null), then match.
-        if (this.formActionURL != "" && aLogin.formActionURL != "")
-        {
-            if (ignoreURIPathsAndSchemes 
-                && uriUtils.getURISchemeHostAndPort(aLogin.formActionURL)
-                    != uriUtils.getURISchemeHostAndPort(this.formActionURL))
-                return false;
-            else if (!ignoreURIPathsAndSchemes 
-                && ignoreURIPaths && uriUtils.getURIHostAndPort(aLogin.formActionURL)
-                    != uriUtils.getURIHostAndPort(this.formActionURL))
-                return false;
-            else if (!ignoreURIPathsAndSchemes 
-                && !ignoreURIPaths 
-                && this.formActionURL != aLogin.formActionURL)
-                return false;
-        }
-
         return true;
     },
 
@@ -515,7 +503,7 @@ kfLoginInfo.prototype =
         entry.neverAutoSubmit = this.neverAutoSubmit;
         entry.priority = this.priority;
         entry.uRLs = this.URLs;
-        entry.formActionURL = this.formActionURL;
+        entry.matchAccuracy = this.matchAccuracy;
         entry.hTTPRealm = this.httpRealm;
         entry.uniqueID = this.uniqueID;
         entry.title = this.title;

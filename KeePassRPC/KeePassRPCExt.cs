@@ -2,7 +2,7 @@
   KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2011-2014 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2011-2015 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -48,6 +48,8 @@ using KeePassLib.Collections;
 using System.Runtime.Remoting.Lifetime;
 using KeePassRPC.DataExchangeModel;
 using Fleck2.Interfaces;
+using DomainNames;
+using KeePassLib.Utility;
 //using System.Web;
 
 namespace KeePassRPC
@@ -213,9 +215,9 @@ namespace KeePassRPC
                 }
                 if (logger != null) logger.WriteLine("Logger initialised.");
 
-                //AppDomain.CurrentDomain.AssemblyResolve += 
-                //new ResolveEventHandler(CurrentDomain_AssemblyResolve);
-        
+                TLDRulesCache.Init(host.CustomConfig.GetString(
+                    "KeePassRPC.publicSuffixDomainCache.path",
+                    GetLocalConfigLocation() + "publicSuffixDomainCache.txt"));
 
                 // The client managers directly manage the legacy KPRPC connections (i.e. connections from KeeFox < 1.3 in case client and server mismatch is created by user)
                 // The KeeFox client manager also holds objects relating to the web socket connections managed by the Fleck2 library
@@ -324,6 +326,29 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
             if (logger != null) logger.WriteLine("KPRPC startup succeeded.");
 			return true; // Initialization successful
 		}
+
+        string GetLocalConfigLocation()
+        {
+            string strBaseDirName = PwDefs.ShortProductName;
+            if ((KeePass.App.Configuration.AppConfigSerializer.BaseName != null)
+                && (KeePass.App.Configuration.AppConfigSerializer.BaseName.Length > 0))
+                strBaseDirName = KeePass.App.Configuration.AppConfigSerializer.BaseName;
+
+            string strUserDir;
+            try
+            {
+                strUserDir = Environment.GetFolderPath(
+                    Environment.SpecialFolder.ApplicationData);
+            }
+            catch (Exception)
+            {
+                strUserDir = UrlUtil.GetFileDirectory(UrlUtil.FileUrlToPath(
+                    Assembly.GetExecutingAssembly().GetName().CodeBase), true, false);
+            }
+            strUserDir = UrlUtil.EnsureTerminatingSeparator(strUserDir, false);
+
+            return strUserDir + strBaseDirName + Path.DirectorySeparatorChar;
+        }
 
         //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         //{
