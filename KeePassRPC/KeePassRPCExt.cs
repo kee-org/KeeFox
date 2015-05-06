@@ -48,7 +48,7 @@ using KeePassLib.Collections;
 using System.Runtime.Remoting.Lifetime;
 using KeePassRPC.DataExchangeModel;
 using Fleck2.Interfaces;
-using DomainNames;
+using DomainPublicSuffix;
 using KeePassLib.Utility;
 //using System.Web;
 

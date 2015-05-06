@@ -80,8 +80,8 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DomainNames">
-      <HintPath>.\DomainNames.dll</HintPath>
+    <Reference Include="DomainPublicSuffix">
+      <HintPath>.\DomainPublicSuffix.dll</HintPath>
     </Reference>
     <Reference Include="Fleck2">
       <HintPath>.\Fleck2.dll</HintPath>
@@ -417,7 +417,7 @@
       copy "Jayrock.dll" "%25KPPDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPDir%25\Jayrock.Json.dll"
       copy "Fleck2.dll" "%25KPPDir%25\Fleck2.dll"
-      copy "DomainNames.dll" "%25KPPDir%25\DomainNames.dll"
+      copy "DomainPublicSuffix.dll" "%25KPPDir%25\DomainPublicSuffix.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs copied to plugins directory
 
@@ -436,7 +436,7 @@
       del /Q "%25KPPDir%25\Jayrock.dll"
       del /Q "%25KPPDir%25\Jayrock.Json.dll"
       del /Q "%25KPPDir%25\Fleck2.dll"
-      del /Q "%25KPPDir%25\DomainNames.dll"
+      del /Q "%25KPPDir%25\DomainPublicSuffix.dll"
       if errorlevel 1 goto BuildEventFailed
       echo Debug DLLs deleted
 
@@ -453,7 +453,7 @@
       copy "Jayrock.dll" "%25KPPTempDir%25\Jayrock.dll"
       copy "Jayrock.Json.dll" "%25KPPTempDir%25\Jayrock.Json.dll"
       copy "Fleck2.dll" "%25KPPTempDir%25\Fleck2.dll"
-      copy "DomainNames.dll" "%25KPPTempDir%25\DomainNames.dll"
+      copy "DomainPublicSuffix.dll" "%25KPPTempDir%25\DomainPublicSuffix.dll"
       if errorlevel 1 goto BuildEventFailed
       copy "$(ProjectDir)*.cs" "%25KPPTempDir%25"
       if errorlevel 1 goto BuildEventFailed

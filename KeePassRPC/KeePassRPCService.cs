@@ -41,7 +41,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
 using System.Reflection;
 using KeePass.UI;
-using DomainNames;
+using DomainPublicSuffix;
 
 namespace KeePassRPC
 {
@@ -1892,7 +1892,7 @@ namespace KeePassRPC
                         bestMatchSoFar = MatchAccuracy.Hostname;
 
                     if (bestMatchSoFar < MatchAccuracy.Domain
-                        && entryUrlSummary.Domain.RegisterableDomain == urlSummary.Domain.RegisterableDomain)
+                        && entryUrlSummary.Domain.RegistrableDomain == urlSummary.Domain.RegistrableDomain)
                         bestMatchSoFar = MatchAccuracy.Domain;
                 }
             }
