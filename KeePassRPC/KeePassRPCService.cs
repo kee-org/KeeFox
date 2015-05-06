@@ -1096,20 +1096,35 @@ namespace KeePassRPC
             return;
         }
 
+        /// <summary>
+        /// Gets a list of all password profiles available in the current KeePass instance
+        /// </summary>
+        [JsonRpcMethod]
+        public string[] GetPasswordProfiles()
+        {
+            List<PwProfile> profiles = KeePass.Util.PwGeneratorUtil.GetAllProfiles(true);
+            List<string> profileNames = new List<string>(profiles.Count);
+            foreach (PwProfile prof in profiles)
+                profileNames.Add(prof.Name);
+
+            return profileNames.ToArray();
+        }
+
         [JsonRpcMethod]
         public string GeneratePassword(string profileName)
         {
             PwProfile profile = null;
-
+            
             if (string.IsNullOrEmpty(profileName))
                 profile = KeePass.Program.Config.PasswordGenerator.LastUsedProfile;
             else
             {
-                foreach (PwProfile pp in KeePass.Program.Config.PasswordGenerator.UserProfiles)
+                foreach (PwProfile pp in KeePass.Util.PwGeneratorUtil.GetAllProfiles(false))
                 {
                     if (pp.Name == profileName)
                     {
                         profile = pp;
+                        KeePass.Program.Config.PasswordGenerator.LastUsedProfile = pp;
                         break;
                     }
                 }

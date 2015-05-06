@@ -889,11 +889,23 @@ KeeFox.prototype = {
         }
     },
 
-    generatePassword: function()
+    getPasswordProfiles: function ()
     {
         try
         {
-            return this.KeePassRPC.generatePassword();
+            return this.KeePassRPC.getPasswordProfiles();
+        } catch (e)
+        {
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
+            throw e;
+        }
+    },
+
+    generatePassword: function (profileName)
+    {
+        try
+        {
+            return this.KeePassRPC.generatePassword(profileName);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);

@@ -297,7 +297,8 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     background:linear-gradient(to right, #a1b5d4 0px, #C9DAE8 8px, transparent 9px);
 }
 
-#KeeFox-PanelSubSection-DatabaseList[loading]
+#KeeFox-PanelSubSection-DatabaseList[loading],
+#KeeFox-PanelSubSection-PasswordProfileList[loading]
 {
     height:32px;
     background-image: url("chrome://browser/skin/tabbrowser/loading.png");
@@ -305,7 +306,8 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     background-position:50% 8px;
 }
 
-#KeeFox-PanelSubSection-DatabaseList > ul {
+#KeeFox-PanelSubSection-DatabaseList > ul,
+#KeeFox-PanelSubSection-PasswordProfileList > ul {
     margin:0 0 0 0px;
     padding:0px 0px 0px 0px;
     list-style:none;
@@ -313,7 +315,8 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 
-#KeeFox-PanelSubSection-DatabaseList > ul > li
+#KeeFox-PanelSubSection-DatabaseList > ul > li,
+#KeeFox-PanelSubSection-PasswordProfileList > ul > li
 {
     min-height:26px;
     padding:0px 5px 0px 26px;
@@ -322,7 +325,16 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     background-position:6px 5px;
     cursor:default;
     line-height:26px;
+}
+
+#KeeFox-PanelSubSection-DatabaseList > ul > li
+{
     background-image: url("chrome://keefox/skin/KeeLock.png");
+}
+
+#KeeFox-PanelSubSection-PasswordProfileList > ul > li
+{
+    background-image: url("chrome://keefox/skin/KeeOrange.png");
 }
 
 

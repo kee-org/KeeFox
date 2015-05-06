@@ -456,10 +456,19 @@ keefox_win.panel = {
     
     showSubSectionGeneratePassword: function ()
     {
-        this.generatePassword();
-        this.CustomizableUI.hidePanelForNode(this._currentWindow.document.getElementById('keefox-panelview'));
-        //TODO1.5: Immediately fire a generate password request using the most recent profile (& update growl message?)
-        // we might not have time to implement this for v1.4: this.showSubSection('KeeFox-SubSection-generatePassword');
+        let profileContainer = this._currentWindow.document.getElementById('KeeFox-PanelSubSection-PasswordProfileList');
+        // Remove all of the existing profiles
+        for (let i = profileContainer.childNodes.length; i > 0; i--) {
+            profileContainer.removeChild(profileContainer.childNodes[0]);
+        }
+
+        profileContainer.setAttribute("loading", "true");
+
+        keefox_win.mainUI.generatePassword();
+
+
+        this.showSubSection('KeeFox-PanelSubSection-PasswordProfileList');
+        keefox_org.getPasswordProfiles();
     },
     
     showSubSectionChangeDatabase: function ()
@@ -1493,6 +1502,67 @@ keefox_win.panel = {
                 }, false);
                 loginItem.addEventListener("keefoxCommand", function (event) { 
                     keefox_org.changeDatabase(this.getAttribute('mruToUse'), false);
+                    keefox_win.panel.CustomizableUI.hidePanelForNode(
+                        keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                    keefox_win.panel.hideSubSections();
+                }, false);
+
+                container.appendChild(loginItem);
+            }
+        }
+        
+        // Try to focus on the first item in the newly displayed sub section
+        let matches = container.getElementsByTagName('li');
+        if (!matches)
+            return;
+        let firstMatch = matches[0];
+        if (firstMatch)
+            firstMatch.focus();
+    },
+
+    setPasswordProfilesCallback: function (result) {
+
+        let container = this.getEmptyContainerFor("KeeFox-PanelSubSection-PasswordProfileList");
+        if (container === undefined || container == null)
+            return;
+
+        // Remove the loading message
+        container.parentNode.removeAttribute("loading");
+
+        let profileArray = result;
+        let noItemsButton;
+        if (profileArray == null || profileArray.length == 0) {
+            noItemsButton = this.createUIElement('li', [
+                ['class',''],
+                ['title',keefox_org.locale.$STR("noPasswordProfiles.tip")],
+                ['tabindex','-1']
+            ]);
+            noItemsButton.textContent = keefox_org.locale.$STR("noPasswordProfiles.label");
+            container.appendChild(noItemsButton);
+        } else {
+
+            for (let i = 0; i < profileArray.length; i++)
+            {
+                let displayName = profileArray[i];
+            
+                let loginItem = this.createUIElement('li', [
+                    ['class',''],
+                    ['title', keefox_org.locale.$STRF("TODO.tip", [displayName])],
+                    ['tabindex','-1']
+                ]);
+                loginItem.textContent = displayName;
+                loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
+                loginItem.addEventListener("mouseup", function (event) { 
+                    if (event.button == 0 || event.button == 1)
+                    {
+                        event.stopPropagation();
+                        this.dispatchEvent(new Event("keefoxCommand"));
+                    }
+                }, false);
+                loginItem.addEventListener("keefoxCommand", function (event) { 
+                    let kf = keefox_org;
+                    kf.metricsManager.pushEvent ("feature", "generatePassword");
+                    kf.generatePassword(this.textContent);
                     keefox_win.panel.CustomizableUI.hidePanelForNode(
                         keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                     keefox_win.panel.hideSubSections();
