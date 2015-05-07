@@ -273,7 +273,6 @@ keefox_win.panel = {
         ]);
         allLogins.insertBefore(allLoginsListOverflowContainer,allLogins.lastChild);
         
-        // This will become a new submenu one day
         let generatePassword = this.createPanelSection(
             'KeeFox-PanelSection-generatePassword', 
             function () { closure.showSubSectionGeneratePassword(); },
@@ -465,7 +464,6 @@ keefox_win.panel = {
         profileContainer.setAttribute("loading", "true");
 
         keefox_win.mainUI.generatePassword();
-
 
         this.showSubSection('KeeFox-PanelSubSection-PasswordProfileList');
         keefox_org.getPasswordProfiles();
@@ -1568,7 +1566,7 @@ keefox_win.panel = {
                 }, false);
                 loginItem.addEventListener("keefoxCommand", function (event) { 
                     let kf = keefox_org;
-                    kf.metricsManager.pushEvent ("feature", "generatePassword");
+                    kf.metricsManager.pushEvent ("feature", "generatePasswordFromProfile");
                     kf.generatePassword(this.textContent);
                     keefox_win.panel.CustomizableUI.hidePanelForNode(
                         keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));

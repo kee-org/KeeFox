@@ -157,18 +157,6 @@ function commandManager () {
         },
         /* Not intending to support these features until at least 1.4
         {
-            "name": "showMenuGeneratePassword",
-            "description": "KeeFox_Menu-Button.generatePasswordFromProfile.label",
-            "keyboardModifierFlags": 0,
-            "key": 52, // '4' (enabled by an option, otherwise single generation above)
-            "contextLocationFlags": this.CONTEXT_SUB | this.CONTEXT_INPUT,
-            "speech": {},
-            "gesture": {},
-            "label": "KeeFox_Menu-Button.generatePasswordFromProfile.label",
-            "tooltip": "KeeFox_Menu-Button.generatePasswordFromProfile.tip",
-            "accesskey": ""
-        },
-        {
             "name": "showPanelOptions",
             "description": this.locale.$STR("KeeFox_Menu-Button.options.label"),
             "keyboardModifierFlags": 0,
@@ -429,14 +417,13 @@ function commandManager () {
         },
         generatePassword: function()
         {
-            utils.getWindow().keefox_org.metricsManager.pushEvent ("feature", "generatePassword");
-            utils.getWindow().keefox_org.generatePassword();
+            let win = utils.getWindow();
+            if (!win) return;
+            win.keefox_win.panel.displayPanel();
+            win.keefox_win.panel.hideSubSections();
+            win.keefox_win.panel.showSubSectionGeneratePassword();
         },
         /* Not intending to support these features until at least 1.4
-        showMenuGeneratePassword: function(target)
-        {
-
-        },
         showPanelOptions: function()
         {
             let win = utils.getWindow();
