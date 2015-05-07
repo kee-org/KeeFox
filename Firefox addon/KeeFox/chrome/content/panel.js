@@ -1529,15 +1529,23 @@ keefox_win.panel = {
         // Remove the loading message
         container.parentNode.removeAttribute("loading");
 
+        let passwordProfilesExplanation = this.createUIElement('div', [
+                ['class', '']
+        ]);
+        passwordProfilesExplanation.textContent = keefox_org.locale.$STR("generatePassword.copied")
+            + " " + keefox_org.locale.$STR("PasswordProfilesExplanation.label");
+        container.appendChild(passwordProfilesExplanation);
+
         let profileArray = result;
         let noItemsButton;
         if (profileArray == null || profileArray.length == 0) {
             noItemsButton = this.createUIElement('li', [
                 ['class',''],
-                ['title',keefox_org.locale.$STR("noPasswordProfiles.tip")],
                 ['tabindex','-1']
             ]);
-            noItemsButton.textContent = keefox_org.locale.$STR("noPasswordProfiles.label");
+            // This shouldn't ever happen since KeePass has built in profiles. So we won't bother localising
+            // this string but it's here just in case some weird change is made to KeePass in future.
+            noItemsButton.textContent = "There are no password profiles. Use KeePass to save new profiles.";
             container.appendChild(noItemsButton);
         } else {
 
@@ -1547,7 +1555,6 @@ keefox_win.panel = {
             
                 let loginItem = this.createUIElement('li', [
                     ['class',''],
-                    ['title', keefox_org.locale.$STRF("TODO.tip", [displayName])],
                     ['tabindex','-1']
                 ]);
                 loginItem.textContent = displayName;
