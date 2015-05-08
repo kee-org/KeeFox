@@ -281,10 +281,19 @@ namespace KeePassRPC.DataExchangeModel
         public int Priority;
         public string[] AltURLs;
         public bool Hide;
-        public bool BlockHostnameOnlyMatch;
         public string[] BlockedURLs;
         public string[] RegExBlockedURLs;
         public string[] RegExURLs;
+
+        /// <summary>
+        /// Exact match required
+        /// </summary>
+        public bool BlockHostnameOnlyMatch;
+
+        /// <summary>
+        /// Hostname/port match required
+        /// </summary>
+        public bool BlockDomainOnlyMatch;
 
 
         public override bool Equals(System.Object obj)
@@ -306,6 +315,7 @@ namespace KeePassRPC.DataExchangeModel
                 && Priority == p.Priority
                 && Hide == p.Hide
                 && BlockHostnameOnlyMatch == p.BlockHostnameOnlyMatch
+                && BlockDomainOnlyMatch == p.BlockDomainOnlyMatch
                 && AreEqual(FormFieldList, p.FormFieldList)
                 && AreEqual(AltURLs, p.AltURLs)
                 && AreEqual(BlockedURLs, p.BlockedURLs)

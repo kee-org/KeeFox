@@ -1601,7 +1601,6 @@ namespace KeePassRPC
             return dbarray;
         }
 
-        // Search predicate returns true if a string ends in "saurus".
         private bool ConfigIsCorrectVersion(PwDatabase t)
         {
             if (t.CustomData.Exists("KeePassRPC.KeeFox.configVersion") 
@@ -1863,8 +1862,11 @@ namespace KeePassRPC
         }
 
         // Must match host name; if allowHostnameOnlyMatch is false, exact URL must be matched
-        private int bestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary, bool allowHostnameOnlyMatch)
+        private int bestMatchAccuracyForAnyURL(PwEntry pwe, EntryConfig conf, string url, URLSummary urlSummary)
         {
+            bool requireExactURLMatch = conf.BlockHostnameOnlyMatch;
+            bool requireAtLeastHostnameAndPortURLMatch = conf.BlockDomainOnlyMatch;
+
             int bestMatchSoFar = MatchAccuracy.None;
 
             List<string> URLs = new List<string>(3);
@@ -1878,38 +1880,41 @@ namespace KeePassRPC
                     return MatchAccuracy.Best;
 
                 // If we require very accurate matches, we can skip the more complex assessment below
-                if (allowHostnameOnlyMatch)
-                {
-                    int entryUrlQSStartIndex = entryURL.IndexOf('?');
-                    int urlQSStartIndex = url.IndexOf('?');
-                    string entryUrlExcludingQS = entryURL.Substring(0,
-                        entryUrlQSStartIndex > 0 ? entryUrlQSStartIndex : entryURL.Length);
-                    string urlExcludingQS = url.Substring(0,
-                        urlQSStartIndex > 0 ? urlQSStartIndex : url.Length);
-                    if (entryUrlExcludingQS == urlExcludingQS)
-                        return MatchAccuracy.Close;
+                if (requireExactURLMatch)
+                    continue;
 
-                    // If we've already found a reasonable match, we can skip the rest of the assessment
-                    // apart from the check for matches against a hostname excluding query string
-                    if (bestMatchSoFar >= MatchAccuracy.HostnameAndPort)
-                        continue;
+                int entryUrlQSStartIndex = entryURL.IndexOf('?');
+                int urlQSStartIndex = url.IndexOf('?');
+                string entryUrlExcludingQS = entryURL.Substring(0,
+                    entryUrlQSStartIndex > 0 ? entryUrlQSStartIndex : entryURL.Length);
+                string urlExcludingQS = url.Substring(0,
+                    urlQSStartIndex > 0 ? urlQSStartIndex : url.Length);
+                if (entryUrlExcludingQS == urlExcludingQS)
+                    return MatchAccuracy.Close;
 
-                    URLSummary entryUrlSummary = URLSummaryFromURL(entryURL);
+                // If we've already found a reasonable match, we can skip the rest of the assessment for subsequent URLs
+                // apart from the check for matches against a hostname excluding query string
+                if (bestMatchSoFar >= MatchAccuracy.HostnameAndPort)
+                    continue;
 
-                    if (entryUrlSummary.HostnameAndPort == urlSummary.HostnameAndPort)
-                        bestMatchSoFar = MatchAccuracy.HostnameAndPort;
+                URLSummary entryUrlSummary = URLSummaryFromURL(entryURL);
 
-                    if (entryUrlSummary.Domain == null || urlSummary.Domain == null)
-                        continue;
+                if (entryUrlSummary.HostnameAndPort == urlSummary.HostnameAndPort)
+                    bestMatchSoFar = MatchAccuracy.HostnameAndPort;
 
-                    if (bestMatchSoFar < MatchAccuracy.Hostname
-                        && entryUrlSummary.Domain.Hostname == urlSummary.Domain.Hostname)
-                        bestMatchSoFar = MatchAccuracy.Hostname;
+                // If we need at least a matching hostname and port (equivelent to
+                // KeeFox <1.5) or we are missing the information needed to match
+                // more loose components of the URL we have to skip these last tests
+                if (requireAtLeastHostnameAndPortURLMatch || entryUrlSummary.Domain == null || urlSummary.Domain == null)
+                    continue;
 
-                    if (bestMatchSoFar < MatchAccuracy.Domain
-                        && entryUrlSummary.Domain.RegistrableDomain == urlSummary.Domain.RegistrableDomain)
-                        bestMatchSoFar = MatchAccuracy.Domain;
-                }
+                if (bestMatchSoFar < MatchAccuracy.Hostname
+                    && entryUrlSummary.Domain.Hostname == urlSummary.Domain.Hostname)
+                    bestMatchSoFar = MatchAccuracy.Hostname;
+
+                if (bestMatchSoFar < MatchAccuracy.Domain
+                    && entryUrlSummary.Domain.RegistrableDomain == urlSummary.Domain.RegistrableDomain)
+                    bestMatchSoFar = MatchAccuracy.Domain;
             }
             return bestMatchSoFar;
         }
@@ -2124,7 +2129,7 @@ namespace KeePassRPC
                             foreach (string URL in URLs)
                         {
                             
-                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], !conf.BlockHostnameOnlyMatch);
+                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL]);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
 
@@ -2138,7 +2143,7 @@ namespace KeePassRPC
                         {
                             foreach (string URL in URLs)
                             {
-                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL], !conf.BlockHostnameOnlyMatch);
+                                int accuracy = bestMatchAccuracyForAnyURL(pwe, conf, URL, URLHostnameAndPorts[URL]);
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
                             }
