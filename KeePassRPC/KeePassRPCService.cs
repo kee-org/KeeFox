@@ -721,7 +721,17 @@ namespace KeePassRPC
             {
                 string url = login.URLs[i];
                 if (i == 0)
+                {
+                    URLSummary urlsum = URLSummary.FromURL(url);
+
+                    // Require more strict default matching for entries that come
+                    // with a port configured (user can override in the rare case
+                    // that they want the loose domain-level matching)
+                    if (!string.IsNullOrEmpty(urlsum.Port))
+                        conf.BlockDomainOnlyMatch = true;
+
                     pwe.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, url ?? ""));
+                }
                 else
                     altURLs.Add(url);
             }
@@ -1897,7 +1907,7 @@ namespace KeePassRPC
                 if (bestMatchSoFar >= MatchAccuracy.HostnameAndPort)
                     continue;
 
-                URLSummary entryUrlSummary = URLSummaryFromURL(entryURL);
+                URLSummary entryUrlSummary = URLSummary.FromURL(entryURL);
 
                 if (entryUrlSummary.HostnameAndPort == urlSummary.HostnameAndPort)
                     bestMatchSoFar = MatchAccuracy.HostnameAndPort;
@@ -2053,7 +2063,7 @@ namespace KeePassRPC
                 // potentially dependant on user configuration options in the client.
                 for (int i = 0; i < URLs.Length; i++)
                 {
-                    URLHostnameAndPorts.Add(URLs[i], URLSummaryFromURL(URLs[i]));
+                    URLHostnameAndPorts.Add(URLs[i], URLSummary.FromURL(URLs[i]));
                 }
 
                 //foreach DB...
@@ -2210,58 +2220,6 @@ namespace KeePassRPC
             });
 
             return allEntries.ToArray();
-        }
-
-        private static URLSummary URLSummaryFromURL(string URL)
-        {
-            int protocolIndex = URL.IndexOf("://");
-            string hostAndPort = "";
-            if (URL.IndexOf("file://") > -1)
-            {
-                // the "host and port" of a file is the actual file name
-                // (i.e. everything except the query string)
-                int qsIndex = URL.IndexOf("?");
-                if (qsIndex > -1)
-                    hostAndPort = URL.Substring(8, qsIndex - 8);
-                else
-                    hostAndPort = URL.Substring(8);
-            }
-            else if (protocolIndex > -1)
-            {
-                string URLExcludingProt = URL.Substring(protocolIndex + 3);
-                int pathStart = URLExcludingProt.IndexOf("/", 0);
-
-                if (pathStart > -1 && URLExcludingProt.Length > pathStart)
-                {
-                    hostAndPort = URL.Substring(protocolIndex + 3, pathStart);
-                }
-                else if (pathStart == -1) // it's already just a hostname and optional port
-                {
-                    hostAndPort = URLExcludingProt;
-                }
-            }
-            else
-            {
-                // we haven't received a protocol
-
-                string URLExcludingProt = URL;
-                int pathStart = URLExcludingProt.IndexOf("/", 0);
-
-                if (pathStart > -1 && URLExcludingProt.Length > pathStart)
-                {
-                    hostAndPort = URL.Substring(0, pathStart);
-                }
-                else if (pathStart == -1) // it's already just a hostname and optional port
-                {
-                    hostAndPort = URLExcludingProt;
-                }
-            }
-            int portIndex = hostAndPort.IndexOf(":");
-            DomainName domain = null;
-            DomainName.TryParse(
-                hostAndPort.Substring(0, portIndex > 0 ? portIndex : hostAndPort.Length),
-                out domain);
-            return new URLSummary(hostAndPort, domain);
         }
 
         [JsonRpcMethod]
