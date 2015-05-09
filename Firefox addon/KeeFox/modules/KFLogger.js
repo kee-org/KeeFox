@@ -186,6 +186,9 @@ KeeFoxLogger.prototype = {
             let sensitiveMessage = data.sm;
             let replace = data.r;
 
+            if (!message)
+                return data;
+
             if (!this.logSensitiveData && message.length <= 0)
                 return "";
             if (this.logSensitiveData)
