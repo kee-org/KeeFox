@@ -32,6 +32,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/ISO8601DateUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://gre/modules/AddonManager.jsm");
+Cu.import("resource://gre/modules/Timer.jsm");
 
 // A struct to represent information that won't change for a given session.
 // In most cases, we'll only want to send this data once but there are a few exceptions.
@@ -107,226 +108,237 @@ function mm () {
         // be resolved retrospectively during analysis becuase the session ID
         // is included with every message
         AddonManager.getAddonByID("keefox@chris.tomlinson", function(addon) {
-            mm._KFLog.debug("KeeFox version: " + addon.version);
+            mm.metricsStartup (addon, mm);
+        }
+        );
+    };
+
+    this.metricsStartup = function (addon, mm) {
+        mm._KFLog.debug("Metrics startup for KeeFox version: " + addon.version);
         
-            mm.ii.addonVersion = addon.version;
+        mm.ii.addonVersion = addon.version;
 
-            // Make sure indexedDB is available somewhere consistent regardless
-            // of old Firefox differences.
-            //
-            // We can't assume that indexedDB and IDBKeyRange are accessed in the same 
-            // way because there are definitely some non-release builds of Firefox
-            // where they differ but it does appear that they are consistently available
-            // if initWindowless() works.
-            if (typeof indexedDB !== "undefined")
+        // Make sure indexedDB is available somewhere consistent regardless
+        // of old Firefox differences.
+        //
+        // We can't assume that indexedDB and IDBKeyRange are accessed in the same 
+        // way because there are definitely some non-release builds of Firefox
+        // where they differ but it does appear that they are consistently available
+        // if initWindowless() works.
+        if (typeof indexedDB !== "undefined")
+        {
+            mm.indexedDB = indexedDB;
+        }
+        if (!mm.indexedDB) {
+            try {
+                let idbManager = Cc["@mozilla.org/dom/indexeddb/manager;1"].
+                                getService(Ci.nsIIndexedDatabaseManager);
+                idbManager.initWindowless(mm);
+            } catch (e)
             {
-                mm.indexedDB = indexedDB;
-            }
-            if (!mm.indexedDB) {
-                try {
-                    let idbManager = Cc["@mozilla.org/dom/indexeddb/manager;1"].
-                                    getService(Ci.nsIIndexedDatabaseManager);
-                    idbManager.initWindowless(mm);
-                } catch (e)
-                {
-                    // May have just failed becuase the API changed again so that 
-                    // calls to initWindowless now need to be replaced by...
-                    try
-                    {
-                        Cu.importGlobalProperties(["indexedDB"]);
-                        mm.indexedDB = indexedDB;
-                    }
-                    catch (ie)
-                    {
-                        // Still broken, we'll have to accept that the whole metrics
-                        // system is fragile until Firefox settles on a stable API for IndexedDB...
-                        mm._KFLog.info("KeeFox metrics system disabled due to exception: " + e + " and 2nd exception: " + ie);
-                        return;
-                    }
-                }
-            }
-
-            if (!mm.IDBKeyRange) {
-                mm.IDBKeyRange = IDBKeyRange;
-            }
-            if (!mm.IDBKeyRange) {
+                // May have just failed becuase the API changed again so that 
+                // calls to initWindowless now need to be replaced by...
                 try
                 {
-                    Cu.importGlobalProperties(["IDBKeyRange"]);
-                    mm.IDBKeyRange = IDBKeyRange;
+                    Cu.importGlobalProperties(["indexedDB"]);
+                    mm.indexedDB = indexedDB;
                 }
-                catch (e)
+                catch (ie)
                 {
                     // Still broken, we'll have to accept that the whole metrics
                     // system is fragile until Firefox settles on a stable API for IndexedDB...
-                    mm._KFLog.info("KeeFox metrics system disabled because IDBKeyRange is not available in this Firefox build. Exception: " + e);
+                    mm._KFLog.info("KeeFox metrics system disabled due to exception: " + e + " and 2nd exception: " + ie);
                     return;
                 }
             }
+        }
 
-            // Open a uniquely named database
-            var request = mm.indexedDB.open("keefox@chris.tomlinson",4);
+        if (!mm.IDBKeyRange) {
+            mm.IDBKeyRange = IDBKeyRange;
+        }
+        if (!mm.IDBKeyRange) {
+            try
+            {
+                Cu.importGlobalProperties(["IDBKeyRange"]);
+                mm.IDBKeyRange = IDBKeyRange;
+            }
+            catch (e)
+            {
+                // Still broken, we'll have to accept that the whole metrics
+                // system is fragile until Firefox settles on a stable API for IndexedDB...
+                mm._KFLog.info("KeeFox metrics system disabled because IDBKeyRange is not available in this Firefox build. Exception: " + e);
+                return;
+            }
+        }
 
-            // Not sure why this error could occur (no local disk space?) but
-            // being able to track the failure might help us fix it in a
-            // future KeeFox release
-            request.onerror = function(event) {
+        // Open a uniquely named database
+        var request = mm.indexedDB.open("keefox@chris.tomlinson",4);
+
+        // Not sure why this error could occur (no local disk space?) but
+        // being able to track the failure might help us fix it in a
+        // future KeeFox release
+        request.onerror = function(event) {
+            let errMsg = "";
+            if (event.target.error.name)
+                errMsg += event.target.error.name + " - ";
+            if (event.target.error && event.target.error.message)
+                errMsg += event.target.error.message;
+
+            mm._KFLog.error("Metrics system could not open/create the indexedDB. " + errMsg);
+
+            if (event.target.error.name == "VersionError")
+            {
+                // try fixing things by deleting the stored metrics and starting again
+                var DBDeleteRequest = mm.indexedDB.deleteDatabase("keefox@chris.tomlinson");
+                DBDeleteRequest.onerror = function(event) {
+                    mm._KFLog.error("Metrics system could delete the indexedDB.");
+                };
+                DBDeleteRequest.onsuccess = function(event) {
+                    mm._KFLog.warn("Metrics system deleted the indexedDB.");
+                    // Try again in a bit
+                    setTimeout(mm.metricsStartup, 10000, addon, mm);
+                };
+            } else
+            {
+                // Try again in a couple of minutes
+                setTimeout(mm.metricsStartup, 120000, addon, mm);
+            }
+        };
+
+        // This event handles the event whereby a new version of the database needs to be created
+        // Either one has not been created before, or a new version number has been submitted via the
+        // window.indexedDB.open line above
+        request.onupgradeneeded = function(event) {
+            mm._KFLog.debug("Metrics indexedDB version upgrade started");
+            var db = event.target.result;
+ 
+            db.onerror = function(event) {
                 let errMsg = "";
                 if (event.target.errorCode)
                     errMsg += event.target.errorCode + " - ";
                 if (event.target.error && event.target.error.message)
                     errMsg += event.target.error.message;
+                mm._KFLog.error("Metrics error: " + errMsg);
+            };
+            //db.deleteObjectStore("keefox@chris.tomlinson-metrics-data");
 
-                mm._KFLog.error("Metrics system could not open/create the indexedDB. " + errMsg);
-                
-                // Directly send single event to report the problem
-                let msg = {
-                    "type": "event",
-                    "userId": mm.ii.userId,
-                    "sessionId": mm.ii.sessionId,
-                    "category": "error",
-                    "name": "indexedDBOpen",
-                    "params": { "message": errMsg },
-                    "ts": ISO8601DateUtils.create(new Date())
-                };
-                mm.set("message",JSON.stringify(msg));
+            // Create an objectStore for this database   
+            var objectStore = db.createObjectStore("keefox@chris.tomlinson-metrics-messages", { keyPath:"id" });
+            var objectStore2 = db.createObjectStore("keefox@chris.tomlinson-metrics-data", { keyPath:"key" });
+
+            mm._KFLog.debug("Metrics indexedDB version upgrade finished");
+        };
+        request.onsuccess = function(event) {
+            if (!request.result)
+                return;
+
+            mm.db = request.result;
+            mm.db.onerror = function(event) {
+                let errMsg = "";
+                if (event.target.errorCode)
+                    errMsg += event.target.errorCode + " - ";
+                if (event.target.error && event.target.error.message)
+                    errMsg += event.target.error.message;
+                mm._KFLog.error("Metrics error: " + errMsg);
             };
 
-            // This event handles the event whereby a new version of the database needs to be created
-            // Either one has not been created before, or a new version number has been submitted via the
-            // window.indexedDB.open line above
-            request.onupgradeneeded = function(event) {
-                mm._KFLog.debug("Metrics indexedDB version upgrade started");
-                var db = event.target.result;
- 
-                db.onerror = function(event) {
-                    let errMsg = "";
-                    if (event.target.errorCode)
-                        errMsg += event.target.errorCode + " - ";
-                    if (event.target.error && event.target.error.message)
-                        errMsg += event.target.error.message;
-                    mm._KFLog.error("Metrics error: " + errMsg);
-                };
-                //db.deleteObjectStore("keefox@chris.tomlinson-metrics-data");
+            // Find the highest id number we used in the last session, if it's
+            // null, we'll just reset to 1 (this data is not sent to the metrics server)
+            let objectStore = mm.db.transaction("keefox@chris.tomlinson-metrics-messages")
+                              .objectStore("keefox@chris.tomlinson-metrics-messages");
+            objectStore.openCursor(null, "prev").onsuccess = function(event) {
+                var cursor = event.target.result;
+                if (cursor) {
+                    mm.nextId = cursor.key + 1;
+                } else
+                {
+                    mm.nextId = 1;
+                }
 
-                // Create an objectStore for this database   
-                var objectStore = db.createObjectStore("keefox@chris.tomlinson-metrics-messages", { keyPath:"id" });
-                var objectStore2 = db.createObjectStore("keefox@chris.tomlinson-metrics-data", { keyPath:"key" });
-
-                mm._KFLog.debug("Metrics indexedDB version upgrade finished");
-            };
-            request.onsuccess = function(event) {
-                if (!request.result) return;
-
-                mm.db = request.result;
-                mm.db.onerror = function(event) {
-                    let errMsg = "";
-                    if (event.target.errorCode)
-                        errMsg += event.target.errorCode + " - ";
-                    if (event.target.error && event.target.error.message)
-                        errMsg += event.target.error.message;
-                    mm._KFLog.error("Metrics error: " + errMsg);
-                };
-
-                // Find the highest id number we used in the last session, if it's
-                // null, we'll just reset to 1 (this data is not sent to the metrics server)
-                let objectStore = mm.db.transaction("keefox@chris.tomlinson-metrics-messages")
-                                  .objectStore("keefox@chris.tomlinson-metrics-messages");
-                objectStore.openCursor(null, "prev").onsuccess = function(event) {
-                    var cursor = event.target.result;
-                    if (cursor) {
-                        mm.nextId = cursor.key + 1;
-                    } else
+                // count how many entries we already have queued up. Should 
+                // usually be 0 or a small number but when the profile has
+                // been unable to send data for many months or years, the 
+                // number of queued events could start to eat into 
+                // available disk space so we put a limit on the total 
+                // number of entries.
+                let req = objectStore.count();
+                req.onsuccess = function(evt) {
+                    if (evt.target.result >= 100000)
                     {
-                        mm.nextId = 1;
+                        // Too many stored entries: 100000 = 25MB @ 0.25KB per message
+                        mm._KFLog.error("Too many metrics messages. No new messages will be recorded.");
+
+                        // overwrite last stored message to record this error state
+                        mm.nextId--;
+                        let msg = {
+                            "type": "event",
+                            "userId": mm.ii.userId,
+                            "sessionId": mm.ii.sessionId,
+                            "category": "error",
+                            "name": "indexedDBFull",
+                            "params": { "message": "Too many messages" },
+                            "ts": ISO8601DateUtils.create(new Date())
+                        };
+                        mm.set("message",JSON.stringify(msg));
+
+                        // Keep trying to clear the message queue backlog
+                        mm._KFLog.debug("Creating a metrics timer.");
+                        mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+         
+                        mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
+                            15000,
+                            Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+
+                        // Don't do the usual session init. Therefore any
+                        // messages created during this session will be logged
+                        // into the temporary arrays but never get pushed
+                        // into the main message database.
+                        return;
                     }
 
-                    // count how many entries we already have queued up. Should 
-                    // usually be 0 or a small number but when the profile has
-                    // been unable to send data for many months or years, the 
-                    // number of queued events could start to eat into 
-                    // available disk space so we put a limit on the total 
-                    // number of entries.
-                    let req = objectStore.count();
-                    req.onsuccess = function(evt) {
-                        if (evt.target.result >= 100000)
-                        {
-                            // Too many stored entries: 100000 = 25MB @ 0.25KB per message
-                            mm._KFLog.error("Too many metrics messages. No new messages will be recorded.");
+                    // Get server versions (these are probably unknown to start with
+                    // but following a successful KeePassRPC connection, they will
+                    // be stored for use in the next session)
+                    mm.getApplicationMetadata(function () {
 
-                            // overwrite last stored message to record this error state
-                            mm.nextId--;
-                            let msg = {
-                                "type": "event",
-                                "userId": mm.ii.userId,
-                                "sessionId": mm.ii.sessionId,
-                                "category": "error",
-                                "name": "indexedDBFull",
-                                "params": { "message": "Too many messages" },
-                                "ts": ISO8601DateUtils.create(new Date())
-                            };
-                            mm.set("message",JSON.stringify(msg));
+                        // push initial session start message
+                        mm.startSession(function () {
+                            mm._KFLog.debug("Started a metrics session.");
 
-                            // Keep trying to clear the message queue backlog
-                            mm._KFLog.debug("Creating a metrics timer.");
-                            mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+                            // We know we've sent the startSession message now so
+                            // we can push any events that were queued temporarilly
+                            mm.messagesReady = true;
+
+                            // If any messages have been sent to us while initialising, process them now
+                            for (let i=0; i < mm.messagesQueue.length; i++)
+                                mm.set("message", mm.messagesQueue[i].message);
+                            mm.messagesQueue = [];
+
+                            // Remove the old session data now it has been sent
+                            mm.resetAggregates(function () {
+                                mm.aggregatesReady = true;
+
+                                // If any aggregate values have been sent to us while initialising, evaluate them now
+                                for (let i=0; i < mm.aggregatesQueue.length; i++)
+                                    mm.adjustAggregate(mm.aggregatesQueue[i].key, mm.aggregatesQueue[i].value);
+                                mm.aggregatesQueue = [];
+
+                                // Start a regular check for queued items that need pushing to the metrics server
+                                // For users that have disabled the user data component, this is technically
+                                // un-necessary unless they re-enable the collection during this session but
+                                // it's a very cheap operation so firing the timer for everyone makes things simpler
+                                mm._KFLog.debug("Creating a metrics timer.");
+                                mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
          
-                            mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
-                                15000,
-                                Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-
-                            // Don't do the usual session init. Therefore any
-                            // messages created during this session will be logged
-                            // into the temporary arrays but never get pushed
-                            // into the main message database.
-                            return;
-                        }
-
-                        // Get server versions (these are probably unknown to start with
-                        // but following a successful KeePassRPC connection, they will
-                        // be stored for use in the next session)
-                        mm.getApplicationMetadata(function () {
-
-                            // push initial session start message
-                            mm.startSession(function () {
-                                mm._KFLog.debug("Started a metrics session.");
-
-                                // We know we've sent the startSession message now so
-                                // we can push any events that were queued temporarilly
-                                mm.messagesReady = true;
-
-                                // If any messages have been sent to us while initialising, process them now
-                                for (let i=0; i < mm.messagesQueue.length; i++)
-                                    mm.set("message", mm.messagesQueue[i].message);
-                                mm.messagesQueue = [];
-
-                                // Remove the old session data now it has been sent
-                                mm.resetAggregates(function () {
-                                    mm.aggregatesReady = true;
-
-                                    // If any aggregate values have been sent to us while initialising, evaluate them now
-                                    for (let i=0; i < mm.aggregatesQueue.length; i++)
-                                        mm.adjustAggregate(mm.aggregatesQueue[i].key, mm.aggregatesQueue[i].value);
-                                    mm.aggregatesQueue = [];
-
-                                    // Start a regular check for queued items that need pushing to the metrics server
-                                    // For users that have disabled the user data component, this is technically
-                                    // un-necessary unless they re-enable the collection during this session but
-                                    // it's a very cheap operation so firing the timer for everyone makes things simpler
-                                    mm._KFLog.debug("Creating a metrics timer.");
-                                    mm.metricsTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-         
-                                    mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
-                                       15000,
-                                       Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-                                });
+                                mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
+                                   15000,
+                                   Components.interfaces.nsITimer.TYPE_ONE_SHOT);
                             });
                         });
-                    };
+                    });
                 };
             };
-        }
-        );
+        };
     };
 
     this.startSession = function (callback)
