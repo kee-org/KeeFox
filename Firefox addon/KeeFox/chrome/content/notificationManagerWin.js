@@ -181,7 +181,7 @@ keefox_win.notificationManager = {
             container.removeChild(container.firstChild);
         let notificationList = this.windowNotifications;
         if (notificationList)
-            //TODO: order by priority
+            //TODO:1.6: order by priority
             for (var notification of notificationList) {
                 let notificationDOM = this.renderNotification(notification);
                 container.appendChild(notificationDOM);
@@ -194,7 +194,7 @@ keefox_win.notificationManager = {
         let selectedTab = window.gBrowser.selectedTab;
         let notificationList = this.tabNotificationMap.get(selectedTab);
         if (notificationList)
-            //TODO: order by priority
+            //TODO:1.6: order by priority
             for (var notification of notificationList) {
                 let notificationDOM = this.renderNotification(notification);
                 container.appendChild(notificationDOM);

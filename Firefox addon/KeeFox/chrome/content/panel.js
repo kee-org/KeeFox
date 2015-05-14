@@ -210,7 +210,7 @@ keefox_win.panel = {
             ['title',keefox_org.locale.$STR('KeeFox_Search.tip')]
         ]);
         searchBox.addEventListener('input',function(e){
-            //TODO1.5: rate limit searches?
+            //TODO:1.6: rate limit searches?
             keefox_org.search.execute(e.target.value, closure.onSearchComplete);
         }, false);
 
@@ -422,7 +422,7 @@ keefox_win.panel = {
         while (toHide.length)
             this.disableUIElementNode(toHide[0]); // removes enabled class and thus deletes from the toHide list
 
-        //TODO1.5: Might make more sense to remember which subpanel was just closed and focus that button instead
+        //TODO:1.6: Might make more sense to remember which subpanel was just closed and focus that button instead
         this._currentWindow.document.getElementById('KeeFox-PanelSection-searchbox').focus();
     },
 
@@ -674,7 +674,7 @@ keefox_win.panel = {
                 } 
                 if (event.button == 2)
                 {
-                    //TODO1.5: support keyboard context menu button too.
+                    //TODO:1.5: support keyboard context menu button too.
                     
                     keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
@@ -1235,7 +1235,7 @@ keefox_win.panel = {
                 } 
                 if (event.button == 2)
                 {
-                    // TODO1.5: When accessing layerX and layerY here, they are always 0, however, when accessed from the
+                    // TODO:1.5: When accessing layerX and layerY here, they are always 0, however, when accessed from the
                     // function to which the event is passed next, they have a value that is relative to the main widget
                     // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
                     // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
@@ -1275,7 +1275,7 @@ keefox_win.panel = {
 
         // This fails if called during startup and the widget is in the main panel (the node
         // has not been added to the DOM yet, pending user menu panel activation).
-        //TODO1.5: Is this still a problem now that we create the panel earlier? If so, maybe set some kind of on-main-menu-panel-open listener to retry this operation later
+        //TODO:1.6: Is this still a problem now that we create the panel earlier? If so, maybe set some kind of on-main-menu-panel-open listener to retry this operation later
 
         // We can't know if this is going to be called just once (usual) or multiple times 
         // (e.g. for iframes) so we must make sure any race conditions are avoided or at least benign

@@ -346,7 +346,7 @@ sessionLegacy.prototype =
          
         this.certFailedReconnectTimer.initWithCallback(this,
             500,
-            Components.interfaces.nsITimer.TYPE_ONE_SHOT); //TODO2: ?OK so far...? does the timer stay in scope?
+            Components.interfaces.nsITimer.TYPE_ONE_SHOT);
         log.debug("Timer created.");
     },
     

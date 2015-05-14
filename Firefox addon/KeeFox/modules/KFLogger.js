@@ -146,10 +146,6 @@ KeeFoxLogger.prototype = {
         if (this.logSensitiveData)
             message = "!! " + message;
 
-        //TODO2: Once we no longer support FF < 21 we might want to consider private browsing
-        // state and provide the user extra protection from themselves (in case they have
-        // ignored warnings of sensitive data logging and then entered a private browsing window)
-
         try
         {
             if (this.methodFile)

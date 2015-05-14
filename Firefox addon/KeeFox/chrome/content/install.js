@@ -244,7 +244,7 @@ function prepareInstallPage()
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
                 | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;   
-            //TODO2:? update 7 and 8 to show Upgrade text, etc.       
+            //TODO:2:? update 7 and 8 to show Upgrade text, etc.       
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
 
@@ -489,7 +489,7 @@ functions to support the execution of Install Case 2
 ********************/
 function IC2finished(mainWindow) {
 
-//TODO2: customise this for upgrades?)
+//TODO:2: customise this for upgrades?)
 
     hideSection('IC2KRPCdownloaded');
     showSection('InstallFinished');
@@ -658,7 +658,7 @@ functions to support the execution of IC5 (and IC2 tertiary)
  it isn't, extract the portable zip file there
  then in either case we will copy the KeePassRPC files into the plugin folder
  */
- //TODO2: rearrange this install process so that the folder is chosen
+ //TODO:2: rearrange this install process so that the folder is chosen
  // first (before download - or during?) just in case user cancels
  // first (so minimal bandwidth wasted)
 function IC5zipKP()
@@ -698,18 +698,18 @@ function IC5zipKP()
             
             mainWindow.keefox_org._keeFoxExtension.prefs
                 .setValue("keePassInstalledLocation",path+"\\");
-                    //TODO2: probably should store the file object
+                    //TODO:2: probably should store the file object
                     // itself rather than string version (X-Plat)
             KeePassEXEfound = mainWindow.keefox_org.utils._confirmKeePassInstallLocation(path+"\\");
             mainWindow.keefox_win.Logger.info("KeePass install location set to: " + path+"\\");
             if (!KeePassEXEfound)
             {
-                //TODO2: permissions, failures, missing directories, etc. etc.
+                //TODO:2: permissions, failures, missing directories, etc. etc.
                 extractKPZip (KF_KPZIP_SAVE_NAME, folder);
                        
                 mainWindow.keefox_org._keeFoxExtension.prefs
                     .setValue("keePassInstalledLocation",path+"\\");
-                        //TODO2: probably should store the file object
+                        //TODO:2: probably should store the file object
                         // itself rather than string version (X-Plat)
                 KeePassEXEfound = mainWindow.keefox_org.utils._confirmKeePassInstallLocation(path+"\\");
                 mainWindow.keefox_win.Logger.info("KeePass install location set to: " + path+"\\");
@@ -798,7 +798,7 @@ function KPsetupExeSilentInstall()
 /*
  IC3 and IC6
  copy KeePassRPC files to the known KeePass 2.x location
- TODO2: detect access denied failures and prompt user accordingly
+ TODO:2: detect access denied failures and prompt user accordingly
  (this could happen if an admin installed KeePass at an earlier time)
  */
 function copyKRPCToKnownKPLocationInstall()
@@ -1117,11 +1117,11 @@ function runKeePassRPCExecutableInstaller(keePassLocation)
         + mainWindow.keefox_org.utils.myDepsDir() + '" "' + destFolder.path + '"');
 }
 
-// TODO2: would be nice if this could go in a seperate
+// TODO:2: would be nice if this could go in a seperate
 // thread
-// TODO2: revisit threaded approach now that we can
+// TODO:2: revisit threaded approach now that we can
 // rely on FF 3.5 thread workers to simplify things
-// TODO2: ... or not, if FF4 has removed the required features!
+// TODO:2: ... or not, if FF4 has removed the required features!
 function extractKPZip (zipFilePath, storeLocation)
 {
     var zipFile = Components.classes["@mozilla.org/file/local;1"]
@@ -1172,7 +1172,7 @@ function extractKPZip (zipFilePath, storeLocation)
         try
         {
             target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 484);
-            //TODO2: different permissions for special files on linux. e.g. 755
+            //TODO:2: different permissions for special files on linux. e.g. 755
             // for main executable? not sure how it works with Mono though
             // so needs much more reading...
         }

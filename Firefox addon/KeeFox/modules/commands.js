@@ -325,7 +325,7 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return false;
 
-            //TODO1.5: Needs more work to support alternative matched logins configuration that puts all logins into the overflow div
+            //TODO:1.6: Needs more work to support alternative matched logins configuration that puts all logins into the overflow div
             let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
             if (!container)
                 return false;
@@ -500,7 +500,7 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
                 
-            //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+            //TODO:1.6: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
             var container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
             if (!container)
                 return;
@@ -525,7 +525,7 @@ function commandManager () {
                 || keeFoxStorage.get("KeePassRPCActive", false)))
                 return;
 
-            //TODO1.5: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+            //TODO:1.6: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
             win.keefox_win.panel.displayPanel();
             win.keefox_win.panel.hideSubSections();
             let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
@@ -556,7 +556,7 @@ function commandManager () {
 
     this.kbEventHandler = function (e)
     {
-        //TODO1.3: Can we find the context from the event?
+        //TODO:2: Can we find the context from the event?
         let win = utils.getWindow();
         let keefox_org = win.keefox_org;
 
@@ -578,7 +578,7 @@ function commandManager () {
                         continue;
                 keefox_org._KFLog.debug("Executing command action: " + commandName);
                 keefox_org.metricsManager.adjustAggregate("keyboardShortcutsPressed", 1);
-                //TODO: Pass event target information to action
+                //TODO:2: Pass event target information to action
                 keefox_org.commandManager.actions[commandName]();
                 break;
             }
@@ -664,7 +664,7 @@ function commandManager () {
     {
         for (let i=0; i<this.commands.length; i++)
         {
-            //TODO1.5: Need to work on what constitutes a disabled/hidden menu item. need to be invisible and detached in an ideal world.
+            //TODO:1.6: ? Need to work on what constitutes a disabled/hidden menu item. need to be invisible and detached in an ideal world.
             if (this.commands[i].contextLocationFlags & this.CONTEXT_MAIN 
                 || this.commands[i].contextLocationFlags & this.CONTEXT_INPUT
                 || this.commands[i].contextLocationFlags & this.CONTEXT_BUTTON)
@@ -697,7 +697,7 @@ function commandManager () {
                     }, false);
             }
 
-            //TODO1.5: repeat for submenu context type
+            //TODO:1.6: repeat for submenu context type
 
         }
 
@@ -715,8 +715,8 @@ function commandManager () {
 
     this.cloneObj = function (obj)
     {
-        //TODO2: improve speed? See http://jsperf.com/clone/5
-        //TODO2: Might be useful in a utils location, not just for config manipulation
+        //TODO:2: improve speed? See http://jsperf.com/clone/5 https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
+        //TODO:2: Might be useful in a utils location, not just for config manipulation
         return JSON.parse(JSON.stringify(obj));
     };
 
@@ -739,7 +739,7 @@ function commandManager () {
             else
                 this.commands = coms;
         } catch (ex) {
-            var coms = JSON.parse(JSON.stringify(this.default_commands)); //TODO2: faster clone?
+            var coms = JSON.parse(JSON.stringify(this.default_commands)); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
             this.commands = coms;
             this.save();
         }

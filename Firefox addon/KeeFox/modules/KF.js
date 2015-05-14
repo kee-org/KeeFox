@@ -129,7 +129,7 @@ function KeeFox()
     utils.oneOffSensitiveLogCheckHandler, 45000,
     Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 
-    //TODO2: set some/all of my tab session state to be persistent so it survives crashes/restores?
+    //TODO:2: set some/all of my tab session state to be persistent so it survives crashes/restores?
     
     this.lastKeePassRPCRefresh = 0;
     this.ActiveKeePassDatabaseIndex = 0;
@@ -192,20 +192,6 @@ KeeFox.prototype = {
 
     _keeFoxBrowserStartup: function()//currentKFToolbar, currentWindow)
     {        
-        //this._KFLog.debug("Testing to see if KeeFox has already been setup (e.g. just a second ago by a different window scope)");
-        //TODO2: confirm multi-threading setup. I assume firefox has
-        // one event dispatcher thread so seperate windows can't be calling
-        // this function concurrently. if that's wrong, need to rethink
-        // or at least lock from here onwards
-//        if (this._keeFoxStorage.get("KeePassRPCActive", false))
-//        {
-//            this._KFLog.debug("Setup has already been done but we will make sure that the window that this scope is a part of has been set up to properly reflect KeeFox status");
-//            currentKFToolbar.setupButton_ready(currentWindow);
-//            currentKFToolbar.setAllLogins();
-//            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
-//            return;
-//        }
-
         // Default Mono executable set here rather than hard coding elsewhere
         this.defaultMonoExec = '/usr/bin/mono';
         
@@ -299,10 +285,10 @@ KeeFox.prototype = {
                     keePassRPCLocation = utils._discoverKeePassRPCInstallLocation();
                     KeePassRPCfound = utils._confirmKeePassRPCInstallLocation(keePassLocation, keePassRPCLocation);
                     if (!KeePassRPCfound)
-                        this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO2: set this to "not installed"?
+                        this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO:2: set this to "not installed"?
                 } else
                 {
-                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO2: set this to "not installed"?
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO:2: set this to "not installed"?
                 }
             }
 
@@ -314,12 +300,12 @@ KeeFox.prototype = {
                 let monoExecFound = utils._confirmMonoLocation(monoLocation);
                 if (!monoExecFound)
                 {
-                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
+                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
                 }
               }
               else
               {
-                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
+                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
               }
             }
         }
@@ -458,7 +444,7 @@ KeeFox.prototype = {
             }
         }
         
-        //TODO2: this can be done in the getalldatabases callback surely?
+        //TODO:2: this can be done in the getalldatabases callback surely?
         if (this._keeFoxStorage.get("KeePassDatabaseOpen",false) 
             && this._keeFoxExtension.prefs.getValue("rememberMRUDB",false))
         {
@@ -561,9 +547,11 @@ KeeFox.prototype = {
         }
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
         {
-            portParam += "-KeePassRPCWebSocketPort:" +
-                this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
-                //TODO:port 0
+            let port = this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
+            if (port <= 0)
+                port = 12546;
+            
+            portParam += "-KeePassRPCWebSocketPort:" + port;
         }
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
@@ -970,7 +958,7 @@ KeeFox.prototype = {
             switch (prefName)
             {
                 case "signon.rememberSignons":
-                //TODO2: Only respond if it's the root pref branch
+                //TODO:2: Only respond if it's the root pref branch
                     var newValue = prefBranch.getBoolPref(prefName);
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;

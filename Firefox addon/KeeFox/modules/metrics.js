@@ -408,7 +408,7 @@ function mm () {
                     mm.get("avgOpenDatabases", function (event) {
                         if (event.target.result)
                             mm.previousSessionMetrics.avgOpenDatabases = event.target.result.value; // when any are open (so >= 1)
-                        //TODO: even more callbacks. yay!
+                        //TODO:2: Try to convert to Promises so we can avoid infinite callback indentation
                         mm._KFLog.debug("calculatePreviousSessionMetrics finished");
                         if (cb) cb();
                     });                             
@@ -522,7 +522,7 @@ function mm () {
     
         // retry should have been set on failure but may also be set by server to manage load
         if (retry)
-        {    //TODO: Don't just listen to the server - do something more useful
+        {    //TODO:1.6: Don't just listen to the server - do something more useful
             secondsUntilNextProcess = retry;
             if (secondsUntilNextProcess < DEFAULT_DELAY)
                 secondsUntilNextProcess = DEFAULT_DELAY;
@@ -564,7 +564,7 @@ function mm () {
                                      .hiddenDOMWindow;
             return new XMLHttpRequest();
 
-            //TODO2: After FF15 support dropped, switch to this other implementation:
+            //TODO:2: After FF15 support dropped, switch to this other implementation:
             //const XMLHttpRequest = Components.Constructor("@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest");
             // or this one:
             //return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
@@ -616,7 +616,7 @@ function mm () {
             // hanging forever following a single dodgy connection.
 
             request.timeout = 60000; // 60 seconds
-            //TODO2: Auto-adjust timeouts to allow us to be more strict initially?
+            //TODO:1.6: Auto-adjust timeouts to allow us to be more strict initially?
             request.ontimeout = function(event) {
                 var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                 .getService(Ci.nsIWindowMediator);

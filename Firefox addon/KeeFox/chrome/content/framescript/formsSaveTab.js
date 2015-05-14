@@ -174,8 +174,9 @@ var _onFormSubmit = function (form)
     {
         interestingForm = config.valueAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
         interestingForm = config.valueAllowed(otherFields[f].name,conf.interestingForms.f_name_w,conf.interestingForms.f_name_b,interestingForm);
-        //TODO1.6: interestingForm = config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
     }
+
+    //TODO:1.6: #444 interestingForm = keefox_org.config.cssSelectorAllowed(document,conf.interestingForms.f_css_w,conf.interestingForms.f_css_b,interestingForm);
         
     if (interestingForm === false)
     {
@@ -206,7 +207,7 @@ var _onFormSubmit = function (form)
             for (let i=0; i < passwords.length; i++)
                 passwordFields.push(passwords[i]);
                 
-            //TODO2: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
+            //TODO:2: try to distingish between multi-password login/signup and typo. maybe: if username exists and matches existing password it is a typo, else multi-password
             //return;
         } else // it's probably a password change form, but may be a sign-up form
         {
@@ -221,7 +222,7 @@ var _onFormSubmit = function (form)
             if (passwords.length == 2)
             {
                 passwordFields.push(passwords[0]);
-                //TODO2: it is also reasonably likely that this indicates a
+                //TODO:2: it is also reasonably likely that this indicates a
                 // sign-up form rather than a password change form. decide
                 // which here and flag which one it is for now, we just assume
                 // it's a sign-up form becuase that is more useful for the user in many cases
@@ -330,7 +331,7 @@ var _onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDat
         }
     }
     
-    //TODO2: implement password change support if it doesn't impact the more important log-in and registration features
+    //TODO:2: implement password change support if it doesn't impact the more important log-in and registration features
     // discover the usernames for the submitted form
     //var formLoginUsername = null;
     //if (submitDocumentDataStorage.formLogin.usernameIndex >= 0 
@@ -351,7 +352,7 @@ var _onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDat
 //            {
 //                Logger.info("we are changing the password");
 
-//                if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO2: is this needed?
+//                if (logins.length == 1) { // only one option so update username details from old login (in case they weren't included in the form) // TODO:2: is this needed?
 //                    //var oldLogin = logins[0];
 //                    //formLogin.usernameIndex      = oldLogin.usernameIndex;
 
@@ -359,7 +360,7 @@ var _onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDat
 //                } else {
 //                    keefox_win.UI.promptToChangePasswordWithUsernames(
 //                                        logins, logins.length, formLogin);
-//                } // TODO2: allow option to override change password option and instead save as a new password. (need a new prompt function)
+//                } // TODO:2: allow option to override change password option and instead save as a new password. (need a new prompt function)
 //            }
 //            return;
 //        

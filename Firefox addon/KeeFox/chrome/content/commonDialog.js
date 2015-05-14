@@ -188,7 +188,7 @@ var keeFoxDialogManager = {
             
             if (Dialog.args.promptType == "prompt") {
                 //This assumes there are no cases where we are asked for username
-                // only. Haven't come across any for two years so hopefully this was
+                // only. Haven't come across any for 5 years so hopefully this was
                 // a safe assumption.
 
                 keefox_org._KFLog.debug("Looking for KeeFox Authorisation description text"); 
@@ -689,7 +689,7 @@ var keeFoxDialogManager = {
                 popup.appendChild(item);
                 
                 // crude attempt to find the best match for this realm
-                //TODO2: Improve accuracy here for when multiple logins have the correct or no realm 
+                //TODO:1.5: Improve accuracy here for when multiple logins have the correct or no realm 
                 if (dialogFindLoginStorage.realm == matchedLogins[i].httpRealm)
                     bestMatch = i;
             }
@@ -775,7 +775,7 @@ var keeFoxDialogManager = {
 
     KPRPCAuthDialogClosing : function ()
     {
-        //TODO: why doesn't this work? Doesn't seem to be needed though so not urgent.
+        //TODO:1.5: why doesn't this work? Is it needed?
         //this.kprpcConnObserver.unregister();
     }
 

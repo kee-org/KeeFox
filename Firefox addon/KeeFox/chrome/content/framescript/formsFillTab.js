@@ -431,7 +431,6 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     
     let useCachedResults = true;
 
-    //TODO2: maybe need to attach this var to somewhere in case it gets GCd?
     var matchResult = {};
     
     matchResult.UUID = "";
@@ -607,9 +606,9 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             {
                 interestingForm = config.valueAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
                 interestingForm = config.valueAllowed(otherFields[f].name,conf.interestingForms.f_name_w,conf.interestingForms.f_name_b,interestingForm);
-                
-                //TODO1.5: interestingForm = keefox_org.config.xpathAllowed(otherFields[f].id,conf.interestingForms.f_id_w,conf.interestingForms.f_id_b,interestingForm);
             }
+
+            //TODO:1.6: #444 interestingForm = keefox_org.config.cssSelectorAllowed(document,conf.interestingForms.f_css_w,conf.interestingForms.f_css_b,interestingForm);
         
             if (interestingForm === false)
             {
@@ -721,7 +720,7 @@ var findLoginsResultHandler = function (message)
         {
             Logger.error("Received a very slow response from KeePassRPC for one of the frames we were searching for. This situation is poorly tested - try searching for logins again, refreshing the page or using a smaller KeePass database. Please report any experience you have regarding this error message to the support forum or github. http://keefox.org/help");
             return; // must be a very slow response (searchComplete has already run)
-            //TODO1.6: trigger a new search if this ever happens for unrepeatable reasons
+            //TODO:1.6: trigger a new search if this ever happens for unrepeatable reasons
         }
     }
 
@@ -774,7 +773,7 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
         // form and login combination. We could be more efficient for the common case of 1 form 
         // by avoiding the clone then but keeping the same behaviour gives us a higher chance 
         // of noticing bugs.
-        matchResult.logins[i] = JSON.parse(crString); //TODO2: faster clone?
+        matchResult.logins[i] = JSON.parse(crString); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
 
         // Nothing to do if we have no matching logins available.
         if (matchResult.logins[i].length == 0)
@@ -935,7 +934,7 @@ var fillAndSubmitHandler = function (message)
 
 var getMostRelevantFormForFrame = function (frame, formIndex)
 {
-    //TODO2: One day could probably make this more efficient for searches across
+    //TODO:2: One day could probably make this more efficient for searches across
     //many frames by calculating the frameKey as we recurse through to this point.
     let frameKey = getFrameArrayKey(frame.document);
     let findMatchesResult = tabState.latestFindMatchesResults[frameKey];
@@ -1178,7 +1177,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                     if (otherField.formFieldPage > maximumPageCount)
                         maximumPageCount = otherField.formFieldPage;
                 }
-                // always assume page 1 (very rare cases will go wrong - see github for relevant enhancement request) //TODO:e10s: #
+                // always assume page 1 (very rare cases will go wrong - see github for relevant enhancement request) //TODO:1.6: #411
                 // Possible regression since v1.4: We used to ignore currentPage entirely for the first
                 // page of a submission, now we might try to give preference to page 1 fields (though total
                 // relevance score shouldn't be shifted by enough to affect otherwise well-matched fields)
@@ -1380,8 +1379,8 @@ var submitForm = function (form)
     // indirectly due to deprioritisation of other possibilities) but all things equal, they will
     // follow the stated priority.
     
-    var goodWords = ["submit","login","enter","log in","signin","sign in"]; //TODO: other languages
-    var badWords = ["reset","cancel","back","abort","undo","exit","empty","clear"]; //TODO: other languages
+    var goodWords = ["submit","login","enter","log in","signin","sign in"]; //TODO:2: other languages
+    var badWords = ["reset","cancel","back","abort","undo","exit","empty","clear"]; //TODO:2: other languages
 
     let buttonElements = form.ownerDocument.getElementsByTagName("button");
     var inputElements = form.getElementsByTagName("input");
@@ -1411,7 +1410,7 @@ var submitForm = function (form)
                         score -= 5;
             }
 
-            //TODO2: compare values and/or textcontent?
+            //TODO:2: compare values and/or textcontent?
 
             submitElements.push({'score':score, 'el': buttonElements[i]});
         }
@@ -1466,7 +1465,7 @@ var submitForm = function (form)
 			largestScore = submitElements[j].score;
 	    }
 	}
-    //TODO2: more accurate searching of submit buttons, etc. to avoid password resets if possible
+    //TODO:2: more accurate searching of submit buttons, etc. to avoid password resets if possible
     // maybe special cases for common HTML output patterns (e.g. javascript-only ASP.NET forms)
         
     // Remember that it was KeeFox which initiated this form submission so we can
@@ -1485,7 +1484,7 @@ var submitForm = function (form)
 		form.submit();
     }
 		
-		//TODO2: maybe something like this might be useful? Dunno why a click()
+		//TODO:2: maybe something like this might be useful? Dunno why a click()
 		// above wouldn't be sufficient but maybe some custom event raising might be handy...
 		/*
 		function simulateClick() {

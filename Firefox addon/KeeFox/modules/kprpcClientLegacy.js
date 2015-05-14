@@ -74,9 +74,6 @@ kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
     //[deprecated]
     this.getUniqueClientId = function(clientIdSig)
     {
-        //TODO2: get/create a unique private key?
-        // encrypt public clientIdSig using private key?
-        // probably no point since we can't store it securely for next session anyway :-(
         var sig = "";
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -100,8 +97,6 @@ kprpcClientLegacy.prototype.constructor = kprpcClientLegacy;
     this.onNotify = function(topic, message) {
         if (topic == "transport-status-connected")
         {
-        //TODO2: what thread is this calback called on? if not main, then need to call back to that thread to avoid GUI DOM update crashes
-
             // Only old KPRPC servers will send us the request for authentication
             // which leads to this point so we do things the old way
             this.deprecatedRequest(this, "Authenticate",

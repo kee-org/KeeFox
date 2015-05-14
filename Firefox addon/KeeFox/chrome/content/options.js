@@ -1,4 +1,4 @@
-"use strict"; //TODO: Verify which version of FF fixed the bug that prevented this from working
+"use strict"; //TODO:1.5: Verify this works in FF29
 
 let Cu = Components.utils;
 
@@ -83,7 +83,7 @@ function createCommandPanel()
     grid.appendChild(gcols);
     grid.setAttribute("flex", "1");
 
-    //TODO2: Allow fine grained control over every possible command.
+    //TODO:2: Allow fine grained control over every possible command.
     // To start with, we'll just do the simplest approach for the
     // user by showing three combined commands
     //var commands = window.keefox_org.commandManager.commands;
@@ -162,7 +162,7 @@ function createCommandPanel()
 
     for (var i=0; i < commands.length; i++)
     {
-        //TODO2: Allow listing of commands that don't yet have a keyboard shortcut
+        //TODO:2: Allow listing of commands that don't yet have a keyboard shortcut
         if (commands[i].key)
         {
             var labelDesc = document.createElement("label");
@@ -182,7 +182,7 @@ function createCommandPanel()
     }
 
     grid.appendChild(grows);
-    //TODO1.5: Find a way to cancel inline editing if user clicks somewhere else. below line causes problems.
+    //TODO:1.6: Find a way to cancel inline editing if user clicks somewhere else. below line causes problems.
     //grid.addEventListener("click", onCommandBlur, false);
     commandPanelContainer.appendChild(grid);
 }
@@ -207,7 +207,7 @@ function getKeyboardShortcutDisplayValue(modifierFlags, keyCode)
 }
 
 // Invoked when user clicks on the keyboard shortcut label
-//TODO2: Probably not that intuitive that the label can be selected. Might want
+//TODO:1.6: Probably not that intuitive that the label can be selected. Might want
 // to review usability in future although technical nature of many keyboard
 // shortcut users probably reduces importance of this
 function onCommandClick(evt)
@@ -442,7 +442,7 @@ function onsynctopreferenceLogLevel()
     }
 }
 
-//TODO2: allow users to choose seperate plugins folder OR automatically detect from a few standard locations
+//TODO:2: allow users to choose seperate plugins folder OR automatically detect from a few standard locations
 function browseForKeePassLocation(currentLocationPath)
 {
     var location = browseForLocation(currentLocationPath, 

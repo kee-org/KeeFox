@@ -43,7 +43,7 @@
   IC7: administrator, upgrade of KeePassRPC required
   IC8: non-administrator, upgrade of KeePassRPC required
   
-  TODO2: In some cases (especially IC6/8), user may not have priveledges to write
+  TODO:2: In some cases (especially IC6/8), user may not have priveledges to write
   to an existing KeePass directory. If this happens, we will catch the access 
   denied exception and give the user two choices:
   a) Get an administrator to install the KeePassRPC files in the plugins folder

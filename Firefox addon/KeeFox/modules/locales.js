@@ -52,7 +52,7 @@ Cu.import("resource://kfmod/KFLogger.js"); // You can use a different logging me
 
 var EXPORTED_SYMBOLS = ["Localisation"];
 
-//TODO1.3: we need to work out how to log problems with this module? Can't use KeeFox logger because
+//TODO:2: we need to work out how to log problems with this module? Can't use KeeFox logger because
 // it doesn't exist yet and might never if we're using the module outside of KeeFox
 
 // This module is named conservatively to protect other addon
@@ -102,10 +102,10 @@ Localisation.prototype = {
         // determine current locale
         var appLocale = this.getCurrentLocale();
 
-        // JSON is optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
+        //TODO:2: JSON should be optional. If it's not supplied we assume that there is a suitable JSON file in the standard add-on location
         if (json == null)
         {
-            //TODO1.5: get JSON from the right place
+            //TODO:2: get JSON from the right place
             json = null;
         }
 
@@ -172,7 +172,7 @@ Localisation.prototype = {
         // We check each name and convert from Google Chrome JSON format if required
         for (var name in singleLocale)
             if (typeof singleLocale[name] != 'string' && !(singleLocale[name] instanceof String))
-                singleLocale[name] = singleLocale[name]["message"]; //TODO1.5: Hook in some conversion of Chrome parameters
+                singleLocale[name] = singleLocale[name]["message"]; //TODO:2: Hook in some conversion of Chrome parameters
 
         return singleLocale;    
     },

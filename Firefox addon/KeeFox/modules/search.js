@@ -125,7 +125,7 @@ Search.prototype = {
                     .createInstance(Components.interfaces.nsITimer);
             this.makeAsyncTimer.initWithCallback(
             actualSearch.bind(this), 1, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-            //TODO2: use a background worker instead?
+            //TODO:2: use a background worker instead?
             return;
         } else
         {

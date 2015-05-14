@@ -147,7 +147,7 @@ session.prototype.constructor = session;
             // moment so we will cut down on some un-necessary legacy connection
             // attempts at the expense of a longer delay when each user
             // upgrades from KeeFox 1.2.x
-            //TODO2: Remove this when KeeFox 1.3+ usage is sufficiently high (first check in Jan 2015)
+            //TODO:1.6: Remove this when KeeFox 1.3+ usage is sufficiently high (next check in Aug 2015)
             if (rpc.connectFailCount >= 10)
             {
                 log.debug("Failed to init a HTTP connection many times so will try legacy connection instead.");
@@ -212,9 +212,6 @@ session.prototype.constructor = session;
             window.keefox_org.KeePassRPC.connectLock = false;
             window.keefox_org.KeePassRPC.connectFailCount = 0;
 
-            //TODO1.3: track auth attempts so we can be sensible about repeatedly trying when there are permenant faults - set up and use various error codes from srp protocol, etc.
-            // prob. don't want to actually do that here...
-            
             // Start the SRP or shared key negotiation
             window.keefox_org.KeePassRPC.setup();
         };
@@ -335,7 +332,6 @@ session.prototype.constructor = session;
 
                     // Try to connect
                     // There may be more than one concurrent attempted connection.
-                    //TODO1.3: Looks like default timeout is <5 seconds but maybe check that
                     // If more than one attempted connection returns the correct status code,
                     // we will see a batch of "alive" or "locked" states for subsequent callbacks
                     // That should be fine but we could implement a more complex request ID

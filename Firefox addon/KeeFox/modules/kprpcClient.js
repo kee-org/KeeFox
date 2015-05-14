@@ -243,7 +243,7 @@ kprpcClient.prototype.constructor = kprpcClient;
                     {
                         log.error(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") + " "
                             + window.keefox_org.locale.$STRF("KeeFox-further-info-may-follow", extra));
-                        this.removeStoredKey(this.getUsername(this.getSecurityLevel())); //TODO1.3: Check that it's OK to call this from outside of setup protocols
+                        this.removeStoredKey(this.getUsername(this.getSecurityLevel()));
                         window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-restart") 
                             + " " + window.keefox_org.locale.$STR("KeeFox-conn-setup-retype-password"));
                     } else
@@ -495,7 +495,7 @@ kprpcClient.prototype.constructor = kprpcClient;
   	this.proofToClient = function(data) {
   		this.srpClientInternals.confirm_authentication(data.srp.M2);
 
-        //TODO1.5: DRY - getMostRecentWindow into KFUtils
+        //TODO:1.6: DRY - getMostRecentWindow into KFUtils
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                     .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("common-dialog") ||
@@ -545,7 +545,7 @@ kprpcClient.prototype.constructor = kprpcClient;
   	    window.keefox_win.UI.removeConnectionMessage(); // if any errors were shown, they are now resolved
   	    window.keefox_org._keeFoxStorage.set("KeePassRPCActive", true);
   	    window.keefox_org._keeFoxVariableInit();
-  	    if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO2: set up preference change listener for ease of location based changes in future
+  	    if (window.keefox_org._keeFoxExtension.prefs.has("currentLocation")) //TODO:2: set up preference change listener for ease of location based changes in future
   	    {
   	        var currentLocation = window.keefox_org._keeFoxExtension.prefs.getValue("currentLocation", "");
   	        window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
