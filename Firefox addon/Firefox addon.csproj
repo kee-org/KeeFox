@@ -37,7 +37,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Beta\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Aurora|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevEdition|AnyCPU' ">
     <Optimize>false</Optimize>
     <OutputPath>bin\Aurora\</OutputPath>
   </PropertyGroup>

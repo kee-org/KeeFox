@@ -214,8 +214,8 @@ function mm () {
  
             db.onerror = function(event) {
                 let errMsg = "";
-                if (event.target.errorCode)
-                    errMsg += event.target.errorCode + " - ";
+                if (event.target.error.name)
+                    errMsg += event.target.error.name + " - ";
                 if (event.target.error && event.target.error.message)
                     errMsg += event.target.error.message;
                 mm._KFLog.error("Metrics error: " + errMsg);
@@ -235,8 +235,8 @@ function mm () {
             mm.db = request.result;
             mm.db.onerror = function(event) {
                 let errMsg = "";
-                if (event.target.errorCode)
-                    errMsg += event.target.errorCode + " - ";
+                if (event.target.error.name)
+                    errMsg += event.target.error.name + " - ";
                 if (event.target.error && event.target.error.message)
                     errMsg += event.target.error.message;
                 mm._KFLog.error("Metrics error: " + errMsg);

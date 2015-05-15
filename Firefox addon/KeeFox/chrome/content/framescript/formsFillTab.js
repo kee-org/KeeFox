@@ -761,6 +761,7 @@ var findLoginsResultHandler = function (message)
 var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findLoginOp, matchResult)
 {
     let crString = JSON.stringify(convertedResult);
+    let firstMatchProcessed = false;
 
     for (var i=0; i < findLoginOp.forms.length; i++)
     {
@@ -799,13 +800,14 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
             matchResult.logins[i][v].frameKey = findLoginOp.frameArrayKey;
             
             // Remember the best form for each login
-            if (i == 0 || matchResult.logins[i][v].relevanceScore > matchResult.allMatchingLogins[v].relevanceScore)
+            if (!firstMatchProcessed || matchResult.logins[i][v].relevanceScore > matchResult.allMatchingLogins[v].relevanceScore)
             {
                 Logger.debug("Higher relevance score found for login " + v + " with formIndex " 
                     + matchResult.logins[i][v].formIndex + " (" + findLoginOp.forms[i].id + ")");
                 matchResult.allMatchingLogins[v] = matchResult.logins[i][v];
             }
         }
+        firstMatchProcessed = true;
         
         matchResult.logins[i].forEach(function(c) {
             if (c.relevanceScore > matchResult.formRelevanceScores[i])
