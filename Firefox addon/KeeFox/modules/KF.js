@@ -52,35 +52,7 @@ function KeeFox()
     this.os = this.appInfo.OS;
         
     this._keeFoxExtension = KFExtension;
-    
-    if (this._keeFoxExtension.db.conn.tableExists("meta"))
-    {
-        var statement = this._keeFoxExtension.db.conn.createStatement("SELECT * FROM meta WHERE id = 1");
-
-        var currentSchemaVersion = 0;
-        while (statement.executeStep())
-            currentSchemaVersion = statement.row.schemaVersion;
-
-        if (currentSchemaVersion == 1)
-        {
-            // No actual change to shema for v2 but we're not using this sqlite DB any more, at least for the time being.
-            this.listOfNoSavePromptURLsToMigrate = [];
-
-            // find all URLs we want to exclude
-            var statement = this._keeFoxExtension.db.conn.createStatement("SELECT * FROM sites WHERE preventSaveNotification = 1");
-
-            // These URLs will be processed by the config object which is initialised after this main constructor executes
-            // Combined impact and liklihood of problems with this migration are low enough to just assume everything is OK
-            while (statement.executeStep())
-                this.listOfNoSavePromptURLsToMigrate.push(statement.row.url);
-
-            var statementMigrateSchemaBump = this._keeFoxExtension.db.conn.createStatement('UPDATE "meta" SET schemaVersion=2 WHERE id=1');
-            statementMigrateSchemaBump.execute(); 
-            var statementMigrateDrop = this._keeFoxExtension.db.conn.createStatement('DELETE FROM "sites"');
-            statementMigrateDrop.execute(); 
-        }
-    }
-    
+        
     this._keeFoxStorage = this._keeFoxExtension.storage;
     
     if (this._keeFoxExtension.firstRun)
@@ -124,7 +96,8 @@ function KeeFox()
     }
 
     this.search = new Search(this, {
-        version: 1
+        version: 1,
+        searchAllDatabases: this._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
     });
 
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
@@ -156,7 +129,7 @@ function KeeFox()
     utils.oneOffSensitiveLogCheckHandler, 45000,
     Components.interfaces.nsITimer.TYPE_ONE_SHOT);
 
-    //TODO2: set some/all of my tab session state to be persistent so it survives crashes/restores?
+    //TODO:2: set some/all of my tab session state to be persistent so it survives crashes/restores?
     
     this.lastKeePassRPCRefresh = 0;
     this.ActiveKeePassDatabaseIndex = 0;
@@ -219,20 +192,6 @@ KeeFox.prototype = {
 
     _keeFoxBrowserStartup: function()//currentKFToolbar, currentWindow)
     {        
-        //this._KFLog.debug("Testing to see if KeeFox has already been setup (e.g. just a second ago by a different window scope)");
-        //TODO2: confirm multi-threading setup. I assume firefox has
-        // one event dispatcher thread so seperate windows can't be calling
-        // this function concurrently. if that's wrong, need to rethink
-        // or at least lock from here onwards
-//        if (this._keeFoxStorage.get("KeePassRPCActive", false))
-//        {
-//            this._KFLog.debug("Setup has already been done but we will make sure that the window that this scope is a part of has been set up to properly reflect KeeFox status");
-//            currentKFToolbar.setupButton_ready(currentWindow);
-//            currentKFToolbar.setAllLogins();
-//            currentWindow.addEventListener("TabSelect", this._onTabSelected, false);
-//            return;
-//        }
-
         // Default Mono executable set here rather than hard coding elsewhere
         this.defaultMonoExec = '/usr/bin/mono';
         
@@ -326,10 +285,10 @@ KeeFox.prototype = {
                     keePassRPCLocation = utils._discoverKeePassRPCInstallLocation();
                     KeePassRPCfound = utils._confirmKeePassRPCInstallLocation(keePassLocation, keePassRPCLocation);
                     if (!KeePassRPCfound)
-                        this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO2: set this to "not installed"?
+                        this._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation",""); //TODO:2: set this to "not installed"?
                 } else
                 {
-                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO2: set this to "not installed"?
+                    this._keeFoxExtension.prefs.setValue("keePassInstalledLocation",""); //TODO:2: set this to "not installed"?
                 }
             }
 
@@ -341,12 +300,12 @@ KeeFox.prototype = {
                 let monoExecFound = utils._confirmMonoLocation(monoLocation);
                 if (!monoExecFound)
                 {
-                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
+                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
                 }
               }
               else
               {
-                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO2: set this to "not installed"?
+                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
               }
             }
         }
@@ -412,7 +371,7 @@ KeeFox.prototype = {
                 win.keefox_win.mainUI.setAllLogins(); // remove list of all logins
                 win.keefox_win.context.removeLogins();
                 win.keefox_win.mainUI.setupButton_ready(win);
-                win.keefox_win.UI._removeOLDKFNotifications(true);
+                win.keefox_win.notificationManager.remove("password-save");
             } catch (exception)
             {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
@@ -470,11 +429,14 @@ KeeFox.prototype = {
                 win.keefox_win.context.removeLogins();
                 win.keefox_win.mainUI.setAllLogins();
                 win.keefox_win.mainUI.setupButton_ready(win);
-                win.keefox_win.UI._removeOLDKFNotifications();
 
                 if (this._keeFoxStorage.get("KeePassDatabaseOpen",false))
                 {
-                    win.keefox_win.ILM._fillDocument(win.content.document,false);
+                    win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage("keefox:findMatches", {
+                        autofillOnSuccess: false,
+                        autosubmitOnSuccess: false,
+                        notifyUserOnSuccess: false
+                    });
                 }
             } catch (exception)
             {
@@ -482,7 +444,7 @@ KeeFox.prototype = {
             }
         }
         
-        //TODO2: this can be done in the getalldatabases callback surely?
+        //TODO:2: this can be done in the getalldatabases callback surely?
         if (this._keeFoxStorage.get("KeePassDatabaseOpen",false) 
             && this._keeFoxExtension.prefs.getValue("rememberMRUDB",false))
         {
@@ -585,9 +547,11 @@ KeeFox.prototype = {
         }
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
         {
-            portParam += "-KeePassRPCWebSocketPort:" +
-                this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
-                //TODO:port 0
+            let port = this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
+            if (port <= 0)
+                port = 12546;
+            
+            portParam += "-KeePassRPCWebSocketPort:" + port;
         }
         var mruparam = this._keeFoxExtension.prefs.getValue("keePassDBToOpen","");
         if (mruparam == "")
@@ -913,11 +877,23 @@ KeeFox.prototype = {
         }
     },
 
-    generatePassword: function()
+    getPasswordProfiles: function ()
     {
         try
         {
-            return this.KeePassRPC.generatePassword();
+            return this.KeePassRPC.getPasswordProfiles();
+        } catch (e)
+        {
+            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
+            throw e;
+        }
+    },
+
+    generatePassword: function (profileName)
+    {
+        try
+        {
+            return this.KeePassRPC.generatePassword(profileName);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
@@ -982,7 +958,7 @@ KeeFox.prototype = {
             switch (prefName)
             {
                 case "signon.rememberSignons":
-                //TODO2: Only respond if it's the root pref branch
+                //TODO:2: Only respond if it's the root pref branch
                     var newValue = prefBranch.getBoolPref(prefName);
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
@@ -997,7 +973,6 @@ KeeFox.prototype = {
                     }
                     break;
                 case "logLevel":
-                case "logMethodAlert":
                 case "logMethodFile":
                 case "logMethodConsole":
                 case "logMethodStdOut":
@@ -1006,21 +981,25 @@ KeeFox.prototype = {
                     window.keefox_org._KFLog.configureFromPreferences();
                     utils.oneOffSensitiveLogCheckHandler();
                     break;
-//                case "dynamicFormScanning":
-//                    //cancel any current refresh timer (should we be doing this at other times too such as changing tab?
-//                    if (keefox_org._keeFoxExtension.prefs.getValue("dynamicFormScanning",false))
-//                        window.keefox_org.ILM._refillTimer.init(window.keefox_win.ILM._domEventListener, 2500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-//                    else
-//                        window.keefox_org.ILM._refillTimer.cancel();
-//                    break;
                 case "currentLocation":
                     //tell KeePass this has changed
                     keefox_org.changeLocation(keefox_org._keeFoxExtension.prefs.getValue("currentLocation",false));
                     break;
                 case "maxMatchedLoginsInMainPanel":
                     //recalculate matched logins so current results match user's new preference
-                    window.keefox_win.mainUI.setLogins(null,null);
                     keefox_org.commandManager.actions.detectForms();
+                    break;
+                case "searchAllOpenDBs":
+                    keefox_org.search.reconfigure({
+                        version: 1,
+                        searchAllDatabases: keefox_org._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
+                    });
+                    break;
+                case "listAllOpenDBs":
+                    keefox_org._refreshKPDB();
+                    break;
+                case "alwaysDisplayUsernameWhenTitleIsShown":
+                    keefox_org._refreshKPDB();
                     break;
             }
         },
@@ -1136,89 +1115,11 @@ KeeFox.prototype = {
         keefox_org._KFLog.debug("RegularKPRPCListenerQueueHandler has finished executing the item");
     },
 
-    _onTabOpened: function(event)
-    {
-    //event.target.ownerDocument.defaultView.keefox_win.Logger.debug("_onTabOpened.");
-
-    },
-
-//TODO2: this seems the wrong place for this function - needs to be in a window-specific section such as KFUI or KFILM?
-    _onTabSelected: function(event)
-    {
-        var kfw = event.target.ownerDocument.defaultView.keefox_win;
-        
-        if (kfw.Logger.logSensitiveData)
-            kfw.Logger.debug("_onTabSelected:" + kfw.ILM._loadingKeeFoxLogin);
-        else
-            kfw.Logger.debug("_onTabSelected.");
-        
-        if (kfw.ILM._loadingKeeFoxLogin != undefined
-        && kfw.ILM._loadingKeeFoxLogin != null)
-        {
-            kfw.ILM._loadingKeeFoxLogin = null;
-        } else
-        {
-            if (kfw.ILM._kf._keeFoxStorage.get("KeePassDatabaseOpen", false))
-            {
-                // Notify all parts of the UI that might need to clear old matched logins data
-//                let observ = Components.classes["@mozilla.org/observer-service;1"]
-//                            .getService(Components.interfaces.nsIObserverService);
-//                let subject = {logins:null,uri:null};
-//                subject.wrappedJSObject = subject;
-//                observ.notifyObservers(subject, "keefox_matchedLoginsChanged", null);
-                kfw.mainUI.removeLogins();
-                kfw.ILM._fillAllFrames(event.target.linkedBrowser.contentWindow,false);
-
-                var topDoc = event.originalTarget.linkedBrowser.contentDocument;
-                    if (topDoc.defaultView.frameElement)
-                        while (topDoc.defaultView.frameElement)
-                            topDoc=topDoc.defaultView.frameElement.ownerDocument;
-
-                event.target.ownerDocument.defaultView.keefox_org._checkRescanForAllFrames(topDoc.defaultView, kfw, topDoc);
-            }
-        }
-    },
-    
-    // This checks every frame within the document in the selected tab but it needs to store the URL of the topmost tab so that detection of changed URIs will work correctly.
-    _checkRescanForAllFrames: function (win, kfw, topDoc)
-    {
-        kfw.Logger.debug("_checkRescanForAllFrames start");
-        var conf = keefox_org.config.getConfigForURL(win.content.document.documentURI);
-        
-        //TODO1.5: shared code with KFILM.js? refactor?
-                
-        if (conf.rescanFormDelay >= 500)
-        {
-            // make sure a timer is running
-                kfw.ILM._refillTimer.cancel();
-                kfw.ILM._refillTimer.init(kfw.ILM._domEventListener, conf.rescanFormDelay, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-                kfw.ILM._refillTimerURL = topDoc.documentURI;
-        } else // We don't want to scan for new forms reguarly
-        {
-            // but we'll only cancel the existing timer if we're definitley now on a new page
-            // I.e. this is the first frame we've looked at on a new tab
-            if (kfw.ILM._refillTimerURL != topDoc.documentURI)
-            {
-                kfw.ILM._refillTimer.cancel();
-                //TODO1.5: do we need to store the url of the document we have decided we aren't interested in? Might protect against a problem with tabbing to and from different instances of the same website?
-            }
-        }
-    
-        if (win.frames.length > 0)
-        {
-            kfw.Logger.debug("check Rescan For " + win.frames.length + " sub frames");
-            var frames = win.frames;
-            for (var i = 0; i < frames.length; i++)
-                if (win.keefox_org) //TODO1.3: Not sure why this is sometimes undefined. Rescan may be failing unexpectedly.
-                    win.keefox_org._checkRescanForAllFrames(frames[i], kfw, topDoc);
-        }    
-    },
     
     loadFavicon: function(url, faviconLoader)
     {
         try
         {
-        
             var ioservice = Components.classes["@mozilla.org/network/io-service;1"]
                 .getService(Components.interfaces.nsIIOService);
                 
@@ -1228,50 +1129,12 @@ KeeFox.prototype = {
                 Components.classes["@mozilla.org/browser/favicon-service;1"]
                     .getService(Components.interfaces.nsIFaviconService);
 
-            try
-            {
-                // find out if we can used the new async service
-                faviconService = faviconService.QueryInterface(Components.interfaces.mozIAsyncFavicons);
+            // find out if we can used the new async service
+            faviconService = faviconService.QueryInterface(Components.interfaces.mozIAsyncFavicons);
 
-                faviconService.getFaviconDataForPage(pageURI,faviconLoader);
-                return;
-            } catch (e)
-            {
-                // We couldn't make the new async service work so make sure the fall back is using the correct interface
-                faviconService = faviconService.QueryInterface(Components.interfaces.nsIFaviconService);
+            faviconService.getFaviconDataForPage(pageURI,faviconLoader);
+            return;
 
-                if (this._KFLog.logSensitiveData)
-                    this._KFLog.info("favicon async load failed for " + url + " : " + e);
-                else
-                    this._KFLog.info("favicon async load failed : " + e);
-            }
-
-        
-            try
-            {
-                var favIconURI = faviconService.getFaviconForPage(pageURI);
-            } catch (e)
-            {
-                // exception means that we couldn't find a favicon
-                faviconLoader.onComplete(null,0,null,null);     
-            }
-            if (!faviconService.isFailedFavicon(favIconURI))
-            {
-                var datalen = {};
-                var mimeType = {};
-                try {
-                var data = faviconService.getFaviconData(favIconURI, mimeType, datalen);
-                faviconLoader.onComplete(favIconURI,datalen,data,mimeType);                
-                } catch (e)
-                {
-                    // exception means that we couldn't find a favicon
-                    faviconLoader.onComplete(favIconURI,0,null,null);     
-                }
-            }
-            if (this._KFLog.logSensitiveData)
-                throw "We couldn't find a favicon for this URL: " + url;
-            else
-                throw "We couldn't find a favicon";
         } catch (ex) 
         {
             // something failed so we can't get the favicon. We don't really mind too much...
@@ -1356,10 +1219,6 @@ keefox_org.utils = utils;
 // initialise the per-site configuration
 keefox_org.config = KFConfig;
 keefox_org.config.load();
-
-// migrate old data if needed
-if (keefox_org.listOfNoSavePromptURLsToMigrate != null && keefox_org.listOfNoSavePromptURLsToMigrate.length > 0)
-    keefox_org.config.migrateListOfNoSavePromptURLs(keefox_org.listOfNoSavePromptURLsToMigrate);
 
 if (keefox_org._keeFoxExtension.prefs.has("dynamicFormScanning"))
 {

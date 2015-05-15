@@ -43,7 +43,7 @@ function config()
         url: "*",
         config:{
             rescanFormDelay: -1, // to +INTMAX, // if old "rescan forms" set to true - configure to whatever that default was (5 seconds?)
-            /* TODO1.5: In future we can give finer control of form rescanning behaviour from here
+            /* TODO:2: ? (Might be redundant since changes for e10s). In future we can give finer control of form rescanning behaviour from here
             rescanDOMevents:
             [{
 
@@ -86,14 +86,6 @@ function config()
                 f_xpath_b: []
             },
             preventSaveNotification: false
-            /*
-            TODO1.5: In future we can migrate other preferences to here if they are suited to being overridden per site
-            ,
-            flashOnLoggedOut: true,
-            flashOnNotRunning: true,
-            notifyOnLoggedOut: true,
-            notifyOnNotRunning: true
-            */
         }
     },
     {
@@ -158,8 +150,8 @@ function config()
 
     this.cloneObj = function (obj)
     {
-        //TODO1.5: improve speed? See http://jsperf.com/clone/5
-        //TODO1.5: Might be useful in a utils location, not just for config manipulation
+        //TODO:2: improve speed? See http://jsperf.com/clone/5 https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
+        //TODO:2: Might be useful in a utils location, not just for config manipulation
         return JSON.parse(JSON.stringify(obj));
     };
 
@@ -256,11 +248,11 @@ function config()
         {
             var prefData = prefBranch.getComplexValue("config", Ci.nsISupportsString).data;
             var conf = JSON.parse(prefData);
-            //TODO1.5: In future check version here and apply migrations if needed
+            //TODO:2: In future check version here and apply migrations if needed
             //var currentVersion = prefBranch.getIntPref("configVersion");
             this.current = conf;
         } catch (ex) {
-            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO1.5: faster clone?
+            var conf = JSON.parse(JSON.stringify(this.default_config)); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
             this.current = conf;
             this.save();
         }
@@ -277,7 +269,8 @@ function config()
         str.data = JSON.stringify(this.current);
         prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
 
-        //TODO1.5: Stop forcing this to 1 when we release the first new version
+        //TODO:1.5: Stop forcing this to 1 when we release the first new version
+        //TODO:1.5: Update to 2 required so we can remove page monitoring option? (Probably just remove it from UI and leave this unchanged).
         prefBranch.setIntPref("configVersion",1);
     };
 
@@ -286,7 +279,7 @@ function config()
         this._KFLog.debug("setConfigForURL");
 
         // Clear the current config cache.
-        //TODO2: would be more efficient to only remove affected URLs
+        //TODO:2: would be more efficient to only remove affected URLs
         this.configCache = {};
 
         if (url == "*")
@@ -355,7 +348,7 @@ function config()
 
         for (let i=0; i<urls.length; i++)
         {
-            let newConfig = this.applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.getConfigDefinitionForURL(urls[i]))),{"preventSaveNotification": true}); //TODO2: faster clone?
+            let newConfig = this.applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.getConfigDefinitionForURL(urls[i]))), { "preventSaveNotification": true }); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
             this.setConfigForURL(urls[i],newConfig);
         }
         this.save();
@@ -370,7 +363,12 @@ function config()
         this.setConfigForURL("*",newConfig);
         this.save();
     };
-
 }
 
 var KFConfig = new config;
+
+let globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+globalMM.addMessageListener("keefox:config-valueAllowed", function (message) { 
+    return KFConfig.valueAllowed(message.data.val, message.data.whitelist, message.data.blacklist, message.data.def); });
+globalMM.addMessageListener("keefox:config-getConfigForURL", function (message) { 
+    return KFConfig.getConfigForURL(message.data.url); });

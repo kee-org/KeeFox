@@ -1,14 +1,9 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   This panel.js file contains functions and data related to the visible
   user interface panel.
-  
-  It contains significant amounts of code duplicated (and usually slightly tweaked)
-  from KFToolbar. We have no intention of modifying the legacy code in KFToolbar so
-  while the code may diverge over time, it is pretty independent of the rest of the
-  addon and we'll eventually just delete the old version.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -62,12 +57,19 @@ keefox_win.panel = {
                     tooltiptext: "KeeFox",
                     onViewShowing: function (evt)
                     {
+                        var targetDoc = evt.target.ownerDocument;
+
+                        // Make sure our notifications are visible here instead of the persistent
+                        // panel (in case user clicks on KeeFox menu button while persistent panel
+                        // is still visible). We achieve that by closing the persistent panel and
+                        // letting its onhiding code tidy up after itself
+                        targetDoc.getElementById('keefox-persistent-panel').hidePopup();
+
                         // We need this delay because the _findFirstFocusableChildItem code needs
                         // to consider only elements that are currently visible and the only way
                         // to do this is to allow the view to be rendered before inspecting it.
                         // What we really want is something like an onViewShown event, fired when
                         // we know that the user is already seeing the finished rendered view.
-                        var targetDoc = evt.target.ownerDocument;
                         let panel = evt.target.ownerGlobal.keefox_win.panel;
                         panel.viewShowingHackTimer = Components.classes["@mozilla.org/timer;1"]
                                 .createInstance(Components.interfaces.nsITimer);
@@ -112,20 +114,20 @@ keefox_win.panel = {
 
         this._observerService = Components.classes["@mozilla.org/observer-service;1"]
                     .getService(Components.interfaces.nsIObserverService);
-        this._observerService.addObserver(this,"keefox_matchedLoginsChanged",false);
+        
+        currentWindow.messageManager.addMessageListener("keefox:matchedLoginsChanged", this.matchedLoginsChangedListener);
+
     },
 
-    observe: function (aSubject, aTopic, aData)
+    // Listen for notifications that we've decided on a new list of new matched logins and forward them to other interested observers in the main chrome process
+    matchedLoginsChangedListener: function (message)
     {
-        if (aTopic == "keefox_matchedLoginsChanged")
-        {
-            // Only react if this window or one of its frames is displaying 
-            // the URL for which the matched logins have changed
-            if (keefox_win.ILM._findDocumentByURI(this._currentWindow, aSubject.wrappedJSObject.uri)) 
-                this.setLogins(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
-        }
+        keefox_win.Logger.debug("panel matchedLoginsChangedListener called");
+        // Make sure we only process messages from the currently displayed tab
+        if (message.target === window.gBrowser.selectedBrowser)
+            keefox_win.panel.setLogins(message.data.logins, message.data.notifyUserOnSuccess);
     },
-
+    
     _currentWindow: null,
 
     shutdown: function () { },
@@ -163,11 +165,23 @@ keefox_win.panel = {
     populatePanel: function (panel) {
         let closure = this;
 
-        // Each main component is a div with a button to invoke the main action.
+        // Each main "panel section" component is a div with a button to invoke the main action.
         
-        // This may contain optional extra text at some point but this essentially
-        // replicates the functionality of the main toolbar button from previous
-        // versions so we have something to click on to setup, launch KeePass, etc.
+        let notificationsTab = this.createUIElement('div', [
+            ['class', 'KeeFox-PanelSection enabled'],
+            ['id','KeeFox-PanelSection-notifications-tab']
+        ]);
+
+        let notificationsWindow = this.createUIElement('div', [
+            ['class','KeeFox-PanelSection enabled'],
+            ['id', 'KeeFox-PanelSection-notifications-window']
+        ]);
+
+        let statusTextContainer = this.createUIElement('div', [
+            ['class','KeeFox-PanelSection disabled'],
+            ['id','KeeFox-PanelSection-status-text']
+        ]);
+
         let status = this.createPanelSection(
             'KeeFox-PanelSection-status',
             null,
@@ -176,10 +190,6 @@ keefox_win.panel = {
             'do-a-thing' 
         );
         this.disableUIElementNode(status);
-        let statusTextContainer = this.createUIElement('div', [
-            ['id','KeeFox-PanelSection-status-text']
-        ]);
-        status.insertBefore(statusTextContainer,status.lastChild);
         
         // This close panel will be displayed only when a subpanel is being displayed
         let subPanelCloser = this.createPanelSection(
@@ -200,7 +210,7 @@ keefox_win.panel = {
             ['title',keefox_org.locale.$STR('KeeFox_Search.tip')]
         ]);
         searchBox.addEventListener('input',function(e){
-            //TODO1.5: rate limit searches?
+            //TODO:1.6: rate limit searches?
             keefox_org.search.execute(e.target.value, closure.onSearchComplete);
         }, false);
 
@@ -263,7 +273,6 @@ keefox_win.panel = {
         ]);
         allLogins.insertBefore(allLoginsListOverflowContainer,allLogins.lastChild);
         
-        // This will become a new submenu one day
         let generatePassword = this.createPanelSection(
             'KeeFox-PanelSection-generatePassword', 
             function () { closure.showSubSectionGeneratePassword(); },
@@ -318,7 +327,10 @@ keefox_win.panel = {
             },
             'KeeFox_Help-Centre-Button'
         );
-        
+
+        panel.appendChild(notificationsTab);
+        panel.appendChild(notificationsWindow);
+        panel.appendChild(statusTextContainer);
         panel.appendChild(status);
         panel.appendChild(subPanelCloser);
         panel.appendChild(searchPanel);
@@ -410,7 +422,7 @@ keefox_win.panel = {
         while (toHide.length)
             this.disableUIElementNode(toHide[0]); // removes enabled class and thus deletes from the toHide list
 
-        //TODO1.5: Might make more sense to remember which subpanel was just closed and focus that button instead
+        //TODO:1.6: Might make more sense to remember which subpanel was just closed and focus that button instead
         this._currentWindow.document.getElementById('KeeFox-PanelSection-searchbox').focus();
     },
 
@@ -443,10 +455,18 @@ keefox_win.panel = {
     
     showSubSectionGeneratePassword: function ()
     {
-        this.generatePassword();
-        this.CustomizableUI.hidePanelForNode(this._currentWindow.document.getElementById('keefox-panelview'));
-        //TODO1.5: Immediately fire a generate password request using the most recent profile (& update growl message?)
-        // we might not have time to implement this for v1.4: this.showSubSection('KeeFox-SubSection-generatePassword');
+        let profileContainer = this._currentWindow.document.getElementById('KeeFox-PanelSubSection-PasswordProfileList');
+        // Remove all of the existing profiles
+        for (let i = profileContainer.childNodes.length; i > 0; i--) {
+            profileContainer.removeChild(profileContainer.childNodes[0]);
+        }
+
+        profileContainer.setAttribute("loading", "true");
+
+        keefox_win.mainUI.generatePassword();
+
+        this.showSubSection('KeeFox-PanelSubSection-PasswordProfileList');
+        keefox_org.getPasswordProfiles();
     },
     
     showSubSectionChangeDatabase: function ()
@@ -506,8 +526,6 @@ keefox_win.panel = {
         return b.relevanceScore - a.relevanceScore;
     },
 
-    
-    
     // populate the "all logins" menu with every login in this database
     setAllLogins: function () {
         keefox_win.Logger.debug("setAllLogins start");
@@ -582,7 +600,7 @@ keefox_win.panel = {
 
         var foundGroups = group.childGroups;
         var foundLogins = group.childLightEntries;
-        //keefox_win.Logger.debug("loga");
+
         if ((foundGroups == null || foundGroups.length == 0) && (foundLogins == null || foundLogins.length == 0)) {
             let noItemsButton = null;
             noItemsButton = this.createUIElement('li', [
@@ -618,7 +636,6 @@ keefox_win.panel = {
         }
 
         for (let i = 0; i < foundLogins.length; i++) {
-            //keefox_win.Logger.debug("logi: " + i);
             var login = foundLogins[i];
             var usernameValue = "";
             var usernameName = "";
@@ -657,18 +674,16 @@ keefox_win.panel = {
                 } 
                 if (event.button == 2)
                 {
-                    //TODO1.5: support keyboard context menu button too.
+                    //TODO:1.5: support keyboard context menu button too.
+                    
+                    keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
-                keefox_win.ILM.loadAndAutoSubmit(event.detail.button,
+                keefox_win.loadAndAutoSubmit(event.detail.button,
                                                      event.detail.ctrlKey,
-                                                     this.getAttribute('data-usernameName'), 
-                                                     this.getAttribute('data-usernameValue'),
                                                      this.getAttribute('data-url'),
-                                                     null,
-                                                     null,
                                                      this.getAttribute('data-uuid'), 
                                                      this.getAttribute('data-fileName')
                                                     );
@@ -685,6 +700,38 @@ keefox_win.panel = {
                 container = this.getEmptyContainerFor("KeeFox-PanelSubSection-AllLoginsList-Overflow");
             container.appendChild(loginItem);
         }
+    },
+
+    addLoginContextActions: function (document, uuid, fileName)
+    {
+        let context = document.getElementById('KeeFox-login-context');
+        let loadingMessage = document.createElement('menuitem');
+        loadingMessage.setAttribute("label", keefox_org.locale.$STR("loading") + "...");
+        loadingMessage.id = "KeeFox-login-context-loading";
+        loadingMessage.setAttribute("data-uuid", uuid);
+        loadingMessage.setAttribute("data-fileName", fileName);
+        context.appendChild(loadingMessage);
+        keefox_org.findLogins(null, null, null, uuid, fileName, null, null, keefox_win.panel.setLoginActions);
+                    
+        context.addEventListener("popuphidden", keefox_win.panel.removeLoginContextActions);
+    },
+
+    removeLoginContextActions: function (event) {
+        if (event.target.id != "KeeFox-login-context")
+            return;
+
+        let context = document.getElementById('KeeFox-login-context');
+        context.removeEventListener("popuphidden", keefox_win.panel.removeLoginContextActions);
+
+        let loading = document.getElementById('KeeFox-login-context-loading');
+        let copyUser = document.getElementById('KeeFox-login-context-copyuser');
+        let copyPass = document.getElementById('KeeFox-login-context-copypass');
+        let copyOther = document.getElementById('KeeFox-login-context-copyother');
+
+        if (loading) context.removeChild(loading);
+        if (copyUser) context.removeChild(copyUser);
+        if (copyPass) context.removeChild(copyPass);
+        if (copyOther) context.removeChild(copyOther);
     },
 
     createGroupItem: function (group, dbFileName, extraCSSClasses, displayName)
@@ -727,72 +774,173 @@ keefox_win.panel = {
     },
 
     navigateGroupHierachy: function (event) { 
-            // Find the currently displayed subgroup (if any)
-            let currentGroup = document.getElementById("KeeFox-PanelSection-allLogins")
-                                .querySelector(".active-group");
+        // Find the currently displayed subgroup (if any)
+        let currentGroup = document.getElementById("KeeFox-PanelSection-allLogins")
+                            .querySelector(".active-group");
                 
-            // Mark it as no longer active
-            if (currentGroup != null)
-                currentGroup.classList.remove("active-group");
+        // Mark it as no longer active
+        if (currentGroup != null)
+            currentGroup.classList.remove("active-group");
                 
-            // If user clicked on the active group or any of its parents, make sure that its direct parent (if any) is activated
-            if (currentGroup == event.target)
+        // If user clicked on the active group or any of its parents, make sure that its direct parent (if any) is activated
+        if (currentGroup == event.target)
+        {
+            // ignore the containing ul node, but note that we may end up selecting some higher part of the panel rather than a group
+            let parentGroup = currentGroup.parentNode.parentNode;
+            if (parentGroup != null && parentGroup.classList.contains("group-item"))
             {
-                // ignore the containing ul node, but note that we may end up selecting some higher part of the panel rather than a group
-                let parentGroup = currentGroup.parentNode.parentNode;
-                if (parentGroup != null && parentGroup.classList.contains("group-item"))
-                {
-                    parentGroup.classList.remove("active-group-parent");
-                    parentGroup.classList.add("active-group");
-                }
-                currentGroup.focus();
-            } else
+                parentGroup.classList.remove("active-group-parent");
+                parentGroup.classList.add("active-group");
+            }
+            currentGroup.focus();
+        } else
+        {
+            let parent;
+
+            // remove active marker from all parents. If we find the target node in the parent list, we'll set its parent as active (if it has one) and finish
+            if (currentGroup)
             {
-                let parent;
-
-                // remove active marker from all parents. If we find the target node in the parent list, we'll set its parent as active (if it has one) and finish
-                if (currentGroup)
-                {
-                    parent = currentGroup.parentNode;
-                    while (parent.nodeName == "ul" || parent.nodeName == "li")
-                    {
-                        if (parent.nodeName == "li")
-                        {
-                            parent.classList.remove("active-group-parent");
-                            if (parent == event.target)
-                            {
-                                if (parent.parentNode && parent.parentNode.parentNode && parent.parentNode.parentNode.nodeName == "li")
-                                {
-                                    parent.parentNode.parentNode.classList.remove("active-group-parent");
-                                    parent.parentNode.parentNode.classList.add("active-group");
-                                    parent.parentNode.parentNode.focus();
-                                    return;
-                                }
-                            }
-                        }
-                        parent = parent.parentNode;
-                    }
-                }
-
-                // add active marker to all parents of new node
-                parent = event.target.parentNode;
+                parent = currentGroup.parentNode;
                 while (parent.nodeName == "ul" || parent.nodeName == "li")
                 {
                     if (parent.nodeName == "li")
-                        parent.classList.add("active-group-parent");
+                    {
+                        parent.classList.remove("active-group-parent");
+                        if (parent == event.target)
+                        {
+                            if (parent.parentNode && parent.parentNode.parentNode && parent.parentNode.parentNode.nodeName == "li")
+                            {
+                                parent.parentNode.parentNode.classList.remove("active-group-parent");
+                                parent.parentNode.parentNode.classList.add("active-group");
+                                parent.parentNode.parentNode.focus();
+                                return;
+                            }
+                        }
+                    }
                     parent = parent.parentNode;
                 }
-
-                // Set our new active group
-                event.target.classList.add("active-group");
-
-                // Focus keyboard on first child
-                let fc = event.target.firstElementChild;
-                if (fc) fc = fc.firstElementChild;
-                if (fc) fc.focus();
-                
             }
-        },
+
+            // add active marker to all parents of new node
+            parent = event.target.parentNode;
+            while (parent.nodeName == "ul" || parent.nodeName == "li")
+            {
+                if (parent.nodeName == "li")
+                    parent.classList.add("active-group-parent");
+                parent = parent.parentNode;
+            }
+
+            // Set our new active group
+            event.target.classList.add("active-group");
+
+            // Focus keyboard on first child
+            let fc = event.target.firstElementChild;
+            if (fc) fc = fc.firstElementChild;
+            if (fc) fc.focus();
+                
+        }
+    },
+
+    setLoginActions: function (resultWrapper)
+    {
+        let isError = false;
+
+        try
+        {
+            if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
+            {
+                let foundLogin = resultWrapper.result[0]; 
+                    
+                var kfl = keeFoxLoginInfo();
+                kfl.initFromEntry(foundLogin);
+
+                let context = document.getElementById('KeeFox-login-context');
+                let loadingMessage = document.getElementById('KeeFox-login-context-loading');
+
+                if (kfl.uniqueID == loadingMessage.getAttribute('data-uuid')
+                    && kfl.database.fileName == loadingMessage.getAttribute('data-fileName'))
+                {
+                    // We got an answer for the correct login
+
+                    // later we'll ignore the one marked as username
+                    let otherFieldCount = (kfl.otherFields != null && kfl.otherFields.length > 0) ? kfl.otherFields.length : 0;
+                    let usernameField = (otherFieldCount > 0) ? kfl.otherFields[kfl.usernameIndex] : null;
+
+                    // later we'll ignore the first password in the list
+                    let passwordFieldCount = (kfl.passwords != null && kfl.passwords.length > 0) ? kfl.passwords.length : 0;
+                    let passwordField = (passwordFieldCount > 0) ? kfl.passwords[0] : null;
+
+                    if (usernameField != null)
+                    {
+                        let copyUsername = document.createElement('menuitem');
+                        copyUsername.setAttribute("label", keefox_org.locale.$STR("copy-username.label"));
+                        copyUsername.id = "KeeFox-login-context-copyuser";
+                        copyUsername.addEventListener("command", function (event) {
+                            keefox_org.utils.copyStringToClipboard(usernameField.value);
+                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                        });
+                        context.appendChild(copyUsername);
+                    }
+                    if (passwordField != null) {
+                        let copyPassword = document.createElement('menuitem');
+                        copyPassword.setAttribute("label", keefox_org.locale.$STR("copy-password.label"));
+                        copyPassword.id = "KeeFox-login-context-copypass";
+                        copyPassword.addEventListener("command", function (event) {
+                            keefox_org.utils.copyStringToClipboard(passwordField.value);
+                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                        });
+                        context.appendChild(copyPassword);
+                    }
+                    if (otherFieldCount > 1 || passwordFieldCount > 1) {
+                        let copyOther = document.createElement('menu');
+                        copyOther.setAttribute("label", keefox_org.locale.$STR("copy-other.label"));
+                        copyOther.id = "KeeFox-login-context-copyother";
+                        let copyOtherPopup = document.createElement('menupopup');
+                        copyOther.appendChild(copyOtherPopup);
+
+                        if (otherFieldCount > 1) {
+                            kfl.otherFields.forEach(function (o, i) {
+                                if (i != kfl.usernameIndex && o.type != "checkbox") {
+                                    let other = document.createElement('menuitem');
+                                    other.setAttribute("label", o.name + " (" + o.fieldId + ")");
+                                    other.addEventListener("command", function (event) {
+                                        keefox_org.utils.copyStringToClipboard(o.value);
+                                        keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                    });
+                                    copyOtherPopup.appendChild(other);
+                                }
+                            });
+                        }
+                        if (passwordFieldCount > 1) {
+                            kfl.passwords.forEach(function (p, i) {
+                                if (i != 0 && p.type != "checkbox") {
+                                    let pass = document.createElement('menuitem');
+                                    pass.setAttribute("label", p.name + " (" + p.fieldId + ")");
+                                    pass.addEventListener("command", function (event) {
+                                        keefox_org.utils.copyStringToClipboard(p.value);
+                                        keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                    });
+                                    copyOtherPopup.appendChild(pass);
+                                }
+                            });
+                        }
+                        context.appendChild(copyOther);
+                    }
+
+                    context.removeChild(loadingMessage);
+                } else
+                {
+                    isError = true;
+                }
+            } else
+            {
+                isError = true;
+            }
+        } catch (e) {
+            isError = true;
+        }
+        return;
+    },
 
     getContainerFor: function (id)
     {
@@ -831,42 +979,28 @@ keefox_win.panel = {
         return groupContainer;
     },
 
-
-
-
     // Calling this function with null or empty logins array will clear all existing logins (e.g. from iframes)
-    setLogins: function (logins, documentURI)
+    setLogins: function (logins, notifyUserOnSuccess)
     {
         keefox_win.Logger.debug("panel setLogins started");
+        
         // Get the container that we want to add our matched logins to.
-        // We don't care whether we have already added content to the container before
-        // Other parts of KeeFox code will remove the contents of the container when we know
-        // that don't want them anymore.
-        // Dealing with additional entries being added (e.g. from an iframe) used to
-        // be much more complex but now all we need to do is make sure that we don't
-        // add duplicate entries. Actually, in KeeFox 1.5+ we might adjust this again 
-        // so that we can store information about which iframe and specific form should 
-        // be filled in so determining duplicates would get more complex again at that point.
-
         var container = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList");
         if (container === undefined || container == null)
             return;
+        var overflowPanelContainer = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
 
-        // if the matched logins container is locked (because it's currently open) we don't
-        // make any changes. In future, maybe we could delay the change rather than
-        // completely ignore it but for now, the frequent "dynamic form polling"
-        // feature will ensure a minimal wait for update once the lock is released.
-        //if (container.getAttribute('KFLock') == "enabled")
-        //    return;
-
-        // Disable all matched logins UI elements, perhaps just for a jiffy while 
-        // we work out which ones need to be revealed again
-        this.disableUIElement("KeeFox-PanelSection-matchedLogins");
-        this.disableUIElement("KeeFox-PanelSubSection-MatchedLoginsList");
-        this.disableUIElement("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
-        this.disableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
+        // Force the panel to close before modifying the contents
+        keefox_win.panel.CustomizableUI.hidePanelForNode(
+                    keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+        keefox_win.panel.hideSubSections();
         
         if (logins == null || logins.length == 0) {
+            // Disable all matched logins UI elements
+            this.disableUIElement("KeeFox-PanelSection-matchedLogins");
+            this.disableUIElement("KeeFox-PanelSubSection-MatchedLoginsList");
+            this.disableUIElement("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
+            this.disableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
             this.removeLogins();
             this.setupButton_ready(null, this._currentWindow);
             return;
@@ -874,14 +1008,34 @@ keefox_win.panel = {
 
         logins.sort(this.compareRelevanceScores);
 
-        keefox_win.Logger.debug("setting or merging " + logins.length + " matched logins");
+        keefox_win.Logger.debug("setting " + logins.length + " matched logins");
 
-        //this.setLoginsTopMatch(logins, documentURI, container, merging);
-        this.setLoginsAllMatches(logins, documentURI, container);
-        
+        let loginsHaveBeenChanged = this.checkAllMatchedLoginsForChanges(logins, container, overflowPanelContainer);
+
+        if (!loginsHaveBeenChanged)
+        {
+            keefox_win.Logger.debug("setLogins found no changes");
+            return;
+        }
+
+        // Disable all matched logins UI elements, perhaps just for a jiffy while 
+        // we work out which ones need to be revealed again
+        this.disableUIElement("KeeFox-PanelSection-matchedLogins");
+        this.disableUIElement("KeeFox-PanelSubSection-MatchedLoginsList");
+        this.disableUIElement("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
+        this.disableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
+
+        this.removeLogins();
+
+        // Get the container again (it has been deleted by removeLogins()
+        // so this creates and returns it)
+        container = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList");
+
+        this.setLoginsAllMatches(logins, container);        
+
         // Update the UI state to reflect the number of matches found and where they are displayed
 
-        var overflowPanelContainer = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
+        overflowPanelContainer = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
 
         if (container.childElementCount > 0 || overflowPanelContainer.childElementCount > 0)
             this.enableUIElement("KeeFox-PanelSection-matchedLogins");
@@ -889,22 +1043,68 @@ keefox_win.panel = {
             this.enableUIElement("KeeFox-PanelSubSection-MatchedLoginsList");
         if (overflowPanelContainer.childElementCount > 0)
         {
-            //TODO1.5: enable this subpanel? or maybe that's done when we try to show the subpanel each time? this.enableUIElement("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
             this.enableUIElement("KeeFox-PanelSection-matchedLogins-main-action");
         }
         
         // Set icon overlay on main panel widget button icon to say how many matches there were
         this.setWidgetNotificationForMatchedLogins(container.childElementCount + overflowPanelContainer.childElementCount);
 
+        // notify user if necessary
+        if (notifyUserOnSuccess)
+            keefox_win.UI.growl("Matched logins found", "View them in the main KeeFox panel", true);
+
         keefox_win.Logger.debug(logins.length + " matched panel logins set!");
     },
 
-    setLoginsAllMatches: function (logins, documentURI, container) {
+    // also used by context.js
+    checkAllMatchedLoginsForChanges: function (logins, container, overflowPanelContainer) {
+        keefox_win.Logger.debug("checkAllMatchedLoginsForChanges started");
+        
+        // If the logins already present in the main panel and subview containers
+        // are identical to the current list, we leave them be.
+        // We assume the number of items in the main menu vs overflow container
+        // are the same since when we added the current set of logins (user is
+        // unlikely to be able to change this during a form search operation)
+        var loginsListUnchanged = logins.length ===
+            container.childElementCount + overflowPanelContainer.childElementCount;
+
+        if (loginsListUnchanged)
+            loginsListUnchanged = this.areLoginsInContainerUnchanged(logins, container, 0);
+
+        // If we've not already found a mismatch, look at the overflow container too
+        if (loginsListUnchanged && overflowPanelContainer != null && overflowPanelContainer.childElementCount > 0)
+            loginsListUnchanged = this.areLoginsInContainerUnchanged(logins, overflowPanelContainer, container.children.length);
+
+        return !loginsListUnchanged;
+    },
+
+    // also used by context.js
+    areLoginsInContainerUnchanged: function (logins, container, searchOffset)
+    {        
+        for (let j = 0, n = container.children.length; j < n; j++) {
+            var child = container.children[j];
+            let login = logins[j + searchOffset];
+            if (typeof (login) === 'undefined')
+                return false;
+            let uuid = child.hasAttribute('data-uuid') ? child.getAttribute('data-uuid') : null;
+            let formIndex = child.hasAttribute('data-formIndex') ? child.getAttribute('data-formIndex') : null;
+            let loginIndex = child.hasAttribute('data-loginIndex') ? child.getAttribute('data-loginIndex') : null;
+            let frameKey = child.hasAttribute('data-frameKey') ? child.getAttribute('data-frameKey') : null;
+            if (uuid != login.uniqueID || formIndex != login.formIndex
+                || loginIndex != login.loginIndex || frameKey != login.frameKey)
+                return false;
+        }
+        return true;
+    },
+
+    setLoginsAllMatches: function (logins, container) {
         keefox_win.Logger.debug("setLoginsAllMatches started");
         
         // Sometimes we need to refer to the original container even
         // if we have started adding extra logins to the overflow container
         let mainPanelContainer = container;
+
+        // This allows us to track when we've switched into the overflow mode
         let overflowPanelContainer = null;
 
         // add every matched login to the container(s)
@@ -928,82 +1128,48 @@ keefox_win.panel = {
             }
 
 
-            // check for duplicates in the main panel and subview containers
-            var addLoginToPopup = true;
-
-            if (mainPanelContainer.childElementCount > 0) {
-                for (let j = 0, n = mainPanelContainer.children.length; j < n; j++) {
-                    var child = mainPanelContainer.children[j];
-                    let valAttr = child.hasAttribute('data-uuid') ? child.getAttribute('data-uuid') : null;
-                    if (valAttr == login.uniqueID) {
-                        addLoginToPopup = false;
-                        break;
-                    }
+            var loginItem = this.createUIElement('li', [
+                ['class',''],
+                ['style','background-image:url(data:image/png;base64,' + login.iconImageData + ')'],
+                ['data-fileName',login.database.fileName],
+                ['data-frameKey', login.frameKey],
+                ['data-formIndex', login.formIndex],
+                ['data-loginIndex', login.loginIndex],
+                ['data-uuid',login.uniqueID],
+                ['title',keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue])],
+                ['tabindex','-1']
+            ]);
+            loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+            loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
+            loginItem.addEventListener("mouseup", function (event) { 
+                event.stopPropagation();
+                if (event.button == 0 || event.button == 1)
+                    this.dispatchEvent(new Event("keefoxCommand"));
+                else if (event.button == 2) {
+                    keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
+                    keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document, event, 'KeeFox-login-context');
                 }
-            }
+            }, false);
+            loginItem.addEventListener("keefoxCommand", function (event) { 
+                keefox_win.fillAndSubmit(false,
+                    this.hasAttribute('data-frameKey') ? this.getAttribute('data-frameKey') : null,
+                    this.hasAttribute('data-formIndex') ? this.getAttribute('data-formIndex') : null,
+                    this.hasAttribute('data-loginIndex') ? this.getAttribute('data-loginIndex') : null
+                );
+                keefox_win.panel.CustomizableUI.hidePanelForNode(
+                    keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                keefox_win.panel.hideSubSections();
+            }, false);
 
-            // If we've not already found a duplicate, look at the overflow container too
-            if (addLoginToPopup && overflowPanelContainer != null && overflowPanelContainer.childElementCount > 0) {
-                for (let j = 0, n = overflowPanelContainer.children.length; j < n; j++) {
-                    var child = overflowPanelContainer.children[j];
-                    let valAttr = child.hasAttribute('data-uuid') ? child.getAttribute('data-uuid') : null;
-                    if (valAttr == login.uniqueID) {
-                        addLoginToPopup = false;
-                        break;
-                    }
-                }
-            }
-
-            if (addLoginToPopup)
+            // If we've exceeded our allowed number of items in the main panel, we must switch to the overflow container
+            if (mainPanelContainer.childElementCount >= keefox_org._keeFoxExtension.prefs.getValue("maxMatchedLoginsInMainPanel",5))
             {
-
-                var loginItem = this.createUIElement('li', [
-                    ['class',''],
-                    ['style','background-image:url(data:image/png;base64,' + login.iconImageData + ')'],
-                    ['data-fileName',login.database.fileName],
-                    ['data-usernameName',usernameName],
-                    ['data-usernameValue',usernameValue],
-                    ['data-usernameId',usernameId],
-                    ['data-formActionURL',login.formActionURL],
-                    ['data-documentURI',documentURI],
-                    ['data-uuid',login.uniqueID],
-                    ['title',keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue])],
-                    ['tabindex','-1']
-                ]);
-                loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
-                loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
-                loginItem.addEventListener("mouseup", function (event) { 
-                    event.stopPropagation();
-                    if (event.button == 0 || event.button == 1)
-                        this.dispatchEvent(new Event("keefoxCommand"));
-                    else if (event.button == 2)
-                        keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
-                }, false);
-                loginItem.addEventListener("keefoxCommand", function (event) { 
-                    keefox_win.ILM.fill(
-                        this.hasAttribute('data-usernameName') ? this.getAttribute('data-usernameName') : null,
-                        this.hasAttribute('data-usernameValue') ? this.getAttribute('data-usernameValue') : null,
-                        this.hasAttribute('data-formActionURL') ? this.getAttribute('data-formActionURL') : null,
-                        this.hasAttribute('data-usernameId') ? this.getAttribute('data-usernameId') : null,
-                        this.hasAttribute('data-formId') ? this.getAttribute('data-formId') : null,
-                        this.hasAttribute('data-uuid') ? this.getAttribute('data-uuid') : null,
-                        this.hasAttribute('data-documentURI') ? this.getAttribute('data-documentURI') : null,
-                        this.hasAttribute('data-fileName') ? this.getAttribute('data-fileName') : null
-                    );
-                    keefox_win.panel.CustomizableUI.hidePanelForNode(
-                        keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                    keefox_win.panel.hideSubSections();
-                }, false);
-
-                // If we've exceeded our allowed number of items in the main panel, we must switch to the overflow container
-                if (mainPanelContainer.childElementCount >= keefox_org._keeFoxExtension.prefs.getValue("maxMatchedLoginsInMainPanel",5))
-                {
-                    container = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
-                    overflowPanelContainer = container;
-                }
-                container.appendChild(loginItem);
+                container = this.getContainerFor("KeeFox-PanelSubSection-MatchedLoginsList-Overflow");
+                overflowPanelContainer = container;
             }
+            container.appendChild(loginItem);
         }
+        keefox_win.Logger.debug("setLoginsAllMatches ended");
     },
 
     onSearchComplete: function (logins)
@@ -1069,21 +1235,18 @@ keefox_win.panel = {
                 } 
                 if (event.button == 2)
                 {
-                    // TODO1.5: When accessing layerX and layerY here, they are always 0, however, when accessed from the
+                    // TODO:1.5: When accessing layerX and layerY here, they are always 0, however, when accessed from the
                     // function to which the event is passed next, they have a value that is relative to the main widget
                     // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
                     // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
+                    keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
-                keefox_win.ILM.loadAndAutoSubmit(event.detail.button,
+                keefox_win.loadAndAutoSubmit(event.detail.button,
                                                     event.detail.ctrlKey,
-                                                    this.getAttribute('data-usernameName'), 
-                                                    this.getAttribute('data-usernameValue'),
                                                     this.getAttribute('data-url'),
-                                                    null,
-                                                    null,
                                                     this.getAttribute('data-uuid'), 
                                                     this.getAttribute('data-fileName')
                                                 );
@@ -1092,6 +1255,7 @@ keefox_win.panel = {
                 keefox_win.panel.hideSubSections();
             }, false);
             loginItem.addEventListener("keefoxContext", function (event) {
+                keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
             }, false);
             
@@ -1111,7 +1275,7 @@ keefox_win.panel = {
 
         // This fails if called during startup and the widget is in the main panel (the node
         // has not been added to the DOM yet, pending user menu panel activation).
-        //TODO1.5: Is this still a problem now that we create the panel earlier? If so, maybe set some kind of on-main-menu-panel-open listener to retry this operation later
+        //TODO:1.6: Is this still a problem now that we create the panel earlier? If so, maybe set some kind of on-main-menu-panel-open listener to retry this operation later
 
         // We can't know if this is going to be called just once (usual) or multiple times 
         // (e.g. for iframes) so we must make sure any race conditions are avoided or at least benign
@@ -1148,6 +1312,8 @@ keefox_win.panel = {
         widgetButton.classList.add(enabled ? "enabled" : "disabled");
         statusPanel.classList.remove(!enabled ? "disabled" : "enabled");
         statusPanel.classList.add(!enabled ? "enabled" : "disabled");
+        statusPanelText.classList.remove(!enabled ? "disabled" : "enabled");
+        statusPanelText.classList.add(!enabled ? "enabled" : "disabled");
 
         widgetButton.removeAttribute("keefox-match-count");
 
@@ -1162,13 +1328,9 @@ keefox_win.panel = {
 
         if (enabled)
         {
-            statusPanel.classList.remove("enabled");
-            statusPanel.classList.add("disabled");
             widgetButton.setAttribute("tooltiptext","KeeFox enabled");
         } else
         {
-            statusPanel.classList.add("enabled");
-            statusPanel.classList.remove("disabled");
             widgetButton.setAttribute("tooltiptext",tooltip);
             statusPanelText.textContent = detailedInfo;
             statusPanelButton.setAttribute("value", buttonLabel);
@@ -1356,6 +1518,74 @@ keefox_win.panel = {
             firstMatch.focus();
     },
 
+    setPasswordProfilesCallback: function (result) {
+
+        let container = this.getEmptyContainerFor("KeeFox-PanelSubSection-PasswordProfileList");
+        if (container === undefined || container == null)
+            return;
+
+        // Remove the loading message
+        container.parentNode.removeAttribute("loading");
+
+        let passwordProfilesExplanation = this.createUIElement('div', [
+                ['class', '']
+        ]);
+        passwordProfilesExplanation.textContent = keefox_org.locale.$STR("generatePassword.copied")
+            + " " + keefox_org.locale.$STR("PasswordProfilesExplanation.label");
+        container.appendChild(passwordProfilesExplanation);
+
+        let profileArray = result;
+        let noItemsButton;
+        if (profileArray == null || profileArray.length == 0) {
+            noItemsButton = this.createUIElement('li', [
+                ['class',''],
+                ['tabindex','-1']
+            ]);
+            // This shouldn't ever happen since KeePass has built in profiles. So we won't bother localising
+            // this string but it's here just in case some weird change is made to KeePass in future.
+            noItemsButton.textContent = "There are no password profiles. Use KeePass to save new profiles.";
+            container.appendChild(noItemsButton);
+        } else {
+
+            for (let i = 0; i < profileArray.length; i++)
+            {
+                let displayName = profileArray[i];
+            
+                let loginItem = this.createUIElement('li', [
+                    ['class',''],
+                    ['tabindex','-1']
+                ]);
+                loginItem.textContent = displayName;
+                loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
+                loginItem.addEventListener("mouseup", function (event) { 
+                    if (event.button == 0 || event.button == 1)
+                    {
+                        event.stopPropagation();
+                        this.dispatchEvent(new Event("keefoxCommand"));
+                    }
+                }, false);
+                loginItem.addEventListener("keefoxCommand", function (event) { 
+                    let kf = keefox_org;
+                    kf.metricsManager.pushEvent ("feature", "generatePasswordFromProfile");
+                    kf.generatePassword(this.textContent);
+                    keefox_win.panel.CustomizableUI.hidePanelForNode(
+                        keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                    keefox_win.panel.hideSubSections();
+                }, false);
+
+                container.appendChild(loginItem);
+            }
+        }
+        
+        // Try to focus on the first item in the newly displayed sub section
+        let matches = container.getElementsByTagName('li');
+        if (!matches)
+            return;
+        let firstMatch = matches[0];
+        if (firstMatch)
+            firstMatch.focus();
+    },
+
     generatePassword: function () {
         let kf = this._currentWindow.keefox_org;
         kf.metricsManager.pushEvent ("feature", "generatePassword");
@@ -1412,7 +1642,7 @@ keefox_win.panel = {
                 ,"topleft topleft",event.layerX+2,event.layerY+2, true, false);
 //    doc.getElementById(id)
 //            .openPopup(event.target
-//                ,"topleft topleft",0,0, true, false, event);
+        //                ,"topleft topleft",0,0, true, false, event);
     },
 
     keyboardNavHandler: function (event) {
@@ -1627,4 +1857,3 @@ keefox_win.panel = {
     }
 
 };
-

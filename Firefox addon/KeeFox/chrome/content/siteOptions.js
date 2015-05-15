@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-"can't use strict"; // don't know why yet
+"use strict"; //TODO:1.5: Verify this works in FF29
 
 let Cc = Components.classes;
 let Ci = Components.interfaces;
@@ -75,7 +75,7 @@ function onLoad()
 function setTreeViewURLChooser ()
 {
     var tree = document.getElementById("siteURLTree");
-    siteURLTreeView = new ClassTreeView(this.getObjectChildren);
+    siteURLTreeView = new ClassTreeView(getObjectChildren);
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
@@ -83,7 +83,7 @@ function setTreeViewURLChooser ()
     var rootURL = "*"; // defaults
     siteURLTreeView.addTopObject(getURLTree(), true);
     tree.view = siteURLTreeView;
-    //TODO1.5: open tree on load if needed - "auto expand"
+    //TODO:1.6: open tree on load if needed - "auto expand"
 }
 
 function getURLTree()
@@ -93,7 +93,7 @@ function getURLTree()
         childURLs: []
     }
 
-    // TODO1.5: Group entries by domain and maybe directory
+    // TODO:1.6: Group entries by domain and maybe directory
     for (let i=1; i<configMan.current.length; i++) // Skip "*"
     {
         let conf = configMan.current[i];

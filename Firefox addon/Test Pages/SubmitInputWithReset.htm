@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>KeeFox Test - Submit input with reset</title>
+</head>
+<body>
+    <div>This is a page to assist in testing KeeFox features.</div>
+    <br />
+    <div style="font-weight:bold">Autosubmit should work</div>
+    <br />
+    <div>Note that the form just submits to a test results page and performs no action on the submitted data.</div>
+    <br />
+    <form action="testResults.htm" method="get">
+        <label for="username">Username</label>: <input type="text" id="username" name="username" /><br />
+        <label for="password">Password</label>: <input type="password" id="password" name="password" /><br />
+        <input type="submit" name="Test" value="Perform test" id="submit" />
+        <input type="reset" name="empty" value="empty all" id="reset" />
+    </form>
+</body>
+</html>

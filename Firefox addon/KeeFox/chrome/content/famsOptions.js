@@ -55,7 +55,7 @@ function onLoad()
     //FAMS.initConfig(id,FAMS.defaultConfiguration); // for now, the default FAMS config is the default KeeFox config, in future need to pass it in to this function
     // we don't init this time cos we just want to use some of the utility methods
     //FAMS.configuration = FAMS.getConfiguration();
-    config = JSON.parse(JSON.stringify(FAMS.configuration)); //TODO: less hacky clone
+    config = JSON.parse(JSON.stringify(FAMS.configuration)); //TODO:2: less hacky clone. https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
     document.title = FAMS.getLocalisedString("Options.title");
     go();
 }
@@ -80,7 +80,6 @@ function go() {
     window.sizeToContent();
     var newHeight = Math.min(Math.floor(screen.availHeight-100),container.boxObject.height);
     container.height = newHeight;
-    //window.alert(newHeight);
     window.sizeToContent();
 }
 
@@ -91,7 +90,7 @@ function renderAllMessageGroups()
     famsDescription.textContent = FAMS.locale.internationaliseString(config.description);
     msgGroupContainer.appendChild(famsDescription);
     
-    //TODO2: Enable downloads for urgent security notifications
+    //TODO:2: Enable downloads for urgent security notifications
     //renderDownloadOptions();
 
     for (var i=0; i<config.messageGroups.length; i++)
@@ -113,7 +112,7 @@ function renderDownloadOptions()
     downloadLabelExplanation.setAttribute("value", FAMS.getLocalisedString("Options-Download-Freq.label"));
     downloadLabelNote.textContent = FAMS.getLocalisedString("Options-Download-Freq.desc", config.name);
 
-    downloadLabel.setAttribute("value", config.timeBetweenDownloadingMessages / FAMS.timeFactorDownload); //TODO2: be clever RE the time units we display to the user
+    downloadLabel.setAttribute("value", config.timeBetweenDownloadingMessages / FAMS.timeFactorDownload); //TODO:2: be clever RE the time units we display to the user
     downloadLabel.setAttribute("id","downloadSliderLabel");   
     
     downloadSlider.setAttribute("min", config.minTimeBetweenDownloadingMessages / FAMS.timeFactorDownload);
@@ -189,7 +188,7 @@ function renderMessageGroup(msgGroupIndex)
     appearanceSlider.setAttribute("max", msgGroup.maxTimeBetweenMessages / FAMS.timeFactorDisplay);
     appearanceSlider.setAttribute("value", msgGroup.timeBetweenMessages / FAMS.timeFactorDisplay);
     appearanceSlider.setAttribute("id","appearanceSliderForMessageGroup_" + msgGroupIndex);
-    appearanceSlider.addEventListener("change", function (event) { onMessageGroupAppearanceFreqChange(this.id.substr(32, 1), this.value); }, false); //TODO2: Support more than 10 message groups... but surely this UI won't be useable with that number anyway?!
+    appearanceSlider.addEventListener("change", function (event) { onMessageGroupAppearanceFreqChange(this.id.substr(32, 1), this.value); }, false); //TODO:2: Support more than 10 message groups... but surely this UI won't be useable with that number anyway?!
     appearanceSlider.setAttribute("style", "width:250px;");
 
     appearanceLabel.setAttribute("value", msgGroup.timeBetweenMessages / FAMS.timeFactorDisplay);
@@ -198,7 +197,7 @@ function renderMessageGroup(msgGroupIndex)
     appearanceSliderComplete.appendChild(appearanceSlider);
     appearanceSliderComplete.appendChild(appearanceLabel);
 
-    //TODO2: support viewing all messages
+    //TODO:2: support viewing all messages
     //seeAllButton.setAttribute("style","width:100px;");
     //seeAllButton.setAttribute("value","See all");
 

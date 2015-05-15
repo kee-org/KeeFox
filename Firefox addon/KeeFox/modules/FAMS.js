@@ -35,17 +35,18 @@ let Ci = Components.interfaces;
 let Cu = Components.utils;
 let Cc = Components.classes;
 
-var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO2: KeeFox specific (to meet Mozilla add-on review guidelines)
+var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO:2: KeeFox specific (to meet Mozilla add-on review guidelines)
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/locales.js");
 Cu.import("resource://kfmod/FAMS-config.js");
 
 var _famsInst = null;
-function keeFoxGetFamsInst(id, config, log) {
+function keeFoxGetFamsInst(id, config, log, notificationService) {
     if (!_famsInst) {
         _famsInst = new FirefoxAddonMessageService();
         _famsInst.initConfig(id, config);
         _famsInst.init(log);
+        _famsInst.notificationService = notificationService;
     }
     return _famsInst;
 };
@@ -66,7 +67,7 @@ function FirefoxAddonMessageService()
                         .createInstance(Ci.nsITimer);
     
     // set up FAMS localisation
-    this.locale = new Localisation(["chrome://keefox/locale/keefox.properties","chrome://keefox/locale/FAMS.keefox.properties"]); //TODO2: KeeFox specific
+    this.locale = new Localisation(["chrome://keefox/locale/keefox.properties","chrome://keefox/locale/FAMS.keefox.properties"]); //TODO:2: KeeFox specific
 
     this._log("constructed at " + Date());
 }
@@ -92,7 +93,7 @@ FirefoxAddonMessageService.prototype = {
                      .getService(Ci.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            var fams = window.keefox_win.FAMS; //TODO2: KeeFox specific
+            var fams = window.keefox_win.FAMS; //TODO:2: KeeFox specific
             fams.runMessageProcesses();
         }
     },
@@ -103,7 +104,7 @@ FirefoxAddonMessageService.prototype = {
                      .getService(Ci.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||
                 wm.getMostRecentWindow("mail:3pane");
-            var fams = window.keefox_win.FAMS; //TODO2: KeeFox specific
+            var fams = window.keefox_win.FAMS; //TODO:2: KeeFox specific
             fams.downloadNewMessages();
         }
     },
@@ -210,7 +211,7 @@ FirefoxAddonMessageService.prototype.runMessageProcesses = function () {
     this._log("runMessageProcesses complete");
 };
 
-//TODO2: What about people that always close Firefox within an hour? Maybe have a maximum wait measured in days that forces a process run within 30 seconds of app start?
+//TODO:2: What about people that always close Firefox within an hour? Maybe have a maximum wait measured in days that forces a process run within 30 seconds of app start?
 FirefoxAddonMessageService.prototype.setupRegularMessageProcesses = function () {
     //Debug: force display frequency to 30 seconds
 //    this.configuration.timeBetweenMessages = 30000;
@@ -222,7 +223,7 @@ FirefoxAddonMessageService.prototype.setupRegularMessageProcesses = function () 
 
 FirefoxAddonMessageService.prototype.downloadNewMessages = function()
 {
-//TODO2: Actually load the data from the remote location (e.g. JSON?)
+//TODO:2: Actually load the data from the remote location (e.g. JSON?)
 //urlForDownloadingMessages
 };
 
@@ -235,7 +236,7 @@ FirefoxAddonMessageService.prototype.canDisplayNowShared = function(item)
         return false;
         
     // If it's too recent since application startup
-    if (item.minTimeAfterStartup > this.getTimeSinceStartup())
+    if (typeof (item.minTimeAfterStartup) !== "undefined" && item.minTimeAfterStartup > this.getTimeSinceStartup())
         return false;
         
     // If it's too soon to display this item
@@ -311,7 +312,7 @@ FirefoxAddonMessageService.prototype.getTimeSinceInstall = function()
     return timeSinceInstall;
 };
 
-//TODO2: some bits of this may be similar enough with the group equivelent to consider combining them
+//TODO:2: some bits of this may be similar enough with the group equivelent to consider combining them
 FirefoxAddonMessageService.prototype.displayNextMessage = function(messageGroup)
 {
     this._log("trying to display a message from group: " + messageGroup.id);
@@ -387,7 +388,7 @@ FirefoxAddonMessageService.prototype.showMessage = function (title, body, moreIn
 
 FirefoxAddonMessageService.prototype.verifySignature = function (message, sig)
 {
-//TODO2: actually verify the sig
+//TODO:2: actually verify the sig
 return true;
 };
 
@@ -451,7 +452,7 @@ FirefoxAddonMessageService.prototype.getLocalisedString = function (key, formatA
 
 FirefoxAddonMessageService.prototype.openActionLink = function (link)
 {
-    //TODO2: something like KF._openAndReuseOneTabPerURL?
+    //TODO:2: something like KF._openAndReuseOneTabPerURL?
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                .getService(Ci.nsIWindowMediator);
     var newWindow = wm.getMostRecentWindow("navigator:browser") ||
@@ -460,11 +461,14 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
     var newTab = b.loadOneTab( link, null, null, null, false, null );
 };
 
-FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
-    var aNotifyBox = this.getNotifyBox();
-    if (!aNotifyBox)
+FirefoxAddonMessageService.prototype.showMessageNotification = function (name, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
+    var notifyBox = this.notificationService();
+    if (!notifyBox)
+    {
+        fams._log("Notification service not found");
         return false;
-
+    }
+    
     var actionButtonText =
               this.getLocalisedString("NotifyBar-A-" + actionName + "-Button.label");
     var actionButtonAccessKey =
@@ -516,7 +520,7 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
                     var win = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
                     win.openDialog(
-                       "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox", //TODO2: KeeFox specific
+                       "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox", //TODO:2: KeeFox specific
                        "",
                        "centerscreen,dialog=no,chrome,resizable,dependent,modal"
                       );
@@ -524,31 +528,39 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (aName, 
             }
         ];
 
-    var oldBar = aNotifyBox.getNotificationWithValue(aName);
     var priority;
 
     if (priorityName == "high")
-        priority = aNotifyBox.PRIORITY_WARNING_HIGH;
+        priority = notifyBox.PRIORITY_WARNING_HIGH;
     else if (priorityName == "low")
-        priority = aNotifyBox.PRIORITY_INFO_LOW;
+        priority = notifyBox.PRIORITY_INFO_LOW;
     else
-        priority = aNotifyBox.PRIORITY_INFO_MEDIUM;
+        priority = notifyBox.PRIORITY_INFO_MEDIUM;
 
+    let notification = {
+        name: name,
+        render: function (container) {
 
-    this._log("Adding new " + aName + " notification bar");
-    var newBar = aNotifyBox.appendNotification(
-                                aText, aName,
-                                "chrome://keefox/skin/KeeFox16.png", //TODO2: KeeFox specific
-                                priority, buttons);
+            // We will append the rendered view of our own notification information to the
+            // standard notification container that we have been supplied
 
-    if (!persistence)
-        newBar.persistence = persistence;
+            var doc = container.ownerDocument;
 
-    if (oldBar) {
-        this._log("(...and removing old " + aName + " notification bar)");
-        aNotifyBox.removeNotification(oldBar);
-    }
-    return newBar;
+            var text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+            text.textContent = aText;
+            text.setAttribute('class', 'KeeFox-message');
+            container.appendChild(text);
+
+            // We might customise other aspects of the notifications but when we want
+            // to display buttons we can treat them all the same
+            container = doc.ownerGlobal.keefox_win.notificationManager.renderButtons(buttons, doc, notifyBox, name, container);
+
+            return container;
+        },
+        thisTabOnly: false,
+        priority: priority
+    };
+    notifyBox.add(notification);
 };
 
 /*
@@ -612,7 +624,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
         var conf = JSON.parse(prefData);
         if (conf.version < this.defaultConfiguration.version)
         {
-            var newConf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO2: faster clone?
+            var newConf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
             newConf.knownMessageGroups = conf.knownMessageGroups;
 
             for (var i=0; i < newConf.messageGroups.length; i++)
@@ -640,7 +652,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
         return conf;
     } catch (ex) {
         this._log(ex);
-        var conf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO2: faster clone?
+        var conf = JSON.parse(JSON.stringify(this.defaultConfiguration)); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
         this.setConfiguration(conf);
         return conf;
     }
@@ -682,7 +694,6 @@ FirefoxAddonMessageService.prototype.validateConfig = function(config)
             return "No knownMessageGroups";
         if (!config.messageGroups)
             return "No messageGroups";
-        //TODO2: ... etc. etc.
     } catch (ex)
     {
         return ex + "";
@@ -694,4 +705,4 @@ FirefoxAddonMessageService.prototype.defaultConfiguration = FAMSDefaultConfig;
 
 //var famsInst = new FirefoxAddonMessageService;
 
-//TODO2: Message config and seperate strings.json will need to be downloaded. could combine both into one JSON object and sign that.
+//TODO:2: Message config and seperate strings.json will need to be downloaded. could combine both into one JSON object and sign that.

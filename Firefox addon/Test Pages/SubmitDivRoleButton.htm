@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>KeeFox Test - Submit div@role element inside form</title>
+</head>
+<body>
+    <div>This is a page to assist in testing KeeFox features.</div>
+    <br />
+    <div style="font-weight:bold"></div>
+    <br />
+    <div>Note that the form just submits to a test results page and performs no action on the submitted data.</div>
+    <br />
+    <form action="fail.htm" method="get">
+        <label for="username">Username</label>: <input type="text" id="username" name="username" /><br />
+        <label for="password">Password</label>: <input type="password" id="password" name="password" /><br />
+        <div role="button" onclick="javascript: document.querySelector('form').action = 'testResults.htm'; document.querySelector('form').submit()">Click me</div>
+    </form>
+</body>
+</html>

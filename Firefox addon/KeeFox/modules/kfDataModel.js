@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2010 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   keeFoxLoginInfo:
   This was loosly based on the LoginInfo object that Mozilla provided with Firefox 3.0
@@ -61,6 +61,10 @@ kfLoginInfo.prototype =
     // or with multiple pages on that site)
     URLs      : null,
     
+    // How accurate is the best URL match for this login (only set if login
+    // was supplied in response to certain search requests). Higher = closer match
+    matchAccuracy : null,
+
     // The "action" parameter of the form (for multi-page
     // logins, this is always the first page)
     formActionURL : null,
@@ -106,13 +110,18 @@ kfLoginInfo.prototype =
 	neverAutoFill : false,
 	neverAutoSubmit : false,
 	
-	database : null,
+	database: null,
+
+	asJSONifiable : function ()
+	{
+	    return this.toJSON();
+	},
 		
 	toJSON : function ()
     {
         var intermediateObject = {};
         intermediateObject.URLs = this.URLs;
-        intermediateObject.formActionURL = this.formActionURL;
+        intermediateObject.matchAccuracy = this.matchAccuracy;
         intermediateObject.httpRealm = this.httpRealm;
         intermediateObject.usernameIndex = this.usernameIndex;
         intermediateObject.passwords = this.passwords;
@@ -138,7 +147,7 @@ kfLoginInfo.prototype =
     {
         var intermediateObject = JSON.parse(json);
         this.URLs = intermediateObject.URLs;
-        this.formActionURL = intermediateObject.formActionURL;
+        this.matchAccuracy = intermediateObject.matchAccuracy;
         this.httpRealm = intermediateObject.httpRealm;
         this.usernameIndex = intermediateObject.usernameIndex;
         this.passwords = intermediateObject.passwords
@@ -176,13 +185,12 @@ kfLoginInfo.prototype =
             +" , deserialisedOutputPasswords , "+uniqueIDParam+" , "+titleParam+" , deserialisedOutputOtherFields , "+this.maximumPage+" )";
     },
 
-    init : function (aURLs, aFormActionURL, aHttpRealm,
+    init : function (aURLs, unusedParameter, aHttpRealm,
                      aUsernameIndex,      aPasswords,
                      aUniqueID, aTitle, otherFieldsArray, aMaximumPage) {
 
         this.otherFields = otherFieldsArray;   
         this.URLs      = aURLs;
-        this.formActionURL = aFormActionURL;
         this.httpRealm     = aHttpRealm;
         this.usernameIndex      = aUsernameIndex;
         this.passwords      = aPasswords;
@@ -195,6 +203,7 @@ kfLoginInfo.prototype =
 	    this.alwaysAutoSubmit = false;
 	    this.neverAutoFill = false;
 	    this.neverAutoSubmit = false;
+	    this.matchAccuracy = 0;
     },
     
     initFromEntry : function (entry)
@@ -241,7 +250,7 @@ kfLoginInfo.prototype =
             }
         }
 
-        this.init(entry.uRLs, entry.formActionURL, entry.hTTPRealm, usernameIndex,
+        this.init(entry.uRLs, null, entry.hTTPRealm, usernameIndex,
                   passwords, entry.uniqueID, entry.title, otherFields, maximumPage);
         this.parentGroup = entry.parent;
         this.iconImageData = entry.iconImageData;
@@ -251,9 +260,10 @@ kfLoginInfo.prototype =
         this.neverAutoSubmit = entry.neverAutoSubmit;
         this.priority = entry.priority;
         this.database = entry.db;
+        this.matchAccuracy = entry.matchAccuracy;
     },
         
-    _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    _allURLsMatch : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils)
     {    
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);
@@ -270,11 +280,11 @@ kfLoginInfo.prototype =
             {
                 var url2 = this.URLs[j];
             //window.keefox_win.Logger.debug("ac:"+url1+":"+url2);
-                if (!ignoreURIPathsAndSchemes && keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                if (!ignoreURIPathsAndSchemes && uriUtils.getURISchemeHostAndPort(url1) != uriUtils.getURISchemeHostAndPort(url2))
                     return false;
-                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIHostAndPort(url1) != uriUtils.getURIHostAndPort(url2))
                     return false;
-                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIExcludingQS(url1) != keeFoxILM._getURIExcludingQS(url2))
+                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIExcludingQS(url1) != uriUtils.getURIExcludingQS(url2))
                     return false;
             }
         }
@@ -327,7 +337,7 @@ kfLoginInfo.prototype =
     },
 
     
-    _allURLsContainedIn : function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, keeFoxILM)
+    _allURLsContainedIn: function (URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils)
     {    
         var matches = 0;
 
@@ -338,14 +348,14 @@ kfLoginInfo.prototype =
             {
                 var url2 = URLs[j];
                 if (!ignoreURIPathsAndSchemes && url1.indexOf("://") > 0 &&
-                        keeFoxILM._getURISchemeHostAndPort(url1) != keeFoxILM._getURISchemeHostAndPort(url2))
+                        uriUtils.getURISchemeHostAndPort(url1) != uriUtils.getURISchemeHostAndPort(url2))
                     { continue; }
                 else if (!ignoreURIPathsAndSchemes && url1.indexOf("://") <= 0
-                        && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                        && uriUtils.getURIHostAndPort(url1) != uriUtils.getURIHostAndPort(url2))
                     { continue; }
-                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIHostAndPort(url1) != keeFoxILM._getURIHostAndPort(url2))
+                else if (ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIHostAndPort(url1) != uriUtils.getURIHostAndPort(url2))
                     { continue; }
-                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && keeFoxILM._getURIExcludingQS(url1) != keeFoxILM._getURIExcludingQS(url2))
+                else if (!ignoreURIPathsAndSchemes && !ignoreURIPaths && uriUtils.getURIExcludingQS(url1) != uriUtils.getURIExcludingQS(url2))
                     { continue; }
                 else
                     { matches++; break; }
@@ -397,14 +407,9 @@ kfLoginInfo.prototype =
     // determines if this matches another supplied login object, with a number
     // of controllable definitions of "match" to support various use cases
     matches : function (aLogin, ignorePasswords, ignoreURIPaths,
-         ignoreURIPathsAndSchemes, ignoreUsernames)
+         ignoreURIPathsAndSchemes, ignoreUsernames, uriUtils)
     {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-
-        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_win.ILM))
+        if (!this._allURLsMatch(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils))
             return false;
 
         if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
@@ -416,37 +421,15 @@ kfLoginInfo.prototype =
         if (!ignorePasswords && !this._allPasswordsMatch(aLogin.passwords))
             return false;
 
-        // If either formActionURL is blank (but not null), then match.
-        if (this.formActionURL != "" && aLogin.formActionURL != "")
-        {
-            if (ignoreURIPathsAndSchemes 
-                && window.keefox_win.ILM._getURISchemeHostAndPort(aLogin.formActionURL)
-                    != window.keefox_win.ILM._getURISchemeHostAndPort(this.formActionURL))
-                return false;
-            else if (!ignoreURIPathsAndSchemes 
-                && ignoreURIPaths && window.keefox_win.ILM._getURIHostAndPort(aLogin.formActionURL) 
-                    != window.keefox_win.ILM._getURIHostAndPort(this.formActionURL))
-                return false;
-            else if (!ignoreURIPathsAndSchemes 
-                && !ignoreURIPaths 
-                && this.formActionURL != aLogin.formActionURL)
-                return false;
-        }
-
         return true;
     },
 
     // determines if this login is contained within a supplied login object, with a number
     // of controllable definitions of "containedIn" to support various use cases
     containedIn : function (aLogin, ignorePasswords, ignoreURIPaths,
-         ignoreURIPathsAndSchemes, ignoreUsernames)
+         ignoreURIPathsAndSchemes, ignoreUsernames, uriUtils)
     {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-
-        if (!this._allURLsContainedIn(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, window.keefox_win.ILM))
+        if (!this._allURLsContainedIn(aLogin.URLs, ignoreURIPathsAndSchemes, ignoreURIPaths, uriUtils))
             return false;
 
         if (this.httpRealm != aLogin.httpRealm && !(this.httpRealm == "" || aLogin.httpRealm == ""))
@@ -520,7 +503,7 @@ kfLoginInfo.prototype =
         entry.neverAutoSubmit = this.neverAutoSubmit;
         entry.priority = this.priority;
         entry.uRLs = this.URLs;
-        entry.formActionURL = this.formActionURL;
+        entry.matchAccuracy = this.matchAccuracy;
         entry.hTTPRealm = this.httpRealm;
         entry.uniqueID = this.uniqueID;
         entry.title = this.title;

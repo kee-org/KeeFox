@@ -54,12 +54,10 @@ Utils.prototype = {
             window.keefox_win.UI._showSensitiveLogEnabledNotification();
     },
 
-    //TODO2: make this work with FF4 (maybe earlier versions just don't support it properly anyway)
+    //TODO:2: If we can ever switch to a bootstrapped extension mode, we should be able to detect uninstalls and do nice stuff
     uninstallHandler: function()
     {
-    //TODO2: this doesn't work. dunno how to catch the secret FUEL notifications yet...
-    
-        //TODO2: explain to user what will be uninstalled and offer extra
+        // explain to user what will be uninstalled and offer extra
         // options (e.g. "Uninstall KeePass too?")
         
         // Reset prefs to pre-KeeFox settings
@@ -138,7 +136,7 @@ Utils.prototype = {
             }
 
             // If still not found...
-            // TODO2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
+            // TODO:2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
 //            if (keePassLocation == "not installed")
 //            {
 //                var wrko = Components.classes["@mozilla.org/windows-registry-key;1"]
@@ -420,7 +418,7 @@ Utils.prototype = {
         this._KFLog.debug("file path: " + file.path);
         try {
             process.init(file);
-            process.run(true, [], 0); //TODO2: make async?
+            process.run(true, [], 0);
         } catch (ex)
         {
             // assume failure means they are not admin
@@ -594,9 +592,9 @@ Utils.prototype = {
 
     
     // input can be either UTF8 formatted string or a byte array
-    //TODO2: might be more useful to accept UTF16 by default?
+    //TODO:2: might be more useful to accept UTF16 by default?
     // default output format is hex string and algorithm is SHA256
-    //TODO2: Maybe shouldn't use byteArray output at all - seems a bit buggy RE different encodings and maybe negative ints
+    //TODO:2: Maybe shouldn't use byteArray output at all - seems a bit buggy RE different encodings and maybe negative ints
     hash: function(data, outFormat, algorithm)
     {
         var converterUTF8 =
@@ -673,11 +671,8 @@ Utils.prototype = {
 
     stringToByteArray: function(str)
     {
-        var sBytes = new Uint8Array(str.length);
-        for (var i=0; i<str.length; i++) {
-            sBytes[i] = str.charCodeAt(i);
-        }
-        return sBytes;
+        let e = new TextEncoder("utf-8");
+        return e.encode(str);
     },
 
     // A variation of base64toByteArray which allows us to calculate a HMAC far

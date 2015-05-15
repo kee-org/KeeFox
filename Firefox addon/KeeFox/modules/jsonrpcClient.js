@@ -186,9 +186,26 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.generatePassword = function()
+    this.getPasswordProfiles = function () {
+        var result = this.request(this, "GetPasswordProfiles", null, function rpc_callback(resultWrapper) {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                     .getService(Components.interfaces.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
+
+            if ("result" in resultWrapper && resultWrapper.result !== false) {
+                if (resultWrapper.result !== null)
+                    window.keefox_win.mainUI.setPasswordProfilesCallback(resultWrapper.result);
+
+            }
+        }, ++this.requestId);
+
+        return;
+    }
+
+    this.generatePassword = function (profileName)
     {
-        this.request(this, "GeneratePassword", [""], function rpc_callback(resultWrapper) {
+        this.request(this, "GeneratePassword", [profileName], function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||

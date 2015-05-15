@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2011 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   The KFLog object manages logging KeeFox activity, used for debugging purposes.
   
@@ -13,13 +13,10 @@
   Info = 3
   Debug = 4
   
-  The default level will be set as part of the installation process. The exact
-  level that will be used as a defualt will probably drop as the beta testing
-  process continues. For 0.8, Info will be default. For 0.9+, Warn will be default.
+  The default level (Warn) will be set as part of the installation process.
   
-  There are four log methods:
+  There are three log methods:
   
-  Alert
   Console
   StdOut
   File
@@ -58,6 +55,13 @@ function KeeFoxLogger()
         Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService);
     this.prefBranch = this._prefService.getBranch("extensions.keefox@chris.tomlinson.");
     this.configureFromPreferences();
+
+    let globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+    globalMM.addMessageListener("keefox:log-debug", function (message) { KFLog.debug(message.data); });
+    globalMM.addMessageListener("keefox:log-info", function (message) { KFLog.info(message.data); });
+    globalMM.addMessageListener("keefox:log-warn", function (message) { KFLog.warn(message.data); });
+    globalMM.addMessageListener("keefox:log-error", function (message) { KFLog.error(message.data); });
+
     this._log("Logging system initialised at " + Date());
     if (this.logSensitiveData)
         this._log("WARNING: KeeFox Sensitive logging ENABLED. See: https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-Logging-|-Sensitive");
@@ -69,7 +73,6 @@ KeeFoxLogger.prototype = {
     levelWarn: false,
     levelInfo: false,
     levelDebug: false,
-    methodAlert: false,
     methodConsole: false,
     methodStdOut: false,
     methodFile: false,
@@ -131,23 +134,7 @@ KeeFoxLogger.prototype = {
         converter.writeString(msg);
         converter.close(); // this closes foStream
     },
-    
-    // creates an alert message on the most recently used Firefox window
-    // (probably too annoying to be used reguarly but nice to have the option?)
-    _alert : function(msg)
-    {
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                           .getService(Components.interfaces.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-
-        // get a reference to the prompt service component.
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-
-        promptService.alert(window,"Alert",msg);
-    },
-    
+        
     // Logs a message using the currently enabled methods
     _log : function (message)
     {
@@ -158,10 +145,6 @@ KeeFoxLogger.prototype = {
         // prefix logs in sensitive mode
         if (this.logSensitiveData)
             message = "!! " + message;
-
-        //TODO2: Once we no longer support FF < 21 we might want to consider private browsing
-        // state and provide the user extra protection from themselves (in case they have
-        // ignored warnings of sensitive data logging and then entered a private browsing window)
 
         try
         {
@@ -185,33 +168,72 @@ KeeFoxLogger.prototype = {
         } catch (nothing) {
         // don't let failed logging break anything else
         }
-        try
+    },
+    
+    getMessage : function (data)
+    {
+        if (typeof data == "string")
         {
-            if (this.methodAlert)
-                this._alert(message);
-        } catch (nothing) {
-        // don't let failed logging break anything else
+            return data;
+        }
+        else
+        {
+            let message = data.m;
+            let sensitiveMessage = data.sm;
+            let replace = data.r;
+
+            if (!message)
+                return data;
+
+            if (!this.logSensitiveData && message.length <= 0)
+                return "";
+            if (this.logSensitiveData)
+            {
+                if (replace)
+                    return sensitiveMessage;
+                else
+                    return message + sensitiveMessage;
+            } else
+            {
+                return message;
+            }
+        }
+    },
+
+    debug : function (data)
+    {
+        if (this.levelDebug)
+        {
+            let message = this.getMessage(data);
+            if (message.length > 0) this._log("DEBUG: " + message);
         }
     },
     
-    debug : function (message)
+    info : function (data)
     {
-        if (this.levelDebug) this._log("DEBUG: " + message);
+        if (this.levelInfo)
+        {
+            let message = this.getMessage(data);
+            if (message.length > 0) this._log("INFO: " + message);
+        }
     },
     
-    info : function (message)
+    warn : function (data)
     {
-        if (this.levelInfo) this._log("INFO:  " + message);
+        if (this.levelWarn)
+        {
+            let message = this.getMessage(data);
+            if (message.length > 0) this._log("WARN: " + message);
+        }
     },
     
-    warn : function (message)
+    error : function (data)
     {
-        if (this.levelWarn) this._log("WARN:  " + message);
-    },
-    
-    error : function (message)
-    {
-        if (this.levelError) this._log("ERROR: " + message);
+        if (this.levelError)
+        {
+            let message = this.getMessage(data);
+            if (message.length > 0) this._log("ERROR: " + message);
+        }
     },
         
     // set current logger configuration to whatever is described in the Firefox preferences system
@@ -236,9 +258,6 @@ KeeFoxLogger.prototype = {
             case 1: this.levelError = true;
         }
         
-        try {
-            this.methodAlert = this.prefBranch.getBoolPref("logMethodAlert");
-            } catch (ex) { this.methodAlert = false; }
         try {
             this.methodConsole = this.prefBranch.getBoolPref("logMethodConsole");
             } catch (ex) { this.methodConsole = false; }

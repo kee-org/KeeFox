@@ -37,7 +37,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Beta\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Aurora|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevEdition|AnyCPU' ">
     <Optimize>false</Optimize>
     <OutputPath>bin\Aurora\</OutputPath>
   </PropertyGroup>
@@ -63,19 +63,26 @@
     <Content Include="KeeFox\chrome\content\commonDialog.js" />
     <Content Include="KeeFox\chrome\content\context.js" />
     <Content Include="KeeFox\chrome\content\famsOptions.js" />
+    <Content Include="KeeFox\chrome\content\formsSaveWin.js" />
+    <Content Include="KeeFox\chrome\content\formsWin.js" />
+    <Content Include="KeeFox\chrome\content\framescript\formsFillTab.js" />
+    <Content Include="KeeFox\chrome\content\framescript\formsSaveTab.js" />
+    <Content Include="KeeFox\chrome\content\framescript\formsTab.js" />
+    <Content Include="KeeFox\chrome\content\framescript\keefoxTab.js" />
+    <Content Include="KeeFox\chrome\content\framescript\proxies\config.js" />
+    <Content Include="KeeFox\chrome\content\framescript\proxies\metrics.js" />
+    <Content Include="KeeFox\chrome\content\framescript\proxies\logger.js" />
     <Content Include="KeeFox\chrome\content\install.js" />
     <Content Include="KeeFox\chrome\content\install_mono.js" />
-    <Content Include="KeeFox\chrome\content\keefox.js" />
-    <Content Include="KeeFox\chrome\content\KFILM.js" />
-    <Content Include="KeeFox\chrome\content\KFILM_Fill.js" />
-    <Content Include="KeeFox\chrome\content\KFILM_Submit.js" />
-    <Content Include="KeeFox\chrome\content\KFToolBar.js" />
+    <Content Include="KeeFox\chrome\content\keefoxWin.js" />
     <Content Include="KeeFox\chrome\content\KFUI.js" />
     <Content Include="KeeFox\chrome\content\KFUtils.js" />
+    <Content Include="KeeFox\chrome\content\notificationManagerWin.js" />
     <Content Include="KeeFox\chrome\content\options.js" />
     <Content Include="KeeFox\chrome\content\panel.js" />
+    <Content Include="KeeFox\chrome\content\persistentPanelWin.js" />
+    <Content Include="KeeFox\chrome\content\shared\uriUtils.js" />
     <Content Include="KeeFox\chrome\content\siteOptions.js" />
-    <Content Include="KeeFox\chrome\content\tabState.js" />
     <Content Include="KeeFox\chrome\skin\back.png" />
     <Content Include="KeeFox\chrome\skin\buttonGradient.png" />
     <Content Include="KeeFox\chrome\skin\buttonGradientHover.png" />
@@ -139,7 +146,6 @@
     <None Include="KeeFox\chrome\content\panel.xul" />
     <None Include="KeeFox\chrome\content\protocolAuth.xul" />
     <None Include="KeeFox\chrome\content\siteOptions.xul" />
-    <None Include="KeeFox\chrome\content\toolbar.xul" />
     <None Include="KeeFox\chrome\locale\cs\FAMS.keefox.properties" />
     <None Include="KeeFox\chrome\locale\cs\keefox.properties" />
     <None Include="KeeFox\chrome\locale\de\FAMS.keefox.properties" />
@@ -169,6 +175,7 @@
     </None>
     <None Include="KeeFox\modules\ClassTreeView.jsm" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF NOT "$(ConfigurationName)"=="XPI" Goto :NotXPI

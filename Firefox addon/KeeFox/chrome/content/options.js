@@ -1,4 +1,4 @@
-"can't use strict"; // global/binding/preferences.xul can't handle events in strict mode
+"use strict"; //TODO:1.5: Verify this works in FF29
 
 let Cu = Components.utils;
 
@@ -12,11 +12,11 @@ function onLoad(){
       ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','tab-ConnectionSecurity','tab-AuthorisedConnections','tab-Commands','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
       'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
       'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs','check-alwaysDisplayUsernameWhenTitleIsShown',
-      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyBarWhenKeePassRPCInactive','notifyBarWhenLoggedOut',
-      'famsOptionsButton','desc-log-method','check-log-method-alert','check-log-method-console','check-log-method-stdout','check-log-method-file',
-      'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error','dynamicFormScanning',
-      'lab-dynamicFormScanningExplanation','lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
-      'rememberMRUDB','lab-keePassRPCInstalledLocation','keePassRPCInstalledLocationBrowseButton','lab-keePassInstalledLocation','keePassInstalledLocationBrowseButton',
+      'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyWhenLoggedOut',
+      'famsOptionsButton','desc-log-method','check-log-method-console','check-log-method-stdout','check-log-method-file',
+      'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error',
+      'lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
+      'rememberMRUDB', 'rememberMRUGroup', 'lab-keePassRPCInstalledLocation', 'keePassRPCInstalledLocationBrowseButton', 'lab-keePassInstalledLocation', 'keePassInstalledLocationBrowseButton',
       'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation',
       'desc-site-specific','desc-site-specific-savepass','desc-site-specific-link','desc-site-specific-savepass-link','desc-ConnSL','desc-ConnSL-ManualLink-link','desc-conn-sl-client','slc-Low','slc-Medium','slc-High','sls-Low','sls-Medium','sls-High','desc-conn-sl-client-detail','desc-conn-sl-server','desc-conn-sl-server-detail','desc-conn-sl-low','desc-conn-sl-high','desc-commands-intro','desc-metrics','desc-metrics-link','lab-sendUsageMetrics','lab-maxMatchedLoginsInMainPanel'
       ],
@@ -34,10 +34,6 @@ function hideIrrelevantOptions()
     var window = wm.getMostRecentWindow("navigator:browser") ||
         wm.getMostRecentWindow("mail:3pane");
 
-    if (window.keefox_win.legacyUI) {
-        document.getElementById("lab-maxMatchedLoginsInMainPanel").classList.add('keefox-hide');
-        document.getElementById("maxMatchedLoginsInMainPanel").classList.add('keefox-hide');
-    }
     var isWindows = Components.classes["@mozilla.org/xre/app-info;1"]  
                     .getService(Components.interfaces.nsIXULRuntime).OS == "WINNT";
 
@@ -87,7 +83,7 @@ function createCommandPanel()
     grid.appendChild(gcols);
     grid.setAttribute("flex", "1");
 
-    //TODO2: Allow fine grained control over every possible command.
+    //TODO:2: Allow fine grained control over every possible command.
     // To start with, we'll just do the simplest approach for the
     // user by showing three combined commands
     //var commands = window.keefox_org.commandManager.commands;
@@ -166,7 +162,7 @@ function createCommandPanel()
 
     for (var i=0; i < commands.length; i++)
     {
-        //TODO2: Allow listing of commands that don't yet have a keyboard shortcut
+        //TODO:2: Allow listing of commands that don't yet have a keyboard shortcut
         if (commands[i].key)
         {
             var labelDesc = document.createElement("label");
@@ -186,7 +182,7 @@ function createCommandPanel()
     }
 
     grid.appendChild(grows);
-    //TODO1.5: Find a way to cancel inline editing if user clicks somewhere else. below line causes problems.
+    //TODO:1.6: Find a way to cancel inline editing if user clicks somewhere else. below line causes problems.
     //grid.addEventListener("click", onCommandBlur, false);
     commandPanelContainer.appendChild(grid);
 }
@@ -211,7 +207,7 @@ function getKeyboardShortcutDisplayValue(modifierFlags, keyCode)
 }
 
 // Invoked when user clicks on the keyboard shortcut label
-//TODO2: Probably not that intuitive that the label can be selected. Might want
+//TODO:1.6: Probably not that intuitive that the label can be selected. Might want
 // to review usability in future although technical nature of many keyboard
 // shortcut users probably reduces importance of this
 function onCommandClick(evt)
@@ -446,7 +442,7 @@ function onsynctopreferenceLogLevel()
     }
 }
 
-//TODO2: allow users to choose seperate plugins folder OR automatically detect from a few standard locations
+//TODO:2: allow users to choose seperate plugins folder OR automatically detect from a few standard locations
 function browseForKeePassLocation(currentLocationPath)
 {
     var location = browseForLocation(currentLocationPath, 

@@ -33,12 +33,12 @@ var FAMSDefaultConfig = {
     // Version number of this configuration. If you add new messages to existing groups, increment this value
     // In future, more complex migration from older versions may
     // be possible (e.g. to enable addition of new messageGroups, modified descriptions, etc.)
-    version: 4,
+    version: 5,
 
-    //TODO2: This message service will not function before this time
+    //TODO:2: This message service will not function before this time
     startTime: "8 Jul, 2005 23:34:54 UTC",
 
-    //TODO2: This message service will cease functioning at this time
+    //TODO:2: This message service will cease functioning at this time
     endTime: "8 Jul, 2111 23:34:54 UTC",
 
     // A minimum amount of time to wait after application startup
@@ -61,7 +61,7 @@ var FAMSDefaultConfig = {
     // timeBetweenDownloadingMessages variable
     maxTimeBetweenDownloadingMessages: 604800000, // 168 hours (1 week)
 
-    //TODO2:  Where to connect to in order to find out if there are any new messages that the user might need to see
+    //TODO:2:  Where to connect to in order to find out if there are any new messages that the user might need to see
     urlForDownloadingMessages: "",
 
     // Every message title and body must be available in the default language
@@ -1293,7 +1293,7 @@ var FAMSDefaultConfig = {
                 actionButtonName: "VisitSite",
 
                 // The earliest time that this message will be displayed to the user
-                earliestDisplayTime: "8 Jan, 2017 23:34:54 UTC",
+                earliestDisplayTime: "8 Jan, 2018 23:34:54 UTC",
 
                 // The latest time that this message will be displayed to the user
                 latestDisplayTime: "8 Jul, 2111 23:34:54 UTC",

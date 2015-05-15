@@ -108,7 +108,14 @@ namespace KeePassRPC
         void FleckLogger(LogLevel ll, string s, Exception e)
         {
             if (KeePassRPCPlugin.logger != null)
-                KeePassRPCPlugin.logger.WriteLine("Fleck says: " + s + (e != null ? (". Exception: " + e) : ""));
+                try
+                {
+                    KeePassRPCPlugin.logger.WriteLine("Fleck says: " + s + (e != null ? (". Exception: " + e) : ""));
+                }
+                catch (Exception)
+                {
+                    // Don't care
+                }
         }
         
         void StartWebsockServer(int port, bool bindOnlyToLoopback)

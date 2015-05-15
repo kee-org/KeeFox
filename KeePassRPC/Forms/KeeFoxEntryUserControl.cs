@@ -88,19 +88,6 @@ namespace KeePassRPC.Forms
             UpdateKPRPCJSON(_conf);
         }
 
-        private void checkBoxBlockHostnameOnly_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBoxBlockHostnameOnly.Checked)
-            {
-                _conf.BlockHostnameOnlyMatch = true;
-            }
-            else
-            {
-                _conf.BlockHostnameOnlyMatch = false;
-            }
-            UpdateKPRPCJSON(_conf);
-        }
-
         private void KeeFoxEntryUserControl_Load(object sender, EventArgs e)
         {
             bool kfNeverAutoFill = false;
@@ -109,10 +96,20 @@ namespace KeePassRPC.Forms
             bool kfAlwaysAutoSubmit = false;
 
             this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
-            this.checkBoxBlockHostnameOnly.CheckedChanged += new System.EventHandler(this.checkBoxBlockHostnameOnly_CheckedChanged);
 
             if (_conf.Hide) { checkBoxHideFromKeeFox.Checked = true; }
-            if (_conf.BlockHostnameOnlyMatch) { checkBoxBlockHostnameOnly.Checked = true; }
+            if (_conf.BlockHostnameOnlyMatch)
+            {
+                radioButton3.Checked = true;
+            }
+            else if (_conf.BlockDomainOnlyMatch)
+            {
+                radioButton2.Checked = true;
+            }
+            else
+            {
+                radioButton1.Checked = true;
+            }
             if (_conf.NeverAutoFill) { kfNeverAutoFill = true; }
             if (_conf.AlwaysAutoFill) { kfAlwaysAutoFill = true; }
             if (_conf.NeverAutoSubmit) { kfNeverAutoSubmit = true; }
@@ -706,6 +703,36 @@ namespace KeePassRPC.Forms
             {
                 buttonFieldEdit_Click(sender, e);
             }
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton1.Checked)
+            {
+                _conf.BlockDomainOnlyMatch = false;
+                _conf.BlockHostnameOnlyMatch = false;
+            }
+            UpdateKPRPCJSON(_conf);
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton2.Checked)
+            {
+                _conf.BlockDomainOnlyMatch = true;
+                _conf.BlockHostnameOnlyMatch = false;
+            }
+            UpdateKPRPCJSON(_conf);
+        }
+
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton3.Checked)
+            {
+                _conf.BlockDomainOnlyMatch = false;
+                _conf.BlockHostnameOnlyMatch = true;
+            }
+            UpdateKPRPCJSON(_conf);
         }
 
     }

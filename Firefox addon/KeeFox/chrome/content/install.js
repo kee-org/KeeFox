@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
 This install.js file helps manage the installation of .NET, KeePass and KeePassRPC.
 
@@ -22,14 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 "use strict";
 
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.27/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.27.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.27.zip";
-const KF_KPZIP_FILE_CHECKSUM = "77887f4433682db34f246571020db9dc";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.27/";
-const KF_KP_FILE_NAME = "KeePass-2.27-Setup.exe?r=&ts=";
-const KF_KP_SAVE_NAME = "KeePass-2.27-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "80a2fa47ab77546f5e9c59a550746cc7";
+const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.29/";
+const KF_KPZIP_FILE_NAME = "KeePass-2.29.zip?r=&ts=";
+const KF_KPZIP_SAVE_NAME = "KeePass-2.29.zip";
+const KF_KPZIP_FILE_CHECKSUM = "edf6ddc24346a6181a898e78db1d352c";
+const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.29/";
+const KF_KP_FILE_NAME = "KeePass-2.29-Setup.exe?r=&ts=";
+const KF_KP_SAVE_NAME = "KeePass-2.29-Setup.exe"; 
+const KF_KP_FILE_CHECKSUM = "bc1ae3a3b90dca483c19e02fad706a64";
 const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
 const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
 const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
@@ -70,14 +70,12 @@ var setupNETThread;
 // The nsWebBrowserPersist object used to download installation content from the internet
 var persist;
 
-var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIWebNavigation)
 .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
 .rootTreeItem
 .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 .getInterface(Components.interfaces.nsIDOMWindow);
-
-var mainWindow = mainWin.keefox_win.ILM._currentWindow;
 
 function prepareInstallPage()
 {
@@ -126,7 +124,8 @@ function prepareInstallPage()
     'but_IC1setupNETdownloading','desc_IC1setupNETdownloaded','desc_IC1setupKPdownloading','but_IC1setupKPdownloading','desc_IC1setupKPdownloaded',
     'desc_IC1KRPCdownloaded','desc_IC2setupKPdownloading','but_IC2setupKPdownloading','desc_IC2setupKPdownloaded','desc_IC2KRPCdownloaded',
     'desc_IC3installing','desc_IC5zipKPdownloading','lab_IC5zipKPdownloading','desc_IC5zipKPdownloaded','desc_IC5installing',
-    'desc_InstallFinished','nextStepsIntro','desc_nextStep1','nextStepsTutorialLink','nextStepsImportLink','nextStepsFinally','KFInstallPageTitle_description',downgradeWarning
+    'desc_InstallFinished', 'nextStepsIntro', 'desc_nextStep1', 'nextStepsTutorialLink', 'nextStepsImportLink', 'nextStepsFinally',
+    'KFInstallPageTitle_description', downgradeWarning
     ],
     ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
         
@@ -245,7 +244,7 @@ function prepareInstallPage()
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
                 | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;   
-            //TODO2:? update 7 and 8 to show Upgrade text, etc.       
+            //TODO:2:? update 7 and 8 to show Upgrade text, etc.       
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
 
@@ -402,13 +401,12 @@ function IC1setupKP(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"/silent",
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC1KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -460,13 +458,12 @@ function IC1setupNET(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"", 
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC1NETSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -492,7 +489,7 @@ functions to support the execution of Install Case 2
 ********************/
 function IC2finished(mainWindow) {
 
-//TODO2: customise this for upgrades?)
+//TODO:2: customise this for upgrades?)
 
     hideSection('IC2KRPCdownloaded');
     showSection('InstallFinished');
@@ -573,13 +570,12 @@ function IC2setupKP(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"/silent",
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -624,13 +620,12 @@ function IC2setupCustomKP(mainWindow)
             mainWindow.keefox_org.runAnInstaller(file.path,"",
                 {
                     observe : function () {
-                        var mainWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIWebNavigation)
                             .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .rootTreeItem
                             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                             .getInterface(Components.interfaces.nsIDOMWindow);
-                        var mainWindow = mainWin.keefox_win.ILM._currentWindow;
                         var kth = new mainWindow.KeeFoxMainThreadHandler("executableInstallerRunner", "IC2KPSetupFinished", '', mainWindow, window);
                         kth.run(); 
                     }
@@ -663,7 +658,7 @@ functions to support the execution of IC5 (and IC2 tertiary)
  it isn't, extract the portable zip file there
  then in either case we will copy the KeePassRPC files into the plugin folder
  */
- //TODO2: rearrange this install process so that the folder is chosen
+ //TODO:2: rearrange this install process so that the folder is chosen
  // first (before download - or during?) just in case user cancels
  // first (so minimal bandwidth wasted)
 function IC5zipKP()
@@ -703,18 +698,18 @@ function IC5zipKP()
             
             mainWindow.keefox_org._keeFoxExtension.prefs
                 .setValue("keePassInstalledLocation",path+"\\");
-                    //TODO2: probably should store the file object
+                    //TODO:2: probably should store the file object
                     // itself rather than string version (X-Plat)
             KeePassEXEfound = mainWindow.keefox_org.utils._confirmKeePassInstallLocation(path+"\\");
             mainWindow.keefox_win.Logger.info("KeePass install location set to: " + path+"\\");
             if (!KeePassEXEfound)
             {
-                //TODO2: permissions, failures, missing directories, etc. etc.
+                //TODO:2: permissions, failures, missing directories, etc. etc.
                 extractKPZip (KF_KPZIP_SAVE_NAME, folder);
                        
                 mainWindow.keefox_org._keeFoxExtension.prefs
                     .setValue("keePassInstalledLocation",path+"\\");
-                        //TODO2: probably should store the file object
+                        //TODO:2: probably should store the file object
                         // itself rather than string version (X-Plat)
                 KeePassEXEfound = mainWindow.keefox_org.utils._confirmKeePassInstallLocation(path+"\\");
                 mainWindow.keefox_win.Logger.info("KeePass install location set to: " + path+"\\");
@@ -803,7 +798,7 @@ function KPsetupExeSilentInstall()
 /*
  IC3 and IC6
  copy KeePassRPC files to the known KeePass 2.x location
- TODO2: detect access denied failures and prompt user accordingly
+ TODO:2: detect access denied failures and prompt user accordingly
  (this could happen if an admin installed KeePass at an earlier time)
  */
 function copyKRPCToKnownKPLocationInstall()
@@ -1122,11 +1117,11 @@ function runKeePassRPCExecutableInstaller(keePassLocation)
         + mainWindow.keefox_org.utils.myDepsDir() + '" "' + destFolder.path + '"');
 }
 
-// TODO2: would be nice if this could go in a seperate
+// TODO:2: would be nice if this could go in a seperate
 // thread
-// TODO2: revisit threaded approach now that we can
+// TODO:2: revisit threaded approach now that we can
 // rely on FF 3.5 thread workers to simplify things
-// TODO2: ... or not, if FF4 has removed the required features!
+// TODO:2: ... or not, if FF4 has removed the required features!
 function extractKPZip (zipFilePath, storeLocation)
 {
     var zipFile = Components.classes["@mozilla.org/file/local;1"]
@@ -1177,7 +1172,7 @@ function extractKPZip (zipFilePath, storeLocation)
         try
         {
             target.create(Components.interfaces.nsILocalFile.NORMAL_FILE_TYPE, 484);
-            //TODO2: different permissions for special files on linux. e.g. 755
+            //TODO:2: different permissions for special files on linux. e.g. 755
             // for main executable? not sure how it works with Mono though
             // so needs much more reading...
         }

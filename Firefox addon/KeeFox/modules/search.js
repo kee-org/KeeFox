@@ -31,60 +31,9 @@ Cu.import("resource://kfmod/KFLogger.js");
 function Search(keefox_org, config)
 {
     this._keefox_org = keefox_org;
-
     this._KFLog = KFLog;
-
-    if (!config)
-        config = {};
-    else
-    {
-        if (config.version != 1)
-            KFLog.warn("Unknown search config version. Will use version 1 defaults");
-    }
-
-    this._config = {
-        // KeeFox will check the supplied version number and behave consistently 
-        // for each version, regardless of the current KeeFox addon version.
-        // If you supply a config object, you must at least include this property
-        version: 1,
-        
-        // Whether to search all logged in databases or just the active one
-        // (generally will want to respect the KeeFox option with this name)
-        searchAllDatabases: true,
-
-        // Disable searching in some parts of the entries if required
-        searchTitles: (typeof config.searchTitles !== "undefined" ? config.searchTitles : true),
-        searchUsernames: (typeof config.searchUsernames !== "undefined" ? config.searchUsernames : true),
-        searchGroups: (typeof config.searchGroups !== "undefined" ? config.searchGroups : true),
-        searchURLs: (typeof config.searchURLs !== "undefined" ? config.searchURLs : true),
-    
-        // Custom weights allow the order of results to be manipulated in a way
-        // that best fits the context in which those results will be displayed
-        // A relevanceScore will be returned with each result item - it's up to
-        // the caller whether they are interested in processing this score data (e.g.
-        // ordering results in relevance order)
-        weightTitles: config.weightTitles || 2,
-        weightUsernames: config.weightUsernames || 1,
-        weightGroups: config.weightGroups || 0.25,
-        weightURLs: config.weightURLs || 0.75,
-    
-        // Maximum number of results to return, it's up to the caller to decide if
-        // they want to accept a result. Return a falsey value from onMatch to indicate that
-        // the match was not accepted and it will then not be counted towards this maximum.
-        maximumResults: 30,
-
-        // Include a callback function if you want to run the search asynchronously, if
-        // omitted the search will block and return the full set of results.
-        // You can also set a unique callback for each call: Search.execute(query, useThisCallbackInstead);
-        onComplete: config.onComplete,
-    
-        // A callback function to handle an individual result. Whatever is
-        // returned from this optional function will be added to the list of complete results
-        onMatch: config.onMatch
-    
-    };
+    this.resolveConfig(config);
     this.validateConfig();
-
 }
 
 Search.prototype = {
@@ -94,6 +43,7 @@ Search.prototype = {
 
     reconfigure: function (config)
     {
+        this.resolveConfig(config);
         return this.validateConfig();
     },
 
@@ -175,13 +125,66 @@ Search.prototype = {
                     .createInstance(Components.interfaces.nsITimer);
             this.makeAsyncTimer.initWithCallback(
             actualSearch.bind(this), 1, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-            //TODO2: use a background worker instead?
+            //TODO:2: use a background worker instead?
             return;
         } else
         {
             actualSearch.call(this);
             return results;
         }
+    },
+
+    resolveConfig: function (config)
+    {
+        if (!config)
+            config = {};
+        else
+        {
+            if (config.version != 1)
+                KFLog.warn("Unknown search config version. Will use version 1 defaults");
+        }
+
+        this._config = {
+            // KeeFox will check the supplied version number and behave consistently 
+            // for each version, regardless of the current KeeFox addon version.
+            // If you supply a config object, you must at least include this property
+            version: 1,
+        
+            // Whether to search all logged in databases or just the active one
+            // (generally will want to respect the KeeFox option with this name)
+            searchAllDatabases: (typeof config.searchAllDatabases !== "undefined" ? config.searchAllDatabases : true),
+
+            // Disable searching in some parts of the entries if required
+            searchTitles: (typeof config.searchTitles !== "undefined" ? config.searchTitles : true),
+            searchUsernames: (typeof config.searchUsernames !== "undefined" ? config.searchUsernames : true),
+            searchGroups: (typeof config.searchGroups !== "undefined" ? config.searchGroups : true),
+            searchURLs: (typeof config.searchURLs !== "undefined" ? config.searchURLs : true),
+    
+            // Custom weights allow the order of results to be manipulated in a way
+            // that best fits the context in which those results will be displayed
+            // A relevanceScore will be returned with each result item - it's up to
+            // the caller whether they are interested in processing this score data (e.g.
+            // ordering results in relevance order)
+            weightTitles: config.weightTitles || 2,
+            weightUsernames: config.weightUsernames || 1,
+            weightGroups: config.weightGroups || 0.25,
+            weightURLs: config.weightURLs || 0.75,
+    
+            // Maximum number of results to return, it's up to the caller to decide if
+            // they want to accept a result. Return a falsey value from onMatch to indicate that
+            // the match was not accepted and it will then not be counted towards this maximum.
+            maximumResults: (typeof config.maximumResults !== "undefined" ? config.maximumResults : 30),
+
+            // Include a callback function if you want to run the search asynchronously, if
+            // omitted the search will block and return the full set of results.
+            // You can also set a unique callback for each call: Search.execute(query, useThisCallbackInstead);
+            onComplete: config.onComplete,
+    
+            // A callback function to handle an individual result. Whatever is
+            // returned from this optional function will be added to the list of complete results
+            onMatch: config.onMatch
+    
+        };
     },
 
     validateConfig: function ()

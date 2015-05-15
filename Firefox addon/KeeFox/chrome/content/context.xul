@@ -44,12 +44,6 @@
         </menupopup>
     </menu>
 </popup>
-<!--
-  <menupopup id="keefox-command-context-showMenuMatchedLogins-popup">
-
-  </menupopup>
--->
-
 
   <menuitem id="keefox-command-context-generatePassword"
 			disabled="true"
@@ -68,10 +62,4 @@
               );' />
   </menupopup>
 
-
-  <!-- e.g. of removal:
-  <menupopup id="menu_ToolsPopup" removeelement="true">
--->
-  
-  
 </overlay>

@@ -256,7 +256,6 @@ KeeFoxFileDownloaderListener.prototype =
     {
         var percentComplete = Math.floor((aCurTotalProgress / aMaxTotalProgress) * 100);
 
-        //TODO2: only send message to main thread once per second or if it = 100%
         if (percentComplete > this.lastPerCom)
         {
             var kfMTH = new KeeFoxMainThreadHandler(this.source, "progress", percentComplete, this.mainWindow, this.browserWindow);

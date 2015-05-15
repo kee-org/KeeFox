@@ -2,7 +2,7 @@
   KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2011-2014 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2011-2015 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -48,19 +48,20 @@ using KeePassLib.Collections;
 using System.Runtime.Remoting.Lifetime;
 using KeePassRPC.DataExchangeModel;
 using Fleck2.Interfaces;
-//using System.Web;
+using DomainPublicSuffix;
+using KeePassLib.Utility;
 
 namespace KeePassRPC
 {
-	/// <summary>
-	/// The main class - starts the RPC service and server
-	/// </summary>
-	public sealed class KeePassRPCExt : Plugin
-	{
+    /// <summary>
+    /// The main class - starts the RPC service and server
+    /// </summary>
+    public sealed class KeePassRPCExt : Plugin
+    {
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1,4,4);
+        public static readonly Version PluginVersion = new Version(1, 4, 100);
 
         private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
         private AutoResetEvent _BackgroundWorkerAutoResetEvent;
@@ -96,14 +97,14 @@ namespace KeePassRPC
 
         private static LockManager _lockRPCClientManagers = new LockManager();
         private Dictionary<string, KeePassRPCClientManager> _RPCClientManagers = new Dictionary<string, KeePassRPCClientManager>(3);
-        public string CurrentConfigVersion = "1";
+        public string CurrentConfigVersion = "2";
         public volatile bool terminating = false;
 
         private int FindKeePassRPCPort(IPluginHost host, bool webSocket)
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
             int port;
-            
+
             if (webSocket)
                 port = (int)host.CustomConfig.GetULong("KeePassRPC.webSocket.port", 12546);
             else
@@ -140,8 +141,8 @@ namespace KeePassRPC
             if (webSocket && port == 12536)
                 port = 12546;
             if (!webSocket && port == 12546)
-                port = 12536; 
-            
+                port = 12536;
+
             return port;
         }
 
@@ -149,7 +150,7 @@ namespace KeePassRPC
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
             bool sslEnabled = host.CustomConfig.GetBool("KeePassRPC.connection.SSLEnabled", true);
-            
+
             if (allowCommandLineOverride)
             {
                 string SSLEnabledStr = host.CommandLineArgs["SSLEnabled"];
@@ -168,16 +169,16 @@ namespace KeePassRPC
             return sslEnabled;
         }
 
-		/// <summary>
-		/// The <c>Initialize</c> function is called by KeePass when
-		/// you should initialize your plugin (create menu items, etc.).
-		/// </summary>
-		/// <param name="host">Plugin host interface. By using this
-		/// interface, you can access the KeePass main window and the
-		/// currently opened database.</param>
-		/// <returns>true if channel registered correctly, otherwise false</returns>
-		public override bool Initialize(IPluginHost host)
-		{
+        /// <summary>
+        /// The <c>Initialize</c> function is called by KeePass when
+        /// you should initialize your plugin (create menu items, etc.).
+        /// </summary>
+        /// <param name="host">Plugin host interface. By using this
+        /// interface, you can access the KeePass main window and the
+        /// currently opened database.</param>
+        /// <returns>true if channel registered correctly, otherwise false</returns>
+        public override bool Initialize(IPluginHost host)
+        {
             try
             {
 
@@ -189,14 +190,15 @@ namespace KeePassRPC
                 // Reduce Fleck library logging verbosity
                 Fleck2.FleckLog.Level = Fleck2.LogLevel.Error;
 
-                _BackgroundWorker = new BackgroundWorker ();
+                _BackgroundWorker = new BackgroundWorker();
                 _BackgroundWorker.WorkerReportsProgress = true;
                 _BackgroundWorker.ProgressChanged += _BackgroundWorker_ProgressChanged;
-                _BackgroundWorkerAutoResetEvent = new AutoResetEvent (false);
-                _BackgroundWorker.DoWork += delegate(object sender, DoWorkEventArgs e) {
-                    _BackgroundWorkerAutoResetEvent.WaitOne ();
+                _BackgroundWorkerAutoResetEvent = new AutoResetEvent(false);
+                _BackgroundWorker.DoWork += delegate(object sender, DoWorkEventArgs e)
+                {
+                    _BackgroundWorkerAutoResetEvent.WaitOne();
                 };
-                _BackgroundWorker.RunWorkerAsync ();
+                _BackgroundWorker.RunWorkerAsync();
 
                 string debugFileName = host.CommandLineArgs["KPRPCDebug"];
                 if (debugFileName != null)
@@ -204,7 +206,7 @@ namespace KeePassRPC
                     try
                     {
                         logger = new StreamWriter(debugFileName);
-						((StreamWriter)logger).AutoFlush = true;
+                        ((StreamWriter)logger).AutoFlush = true;
                     }
                     catch (Exception ex)
                     {
@@ -213,9 +215,9 @@ namespace KeePassRPC
                 }
                 if (logger != null) logger.WriteLine("Logger initialised.");
 
-                //AppDomain.CurrentDomain.AssemblyResolve += 
-                //new ResolveEventHandler(CurrentDomain_AssemblyResolve);
-        
+                TLDRulesCache.Init(host.CustomConfig.GetString(
+                    "KeePassRPC.publicSuffixDomainCache.path",
+                    GetLocalConfigLocation() + "publicSuffixDomainCache.txt"));
 
                 // The client managers directly manage the legacy KPRPC connections (i.e. connections from KeeFox < 1.3 in case client and server mismatch is created by user)
                 // The KeeFox client manager also holds objects relating to the web socket connections managed by the Fleck2 library
@@ -318,12 +320,35 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
             catch (Exception ex)
             {
                 if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
-                _BackgroundWorkerAutoResetEvent.Set (); // terminate _BackgroundWorker
+                _BackgroundWorkerAutoResetEvent.Set(); // terminate _BackgroundWorker
                 return false;
             }
             if (logger != null) logger.WriteLine("KPRPC startup succeeded.");
-			return true; // Initialization successful
-		}
+            return true; // Initialization successful
+        }
+
+        string GetLocalConfigLocation()
+        {
+            string strBaseDirName = PwDefs.ShortProductName;
+            if ((KeePass.App.Configuration.AppConfigSerializer.BaseName != null)
+                && (KeePass.App.Configuration.AppConfigSerializer.BaseName.Length > 0))
+                strBaseDirName = KeePass.App.Configuration.AppConfigSerializer.BaseName;
+
+            string strUserDir;
+            try
+            {
+                strUserDir = Environment.GetFolderPath(
+                    Environment.SpecialFolder.ApplicationData);
+            }
+            catch (Exception)
+            {
+                strUserDir = UrlUtil.GetFileDirectory(UrlUtil.FileUrlToPath(
+                    Assembly.GetExecutingAssembly().GetName().CodeBase), true, false);
+            }
+            strUserDir = UrlUtil.EnsureTerminatingSeparator(strUserDir, false);
+
+            return strUserDir + strBaseDirName + Path.DirectorySeparatorChar;
+        }
 
         //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         //{
@@ -335,10 +360,10 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
         //    }
         //    return null;
         //}
-        
-		void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
-		{
-			PwEntryForm ef = e.Form as PwEntryForm;
+
+        void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
+        {
+            PwEntryForm ef = e.Form as PwEntryForm;
             if (ef != null)
             {
                 ef.Shown += new EventHandler(editEntryFormShown);
@@ -350,12 +375,12 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
             {
                 gf.Shown += new EventHandler(editGroupFormShown);
                 return;
-            }            
-		}
+            }
+        }
 
-		void editGroupFormShown(object sender, EventArgs e)
-		{
-			GroupForm form = sender as GroupForm;
+        void editGroupFormShown(object sender, EventArgs e)
+        {
+            GroupForm form = sender as GroupForm;
             PwGroup group = null;
             TabControl mainTabControl = null;
             //This might not work, especially in .NET 2.0 RTM, a shame but more
@@ -369,7 +394,8 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                 if (cs.Length == 0)
                     return;
                 mainTabControl = cs[0] as TabControl;
-            } catch
+            }
+            catch
             {
                 // that's life, just move on.
                 return;
@@ -386,7 +412,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                     if (manager.Name != "Null")
                         manager.AttachToGroupDialog(this, group, mainTabControl);
             }
-		}
+        }
 
         void editEntryFormShown(object sender, EventArgs e)
         {
@@ -430,7 +456,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                     if (manager.Name != "Null")
                         manager.AttachToEntryDialog(this, entry, mainTabControl, form, advancedListView, strings);
             }
-        }		
+        }
 
         // still useful for tracking server versions I reckon...
         bool refreshVersionInfo(IPluginHost host)
@@ -488,8 +514,8 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
             string[] icons = new string[il.Images.Count];
 
             for (int i = 0; i < il.Images.Count; i++)
-			{
-			    Image image = il.Images[i];
+            {
+                Image image = il.Images[i];
                 MemoryStream ms = new MemoryStream();
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 icons[i] = Convert.ToBase64String(ms.ToArray());
@@ -498,7 +524,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
         }
 
         public delegate object WelcomeKeeFoxUserDelegate();
-        
+
 
         public object WelcomeKeeFoxUser()
         {
@@ -545,7 +571,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                 DataExchangeModel.IconCache<string>
                     .AddIcon(_host.Database.IOConnectionInfo.Path, imageData);
             }
-         }
+        }
 
         /// <summary>
         /// Called when [file new].
@@ -577,18 +603,20 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
             // Don't show the simple key creation form if the user has set
             // security policies that restrict the allowable composite key sources
             if (KeePass.Program.Config.UI.KeyCreationFlags == 0)
-            {            
+            {
                 kcsf.InitEx(KeePassLib.Serialization.IOConnectionInfo.FromPath(strPath), true);
                 dr = kcsf.ShowDialog(_host.MainWindow);
                 if ((dr == DialogResult.Cancel) || (dr == DialogResult.Abort)) return;
                 if (dr == DialogResult.No)
                 {
                     showUsualKeePassKeyCreationDialog = true;
-                } else
+                }
+                else
                 {
                     key = kcsf.CompositeKey;
                 }
-            } else
+            }
+            else
             {
                 showUsualKeePassKeyCreationDialog = true;
             }
@@ -616,7 +644,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 
             InstallKeeFoxSampleEntries(pd, false);
 
-            pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
+            pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", "2");
 
             // save the new database & update UI appearance
             pd.Save(_host.MainWindow.CreateStatusBarLogger());
@@ -650,23 +678,9 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
             PwUuid groupUuid = new PwUuid(new byte[] {
                 0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x23});
-            PwUuid entry1Uuid = new PwUuid(new byte[] {
-                0xe9, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x24});
-            PwUuid entry2Uuid = new PwUuid(new byte[] {
-                0xe8, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x25});
-            PwUuid entry3Uuid = new PwUuid(new byte[] {
-                0xe7, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x26});
-            PwUuid entry4Uuid = new PwUuid(new byte[] {
-                0xe6, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x27});
-            PwUuid entry5Uuid = new PwUuid(new byte[] {
-                0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28});
+            List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
 
-            PwGroup kfpg = RPCService.GetRootPwGroup(pd,"").FindGroup(groupUuid, false);
+            PwGroup kfpg = RPCService.GetRootPwGroup(pd, "").FindGroup(groupUuid, false);
             if (kfpg == null)
             {
                 // check that the group doesn't exist outside of the visible home group
@@ -685,30 +699,34 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                 }
             }
 
-            if (pd.RootGroup.FindEntry(entry1Uuid, true) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[0], true) == null)
             {
-                PwEntry pe = createKeeFoxSample(pd, entry1Uuid,
+                PwEntry pe = createKeeFoxSample(pd, pwuuids[0],
                     "Quick Start (double click on the URL to learn how to use KeeFox)",
                     "testU1", "testP1", @"http://tutorial.keefox.org/", null);
+                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                conf.BlockDomainOnlyMatch = true;
+                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
 
-            if (pd.RootGroup.FindEntry(entry2Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[1], false) == null)
             {
-                PwEntry pe = createKeeFoxSample(pd, entry2Uuid,
+                PwEntry pe = createKeeFoxSample(pd, pwuuids[1],
                     "KeeFox sample entry with alternative URL",
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
                 conf.Version = 1;
                 conf.Priority = 5;
                 conf.AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" };
+                conf.BlockDomainOnlyMatch = true;
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
 
-            if (pd.RootGroup.FindEntry(entry3Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[2], false) == null)
             {
-                PwEntry pe = createKeeFoxSample(pd, entry3Uuid,
+                PwEntry pe = createKeeFoxSample(pd, pwuuids[2],
                     "KeeFox sample entry with no auto-fill and no auto-submit",
                     "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
@@ -716,19 +734,21 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                 conf.Priority = 2;
                 conf.NeverAutoFill = true;
                 conf.NeverAutoSubmit = true;
+                conf.BlockDomainOnlyMatch = true;
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
 
-            if (pd.RootGroup.FindEntry(entry5Uuid, false) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[4], false) == null)
             {
-                PwEntry pe = createKeeFoxSample(pd, entry5Uuid,
+                PwEntry pe = createKeeFoxSample(pd, pwuuids[4],
                     "KeeFox sample entry for HTTP authentication",
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
                 conf.Version = 1;
                 conf.Priority = 20;
                 conf.HTTPRealm = "KeeFox tutorial sample";
+                conf.BlockDomainOnlyMatch = true;
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 kfpg.AddEntry(pe, true);
             }
@@ -759,7 +779,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 pd.MemoryProtection.ProtectPassword, password));
             pe.Strings.Set(PwDefs.NotesField, new ProtectedString(
                 pd.MemoryProtection.ProtectNotes, notes));
-            
+
             //TODO2: get autotype example working again following 2.17 API change?
             //pe.AutoType.Set(KPRes.TargetWindow, 
             //    @"{USERNAME}{TAB}{PASSWORD}{TAB}{ENTER}");
@@ -785,7 +805,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     break;
                 }
             }
-            
+
             if (icon == null)
             {
                 MemoryStream ms = new MemoryStream();
@@ -797,25 +817,25 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 _host.Database.CustomIcons.Add(icon);
             }
             return keeFoxIconUuid;
-            
+
 
             //string keeFoxIcon = @"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAFfKj/FAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABpUExURf///wAAAAAAAFpaWl5eXm5ubnh4eICAgIeHh5GRkaCgoKOjo66urq+vr8jIyMnJycvLy9LS0uDg4Ovr6+zs7O3t7e7u7u/v7/X19fb29vf39/j4+Pn5+fr6+vv7+/z8/P39/f7+/v///5goWdMAAAADdFJOUwAxTTRG/kEAAACRSURBVBjTTY2JEoMgDESDaO0h9m5DUZT9/49sCDLtzpB5eQwLkSTkwb0cOBnJksYxiHqORHZG3gFc88WReTzvBFoOMbUCVkN/ATw3CnwHmwLjpYCfYoF5TQphAUztMfp5zsm5phY6MEsV+LapYRPAoC/ooOLxfL33RXQifJjjsnZFWPBniksCbBU+6F4FmV+IvtrgDOmaq+PeAAAAAElFTkSuQmCC";
 
             //byte[] msByteArray = ms.ToArray();
 
-                //foreach (PwCustomIcon item in _host.Database.CustomIcons)
-                //{
-                //    *var* t = item.Image.[1][2];
-                //    // re-use existing custom icon if it's already in the database
-                //    // (This will probably fail if database is used on 
-                //    // both 32 bit and 64 bit machines - not sure why...)
-                //    if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
-                //    {
-                //        pwe.CustomIconUuid = item.Uuid;
-                //        m_host.Database.UINeedsIconUpdate = true;
-                //        return;
-                //    }
-                //}
+            //foreach (PwCustomIcon item in _host.Database.CustomIcons)
+            //{
+            //    *var* t = item.Image.[1][2];
+            //    // re-use existing custom icon if it's already in the database
+            //    // (This will probably fail if database is used on 
+            //    // both 32 bit and 64 bit machines - not sure why...)
+            //    if (KeePassLib.Utility.MemUtil.ArraysEqual(msByteArray, item.ImageDataPng))
+            //    {
+            //        pwe.CustomIconUuid = item.Uuid;
+            //        m_host.Database.UINeedsIconUpdate = true;
+            //        return;
+            //    }
+            //}
 
             //    // Create a new custom icon for use with this entry
             //    PwCustomIcon pwci = new PwCustomIcon(new PwUuid(true),
@@ -856,12 +876,12 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 case "KeeFox Firefox add-on": managerName = "KeeFox"; break; // KeeFox <= 1.2
             }
 
-            PromoteNullRPCClient(connection,_RPCClientManagers[managerName]);
+            PromoteNullRPCClient(connection, _RPCClientManagers[managerName]);
         }
 
-		/// <summary>
-		/// Free resources
-		/// </summary>
+        /// <summary>
+        /// Free resources
+        /// </summary>
         public override void Terminate()
         {
             this.terminating = true;
@@ -889,7 +909,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             GlobalWindowManager.WindowAdded -= GwmWindowAddedHandler;
 
             // terminate _BackgroundWorker
-            _BackgroundWorkerAutoResetEvent.Set ();
+            _BackgroundWorkerAutoResetEvent.Set();
 
             // Remove 'Tools' menu items
             ToolStripItemCollection tsMenu = _host.MainWindow.ToolsMenu.DropDownItems;
@@ -911,7 +931,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private void OnKPDBOpen(object sender, FileCreatedEventArgs e)
         {
-            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "1");
+            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "2");
             EnsureDBIconIsInKPRPCIconCache();
             //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
@@ -933,60 +953,9 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
             // If we've not already upgraded the KPRPC data for this database...
             if (!e.Database.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
-                || e.Database.CustomData.Get("KeePassRPC.KeeFox.configVersion") != "1")
+                || int.Parse(e.Database.CustomData.Get("KeePassRPC.KeeFox.configVersion")) < 1)
             {
-                // We know that this upgrade path may contain duplicate KeeFox
-                // sample entries due to an earlier bug so lets get rid of them
-                // for good and replace them with a single instance of each. Not
-                // a perfect solution but should only cause problems for KeeFox
-                // developers and those with OCD and a short fuse.
-
-                PwUuid pwuuid1 = new PwUuid(new byte[] {
-                0xe9, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x24});
-                PwUuid pwuuid2 = new PwUuid(new byte[] {
-                0xe8, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x25});
-                PwUuid pwuuid3 = new PwUuid(new byte[] {
-                0xe7, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x26});
-                PwUuid pwuuid4 = new PwUuid(new byte[] {
-                0xe6, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x27});
-                PwUuid pwuuid5 = new PwUuid(new byte[] {
-                0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
-                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28});
-
-                List<string> uuids = new List<string>(5);
-                uuids.Add(pwuuid1.ToHexString());
-                uuids.Add(pwuuid2.ToHexString());
-                uuids.Add(pwuuid3.ToHexString());
-                uuids.Add(pwuuid4.ToHexString());
-                uuids.Add(pwuuid5.ToHexString());
-
-                KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
-
-                // Scan every entry for matching UUIDs and add them to the list for deletion
-                KeePassLib.Delegates.EntryHandler ehdup = delegate(PwEntry pe)
-                {
-                    if (uuids.Contains(pe.Uuid.ToHexString()))
-                    {
-                        output.Add(pe);
-                    }
-                    return true;
-                };
-                e.Database.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, ehdup);
-
-                // Tidy up
-                if (output.UCount > 0)
-                {
-                    foreach (PwEntry pwe in output)
-                    {
-                        pwe.ParentGroup.Entries.Remove(pwe);
-                    }
-                    InstallKeeFoxSampleEntries(e.Database, true);
-                    _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
-                }
+                RemoveKeeFoxTutorialDuplicateEntries(e.Database);
 
                 bool foundStringsToUpgrade = false;
                 // Scan every string of every entry to find out whether we need to disturb the user
@@ -1063,7 +1032,196 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 }
             }
 
+            if (!e.Database.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
+                || int.Parse(e.Database.CustomData.Get("KeePassRPC.KeeFox.configVersion")) < 2)
+            {
+                // v2 entry config is backwards compatible but we need to upgrade any KeeFox tutorial
+                // entries. This means each entry's config version will remain at 1 but the overall
+                // config version for this database will be increased to 2.
+                if (UpgradeKeeFoxTutorialEntriesToRetainSubdomainExclusivity(e.Database)
+                    && UpgradeURLPortEntriesToRetainSubdomainExclusivity(e.Database))
+                {
+                    e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "2");
+                    _host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), e.Database);
+                }
+            }
+
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
+        }
+
+        private void RemoveKeeFoxTutorialDuplicateEntries(PwDatabase db)
+        {
+            // We know that this upgrade path may contain duplicate KeeFox
+            // sample entries due to an earlier bug so lets get rid of them
+            // for good and replace them with a single instance of each. Not
+            // a perfect solution but should only cause problems for KeeFox
+            // developers and those with OCD and a short fuse.
+
+            List<string> uuids = GetKeeFoxTutorialUUIDsAsStrings();
+
+            KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+
+            // Scan every entry for matching UUIDs and add them to the list for deletion
+            KeePassLib.Delegates.EntryHandler eh = delegate(PwEntry pe)
+            {
+                if (uuids.Contains(pe.Uuid.ToHexString()))
+                {
+                    output.Add(pe);
+                }
+                return true;
+            };
+            db.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
+
+            // Tidy up
+            if (output.UCount > 0)
+            {
+                foreach (PwEntry pwe in output)
+                {
+                    pwe.ParentGroup.Entries.Remove(pwe);
+                }
+                InstallKeeFoxSampleEntries(db, true);
+                _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+            }
+        }
+
+        private bool UpgradeKeeFoxTutorialEntriesToRetainSubdomainExclusivity(PwDatabase db)
+        {
+            // The KeeFox tutorial relies on subdomains being seen as independent
+            // websites but that is no longer the default behaviour in KeeFox 1.5+ 
+            // so we have to adjust any existing entries so that the tutorial 
+            // continues to work for users with existing databases.
+
+            List<string> uuids = GetKeeFoxTutorialUUIDsAsStrings();
+
+            KeePassLib.Collections.PwObjectList<PwEntry> output = new KeePassLib.Collections.PwObjectList<PwEntry>();
+
+            // Scan every entry for matching UUIDs and add them to the list for upgrade
+            KeePassLib.Delegates.EntryHandler eh = delegate(PwEntry pe)
+            {
+                if (uuids.Contains(pe.Uuid.ToHexString()))
+                {
+                    output.Add(pe);
+                }
+                return true;
+            };
+            db.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
+
+            if (output.UCount > 0)
+            {
+                foreach (PwEntry pwe in output)
+                {
+                    KeePassRPC.DataExchangeModel.EntryConfig conf = null;
+                    string json = pwe.Strings.ReadSafe("KPRPC JSON");
+                    if (string.IsNullOrEmpty(json))
+                        conf = new EntryConfig();
+                    else
+                    {
+                        try
+                        {
+                            conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this.", "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return false;
+                        }
+                    }
+
+                    conf.BlockDomainOnlyMatch = true;
+                    pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private bool UpgradeURLPortEntriesToRetainSubdomainExclusivity(PwDatabase db)
+        {
+            KeePassLib.Collections.PwObjectList<PwEntry> output;
+            output = db.RootGroup.GetEntries(true);
+
+            foreach (PwEntry pwe in output)
+            {
+                KeePassRPC.DataExchangeModel.EntryConfig conf = null;
+                string json = pwe.Strings.ReadSafe("KPRPC JSON");
+                if (string.IsNullOrEmpty(json))
+                    conf = new EntryConfig();
+                else
+                {
+                    try
+                    {
+                        conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this.", "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return false;
+                    }
+                }
+
+                List<string> URLs = new List<string>();
+                if (!string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
+                    URLs.Add(pwe.Strings.ReadSafe("URL"));
+                if (conf.AltURLs != null)
+                    URLs.AddRange(conf.AltURLs);
+
+                foreach (string url in URLs)
+                {
+                    URLSummary urlsum = URLSummary.FromURL(url);
+
+                    // Require more strict default matching for entries that come
+                    // with a port configured (user can override in the rare case
+                    // that they want the loose domain-level matching)
+                    if (!string.IsNullOrEmpty(urlsum.Port))
+                    {
+                        conf.BlockDomainOnlyMatch = true;
+                        pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                    }
+                }
+            }
+
+            return true;
+        }
+
+
+        private List<string> GetKeeFoxTutorialUUIDsAsStrings()
+        {
+            List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
+
+            List<string> uuids = new List<string>(5);
+            uuids.Add(pwuuids[0].ToHexString());
+            uuids.Add(pwuuids[1].ToHexString());
+            uuids.Add(pwuuids[2].ToHexString());
+            uuids.Add(pwuuids[3].ToHexString());
+            uuids.Add(pwuuids[4].ToHexString());
+            return uuids;
+        }
+
+        private List<PwUuid> GetKeeFoxTutorialUUIDs()
+        {
+            PwUuid pwuuid1 = new PwUuid(new byte[] {
+                0xe9, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x24});
+            PwUuid pwuuid2 = new PwUuid(new byte[] {
+                0xe8, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x25});
+            PwUuid pwuuid3 = new PwUuid(new byte[] {
+                0xe7, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x26});
+            PwUuid pwuuid4 = new PwUuid(new byte[] {
+                0xe6, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x27});
+            PwUuid pwuuid5 = new PwUuid(new byte[] {
+                0xe5, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x28});
+
+            List<PwUuid> uuids = new List<PwUuid>(5);
+            uuids.Add(pwuuid1);
+            uuids.Add(pwuuid2);
+            uuids.Add(pwuuid3);
+            uuids.Add(pwuuid4);
+            uuids.Add(pwuuid5);
+            return uuids;
         }
 
         public bool StringIsFromKPRPCv1(string p)
@@ -1191,7 +1349,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             }
             return clients;
         }
-        
+
 
 
         public string GetPwEntryString(PwEntry pwe, string name, PwDatabase db)
@@ -1510,16 +1668,17 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             }
         }
 
-        public void InvokeMainThread (Delegate method, params object[] args)
+        public void InvokeMainThread(Delegate method, params object[] args)
         {
-            _BackgroundWorker.ReportProgress (0, (MethodInvoker)delegate {
-                method.DynamicInvoke (args);
-           });
+            _BackgroundWorker.ReportProgress(0, (MethodInvoker)delegate
+            {
+                method.DynamicInvoke(args);
+            });
         }
 
-        private void _BackgroundWorker_ProgressChanged (object sender, ProgressChangedEventArgs e)
+        private void _BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            ((MethodInvoker)e.UserState).Invoke ();
+            ((MethodInvoker)e.UserState).Invoke();
         }
     }
 

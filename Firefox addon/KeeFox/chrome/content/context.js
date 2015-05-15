@@ -1,11 +1,8 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   This context.js file contains functions and data related to the displaying popup menus.
-
-  It currently duplicates functions from the legacy KFToolbar.js but we'll tidy
-  that up as v1.4 and v1.5 progresses (depending on Australis release schedule, etc.)
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,18 +34,21 @@ keefox_win.context = {
 
         this._observerService = Components.classes["@mozilla.org/observer-service;1"]
                     .getService(Components.interfaces.nsIObserverService);
-        this._observerService.addObserver(this,"keefox_matchedLoginsChanged",false);
+        
+        currentWindow.messageManager.addMessageListener(
+            "keefox:matchedLoginsChanged", this.matchedLoginsChangedListener);
 
     },
 
-    observe: function (aSubject, aTopic, aData)
-    {
-        if (aTopic == "keefox_matchedLoginsChanged")
-        {
-            this.setLoginsContext(aSubject.wrappedJSObject.logins, aSubject.wrappedJSObject.uri);
-        }
+    // Listen for notifications that we've decided on a new list of new matched logins
+    // and forward them to other interested observers in the main chrome process
+    matchedLoginsChangedListener: function (message) {
+        keefox_win.Logger.debug("context matchedLoginsChangedListener called");
+        // Make sure we only process messages from the currently displayed tab
+        if (message.target === window.gBrowser.selectedBrowser)
+            keefox_win.context.setLoginsContext(message.data.logins, message.data.notifyUserOnSuccess);
     },
-
+    
     _currentWindow: null,
 
     shutdown: function () {
@@ -73,103 +73,49 @@ keefox_win.context = {
         return b.relevanceScore - a.relevanceScore;
     },
 
-    
-    setLoginsContext: function (logins, documentURI) {
+    setLoginsContext: function (logins) {
         keefox_win.Logger.debug("setLoginsContext started");
 
+        // Get the container that we want to add our matched logins to.
         var container = this._currentWindow.document.getElementById("keefox-command-context-fillMatchedLogin");
         if (container === undefined || container == null)
             return;
-            
-        if (logins == null || logins.length == 0)
+        
+        if (logins == null || logins.length == 0) {
+            this.removeLogins();
             return;
+        }
 
         logins.sort(this.compareRelevanceScores);
-        
-        var merging = true;
-        // find or create a popup menu to hold the logins
+
+        keefox_win.Logger.debug("setting " + logins.length + " matched logins");
+
+        // find a popup menu to hold the overflow logins
         var menupopup = this._currentWindow.document.getElementById("keefox-command-context-showMenuMatchedLogins-popup");
-        if (menupopup.childNodes.length <= 0) {
-            //menupopup = this._currentWindow.document.createElement("menupopup");
-            //menupopup.id = "KeeFox_Main-ButtonPopup";
-            merging = false;
+
+        let loginsHaveBeenChanged = keefox_win.mainUI.checkAllMatchedLoginsForChanges(logins, container, menupopup);
+
+        if (!loginsHaveBeenChanged) {
+            keefox_win.Logger.debug("setLoginsContext found no changes");
+            return;
         }
-        
-        if (merging)
-            keefox_win.Logger.debug("merging " + logins.length + " matched logins");
-        else
-            keefox_win.Logger.debug("setting " + logins.length + " matched logins");
 
-        this.setLoginsTopMatch(logins, documentURI, container, merging);
-        this.setLoginsAllMatches(logins, documentURI, menupopup, merging);
+        this.removeLogins();
 
-        // Only attach the menupopup to the main button if there is more than one matched item
-        //TODO1.3:?need test case: change this so it inspects length of popup items (allowing for multiple single matched logins merged together)
-//        if (!merging && logins.length > 1) {
-//            container.setAttribute("type", "menu-button");
-//            container.appendChild(menupopup);
-//        }
+        this.setLoginsAllMatches(logins, container, menupopup);
 
-        if (merging)
-            keefox_win.Logger.debug(logins.length + " matched logins merged!");
-        else
-            keefox_win.Logger.debug(logins.length + " matched logins set!");
+        keefox_win.Logger.debug(logins.length + " matched context logins set!");
     },
 
     // add all matched logins to the menu
-    setLoginsTopMatch: function (logins, documentURI, container, merging) {
-        keefox_win.Logger.debug("setLoginsTopMatch started");
+    setLoginsAllMatches: function (logins, container, menupopup) {
+        keefox_win.Logger.debug("context setLoginsAllMatches started");
 
         // set up the main button
         container.setAttribute("class", "login-found");
         container.setAttribute("disabled", "false");
 
-
-        var login = logins[0];
-        var usernameValue = "";
-        var usernameDisplayValue = "[" + keefox_org.locale.$STR("noUsername.partial-tip") + "]";
-        var usernameName = "";
-        var usernameId = "";
-        var displayGroupPath = login.database.name + '/' + login.parentGroup.path;
-
-        if (login.usernameIndex != null && login.usernameIndex != undefined && login.usernameIndex >= 0
-            && login.otherFields != null && login.otherFields.length > 0)
-        {
-            var field = login.otherFields[login.usernameIndex];
-
-            usernameValue = field.value;
-            if (usernameValue != undefined && usernameValue != null && usernameValue != "")
-                usernameDisplayValue = usernameValue;
-            usernameName = field.name;
-            usernameId = field.fieldId;
-        }
-
-        if (!merging) // we don't re-assess which shoudl be the primary button action upon merging results from multiple frames (or duplicates of the same frame in the case of initial login where KeePass sends too many notifications)
-        {
-            container.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
-            container.setAttribute('uuid', login.uniqueID, null);
-            container.setAttribute('fileName', login.database.fileName, null);
-            //container.setAttribute("login", login, null);
-            container.setAttribute("context", "KeeFox-login-toolbar-context");
-            container.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
-            //container.setAttribute("oncommand", "keefox_win.ILM.fill('" +
-            //    usernameName + "','" + usernameValue + "','" + login.formActionURL + "','" + usernameId + "',null,'" + login.uniqueID + "','" + doc.documentURI + "'); event.stopPropagation();");
-            container.setAttribute('usernameName', usernameName);
-            container.setAttribute('usernameValue', usernameValue);
-            container.setAttribute('formActionURL', login.formActionURL);
-            container.setAttribute('usernameId', usernameId);
-            container.setAttribute('documentURI', documentURI);
-
-            container.setAttribute("class", "menuitem-iconic");
-            container.setAttribute("image", "data:image/png;base64," + login.iconImageData);
-        }
-    },
-
-    // add all matched logins to the menu
-    setLoginsAllMatches: function (logins, documentURI, menupopup, merging) {
-        keefox_win.Logger.debug("setLoginsAllMatches started");
-
-        // add every matched login to the popup menu
+        // add every matched login to the container and popup menu
         for (let i = 0; i < logins.length; i++) {
             var login = logins[i];
             var usernameValue = "";
@@ -189,96 +135,39 @@ keefox_win.context = {
                 usernameId = field.fieldId;
             }
 
+            var tempButton = i == 0 ? 
+                                    container : 
+                                    this._currentWindow.document.createElement("menuitem");
+            tempButton.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label"
+                , [usernameDisplayValue, login.title]));
+            tempButton.setAttribute("class", "menuitem-iconic");
+            tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
+            tempButton.setAttribute('data-uuid', login.uniqueID, null);
+            tempButton.setAttribute('data-fileName', login.database.fileName, null);
+            tempButton.setAttribute("context",
+                i == 0 ? "KeeFox-login-toolbar-context" : "KeeFox-login-context");
+            tempButton.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip"
+                , [login.title, displayGroupPath, usernameDisplayValue]));
 
-            // prepare toolbar menu popup
-            var addLoginToPopup = true;
-            if (merging && addLoginToPopup) {
-                // find any existing item in the popup menu
-                if (menupopup.childElementCount > 0) {
-                    for (let j = 0, n = menupopup.children.length; j < n; j++) {
-                        var child = menupopup.children[j];
-                        let valAttr = child.hasAttribute('uuid') ? child.getAttribute('uuid') : null;
-                        if (valAttr == login.uniqueID) {
-                            addLoginToPopup = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-
-            var tempButton = null;
-
-            //if (addLoginToContextPopup || addLoginToPopup)
-            if (addLoginToPopup)
-            {
-                tempButton = this._currentWindow.document.createElement("menuitem");
-                tempButton.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]));
-                tempButton.setAttribute("class", "menuitem-iconic");
-                tempButton.setAttribute("image", "data:image/png;base64," + login.iconImageData);
-                tempButton.setAttribute('uuid', login.uniqueID, null);
-                tempButton.setAttribute('fileName', login.database.fileName, null);
-                //tempButton.setAttribute("login", login, null);
-                tempButton.setAttribute("context", "KeeFox-login-context");
-                tempButton.setAttribute("tooltiptext", keefox_org.locale.$STRF("matchedLogin.tip", [login.title, displayGroupPath, usernameDisplayValue]));
-
-                tempButton.setAttribute('usernameName', usernameName);
-                tempButton.setAttribute('usernameValue', usernameValue);
-                tempButton.setAttribute('formActionURL', login.formActionURL);
-                tempButton.setAttribute('usernameId', usernameId);
-                tempButton.setAttribute('documentURI', documentURI);
-            }
+            // Record the unique address to the details of this login as stored in the content scope
+            tempButton.setAttribute('data-frameKey', login.frameKey);
+            tempButton.setAttribute('data-formIndex', login.formIndex);
+            tempButton.setAttribute('data-loginIndex', login.loginIndex);
             
-            // attach to toolbar drop down menu (assuming not a duplicate)
-            if (addLoginToPopup) {
+            // Not needed for i == 0 because the KeeFox commands.js module manages
+            // the visibility and execution of that command via the entry added to the main UI panel
+            if (i > 0) {
                 tempButton.addEventListener("command", this.mainButtonCommandMatchHandler, false);
                 menupopup.appendChild(tempButton);
             }
         }
     },
 
-    /*
-    generatePassword: function () {
-        let kf = this._currentWindow.keefox_org;
-        kf.metricsManager.pushEvent ("feature", "generatePassword");
-        kf.generatePassword();
-    },
-
-    removeNonMatchingEventHandlers: function (node) {
-        // only one should be set but we don't know which one so try to remove all
-        node.removeEventListener("command", this.mainButtonCommandInstallHandler, false);
-        node.removeEventListener("command", this.mainButtonCommandLaunchKPHandler, false);
-        node.removeEventListener("command", this.mainButtonCommandLoginKPHandler, false);
-    },
-
-    removeMatchingEventHandlers: function (node) {
-        node.removeEventListener("command", this.mainButtonCommandMatchHandler, false);
-        node.setAttribute('uuid', '', null);
-    },
-
-    mainButtonCommandInstallHandler: function (event) {
-        keefox_org.KeeFox_MainButtonClick_install();
-    },
-
-    mainButtonCommandLaunchKPHandler: function (event) {
-        keefox_org.launchKeePass('');
-    },
-
-    mainButtonCommandLoginKPHandler: function (event) {
-        keefox_org.loginToKeePass();
-    },
-    */
-
     mainButtonCommandMatchHandler: function (event) {
-        keefox_win.ILM.fill(
-            this.hasAttribute('usernameName') ? this.getAttribute('usernameName') : null,
-            this.hasAttribute('usernameValue') ? this.getAttribute('usernameValue') : null,
-            this.hasAttribute('formActionURL') ? this.getAttribute('formActionURL') : null,
-            this.hasAttribute('usernameId') ? this.getAttribute('usernameId') : null,
-            this.hasAttribute('formId') ? this.getAttribute('formId') : null,
-            this.hasAttribute('uuid') ? this.getAttribute('uuid') : null,
-            this.hasAttribute('documentURI') ? this.getAttribute('documentURI') : null,
-            this.hasAttribute('fileName') ? this.getAttribute('fileName') : null
+        keefox_win.fillAndSubmit(false,
+            this.hasAttribute('data-frameKey') ? this.getAttribute('data-frameKey') : null,
+            this.hasAttribute('data-formIndex') ? this.getAttribute('data-formIndex') : null,
+            this.hasAttribute('data-loginIndex') ? this.getAttribute('data-loginIndex') : null
         );
         event.stopPropagation();
     }

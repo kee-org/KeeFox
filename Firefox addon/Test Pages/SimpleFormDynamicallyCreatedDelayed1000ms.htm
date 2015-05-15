@@ -1,0 +1,20 @@
+<html>
+<head>
+<title>KeeFox Test - Dynamically created form</title>
+    <script>
+    addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+            document.getElementById("formTarget").innerHTML += '<form action="testResults.htm" method="get"><label for="username">Username</label>: <input type="text" id="username" name="username" /><br /><label for="password">Password</label>: <input type="password" id="password" name="password" /><br /><br /><input type="submit" name="Test" value="Perform test" id="submit" /></form>';
+        }, 1000);
+    });
+    </script>
+
+</head>
+<body>
+<div>This is a page to assist in testing KeeFox features.</div>
+<br />
+<div style="font-weight:bold">This page is an example of a form-less page that contains Javascript to dynamically create a form 1s after DOMReady.</div>
+<div id="formTarget"></div>
+
+</body>
+</html>

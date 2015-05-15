@@ -1,0 +1,19 @@
+<html>
+<head>
+<title>KeeFox Test - IFrame</title>
+    <script>
+    addEventListener("DOMContentLoaded", function () {
+        document.getElementById("theiframe")
+            .setAttribute("src", "SimpleFormInIFrameContents.htm");
+    });
+    </script>
+
+</head>
+<body>
+<div>This is a page to assist in testing KeeFox features.</div>
+<br />
+<div style="font-weight:bold">This page is an example of a form-less page that contains an IFrame that is loaded onDOMContentLoaded.</div>
+<iframe width="80%" height="400px" id="theiframe" style="border:solid 1px black" src="" />
+
+</body>
+</html>
