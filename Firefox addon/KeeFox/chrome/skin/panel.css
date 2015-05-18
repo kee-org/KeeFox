@@ -110,7 +110,7 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 
 #keefox-panelview li:hover
 {
-    background-color: #EDEDED;
+    background-color: #EAEAEA;
     border: 1px solid #D6D6D6;   
     border-radius: 3px; 
 }
@@ -124,7 +124,17 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     margin-right:0px !important;
 }
 
-#keefox-panelview input[type=button] {
+#keefox-panelview button,
+#keefox-persistent-panel button
+{
+    -moz-appearance: none;
+    text-align: center;
+}
+
+#keefox-panelview input[type=button],
+#keefox-persistent-panel input[type=button],
+#keefox-panelview button,
+#keefox-persistent-panel button {
     background: #F4F4F4;
     border: #DDDDDD solid 1px;
     border-top-width: 1px;
@@ -137,9 +147,11 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     display: inline-flex;
 }
 
-#keefox-panelview input[type=button]:hover {
-    background: #EDEDED;
-    
+#keefox-panelview input[type=button]:hover,
+#keefox-persistent-panel input[type=button]:hover,
+#keefox-panelview button:hover,
+#keefox-persistent-panel button:hover {
+    background: #EAEAEA;
 }
 
 #keefox-panelview .disabled,
@@ -365,53 +377,114 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 
 /* FAMS and other notification bar styles */
 
-#KeeFox-PanelSection-notifications-tab input[type="button"],
-#KeeFox-PanelSection-notifications-window input[type="button"]
+#KeeFox-PanelSection-notifications-tab button,
+#KeeFox-PanelSection-notifications-window button
 {
     width: auto;
 }
 
-#KeeFox-PanelSection-notifications-tab,
-#KeeFox-PanelSection-notifications-window
+.keeFoxNotification
 {
-    background:red;
     font-size:1.2em;
+    padding: 5px 0px;
+    margin-bottom:20px;
+    border: 1px solid #D6D6D6;   
+    border-radius: 3px; 
+	width: 100%;
 }
 
-#keefox-panelview input.KeeFox-Close-Notification,
-input.KeeFox-Close-Notification
+#KeeFox-PanelSection-notifications-window
 {
-    float:right;
-    width:32px;
-    min-width:32px;
-    height:32px;
+}
+
+#KeeFox-PanelSection-notifications-tab
+{
+}
+
+#keefox-panelview .keeFoxNotification button,
+#keefox-persistent-panel .keeFoxNotification button
+{
+    border: 1px solid #D6D6D6;   
+    border-radius: 3px; 
+    margin:10px 5px 0px 5px;
+}
+
+#keefox-panelview button.KeeFox-Close-Notification,
+#keefox-persistent-panel button.KeeFox-Close-Notification
+{
+    -moz-appearance: none;
+    width:24px;
+    min-width:24px;
+    max-width:24px;
+    height:24px;
+    max-height:24px;
     padding:0px;
-    margin:0px;
+    margin:0px 5px;
     line-height:1;
-    font-size:1.25em;
+    font-size:.8em;
+    font-weight: bold;
+    color: #dd2222;
+}
+
+#keefox-panelview .keeFoxNotification button.KeeFox-Close-Notification:hover,
+#keefox-persistent-panel .keeFoxNotification button.KeeFox-Close-Notification:hover
+{
+    background-color: #dd2222;
+    color:white;
+}
+
+.keefox-button-actions
+{
+	margin-top:5px;
 }
 
 #keefox-save-password-db-select,
 #keefox-save-password-group-select
 {
-    padding-left:20px;
     background-repeat: no-repeat;
+    border: 1px solid #D6D6D6;
+    margin: 5px;
+    min-width: 350px;
+    display:inline-block;
+}
+
+.keeFox-save-password label {
+    white-space:nowrap;
+    -moz-margin-start: 5px;
+}
+
+.keeFox-save-password {
+    white-space:nowrap;
 }
             
 #keefox-save-password-db-select option{
-padding: 2px 0 2px 20px;
+padding: 3px 0 3px 20px;
     background-repeat: no-repeat;
-    background-position: 1px 2px;
+    
 }
 
 #keefox-save-password-group-select option {
 background-repeat: no-repeat;
+    padding: 3px 0px 3px 20px;
+    
 }
-        
+
 #keefox-persistent-panel .disabled {
     display:none;
 }
 
+.keeFoxPriorityLow {
+    color: grey;
+}
+.keeFoxPriorityHigh {
+    color: #dd2222;
+}
+.keeFoxPriorityMedium {
+}
+
+.KeeFox-message {
+    margin-bottom: 5px;
+}
 
 
 
@@ -451,41 +524,7 @@ background-repeat: no-repeat;
 	font-style:italic;
 }
 
-.keeFoxNotificationImage
-{
-	padding: 0px 0px !important;
-	margin: 4px 10px !important;
-	width:24px !important;
-	height:24px !important;
-	max-width:24px !important;
-	max-height:24px !important;
-	min-width:24px !important;
-	min-height:24px !important;
-	-moz-box-align: center !important;
-}
-
-.keeFoxNotificationButtons
-{
-	padding: 0px !important;
-	margin: 0px !important;
-}
-
 .keefoxMessageText 
 {
 	margin: 7px 5px 6px 5px !important;
-}
-
-.keeFoxNotificationButtons toolbarbutton.menuitem-iconic {
-  -moz-appearance: button;
-  margin-left: 5px !important;
-  margin-right: 5px !important;
-  height: 32px !important;
-  min-height: 32px !important;
-  color:#000;
-}
-
-.keeFoxNotificationButtons .toolbarbutton-menubutton-button
-{
- 	-moz-box-orient: horizontal !important;
- 	padding: 0px 3px !important;
 }

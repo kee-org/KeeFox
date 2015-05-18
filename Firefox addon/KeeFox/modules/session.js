@@ -325,7 +325,7 @@ session.prototype.constructor = session;
                     var uri = ioService.newURI(rpc.httpChannelURI, null, null);
 
                     // get a channel for that nsIURI
-                    rpc.httpChannel = ioService.newChannelFromURI(uri);
+                    rpc.httpChannel = ioService.newChannelFromURI(uri);//newChannelFromURI2 is the new way but it needs some kind of extra secret parameters and has no backwards compatibility.
 
                     var listener = new KPRPCHTTPStreamListener(rpc.httpConnectionAttemptCallback);
                     rpc.httpChannel.notificationCallbacks = listener;

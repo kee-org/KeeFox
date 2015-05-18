@@ -167,15 +167,15 @@ keefox_win.panel = {
 
         // Each main "panel section" component is a div with a button to invoke the main action.
         
-        let notificationsTab = this.createUIElement('div', [
+        let notificationsTab = this.createUIElement('vbox', [
             ['class', 'KeeFox-PanelSection enabled'],
             ['id','KeeFox-PanelSection-notifications-tab']
-        ]);
+        ], true);
 
-        let notificationsWindow = this.createUIElement('div', [
+        let notificationsWindow = this.createUIElement('vbox', [
             ['class','KeeFox-PanelSection enabled'],
             ['id', 'KeeFox-PanelSection-notifications-window']
-        ]);
+        ], true);
 
         let statusTextContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelSection disabled'],
@@ -404,9 +404,13 @@ keefox_win.panel = {
         elem.classList.add('disabled');
     },
 
-    createUIElement: function (tag, attrs)
+    createUIElement: function (tag, attrs, xul)
     {
-        let elem = this._currentWindow.document.createElementNS('http://www.w3.org/1999/xhtml', tag);
+        let elem;
+        if (xul)
+            elem = this._currentWindow.document.createElement(tag);
+        else
+            elem = this._currentWindow.document.createElementNS('http://www.w3.org/1999/xhtml', tag);
         for (let i=0; i<attrs.length; i++)
             elem.setAttribute(attrs[i][0], attrs[i][1]);
         return elem;

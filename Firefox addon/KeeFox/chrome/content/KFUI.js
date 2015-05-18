@@ -78,13 +78,9 @@ keefox_win.UI = {
                      
                 // We will append the rendered view of our own notification information to the
                 // standard notification container that we have been supplied
-
                 var doc = container.ownerDocument;
-                            
-                var text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-                text.textContent = notificationText;
-                text.setAttribute('class', 'KeeFox-message');
-                container.appendChild(text);
+                container = doc.ownerGlobal.keefox_win.notificationManager
+                    .renderStandardMessage(container, notificationText);
                     
                 // We might customise other aspects of the notifications but when we want
                 // to display buttons we can treat them all the same
@@ -103,49 +99,9 @@ keefox_win.UI = {
         return;
     },
 
-    _prepareNotificationMenuItem : function (nmi, itemDef, notifyBox, name)
-    {
-        ////<vbox><input type="button" class="KeeFox-Action enabled" value="Launch KeePass1" title="do-a-thing.tip" tooltip="Launch KeePass to enable KeeFox"/></vbox>
-        nmi.setAttribute("label", itemDef.label);
-        nmi.setAttribute("accesskey", itemDef.accessKey);
-        if (itemDef.tooltip != undefined) nmi.setAttribute("tooltiptext", itemDef.tooltip);
-        nmi.setAttribute("class", "menuitem-iconic");
-        if (itemDef.image != undefined)
-            nmi.setAttribute("image", itemDef.image);
-        var callbackWrapper = function(fn, name){
-            return function() {
-                try
-                {
-                    var returnValue = 0;
-                    if (fn != null)
-                        returnValue = fn.apply(this, arguments);
-                    
-                    notifyBox.remove(name);
-                } catch(ex)
-                {
-                    keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
-                }
-            };
-        };
-
-        var callback = callbackWrapper(itemDef.callback, name);
-        nmi.addEventListener('command', callback, false);
-        if (itemDef.id != null)
-            nmi.setAttribute("id", itemDef.id);
-        if (itemDef.values != null)
-        {
-            for(var pi=0; pi < itemDef.values.length; pi++)
-            {
-                var key = itemDef.values[pi].key;
-                var val = itemDef.values[pi].value;
-                nmi.setUserData(key, val, null);
-            }                  
-        }
-        return nmi;    
-    },
-    
     // Displays a notification, to allow the user to save the specified login.
     _showSaveLoginNotification: function (aNotifyBox, aLogin, isMultiPage, browser) {
+        //keefox_win.tempLogin = aLogin;
         var notificationText = "";
             
         var neverButtonText =
@@ -254,13 +210,9 @@ keefox_win.UI = {
                      
                 // We will append the rendered view of our own notification information to the
                 // standard notification container that we have been supplied
-
-                let doc = container.ownerDocument;
-                            
-                let text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-                text.textContent = notificationText;
-                text.setAttribute('class', 'KeeFox-message');
-                container.appendChild(text);
+                var doc = container.ownerDocument;
+                container = doc.ownerGlobal.keefox_win.notificationManager
+                    .renderStandardMessage(container, notificationText);
               
                 let dbSel = doc.ownerGlobal.keefox_win.UI.createDBSelect(doc, saveData);
                 dbSel.style.backgroundImage = dbSel.selectedOptions[0].style.backgroundImage;
@@ -269,12 +221,12 @@ keefox_win.UI = {
                    keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel, saveData);
                 
               
-                let dbSelContainer = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                let dbSelContainer = doc.createElement('hbox');
                 dbSelContainer.setAttribute('class', 'keeFox-save-password');
                 let dbSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
                 dbSelLabel.setAttribute('for', dbSel.id);
                 dbSelLabel.textContent = keefox_org.locale.$STR("database.label");
-                let groupSelContainer = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+                let groupSelContainer = doc.createElement('hbox');
                 groupSelContainer.setAttribute('class', 'keeFox-save-password');
                 let groupSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
                 groupSelLabel.setAttribute('for', groupSel.id);
@@ -351,6 +303,8 @@ keefox_win.UI = {
             let opt = event.target.selectedOptions[0];
             event.target.style.backgroundImage = opt.style.backgroundImage;
             event.target.style.paddingLeft = opt.style.paddingLeft;
+            event.target.style.paddingLeft = (opt.style.paddingLeft.substring(0,
+                opt.style.paddingLeft.length - 2) - 5) + "px";
             event.target.style.backgroundPosition = opt.style.backgroundPosition;
             saveData.group = opt.value;
         };
@@ -381,8 +335,8 @@ keefox_win.UI = {
                 opt.setAttribute("selected", "true");
     
             let indent = 20 + depth * 16;
-            opt.style.paddingLeft = indent + "px";
-            opt.style.backgroundPosition = indent-20 + "px 2px";
+            opt.style.paddingLeft = (indent+5) + "px";
+            opt.style.backgroundPosition = (indent-15) + "px 7px";
             opt.style.backgroundImage = "url(data:image/png;base64," + group.iconImageData + ")";
     
             groupOptions.push(opt);
@@ -401,7 +355,8 @@ keefox_win.UI = {
   
         let currentOpt = sel.selectedOptions[0];
         sel.style.backgroundImage = currentOpt.style.backgroundImage;
-        sel.style.paddingLeft = currentOpt.style.paddingLeft;
+        sel.style.paddingLeft = (currentOpt.style.paddingLeft.substring(0,
+            currentOpt.style.paddingLeft.length - 2) - 5) + "px";
         sel.style.backgroundPosition = currentOpt.style.backgroundPosition;
 
         saveData.group = currentOpt.value;

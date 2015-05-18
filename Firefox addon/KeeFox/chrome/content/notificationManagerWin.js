@@ -131,43 +131,61 @@ keefox_win.notificationManager = {
     },
     renderNotification: function (notification) {
 
-        var bx = document.createElement('hbox');
-        bx.setAttribute('style', 'display:block;');
-        bx.classList.add('keeFoxNotificationNEW');
+        var bx = document.createElement('vbox');
+        bx.classList.add('keeFoxNotification');
         bx.classList.add(this.getPriorityClass(notification));
         
-        var close = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
-        close.setAttribute('type', 'button');
-        close.setAttribute('value', 'X');
-        close.setAttribute('title', 'Dismiss this notification without taking any action');
-        close.setAttribute('tooltip', 'Dismiss this notification without taking any action');
+
+        var topbx = document.createElement('hbox');
+        var hackbx = document.createElement('vbox'); // Needed cos of Firefox bug #394738
+        var close = document.createElement('button');
+        close.setAttribute('label', 'X');
+        close.setAttribute('tooltiptext', keefox_org.locale.$STR('dismiss-notification'));
         close.setAttribute('class', 'KeeFox-Close-Notification');
-        close.addEventListener("mouseup", function() {
+        close.addEventListener("command", function() {
             if (typeof(notification.onClose) === "function")
                 notification.onClose(window.gBrowser.selectedBrowser);
             keefox_win.notificationManager.remove(notification.name);
         }, false);
-        bx.appendChild(close);
+        
+        hackbx.appendChild(close);
+        topbx.appendChild(hackbx);
+        bx.appendChild(topbx);
 
         let contents = notification.render(bx);
         return contents;
-
     },
 
     renderButtons: function (buttons, doc, notifyBox, name, container) {
+        
+        var buttonContainer = null;
+        buttonContainer = doc.createElement("hbox");
+        buttonContainer.classList.add("keefox-button-actions");
+        
         for(var bi=0; bi < buttons.length; bi++)
         {
-            var buttonContainer = null;
-            buttonContainer = doc.createElement("vbox");
-
             var butDef = buttons[bi];
-            var newMenu = null;
-            newMenu = doc.createElement("button");
-            newMenu = keefox_win.UI._prepareNotificationMenuItem(newMenu, butDef, notifyBox, name, container);
+            var newButton = null;
+            newButton = doc.createElement('button');
+            newButton = this._prepareNotificationButton(newButton, butDef, notifyBox, name, container);
             
-            buttonContainer.appendChild(newMenu);
-            container.appendChild(buttonContainer);
+            buttonContainer.appendChild(newButton);
         }
+        container.appendChild(buttonContainer);
+        return container;
+    },
+
+    renderStandardMessage: function (container, notificationText) {
+        var doc = container.ownerDocument;
+        let vb = doc.createElement('vbox');
+        vb.setAttribute("flex","1");
+        let space = doc.createElement('spacer');
+        let text = doc.createElement('label');
+        text.textContent = notificationText;
+        text.setAttribute('class', 'KeeFox-message');
+        vb.appendChild(text);
+        container.firstChild.insertBefore(space, container.firstChild.firstChild);
+        container.firstChild.insertBefore(vb, container.firstChild.firstChild);
         return container;
     },
 
@@ -199,5 +217,43 @@ keefox_win.notificationManager = {
                 let notificationDOM = this.renderNotification(notification);
                 container.appendChild(notificationDOM);
         }
-    },
+},
+
+_prepareNotificationButton : function (but, itemDef, notifyBox, name)
+{
+    but.setAttribute("label", itemDef.label);
+    if (itemDef.tooltip != undefined) but.setAttribute("tooltiptext", itemDef.tooltip);
+
+    var callbackWrapper = function(fn, name){
+        return function() {
+            try
+            {
+                var returnValue = 0;
+                if (fn != null)
+                    returnValue = fn.apply(this, arguments);
+                    
+                notifyBox.remove(name);
+            } catch(ex)
+            {
+                keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
+            }
+        };
+    };
+
+    var callback = callbackWrapper(itemDef.callback, name);
+    but.addEventListener('command', callback, false);
+    if (itemDef.id != null)
+        but.setAttribute("id", itemDef.id);
+    if (itemDef.values != null)
+    {
+        for(var pi=0; pi < itemDef.values.length; pi++)
+        {
+            var key = itemDef.values[pi].key;
+            var val = itemDef.values[pi].value;
+            but.setUserData(key, val, null);
+        }                  
+    }
+    return but;
+},
+    
 };
