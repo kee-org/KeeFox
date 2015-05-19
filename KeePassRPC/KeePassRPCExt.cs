@@ -1132,7 +1132,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 }
                 return true;
             }
-            return false;
+            return true;
         }
 
         private bool UpgradeURLPortEntriesToRetainSubdomainExclusivity(PwDatabase db)
