@@ -273,7 +273,6 @@ keefox_win.UI = {
             opt.textContent = db.name;
             if (dbi == keefox_org.ActiveKeePassDatabaseIndex)
                 opt.selected = true;
-            opt.style.paddingLeft = "20px";
             opt.style.backgroundImage = "url(data:image/png;base64," + db.iconImageData + ")";
             dbOptions.push(opt);
         }
@@ -281,7 +280,8 @@ keefox_win.UI = {
         let changeHandler = function (event) {
             let opt = event.target.selectedOptions[0];
             event.target.style.backgroundImage = opt.style.backgroundImage;
-            updateGroups(doc,keefox_org.getDBbyFilename(event.target.value),
+            doc.ownerGlobal.keefox_win.UI.updateGroups(
+                doc,keefox_org.getDBbyFilename(event.target.value),
                 doc.getElementById('keefox-save-password-group-select'), saveData);
             saveData.db = opt.value;
         };
@@ -302,7 +302,6 @@ keefox_win.UI = {
         let changeHandler = function (event) {
             let opt = event.target.selectedOptions[0];
             event.target.style.backgroundImage = opt.style.backgroundImage;
-            event.target.style.paddingLeft = opt.style.paddingLeft;
             event.target.style.paddingLeft = (opt.style.paddingLeft.substring(0,
                 opt.style.paddingLeft.length - 2) - 5) + "px";
             event.target.style.backgroundPosition = opt.style.backgroundPosition;

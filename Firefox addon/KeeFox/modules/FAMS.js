@@ -543,17 +543,14 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (name, a
 
             // We will append the rendered view of our own notification information to the
             // standard notification container that we have been supplied
-
             var doc = container.ownerDocument;
-
-            var text = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-            text.textContent = aText;
-            text.setAttribute('class', 'KeeFox-message');
-            container.appendChild(text);
-
+            container = doc.ownerGlobal.keefox_win.notificationManager
+                .renderStandardMessage(container, notificationText);
+            
             // We might customise other aspects of the notifications but when we want
             // to display buttons we can treat them all the same
-            container = doc.ownerGlobal.keefox_win.notificationManager.renderButtons(buttons, doc, notifyBox, name, container);
+            container = doc.ownerGlobal.keefox_win.notificationManager
+                .renderButtons(buttons, doc, notifyBox, name, container);
 
             return container;
         },

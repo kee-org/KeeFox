@@ -448,6 +448,12 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     display:inline-block;
 }
 
+#keefox-save-password-db-select
+{
+    padding-left: 20px;
+    background-position: 5px 5px;
+}
+
 .keeFox-save-password label {
     white-space:nowrap;
     -moz-margin-start: 5px;
@@ -458,9 +464,9 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
             
 #keefox-save-password-db-select option{
-padding: 3px 0 3px 20px;
+padding: 3px 0 3px 25px;
     background-repeat: no-repeat;
-    
+    background-position: 5px 5px;
 }
 
 #keefox-save-password-group-select option {
