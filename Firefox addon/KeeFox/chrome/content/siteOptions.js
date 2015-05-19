@@ -1,6 +1,6 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2012 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ function onLoad()
     wm.getMostRecentWindow("mail:3pane");
         
     mainWindow.keefox_org.locale.internationaliseElements(document,
-        ['siteIntro','notifyBarRequestPasswordSave','monitorTime','validFormIntro','listExplain','invisibleTip','gb-form-name-caption','gb-form-name-wl-lab','gb-form-name-bl-lab'
+        ['siteIntro','notifyBarRequestPasswordSave','validFormIntro','listExplain','invisibleTip','gb-form-name-caption','gb-form-name-wl-lab','gb-form-name-bl-lab'
         ,'gb-form-id-caption','gb-form-id-wl-lab','gb-form-id-bl-lab','gb-field-name-caption','gb-field-name-wl-lab','gb-field-name-bl-lab'
         ,'gb-field-id-caption','gb-field-id-wl-lab','gb-field-id-bl-lab','addSite','saveSite', 'removeSite'
         ],
@@ -151,10 +151,6 @@ function onSettingEnableChange(id, enabled)
             if (enabled) itemsToEnable.push("notifyBarRequestPasswordSave"); 
             else itemsToDisable.push("notifyBarRequestPasswordSave"); 
             break;
-        case "monitorTime-enabled": 
-            if (enabled) itemsToEnable.push("monitorTime"); 
-            else itemsToDisable.push("monitorTime"); 
-            break;
         case "gb-field-name-wl-enabled": 
             if (enabled) itemsToEnable.push("gb-field-name-wl","gb-field-name-wl-lab"); 
             else itemsToDisable.push("gb-field-name-wl","gb-field-name-wl-lab"); 
@@ -204,7 +200,7 @@ function onSettingEnableChange(id, enabled)
 
 function setOverrideChoice(enable)
 {
-    var ids = ["notifyBarRequestPasswordSave-enabled","monitorTime-enabled","gb-field-name-wl-enabled",
+    var ids = ["notifyBarRequestPasswordSave-enabled","gb-field-name-wl-enabled",
                 "gb-field-name-bl-enabled","gb-field-id-wl-enabled","gb-field-id-bl-enabled",
             "gb-form-name-wl-enabled","gb-form-name-bl-enabled","gb-form-id-wl-enabled","gb-form-id-bl-enabled"];
     
@@ -266,18 +262,6 @@ function setMainPanelConfig(url, newConfig, effectiveConfig)
         document.getElementById("notifyBarRequestPasswordSave-enabled").checked = false;
         onSettingEnableChange("notifyBarRequestPasswordSave-enabled", false);
         document.getElementById("notifyBarRequestPasswordSave").checked = !effectiveConfig.preventSaveNotification;
-    }
-        
-    if (newConfig.rescanFormDelay != undefined)
-    {
-        document.getElementById("monitorTime-enabled").checked = true;
-        onSettingEnableChange("monitorTime-enabled", true);
-        document.getElementById("monitorTime").checked = (newConfig.rescanFormDelay > 0) ? true : false;
-    } else
-    {
-        document.getElementById("monitorTime-enabled").checked = false;
-        onSettingEnableChange("monitorTime-enabled", false);
-        document.getElementById("monitorTime").checked = (effectiveConfig.rescanFormDelay > 0) ? true : false;
     }
 
     let listNames = ["gb-field-name-wl","gb-field-name-bl","gb-field-id-wl","gb-field-id-bl",
@@ -346,8 +330,7 @@ function getMainPanelConfig()
     var possibleConfigSettings = {
         booleansInversed: ["notifyBarRequestPasswordSave"],
         interestingFormsArrays: ["gb-field-name-wl","gb-field-name-bl","gb-field-id-wl","gb-field-id-bl",
-                                "gb-form-name-wl","gb-form-name-bl","gb-form-id-wl","gb-form-id-bl"],
-        other: ["monitorTime"]
+                                "gb-form-name-wl","gb-form-name-bl","gb-form-id-wl","gb-form-id-bl"]
     };
 
     for (var i=0; i<possibleConfigSettings.booleansInversed.length;i++)
@@ -367,18 +350,6 @@ function getMainPanelConfig()
                 document.getElementById(possibleConfigSettings.interestingFormsArrays[i]).value.split(",");
     }
 
-    for (var i=0; i<possibleConfigSettings.other.length;i++)
-    {
-        let settingEnabled = document.getElementById(possibleConfigSettings.other[i]+"-enabled");
-        if (settingEnabled.checked)
-        {
-            switch (possibleConfigSettings.other[i])
-            {
-                case "monitorTime": newConfig[getConfigNameFromUIId("monitorTime")] = 
-                    document.getElementById("monitorTime").checked ? 2500 : -1; break;
-            }
-        }
-    }
     return newConfig;
 }
 
@@ -386,7 +357,6 @@ function getConfigNameFromUIId(name)
 {
     switch (name)
     {
-        case "monitorTime": return "rescanFormDelay";
         case "notifyBarRequestPasswordSave": return "preventSaveNotification";
         case "gb-field-name-wl": return "f_name_w";
         case "gb-field-name-bl": return "f_name_b";

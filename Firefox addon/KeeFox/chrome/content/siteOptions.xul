@@ -4,7 +4,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2012 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2012-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the site options XUL file which describes the interface for 
   viewing and editing the various KeeFox preferences for specific web sites.
@@ -56,10 +56,6 @@
             <checkbox id="notifyBarRequestPasswordSave-enabled"/>
             <checkbox id="notifyBarRequestPasswordSave"
                               label="%-KeeFox-pref-notifyBarRequestPasswordSave.label-%" class="itemEnd"/>
-          </hbox>
-          <hbox>
-            <checkbox id="monitorTime-enabled"/>
-            <checkbox id="monitorTime" label="%-KeeFox-pref-dynamicFormScanning.label-%" tooltiptext="%-KeeFox-pref-dynamicFormScanningExplanation.label-%"/>
           </hbox>
           <description id="validFormIntro">%-KeeFox-site-options-valid-form-intro.desc-%</description>
           <description id="listExplain">%-KeeFox-site-options-list-explain.desc-%</description>

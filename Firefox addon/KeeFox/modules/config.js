@@ -307,6 +307,14 @@ function config()
                 //insertionPoint = i+1;
                 continue;
             }
+            //TODO:1.6: Bugs: If the new URL is longer because of a trailing slash, we never
+            // identify the equivelent entry because we always continue past it. If the old URL
+            // is longer because of a trailing slash, we never find it because the comparison
+            // fails and we therefore insert the duplicate entry just before the version with a
+            // trailing slash. Also if first URL with matching or greater length than new URL is
+            // for a different domain, we never match and just assume we must have a new URL to 
+            // add, potentially resulting in a duplicate. Setting a new config for a URL is a
+            // pretty rare event so we can afford to develop a more expensive but accurate algorithm.
             if (url.length <= this.current[i].url.length)
             {
                 insertionPoint = i;
