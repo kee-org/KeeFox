@@ -76,6 +76,7 @@ function Localisation(chromeURIs, jsonLocales)
             this.registerStringBundleJSON(jsonLocales[i]);
         }
     }
+    //this.keysAccessed = [];
 };
 
 Localisation.prototype = {
@@ -188,6 +189,7 @@ Localisation.prototype = {
      */
     $STR: function(name, bundle)
     {
+        //this.keysAccessed.push(name);
         try
         {
             if (bundle)
@@ -207,6 +209,7 @@ Localisation.prototype = {
 
     $STRF: function(name, args, bundle)
     {
+        //this.keysAccessed.push(name);
         try
         {
             if (bundle)
