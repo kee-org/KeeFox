@@ -521,13 +521,26 @@ var findMatchesInSingleFrame = function (doc, behaviour)
         return;
     } else
     {
-        matchResult.forms = forms;
         matchResult.doc = doc;
     
         var conf = config.getConfigForURL(doc.documentURI);
+        
+        // Forcing a scan for orphaned fields on all pages. May need to change
+        // this if real world performance is too slow.
+        conf.scanForOrphanedFields = true;
 
         if (conf.scanForOrphanedFields)
-            forms.push(scanForOrphanedFields());
+        {
+            let pseudoForm = scanForOrphanedFields(doc);
+            if (pseudoForm){
+                // Can't append to a HTMLCollection but all we really use it for is iteration
+                // and length so converting to an array sometimes will cause no issues
+                forms = Array.prototype.slice.call(forms);
+                forms.push(pseudoForm);
+            }
+        }
+
+        matchResult.forms = forms;
 
         if (!forms || forms.length == 0)
         {
@@ -660,6 +673,40 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             aSearchComplete(fak);
 
     } // end of non-cached behaviour
+};
+
+var scanForOrphanedFields = function (doc)
+{
+    var t = (new Date()).getTime();
+    let orphanedFields = [];
+    let pseduoForm = null;
+
+    // much faster than querySelectorAll
+    //TODO:1.5: Although we probably need to refine our selection criteria somewhat once we get real world feedback
+    let items = doc.getElementsByTagName("input");
+    for (var tag of items)
+    {
+        if (!tag.form)
+            orphanedFields.push(tag);
+    }
+
+    if (orphanedFields.length > 0)
+    {
+        pseduoForm = {
+            elements: orphanedFields,
+            id: "KeeFox-pseduo-form",
+            name: "KeeFox-pseduo-form",
+            ownerDocument: doc,
+            getElementsByTagName: function() { return this.elements; }, // Only use is for listing input elements
+            querySelectorAll: function() { return []; }, // Only use is for listing button elements
+            submit: function() { return; } // Not possible to submit a pseduo form unless a button with custom JS has already been found
+        };
+    }
+
+    var tn = (new Date()).getTime();
+    Logger.debug("scanForOrphanedFields took: " + (tn-t));
+
+    return pseduoForm;
 };
 
 var findLoginsCacheHandler = function (convertedResult, findLoginOp, matchResult)
