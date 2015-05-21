@@ -92,11 +92,7 @@ keefox_win.panel = {
                     },
                     onBeforeCreated: function (doc)
                     {
-                        // This sometimes gets called before KeeFox has been initialised.
-                        // Most notably, the panel object defined in this file may not exist.
-                        // We pass the panel object in as 'this' to make calling further
-                        // functions easier but we must not rely on having access to any 
-                        // data or state (such as the _currentWindow)
+                        keefox_win.Logger.debug("onBeforeCreated KeeFox widget called");
                         let win = doc.ownerGlobal;
                         win.keefox_win.panel.buildPanel.call(win.keefox_win.panel, win);
                     }
@@ -104,6 +100,12 @@ keefox_win.panel = {
                 keefox_win.Logger.info("Created KeeFox widget");
             }
             this._widget = wrapperGroup.forWindow(this._currentWindow);
+
+            //TODO:1.5: Need beta testing feedback in case the panel is not always 
+            // added to the main document DOM by this stage
+            // Set the initial status of the KeeFox panel
+            this.setupButton_ready();
+
             keefox_win.Logger.debug("KeeFox widget instance found");
         }
         catch (e)

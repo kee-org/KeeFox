@@ -61,7 +61,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1, 4, 100);
+        public static readonly Version PluginVersion = new Version(1, 4, 101);
 
         private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
         private AutoResetEvent _BackgroundWorkerAutoResetEvent;

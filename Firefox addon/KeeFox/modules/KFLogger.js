@@ -172,6 +172,9 @@ KeeFoxLogger.prototype = {
     
     getMessage : function (data)
     {
+        if (!data)
+            return "";
+
         if (typeof data == "string")
         {
             return data;
