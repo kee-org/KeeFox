@@ -77,7 +77,8 @@ keefox_win.panel = {
                             function () {
                                 let pv = targetDoc.getElementById('keefox-panelview');
                                 //evt.target.ownerGlobal.keefox_win.Logger.debug("Found panelview: " + pv);
-                                panel._findFirstFocusableChildItem(pv).focus();
+                                let toFocus = panel._findFirstFocusableChildItem(pv);
+                                if (toFocus) toFocus.focus();
                             },
                             50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
                     },
@@ -697,6 +698,7 @@ keefox_win.panel = {
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
             }, false);
+            loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
             
             // If the combined total of all groups and the current login index exceeds 
             // our allowed number of items in the main panel, we must switch to the overflow container
@@ -711,6 +713,14 @@ keefox_win.panel = {
     addLoginContextActions: function (document, uuid, fileName)
     {
         let context = document.getElementById('KeeFox-login-context');
+        context = keefox_win.panel.addContextMenuItem(context,
+            keefox_org.locale.$STR("KeeFox_Logins-Context-Edit-Login.label"),
+            "KeeFox-login-context-edit",
+            function (event) {
+            keefox_org.launchLoginEditor(uuid, fileName);
+            keefox_win.panel.CustomizableUI.hidePanelForNode(
+                keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+        });
         let loadingMessage = document.createElement('menuitem');
         loadingMessage.setAttribute("label", keefox_org.locale.$STR("loading") + "...");
         loadingMessage.id = "KeeFox-login-context-loading";
@@ -729,15 +739,52 @@ keefox_win.panel = {
         let context = document.getElementById('KeeFox-login-context');
         context.removeEventListener("popuphidden", keefox_win.panel.removeLoginContextActions);
 
+        let edit = document.getElementById('KeeFox-login-context-edit');
         let loading = document.getElementById('KeeFox-login-context-loading');
         let copyUser = document.getElementById('KeeFox-login-context-copyuser');
         let copyPass = document.getElementById('KeeFox-login-context-copypass');
         let copyOther = document.getElementById('KeeFox-login-context-copyother');
 
+        if (edit) context.removeChild(edit);
         if (loading) context.removeChild(loading);
         if (copyUser) context.removeChild(copyUser);
         if (copyPass) context.removeChild(copyPass);
         if (copyOther) context.removeChild(copyOther);
+    },
+
+    addGroupContextActions: function (document, uuid, fileName)
+    {
+        let context = document.getElementById('KeeFox-group-context');
+        context = keefox_win.panel.addContextMenuItem(context,
+            keefox_org.locale.$STR("KeeFox_Logins-Context-Edit-Group.label"),
+            "KeeFox-group-context-edit",
+            function (event) {
+                keefox_org.launchGroupEditor(uuid, fileName);
+                keefox_win.panel.CustomizableUI.hidePanelForNode(
+                    keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+            });
+        context.addEventListener("popuphidden", keefox_win.panel.removeGroupContextActions);
+    },
+
+    removeGroupContextActions: function (event) {
+        if (event.target.id != "KeeFox-group-context")
+            return;
+
+        let context = document.getElementById('KeeFox-group-context');
+        context.removeEventListener("popuphidden", keefox_win.panel.removeGroupContextActions);
+
+        let edit = document.getElementById('KeeFox-group-context-edit');
+        if (edit) context.removeChild(edit);
+    },
+
+    addContextMenuItem: function (context, label, id, onCommand )
+    {
+        let cmi = document.createElement('menuitem');
+        cmi.setAttribute("label", label);
+        cmi.id = id;
+        cmi.addEventListener("command", onCommand);
+        context.appendChild(cmi);
+        return context;
     },
 
     createGroupItem: function (group, dbFileName, extraCSSClasses, displayName)
@@ -764,6 +811,9 @@ keefox_win.panel = {
             } 
             if (event.button == 2)
             {
+                keefox_win.panel.addGroupContextActions(document,
+                    this.getAttribute('data-uuid'), 
+                    this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-group-context');
             }
         }, false);
@@ -878,24 +928,23 @@ keefox_win.panel = {
 
                     if (usernameField != null)
                     {
-                        let copyUsername = document.createElement('menuitem');
-                        copyUsername.setAttribute("label", keefox_org.locale.$STR("copy-username.label"));
-                        copyUsername.id = "KeeFox-login-context-copyuser";
-                        copyUsername.addEventListener("command", function (event) {
-                            keefox_org.utils.copyStringToClipboard(usernameField.value);
-                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                        });
-                        context.appendChild(copyUsername);
+                        context = keefox_win.panel.addContextMenuItem(context,
+                           keefox_org.locale.$STR("copy-username.label"),
+                            "KeeFox-login-context-copyuser",
+                            function (event) {
+                                keefox_org.utils.copyStringToClipboard(usernameField.value);
+                                keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                            });
                     }
+                    
                     if (passwordField != null) {
-                        let copyPassword = document.createElement('menuitem');
-                        copyPassword.setAttribute("label", keefox_org.locale.$STR("copy-password.label"));
-                        copyPassword.id = "KeeFox-login-context-copypass";
-                        copyPassword.addEventListener("command", function (event) {
-                            keefox_org.utils.copyStringToClipboard(passwordField.value);
-                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                        });
-                        context.appendChild(copyPassword);
+                        context = keefox_win.panel.addContextMenuItem(context,
+                            keefox_org.locale.$STR("copy-password.label"),
+                            "KeeFox-login-context-copypass",
+                            function (event) {
+                                keefox_org.utils.copyStringToClipboard(passwordField.value);
+                                keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                            });
                     }
                     if (otherFieldCount > 1 || passwordFieldCount > 1) {
                         let copyOther = document.createElement('menu');
@@ -907,26 +956,26 @@ keefox_win.panel = {
                         if (otherFieldCount > 1) {
                             kfl.otherFields.forEach(function (o, i) {
                                 if (i != kfl.usernameIndex && o.type != "checkbox") {
-                                    let other = document.createElement('menuitem');
-                                    other.setAttribute("label", o.name + " (" + o.fieldId + ")");
-                                    other.addEventListener("command", function (event) {
-                                        keefox_org.utils.copyStringToClipboard(o.value);
-                                        keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                                    });
-                                    copyOtherPopup.appendChild(other);
+                                    copyOtherPopup = keefox_win.panel.addContextMenuItem(copyOtherPopup,
+                                        o.name + " (" + o.fieldId + ")",
+                                        "",
+                                        function (event) {
+                                            keefox_org.utils.copyStringToClipboard(o.value);
+                                            keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                        });
                                 }
                             });
                         }
                         if (passwordFieldCount > 1) {
                             kfl.passwords.forEach(function (p, i) {
                                 if (i != 0 && p.type != "checkbox") {
-                                    let pass = document.createElement('menuitem');
-                                    pass.setAttribute("label", p.name + " (" + p.fieldId + ")");
-                                    pass.addEventListener("command", function (event) {
+                                    copyOtherPopup = keefox_win.panel.addContextMenuItem(copyOtherPopup,
+                                    p.name + " (" + p.fieldId + ")",
+                                    "",
+                                    function (event) {
                                         keefox_org.utils.copyStringToClipboard(p.value);
                                         keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                                     });
-                                    copyOtherPopup.appendChild(pass);
                                 }
                             });
                         }
@@ -1166,6 +1215,7 @@ keefox_win.panel = {
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
             }, false);
+            loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
 
             // If we've exceeded our allowed number of items in the main panel, we must switch to the overflow container
             if (mainPanelContainer.childElementCount >= keefox_org._keeFoxExtension.prefs.getValue("maxMatchedLoginsInMainPanel",5))
@@ -1221,7 +1271,6 @@ keefox_win.panel = {
                 ['data-url',login.url],
                 ['data-uuid',login.uniqueID],
                 ['style','background-image:url(data:image/png;base64,' + login.iconImageData + ')'],
-            //    ['id', 'KeeFox_Group-' + rootGroup.uniqueID],
                 ['title',keefox_org.locale.$STRF(
                 "loginsButtonLogin.tip", [login.url, usernameDisplayValue])],
                 ['tabindex','-1']
@@ -1245,6 +1294,8 @@ keefox_win.panel = {
                     // function to which the event is passed next, they have a value that is relative to the main widget
                     // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
                     // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
+                    //
+                    // Also, maybe making the li's position relative has changed this behaviour?
                     keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
@@ -1264,6 +1315,7 @@ keefox_win.panel = {
                 keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
             }, false);
+            loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
             
             container.appendChild(loginItem);
         }
@@ -1273,6 +1325,41 @@ keefox_win.panel = {
             this.enableUIElement("KeeFox-PanelSubSection-SearchResults");
         
         keefox_win.Logger.debug(logins.length + " search results set.");
+    },
+
+    onMouseEnterLogin: function (event) {
+        if (keefox_win.panel.contextMenuShowing)
+            return;
+
+        let optionsMenuTrigger = keefox_win.panel.createUIElement('div', []);
+        optionsMenuTrigger.addEventListener("mouseup", function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+            keefox_win.panel.addLoginContextActions(document,
+                this.parentNode.getAttribute('data-uuid'),
+                this.parentNode.getAttribute('data-fileName'));
+
+            // Anchor to the parent li element because this trigger element will disappear soon
+            keefox_win.panel.displayContextMenu(
+                keefox_win.panel._currentWindow.document,
+                {
+                    target: event.target.parentNode,
+                    layerX: this.offsetLeft + event.layerX,
+                    layerY: this.offsetTop + event.layerY
+                },
+                'KeeFox-login-context');
+        }, false);
+        optionsMenuTrigger.setAttribute("id", "optionsMenuTrigger");
+        event.target.appendChild(optionsMenuTrigger);
+        this.removeEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
+        this.addEventListener("mouseleave", keefox_win.panel.onMouseLeaveLogin, false);
+    },
+    onMouseLeaveLogin: function (event) {
+        let optionsMenuTrigger = keefox_win.panel._currentWindow.document.getElementById("optionsMenuTrigger");
+        event.target.removeChild(optionsMenuTrigger);
+        this.removeEventListener("mouseleave", keefox_win.panel.onMouseLeaveLogin, false);
+        this.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
     },
     
     setWidgetNotificationForMatchedLogins: function (count)
@@ -1489,29 +1576,29 @@ keefox_win.panel = {
                 }
             
                 let mruToUse = mruArray[i].replace(/[\\]/g, '\\');
-                let loginItem = this.createUIElement('li', [
+                let mruItem = this.createUIElement('li', [
                     ['class',''],
                     ['mruToUse',mruToUse],
                     ['title',keefox_org.locale.$STRF("changeDBButtonListItem.tip", [mruArray[i]])],
                     ['tabindex','-1']
                 ]);
-                loginItem.textContent = displayName;
-                loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
-                loginItem.addEventListener("mouseup", function (event) { 
+                mruItem.textContent = displayName;
+                mruItem.addEventListener("keydown", this.keyboardNavHandler, false);
+                mruItem.addEventListener("mouseup", function (event) {
                     if (event.button == 0 || event.button == 1)
                     {
                         event.stopPropagation();
                         this.dispatchEvent(new Event("keefoxCommand"));
                     }
                 }, false);
-                loginItem.addEventListener("keefoxCommand", function (event) { 
+                mruItem.addEventListener("keefoxCommand", function (event) {
                     keefox_org.changeDatabase(this.getAttribute('mruToUse'), false);
                     keefox_win.panel.CustomizableUI.hidePanelForNode(
                         keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                     keefox_win.panel.hideSubSections();
                 }, false);
 
-                container.appendChild(loginItem);
+                container.appendChild(mruItem);
             }
         }
         
@@ -1557,20 +1644,20 @@ keefox_win.panel = {
             {
                 let displayName = profileArray[i];
             
-                let loginItem = this.createUIElement('li', [
+                let profileItem = this.createUIElement('li', [
                     ['class',''],
                     ['tabindex','-1']
                 ]);
-                loginItem.textContent = displayName;
-                loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
-                loginItem.addEventListener("mouseup", function (event) { 
+                profileItem.textContent = displayName;
+                profileItem.addEventListener("keydown", this.keyboardNavHandler, false);
+                profileItem.addEventListener("mouseup", function (event) {
                     if (event.button == 0 || event.button == 1)
                     {
                         event.stopPropagation();
                         this.dispatchEvent(new Event("keefoxCommand"));
                     }
                 }, false);
-                loginItem.addEventListener("keefoxCommand", function (event) { 
+                profileItem.addEventListener("keefoxCommand", function (event) {
                     let kf = keefox_org;
                     kf.metricsManager.pushEvent ("feature", "generatePasswordFromProfile");
                     kf.generatePassword(this.textContent);
@@ -1579,7 +1666,7 @@ keefox_win.panel = {
                     keefox_win.panel.hideSubSections();
                 }, false);
 
-                container.appendChild(loginItem);
+                container.appendChild(profileItem);
             }
         }
         
@@ -1631,24 +1718,20 @@ keefox_win.panel = {
     
     displayContextMenu: function (doc, event, id)
     {
-        // This rather odd popup code is the only way to get Firefox to display a dynamically
-        // created popup menu near the mouse cursor when using XHTML nodes rather than XUL.
-        // Many of the dimensions associated with the event are buggy, it could be dev tools 
-        // bugs but that doesn't quite add up. Being in the main Firefox menu automatically 
-        // adds a slight position shift for some reason (enforced padding somewhere in 
-        // Australis?) but a couple of pixels extra here shouldn't be a big deal and it gets 
-        // the popup shifted just a little bit away from the cursor when we're on the 
-        // toolbar instead
+        keefox_win.panel.contextMenuShowing = true;
+        let context = doc.getElementById(id);
+        context.addEventListener("popuphidden", keefox_win.panel.onContextMenuClose);
+        context.openPopup(event.target
+                        , "topleft topleft", event.layerX + 2, event.layerY + 2, true, false);
+    },
 
-        // Our event is custom so not sure if it makes sense to pass it through to openPopup
+    onContextMenuClose: function (event)
+    {
+        if (event.target.id != "KeeFox-login-context" && event.target.id != "KeeFox-group-context")
+            return;
 
-        doc.popupNode = event.target;
-        doc.getElementById(id)
-            .openPopup(doc.getElementById('keefox-panelview')
-                ,"topleft topleft",event.layerX+2,event.layerY+2, true, false);
-//    doc.getElementById(id)
-//            .openPopup(event.target
-        //                ,"topleft topleft",0,0, true, false, event);
+        this.removeEventListener("popuphidden", keefox_win.panel.onContextMenuClose);
+        keefox_win.panel.contextMenuShowing = false;
     },
 
     keyboardNavHandler: function (event) {

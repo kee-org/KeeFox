@@ -5,7 +5,7 @@
 
 <!--
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
-  Copyright 2008-2014 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
   This is the main KeeFox XUL file. It ensures our JS setup file runs once for
   every window. There might be a better way to do this now we no longer include the toolbar...
@@ -31,17 +31,9 @@
 
   <popupset>
     <menupopup id="KeeFox-login-context" position="after_start">
-      <menuitem id="KeeFox-login-context-edit" label="%-KeeFox_Logins-Context-Edit-Login.label-%" oncommand="keefox_org.launchLoginEditor(document.popupNode.getAttribute('data-uuid'),document.popupNode.getAttribute('data-fileName')); keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));"/>
     </menupopup>
     <menupopup id="KeeFox-group-context" position="after_start">
-      <menuitem id="KeeFox-group-context-edit" label="%-KeeFox_Logins-Context-Edit-Group.label-%" oncommand="keefox_org.launchGroupEditor(document.popupNode.getAttribute('data-uuid'),document.popupNode.getAttribute('data-fileName')); keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));"/>
     </menupopup>
   </popupset>
-<!-- //TODO:e10s: remove this when design complete -->
-  <panel id="keefox-notification-panel" position="after_start">
-      <label control="searchtemptest" value="Terms:"/>
-      <textbox id="searchtemptest"/>
-    </panel>
-  
 </overlay>
 

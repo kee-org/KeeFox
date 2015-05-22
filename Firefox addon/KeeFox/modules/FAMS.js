@@ -545,7 +545,7 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (name, a
             // standard notification container that we have been supplied
             var doc = container.ownerDocument;
             container = doc.ownerGlobal.keefox_win.notificationManager
-                .renderStandardMessage(container, notificationText);
+                .renderStandardMessage(container, aText);
             
             // We might customise other aspects of the notifications but when we want
             // to display buttons we can treat them all the same

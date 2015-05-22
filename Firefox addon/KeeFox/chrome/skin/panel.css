@@ -226,6 +226,7 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     background-position:2px 4px;
     cursor:default;
     line-height:26px;
+    position:relative;
 }
 
 #keefox-panelview li.group-item {
@@ -533,4 +534,29 @@ background-repeat: no-repeat;
 .keefoxMessageText 
 {
 	margin: 7px 5px 6px 5px !important;
+}
+
+
+#optionsMenuTrigger
+{
+    width:18px;
+    min-width:18px;
+    height:18px;
+    min-height:18px;
+    background-color: #EAEAEA;
+    border: 1px solid #DDDDDD; 
+    border-radius: 2px; 
+    position:absolute;
+    right: 10px;
+    bottom:calc(50% - 11px);
+    background-image: url("chrome://keefox/skin/menu.png"); 
+    padding:1px;
+    background-repeat:no-repeat;
+    background-position:1px 1px;
+    cursor: pointer;
+}
+
+#optionsMenuTrigger:hover
+{
+    background-color: #63BFD1;
 }
