@@ -715,6 +715,7 @@ keefox_win.panel = {
         let context = document.getElementById('KeeFox-login-context');
         context = keefox_win.panel.addContextMenuItem(context,
             keefox_org.locale.$STR("KeeFox_Logins-Context-Edit-Login.label"),
+            "chrome://keefox/skin/pencil.png",
             "KeeFox-login-context-edit",
             function (event) {
             keefox_org.launchLoginEditor(uuid, fileName);
@@ -757,6 +758,7 @@ keefox_win.panel = {
         let context = document.getElementById('KeeFox-group-context');
         context = keefox_win.panel.addContextMenuItem(context,
             keefox_org.locale.$STR("KeeFox_Logins-Context-Edit-Group.label"),
+            "chrome://keefox/skin/pencil.png",
             "KeeFox-group-context-edit",
             function (event) {
                 keefox_org.launchGroupEditor(uuid, fileName);
@@ -777,10 +779,12 @@ keefox_win.panel = {
         if (edit) context.removeChild(edit);
     },
 
-    addContextMenuItem: function (context, label, id, onCommand )
+    addContextMenuItem: function (context, label, image, id, onCommand )
     {
         let cmi = document.createElement('menuitem');
         cmi.setAttribute("label", label);
+        cmi.setAttribute('image', image);
+        cmi.classList.add("menuitem-iconic");
         cmi.id = id;
         cmi.addEventListener("command", onCommand);
         context.appendChild(cmi);
@@ -930,6 +934,7 @@ keefox_win.panel = {
                     {
                         context = keefox_win.panel.addContextMenuItem(context,
                            keefox_org.locale.$STR("copy-username.label"),
+                           "chrome://keefox/skin/copy.png",
                             "KeeFox-login-context-copyuser",
                             function (event) {
                                 keefox_org.utils.copyStringToClipboard(usernameField.value);
@@ -940,6 +945,7 @@ keefox_win.panel = {
                     if (passwordField != null) {
                         context = keefox_win.panel.addContextMenuItem(context,
                             keefox_org.locale.$STR("copy-password.label"),
+                            "chrome://keefox/skin/copy.png",
                             "KeeFox-login-context-copypass",
                             function (event) {
                                 keefox_org.utils.copyStringToClipboard(passwordField.value);
@@ -952,12 +958,15 @@ keefox_win.panel = {
                         copyOther.id = "KeeFox-login-context-copyother";
                         let copyOtherPopup = document.createElement('menupopup');
                         copyOther.appendChild(copyOtherPopup);
+                        let validFieldFound = false;
 
                         if (otherFieldCount > 1) {
                             kfl.otherFields.forEach(function (o, i) {
                                 if (i != kfl.usernameIndex && o.type != "checkbox") {
+                                    validFieldFound = true;
                                     copyOtherPopup = keefox_win.panel.addContextMenuItem(copyOtherPopup,
                                         o.name + " (" + o.fieldId + ")",
+                                        "chrome://keefox/skin/copy.png",
                                         "",
                                         function (event) {
                                             keefox_org.utils.copyStringToClipboard(o.value);
@@ -969,8 +978,10 @@ keefox_win.panel = {
                         if (passwordFieldCount > 1) {
                             kfl.passwords.forEach(function (p, i) {
                                 if (i != 0 && p.type != "checkbox") {
+                                    validFieldFound = true;
                                     copyOtherPopup = keefox_win.panel.addContextMenuItem(copyOtherPopup,
                                     p.name + " (" + p.fieldId + ")",
+                                    "chrome://keefox/skin/copy.png",
                                     "",
                                     function (event) {
                                         keefox_org.utils.copyStringToClipboard(p.value);
@@ -979,7 +990,8 @@ keefox_win.panel = {
                                 }
                             });
                         }
-                        context.appendChild(copyOther);
+                        if (validFieldFound)
+                            context.appendChild(copyOther);
                     }
 
                     context.removeChild(loadingMessage);

@@ -543,8 +543,8 @@ background-repeat: no-repeat;
     min-width:18px;
     height:18px;
     min-height:18px;
-    background-color: #EAEAEA;
-    border: 1px solid #DDDDDD; 
+    background-color: #F4F4F4;
+    border: 1px solid #ccc; 
     border-radius: 2px; 
     position:absolute;
     right: 10px;
@@ -558,5 +558,5 @@ background-repeat: no-repeat;
 
 #optionsMenuTrigger:hover
 {
-    background-color: #63BFD1;
+    background-color: #fff;
 }

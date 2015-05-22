@@ -687,6 +687,12 @@ function commandManager () {
                 item.setAttribute("disabled", false);
                 item.setAttribute("label", this.locale.$STR(this.commands[i].label));
                 item.setAttribute("tooltip", this.locale.$STR(this.commands[i].tooltip));
+                if (this.commands[i].image)
+                    item.setAttribute('image', this.commands[i].image);
+                else
+                    item.setAttribute('image', "chrome://keefox/skin/KeeFox16.png");
+                item.classList.add("menuitem-iconic");
+                
                 //item.setAttribute("accesskey", this.commands[i].accesskey);                
                 item.keeFoxCommandName = this.commands[i].name;
                 item.keeFoxValidContexts = this.commands[i].contextLocationFlags;
@@ -782,7 +788,6 @@ function commandManager () {
                 else
                     return newItem;
             });
-            // need to debug this. for some reason, the new config is identical to the old one, although i've checked that the new data is available in the default config array
             this.commands = mergedConfig;
             this.save();
         }
