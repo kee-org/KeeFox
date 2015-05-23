@@ -2158,15 +2158,6 @@ namespace KeePassRPC
                                 if (accuracy > bestMatchAccuracy)
                                     bestMatchAccuracy = accuracy;
                             }
-
-                            // Provided the URL matched at least a little bit, we fudge 
-                            // the accuracy up to the max if the entry's realm also matches.
-                            // This mirrors KeeFox <=1.4 behaviour but might be worth improving
-                            // if/when Firefox can supply us with some extra info about the 
-                            // credentials being requested.
-                            if (bestMatchAccuracy >= MatchAccuracy.Domain && !string.IsNullOrEmpty(conf.HTTPRealm)
-                                && (httpRealm == "" || conf.HTTPRealm == httpRealm))
-                                bestMatchAccuracy = MatchAccuracy.Best;
                         }
 
                         if (bestMatchAccuracy == MatchAccuracy.Best

@@ -114,7 +114,6 @@ namespace KeePassRPC.DataExchangeModel
         // of match so we always treat it as the best possible match
         // even if the regex itself is very loose)
         // Best = Same URL including query string
-        // Best = At least the same domain and an exact realm match
 
         // Close = Same URL excluding query string
 

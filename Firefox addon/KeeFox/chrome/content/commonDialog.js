@@ -656,7 +656,11 @@ var keeFoxDialogManager = {
                     'neverAutoFill' : foundLogins[i].neverAutoFill, 
                     'alwaysAutoSubmit' : foundLogins[i].alwaysAutoSubmit,
                     'neverAutoSubmit' : foundLogins[i].neverAutoSubmit,
-                    'httpRealm' : foundLogins[i].httpRealm });
+                    'httpRealm': foundLogins[i].httpRealm,
+                    'priority': foundLogins[i].priority,
+                    'matchAccuracy': foundLogins[i].matchAccuracy,
+                    'uniqueID': foundLogins[i].uniqueID
+                });
                 showList = true;                
 
             } catch (e) {
@@ -664,8 +668,9 @@ var keeFoxDialogManager = {
             }
         }
         
-        var bestMatch = 0;      
-        
+        let bestMatch = 0;      
+        let bestMatchScore = -1;
+
         // create a drop down box with all matched logins
         if (showList) {
             var box = dialogFindLoginStorage.document.getElementById("keefox-autoauth-box");
@@ -688,10 +693,12 @@ var keeFoxDialogManager = {
                 item.password = matchedLogins[i].password;
                 popup.appendChild(item);
                 
-                // crude attempt to find the best match for this realm
-                //TODO:1.5: Improve accuracy here for when multiple logins have the correct or no realm 
-                if (dialogFindLoginStorage.realm == matchedLogins[i].httpRealm)
+                let loginMatchScore = keeFoxDialogManager.calculateRelevanceScore(matchedLogins[i], dialogFindLoginStorage);
+                if (loginMatchScore > bestMatchScore)
+                {
+                    bestMatchScore = loginMatchScore;
                     bestMatch = i;
+                }
             }
 
             list.appendChild(popup);
@@ -728,6 +735,25 @@ var keeFoxDialogManager = {
             close();
         }
         
+    },
+
+    calculateRelevanceScore: function (login, dialogFindLoginStorage) {
+        let score = 0;
+
+        // entry priorities provide a large score such that no other combination of relevance
+        // can override them
+        if (login.priority > 0)
+            score = 1000000000 - login.priority * 1000;
+
+        // We never know the exact URL but this can be matched on domain, hostname or hostname+port (once #358 is done)
+        score += login.matchAccuracy;
+
+        // A realm match is important (but there is no meaningful way of determining an "almost" match)
+        if (dialogFindLoginStorage.realm == login.httpRealm)
+            score += 50;
+    
+        keefox_org._KFLog.info("Relevance for " + login.uniqueID + " is: " + score);
+        return score;
     },
     
     fill : function (username, password)
