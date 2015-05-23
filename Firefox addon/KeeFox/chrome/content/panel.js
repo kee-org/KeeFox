@@ -681,8 +681,6 @@ keefox_win.panel = {
                 } 
                 if (event.button == 2)
                 {
-                    //TODO:1.5: support keyboard context menu button too.
-                    
                     keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
@@ -697,6 +695,12 @@ keefox_win.panel = {
                 keefox_win.panel.CustomizableUI.hidePanelForNode(
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
+            }, false);
+            loginItem.addEventListener("keefoxContext", function (event) {
+                keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
+                keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,
+                    { target: event.detail.target, layerX: event.detail.layerX, layerY: event.detail.layerY },
+                    'KeeFox-login-context');
             }, false);
             loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
             
@@ -820,6 +824,12 @@ keefox_win.panel = {
                     this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-group-context');
             }
+        }, false);
+        groupItem.addEventListener("keefoxContext", function (event) {
+            keefox_win.panel.addGroupContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
+            keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,
+                { target: event.detail.target, layerX: event.detail.layerX, layerY: event.detail.layerY },
+                'KeeFox-group-context');
         }, false);
 
         groupItem.addEventListener("keefoxCommand", this.navigateGroupHierachy, false);
@@ -1227,6 +1237,12 @@ keefox_win.panel = {
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
             }, false);
+            loginItem.addEventListener("keefoxContext", function (event) {
+                keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
+                keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,
+                    { target: event.detail.target, layerX: event.detail.layerX, layerY: event.detail.layerY },
+                    'KeeFox-login-context');
+            }, false);
             loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
 
             // If we've exceeded our allowed number of items in the main panel, we must switch to the overflow container
@@ -1302,12 +1318,6 @@ keefox_win.panel = {
                 } 
                 if (event.button == 2)
                 {
-                    // TODO:1.5: When accessing layerX and layerY here, they are always 0, however, when accessed from the
-                    // function to which the event is passed next, they have a value that is relative to the main widget
-                    // panel top left corner. This is probably a Firefox bug but it currently only prevents the use of
-                    // the keyboard context menu button so I'll investigate further once 1.4 is in beta testing
-                    //
-                    // Also, maybe making the li's position relative has changed this behaviour?
                     keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
                 }
@@ -1325,7 +1335,9 @@ keefox_win.panel = {
             }, false);
             loginItem.addEventListener("keefoxContext", function (event) {
                 keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
-                keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
+                keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,
+                    { target: event.detail.target, layerX: event.detail.layerX, layerY: event.detail.layerY },
+                    'KeeFox-login-context');
             }, false);
             loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
             
@@ -1808,7 +1820,7 @@ keefox_win.panel = {
         {
             event.preventDefault();
             event.stopPropagation();
-            this.dispatchEvent(new CustomEvent("keefoxContext", { 'detail': { 'layerX': 10, 'layerY': 10 }} ));
+            this.dispatchEvent(new CustomEvent("keefoxContext", { 'detail': { 'target': this, 'layerX': 5, 'layerY': 5 }} ));
         }
 
     },

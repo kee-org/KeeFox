@@ -269,8 +269,7 @@ function config()
         str.data = JSON.stringify(this.current);
         prefBranch.setComplexValue("config", Ci.nsISupportsString, str);
 
-        //TODO:1.5: Stop forcing this to 1 when we release the first new version
-        //TODO:1.5: Update to 2 required so we can remove page monitoring option? (Probably just remove it from UI and leave this unchanged).
+        //TODO:1.6: Stop forcing this to 1 when we release the first new version
         prefBranch.setIntPref("configVersion",1);
     };
 
