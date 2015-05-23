@@ -605,7 +605,8 @@ namespace KeePassRPC
                 pwe.Strings.ReadSafe(PwDefs.TitleField), temp,
                 KeePassLib.Utility.MemUtil.ByteArrayToHexString(pwe.Uuid.UuidBytes),
                 alwaysAutoFill, neverAutoFill, alwaysAutoSubmit, neverAutoSubmit, priority,
-                GetGroupFromPwGroup(pwe.ParentGroup), imageData, GetDatabaseFromPwDatabase(db, false, true));
+                GetGroupFromPwGroup(pwe.ParentGroup), imageData,
+                GetDatabaseFromPwDatabase(db, false, true),matchAccuracy);
                 return kpe;
             }
             else

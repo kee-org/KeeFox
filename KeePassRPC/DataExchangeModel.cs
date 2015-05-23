@@ -222,7 +222,8 @@ namespace KeePassRPC.DataExchangeModel
             int priority,
             Group parent,
             string iconImageData,
-            Database db)
+            Database db,
+            int matchAccuracy)
         {
             URLs = urls;
             HTTPRealm = hTTPRealm;
@@ -237,6 +238,7 @@ namespace KeePassRPC.DataExchangeModel
             Parent = parent;
             IconImageData = iconImageData;
             Db = db;
+            MatchAccuracy = matchAccuracy;
         }
     }
 
