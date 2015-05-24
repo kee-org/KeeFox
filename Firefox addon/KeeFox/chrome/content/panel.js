@@ -949,6 +949,7 @@ keefox_win.panel = {
                             function (event) {
                                 keefox_org.utils.copyStringToClipboard(usernameField.value);
                                 keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                keefox_org.metricsManager.adjustAggregate("copyUsername", 1);
                             });
                     }
                     
@@ -960,6 +961,7 @@ keefox_win.panel = {
                             function (event) {
                                 keefox_org.utils.copyStringToClipboard(passwordField.value);
                                 keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                keefox_org.metricsManager.adjustAggregate("copyPassword", 1);
                             });
                     }
                     if (otherFieldCount > 1 || passwordFieldCount > 1) {
@@ -981,6 +983,7 @@ keefox_win.panel = {
                                         function (event) {
                                             keefox_org.utils.copyStringToClipboard(o.value);
                                             keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                            keefox_org.metricsManager.adjustAggregate("copyOther", 1);
                                         });
                                 }
                             });
@@ -996,6 +999,7 @@ keefox_win.panel = {
                                     function (event) {
                                         keefox_org.utils.copyStringToClipboard(p.value);
                                         keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
+                                        keefox_org.metricsManager.adjustAggregate("copyOther", 1);
                                     });
                                 }
                             });
@@ -1332,6 +1336,7 @@ keefox_win.panel = {
                 keefox_win.panel.CustomizableUI.hidePanelForNode(
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
+                keefox_org.metricsManager.adjustAggregate("searchResultSelected", 1);
             }, false);
             loginItem.addEventListener("keefoxContext", function (event) {
                 keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
@@ -1373,6 +1378,7 @@ keefox_win.panel = {
                     layerY: this.offsetTop + event.layerY
                 },
                 'KeeFox-login-context');
+            keefox_org.metricsManager.adjustAggregate("loginContextButton", 1);
         }, false);
         optionsMenuTrigger.setAttribute("id", "optionsMenuTrigger");
         event.target.appendChild(optionsMenuTrigger);

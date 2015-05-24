@@ -679,7 +679,7 @@ var scanForOrphanedFields = function (doc)
 {
     var t = (new Date()).getTime();
     let orphanedFields = [];
-    let pseduoForm = null;
+    let pseudoForm = null;
 
     // much faster than querySelectorAll
     //TODO:1.5: Although we probably need to refine our selection criteria somewhat once we get real world feedback
@@ -692,21 +692,22 @@ var scanForOrphanedFields = function (doc)
 
     if (orphanedFields.length > 0)
     {
-        pseduoForm = {
+        pseudoForm = {
             elements: orphanedFields,
-            id: "KeeFox-pseduo-form",
-            name: "KeeFox-pseduo-form",
+            id: "KeeFox-pseudo-form",
+            name: "KeeFox-pseudo-form",
             ownerDocument: doc,
             getElementsByTagName: function() { return this.elements; }, // Only use is for listing input elements
             querySelectorAll: function() { return []; }, // Only use is for listing button elements
-            submit: function() { return; } // Not possible to submit a pseduo form unless a button with custom JS has already been found
+            submit: function() { return; } // Not possible to submit a pseudo form unless a button with custom JS has already been found
         };
+        metricsManager.adjustAggregate("pseudoFormCreated", 1);
     }
 
     var tn = (new Date()).getTime();
     Logger.debug("scanForOrphanedFields took: " + (tn-t));
 
-    return pseduoForm;
+    return pseudoForm;
 };
 
 var findLoginsCacheHandler = function (convertedResult, findLoginOp, matchResult)

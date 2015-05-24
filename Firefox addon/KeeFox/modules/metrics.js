@@ -408,9 +408,33 @@ function mm () {
                     mm.get("avgOpenDatabases", function (event) {
                         if (event.target.result)
                             mm.previousSessionMetrics.avgOpenDatabases = event.target.result.value; // when any are open (so >= 1)
-                        //TODO:2: Try to convert to Promises so we can avoid infinite callback indentation
-                        mm._KFLog.debug("calculatePreviousSessionMetrics finished");
-                        if (cb) cb();
+                        mm.get("copyUsername", function (event) {
+                            if (event.target.result)
+                                mm.previousSessionMetrics.copyUsername = event.target.result.value;
+                            mm.get("copyPassword", function (event) {
+                                if (event.target.result)
+                                    mm.previousSessionMetrics.copyPassword = event.target.result.value;
+                                mm.get("copyOther", function (event) {
+                                    if (event.target.result)
+                                        mm.previousSessionMetrics.copyOther = event.target.result.value;
+                                    mm.get("searchResultSelected", function (event) {
+                                        if (event.target.result)
+                                            mm.previousSessionMetrics.searchResultSelected = event.target.result.value;
+                                        mm.get("loginContextButton", function (event) {
+                                            if (event.target.result)
+                                                mm.previousSessionMetrics.loginContextButton = event.target.result.value;
+                                            mm.get("pseudoFormCreated", function (event) {
+                                                if (event.target.result)
+                                                    mm.previousSessionMetrics.pseudoFormCreated = event.target.result.value;
+                                                //TODO:2: Try to convert to Promises so we can avoid infinite callback indentation
+                                                mm._KFLog.debug("calculatePreviousSessionMetrics finished");
+                                                if (cb) cb();
+                                            });  
+                                        });  
+                                    });  
+                                });  
+                            });  
+                        });  
                     });                             
                 });
             });
@@ -487,29 +511,44 @@ function mm () {
                         .objectStore("keefox@chris.tomlinson-metrics-messages");
         let mm = this;
 
-        objectStore.openCursor().onsuccess = function(event) {
-          var cursor = event.target.result;
-          if (cursor) {
-            // Don't append exceptionally large messages to the current message
-            // string - we'll leave it for next time and send it on its own
-            if (completeMessage !== "" && completeMessage.length + cursor.value.msg.length > 250000)
-            {
-                mm.deliverMessage(completeMessage);
-                return;
-            }
+        let cursorReq = objectStore.openCursor();
+        cursorReq.onsuccess = function(event) {
+            var cursor = event.target.result;
+            if (cursor) {
+                // Don't append exceptionally large messages to the current message
+                // string - we'll leave it for next time and send it on its own
+                if (completeMessage !== "" && completeMessage.length + cursor.value.msg.length > 250000)
+                {
+                    try {
+                        mm.deliverMessage(completeMessage);
+                    } catch (e) {
+                        mm._KFLog.warn("Metrics processQueue failed to deliverMessage (large). We'll try again later.");
+                    }
+                    // Don't respawn here since deliverMessage should do that.
+                    // Stop iterating this cursor
+                    return;
+                }
 
-            mm.lastSentAttemptId = cursor.value.id;
-            completeMessage += cursor.value.msg;
-            cursor.continue();
-          }
-          else {
-            // We've reached the end of the cursor, whether we 
-            // found any results is another matter...
-            if (completeMessage.length > 0)
-                mm.deliverMessage(completeMessage);
-            else
-                mm.metricsTimerRespawn();
-          }
+                mm.lastSentAttemptId = cursor.value.id;
+                completeMessage += cursor.value.msg;
+                cursor.continue();
+            }
+            else {
+                // We've reached the end of the cursor, whether we 
+                // found any results is another matter...
+                if (completeMessage.length > 0)
+                    mm.deliverMessage(completeMessage);
+                else
+                    mm.metricsTimerRespawn();
+            }
+        };
+        
+        cursorReq.onerror = function(event) {
+            // Try again later if something forced us to abort
+            mm._KFLog.warn("Metrics processQueue failed to iterate cursor (" + cursorReq.error.name + ").");
+            if (cursorReq.error.name == "AbortError") {
+                mm.metricsTimerRespawn(60);
+            }
         };
 
     };
@@ -517,26 +556,32 @@ function mm () {
     // Start the timer ready for the next queue processing operation
     this.metricsTimerRespawn = function (retry)
     {
-        let DEFAULT_DELAY = 15;
-        let secondsUntilNextProcess = DEFAULT_DELAY;
+        try {
+            let DEFAULT_DELAY = 15;
+            let secondsUntilNextProcess = DEFAULT_DELAY;
     
-        // retry should have been set on failure but may also be set by server to manage load
-        if (retry)
-        {    //TODO:1.6: Don't just listen to the server - do something more useful
-            secondsUntilNextProcess = retry;
-            if (secondsUntilNextProcess < DEFAULT_DELAY)
-                secondsUntilNextProcess = DEFAULT_DELAY;
+            // retry should have been set on failure but may also be set by server to manage load
+            if (retry)
+            {    //TODO:1.6: Don't just listen to the server - do something more useful
+                secondsUntilNextProcess = retry;
+                if (secondsUntilNextProcess < DEFAULT_DELAY)
+                    secondsUntilNextProcess = DEFAULT_DELAY;
+            }
+
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                         .getService(Ci.nsIWindowMediator);
+            var window = wm.getMostRecentWindow("navigator:browser") ||
+                wm.getMostRecentWindow("mail:3pane");
+            var mm = window.keefox_org.metricsManager;
+
+            mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
+                secondsUntilNextProcess * 1000,
+                Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+        } catch (e)
+        {
+            //TODO:1.5: Review need for this try/catch 
+            // Do nothing (can't be sure if we can log safely but this is just a test anyway for the moment...
         }
-
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Ci.nsIWindowMediator);
-        var window = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-        var mm = window.keefox_org.metricsManager;
-
-        mm.metricsTimer.initWithCallback(mm.metricsTimerHandler,
-            secondsUntilNextProcess * 1000,
-            Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     };
 
     // Just process the message queue when the timer fires
@@ -588,14 +633,23 @@ function mm () {
                 var objectStore = mm.db.transaction("keefox@chris.tomlinson-metrics-messages","readwrite")
                                     .objectStore("keefox@chris.tomlinson-metrics-messages");
 
-                objectStore.openCursor(mm.IDBKeyRange.upperBound(mm.lastSentId)).onsuccess = function(event) {
+                let cursorReq = objectStore.openCursor(mm.IDBKeyRange.upperBound(mm.lastSentId));
+                cursorReq.onsuccess = function(event) {
                     var cursor = event.target.result;
                     if (cursor) {
-                        objectStore.delete(cursor.primaryKey);
+                        cursor.delete();
+                        // This seemed to work too but maybe susceptible to concurrency bugs? objectStore.delete(cursor.primaryKey);
                         cursor.continue();
                     } else
                     {
                         mm.metricsTimerRespawn(15);
+                    }
+                };
+                cursorReq.onerror = function(event) {
+                    // Try again later if something forced us to abort
+                    mm._KFLog.warn("Metrics deliverMessage failed to iterate cursor (" + cursorReq.error.name + ").");
+                    if (cursorReq.error.name == "AbortError") {
+                        mm.metricsTimerRespawn(60);
                     }
                 };
 
@@ -629,6 +683,7 @@ function mm () {
         } catch (ex)
         {
             mm._KFLog.error("Metrics error. Could not send because: " + ex);
+            mm.metricsTimerRespawn(60);
         }
     };
 
@@ -647,9 +702,21 @@ function mm () {
             mm.set("contextMenuItemsPressed",{ value: 0.0 }, function () { 
                 mm.set("keyboardShortcutsPressed",{ value: 0.0 }, function () { 
                     mm.set("avgOpenDatabases",{ avg: 0.0, count: 0 }, function () { 
-                        mm.aggregatesReady = true;
-                        mm._KFLog.debug("resetAggregates finished");
-                        if (cb) cb();
+                        mm.set("copyUsername",{ value: 0.0 }, function () { 
+                            mm.set("copyPassword",{ value: 0.0 }, function () { 
+                                mm.set("copyOther",{ value: 0.0 }, function () { 
+                                    mm.set("searchResultSelected",{ value: 0.0 }, function () { 
+                                        mm.set("loginContextButton",{ value: 0.0 }, function () { 
+                                            mm.set("pseudoFormCreated",{ value: 0.0 }, function () { 
+                                                mm.aggregatesReady = true;
+                                                mm._KFLog.debug("resetAggregates finished");
+                                                if (cb) cb();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
                     });
                 });
             });

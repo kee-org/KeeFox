@@ -576,7 +576,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
         /// <summary>
         /// Called when [file new].
         /// </summary>
-        /// <remarks>Review whenever private KeePass.MainForm.OnFileNew method changes.</remarks>
+        /// <remarks>Review whenever private KeePass.MainForm.OnFileNew method changes. Last reviewed 20150523</remarks>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         internal void CreateNewDatabase()
