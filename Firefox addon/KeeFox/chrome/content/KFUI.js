@@ -216,9 +216,6 @@ keefox_win.UI = {
               
                 let dbSel = doc.ownerGlobal.keefox_win.UI.createDBSelect(doc, saveData);
                 dbSel.style.backgroundImage = dbSel.selectedOptions[0].style.backgroundImage;
-                let groupSel = doc.ownerGlobal.keefox_win.UI.createGroupSelect(doc, saveData);
-                doc.ownerGlobal.keefox_win.UI.updateGroups(doc, 
-                   keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel, saveData);
                 
               
                 let dbSelContainer = doc.createElement('hbox');
@@ -226,23 +223,19 @@ keefox_win.UI = {
                 let dbSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
                 dbSelLabel.setAttribute('for', dbSel.id);
                 dbSelLabel.textContent = keefox_org.locale.$STR("database.label");
-                let groupSelContainer = doc.createElement('hbox');
-                groupSelContainer.setAttribute('class', 'keeFox-save-password');
-                let groupSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
-                groupSelLabel.setAttribute('for', groupSel.id);
-                groupSelLabel.textContent = keefox_org.locale.$STR("group.label");
               
                 dbSelContainer.appendChild(dbSelLabel);
                 dbSelContainer.appendChild(dbSel);
-                groupSelContainer.appendChild(groupSelLabel);
-                groupSelContainer.appendChild(groupSel);
                             
                 if (dbSel.options.length <= 1)
                     dbSelContainer.classList.add('disabled');
               
                 container.appendChild(dbSelContainer);
               
-                container.appendChild(groupSelContainer);
+                let saveTypeChooser = createSaveTypeChooser(doc);
+                container.appendChild(saveTypeChooser);
+                let saveTypeContainer = createSaveTypeContainer(doc, saveData);
+                container.appendChild(saveTypeContainer);
               
                 // We might customise other aspects of the notifications but when we want
                 // to display buttons we can treat them all the same
@@ -508,6 +501,54 @@ keefox_win.UI = {
         } catch(e) {
             // prevents runtime error on platforms that don't implement nsIAlertsService
         }
+    },
+
+    createSaveTypeChooser: function (doc)
+    {
+        let saveTypeChooser = doc.createElement('hbox');
+        let createButton = doc.createElement('button');
+        createButton.setAttribute("id","keefox-save-password-new-button");
+        let updateButton = doc.createElement('button');
+        updateButton.setAttribute("id","keefox-save-password-update-button");
+
+        saveTypeChooser.appendChild(createButton);
+        saveTypeChooser.appendChild(updateButton);
+        return saveTypeChooser;
+    },
+
+    createSaveTypeContainer: function (doc, saveData)
+    {
+        let saveTypeContainer = doc.createElement('vbox');
+        let typeNew = createSaveTypeNew(doc,saveData);
+        let typeUpdate1 = createSaveTypeUpdate1(doc,saveData);
+        let typeUpdate2 = createSaveTypeUpdate2(doc,saveData);
+
+        saveTypeContainer.appendChild(typeNew);
+        saveTypeContainer.appendChild(typeUpdate1);
+        saveTypeContainer.appendChild(typeUpdate2);
+        return saveTypeContainer;
+    },
+
+    createSaveTypeNew: function (doc, saveData)
+    {
+
+    },
+
+    createGroupSelector: function (doc, saveData)
+    { 
+        let groupSel = doc.ownerGlobal.keefox_win.UI.createGroupSelect(doc, saveData);
+        doc.ownerGlobal.keefox_win.UI.updateGroups(doc, 
+           keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel, saveData);
+                
+        let groupSelContainer = doc.createElement('hbox');
+        groupSelContainer.setAttribute('class', 'keeFox-save-password');
+        let groupSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        groupSelLabel.setAttribute('for', groupSel.id);
+        groupSelLabel.textContent = keefox_org.locale.$STR("group.label");
+                
+        groupSelContainer.appendChild(groupSelLabel);
+        groupSelContainer.appendChild(groupSel);
+        return groupSelContainer;
     }
 
 };
