@@ -306,7 +306,13 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
     persist.persistFlags = persist.persistFlags | persist.PERSIST_FLAGS_CLEANUP_ON_FAILURE 
                          | persist.PERSIST_FLAGS_REPLACE_EXISTING_FILES | persist.PERSIST_FLAGS_BYPASS_CACHE;
 
-    persist.saveURI(obj_URI, null, null, null, "", file, null);
+    // FF36 breaks backwards compatibility
+    let versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"].
+        getService(Ci.nsIVersionComparator);
+    if (versionComparator.compare(Application.version, "36.0a1") < 0)
+        persist.saveURI(obj_URI, null, null, null, "", file, null);
+    else
+        persist.saveURI(obj_URI, null, null, null, null, "", file, null);
     
     return persist;
 };
