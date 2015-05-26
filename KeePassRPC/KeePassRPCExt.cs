@@ -61,7 +61,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1, 4, 102);
+        public static readonly Version PluginVersion = new Version(1, 4, 103);
 
         private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
         private AutoResetEvent _BackgroundWorkerAutoResetEvent;
@@ -717,7 +717,6 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
                 conf.Version = 1;
-                conf.Priority = 5;
                 conf.AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" };
                 conf.BlockDomainOnlyMatch = true;
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
@@ -731,7 +730,6 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                     "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
                 conf.Version = 1;
-                conf.Priority = 2;
                 conf.NeverAutoFill = true;
                 conf.NeverAutoSubmit = true;
                 conf.BlockDomainOnlyMatch = true;
@@ -746,7 +744,6 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
                 conf.Version = 1;
-                conf.Priority = 20;
                 conf.HTTPRealm = "KeeFox tutorial sample";
                 conf.BlockDomainOnlyMatch = true;
                 pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
@@ -1038,7 +1035,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 // v2 entry config is backwards compatible but we need to upgrade any KeeFox tutorial
                 // entries. This means each entry's config version will remain at 1 but the overall
                 // config version for this database will be increased to 2.
-                if (UpgradeKeeFoxTutorialEntriesToRetainSubdomainExclusivity(e.Database)
+                if (UpgradeKeeFoxTutorialEntriesToRetainSubdomainExclusivityAndResetPriority(e.Database)
                     && UpgradeURLPortEntriesToRetainSubdomainExclusivity(e.Database))
                 {
                     e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "2");
@@ -1084,7 +1081,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             }
         }
 
-        private bool UpgradeKeeFoxTutorialEntriesToRetainSubdomainExclusivity(PwDatabase db)
+        private bool UpgradeKeeFoxTutorialEntriesToRetainSubdomainExclusivityAndResetPriority(PwDatabase db)
         {
             // The KeeFox tutorial relies on subdomains being seen as independent
             // websites but that is no longer the default behaviour in KeeFox 1.5+ 
@@ -1128,6 +1125,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     }
 
                     conf.BlockDomainOnlyMatch = true;
+                    conf.Priority = 0;
                     pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
                 }
                 return true;

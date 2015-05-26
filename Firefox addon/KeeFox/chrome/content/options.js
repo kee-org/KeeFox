@@ -1,4 +1,4 @@
-"use strict"; //TODO:1.5: Verify this works in FF29
+"use strict";
 
 let Cu = Components.utils;
 
