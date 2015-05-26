@@ -69,6 +69,7 @@ function mm () {
     this.aggregatesQueue = [];
     this.messagesReady = false;
     this.aggregatesReady = false;
+    this.nextRequestTimeout = 30000; // 30 seconds
 
     this.init = function (locale, userId, sessionId)
     {
@@ -599,33 +600,21 @@ function mm () {
     // Send a message containing one or more metrics messages
     this.deliverMessage = function (msg) 
     {
+        var mm = this;
+
         // No need to debug metric data in normal circumstances, only dev work
         //this._KFLog.debug("METRIC to be sent: " + msg);
         this._KFLog.debug("metrics being sent");
         
         function createXMLHttpRequest() {
-            const { XMLHttpRequest } = Components.classes["@mozilla.org/appshell/appShellService;1"]
-                                     .getService(Components.interfaces.nsIAppShellService)
-                                     .hiddenDOMWindow;
+            Cu.importGlobalProperties(["XMLHttpRequest"]);
             return new XMLHttpRequest();
-
-            //TODO:2: After FF15 support dropped, switch to this other implementation:
-            //const XMLHttpRequest = Components.Constructor("@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest");
-            // or this one:
-            //return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-            //   .createInstance(Components.interfaces.nsIXMLHttpRequest);    
         }
 
         try{
             var request = createXMLHttpRequest();
             request.open("POST", this.url, true);
             request.addEventListener("load", function(event) {
-                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                             .getService(Ci.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser") ||
-                    wm.getMostRecentWindow("mail:3pane");
-                var mm = window.keefox_org.metricsManager;
-
                 // Note our success position in the queue so we can remove the old ones
                 mm.lastSentId = mm.lastSentAttemptId;
                 
@@ -655,28 +644,22 @@ function mm () {
 
             });
             request.addEventListener("error", function(event) {
-                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                             .getService(Ci.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser") ||
-                    wm.getMostRecentWindow("mail:3pane");
-                var mm = window.keefox_org.metricsManager;
-
                 mm._KFLog.debug("Metrics could not be sent.");
                 mm.metricsTimerRespawn();
             });
             request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); 
 
-            // If supported, we'll set a timeout to prevent the metrics collection
+            // We'll set a timeout to prevent the metrics collection
             // hanging forever following a single dodgy connection.
 
-            request.timeout = 60000; // 60 seconds
-            //TODO:1.6: Auto-adjust timeouts to allow us to be more strict initially?
+            request.timeout = mm.nextRequestTimeout;
             request.ontimeout = function(event) {
-                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                .getService(Ci.nsIWindowMediator);
-                var window = wm.getMostRecentWindow("navigator:browser") ||
-                    wm.getMostRecentWindow("mail:3pane");
-                var mm = window.keefox_org.metricsManager;
+                if (mm.nextRequestTimeout >= 1920000) { // 32 minutes
+                    mm._KFLog.info("Metrics timeout. Can't increase any higher. There is probably an internet connection fault.");
+                }  else {
+                    mm.nextRequestTimeout = mm.nextRequestTimeout * 2;
+                    mm._KFLog.debug("Metrics timeout. Increasing to " + mm.nextRequestTimeout + "ms");
+                }
                 mm.metricsTimerRespawn();
             };
             request.send(msg);
