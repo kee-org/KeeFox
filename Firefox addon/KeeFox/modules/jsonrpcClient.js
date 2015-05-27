@@ -93,12 +93,19 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
             } 
         }, ++this.requestId); 
     }
-
+    
     this.addLogin = function(login, parentUUID, dbFileName)
     {
         var jslogin = login.asEntry();
         // fire and forget
         this.request(this, "AddLogin", [jslogin, parentUUID, dbFileName], null, ++this.requestId);        
+        return;
+    }
+
+    this.updateLogin = function (login, oldLoginUUID, urlMergeMode, dbFileName) {
+        var jslogin = login.asEntry();
+        // fire and forget
+        this.request(this, "UpdateLogin", [jslogin, oldLoginUUID, urlMergeMode, dbFileName], null, ++this.requestId);
         return;
     }
 

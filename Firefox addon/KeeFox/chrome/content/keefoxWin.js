@@ -51,6 +51,7 @@ keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/formsWin.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/formsSaveWin.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/notificationManagerWin.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/persistentPanelWin.js");
+keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/PasswordSaver.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUI.js");
 Cu.import("resource://kfmod/KF.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js");

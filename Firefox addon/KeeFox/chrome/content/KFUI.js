@@ -24,6 +24,8 @@
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
+
+
 keefox_win.UI = {
 
     __ioService: null, // IO service for string -> nsIURI conversion
@@ -101,7 +103,6 @@ keefox_win.UI = {
 
     // Displays a notification, to allow the user to save the specified login.
     _showSaveLoginNotification: function (aNotifyBox, aLogin, isMultiPage, browser) {
-        //keefox_win.tempLogin = aLogin;
         var notificationText = "";
             
         var neverButtonText =
@@ -113,7 +114,6 @@ keefox_win.UI = {
         var rememberButtonAccessKey =
               keefox_org.locale.$STR("notifyBarRememberButton.key");
               
-        //var url=aLogin.URLs[0];
         var urlSchemeHostPort=keefox_win.getURISchemeHostAndPort(aLogin.URLs[0]);
         
         if (isMultiPage)
@@ -134,10 +134,16 @@ keefox_win.UI = {
                     browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
                     keefox_org.metricsManager.pushEvent("feature", "addLogin");
                   
-                    saveData.getLogin(function (login) {
-                        var result = keefox_org.addLogin(login, saveData.group, saveData.db);
-                        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
-                            keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
+                    saveData.getLogin(function (login, urlMergeMode) {
+                        if (saveData.update)
+                        {
+                            var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
+                        }
+                        else {
+                            var result = keefox_org.addLogin(login, saveData.group, saveData.db);
+                            if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
+                                keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
+                        }
                     });
                     
                 }
@@ -165,9 +171,9 @@ keefox_win.UI = {
         
         let saveData = {};      
         saveData.getLogin = function (callback) {
-            //TODO:1.6: Create a new login based on potentially modified field data
-
             let login = aLogin;
+
+            let urlMergeMode = browser.passwordSaver.getCurrentUrlMergeMode();
 
             var primaryURL = login.URLs[0];
         
@@ -188,7 +194,7 @@ keefox_win.UI = {
                                 var faviconBytes = String.fromCharCode.apply(null, aData);
                                 login.iconImageData = btoa(faviconBytes);
                             }
-                            callback(login);
+                            callback(login, urlMergeMode);
                         }
                     };
                     keefox_org.loadFavicon(primaryURL, faviconLoader);
@@ -198,7 +204,7 @@ keefox_win.UI = {
                 }
             } else
             {
-                callback(login);
+                callback(login, urlMergeMode);
             }
         }
   
@@ -213,36 +219,9 @@ keefox_win.UI = {
                 var doc = container.ownerDocument;
                 container = doc.ownerGlobal.keefox_win.notificationManager
                     .renderStandardMessage(container, notificationText);
-              
-                let dbSel = doc.ownerGlobal.keefox_win.UI.createDBSelect(doc, saveData);
-                dbSel.style.backgroundImage = dbSel.selectedOptions[0].style.backgroundImage;
-                let groupSel = doc.ownerGlobal.keefox_win.UI.createGroupSelect(doc, saveData);
-                doc.ownerGlobal.keefox_win.UI.updateGroups(doc, 
-                   keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel, saveData);
-                
-              
-                let dbSelContainer = doc.createElement('hbox');
-                dbSelContainer.setAttribute('class', 'keeFox-save-password');
-                let dbSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
-                dbSelLabel.setAttribute('for', dbSel.id);
-                dbSelLabel.textContent = keefox_org.locale.$STR("database.label");
-                let groupSelContainer = doc.createElement('hbox');
-                groupSelContainer.setAttribute('class', 'keeFox-save-password');
-                let groupSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
-                groupSelLabel.setAttribute('for', groupSel.id);
-                groupSelLabel.textContent = keefox_org.locale.$STR("group.label");
-              
-                dbSelContainer.appendChild(dbSelLabel);
-                dbSelContainer.appendChild(dbSel);
-                groupSelContainer.appendChild(groupSelLabel);
-                groupSelContainer.appendChild(groupSel);
-                            
-                if (dbSel.options.length <= 1)
-                    dbSelContainer.classList.add('disabled');
-              
-                container.appendChild(dbSelContainer);
-              
-                container.appendChild(groupSelContainer);
+
+                browser.passwordSaver = new doc.ownerGlobal.keefox_win.PasswordSaver(doc, saveData);
+                container = browser.passwordSaver.generateUI(container);
               
                 // We might customise other aspects of the notifications but when we want
                 // to display buttons we can treat them all the same
@@ -253,6 +232,7 @@ keefox_win.UI = {
             },
             onClose: function(browser) {
                 browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
+                browser.passwordSaver = null;
             },
             thisTabOnly: true,
             priority: null,
@@ -261,105 +241,6 @@ keefox_win.UI = {
         aNotifyBox.add(notification);
     },
 
-    createDBSelect: function (doc, saveData) {
-  
-        let dbOptions = [];
-              
-        for (var dbi = 0; dbi < keefox_org.KeePassDatabases.length; dbi++)
-        {
-            var db = keefox_org.KeePassDatabases[dbi];
-            let opt = doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
-            opt.setAttribute("value", db.fileName);
-            opt.textContent = db.name;
-            if (dbi == keefox_org.ActiveKeePassDatabaseIndex)
-                opt.selected = true;
-            opt.style.backgroundImage = "url(data:image/png;base64," + db.iconImageData + ")";
-            dbOptions.push(opt);
-        }
-              
-        let changeHandler = function (event) {
-            let opt = event.target.selectedOptions[0];
-            event.target.style.backgroundImage = opt.style.backgroundImage;
-            doc.ownerGlobal.keefox_win.UI.updateGroups(
-                doc,keefox_org.getDBbyFilename(event.target.value),
-                doc.getElementById('keefox-save-password-group-select'), saveData);
-            saveData.db = opt.value;
-        };
-
-        let sel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
-        sel.setAttribute("id","keefox-save-password-db-select");
-        sel.addEventListener("change", changeHandler, false);
-        for (let o of dbOptions)
-          sel.appendChild(o);
-
-        saveData.db = sel.selectedOptions[0].value;
-  
-        return sel;
-    },
-    
-    createGroupSelect: function (doc, saveData) {
-  
-        let changeHandler = function (event) {
-            let opt = event.target.selectedOptions[0];
-            event.target.style.backgroundImage = opt.style.backgroundImage;
-            event.target.style.paddingLeft = (opt.style.paddingLeft.substring(0,
-                opt.style.paddingLeft.length - 2) - 5) + "px";
-            event.target.style.backgroundPosition = opt.style.backgroundPosition;
-            saveData.group = opt.value;
-        };
-              
-        let sel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
-        sel.addEventListener("change", changeHandler, false);
-        sel.setAttribute("id","keefox-save-password-group-select");
-  
-        return sel;
-    },
-
-    updateGroups: function (doc, db, sel, saveData) {
-  
-        let groupOptions = [];
-        let mruGroup = "";
-        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
-        {
-            mruGroup = keefox_org._keeFoxExtension.prefs.getValue("MRUGroup-"+db.fileName,"");
-        }
-  
-        function generateGroupOptions (group, depth) {
-    
-            let opt = doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
-            opt.setAttribute("value", group.uniqueID);
-            opt.textContent = group.title;
-    
-            if (mruGroup == group.uniqueID)
-                opt.setAttribute("selected", "true");
-    
-            let indent = 20 + depth * 16;
-            opt.style.paddingLeft = (indent+5) + "px";
-            opt.style.backgroundPosition = (indent-15) + "px 7px";
-            opt.style.backgroundImage = "url(data:image/png;base64," + group.iconImageData + ")";
-    
-            groupOptions.push(opt);
-    
-            for (let c of group.childGroups)
-            generateGroupOptions(c, depth+1);
-        }
-  
-        generateGroupOptions(db.root, 0);
-  
-        for (var opt in sel){
-            sel.remove(opt);
-        }
-        for (let o of groupOptions)
-          sel.appendChild(o);
-  
-        let currentOpt = sel.selectedOptions[0];
-        sel.style.backgroundImage = currentOpt.style.backgroundImage;
-        sel.style.paddingLeft = (currentOpt.style.paddingLeft.substring(0,
-            currentOpt.style.paddingLeft.length - 2) - 5) + "px";
-        sel.style.backgroundPosition = currentOpt.style.backgroundPosition;
-
-        saveData.group = currentOpt.value;
-    },
 
     showConnectionMessage : function (message)
     {
@@ -367,15 +248,7 @@ keefox_win.UI = {
 
         if (notifyBox)
         {
-            var buttons = [
-//                // "OK" button
-//                {
-//                    label:     this._getLocalizedString("KeeFox_Dialog_OK_Button.label"),
-//                    accessKey: this._getLocalizedString("KeeFox_Dialog_OK_Button.key"),
-//                    popup:     null,
-//                    callback:  function() { /* NOP */ } 
-//                }
-            ];
+            var buttons = [];
             keefox_win.Logger.debug("Adding keefox-connection-message notification");
             this._showKeeFoxNotification(notifyBox, "keefox-connection-message",
                  message, buttons, false);

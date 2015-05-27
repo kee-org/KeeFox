@@ -756,19 +756,19 @@ KeeFox.prototype = {
             throw e;
         }
     },
-    
-    addGroup: function(title, parentUUID)
+
+    updateLogin: function(login, oldLoginUUID, urlMergeMode, dbFileName)
     {
         try
         {
-            return this.KeePassRPC.addGroup(title, parentUUID);
+            return this.KeePassRPC.updateLogin(login, oldLoginUUID, urlMergeMode, dbFileName);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
             throw e;
         }
     },
-    
+
     removeLogin: function (uniqueID)
     {
         try
@@ -804,19 +804,7 @@ KeeFox.prototype = {
             throw e;
         }
     },
-    
-    modifyLogin: function (oldLogin, newLogin)
-    {
-        try
-        {
-            return this.KeePassRPC.modifyLogin(oldLogin, newLogin);
-        } catch (e)
-        {
-            this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);
-            throw e;
-        }
-    },
-    
+
     getAllDatabases: function ()
     {
         try

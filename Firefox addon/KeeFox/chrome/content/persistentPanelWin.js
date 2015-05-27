@@ -36,6 +36,7 @@ keefox_win.persistentPanel = {
     init: function () {
         this.thePanel = document.createElement('panel');
         this.thePanel.id = 'keefox-persistent-panel';
+        this.thePanel.setAttribute('tooltip', 'aHTMLTooltip');
         this.thePanel.setAttribute('noautohide', 'true');
         this.thePanel.setAttribute('type', 'arrow');
         document.getElementById('main-window').appendChild(this.thePanel);
