@@ -1439,36 +1439,151 @@ namespace KeePassRPC
         }
 
         /// <summary>
-        /// Modify an existing login
+        /// Updates an existing login
         /// </summary>
-        /// <param name="oldLogin">The old login that will be replaced. In fact only the UUID contained within it will be used for now.</param>
-        /// <param name="newLogin">The login object that will replace the old one.</param>
-        /// <param name="current__"></param>
+        /// <param name="login">A login that contains data to be copied into the existing login</param>
+        /// <param name="oldLoginUUID">The UUID that identifies the login we want to update</param>
+        /// <param name="urlMergeMode">1= Replace the entry's URL (but still fill forms if you visit the old URL)
+        ///2= Replace the entry's URL (delete the old URL completely)
+        ///3= Keep the old entry's URL (but still fill forms if you visit the new URL)
+        ///4= Keep the old entry's URL (don't add the new URL to the entry)</param>
+        /// <param name="dbFileName">Database that contains the login to update</param>
+        /// <returns>The updated login</returns>
         [JsonRpcMethod]
-        public void ModifyLogin(Entry oldLogin, Entry newLogin)
+        public Entry UpdateLogin(Entry login, string oldLoginUUID, int urlMergeMode, string dbFileName)
         {
-            throw new NotImplementedException();
-
-            if (oldLogin == null)
-                throw new Exception("old login must be passed to the ModifyLogin function. It wasn't");
-            if (newLogin == null)
-                throw new Exception("new login must be passed to the ModifyLogin function. It wasn't");
-            if (oldLogin.UniqueID == null || oldLogin.UniqueID == "")
-                throw new Exception("old login doesn't contain a uniqueID");
-
+            if (login == null)
+                throw new ArgumentException("(new) login was not passed to the updateLogin function");
+            if (string.IsNullOrEmpty(oldLoginUUID))
+                throw new ArgumentException("oldLoginUUID was not passed to the updateLogin function");
+            if (string.IsNullOrEmpty(dbFileName))
+                throw new ArgumentException("dbFileName was not passed to the updateLogin function");
+            
             // Make sure there is an active database
-            if (!ensureDBisOpen()) return;
+            if (!ensureDBisOpen()) return null;
 
-            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLogin.UniqueID));
+            // There are odd bits of the resulting new login that we don't
+            // need but the vast majority is going to be useful
+            PwEntry newLoginData = new PwEntry(true, true);
+            setPwEntryFromEntry(newLoginData, login);
 
-            PwEntry modificationTarget = GetRootPwGroup(host.Database).FindEntry(pwuuid, true);
+            // find the database
+            PwDatabase chosenDB = SelectDatabase(dbFileName);
 
-            if (modificationTarget == null)
-                throw new Exception("Could not find correct entry to modify. No changes made to KeePass database.");
+            PwUuid pwuuid = new PwUuid(KeePassLib.Utility.MemUtil.HexStringToByteArray(oldLoginUUID));
+            PwEntry entryToUpdate = GetRootPwGroup(chosenDB).FindEntry(pwuuid, true);
+            if (entryToUpdate == null)
+                throw new Exception("oldLoginUUID could not be resolved to an existing entry.");
 
-            setPwEntryFromEntry(modificationTarget, newLogin);
+            MergeEntries(entryToUpdate, newLoginData, urlMergeMode, chosenDB);
 
-            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), host.Database);
+            host.MainWindow.BeginInvoke(new dlgSaveDB(saveDB), chosenDB);
+
+            Entry updatedEntry = (Entry)GetEntryFromPwEntry(entryToUpdate, MatchAccuracy.Best, true, chosenDB);
+
+            return updatedEntry;
+        }
+
+        private void MergeEntries(PwEntry destination, PwEntry source, int urlMergeMode, PwDatabase db)
+        {
+            EntryConfig destConfig;
+            string destJSON = KeePassRPCPlugin.GetPwEntryString(destination, "KPRPC JSON", db);
+            try
+            {
+                destConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), destJSON);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + destination.Strings.ReadSafe("URL") + " and the full configuration data is: " + destJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            EntryConfig sourceConfig;
+            string sourceJSON = KeePassRPCPlugin.GetPwEntryString(source, "KPRPC JSON", db);
+            try
+            {
+                sourceConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), sourceJSON);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + source.Strings.ReadSafe("URL") + " and the full configuration data is: " + sourceJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            destination.CreateBackup(db);
+
+            destConfig.HTTPRealm = sourceConfig.HTTPRealm;
+            destination.IconId = source.IconId;
+            destination.CustomIconUuid = source.CustomIconUuid;
+            destination.Strings.Set("UserName", new ProtectedString(
+                host.Database.MemoryProtection.ProtectUserName, source.Strings.ReadSafe("UserName")));
+            destination.Strings.Set("Password", new ProtectedString(
+                host.Database.MemoryProtection.ProtectPassword, source.Strings.ReadSafe("Password")));
+            destConfig.FormFieldList = sourceConfig.FormFieldList;
+
+            // This algorithm could probably be made more efficient (lots of O(n) operations
+            // but we're dealing with pretty small n so I've gone with the conceptually
+            // easiest approach for now).
+
+            List<string> destURLs = new List<string>(destConfig.AltURLs);
+            destURLs.Insert(0, destination.Strings.ReadSafe("URL"));
+
+            List<string> sourceURLs = new List<string>(sourceConfig.AltURLs);
+            sourceURLs.Insert(0, source.Strings.ReadSafe("URL"));
+
+            switch (urlMergeMode)
+            {
+                case 1:
+                    MergeInNewURLs(destURLs, sourceURLs);
+                    break;
+                case 2:
+                    destURLs.RemoveAt(0);
+                    MergeInNewURLs(destURLs, sourceURLs);
+                    break;
+                case 3:
+                    if (sourceURLs.Count > 0)
+                    {
+                        foreach (string sourceUrl in sourceURLs)
+                            if (!destURLs.Contains(sourceUrl))
+                                destURLs.Add(sourceUrl);
+                    }
+                    break;
+                case 4:
+                default:
+                    // No changes to URLs
+                    break;
+            }
+
+            // These might not have changed but meh
+            destination.Strings.Set("URL", new ProtectedString(host.Database.MemoryProtection.ProtectUrl, destURLs[0]));
+            destConfig.AltURLs = new string[0];
+            if (destURLs.Count > 1)
+                destConfig.AltURLs = destURLs.GetRange(1,destURLs.Count-1).ToArray();
+
+            destination.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(destConfig)));
+            destination.Touch(true);
+        }
+
+        private static void MergeInNewURLs(List<string> destURLs, List<string> sourceURLs)
+        {
+            if (sourceURLs.Count > 0)
+            {
+                for (int i = sourceURLs.Count - 1; i >= 0; i--)
+                {
+                    string sourceUrl = sourceURLs[i];
+
+                    if (!destURLs.Contains(sourceUrl))
+                    {
+                        destURLs.Insert(0, sourceUrl);
+                    }
+                    else if (i == 0)
+                    {
+                        // Promote the URL from alternative URL list to primary URL
+                        destURLs.Remove(sourceUrl);
+                        destURLs.Insert(0, sourceUrl);
+                    }
+                }
+            }
         }
 
         /// <summary>

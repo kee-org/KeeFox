@@ -60,7 +60,7 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 /* option B - no wrapper */
 panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 {
-    max-width: 45em;
+    max-width: 65em;
     min-width: 10em;
     overflow-x: hidden;
 }
@@ -90,7 +90,7 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 
 /* default appearence of list items to match australis look and feel */
 #keefox-panelview li,
-#KeeFox-SavePassword-SearchResults-Container li
+#KeeFox-SaveLogin-SearchResults-Container li
 {
     background-color: #FFFFFF;
     border: 1px solid #FFFFFF;
@@ -103,7 +103,7 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 #keefox-panelview li:active,
-#KeeFox-SavePassword-SearchResults-Container li:active
+#KeeFox-SaveLogin-SearchResults-Container li:active
 {
     background-color: #E3E3E3;
     border: 1px solid #C6C6C7;
@@ -111,11 +111,17 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 #keefox-panelview li:hover,
-#KeeFox-SavePassword-SearchResults-Container li:hover
+#KeeFox-SaveLogin-SearchResults-Container li:hover
 {
     background-color: #EAEAEA;
-    border: 1px solid #D6D6D6;   
+    border: 1px solid #D6D6D6; 
     border-radius: 3px; 
+}
+
+ul#KeeFox-SaveLogin-selectedEntryList li:hover
+{
+    background-color: #FFFFFF;
+    border: 0px solid #FFFFFF; 
 }
 
 #keefox-panelview li.group-item
@@ -219,14 +225,15 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     background-position:2px 3px;
 }
 
-#KeeFox-SavePassword-SearchResults-Container,
+#KeeFox-SaveLogin-SearchResults-Container,
 #KeeFox-SaveLogin-selectedEntryList {
 display: block;    
 }
 
 /* Default login list item and group style */
 #keefox-panelview li,
-#KeeFox-SavePassword-SearchResults-Container li
+#KeeFox-SaveLogin-SearchResults-Container li,
+#KeeFox-SaveLogin-selectedEntryList li
 {
     min-height:26px;
     padding:0px 5px 0px 22px;
@@ -249,7 +256,7 @@ display: block;
 
 /* Unless in the presence of a containing group defined below, display all login items */
 #keefox-panelview li.login-item,
-#KeeFox-SavePassword-SearchResults-Container li.login-item
+#KeeFox-SaveLogin-SearchResults-Container li.login-item
 {
     display:list-item;
     border-left-width:0px;
@@ -527,22 +534,32 @@ width:50% !important;
 #keefox-save-password-update-panel2 {
     border: #D6D6D6 solid 1px;
     border-top-width: 0px;
-    margin-left: 5px;
-    margin-right: 5px;
+    margin: 0px 5px;
+    padding: 5px;
 }
 
-#KeeFox-SavePassword-searchbox
+#keefox-save-password-saveTypeContainer .enabled {
+    display: -moz-box;
+}
+
+#keefox-save-password-update-panel2 label.KeeFox-message {
+    width:500px;
+}
+
+#keefox-save-password-update-panel2 hbox {
+
+    -moz-box-align:center;
+}
+
+#KeeFox-SaveLogin-searchbox
 {
     width: calc(100% - 12px);
     padding: 3px 5px;
     margin: 5px;
     margin-bottom:0px;
-    /* these don't work but meh... */
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
 }
 
-#KeeFox-SavePassword-SearchResults {
+#KeeFox-SaveLogin-SearchResults {
     overflow-y:scroll;
     margin: 5px;
     margin-top: 0px;
@@ -553,8 +570,8 @@ width:50% !important;
     width:450px;
 }
 
-#KeeFox-SavePassword-SearchResults-Container,
-#KeeFox-SaveLogin-selectedEntryList {
+ul#KeeFox-SaveLogin-SearchResults-Container,
+ul#KeeFox-SaveLogin-selectedEntryList {
     padding:0px;
     list-style:none;
     background:none;
@@ -563,10 +580,13 @@ width:50% !important;
 
 button.KeeFox-SaveLogin-Change-Setting {
     -moz-appearance: none !important;
+    
     padding:0px 3px !important;
     margin:2px 5px !important;
     font-size: 0.75em;
     border-radius: 3px !important;
+    -moz-box-pack: center;
+    -moz-box-align: center;
 }
 
 button.KeeFox-SaveLogin-Change-Setting > hbox {
@@ -580,6 +600,13 @@ button.KeeFox-SaveLogin-Change-Setting label {
     
 }
 
+button.KeeFox-SaveLogin-Abort {
+	margin-bottom:10px !important;
+}
+
+#KeeFox-loginURLsUpdateRadioGroup {
+    margin:10px 0px;
+}
 
 
 #keefox-persistent-panel .disabled {
