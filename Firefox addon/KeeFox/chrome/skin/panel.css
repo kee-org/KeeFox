@@ -89,7 +89,8 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 /* default appearence of list items to match australis look and feel */
-#keefox-panelview li
+#keefox-panelview li,
+#KeeFox-SavePassword-SearchResults-Container li
 {
     background-color: #FFFFFF;
     border: 1px solid #FFFFFF;
@@ -101,14 +102,16 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     margin: 0px 0px !important;
 }
 
-#keefox-panelview li:active
+#keefox-panelview li:active,
+#KeeFox-SavePassword-SearchResults-Container li:active
 {
     background-color: #E3E3E3;
     border: 1px solid #C6C6C7;
     border-radius: 3px;
 }
 
-#keefox-panelview li:hover
+#keefox-panelview li:hover,
+#KeeFox-SavePassword-SearchResults-Container li:hover
 {
     background-color: #EAEAEA;
     border: 1px solid #D6D6D6;   
@@ -216,8 +219,14 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     background-position:2px 3px;
 }
 
+#KeeFox-SavePassword-SearchResults-Container,
+#KeeFox-SaveLogin-selectedEntryList {
+display: block;    
+}
+
 /* Default login list item and group style */
-#keefox-panelview li
+#keefox-panelview li,
+#KeeFox-SavePassword-SearchResults-Container li
 {
     min-height:26px;
     padding:0px 5px 0px 22px;
@@ -239,7 +248,8 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 }
 
 /* Unless in the presence of a containing group defined below, display all login items */
-#keefox-panelview li.login-item
+#keefox-panelview li.login-item,
+#KeeFox-SavePassword-SearchResults-Container li.login-item
 {
     display:list-item;
     border-left-width:0px;
@@ -476,6 +486,102 @@ background-repeat: no-repeat;
     
 }
 
+#keefox-save-password-new-button,
+#keefox-save-password-update-button {
+    -moz-appearance: none;
+width:50% !important;
+    min-width:50% !important;
+    
+    line-height:1;
+    
+    margin: 0px !important;
+    margin-top: 5px !important;
+    border-radius: 0px !important;
+    border-top-left-radius: 5px !important;
+    border-top-right-radius: 5px !important;
+    -moz-box-flex: 1;
+}
+
+#keefox-save-password-new-button {
+    margin-left: 5px !important;
+}
+
+#keefox-save-password-update-button {
+    
+    margin-right: 5px !important;
+}
+
+#keefox-save-password-new-button.unselected,
+#keefox-save-password-update-button.unselected {
+    border-bottom-color: #D6D6D6;
+}
+
+#keefox-save-password-new-button.selected,
+#keefox-save-password-update-button.selected {
+    border-bottom-color: white !important;
+    background-color: white !important;
+}
+
+#keefox-save-password-new-panel,
+#keefox-save-password-update-panel1,
+#keefox-save-password-update-panel2 {
+    border: #D6D6D6 solid 1px;
+    border-top-width: 0px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#KeeFox-SavePassword-searchbox
+{
+    width: calc(100% - 12px);
+    padding: 3px 5px;
+    margin: 5px;
+    margin-bottom:0px;
+    /* these don't work but meh... */
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+}
+
+#KeeFox-SavePassword-SearchResults {
+    overflow-y:scroll;
+    margin: 5px;
+    margin-top: 0px;
+    border: #D6D6D6 solid 1px;
+    border-top-width: 0px;
+    height:200px;
+    min-height:200px;
+    width:450px;
+}
+
+#KeeFox-SavePassword-SearchResults-Container,
+#KeeFox-SaveLogin-selectedEntryList {
+    padding:0px;
+    list-style:none;
+    background:none;
+    margin:0px 5px;
+}
+
+button.KeeFox-SaveLogin-Change-Setting {
+    -moz-appearance: none !important;
+    padding:0px 3px !important;
+    margin:2px 5px !important;
+    font-size: 0.75em;
+    border-radius: 3px !important;
+}
+
+button.KeeFox-SaveLogin-Change-Setting > hbox {
+    padding:0px !important;
+    margin: 0px !important;
+    
+}
+button.KeeFox-SaveLogin-Change-Setting label {
+    padding:0px !important;
+    margin: 0px !important;
+    
+}
+
+
+
 #keefox-persistent-panel .disabled {
     display:none;
 }
@@ -560,3 +666,4 @@ background-repeat: no-repeat;
 {
     background-color: #fff;
 }
+

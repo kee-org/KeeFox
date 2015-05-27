@@ -87,7 +87,8 @@ keefox_win.panel = {
                         // Clear search terms
                         evt.target.ownerDocument.getElementById('KeeFox-PanelSection-searchbox').value = "";
                         // Clear search results
-                        evt.target.ownerGlobal.keefox_win.panel.onSearchComplete([]);
+                        evt.target.ownerGlobal.keefox_win.panel.onSearchComplete.
+                            bind(evt.target.ownerGlobal.keefox_win.panel)([]);
                         // Close subpanels
                         evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
                     },
@@ -214,7 +215,7 @@ keefox_win.panel = {
         ]);
         searchBox.addEventListener('input',function(e){
             //TODO:1.6: rate limit searches?
-            keefox_org.search.execute(e.target.value, closure.onSearchComplete);
+            keefox_org.search.execute(e.target.value, closure.onSearchComplete.bind(closure));
         }, false);
 
         searchBox.addEventListener("keydown", this.keyboardNavHandler, false);

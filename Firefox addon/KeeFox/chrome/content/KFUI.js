@@ -24,6 +24,8 @@
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
+
+
 keefox_win.UI = {
 
     __ioService: null, // IO service for string -> nsIURI conversion
@@ -134,10 +136,16 @@ keefox_win.UI = {
                     browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
                     keefox_org.metricsManager.pushEvent("feature", "addLogin");
                   
-                    saveData.getLogin(function (login) {
-                        var result = keefox_org.addLogin(login, saveData.group, saveData.db);
-                        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
-                            keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
+                    saveData.getLogin(function (login, urlMergeMode) {
+                        if (saveData.update)
+                        {
+                            var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
+                        }
+                        else {
+                            var result = keefox_org.addLogin(login, saveData.group, saveData.db);
+                            if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
+                                keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
+                        }
                     });
                     
                 }
@@ -169,6 +177,8 @@ keefox_win.UI = {
 
             let login = aLogin;
 
+            let urlMergeMode = browser.passwordSaver.getCurrentUrlMergeMode();
+
             var primaryURL = login.URLs[0];
         
             if (keefox_org._keeFoxExtension.prefs.getValue("saveFavicons",false))
@@ -188,7 +198,7 @@ keefox_win.UI = {
                                 var faviconBytes = String.fromCharCode.apply(null, aData);
                                 login.iconImageData = btoa(faviconBytes);
                             }
-                            callback(login);
+                            callback(login, urlMergeMode);
                         }
                     };
                     keefox_org.loadFavicon(primaryURL, faviconLoader);
@@ -198,7 +208,7 @@ keefox_win.UI = {
                 }
             } else
             {
-                callback(login);
+                callback(login, urlMergeMode);
             }
         }
   
@@ -213,29 +223,9 @@ keefox_win.UI = {
                 var doc = container.ownerDocument;
                 container = doc.ownerGlobal.keefox_win.notificationManager
                     .renderStandardMessage(container, notificationText);
-              
-                let dbSel = doc.ownerGlobal.keefox_win.UI.createDBSelect(doc, saveData);
-                dbSel.style.backgroundImage = dbSel.selectedOptions[0].style.backgroundImage;
-                
-              
-                let dbSelContainer = doc.createElement('hbox');
-                dbSelContainer.setAttribute('class', 'keeFox-save-password');
-                let dbSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
-                dbSelLabel.setAttribute('for', dbSel.id);
-                dbSelLabel.textContent = keefox_org.locale.$STR("database.label");
-              
-                dbSelContainer.appendChild(dbSelLabel);
-                dbSelContainer.appendChild(dbSel);
-                            
-                if (dbSel.options.length <= 1)
-                    dbSelContainer.classList.add('disabled');
-              
-                container.appendChild(dbSelContainer);
-              
-                let saveTypeChooser = createSaveTypeChooser(doc);
-                container.appendChild(saveTypeChooser);
-                let saveTypeContainer = createSaveTypeContainer(doc, saveData);
-                container.appendChild(saveTypeContainer);
+
+                browser.passwordSaver = new PasswordSaver(doc, saveData);
+                container = browser.passwordSaver.generateUI(container);
               
                 // We might customise other aspects of the notifications but when we want
                 // to display buttons we can treat them all the same
@@ -246,6 +236,7 @@ keefox_win.UI = {
             },
             onClose: function(browser) {
                 browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
+                browser.passwordSaver = null;
             },
             thisTabOnly: true,
             priority: null,
@@ -254,105 +245,6 @@ keefox_win.UI = {
         aNotifyBox.add(notification);
     },
 
-    createDBSelect: function (doc, saveData) {
-  
-        let dbOptions = [];
-              
-        for (var dbi = 0; dbi < keefox_org.KeePassDatabases.length; dbi++)
-        {
-            var db = keefox_org.KeePassDatabases[dbi];
-            let opt = doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
-            opt.setAttribute("value", db.fileName);
-            opt.textContent = db.name;
-            if (dbi == keefox_org.ActiveKeePassDatabaseIndex)
-                opt.selected = true;
-            opt.style.backgroundImage = "url(data:image/png;base64," + db.iconImageData + ")";
-            dbOptions.push(opt);
-        }
-              
-        let changeHandler = function (event) {
-            let opt = event.target.selectedOptions[0];
-            event.target.style.backgroundImage = opt.style.backgroundImage;
-            doc.ownerGlobal.keefox_win.UI.updateGroups(
-                doc,keefox_org.getDBbyFilename(event.target.value),
-                doc.getElementById('keefox-save-password-group-select'), saveData);
-            saveData.db = opt.value;
-        };
-
-        let sel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
-        sel.setAttribute("id","keefox-save-password-db-select");
-        sel.addEventListener("change", changeHandler, false);
-        for (let o of dbOptions)
-          sel.appendChild(o);
-
-        saveData.db = sel.selectedOptions[0].value;
-  
-        return sel;
-    },
-    
-    createGroupSelect: function (doc, saveData) {
-  
-        let changeHandler = function (event) {
-            let opt = event.target.selectedOptions[0];
-            event.target.style.backgroundImage = opt.style.backgroundImage;
-            event.target.style.paddingLeft = (opt.style.paddingLeft.substring(0,
-                opt.style.paddingLeft.length - 2) - 5) + "px";
-            event.target.style.backgroundPosition = opt.style.backgroundPosition;
-            saveData.group = opt.value;
-        };
-              
-        let sel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
-        sel.addEventListener("change", changeHandler, false);
-        sel.setAttribute("id","keefox-save-password-group-select");
-  
-        return sel;
-    },
-
-    updateGroups: function (doc, db, sel, saveData) {
-  
-        let groupOptions = [];
-        let mruGroup = "";
-        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
-        {
-            mruGroup = keefox_org._keeFoxExtension.prefs.getValue("MRUGroup-"+db.fileName,"");
-        }
-  
-        function generateGroupOptions (group, depth) {
-    
-            let opt = doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
-            opt.setAttribute("value", group.uniqueID);
-            opt.textContent = group.title;
-    
-            if (mruGroup == group.uniqueID)
-                opt.setAttribute("selected", "true");
-    
-            let indent = 20 + depth * 16;
-            opt.style.paddingLeft = (indent+5) + "px";
-            opt.style.backgroundPosition = (indent-15) + "px 7px";
-            opt.style.backgroundImage = "url(data:image/png;base64," + group.iconImageData + ")";
-    
-            groupOptions.push(opt);
-    
-            for (let c of group.childGroups)
-            generateGroupOptions(c, depth+1);
-        }
-  
-        generateGroupOptions(db.root, 0);
-  
-        for (var opt in sel){
-            sel.remove(opt);
-        }
-        for (let o of groupOptions)
-          sel.appendChild(o);
-  
-        let currentOpt = sel.selectedOptions[0];
-        sel.style.backgroundImage = currentOpt.style.backgroundImage;
-        sel.style.paddingLeft = (currentOpt.style.paddingLeft.substring(0,
-            currentOpt.style.paddingLeft.length - 2) - 5) + "px";
-        sel.style.backgroundPosition = currentOpt.style.backgroundPosition;
-
-        saveData.group = currentOpt.value;
-    },
 
     showConnectionMessage : function (message)
     {
@@ -501,27 +393,168 @@ keefox_win.UI = {
         } catch(e) {
             // prevents runtime error on platforms that don't implement nsIAlertsService
         }
+    }
+
+};
+
+
+function PasswordSaver(doc, saveData)
+{
+    //this._keefox_org = keefox_org;
+    //this._KFLog = KFLog;
+    this.doc = doc;
+    this.saveData = saveData;
+
+    Cu.import("resource://kfmod/search.js", this);
+
+    this.search = new this.Search(keefox_org, {
+        version: 1,
+        searchAllDatabases: true,
+        maximumResults: 50
+    });
+}
+
+PasswordSaver.prototype = 
+{
+    generateUI: function(container) {
+        let saveTypeChooser = this.createSaveTypeChooser();
+        container.appendChild(saveTypeChooser);
+        let saveTypeContainer = this.createSaveTypeContainer();
+        container.appendChild(saveTypeContainer);
+        return container;
+    },
+    
+    createDBSelect: function () {
+  
+        let dbOptions = [];
+              
+        for (var dbi = 0; dbi < keefox_org.KeePassDatabases.length; dbi++)
+        {
+            var db = keefox_org.KeePassDatabases[dbi];
+            let opt = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
+            opt.setAttribute("value", db.fileName);
+            opt.textContent = db.name;
+            if (dbi == keefox_org.ActiveKeePassDatabaseIndex)
+                opt.selected = true;
+            opt.style.backgroundImage = "url(data:image/png;base64," + db.iconImageData + ")";
+            dbOptions.push(opt);
+        }
+              
+        let changeHandler = function (event) {
+            let opt = event.target.selectedOptions[0];
+            event.target.style.backgroundImage = opt.style.backgroundImage;
+            this.updateGroups(keefox_org.getDBbyFilename(event.target.value),
+                this.doc.getElementById('keefox-save-password-group-select'));
+            this.saveData.db = opt.value;
+        };
+
+        let sel = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
+        sel.setAttribute("id","keefox-save-password-db-select");
+        sel.addEventListener("change", changeHandler, false);
+        for (let o of dbOptions)
+          sel.appendChild(o);
+
+        this.saveData.db = sel.selectedOptions[0].value;
+  
+        return sel;
+    },
+    
+    createGroupSelect: function () {
+  
+        let changeHandler = function (event) {
+            let opt = event.target.selectedOptions[0];
+            event.target.style.backgroundImage = opt.style.backgroundImage;
+            event.target.style.paddingLeft = (opt.style.paddingLeft.substring(0,
+                opt.style.paddingLeft.length - 2) - 5) + "px";
+            event.target.style.backgroundPosition = opt.style.backgroundPosition;
+            this.saveData.group = opt.value;
+        };
+              
+        let sel = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'select');
+        sel.addEventListener("change", changeHandler.bind(this), false);
+        sel.setAttribute("id","keefox-save-password-group-select");
+  
+        return sel;
     },
 
-    createSaveTypeChooser: function (doc)
+    updateGroups: function (db, sel) {
+  
+        let groupOptions = [];
+        let mruGroup = "";
+        if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
+        {
+            mruGroup = keefox_org._keeFoxExtension.prefs.getValue("MRUGroup-"+db.fileName,"");
+        }
+  
+        function generateGroupOptions (group, depth) {
+    
+            let opt = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'option');
+            opt.setAttribute("value", group.uniqueID);
+            opt.textContent = group.title;
+    
+            if (mruGroup == group.uniqueID)
+                opt.setAttribute("selected", "true");
+    
+            let indent = 20 + depth * 16;
+            opt.style.paddingLeft = (indent+5) + "px";
+            opt.style.backgroundPosition = (indent-15) + "px 7px";
+            opt.style.backgroundImage = "url(data:image/png;base64," + group.iconImageData + ")";
+    
+            groupOptions.push(opt);
+    
+            for (let c of group.childGroups)
+            generateGroupOptions.call(this, c, depth+1);
+        }
+  
+        generateGroupOptions.call(this, db.root, 0);
+  
+        for (var opt in sel){
+            sel.remove(opt);
+        }
+        for (let o of groupOptions)
+          sel.appendChild(o);
+  
+        let currentOpt = sel.selectedOptions[0];
+        sel.style.backgroundImage = currentOpt.style.backgroundImage;
+        sel.style.paddingLeft = (currentOpt.style.paddingLeft.substring(0,
+            currentOpt.style.paddingLeft.length - 2) - 5) + "px";
+        sel.style.backgroundPosition = currentOpt.style.backgroundPosition;
+
+        this.saveData.group = currentOpt.value;
+    },
+
+    getCurrentUrlMergeMode: function()  {
+        let radioOptions = this.doc.getElementById("KeeFox-loginURLsUpdateRadioGroup");
+        return radioOptions.selectedIndex;
+    },
+
+    createSaveTypeChooser: function ()
     {
-        let saveTypeChooser = doc.createElement('hbox');
-        let createButton = doc.createElement('button');
+        let saveTypeChooser = this.doc.createElement('hbox');
+        let createButton = this.doc.createElement('button');
         createButton.setAttribute("id","keefox-save-password-new-button");
-        let updateButton = doc.createElement('button');
+        createButton.setAttribute("label","(LOC:) Create new entry");
+        createButton.addEventListener("command", this.enableNewEntry.bind(this));
+        createButton.classList.add("selected");
+        let updateButton = this.doc.createElement('button');
         updateButton.setAttribute("id","keefox-save-password-update-button");
+        updateButton.setAttribute("label","(LOC:) Update existing entry");
+        updateButton.addEventListener("command", this.enableEditEntry.bind(this));
+        updateButton.classList.add("unselected");
 
         saveTypeChooser.appendChild(createButton);
         saveTypeChooser.appendChild(updateButton);
         return saveTypeChooser;
     },
 
-    createSaveTypeContainer: function (doc, saveData)
+    createSaveTypeContainer: function ()
     {
-        let saveTypeContainer = doc.createElement('vbox');
-        let typeNew = createSaveTypeNew(doc,saveData);
-        let typeUpdate1 = createSaveTypeUpdate1(doc,saveData);
-        let typeUpdate2 = createSaveTypeUpdate2(doc,saveData);
+        let saveTypeContainer = this.doc.createElement('vbox');
+        saveTypeContainer.setAttribute("id","keefox-save-password-saveTypeContainer");
+
+        let typeNew = this.createSaveTypeNew();
+        let typeUpdate1 = this.createSaveTypeUpdate1();
+        let typeUpdate2 = this.createSaveTypeUpdate2();
 
         saveTypeContainer.appendChild(typeNew);
         saveTypeContainer.appendChild(typeUpdate1);
@@ -529,26 +562,374 @@ keefox_win.UI = {
         return saveTypeContainer;
     },
 
-    createSaveTypeNew: function (doc, saveData)
+    createSaveTypeNew: function ()
     {
-
+        let panel = this.doc.createElement('vbox');
+        panel.setAttribute("id", "keefox-save-password-new-panel");
+        panel.classList.add("enabled");
+        
+        let dbSel = this.createDBSelect();
+        dbSel.style.backgroundImage = dbSel.selectedOptions[0].style.backgroundImage;
+              
+        let dbSelContainer = this.doc.createElement('hbox');
+        dbSelContainer.setAttribute('class', 'keeFox-save-password');
+        let dbSelLabel = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        dbSelLabel.setAttribute('for', dbSel.id);
+        dbSelLabel.textContent = keefox_org.locale.$STR("database.label");
+              
+        dbSelContainer.appendChild(dbSelLabel);
+        dbSelContainer.appendChild(dbSel);
+                            
+        if (dbSel.options.length <= 1)
+            dbSelContainer.classList.add('disabled');
+              
+        panel.appendChild(dbSelContainer);
+              
+        let groupSelContainer = this.createGroupSelector();
+        panel.appendChild(groupSelContainer);
+        return panel;
     },
 
-    createGroupSelector: function (doc, saveData)
+    createSaveTypeUpdate1: function ()
+    {
+        let panel = this.doc.createElement('vbox');
+        panel.classList.add("disabled");
+        panel.setAttribute("id", "keefox-save-password-update-panel1");
+        //let whichEntryLabel = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        let whichEntryLabel = this.doc.createElement('label');
+        whichEntryLabel.textContent = keefox_org.locale.$STR("whichEntry.label");
+        whichEntryLabel.classList.add("KeeFox-message");
+        panel.appendChild(whichEntryLabel);
+
+        let searchResultspanel = this.doc.createElement('vbox');
+        let searchBox = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'input');
+        searchBox.setAttribute("placeholder", keefox_org.locale.$STR("KeeFox_Search.label"));
+        searchBox.setAttribute("type", "text");
+        searchBox.setAttribute("id", "KeeFox-SavePassword-searchbox");
+        searchBox.setAttribute("title", keefox_org.locale.$STR("KeeFox_Search.tip")); //TODO:1.5: Same as main search box? Change both for new auto-domain search feature?
+        searchBox.classList.add("KeeFox-Search");
+        searchBox.addEventListener('input',function(e){
+            //TODO:1.5: domain search ["dom.ain"] etc. 
+            this.search.execute(e.target.value, this.onSearchComplete.bind(this));
+        }.bind(this), false);
+
+        let searchResults = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        //searchResults.classList.add("enabled");
+        searchResults.setAttribute("id", "KeeFox-SavePassword-SearchResults");
+        
+        searchResultspanel.appendChild(searchBox);
+        searchResultspanel.appendChild(searchResults);
+        panel.appendChild(searchResultspanel);
+
+        return panel;
+    },
+    
+    createSaveTypeUpdate2: function ()
+    {
+        let panel = this.doc.createElement('vbox');
+        panel.classList.add("disabled");
+        panel.setAttribute("id", "keefox-save-password-update-panel2");
+        
+        let selectedEntryContainer = this.doc.createElement('hbox');
+        let selectedEntryList = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'ul');
+        selectedEntryList.setAttribute("id","KeeFox-SaveLogin-selectedEntryList");
+        // added by script on change to this view
+        // let selectedEntryListItem = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'li');
+        // selectedEntryList.appendChild(selectedEntryListItem);
+        let selectedEntryChangeButton = this.doc.createElement('button');
+        selectedEntryChangeButton.setAttribute("label", "(LOC:) CHANGE...");
+        selectedEntryChangeButton.classList.add("KeeFox-SaveLogin-Change-Setting");
+        selectedEntryChangeButton.addEventListener("command", this.enableSelectEntryToUpdate.bind(this));
+        selectedEntryContainer.appendChild(selectedEntryList);
+        selectedEntryContainer.appendChild(selectedEntryChangeButton);
+        panel.appendChild(selectedEntryContainer);
+
+        let loginFieldsUpdateStatusContainer = this.doc.createElement('hbox');
+        let loginFieldsUpdateStatus = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        loginFieldsUpdateStatus.textContent = "(LOC:) The selected entry will have all username, password and other form fields updated to the values you have just entered.";
+        loginFieldsUpdateStatus.classList.add("KeeFox-message");
+        loginFieldsUpdateStatusContainer.appendChild(loginFieldsUpdateStatus);
+        let loginFieldsUpdateButton = this.doc.createElement('button');
+        loginFieldsUpdateButton.setAttribute("label", "(LOC:) CHANGE...");
+        loginFieldsUpdateButton.setAttribute("id","KeeFox-loginFieldsUpdateButton");
+        loginFieldsUpdateButton.classList.add("KeeFox-SaveLogin-Change-Setting");
+        loginFieldsUpdateButton.addEventListener("command", this.enableEditFields.bind(this));
+        loginFieldsUpdateStatusContainer.appendChild(loginFieldsUpdateButton);
+        panel.appendChild(loginFieldsUpdateStatusContainer);
+
+        let loginFieldsUpdateActionContainer = this.doc.createElement('vbox');
+        loginFieldsUpdateActionContainer.classList.add("disabled");
+        loginFieldsUpdateActionContainer.setAttribute("id","KeeFox-loginFieldsUpdateActionContainer");
+        let loginFieldsUpdateActionExplanation = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        loginFieldsUpdateActionExplanation.textContent = "(LOC:) KeeFox can only perform simple adjustments to your password entries.";
+        loginFieldsUpdateActionExplanation.classList.add("KeeFox-message");
+        loginFieldsUpdateActionContainer.appendChild(loginFieldsUpdateActionExplanation);
+        let loginFieldsUpdateAbortButton = this.doc.createElement('button');
+        loginFieldsUpdateAbortButton.setAttribute("label", "(LOC:) Abort this update and open the entry for manual editing");
+        loginFieldsUpdateAbortButton.classList.add("KeeFox-SaveLogin-Abort");
+        loginFieldsUpdateAbortButton.addEventListener("command", this.abortAndLaunchManualEdit.bind(this));
+        loginFieldsUpdateActionContainer.appendChild(loginFieldsUpdateAbortButton);
+        panel.appendChild(loginFieldsUpdateActionContainer);
+
+        let loginURLsUpdateStatusContainer = this.doc.createElement('hbox');
+        loginURLsUpdateStatusContainer.setAttribute("id","KeeFox-loginURLsUpdateStatusContainer");
+        let loginURLsUpdateStatus = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        loginURLsUpdateStatus.textContent = "(LOC:) The entry's web page address (URL) will be updated with the latest URL.";
+        loginURLsUpdateStatus.classList.add("KeeFox-message");
+        loginURLsUpdateStatusContainer.appendChild(loginURLsUpdateStatus);
+        let loginURLsUpdateButton = this.doc.createElement('button');
+        loginURLsUpdateButton.setAttribute("label", "(LOC:) CHANGE...");
+        loginURLsUpdateButton.classList.add("KeeFox-SaveLogin-Change-Setting");
+        loginURLsUpdateButton.addEventListener("command", this.enableEditURLs.bind(this));
+        loginURLsUpdateStatusContainer.appendChild(loginURLsUpdateButton);
+        panel.appendChild(loginURLsUpdateStatusContainer);
+
+        let loginURLsUpdateRadioGroup = this.doc.createElement('radiogroup');
+        loginURLsUpdateRadioGroup.classList.add("disabled");
+        loginURLsUpdateRadioGroup.setAttribute("id","KeeFox-loginURLsUpdateRadioGroup");
+        let loginURLsUpdateRadio1 = this.doc.createElement('radio');
+        loginURLsUpdateRadio1.setAttribute("label", "(LOC:) Replace the entry's URL (but still fill forms if you visit the old URL)");
+        loginURLsUpdateRadio1.setAttribute("selected", "true");
+        loginURLsUpdateRadioGroup.appendChild(loginURLsUpdateRadio1);
+        let loginURLsUpdateRadio2 = this.doc.createElement('radio');
+        loginURLsUpdateRadio2.setAttribute("label", "(LOC:) Replace the entry's URL (delete the old URL completely)");
+        loginURLsUpdateRadio2.setAttribute("selected", "false");
+        loginURLsUpdateRadioGroup.appendChild(loginURLsUpdateRadio2);
+        let loginURLsUpdateRadio3 = this.doc.createElement('radio');
+        loginURLsUpdateRadio3.setAttribute("label", "(LOC:) Keep the old entry's URL (but still fill forms if you visit the new URL)");
+        loginURLsUpdateRadio3.setAttribute("selected", "false");
+        loginURLsUpdateRadioGroup.appendChild(loginURLsUpdateRadio3);
+        let loginURLsUpdateRadio4 = this.doc.createElement('radio');
+        loginURLsUpdateRadio4.setAttribute("label", "(LOC:) Keep the old entry's URL (don't add the new URL to the entry)");
+        loginURLsUpdateRadio4.setAttribute("selected", "false");
+        loginURLsUpdateRadioGroup.appendChild(loginURLsUpdateRadio4);
+        panel.appendChild(loginURLsUpdateRadioGroup);
+
+        return panel;
+    },
+
+    createGroupSelector: function ()
     { 
-        let groupSel = doc.ownerGlobal.keefox_win.UI.createGroupSelect(doc, saveData);
-        doc.ownerGlobal.keefox_win.UI.updateGroups(doc, 
-           keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel, saveData);
+        let groupSel = this.createGroupSelect();
+        this.updateGroups(
+           keefox_org.KeePassDatabases[keefox_org.ActiveKeePassDatabaseIndex],groupSel);
                 
-        let groupSelContainer = doc.createElement('hbox');
+        let groupSelContainer = this.doc.createElement('hbox');
         groupSelContainer.setAttribute('class', 'keeFox-save-password');
-        let groupSelLabel = doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
+        let groupSelLabel = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'label');
         groupSelLabel.setAttribute('for', groupSel.id);
         groupSelLabel.textContent = keefox_org.locale.$STR("group.label");
                 
         groupSelContainer.appendChild(groupSelLabel);
         groupSelContainer.appendChild(groupSel);
         return groupSelContainer;
+    },
+
+    enableEditEntry: function () {
+        // If we've already chosen an entry to edit, clicking on this tab takes
+        // us back to the 2nd stage of the update process
+        if (this.saveData.oldLoginUUID)
+            this.enableUpdateEntryDetails();
+        else
+            this.enableSelectEntryToUpdate();
+    },
+
+    enableEditURLs: function ()
+    {
+        let loginURLsUpdateStatusContainer = this.doc.getElementById("KeeFox-loginURLsUpdateStatusContainer");
+        let loginURLsUpdateRadioGroup = this.doc.getElementById("KeeFox-loginURLsUpdateRadioGroup");
+        loginURLsUpdateStatusContainer.classList.add("disabled");
+        loginURLsUpdateStatusContainer.classList.remove("enabled");
+        loginURLsUpdateRadioGroup.classList.add("enabled");
+        loginURLsUpdateRadioGroup.classList.remove("disabled");
+    },
+
+    enableEditFields: function ()
+    {
+        let loginFieldsUpdateButton = this.doc.getElementById("KeeFox-loginFieldsUpdateButton");
+        let loginFieldsUpdateActionContainer = this.doc.getElementById("KeeFox-loginFieldsUpdateActionContainer");
+        loginFieldsUpdateButton.classList.add("disabled");
+        loginFieldsUpdateButton.classList.remove("enabled");
+        loginFieldsUpdateActionContainer.classList.add("enabled");
+        loginFieldsUpdateActionContainer.classList.remove("disabled");
+    },
+
+    enableNewEntry: function ()
+    {
+        let panel1 = this.doc.getElementById("keefox-save-password-new-panel");
+        let panel2 = this.doc.getElementById("keefox-save-password-update-panel1");
+        let panel3 = this.doc.getElementById("keefox-save-password-update-panel2");
+        panel1.classList.add("enabled");
+        panel2.classList.add("disabled");
+        panel3.classList.add("disabled");
+        panel1.classList.remove("disabled");
+        panel2.classList.remove("enabled");
+        panel3.classList.remove("enabled");
+        this.saveData.update = false;
+
+        this.setTypeChooserButtonState("keefox-save-password-new-button", "keefox-save-password-update-button");
+    },
+
+    enableSelectEntryToUpdate: function ()
+    {
+        let panel1 = this.doc.getElementById("keefox-save-password-new-panel");
+        let panel2 = this.doc.getElementById("keefox-save-password-update-panel1");
+        let panel3 = this.doc.getElementById("keefox-save-password-update-panel2");
+        panel1.classList.add("disabled");
+        panel2.classList.add("enabled");
+        panel3.classList.add("disabled");
+        panel1.classList.remove("enabled");
+        panel2.classList.remove("disabled");
+        panel3.classList.remove("enabled");
+        this.saveData.update = true;
+        let selectedEntryList = this.doc.getElementById("KeeFox-SaveLogin-selectedEntryList");
+        while (selectedEntryList.firstChild)
+            selectedEntryList.removeChild(selectedEntryList.firstChild); 
+        this.saveData.oldLoginUUID = null;
+        this.saveData.db = null;
+
+        this.setTypeChooserButtonState("keefox-save-password-update-button", "keefox-save-password-new-button");
+    },
+
+    enableUpdateEntryDetails: function ()
+    {
+        let panel1 = this.doc.getElementById("keefox-save-password-new-panel");
+        let panel2 = this.doc.getElementById("keefox-save-password-update-panel1");
+        let panel3 = this.doc.getElementById("keefox-save-password-update-panel2");
+        panel1.classList.add("disabled");
+        panel2.classList.add("disabled");
+        panel3.classList.add("enabled");
+        panel1.classList.remove("enabled");
+        panel2.classList.remove("enabled");
+        panel3.classList.remove("disabled");
+        this.saveData.update = true;
+
+        this.setTypeChooserButtonState("keefox-save-password-update-button", "keefox-save-password-new-button");
+    },
+
+    setTypeChooserButtonState: function (selectedId, unselectedId)
+    {
+        let selectedButton = this.doc.getElementById(selectedId);
+        let otherButton = this.doc.getElementById(unselectedId);
+        selectedButton.classList.add("selected");
+        otherButton.classList.add("unselected");
+        selectedButton.classList.remove("unselected");
+        otherButton.classList.remove("selected");
+    },
+
+    abortAndLaunchManualEdit: function ()
+    {
+        //let selectedLogin = this.doc.getElementById("KeeFox-SaveLogin-selectedEntryList").firstChild;
+        keefox_org.launchLoginEditor(this.saveData.oldLoginUUID, this.saveData.db);
+        keefox_win.notificationManager.remove("password-save");
+    },
+    
+    onSearchComplete: function (logins)
+    {
+        logins = logins.sort(function(a,b) {
+            if (a.relevanceScore > b.relevanceScore)
+                return -1;
+            if (a.relevanceScore < b.relevanceScore)
+                return 1;
+            return 0;
+        });
+        this.showSearchResults(logins);
+    },
+    
+    // Calling this function with null or empty logins array will clear all existing search results
+    showSearchResults: function (logins)
+    {
+        keefox_win.Logger.debug("passwordSaver showSearchResults started");
+        
+        let ps = this;
+
+        // The container that we want to add our search results to.
+        var container = this.getEmptyContainerFor("KeeFox-SavePassword-SearchResults");
+        //this.disableUIElement("KeeFox-PanelSubSection-SearchResults");
+        if (container === undefined || container == null || logins == null || logins.length == 0)
+            return;
+            
+        keefox_win.Logger.debug(logins.length + " search results found");
+
+        for (let i = 0; i < logins.length; i++) {
+            var login = logins[i];
+            var usernameValue = "";
+            var usernameName = "";
+            var usernameDisplayValue = "[" + keefox_org.locale.$STR("noUsername.partial-tip") + "]";
+            usernameValue = login.usernameValue;
+            if (usernameValue != undefined && usernameValue != null && usernameValue != "")
+                usernameDisplayValue = usernameValue;
+            usernameName = login.usernameName;
+
+            var loginItem = ps.doc.createElementNS('http://www.w3.org/1999/xhtml', 'li');
+            loginItem.setAttribute("class","login-item");
+            loginItem.setAttribute("data-fileName",login.dbFileName);
+            loginItem.setAttribute("data-usernameName",usernameName);
+            loginItem.setAttribute("data-usernameValue",usernameValue);
+            loginItem.setAttribute("data-url",login.url);
+            loginItem.setAttribute("data-uuid",login.uniqueID);
+            loginItem.setAttribute("style",'background-image:url(data:image/png;base64,' + login.iconImageData + ')');
+            loginItem.setAttribute("title",keefox_org.locale.$STRF(
+                "loginsButtonLogin.tip", [login.url, usernameDisplayValue]));
+            loginItem.setAttribute("tabindex","-1");
+            
+            if (keefox_org._keeFoxExtension.prefs.getValue("alwaysDisplayUsernameWhenTitleIsShown",false))
+                loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
+            else
+                loginItem.textContent = login.title;
+            //TODO:1.5: Keyboard nav?
+            //loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
+            loginItem.addEventListener("mouseup", function (event) { 
+                // Make sure no parent groups override the actions of this handler
+                event.stopPropagation();
+
+                if (event.button == 0 || event.button == 1)
+                {
+                    this.dispatchEvent(new CustomEvent("keefoxCommand", { 'detail': { 'button': event.button, 'ctrlKey': event.ctrlKey }}));
+                } 
+            }, false);
+            loginItem.addEventListener("keefoxCommand", function (event) { 
+                ps.saveData.oldLoginUUID = this.getAttribute('data-uuid');
+                ps.saveData.db = this.getAttribute('data-fileName');
+
+                var loginItem = ps.doc.createElementNS('http://www.w3.org/1999/xhtml', 'li');
+                loginItem.setAttribute("class","login-item");
+                loginItem.setAttribute("style",this.getAttribute("style"));
+                loginItem.setAttribute("title",this.getAttribute("title"));
+                loginItem.setAttribute("tabindex","-1");
+                loginItem.textContent = this.textContent;
+                ps.doc.getElementById("KeeFox-SaveLogin-selectedEntryList").appendChild(loginItem);
+
+                ps.enableUpdateEntryDetails();
+            }, false);
+            
+            container.appendChild(loginItem);
+        }
+        
+        // Update the UI state to reflect the number of logins found
+        //if (container.childElementCount > 0)
+        //    this.enableUIElement("KeeFox-PanelSubSection-SearchResults");
+        
+        keefox_win.Logger.debug(logins.length + " search results set.");
+    },
+
+    getEmptyContainerFor: function (id)
+    {
+        let panelSection = this.doc.getElementById(id);
+        if (panelSection === undefined || panelSection == null)
+            return null;
+        
+        // Remove all of the existing items by removing the top-level list
+        // if it has been created earlier
+        if (panelSection.childNodes.length > 0)
+            panelSection.removeChild(panelSection.childNodes[0]);
+        
+        // Create the ul menu top level container        
+        let groupContainer = this.doc.createElement('ul');
+        groupContainer.setAttribute("id",id + '-Container');
+        panelSection.appendChild(groupContainer);
+        return groupContainer;
     }
 
 };
+
