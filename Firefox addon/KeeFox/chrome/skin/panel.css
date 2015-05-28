@@ -614,10 +614,10 @@ button.KeeFox-SaveLogin-Abort {
 }
 
 .keeFoxPriorityLow {
-    color: grey;
+    color: #303030;
 }
 .keeFoxPriorityHigh {
-    color: #dd2222;
+    font-weight: bold;
 }
 .keeFoxPriorityMedium {
 }
