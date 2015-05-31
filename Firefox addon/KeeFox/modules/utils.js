@@ -30,7 +30,7 @@ Cu.import("resource://kfmod/biginteger.js");
 // constructor
 function Utils()
 {
-    this._KFLog = KFLog;
+    this._KFLog = KeeFoxLog;
 }
 
 Utils.prototype = {

@@ -38,7 +38,7 @@ Cu.import("resource://gre/modules/Timer.jsm");
 
 // Load our logging subsystem
 Cu.import("resource://kfmod/KFLogger.js");
-keefox_win.Logger = KFLog;
+keefox_win.Logger = KeeFoxLog;
 
 // Load our other javascript
 keefox_win.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]

@@ -43,7 +43,7 @@ Cu.import("resource://kfmod/search.js");
 // constructor
 function KeeFox()
 {
-    this._KFLog = KFLog;
+    this._KFLog = KeeFoxLog;
     this.utils = utils;
 
     this.appInfo = Components.classes["@mozilla.org/xre/app-info;1"]

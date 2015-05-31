@@ -2,8 +2,8 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2015 Chris Tomlinson <keefox@christomlinson.name>
   
-  This implements a proxy/stub so we can continue to call the KFLog from the 
-  frame script environment despite the real KFLog living in chrome scope.
+  This implements a proxy/stub so we can continue to call the KeeFoxLog from the 
+  frame script environment despite the real KeeFoxLog living in chrome scope.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

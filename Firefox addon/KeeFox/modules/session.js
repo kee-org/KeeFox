@@ -31,7 +31,7 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/sessionLegacy.js");
 
-var log = KFLog;
+var log = KeeFoxLog;
 
 function session()
 {

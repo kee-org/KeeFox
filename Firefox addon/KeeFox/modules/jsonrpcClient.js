@@ -34,7 +34,7 @@ Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/kfDataModel.js");
 Cu.import("resource://kfmod/utils.js");
 
-var log = KFLog;
+var log = KeeFoxLog;
 
 function jsonrpcClient() {
 }

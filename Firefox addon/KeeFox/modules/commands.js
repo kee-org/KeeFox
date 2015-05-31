@@ -28,7 +28,7 @@ Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/KFExtension.js");
 
 function commandManager () {
-    this._KFLog = KFLog;
+    this._KFLog = KeeFoxLog;
   
     this.MOD_SHIFT = 1;
     this.MOD_ALT = 2;

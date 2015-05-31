@@ -39,7 +39,7 @@ var EXPORTED_SYMBOLS = ["sessionLegacy"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 
-var log = KFLog;
+var log = KeeFoxLog;
 
 function sessionLegacy()
 {

@@ -51,7 +51,7 @@ try
 }
 catch (e) { }
 
-var log = KFLog;
+var log = KeeFoxLog;
 
 function kprpcClient() {
     this.requestId = 1;

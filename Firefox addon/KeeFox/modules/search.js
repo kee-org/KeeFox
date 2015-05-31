@@ -31,7 +31,7 @@ Cu.import("resource://kfmod/KFLogger.js");
 function Search(keefox_org, config)
 {
     this._keefox_org = keefox_org;
-    this._KFLog = KFLog;
+    this._KFLog = KeeFoxLog;
     this.resolveConfig(config);
     this.validateConfig();
 }
@@ -57,7 +57,7 @@ Search.prototype = {
 
         if (!this.configIsValid)
         {
-            KFLog.error("You can't execute a search while the search configuration is invalid. Please fix it by calling reconfigure().");
+            KeeFoxLog.error("You can't execute a search while the search configuration is invalid. Please fix it by calling reconfigure().");
             abort = true;
         }
 
@@ -162,7 +162,7 @@ Search.prototype = {
         else
         {
             if (config.version != 1)
-                KFLog.warn("Unknown search config version. Will use version 1 defaults");
+                KeeFoxLog.warn("Unknown search config version. Will use version 1 defaults");
         }
 
         this._config = {
@@ -214,79 +214,79 @@ Search.prototype = {
 
         if (this._config.version != 1)
         {
-            KFLog.warn("Unknown config version");
+            KeeFoxLog.warn("Unknown config version");
             this.configIsValid = false;
         }
 
         if (this._config.searchAllDatabases !== true && this._config.searchAllDatabases !== false)
         {
-            KFLog.warn("searchAllDatabases should be a boolean");
+            KeeFoxLog.warn("searchAllDatabases should be a boolean");
             this.configIsValid = false;
         }
 
         if (this._config.searchTitles !== true && this._config.searchTitles !== false)
         {
-            KFLog.warn("searchTitles should be a boolean");
+            KeeFoxLog.warn("searchTitles should be a boolean");
             this.configIsValid = false;
         }
 
         if (this._config.searchUsernames !== true && this._config.searchUsernames !== false)
         {
-            KFLog.warn("searchUsernames should be a boolean");
+            KeeFoxLog.warn("searchUsernames should be a boolean");
             this.configIsValid = false;
         }
 
         if (this._config.searchGroups !== true && this._config.searchGroups !== false)
         {
-            KFLog.warn("searchGroups should be a boolean");
+            KeeFoxLog.warn("searchGroups should be a boolean");
             this.configIsValid = false;
         }
 
         if (this._config.searchURLs !== true && this._config.searchURLs !== false)
         {
-            KFLog.warn("searchURLs should be a boolean");
+            KeeFoxLog.warn("searchURLs should be a boolean");
             this.configIsValid = false;
         }
 
         if (isNaN(this._config.weightTitles) || this._config.weightTitles <= 0)
         {
-            KFLog.warn("weightTitles should be a positive number");
+            KeeFoxLog.warn("weightTitles should be a positive number");
             this.configIsValid = false;
         }
 
         if (isNaN(this._config.weightUsernames) || this._config.weightUsernames <= 0)
         {
-            KFLog.warn("weightUsernames should be a positive number");
+            KeeFoxLog.warn("weightUsernames should be a positive number");
             this.configIsValid = false;
         }
 
         if (isNaN(this._config.weightGroups) || this._config.weightGroups <= 0)
         {
-            KFLog.warn("weightGroups should be a positive number");
+            KeeFoxLog.warn("weightGroups should be a positive number");
             this.configIsValid = false;
         }
 
         if (isNaN(this._config.weightURLs) || this._config.weightURLs <= 0)
         {
-            KFLog.warn("weightURLs should be a positive number");
+            KeeFoxLog.warn("weightURLs should be a positive number");
             this.configIsValid = false;
         }
 
         if (isNaN(this._config.maximumResults) || this._config.maximumResults <= 0)
         {
-            KFLog.warn("maximumResults should be a positive number");
+            KeeFoxLog.warn("maximumResults should be a positive number");
             this.configIsValid = false;
         }
         
         if (this._config.onComplete != null && typeof(this._config.onComplete) !== 'function')
         {
-            KFLog.warn("onComplete should be a function (or ommitted)");
+            KeeFoxLog.warn("onComplete should be a function (or ommitted)");
             this.configIsValid = false;
         }
 
         if (this._config.onMatch != null && typeof(this._config.onMatch) !== 'function')
         {
-            KFLog.warn("onMatch should be a function (or ommitted)");
+            KeeFoxLog.warn("onMatch should be a function (or ommitted)");
             this.configIsValid = false;
         }
     

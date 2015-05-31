@@ -107,7 +107,7 @@ function SRPc()
 		    this.success();
 	    }
 		else
-		    KFLog.error("Server key does not match");
+		    KeeFoxLog.error("Server key does not match");
     };
 
     this.success = function()
@@ -127,7 +127,7 @@ function SRPc()
                 return this.K;
             }
             else
-                KFLog.error("User has not been authenticated.");
+                KeeFoxLog.error("User has not been authenticated.");
         else
             return this.K;
 

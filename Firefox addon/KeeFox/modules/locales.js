@@ -64,7 +64,7 @@ function Localisation(chromeURIs, jsonLocales)
     {
         for (let i=0; i<chromeURIs.length; i++)
         {
-            KFLog.debug("registering: " + chromeURIs[i]);
+            KeeFoxLog.debug("registering: " + chromeURIs[i]);
             this.registerStringBundleChromeURI(chromeURIs[i]);
         }
     }
@@ -72,7 +72,7 @@ function Localisation(chromeURIs, jsonLocales)
     {
         for (let i=0; i<jsonLocales.length; i++)
         {
-            KFLog.debug("registering: " + jsonLocales[i]);
+            KeeFoxLog.debug("registering: " + jsonLocales[i]);
             this.registerStringBundleJSON(jsonLocales[i]);
         }
     }

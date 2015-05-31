@@ -2,7 +2,7 @@
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
   
-  The KFLog object manages logging KeeFox activity, used for debugging purposes.
+  The KeeFoxLog object manages logging KeeFox activity, used for debugging purposes.
   
   There are four cumulative log levels. Change the current level in about:config:
     extensions.keefox@chris.tomlinson.logLevel
@@ -45,7 +45,7 @@ let Cc = Components.classes;
 let Ci = Components.interfaces;
 let Cu = Components.utils;
 
-var EXPORTED_SYMBOLS = ["KFLog"];
+var EXPORTED_SYMBOLS = ["KeeFoxLog"];
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // constructor
@@ -57,10 +57,10 @@ function KeeFoxLogger()
     this.configureFromPreferences();
 
     let globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
-    globalMM.addMessageListener("keefox:log-debug", function (message) { KFLog.debug(message.data); });
-    globalMM.addMessageListener("keefox:log-info", function (message) { KFLog.info(message.data); });
-    globalMM.addMessageListener("keefox:log-warn", function (message) { KFLog.warn(message.data); });
-    globalMM.addMessageListener("keefox:log-error", function (message) { KFLog.error(message.data); });
+    globalMM.addMessageListener("keefox:log-debug", function (message) { KeeFoxLog.debug(message.data); });
+    globalMM.addMessageListener("keefox:log-info", function (message) { KeeFoxLog.info(message.data); });
+    globalMM.addMessageListener("keefox:log-warn", function (message) { KeeFoxLog.warn(message.data); });
+    globalMM.addMessageListener("keefox:log-error", function (message) { KeeFoxLog.error(message.data); });
 
     this._log("Logging system initialised at " + Date());
     if (this.logSensitiveData)
@@ -278,4 +278,4 @@ KeeFoxLogger.prototype = {
 
 };
 
-var KFLog = new KeeFoxLogger();
+var KeeFoxLog = new KeeFoxLogger();

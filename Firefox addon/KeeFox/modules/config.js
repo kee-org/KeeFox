@@ -36,7 +36,7 @@ Cu.import("resource://kfmod/KFLogger.js");
 // constructor
 function config()
 {
-    this._KFLog = KFLog;
+    this._KFLog = KeeFoxLog;
 
     this.default_config = [
     {

@@ -59,7 +59,7 @@ function mm () {
     this.url = "https://anonymousstats.keefox.org/in";
 
     // Usual logging object
-    this._KFLog = KFLog;
+    this._KFLog = KeeFoxLog;
 
     // Timer to process queued messages at regular intervals
     this.metricsTimer = null;

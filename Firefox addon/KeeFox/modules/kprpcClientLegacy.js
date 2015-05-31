@@ -42,7 +42,7 @@ Cu.import("resource://kfmod/session.js");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/utils.js");
 
-var log = KFLog;
+var log = KeeFoxLog;
 
 function kprpcClientLegacy() {
     this.partialData = {};
