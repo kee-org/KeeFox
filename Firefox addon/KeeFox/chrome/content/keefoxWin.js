@@ -45,6 +45,7 @@ keefox_win.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loade
                        .getService(Components.interfaces.mozIJSSubScriptLoader);
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/shared/uriUtils.js", keefox_win);
 Cu.import("resource://kfmod/kfDataModel.js");
+keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/SearchFilter.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/panel.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/context.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/formsWin.js");

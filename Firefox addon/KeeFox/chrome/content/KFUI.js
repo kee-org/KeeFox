@@ -220,7 +220,7 @@ keefox_win.UI = {
                 container = doc.ownerGlobal.keefox_win.notificationManager
                     .renderStandardMessage(container, notificationText);
 
-                browser.passwordSaver = new doc.ownerGlobal.keefox_win.PasswordSaver(doc, saveData);
+                browser.passwordSaver = new doc.ownerGlobal.keefox_win.PasswordSaver(doc, saveData, aLogin.URLs);
                 container = browser.passwordSaver.generateUI(container);
               
                 // We might customise other aspects of the notifications but when we want
@@ -233,6 +233,11 @@ keefox_win.UI = {
             onClose: function(browser) {
                 browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
                 browser.passwordSaver = null;
+            },
+            onAttached: function (browser, doc) {
+                keefox_org.search.execute(doc.getElementById('KeeFox-SaveLogin-searchbox').value,
+                browser.passwordSaver.onSearchComplete.bind(browser.passwordSaver),
+                doc.getElementById('KeeFox-SaveLogin-searchfilter').selectedOptions[0].value.split(','));
             },
             thisTabOnly: true,
             priority: null,

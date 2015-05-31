@@ -64,6 +64,10 @@ keefox_win.panel = {
                         // is still visible). We achieve that by closing the persistent panel and
                         // letting its onhiding code tidy up after itself
                         targetDoc.getElementById('keefox-persistent-panel').hidePopup();
+                        let searchFilter = targetDoc.getElementById('KeeFox-PanelSection-searchfilter');
+                        let current = targetDoc.getElementById('KeeFox-PanelSection-searchfilter-current');
+
+                        evt.target.ownerGlobal.keefox_win.SearchFilter.updateSearchFilter(searchFilter, current);
 
                         // We need this delay because the _findFirstFocusableChildItem code needs
                         // to consider only elements that are currently visible and the only way
@@ -215,7 +219,9 @@ keefox_win.panel = {
         ]);
         searchBox.addEventListener('input',function(e){
             //TODO:1.6: rate limit searches?
-            keefox_org.search.execute(e.target.value, closure.onSearchComplete.bind(closure));
+            keefox_org.search.execute(e.target.value,
+                closure.onSearchComplete.bind(closure),
+                e.target.ownerDocument.getElementById('KeeFox-PanelSection-searchfilter').selectedOptions[0].value.split(','));
         }, false);
 
         searchBox.addEventListener("keydown", this.keyboardNavHandler, false);
@@ -228,9 +234,9 @@ keefox_win.panel = {
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
         }, false);
 
+        let searchFields = keefox_win.SearchFilter.attachFilterToSearchBox(searchBox, this);
+        searchPanel.appendChild(searchFields);
 
-
-        searchPanel.appendChild(searchBox);
         let searchResultsContainer = this.createUIElement('div', [
             ['class','KeeFox-PanelInlineSection KeeFox-SearchResults enabled'],
             ['id','KeeFox-PanelSubSection-SearchResults']
@@ -337,8 +343,8 @@ keefox_win.panel = {
         panel.appendChild(statusTextContainer);
         panel.appendChild(status);
         panel.appendChild(subPanelCloser);
-        panel.appendChild(searchPanel);
         panel.appendChild(matchedLogins);
+        panel.appendChild(searchPanel);
         panel.appendChild(allLogins);
         panel.appendChild(generatePassword);
         panel.appendChild(changeDatabase);
@@ -1940,7 +1946,7 @@ keefox_win.panel = {
         {
             node = startNode.parentNode;
 
-            // As long as we've gone too far up the DOM tree, keep going until we find a previous element sibling
+            // As long as we've not gone too far up the DOM tree, keep going until we find a previous element sibling
             if (node.id != this.panelContainerId)
                 node = this._getPreviousSiblingOrParent(node, --height);
             else

@@ -81,96 +81,96 @@ Utils.prototype = {
 
         if (keePassLocation == "not installed")
         {
-          if (!this.useMono)
-          {
-            this._KFLog.debug("Reading KeePass installation location from Windows registry");
-
-            var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
-                            .createInstance(Components.interfaces.nsIWindowsRegKey);
-            var locations = ["SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"];
-			var foundInRegistry = false;
-            for (var i = 0; i < locations.length; i++)
+            if (!this.useMono)
             {
-				this._KFLog.info("Checking KeePass install location in registry key: HKLM\\" + locations[i]);
-                try
+                this._KFLog.debug("Reading KeePass installation location from Windows registry");
+
+                var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
+                                .createInstance(Components.interfaces.nsIWindowsRegKey);
+                var locations = ["SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"];
+                var foundInRegistry = false;
+                for (var i = 0; i < locations.length; i++)
                 {
-                    wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
-                           locations[i],
-                           wrk.ACCESS_READ);
-                    if (wrk.hasChild("KeePassPasswordSafe2_is1"))
+                    this._KFLog.info("Checking KeePass install location in registry key: HKLM\\" + locations[i]);
+                    try
                     {
-                        var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
-                        if (subkey.hasValue("InstallLocation"))
+                        wrk.open(wrk.ROOT_KEY_LOCAL_MACHINE,
+                               locations[i],
+                               wrk.ACCESS_READ);
+                        if (wrk.hasChild("KeePassPasswordSafe2_is1"))
                         {
-                            keePassLocation = subkey.readStringValue("InstallLocation");
-                            KFExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                            foundInRegistry = true;
-                            if (this._KFLog.logSensitiveData)
-                                this._KFLog.info("KeePass install location found: " + keePassLocation);
-                            else
-                                this._KFLog.info("KeePass install location found.");
+                            var subkey = wrk.openChild("KeePassPasswordSafe2_is1", wrk.ACCESS_READ);
+                            if (subkey.hasValue("InstallLocation"))
+                            {
+                                keePassLocation = subkey.readStringValue("InstallLocation");
+                                KFExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                                foundInRegistry = true;
+                                if (this._KFLog.logSensitiveData)
+                                    this._KFLog.info("KeePass install location found: " + keePassLocation);
+                                else
+                                    this._KFLog.info("KeePass install location found.");
+                            }
+                            subkey.close();
+                        } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
+                        {
+                            var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
+                            if (subkey.hasValue("InstallLocation"))
+                            {
+                                keePassLocation = subkey.readStringValue("InstallLocation");
+                                KFExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
+                                foundInRegistry = true;
+                                if (this._KFLog.logSensitiveData)
+                                    this._KFLog.info("KeePass install location found: " + keePassLocation);
+                                else
+                                    this._KFLog.info("KeePass install location found.");
+                            }
+                            subkey.close();
                         }
-                        subkey.close();
-                    } else if (wrk.hasChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}"))
+                        wrk.close();
+                    } catch (ex)
                     {
-                        var subkey = wrk.openChild("{2CBCF4EC-7D5F-4141-A3A6-001090E029AC}", wrk.ACCESS_READ);
-                        if (subkey.hasValue("InstallLocation"))
-                        {
-                            keePassLocation = subkey.readStringValue("InstallLocation");
-                            KFExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);
-                            foundInRegistry = true;
-                            if (this._KFLog.logSensitiveData)
-                                this._KFLog.info("KeePass install location found: " + keePassLocation);
-                            else
-                                this._KFLog.info("KeePass install location found.");
-                        }
-                        subkey.close();
+                        // Probably just running on an x86 platform so ignore
                     }
-                    wrk.close();
-                } catch (ex)
-                {
-                    // Probably just running on an x86 platform so ignore
+                    if (foundInRegistry)
+                        break;
                 }
-                if (foundInRegistry)
-                    break;
-            }
 
-            // If still not found...
-            // TODO:2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
-//            if (keePassLocation == "not installed")
-//            {
-//                var wrko = Components.classes["@mozilla.org/windows-registry-key;1"]
-//                                .createInstance(Components.interfaces.nsIWindowsRegKey);
-//                wrko.open(wrk.ROOT_KEY_CLASSES_ROOT,
-//                       "kdbxfile\\shell\\open",
-//                       wrko.ACCESS_READ);
-//                                       
-//                wrko.close();
-//            }
+                // If still not found...
+                // TODO:2: try "HKEY_CLASSES_ROOT\kdbxfile\shell\open\command" and some guesses?
+                //            if (keePassLocation == "not installed")
+                //            {
+                //                var wrko = Components.classes["@mozilla.org/windows-registry-key;1"]
+                //                                .createInstance(Components.interfaces.nsIWindowsRegKey);
+                //                wrko.open(wrk.ROOT_KEY_CLASSES_ROOT,
+                //                       "kdbxfile\\shell\\open",
+                //                       wrko.ACCESS_READ);
+                //                                       
+                //                wrko.close();
+                //            }
             
-          }
-          else
-          {
-            this._KFLog.debug("Checking KeePass installation location from filesystem");
-
-            // Get the users home directory
-            var dirService = Components.classes["@mozilla.org/file/directory_service;1"].  
-              getService(Components.interfaces.nsIProperties);   
-            var keePassFolder = dirService.get("Home", Components.interfaces.nsIFile); // returns an nsIFile object
-            keePassFolder.append("KeePass");
-            var keePassFile = keePassFolder.clone();
-            keePassFile.append("KeePass.exe");
-            if (keePassFile.exists())
-            {
-              keePassLocation = keePassFolder.path;
-              KFExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);              
-              this._KFLog.debug("***Found "+keePassFolder.path);
             }
             else
             {
-              this._KFLog.debug("Did not find "+keePassFile.path);
+                this._KFLog.debug("Checking KeePass installation location from filesystem");
+
+                // Get the users home directory
+                var dirService = Components.classes["@mozilla.org/file/directory_service;1"].  
+                  getService(Components.interfaces.nsIProperties);   
+                var keePassFolder = dirService.get("Home", Components.interfaces.nsIFile); // returns an nsIFile object
+                keePassFolder.append("KeePass");
+                var keePassFile = keePassFolder.clone();
+                keePassFile.append("KeePass.exe");
+                if (keePassFile.exists())
+                {
+                    keePassLocation = keePassFolder.path;
+                    KFExtension.prefs.setValue("keePassInstalledLocation",keePassLocation);              
+                    this._KFLog.debug("***Found "+keePassFolder.path);
+                }
+                else
+                {
+                    this._KFLog.debug("Did not find "+keePassFile.path);
+                }
             }
-          }
         }
         
         return keePassLocation;
@@ -353,9 +353,9 @@ Utils.prototype = {
         {
             monoLocation = KFExtension.prefs.getValue("monoLocation", "not installed");
             if (monoLocation != "")
-              this._KFLog.info("Mono install location found in preferences: " + monoLocation);
+                this._KFLog.info("Mono install location found in preferences: " + monoLocation);
             else
-              monoLocation = "not installed";
+                monoLocation = "not installed";
         }
         
         if (monoLocation == "not installed")
@@ -365,13 +365,13 @@ Utils.prototype = {
             mono_exec.initWithPath(defaultMonoExec);
             if (mono_exec.exists())
             {
-              monoLocation = mono_exec.path;            
-              KFExtension.prefs.setValue("monoLocation",monoLocation);
-              this._KFLog.debug("Mono install location inferred: " + monoLocation);
+                monoLocation = mono_exec.path;            
+                KFExtension.prefs.setValue("monoLocation",monoLocation);
+                this._KFLog.debug("Mono install location inferred: " + monoLocation);
             }
             else
             {
-              this._KFLog.debug("Mono install location " + defaultMonoExec + " does not exist!");
+                this._KFLog.debug("Mono install location " + defaultMonoExec + " does not exist!");
             }
         }        
         return monoLocation;
@@ -391,8 +391,8 @@ Utils.prototype = {
             file.initWithPath(monoLocation);
             if (file.isFile())
             {
-              monoExecFound = true;
-              this._KFLog.info("Mono executable found in correct location.");
+                monoExecFound = true;
+                this._KFLog.info("Mono executable found in correct location.");
             }
         } catch (ex)
         {
@@ -795,6 +795,25 @@ Utils.prototype = {
         let gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
                     getService(Components.interfaces.nsIClipboardHelper);
         gClipboardHelper.copyString(value);
+    },
+
+    stringsToNsIURIs: function (stringURLs)
+    {
+        let uris = [];
+        for (let url of stringURLs)
+        {
+            try
+            {
+                var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                      .getService(Components.interfaces.nsIIOService);
+                uris.push(ioService.newURI(url, null, null));
+            } catch (e)
+            {
+                // Invalid URIs are more-or-less just ignored
+                this._KFLog.debug("Invalid URI: " + url);
+            }
+        }
+        return uris;
     }
     
 };

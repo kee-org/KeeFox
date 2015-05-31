@@ -1525,11 +1525,15 @@ namespace KeePassRPC
             // but we're dealing with pretty small n so I've gone with the conceptually
             // easiest approach for now).
 
-            List<string> destURLs = new List<string>(destConfig.AltURLs);
-            destURLs.Insert(0, destination.Strings.ReadSafe("URL"));
+            List<string> destURLs = new List<string>();
+            destURLs.Add(destination.Strings.ReadSafe("URL"));
+            if (destConfig.AltURLs != null)
+                destURLs.AddRange(destConfig.AltURLs);
 
-            List<string> sourceURLs = new List<string>(sourceConfig.AltURLs);
-            sourceURLs.Insert(0, source.Strings.ReadSafe("URL"));
+            List<string> sourceURLs = new List<string>();
+            sourceURLs.Add(source.Strings.ReadSafe("URL"));
+            if (sourceConfig.AltURLs != null)
+                sourceURLs.AddRange(sourceConfig.AltURLs);
 
             switch (urlMergeMode)
             {

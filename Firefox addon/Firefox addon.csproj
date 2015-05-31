@@ -82,6 +82,7 @@
     <Content Include="KeeFox\chrome\content\panel.js" />
     <Content Include="KeeFox\chrome\content\PasswordSaver.js" />
     <Content Include="KeeFox\chrome\content\persistentPanelWin.js" />
+    <Content Include="KeeFox\chrome\content\SearchFilter.js" />
     <Content Include="KeeFox\chrome\content\shared\uriUtils.js" />
     <Content Include="KeeFox\chrome\content\siteOptions.js" />
     <Content Include="KeeFox\chrome\skin\back.png" />

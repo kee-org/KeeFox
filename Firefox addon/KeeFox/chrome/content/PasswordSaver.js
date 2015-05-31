@@ -24,12 +24,11 @@
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
-keefox_win.PasswordSaver = function(doc, saveData)
+keefox_win.PasswordSaver = function(doc, saveData, URLs)
 {
-    //this._keefox_org = keefox_org;
-    //this._KFLog = KFLog;
     this.doc = doc;
     this.saveData = saveData;
+    this.URLs = URLs;
 
     Cu.import("resource://kfmod/search.js", this);
 
@@ -234,17 +233,19 @@ keefox_win.PasswordSaver.prototype =
         searchBox.setAttribute("placeholder", keefox_org.locale.$STR("KeeFox_Search.label"));
         searchBox.setAttribute("type", "text");
         searchBox.setAttribute("id", "KeeFox-SaveLogin-searchbox");
-        searchBox.setAttribute("title", keefox_org.locale.$STR("KeeFox_Search.tip")); //TODO:1.5: Same as main search box? Change both for new auto-domain search feature?
+        searchBox.setAttribute("title", keefox_org.locale.$STR("KeeFox_Search.tip"));
         searchBox.classList.add("KeeFox-Search");
         searchBox.addEventListener('input',function(e){
-            //TODO:1.5: domain search ["dom.ain"] etc. 
-            this.search.execute(e.target.value, this.onSearchComplete.bind(this));
+            this.search.execute(e.target.value, this.onSearchComplete.bind(this), 
+                e.target.ownerDocument.getElementById('KeeFox-SaveLogin-searchfilter').selectedOptions[0].value.split(','));
         }.bind(this), false);
+
+        let searchFields = keefox_win.SearchFilter.attachFilterToSearchBox(searchBox, this, keefox_org.utils.stringsToNsIURIs(this.URLs));
 
         let searchResults = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         searchResults.setAttribute("id", "KeeFox-SaveLogin-SearchResults");
         
-        searchResultspanel.appendChild(searchBox);
+        searchResultspanel.appendChild(searchFields);
         searchResultspanel.appendChild(searchResults);
         panel.appendChild(searchResultspanel);
 
@@ -470,7 +471,6 @@ keefox_win.PasswordSaver.prototype =
 
         // The container that we want to add our search results to.
         var container = this.getEmptyContainerFor("KeeFox-SaveLogin-SearchResults");
-        //this.disableUIElement("KeeFox-PanelSubSection-SearchResults");
         if (container === undefined || container == null || logins == null || logins.length == 0)
             return;
             
