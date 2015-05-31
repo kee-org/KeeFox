@@ -85,7 +85,12 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
 {
     width: calc(100% - 12px);
     padding: 3px 5px;
-    margin-bottom:5px;
+    margin:5px 0px 5px 0px;
+	-moz-box-flex: 1;
+}
+
+.keefox-searchFields {
+    width:100%;
 }
 
 /* default appearence of list items to match australis look and feel */
@@ -472,6 +477,20 @@ display: block;
     background-position: 5px 5px;
 }
 
+#KeeFox-PanelSection-searchfilter,
+#KeeFox-SaveLogin-searchfilter {
+    display:inline-block;
+    border: 1px solid #D6D6D6;
+    padding: 3px 5px;
+}
+#KeeFox-PanelSection-searchfilter {
+    margin:5px 0px 5px 0px;
+}
+
+#KeeFox-SaveLogin-searchfilter {
+    margin:5px 5px 0px 0px;
+}
+
 .keeFox-save-password label {
     white-space:nowrap;
     -moz-margin-start: 5px;
@@ -546,17 +565,19 @@ width:50% !important;
     width:500px;
 }
 
+/*
 #keefox-save-password-update-panel2 hbox {
 
     -moz-box-align:center;
 }
+*/
 
 #KeeFox-SaveLogin-searchbox
 {
     width: calc(100% - 12px);
     padding: 3px 5px;
-    margin: 5px;
-    margin-bottom:0px;
+    margin:5px 0px 0px 5px;
+    -moz-box-flex: 1;
 }
 
 #KeeFox-SaveLogin-SearchResults {
@@ -580,7 +601,6 @@ ul#KeeFox-SaveLogin-selectedEntryList {
 
 button.KeeFox-SaveLogin-Change-Setting {
     -moz-appearance: none !important;
-    
     padding:0px 3px !important;
     margin:2px 5px !important;
     font-size: 0.75em;

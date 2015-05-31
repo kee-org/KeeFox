@@ -203,6 +203,8 @@ keefox_win.notificationManager = {
             for (var notification of notificationList) {
                 let notificationDOM = this.renderNotification(notification);
                 container.appendChild(notificationDOM);
+                if (notification.onAttached)
+                    notification.onAttached(window.gBrowser.selectedBrowser,document);
             }
     },
     refreshTabView: function () {
@@ -216,6 +218,8 @@ keefox_win.notificationManager = {
             for (var notification of notificationList) {
                 let notificationDOM = this.renderNotification(notification);
                 container.appendChild(notificationDOM);
+                if (notification.onAttached)
+                    notification.onAttached(window.gBrowser.selectedBrowser,document);
         }
 },
 

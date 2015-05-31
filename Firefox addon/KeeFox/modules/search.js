@@ -47,9 +47,13 @@ Search.prototype = {
         return this.validateConfig();
     },
 
-    execute: function(query, onComplete)
+    execute: function(query, onComplete, filterURLs)
     {
         let abort = false;
+        let filteringByURL = (filterURLs 
+            && filterURLs.length > 0 
+            && Array.isArray(filterURLs) 
+            && filterURLs[0].length > 0) ? true : false;
 
         if (!this.configIsValid)
         {
@@ -57,7 +61,7 @@ Search.prototype = {
             abort = true;
         }
 
-        if (!query || query.length == 0)
+        if ((!query || query.length == 0) && !filteringByURL)
             abort = true;
 
         if (this._keefox_org.KeePassDatabases.length == 0)
@@ -93,27 +97,44 @@ Search.prototype = {
 		};
 
         // allow pre-tokenised search terms to be supplied
-        let keywords;
+        let keywords = [];
         if (Array.isArray(query))
             keywords = query;
-        else
+        else if (query.length > 0)
             keywords = this.tokenise(query);
+
+        let filter;
+
+        if (filteringByURL)
+        {
+            filter = function (item) {
+                if (!item.uRLs || item.uRLs.length <= 0)
+                    return false;
+
+                for (var url of filterURLs) {
+                    //TODO:1.5: Might need to do something more complex here to avoid false
+                    // matches in other parts of the item's URL. We don't use these results 
+                    // for anything security sensitive though so might not be a high priority.
+                    if (item.uRLs.filter(function (i) { return (i.toLowerCase().indexOf(url) >= 0); }).length > 0)
+                        return true;
+                }
+                return false;
+            };
+        }
 
         function actualSearch ()
         {
+            let databases;
             if (this._config.searchAllDatabases)
+                databases = this._keefox_org.KeePassDatabases;
+            else
+                databases = [this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex]];
+
+            for (let i=0; i<databases.length; i++)
             {
-                for (let i=0; i<this._keefox_org.KeePassDatabases.length; i++)
-                {
-                    let root = this._keefox_org.KeePassDatabases[i].root;
-                    let dbFileName = this._keefox_org.KeePassDatabases[i].fileName;
-                    this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0, dbFileName);
-                }
-            } else
-            {
-                let root = this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex].root;
-                let dbFileName = this._keefox_org.KeePassDatabases[this._keefox_org.ActiveKeePassDatabaseIndex].fileName;
-                this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0, dbFileName);
+                let root = databases[i].root;
+                let dbFileName = databases[i].fileName;
+                this.treeTraversal(root, '', false, keywords, addResult.bind(this), 0, dbFileName, filter);
             }
             onComplete(results);
         }
@@ -282,7 +303,19 @@ Search.prototype = {
 		return tokens;
 	},
 
-	isMatched: function(item, keywords, isInMatchingGroup) {
+    isMatched: function(item, keywords, isInMatchingGroup, filter) {
+
+        if (filter)
+        {
+            if (!filter(item))
+                return 0;
+            if (keywords.length < 1)
+                return 1; // Fixed relevance score for all matches
+        } else if (keywords.length < 1)
+        {
+            return 0;
+        }
+
         if (!item.url)
         {
             // must be a group.
@@ -342,7 +375,7 @@ Search.prototype = {
 		return item;
 	},
 
-	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult, currentResultCount, dbFileName) {
+	treeTraversal: function(branch, path, isInMatchingGroup, keywords, addResult, currentResultCount, dbFileName, filter) {
         let totalResultCount = currentResultCount;
 		for (var leaf of branch.childLightEntries) {
 			var item = this.convertItem(path, leaf, dbFileName);
@@ -350,7 +383,7 @@ Search.prototype = {
             // We might already know this is a match if the item is contained within
             // a matching group but we check again because we probably want to update
             // the relevance score for the item
-			let matchResult = this.isMatched(item, keywords, isInMatchingGroup);
+			let matchResult = this.isMatched(item, keywords, isInMatchingGroup, filter);
             if (matchResult > 0.0)
             {
                 item.relevanceScore = matchResult;
@@ -364,8 +397,8 @@ Search.prototype = {
             }
 		}
 		for (var subBranch of branch.childGroups) {
-			var subIsInMatchingGroup = this.isMatched({ title: subBranch.title}, keywords, isInMatchingGroup);
-			totalResultCount = this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult, totalResultCount, dbFileName);
+			var subIsInMatchingGroup = this.isMatched({ title: subBranch.title}, keywords, isInMatchingGroup, filter);
+			totalResultCount = this.treeTraversal(subBranch, path + '/' + subBranch.title, subIsInMatchingGroup, keywords, addResult, totalResultCount, dbFileName, filter);
             if (totalResultCount >= this._config.maximumResults)
                 return totalResultCount;
 		}
