@@ -132,14 +132,20 @@ keefox_win.UI = {
                 callback: function (evt) {
                     evt.stopPropagation();
                     browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                    keefox_org.metricsManager.pushEvent("feature", "addLogin");
+
+                    let filterState = "current";
+                    if (evt.target.ownerDocument.getElementById('KeeFox-SaveLogin-searchfilter').selectedOptions[0].value == "all")
+                        filterState = "all";
                   
                     saveData.getLogin(function (login, urlMergeMode) {
                         if (saveData.update)
                         {
+                            keefox_org.metricsManager.pushEvent("feature", "updateLogin",
+                                { "urlMergeMode": urlMergeMode, "filterState": filterState });
                             var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
                         }
                         else {
+                            keefox_org.metricsManager.pushEvent("feature", "addLogin");
                             var result = keefox_org.addLogin(login, saveData.group, saveData.db);
                             if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
                                 keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);

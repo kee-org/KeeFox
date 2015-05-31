@@ -40,13 +40,13 @@ keefox_win.SearchFilter = {
         ]);
         let searchFilterOptionAll = this.createUIElement(doc, 'option', [
             ['class', 'KeeFox-Search-Filter'],
-            ['value', ''],
+            ['value', 'all'],
             ['id', 'KeeFox-'+prefix+'-searchfilter-all']
         ]);
         searchFilterOptionAll.textContent = keefox_org.locale.$STR('all-websites');
         let searchFilterOptionCurrent = this.createUIElement(doc, 'option', [
             ['class', 'KeeFox-Search-Filter'],
-            ['value', 'keefox.org'],
+            ['value', ''],
             ['id', 'KeeFox-'+prefix+'-searchfilter-current']
         ]);
         searchFilterOptionCurrent.textContent = keefox_org.locale.$STR('current-website');
