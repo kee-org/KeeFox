@@ -261,12 +261,14 @@ keefox_win.PasswordSaver.prototype =
         let selectedEntryContainer = this.doc.createElement('hbox');
         let selectedEntryList = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'ul');
         selectedEntryList.setAttribute("id","KeeFox-SaveLogin-selectedEntryList");
-
+        selectedEntryContainer.appendChild(selectedEntryList);
+        let spacer1 = this.doc.createElement("spacer");
+        spacer1.setAttribute("flex", "1");
+        selectedEntryContainer.appendChild(spacer1);
         let selectedEntryChangeButton = this.doc.createElement('button');
         selectedEntryChangeButton.setAttribute("label", keefox_org.locale.$STR("change"));
         selectedEntryChangeButton.classList.add("KeeFox-SaveLogin-Change-Setting");
         selectedEntryChangeButton.addEventListener("command", this.enableSelectEntryToUpdate.bind(this));
-        selectedEntryContainer.appendChild(selectedEntryList);
         selectedEntryContainer.appendChild(selectedEntryChangeButton);
         panel.appendChild(selectedEntryContainer);
 
@@ -275,6 +277,9 @@ keefox_win.PasswordSaver.prototype =
         loginFieldsUpdateStatus.textContent = keefox_org.locale.$STR("change-field-status");
         loginFieldsUpdateStatus.classList.add("KeeFox-message");
         loginFieldsUpdateStatusContainer.appendChild(loginFieldsUpdateStatus);
+        let spacer2 = this.doc.createElement("spacer");
+        spacer2.setAttribute("flex", "1");
+        loginFieldsUpdateStatusContainer.appendChild(spacer2);
         let loginFieldsUpdateButton = this.doc.createElement('button');
         loginFieldsUpdateButton.setAttribute("label", keefox_org.locale.$STR("change"));
         loginFieldsUpdateButton.setAttribute("id","KeeFox-loginFieldsUpdateButton");
@@ -303,6 +308,9 @@ keefox_win.PasswordSaver.prototype =
         loginURLsUpdateStatus.textContent = keefox_org.locale.$STR("change-url-status");
         loginURLsUpdateStatus.classList.add("KeeFox-message");
         loginURLsUpdateStatusContainer.appendChild(loginURLsUpdateStatus);
+        let spacer3 = this.doc.createElement("spacer");
+        spacer3.setAttribute("flex", "1");
+        loginURLsUpdateStatusContainer.appendChild(spacer3);
         let loginURLsUpdateButton = this.doc.createElement('button');
         loginURLsUpdateButton.setAttribute("label", keefox_org.locale.$STR("change"));
         loginURLsUpdateButton.classList.add("KeeFox-SaveLogin-Change-Setting");

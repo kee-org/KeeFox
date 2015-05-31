@@ -565,12 +565,9 @@ width:50% !important;
     width:500px;
 }
 
-/*
-#keefox-save-password-update-panel2 hbox {
-
+#keefox-save-password-update-panel2 > hbox {
     -moz-box-align:center;
 }
-*/
 
 #KeeFox-SaveLogin-searchbox
 {

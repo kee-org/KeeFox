@@ -40,7 +40,7 @@ keefox_win.SearchFilter = {
         ]);
         let searchFilterOptionAll = this.createUIElement(doc, 'option', [
             ['class', 'KeeFox-Search-Filter'],
-            ['value', 'all'],
+            ['value', ''],
             ['id', 'KeeFox-'+prefix+'-searchfilter-all']
         ]);
         searchFilterOptionAll.textContent = keefox_org.locale.$STR('all-websites');
