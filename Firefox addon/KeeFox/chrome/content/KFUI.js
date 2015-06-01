@@ -133,9 +133,7 @@ keefox_win.UI = {
                     evt.stopPropagation();
                     browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
 
-                    let filterState = "current";
-                    if (evt.target.ownerDocument.getElementById('KeeFox-SaveLogin-searchfilter').selectedOptions[0].id == "KeeFox-SaveLogin-searchfilter-all")
-                        filterState = "all";
+                    let filterState = keefox_win.SearchFilter.getFilterState(evt.target.ownerDocument, 'SaveLogin');
                   
                     saveData.getLogin(function (login, urlMergeMode) {
                         if (saveData.update)

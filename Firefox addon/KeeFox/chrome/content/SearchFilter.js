@@ -110,5 +110,13 @@ keefox_win.SearchFilter = {
         for (let i=0; i<attrs.length; i++)
             elem.setAttribute(attrs[i][0], attrs[i][1]);
         return elem;
+    },
+
+    getFilterState: function (doc, prefix)
+    {
+        if (doc.getElementById('KeeFox-' + prefix + '-searchfilter').selectedOptions[0].id == "KeeFox-"+prefix+"-searchfilter-all")
+            return "all";
+        else
+            return "current";
     }
 };

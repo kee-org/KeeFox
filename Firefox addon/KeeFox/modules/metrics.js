@@ -418,20 +418,32 @@ function mm () {
                                 mm.get("copyOther", function (event) {
                                     if (event.target.result)
                                         mm.previousSessionMetrics.copyOther = event.target.result.value;
-                                    mm.get("searchResultSelected", function (event) {
+                                    mm.get("searchResultSelectedAll", function (event) {
                                         if (event.target.result)
-                                            mm.previousSessionMetrics.searchResultSelected = event.target.result.value;
-                                        mm.get("loginContextButton", function (event) {
+                                            mm.previousSessionMetrics.searchResultSelectedAll = event.target.result.value;
+                                        mm.get("searchResultSelectedCurrent", function (event) {
                                             if (event.target.result)
-                                                mm.previousSessionMetrics.loginContextButton = event.target.result.value;
-                                            mm.get("pseudoFormCreated", function (event) {
+                                                mm.previousSessionMetrics.searchResultSelectedCurrent = event.target.result.value;
+                                            mm.get("searchResultContextAll", function (event) {
                                                 if (event.target.result)
-                                                    mm.previousSessionMetrics.pseudoFormCreated = event.target.result.value;
-                                                //TODO:2: Try to convert to Promises so we can avoid infinite callback indentation
-                                                mm._KFLog.debug("calculatePreviousSessionMetrics finished");
-                                                if (cb) cb();
-                                            });  
-                                        });  
+                                                    mm.previousSessionMetrics.searchResultContextAll = event.target.result.value;
+                                                mm.get("searchResultContextCurrent", function (event) {
+                                                    if (event.target.result)
+                                                        mm.previousSessionMetrics.searchResultContextCurrent = event.target.result.value;
+                                                    mm.get("loginContextButton", function (event) {
+                                                        if (event.target.result)
+                                                            mm.previousSessionMetrics.loginContextButton = event.target.result.value;
+                                                        mm.get("pseudoFormCreated", function (event) {
+                                                            if (event.target.result)
+                                                                mm.previousSessionMetrics.pseudoFormCreated = event.target.result.value;
+                                                            //TODO:2: Try to convert to Promises so we can avoid infinite callback indentation
+                                                            mm._KFLog.debug("calculatePreviousSessionMetrics finished");
+                                                            if (cb) cb();
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
                                     });  
                                 });  
                             });  
@@ -688,12 +700,18 @@ function mm () {
                         mm.set("copyUsername",{ value: 0.0 }, function () { 
                             mm.set("copyPassword",{ value: 0.0 }, function () { 
                                 mm.set("copyOther",{ value: 0.0 }, function () { 
-                                    mm.set("searchResultSelected",{ value: 0.0 }, function () { 
-                                        mm.set("loginContextButton",{ value: 0.0 }, function () { 
-                                            mm.set("pseudoFormCreated",{ value: 0.0 }, function () { 
-                                                mm.aggregatesReady = true;
-                                                mm._KFLog.debug("resetAggregates finished");
-                                                if (cb) cb();
+                                    mm.set("searchResultSelectedAll", { value: 0.0 }, function () {
+                                        mm.set("searchResultSelectedCurrent", { value: 0.0 }, function () {
+                                            mm.set("searchResultContextAll", { value: 0.0 }, function () {
+                                                mm.set("searchResultContextCurrent", { value: 0.0 }, function () {
+                                                    mm.set("loginContextButton", { value: 0.0 }, function () {
+                                                        mm.set("pseudoFormCreated", { value: 0.0 }, function () {
+                                                            mm.aggregatesReady = true;
+                                                            mm._KFLog.debug("resetAggregates finished");
+                                                            if (cb) cb();
+                                                        });
+                                                    });
+                                                });
                                             });
                                         });
                                     });

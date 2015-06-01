@@ -1330,7 +1330,11 @@ keefox_win.panel = {
                 if (event.button == 2)
                 {
                     keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
-                    keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,event,'KeeFox-login-context');
+                    keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document, event, 'KeeFox-login-context');
+                    if (keefox_win.SearchFilter.getFilterState(document, 'PanelSection') == "all")
+                        keefox_org.metricsManager.adjustAggregate("searchResultContextAll", 1);
+                    else
+                        keefox_org.metricsManager.adjustAggregate("searchResultContextCurrent", 1);
                 }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
@@ -1343,13 +1347,20 @@ keefox_win.panel = {
                 keefox_win.panel.CustomizableUI.hidePanelForNode(
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
-                keefox_org.metricsManager.adjustAggregate("searchResultSelected", 1);
+                if (keefox_win.SearchFilter.getFilterState(keefox_win.panel._currentWindow.document, 'PanelSection') == "all")
+                    keefox_org.metricsManager.adjustAggregate("searchResultSelectedAll", 1);
+                else
+                    keefox_org.metricsManager.adjustAggregate("searchResultSelectedCurrent", 1);
             }, false);
             loginItem.addEventListener("keefoxContext", function (event) {
                 keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,
                     { target: event.detail.target, layerX: event.detail.layerX, layerY: event.detail.layerY },
                     'KeeFox-login-context');
+                if (keefox_win.SearchFilter.getFilterState(keefox_win.panel._currentWindow.document, 'PanelSection') == "all")
+                    keefox_org.metricsManager.adjustAggregate("searchResultContextAll", 1);
+                else
+                    keefox_org.metricsManager.adjustAggregate("searchResultContextCurrent", 1);
             }, false);
             loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
             
@@ -1386,6 +1397,12 @@ keefox_win.panel = {
                 },
                 'KeeFox-login-context');
             keefox_org.metricsManager.adjustAggregate("loginContextButton", 1);
+            if (event.target.parentNode.parentNode.parentNode.id == "KeeFox-PanelSubSection-SearchResults") {
+                if (keefox_win.SearchFilter.getFilterState(keefox_win.panel._currentWindow.document, 'PanelSection') == "all")
+                    keefox_org.metricsManager.adjustAggregate("searchResultContextAll", 1);
+                else
+                    keefox_org.metricsManager.adjustAggregate("searchResultContextCurrent", 1);
+            }
         }, false);
         optionsMenuTrigger.setAttribute("id", "optionsMenuTrigger");
         event.target.appendChild(optionsMenuTrigger);
