@@ -139,10 +139,21 @@ function KFE()
         try { this._prefBranch.setBoolPref(name, value);
         } catch (ex) {}
     };
-    
+
+    // Remove KeeFox preference from older versions that is no longer used.
+    // Trying to restore this value did not work so well because Firefox
+    // and Thunderbird treat the "signon.rememberSignons" preference like
+    // a tri-state value instead of a boolean value.
+    this.prefs._prefBranch.clearUserPref("signon.rememberSignons");
+
     if (!this.prefs.getValue("install-event-fired", false)) {
+        // Disable the built-in password manager on the first run. It can
+        // be manually enabled later, but KeeFox will show a warning dialog
+        // that explains that it is not a good idea. The "signon.rememberSignons"
+        // will be cleared when KeeFox is uninstalled so that the user
+        // can decide again if they want to use it or not.
+        this.prefs._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
         this.prefs.setValue("install-event-fired", true);
-        this.firstRun = true;
     }
 
 }
