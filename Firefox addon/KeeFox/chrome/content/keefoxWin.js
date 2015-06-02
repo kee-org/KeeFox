@@ -203,7 +203,7 @@ keefox_win.progressListener = {
         if (aLoc.spec.startsWith("about:") || aLoc.spec.startsWith("chrome:"))
             return;
 
-        if (gBrowser.selectedBrowser != aBrowser) {
+        if (window.gBrowser && window.gBrowser.selectedBrowser != aBrowser) {
             keefox_win.Logger.debug("Ignoring a location change because it is not the foreground tab.");
             return;
         }
@@ -282,8 +282,11 @@ keefox_win._onTabSelected = function(event)
 
 // Listen for requests to deliver foreground tab status to frame scripts
 keefox_win.isForegroundTabListener = function (message) {
-    let isForegroundTab = gBrowser.selectedBrowser == message.target;
-    return isForegroundTab;
+    if (window.gBrowser) {
+        let isForegroundTab = window.gBrowser.selectedBrowser == message.target;
+        return isForegroundTab;
+    }
+    return false;
 };
 
 // Listen for requests to deliver logged-in status to frame scripts

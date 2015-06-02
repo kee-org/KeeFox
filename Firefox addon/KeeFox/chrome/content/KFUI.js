@@ -266,8 +266,13 @@ keefox_win.UI = {
 
     removeConnectionMessage : function ()
     {
-        keefox_win.Logger.debug("Removing keefox-connection-message notification");
-        keefox_win.notificationManager.remove("keefox-connection-message");
+        var notifyBox = this._getNotificationManager();
+
+        if (notifyBox)
+        {
+            keefox_win.Logger.debug("Removing keefox-connection-message notification");
+            notifyBox.remove("keefox-connection-message");
+        }
     },
 
     _showLaunchKFNotification : function ()
@@ -322,13 +327,15 @@ keefox_win.UI = {
     
     _getNotificationManager : function ()
     {
-        return keefox_win.notificationManager;
+        if (window.gBrowser) {
+            return keefox_win.notificationManager;
 
-        /* If possible, we should find out whether this browser was opened from another
-        one so that we can use the old approach of attaching the notification to its
-        opener rather than itself. I have never seen this login form behaviour in
-        practice though so if e10s makes this impossible, it's probably not the end
-        of the world. See old _getNotifyBox code for initial implementation ideas. */
+            /* If possible, we should find out whether this browser was opened from another
+            one so that we can use the old approach of attaching the notification to its
+            opener rather than itself. I have never seen this login form behaviour in
+            practice though so if e10s makes this impossible, it's probably not the end
+            of the world. See old _getNotifyBox code for initial implementation ideas. */
+        }
     },
 
     /*

@@ -221,43 +221,43 @@ keefox_win.notificationManager = {
                 if (notification.onAttached)
                     notification.onAttached(window.gBrowser.selectedBrowser,document);
         }
-},
+    },
 
-_prepareNotificationButton : function (but, itemDef, notifyBox, name)
-{
-    but.setAttribute("label", itemDef.label);
-    if (itemDef.tooltip != undefined) but.setAttribute("tooltiptext", itemDef.tooltip);
-
-    var callbackWrapper = function(fn, name){
-        return function() {
-            try
-            {
-                var returnValue = 0;
-                if (fn != null)
-                    returnValue = fn.apply(this, arguments);
-                    
-                notifyBox.remove(name);
-            } catch(ex)
-            {
-                keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
-            }
-        };
-    };
-
-    var callback = callbackWrapper(itemDef.callback, name);
-    but.addEventListener('command', callback, false);
-    if (itemDef.id != null)
-        but.setAttribute("id", itemDef.id);
-    if (itemDef.values != null)
+    _prepareNotificationButton : function (but, itemDef, notifyBox, name)
     {
-        for(var pi=0; pi < itemDef.values.length; pi++)
+        but.setAttribute("label", itemDef.label);
+        if (itemDef.tooltip != undefined) but.setAttribute("tooltiptext", itemDef.tooltip);
+
+        var callbackWrapper = function(fn, name){
+            return function() {
+                try
+                {
+                    var returnValue = 0;
+                    if (fn != null)
+                        returnValue = fn.apply(this, arguments);
+
+                    notifyBox.remove(name);
+                } catch(ex)
+                {
+                    keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
+                }
+            };
+        };
+
+        var callback = callbackWrapper(itemDef.callback, name);
+        but.addEventListener('command', callback, false);
+        if (itemDef.id != null)
+            but.setAttribute("id", itemDef.id);
+        if (itemDef.values != null)
         {
-            var key = itemDef.values[pi].key;
-            var val = itemDef.values[pi].value;
-            but.setUserData(key, val, null);
-        }                  
-    }
-    return but;
-},
-    
+            for(var pi=0; pi < itemDef.values.length; pi++)
+            {
+                var key = itemDef.values[pi].key;
+                var val = itemDef.values[pi].value;
+                but.setUserData(key, val, null);
+            }
+        }
+        return but;
+    },
+
 };
