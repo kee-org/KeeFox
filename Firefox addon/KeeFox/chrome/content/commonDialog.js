@@ -40,6 +40,8 @@ if (!Cu)
 Cu.import("resource://kfmod/KF.js");
 
 var keeFoxDialogManager = {
+    scriptLoader : Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+        .getService(Components.interfaces.mozIJSSubScriptLoader),
 
     __promptBundle : null, // String bundle for L10N
     get _promptBundle() {
@@ -458,23 +460,10 @@ var keeFoxDialogManager = {
             if (host.length < 1) {
               return;
             }
-                
-            // try to pick out the host from the full protocol, host and port
+
             this.originalHost = host;
-            try
-            {
-                var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                    getService(Components.interfaces.nsIIOService);
-                var uri = ioService.newURI(host, null, null);
-                host = uri.host;            
-            } catch (exception) {
-                keefox_org._KFLog.debug(
-                    "Exception occured while trying to extract the host from this string",
-                    ": " + host + ". " + exception);
-            }
-            
+            this.host = this.getURIHostAndPort(host) || host;
             this.realm = realm;
-            this.host = host;
             this.username = username;
             this.mustAutoSubmit = mustAutoSubmit;
 
@@ -781,12 +770,12 @@ var keeFoxDialogManager = {
                 var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
                     wm.getMostRecentWindow("mail:3pane");
 
-                if (parentWindow.keefox_win._getSaveOnSubmitForSite(this.host)) {
+                if (parentWindow.keefox_win._getSaveOnSubmitForSite(this.originalHost)) {
                     keefox_org._KFLog.debug("kfCommonDialogOnAccept5");
 
                     parentWindow.keefox_win.onHTTPAuthSubmit(
                         parentWindow, document.getElementById("loginTextbox").value,
-                        document.getElementById("password1Textbox").value, this.host, this.realm);
+                        document.getElementById("password1Textbox").value, this.originalHost, this.realm);
                 }
             }
         } catch (ex)
@@ -836,4 +825,6 @@ KPRPCConnectionObserver.prototype = {
   }
 }
 
+keeFoxDialogManager.scriptLoader.loadSubScript(
+    "chrome://keefox/content/shared/uriUtils.js", keeFoxDialogManager);
 window.addEventListener("load", keeFoxDialogManager.dialogInit, false);
