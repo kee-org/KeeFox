@@ -29,6 +29,7 @@ let Ci = Components.interfaces;
 let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keefox_org"];
+Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/metrics.js");
@@ -54,18 +55,46 @@ function KeeFox()
     this._keeFoxExtension = KFExtension;
         
     this._keeFoxStorage = this._keeFoxExtension.storage;
-    
-    if (this._keeFoxExtension.firstRun)
-    {
-        var originalPreferenceRememberSignons = false;
-        try {
-            originalPreferenceRememberSignons = this._keeFoxExtension.prefs._prefBranchRoot.getBoolPref("signon.rememberSignons");
-            } catch (ex) {}
-        this._keeFoxExtension.prefs.setValue(
-            "signon.rememberSignons", originalPreferenceRememberSignons);
-        this._keeFoxExtension.prefs._prefBranchRoot.setBoolPref("signon.rememberSignons", false);
+
+    this._addon_listener = {
+        _onUninstallingOrDisabling: function(addon)
+        {
+            if (addon.id == "keefox@chris.tomlinson") {
+                keefox_org._keeFoxExtension.prefs.setValue("install-event-fired", false)
+                keefox_org._keeFoxExtension.prefs._prefBranchRoot.clearUserPref(
+                    "signon.rememberSignons");
+            }
+        },
+
+        onUninstalling: function(addon,needsRestart)
+        {
+            keefox_org._KFLog.debug("addon uninstalling: " + addon.id);
+            keefox_org._addon_listener._onUninstallingOrDisabling(addon);
+        },
+
+        onDisabling: function(addon,needsRestart)
+        {
+            keefox_org._KFLog.debug("addon disabling: " + addon.id);
+            keefox_org._addon_listener._onUninstallingOrDisabling(addon);
+        },
+
+        onOperationCancelled: function(addon)
+        {
+            keefox_org._KFLog.debug("addon operation canceled: " + addon.id);
+            if (addon.id == "keefox@chris.tomlinson") {
+                keefox_org._keeFoxExtension.prefs._prefBranchRoot.setBoolPref(
+                    "signon.rememberSignons", false);
+                keefox_org._keeFoxExtension.prefs.setValue("install-event-fired", true)
+            }
+        },
+    };
+
+    try {
+        AddonManager.addAddonListener(this._addon_listener);
+    } catch (ex) {
+        keefox_org._KFLog.error("Failed to register Addon listener: " + ex);
     }
-    
+
     this.locale = new Localisation(["chrome://keefox/locale/keefox.properties"]);
     
     // Set up metrics recording but don't break the main addon if something unexpected happens
@@ -946,7 +975,11 @@ KeeFox.prototype = {
             switch (prefName)
             {
                 case "signon.rememberSignons":
-                //TODO:2: Only respond if it's the root pref branch
+                    if (!keefox_org._keeFoxExtension.prefs.getValue("install-event-fired")) {
+                        // don't show dialog if we are disabling/uninstalling the KeeFox extension.
+                        break;
+                    }
+
                     var newValue = prefBranch.getBoolPref(prefName);
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
