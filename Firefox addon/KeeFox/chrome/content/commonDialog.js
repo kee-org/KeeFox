@@ -273,7 +273,6 @@ var keeFoxDialogManager = {
                         protocols[aDialogType] = aDialogType.split("-")[0];
                         titles[aDialogType] = aStringBundle.GetStringFromName(aTitlePropertyName);
                         prompts[aDialogType] = aStringBundle.GetStringFromName(aPromptPropertyName);
-                        titles[aDialogType] = titles[aDialogType].replace(regexChars, "\\$&");
                         prompts[aDialogType] = prompts[aDialogType].replace(regexChars, "\\$&");
                         aHostPlaceholder = aHostPlaceholder.replace(regexChars, "\\$&");
                         // use null as a flag to indicate that there was only one
