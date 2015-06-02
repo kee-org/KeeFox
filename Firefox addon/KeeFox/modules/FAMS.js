@@ -461,7 +461,9 @@ FirefoxAddonMessageService.prototype.openActionLink = function (link)
     var newTab = b.loadOneTab( link, null, null, null, false, null );
 };
 
-FirefoxAddonMessageService.prototype.showMessageNotification = function (name, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId) {
+FirefoxAddonMessageService.prototype.showMessageNotification = function (name, aText, moreInfoLink, priorityName, persistence, actionName, completeMessage, groupId)
+{
+    var fams = this;
     var notifyBox = this.notificationService();
     if (!notifyBox)
     {
@@ -481,7 +483,6 @@ FirefoxAddonMessageService.prototype.showMessageNotification = function (name, a
               this.getLocalisedString("NotifyBar-DoNotShowAgain-Button.label");
     var banMessageButtonAccessKey =
               this.getLocalisedString("NotifyBar-DoNotShowAgain-Button.key");
-    var fams = this;
 
     var buttons = [
             {
