@@ -1,6 +1,7 @@
 
 /KeeFox.ncb
 *.user
+*.userprefs
 *.suo
 /XPIs
 /CheckForAdminRights/Release
