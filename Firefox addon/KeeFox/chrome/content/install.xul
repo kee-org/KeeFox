@@ -352,7 +352,7 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
               </hbox>
               <hbox width="500px">
                 <description id="nextStep2" width="50px">2)</description>
-                <label width="450px" id="nextStepsTutorialLink" href="http://tutorial.keefox.org" class="text-link">%-KeeFox_Install_NextStep2.description-%</label>
+                <label width="450px" id="nextStepsTutorialLink" href="http://tutorial.keefox.org/?utm_source=firefoxAddon&amp;utm_medium=postInstall" class="text-link">%-KeeFox_Install_NextStep2.description-%</label>
               </hbox>
               <hbox width="500px">
                 <description id="nextStep3" width="50px">3)</description>
