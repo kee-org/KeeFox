@@ -632,6 +632,15 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
                 for (let msgIndex in newConf.messageGroups[i].messages)
                 {
                     let msgId = newConf.messageGroups[i].messages[msgIndex].id;
+
+                    // The fact we are upgrading suggests the user does not need to be
+                    // welcomed to KeeFox (unless it's been years since they last used it)
+                    if (msgId == "messages201506020000a" && newConf.version == 6 && conf.version == 5)
+                    {
+                        newConf.messageGroups[i].messages[msgIndex].displayCount = newConf.messageGroups[i].messages[msgIndex].maxDisplayTimes;
+                        continue;
+                    }
+
                     for (let oldIndex in conf.messageGroups[i].messages)
                     {
                         if (conf.messageGroups[i].messages[oldIndex].id == msgId)

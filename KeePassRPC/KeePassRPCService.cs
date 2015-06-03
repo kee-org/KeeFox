@@ -521,6 +521,7 @@ namespace KeePassRPC
             else
             {
                 if (conf.FormFieldList != null)
+                {
                     foreach (FormField ff in conf.FormFieldList)
                     {
                         if (ff.Type == FormFieldType.FFTpassword)
@@ -544,9 +545,10 @@ namespace KeePassRPC
                         else
                             formFieldList.Add(new FormField(ff.Name, ff.Name, ff.Value, ff.Type, ff.Id, ff.Page));
                     }
-                if (conf.AltURLs != null)
-                    URLs.AddRange(conf.AltURLs);
+                }
             }
+            if (conf.AltURLs != null)
+                URLs.AddRange(conf.AltURLs);
 
             // If we didn't find an explicit password field, we assume any value
             // in the KeePass "password" box is what we are looking for
