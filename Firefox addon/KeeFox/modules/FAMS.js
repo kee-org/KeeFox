@@ -627,8 +627,8 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
 
             for (var i=0; i < newConf.messageGroups.length; i++)
             {
-                newConf.timeBetweenMessages = conf.timeBetweenMessages;
-                newConf.lastMessageDisplayedTime = conf.lastMessageDisplayedTime;
+                newConf.messageGroups[i].timeBetweenMessages = conf.messageGroups[i].timeBetweenMessages;
+                newConf.messageGroups[i].lastMessageDisplayedTime = conf.messageGroups[i].lastMessageDisplayedTime;
                 for (let msgIndex in newConf.messageGroups[i].messages)
                 {
                     let msgId = newConf.messageGroups[i].messages[msgIndex].id;
