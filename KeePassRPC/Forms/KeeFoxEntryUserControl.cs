@@ -249,10 +249,7 @@ namespace KeePassRPC.Forms
                         changeBehaviourState(EntryBehaviour.Default);
                     break;
                 case "Never":
-                    if (comboBoxAutoSubmit.Text == "Never")
-                        changeBehaviourState(EntryBehaviour.NeverAutoSubmit);
-                    else
-                        changeBehaviourState(EntryBehaviour.NeverAutoFillNeverAutoSubmit);
+                    changeBehaviourState(EntryBehaviour.NeverAutoFillNeverAutoSubmit);
                     break;
                 case "Always":
                     if (comboBoxAutoSubmit.Text == "Never")
