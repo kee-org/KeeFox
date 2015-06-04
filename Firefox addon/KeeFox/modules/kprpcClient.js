@@ -43,6 +43,7 @@ scriptLoader.loadSubScript("resource://kfmod/sjcl.js");
 Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/SRP.js");
 Cu.import("resource://gre/modules/Timer.jsm");
+Cu.import("resource://gre/modules/ISO8601DateUtils.jsm");
 
 try
 {
@@ -551,11 +552,10 @@ kprpcClient.prototype.constructor = kprpcClient;
   	        window.keefox_win.Logger.info("Setting KeePassRPC location to " + currentLocation + ".");
   	        window.keefox_org.changeLocation(currentLocation);
   	    }
+  	    window.keefox_org._keeFoxExtension.prefs.setValue("lastConnectedToKeePass", ISO8601DateUtils.create(new Date()));
   	    window.keefox_org.metricsManager.pushEvent("KeePass", "connected", { "type": type });
   	    window.keefox_org._refreshKPDB();
   	    window.keefox_org.getApplicationMetadata();
-
-
   	};
 
     // No need to return anything from this function so sync or async implementation is fine

@@ -57,12 +57,13 @@ function KeeFox()
     this._keeFoxStorage = this._keeFoxExtension.storage;
 
     this._addon_listener = {
-        _onUninstallingOrDisabling: function(addon)
+        _onUninstallingOrDisabling: function(addon, disabling)
         {
             if (addon.id == "keefox@chris.tomlinson") {
-                keefox_org._keeFoxExtension.prefs.setValue("install-event-fired", false)
+                keefox_org._keeFoxExtension.prefs.setValue("install-event-fired", false);
                 keefox_org._keeFoxExtension.prefs._prefBranchRoot.clearUserPref(
                     "signon.rememberSignons");
+                keefox_org.uninstallFeedback(disabling);
             }
         },
 
@@ -84,7 +85,8 @@ function KeeFox()
             if (addon.id == "keefox@chris.tomlinson") {
                 keefox_org._keeFoxExtension.prefs._prefBranchRoot.setBoolPref(
                     "signon.rememberSignons", false);
-                keefox_org._keeFoxExtension.prefs.setValue("install-event-fired", true)
+                keefox_org._keeFoxExtension.prefs.setValue("install-event-fired", true);
+                keefox_org.abortedUninstallFeedback();
             }
         },
     };
@@ -1177,6 +1179,45 @@ KeeFox.prototype = {
         // a default search results handler. In practice I expect that each search 
         // execution will want to supply its own callback but this might be useful 
         // if we find it neater to integrate with an Observer pattern, etc.
+    },
+
+    uninstallFeedback: function (disabling)
+    {
+        let [ connectState, setupState, setupActive ] = keefox_org.getAddonState();
+        keefox_org.metricsManager.pushEvent("uninstall", disabling ? "disable" : "uninstall", 
+            { "connectState": connectState, "setupState": setupState, "setupActive": setupActive }, true);
+    },
+
+    abortedUninstallFeedback: function ()
+    {
+        let [ connectState, setupState, setupActive ] = keefox_org.getAddonState();
+
+        keefox_org.metricsManager.pushEvent("uninstall", "abort", { 
+            "connectState": connectState, "setupState": setupState, "setupActive": setupActive }, true);
+    },
+
+    getAddonState: function ()
+    {
+        // There are some situations where it appears connectState and setupState values are
+        // mutually exclusive but they might indicate unusual errors so we track all possibilities
+
+        let connectState = "neverConnected";
+        if (keefox_org._keeFoxStorage.get("KeePassRPCActive", false))
+            connectState = "connected";
+        else if (keefox_org._keeFoxExtension.prefs.getValue("lastConnectedToKeePass", "no date") != "no date")
+            connectState = "previouslyConnected";
+
+        let kpState = keefox_org._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
+        let kprpcInstalled = keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false);
+        let setupState = "none";
+        if (kprpcInstalled)
+            setupState = "kprpc";
+        else if (kpState != "" && kpState != "not installed")
+            setupState = "keepass";
+
+        let setupActive = keefox_org._keeFoxStorage.get("KFinstallProcessStarted", false);
+
+        return [connectState,setupState,setupActive];
     }
 };
 

@@ -347,7 +347,7 @@ function mm () {
         var mm = this;
         var cb = callback;
         let oldMetrics = this.calculatePreviousSessionMetrics(function (event) {
-            let msg = {
+            mm.systemData = {
                 "type": "sessionStart",
                 "userId": mm.ii.userId,
                 "sessionId": mm.ii.sessionId,
@@ -362,17 +362,18 @@ function mm () {
                 "netRuntimeVersion": mm.ii.netRuntimeVersion,
                 "keePassVersion": mm.ii.keePassVersion
             };
-            mm.set("message",JSON.stringify(msg),function () { cb(); });
+            mm.set("message", JSON.stringify(mm.systemData), function () { cb(); });
         });
     };
     
-    this.pushEvent = function(category, name, params) // string, string, object of keys/vals
+    this.pushEvent = function(category, name, params, direct) // string, string, object of keys/vals, bool
     {
-        if (Services.prefs.getBoolPref("extensions.keefox@chris.tomlinson.metricsUsageDisabled"))
+        // direct events never contain usage data
+        if (!direct && Services.prefs.getBoolPref("extensions.keefox@chris.tomlinson.metricsUsageDisabled"))
             return;
 
         let msg = {
-            "type": "event",
+            "type": direct ? "direct" : "event",
             "userId": this.ii.userId,
             "sessionId": this.ii.sessionId,
             "category": category,
@@ -380,10 +381,17 @@ function mm () {
             "params": params,
             "ts": ISO8601DateUtils.create(new Date())
         };
-        if (this.messagesReady)
-            this.set("message",JSON.stringify(msg));
+        // Repeat basic system data for direct feedback to aid analysis
+        if (direct)
+            msg.systemData = mm.systemData;
+
+        let jMsg = JSON.stringify(msg);
+        if (direct)
+            this.deliverMessageDirect(jMsg);
+        else if (this.messagesReady)
+            this.set("message", jMsg);
         else
-            this.messagesQueue.push( { "message": JSON.stringify(msg) } );
+            this.messagesQueue.push( { "message": jMsg } );
     };
 
     this.calculatePreviousSessionMetrics = function (callback)
@@ -679,6 +687,29 @@ function mm () {
         {
             mm._KFLog.error("Metrics error. Could not send because: " + ex);
             mm.metricsTimerRespawn(60);
+        }
+    };
+
+    // Send a message containing one or more metrics messages directly to the metrics
+    // server, out of sync with the usual regular message interval.
+    this.deliverMessageDirect = function (msg) {
+        // No need to debug metric data in normal circumstances, only dev work
+        //this._KFLog.debug("METRIC to be sent directly: " + msg);
+        this._KFLog.debug("metrics being sent directly");
+
+        function createXMLHttpRequest() {
+            Cu.importGlobalProperties(["XMLHttpRequest"]);
+            return new XMLHttpRequest();
+        }
+
+        try {
+            var request = createXMLHttpRequest();
+            request.open("POST", this.url, true);
+            request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            request.timeout = this.nextRequestTimeout;
+            request.send(msg);
+        } catch (ex) {
+            this._KFLog.error("Metrics error. Could not send directly because: " + ex);
         }
     };
 
