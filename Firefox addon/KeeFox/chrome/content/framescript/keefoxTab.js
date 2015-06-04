@@ -349,6 +349,40 @@ try {
 
 keefox_tab.formSubmitObserver.register();
 
+keefox_tab.checkForTutorialPages = function (event) {
+    let url = event.target.URL;
+
+    // The user could have directly loaded these URLs instead of going through the
+    // expected path but it's unlikely to happen often and if it becomes a problem,
+    // we can always see that there is a gap earlier
+    if (url.startsWith("http://tutorial")) {
+        if (url.startsWith("http://tutorial.keefox.org/part1?error=yes"))
+            sendAsyncMessage("keefox:tutorialProgressPart1error");
+        else if (url.startsWith("http://tutorial.keefox.org/part1"))
+            sendAsyncMessage("keefox:tutorialProgressStarted");
+        else if (url.startsWith("http://tutorial-section-b.keefox.org/part2"))
+            sendAsyncMessage("keefox:tutorialProgressPart1");
+        else if (url.startsWith("http://tutorial-section-c.keefox.org/part3"))
+            sendAsyncMessage("keefox:tutorialProgressPart2");
+        else if (url.startsWith("http://tutorial-section-d.keefox.org/part4"))
+            sendAsyncMessage("keefox:tutorialProgressPart3");
+        else if (url.startsWith("http://tutorial-section-d.keefox.org/part6"))
+            sendAsyncMessage("keefox:tutorialProgressPart4");
+    }
+};
+
+keefox_tab.sendStatusToTutorialPageHandler = function (message) {
+    let transferElement = content.document.createElement("KeeFoxAddonStateTransferElement");
+    transferElement.setAttribute("state", JSON.stringify(message.data));
+    content.document.documentElement.appendChild(transferElement);
+
+    let event = new Event("KeeFoxAddonStateTransferEvent", { "bubbles": true, "cancelable": false });
+    transferElement.dispatchEvent(event);
+};
+
+addEventListener("DOMContentLoaded", keefox_tab.checkForTutorialPages, false);
+addMessageListener("keefox:sendStatusToTutorialPage", keefox_tab.sendStatusToTutorialPageHandler);
+
 // set up some initial state
 keefox_tab.tabState.currentPage = 0;
 keefox_tab.tabState.maximumPage = 0;

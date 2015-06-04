@@ -40,6 +40,7 @@ Cu.import("resource://kfmod/KFExtension.js");
 Cu.import("resource://kfmod/config.js");
 Cu.import("resource://kfmod/commands.js");
 Cu.import("resource://kfmod/search.js");
+Cu.import("resource://kfmod/TutorialHelper.js");
 
 // constructor
 function KeeFox()
@@ -130,6 +131,8 @@ function KeeFox()
         version: 1,
         searchAllDatabases: this._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
     });
+
+    this.tutorialHelper = tutorialHelper;
 
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
                               getService(Ci.nsIObserverService);

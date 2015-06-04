@@ -148,6 +148,9 @@ keefox_win.UI = {
                             if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
                                 keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
                         }
+
+                        if (login.URLs[0].startsWith("http://tutorial-section-b.keefox.org/part2"))
+                            keefox_org.tutorialHelper.tutorialProgressSaved();
                     });
                     
                 }
@@ -249,7 +252,6 @@ keefox_win.UI = {
         };
         aNotifyBox.add(notification);
     },
-
 
     showConnectionMessage : function (message)
     {

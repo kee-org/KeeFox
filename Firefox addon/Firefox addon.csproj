@@ -134,6 +134,7 @@
     <Content Include="KeeFox\modules\sessionLegacy.js" />
     <Content Include="KeeFox\modules\sjcl.js" />
     <Content Include="KeeFox\modules\SRP.js" />
+    <Content Include="KeeFox\modules\TutorialHelper.js" />
     <Content Include="KeeFox\modules\utils.js" />
     <Content Include="XPIPackageExclusions.txt" />
   </ItemGroup>
