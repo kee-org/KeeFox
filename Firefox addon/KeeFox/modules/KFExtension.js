@@ -144,7 +144,9 @@ function KFE()
     // Trying to restore this value did not work so well because Firefox
     // and Thunderbird treat the "signon.rememberSignons" preference like
     // a tri-state value instead of a boolean value.
-    this.prefs._prefBranch.clearUserPref("signon.rememberSignons");
+        try {
+            this.prefs._prefBranch.clearUserPref("signon.rememberSignons");
+        } catch (ex) { } // An exception just means it was already removed 
 
     if (!this.prefs.getValue("install-event-fired", false)) {
         // Disable the built-in password manager on the first run. It can
