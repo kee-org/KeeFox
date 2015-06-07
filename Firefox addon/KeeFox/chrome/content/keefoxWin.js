@@ -58,6 +58,9 @@ Cu.import("resource://kfmod/KF.js");
 keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/KFUtils.js");
 Cu.import("resource://kfmod/FAMS.js", keefox_org);
 
+keefox_win.scriptLoader.loadSubScript("chrome://keefox/content/UninstallHelper.js");
+keefox_win.uninstallHelper = new keefox_win.UninstallHelper();
+
 // This object listens for the "window loaded" event, fired after
 // Firefox finishes loading a window
 keefox_win.mainEventHandler =
@@ -234,10 +237,7 @@ keefox_win._onTabSelected = function(event)
     else
         keefox_win.Logger.debug("_onTabSelected.");
 
-    // Close the persistent panel (Future improvement might allow it to be restored when
-    // tab comes back into focus but I don't think it's that essential since a single 
-    // click gets user back to where they want to be.)
-    document.getElementById('keefox-persistent-panel').hidePopup();
+    keefox_win.persistentPanel.onTabSelected();
 
     // remove all the old logins from the main UI element and context menus
     keefox_win.mainUI.removeLogins();

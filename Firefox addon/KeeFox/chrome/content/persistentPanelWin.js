@@ -29,9 +29,33 @@ let Cu = Components.utils;
 
 keefox_win.persistentPanel = {
     thePanel: null,
+    onTabSelected: function () {
+        // If we're showing contents that should persist across multiple tabs, keep the panel open
+        let winNotifications = document.getElementById('KeeFox-PanelSection-notifications-window');
+        if (winNotifications.parentElement == keefox_win.persistentPanel.thePanel)
+            return;
+
+        // Close the persistent panel (Future improvement might allow it to be restored when
+        // tab comes back into focus but I don't think it's that essential since a single 
+        // click gets user back to where they want to be.)
+        keefox_win.persistentPanel.thePanel.hidePopup();
+    },
+    onMainPanelShowing: function (evt) {
+        // In case the user clicks on the KeeFox menu button while the persistent panel
+        // is still visible, we will close the persistent panel provided it contains
+        // no content that must remain across multiple tabs
+        let winNotifications = document.getElementById('KeeFox-PanelSection-notifications-window');
+        if (winNotifications.parentElement != keefox_win.persistentPanel.thePanel)
+            keefox_win.persistentPanel.thePanel.hidePopup();
+    },
     onpopuphidden: function () {
         let pv = document.getElementById('keefox-panelview');
-        pv.insertBefore(document.getElementById('KeeFox-PanelSection-notifications-tab'), pv.firstChild);
+        let tabNotifications = document.getElementById('KeeFox-PanelSection-notifications-tab');
+        if (tabNotifications.parentElement == keefox_win.persistentPanel.thePanel)
+            pv.insertBefore(tabNotifications, pv.firstChild);
+        let winNotifications = document.getElementById('KeeFox-PanelSection-notifications-window');
+        if (winNotifications.parentElement == keefox_win.persistentPanel.thePanel)
+            pv.insertBefore(winNotifications, pv.firstChild);
     },
     init: function () {
         this.thePanel = document.createElement('panel');
@@ -43,7 +67,25 @@ keefox_win.persistentPanel = {
         this.thePanel.addEventListener('popuphidden', this.onpopuphidden, false);
     },
     showNotifications: function () {
+        this.thePanel.removeEventListener('popuphidden', this.showNotifications, false);
+        if (this.thePanel.state == "open")
+        {
+            this.thePanel.addEventListener('popuphidden', this.showNotifications, false);
+            this.thePanel.hidePopup();
+            return;
+        }
         this.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-tab'));
+        this.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
+    },
+    showWindowNotifications: function () {
+        this.thePanel.removeEventListener('popuphidden', this.showWindowNotifications, false);
+        if (this.thePanel.state == "open")
+        {
+            this.thePanel.addEventListener('popuphidden', this.showWindowNotifications, false);
+            this.thePanel.hidePopup();
+            return;
+        }
+        this.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-window'));
         this.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
     }
 };

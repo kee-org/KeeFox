@@ -59,7 +59,14 @@ tutorialProgress.prototype = {
 
     save: function () {
         KFExtension.prefs.setValue("tutorialProgress", JSON.stringify(this._state));
-    }
+    },
+
+    toJSON: function () {
+        return { started: this.started, part1error: this.part1error, part1: this.part1, 
+            saved: this.saved, part2: this.part2, part3: this.part3, part4: this.part4 };
+    },
+
+    get isFinished() { return this._state._part3 || this._state._part4; }
 };
 
 let TutorialHelper = function()

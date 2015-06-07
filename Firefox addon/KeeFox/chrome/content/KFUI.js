@@ -253,6 +253,29 @@ keefox_win.UI = {
         aNotifyBox.add(notification);
     },
 
+    _showUninstallNotification: function (aNotifyBox, disabling, connectState, setupState, setupActive, tutorialProgress) {
+        let name = "uninstall-helper";
+
+        let notification = {
+            name: name,
+            render: function (container) {
+
+                // Supply an empty string to make sure the close button ends up on the right
+                var doc = container.ownerDocument;
+                container = doc.ownerGlobal.keefox_win.notificationManager
+                    .renderStandardMessage(container, "");
+
+                container.appendChild(keefox_win.uninstallHelper.createContainer(disabling, container, connectState, setupState, setupActive, tutorialProgress));
+
+                return container;
+            },
+            thisTabOnly: false,
+            priority: null,
+            persist: true
+        };
+        aNotifyBox.add(notification);
+    },
+
     showConnectionMessage : function (message)
     {
         var notifyBox = this._getNotificationManager();

@@ -341,6 +341,14 @@ display: block;
     background-position:50% 8px;
 }
 
+#keefox-uninstall-helper-submit-container {
+    min-width:620px;
+    height:200px;
+    background-image: url("chrome://browser/skin/tabbrowser/loading.png");
+    background-repeat:no-repeat;
+    background-position:50% 92px;
+}
+
 #KeeFox-PanelSubSection-DatabaseList > ul,
 #KeeFox-PanelSubSection-PasswordProfileList > ul {
     margin:0 0 0 0px;
@@ -563,6 +571,13 @@ width:50% !important;
 
 #keefox-save-password-update-panel2 label.KeeFox-message {
     width:500px;
+}
+
+#keefox-uninstall-helper-feedback-container label,
+#keefox-uninstall-helper-response-container label {
+    width:600px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #keefox-save-password-update-panel2 > hbox {

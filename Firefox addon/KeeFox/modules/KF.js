@@ -71,13 +71,13 @@ function KeeFox()
         onUninstalling: function(addon,needsRestart)
         {
             keefox_org._KFLog.debug("addon uninstalling: " + addon.id);
-            keefox_org._addon_listener._onUninstallingOrDisabling(addon);
+            keefox_org._addon_listener._onUninstallingOrDisabling(addon, false);
         },
 
         onDisabling: function(addon,needsRestart)
         {
             keefox_org._KFLog.debug("addon disabling: " + addon.id);
-            keefox_org._addon_listener._onUninstallingOrDisabling(addon);
+            keefox_org._addon_listener._onUninstallingOrDisabling(addon, true);
         },
 
         onOperationCancelled: function(addon)
@@ -1186,17 +1186,22 @@ KeeFox.prototype = {
 
     uninstallFeedback: function (disabling)
     {
-        let [ connectState, setupState, setupActive ] = keefox_org.getAddonState();
+        let [ connectState, setupState, setupActive, tutorialProgress ] = keefox_org.getAddonState();
         keefox_org.metricsManager.pushEvent("uninstall", disabling ? "disable" : "uninstall", 
-            { "connectState": connectState, "setupState": setupState, "setupActive": setupActive }, true);
+            { "connectState": connectState, "setupState": setupState, "setupActive": setupActive, "tutorialProgress": tutorialProgress }, true);
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                       .getService(Components.interfaces.nsIWindowMediator);
+        var window = wm.getMostRecentWindow("navigator:browser") ||
+                     wm.getMostRecentWindow("mail:3pane");
+        window.keefox_win.UI._showUninstallNotification(window.keefox_win.UI._getNotificationManager(), disabling, connectState, setupState, setupActive, tutorialProgress);
     },
 
     abortedUninstallFeedback: function ()
     {
-        let [ connectState, setupState, setupActive ] = keefox_org.getAddonState();
+        let [ connectState, setupState, setupActive, tutorialProgress ] = keefox_org.getAddonState();
 
         keefox_org.metricsManager.pushEvent("uninstall", "abort", { 
-            "connectState": connectState, "setupState": setupState, "setupActive": setupActive }, true);
+            "connectState": connectState, "setupState": setupState, "setupActive": setupActive, "tutorialProgress": tutorialProgress }, true);
     },
 
     getAddonState: function ()
@@ -1219,8 +1224,8 @@ KeeFox.prototype = {
             setupState = "keepass";
 
         let setupActive = keefox_org._keeFoxStorage.get("KFinstallProcessStarted", false);
-
-        return [connectState,setupState,setupActive];
+        
+        return [connectState,setupState,setupActive, keefox_org.tutorialHelper.progress];
     }
 };
 

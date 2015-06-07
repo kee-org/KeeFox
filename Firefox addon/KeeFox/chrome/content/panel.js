@@ -63,7 +63,8 @@ keefox_win.panel = {
                         // panel (in case user clicks on KeeFox menu button while persistent panel
                         // is still visible). We achieve that by closing the persistent panel and
                         // letting its onhiding code tidy up after itself
-                        targetDoc.getElementById('keefox-persistent-panel').hidePopup();
+                        evt.target.ownerGlobal.keefox_win.persistentPanel.onMainPanelShowing(evt);
+
                         let searchFilter = targetDoc.getElementById('KeeFox-PanelSection-searchfilter');
                         let current = targetDoc.getElementById('KeeFox-PanelSection-searchfilter-current');
 

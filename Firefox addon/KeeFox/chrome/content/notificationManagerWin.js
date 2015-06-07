@@ -78,7 +78,10 @@ keefox_win.notificationManager = {
         }
         if (notification.persist)
         {
-            keefox_win.persistentPanel.showNotifications();
+            if (notification.thisTabOnly)
+                keefox_win.persistentPanel.showNotifications();
+            else
+                keefox_win.persistentPanel.showWindowNotifications();
         } else
         {
             keefox_win.panel.displayPanel();
@@ -87,19 +90,24 @@ keefox_win.notificationManager = {
     },
     remove: function (name) {
         // All notifications with the supplied name are removed from the current tab and window lists
+
+        function shouldKeep(existingNotification, name) {
+            let keep = existingNotification.name!==name;
+
+            // if the notification we're removing was set to persist, try closing the
+            // persistent panel now (sometimes this won't be necessary but it won't do any harm)
+            if (!keep && existingNotification.persist)
+                keefox_win.persistentPanel.thePanel.hidePopup();
+            return keep;
+        }
+
         let selectedTab = window.gBrowser.selectedTab;
         let notificationList = this.tabNotificationMap.get(selectedTab);
         if (notificationList && notificationList.length > 0)
         {   
             notificationList = notificationList.filter(function(existingNotification)
             {
-                let keep = existingNotification.name!==name;
-
-                // if the notification we're removing was set to persist, try closing the
-                // persistent panel now (sometimes this won't be necessary but it won't do any harm)
-                if (!keep && existingNotification.persist)
-                    keefox_win.persistentPanel.thePanel.hidePopup();
-                return keep;
+                return shouldKeep(existingNotification, name);
             });
             this.tabNotificationMap.set(selectedTab, notificationList);
             this.refreshTabView();
@@ -109,7 +117,7 @@ keefox_win.notificationManager = {
         {
             this.windowNotifications = this.windowNotifications.filter(function(existingNotification)
             {
-                return existingNotification.name!==name
+                return shouldKeep(existingNotification, name);
             });
             this.refreshWindowView();
         }
@@ -230,16 +238,17 @@ keefox_win.notificationManager = {
 
         var callbackWrapper = function(fn, name){
             return function() {
+                let keepOpen = false;
                 try
                 {
-                    var returnValue = 0;
                     if (fn != null)
-                        returnValue = fn.apply(this, arguments);
-
-                    notifyBox.remove(name);
+                        keepOpen = fn.apply(this, arguments);
                 } catch(ex)
                 {
                     keefox_win.Logger.error("Exception occurred in menu item callback: " + ex);
+                } finally {
+                    if (!keepOpen)
+                        notifyBox.remove(name);
                 }
             };
         };

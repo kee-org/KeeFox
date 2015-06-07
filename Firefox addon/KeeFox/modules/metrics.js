@@ -33,6 +33,7 @@ Cu.import("resource://gre/modules/ISO8601DateUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/Timer.jsm");
+Cu.importGlobalProperties(["XMLHttpRequest"]);
 
 // A struct to represent information that won't change for a given session.
 // In most cases, we'll only want to send this data once but there are a few exceptions.
@@ -382,8 +383,13 @@ function mm () {
             "ts": ISO8601DateUtils.create(new Date())
         };
         // Repeat basic system data for direct feedback to aid analysis
-        if (direct)
-            msg.systemData = mm.systemData;
+        if (direct) {
+            msg.systemData = JSON.parse(JSON.stringify(this.systemData)); //TODO:2: less hacky clone. https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
+            delete msg.systemData.previousSessionMetrics;
+            delete msg.systemData.type;
+            delete msg.systemData.userId;
+            delete msg.systemData.sessionId;
+        }
 
         let jMsg = JSON.stringify(msg);
         if (direct)
@@ -617,6 +623,26 @@ function mm () {
       }
     };
 
+    this.createXMLHttpRequest = function () {
+        let request;
+        try {
+            // Enable an anonymous request (no cookies). The only feasible risk from not 
+            // doing this is if someone takes control of the KeeFox metrics server and 
+            // starts parsing the Google Analytics tracking cookies that are used 
+            // elsewhere on the keefox.org domain. They'd also have to intercept the 
+            // analytics cookies on the way to the KeeFox website to have any hope of 
+            // linking activity on the keefox site to the metrics data. Google is obviously 
+            // best placed to initiate this attack but it's still going to be very 
+            // difficult for them and will provide no tangible benefit to them (or 
+            // any other attacker). Still, since we can, let's protect against the possibility.
+            request = new XMLHttpRequest({ mozAnon: true });
+        } catch (e) {
+            // Protecting against future removal of mozAnon parameter
+            request = new XMLHttpRequest();
+        }
+        return request;
+    };
+
     // Send a message containing one or more metrics messages
     this.deliverMessage = function (msg) 
     {
@@ -626,13 +652,8 @@ function mm () {
         //this._KFLog.debug("METRIC to be sent: " + msg);
         this._KFLog.debug("metrics being sent");
         
-        function createXMLHttpRequest() {
-            Cu.importGlobalProperties(["XMLHttpRequest"]);
-            return new XMLHttpRequest();
-        }
-
         try{
-            var request = createXMLHttpRequest();
+            var request = this.createXMLHttpRequest();
             request.open("POST", this.url, true);
             request.addEventListener("load", function(event) {
                 // Note our success position in the queue so we can remove the old ones
@@ -697,13 +718,8 @@ function mm () {
         //this._KFLog.debug("METRIC to be sent directly: " + msg);
         this._KFLog.debug("metrics being sent directly");
 
-        function createXMLHttpRequest() {
-            Cu.importGlobalProperties(["XMLHttpRequest"]);
-            return new XMLHttpRequest();
-        }
-
         try {
-            var request = createXMLHttpRequest();
+            var request = this.createXMLHttpRequest();
             request.open("POST", this.url, true);
             request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             request.timeout = this.nextRequestTimeout;

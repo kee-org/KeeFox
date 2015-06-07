@@ -85,6 +85,7 @@
     <Content Include="KeeFox\chrome\content\SearchFilter.js" />
     <Content Include="KeeFox\chrome\content\shared\uriUtils.js" />
     <Content Include="KeeFox\chrome\content\siteOptions.js" />
+    <Content Include="KeeFox\chrome\content\UninstallHelper.js" />
     <Content Include="KeeFox\chrome\skin\back.png" />
     <Content Include="KeeFox\chrome\skin\buttonGradient.png" />
     <Content Include="KeeFox\chrome\skin\buttonGradientHover.png" />
