@@ -75,17 +75,17 @@ let TutorialHelper = function()
 
     this.tutorialProgressStartedHandler = function (message) {
         message.target.ownerGlobal.keefox_org.tutorialHelper.progress.started = true;
-        message.target.ownerGlobal.keefox_org.tutorialHelper.sendTutorialState(message.target);
+        message.target.ownerGlobal.keefox_org.tutorialHelper.sendSetupStateToTutorial(message.target);
     };
 
     this.tutorialProgressPart1errorHandler = function (message) {
         message.target.ownerGlobal.keefox_org.tutorialHelper.progress.part1error = true;
-        message.target.ownerGlobal.keefox_org.tutorialHelper.sendTutorialState(message.target);
+        message.target.ownerGlobal.keefox_org.tutorialHelper.sendSetupStateToTutorial(message.target);
     };
 
     this.tutorialProgressPart1Handler = function (message) {
         message.target.ownerGlobal.keefox_org.tutorialHelper.progress.part1 = true;
-        message.target.ownerGlobal.keefox_org.tutorialHelper.sendTutorialState(message.target);
+        message.target.ownerGlobal.keefox_org.tutorialHelper.sendSetupStateToTutorial(message.target);
     };
 
     this.tutorialProgressSaved = function () {
@@ -94,23 +94,37 @@ let TutorialHelper = function()
 
     this.tutorialProgressPart2Handler = function (message) {
         message.target.ownerGlobal.keefox_org.tutorialHelper.progress.part2 = true;
-        message.target.ownerGlobal.keefox_org.tutorialHelper.sendTutorialState(message.target);
+        message.target.ownerGlobal.keefox_org.tutorialHelper.sendSetupStateToTutorial(message.target);
     };
 
     this.tutorialProgressPart3Handler = function (message) {
         message.target.ownerGlobal.keefox_org.tutorialHelper.progress.part3 = true;
-        message.target.ownerGlobal.keefox_org.tutorialHelper.sendTutorialState(message.target);
+        message.target.ownerGlobal.keefox_org.tutorialHelper.sendSetupStateToTutorial(message.target);
     };
 
     this.tutorialProgressPart4Handler = function (message) {
         message.target.ownerGlobal.keefox_org.tutorialHelper.progress.part4 = true;
-        message.target.ownerGlobal.keefox_org.tutorialHelper.sendTutorialState(message.target);
+        message.target.ownerGlobal.keefox_org.tutorialHelper.sendSetupStateToTutorial(message.target);
     };
 
-    this.sendTutorialState = function (browser) {
+    this.sendSetupStateToTutorial = function (browser) {
         let [ connectState, setupState, setupActive ] = browser.ownerGlobal.keefox_org.getAddonState();
-        browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
-            "connectState": connectState, "setupState": setupState, "setupActive": setupActive });
+
+        // We have probably already worked out our version string (but maybe not if the
+        // tutorial page is loaded during session restore)
+        if (browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion) {
+            browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
+                "connectState": connectState, "setupState": setupState, "setupActive": setupActive,
+                "version": browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion });
+        } else
+        {
+            Components.utils.import("resource://gre/modules/AddonManager.jsm");
+            AddonManager.getAddonByID("keefox@chris.tomlinson", function(addon) {
+                browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
+                    "connectState": connectState, "setupState": setupState, "setupActive": setupActive,
+                    "version": addon.version });
+            });
+        }
     };
     
     this.mm = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
