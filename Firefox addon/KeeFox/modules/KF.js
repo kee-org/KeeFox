@@ -57,6 +57,8 @@ function KeeFox()
         
     this._keeFoxStorage = this._keeFoxExtension.storage;
 
+    this.latestConnectionError = "";
+
     this._addon_listener = {
         _onUninstallingOrDisabling: function(addon, disabling)
         {
@@ -1214,14 +1216,19 @@ KeeFox.prototype = {
             connectState = "connected";
         else if (keefox_org._keeFoxExtension.prefs.getValue("lastConnectedToKeePass", "no date") != "no date")
             connectState = "previouslyConnected";
-
-        let kpState = keefox_org._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
-        let kprpcInstalled = keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false);
+        
         let setupState = "none";
-        if (kprpcInstalled)
-            setupState = "kprpc";
-        else if (kpState != "" && kpState != "not installed")
-            setupState = "keepass";
+        if (keefox_org.latestConnectionError != "") {
+            setupState = keefox_org.latestConnectionError;
+        } else
+        {
+            let kpState = keefox_org._keeFoxExtension.prefs.getValue("keePassInstalledLocation","not installed");
+            let kprpcInstalled = keefox_org._keeFoxStorage.get("KeePassRPCInstalled", false);
+            if (kprpcInstalled)
+                setupState = "kprpc";
+            else if (kpState != "" && kpState != "not installed")
+                setupState = "keepass";
+        }
 
         let setupActive = keefox_org._keeFoxStorage.get("KFinstallProcessStarted", false);
         

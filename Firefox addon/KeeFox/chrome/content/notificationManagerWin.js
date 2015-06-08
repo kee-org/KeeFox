@@ -91,8 +91,11 @@ keefox_win.notificationManager = {
     remove: function (name) {
         // All notifications with the supplied name are removed from the current tab and window lists
 
-        function shouldKeep(existingNotification, name) {
+        function hasBeenKept(existingNotification, name) {
             let keep = existingNotification.name!==name;
+
+            if (!keep && existingNotification.DOM)
+                existingNotification.DOM.parentNode.removeChild(existingNotification.DOM);
 
             // if the notification we're removing was set to persist, try closing the
             // persistent panel now (sometimes this won't be necessary but it won't do any harm)
@@ -107,7 +110,7 @@ keefox_win.notificationManager = {
         {   
             notificationList = notificationList.filter(function(existingNotification)
             {
-                return shouldKeep(existingNotification, name);
+                return hasBeenKept(existingNotification, name);
             });
             this.tabNotificationMap.set(selectedTab, notificationList);
             this.refreshTabView();
@@ -117,7 +120,7 @@ keefox_win.notificationManager = {
         {
             this.windowNotifications = this.windowNotifications.filter(function(existingNotification)
             {
-                return shouldKeep(existingNotification, name);
+                return hasBeenKept(existingNotification, name);
             });
             this.refreshWindowView();
         }
@@ -202,33 +205,25 @@ keefox_win.notificationManager = {
         this.refreshWindowView();
     },
     refreshWindowView: function () {
-        let container = document.getElementById('KeeFox-PanelSection-notifications-window');
-        while (container.firstChild)
-            container.removeChild(container.firstChild);
-        let notificationList = this.windowNotifications;
-        if (notificationList)
-            //TODO:1.6: order by priority
-            for (var notification of notificationList) {
-                let notificationDOM = this.renderNotification(notification);
-                container.appendChild(notificationDOM);
-                if (notification.onAttached)
-                    notification.onAttached(window.gBrowser.selectedBrowser,document);
-            }
+        this.refreshCommonView(document.getElementById('KeeFox-PanelSection-notifications-window'),
+            this.windowNotifications);
     },
     refreshTabView: function () {
-        let container = document.getElementById('KeeFox-PanelSection-notifications-tab');
-        while (container.firstChild)
-            container.removeChild(container.firstChild);
-        let selectedTab = window.gBrowser.selectedTab;
-        let notificationList = this.tabNotificationMap.get(selectedTab);
-        if (notificationList)
+        this.refreshCommonView(document.getElementById('KeeFox-PanelSection-notifications-tab'),
+            this.tabNotificationMap.get(window.gBrowser.selectedTab));
+    },
+    refreshCommonView: function (container, notificationList) {
+        if (container && notificationList)
             //TODO:1.6: order by priority
             for (var notification of notificationList) {
-                let notificationDOM = this.renderNotification(notification);
-                container.appendChild(notificationDOM);
-                if (notification.onAttached)
-                    notification.onAttached(window.gBrowser.selectedBrowser,document);
-        }
+                if (!notification.DOM)
+                {
+                    notification.DOM = this.renderNotification(notification);
+                    container.appendChild(notification.DOM);
+                    if (notification.onAttached)
+                        notification.onAttached(window.gBrowser.selectedBrowser,document);
+                }
+            }
     },
 
     _prepareNotificationButton : function (but, itemDef, notifyBox, name)

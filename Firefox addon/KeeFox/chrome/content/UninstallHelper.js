@@ -307,6 +307,14 @@ keefox_win.UninstallHelper.prototype =
             button.addEventListener("command", function () { 
                 keefox_org.utils._openAndReuseOneTabPerURL(keefox_org.baseInstallURL);
                 keefox_win.notificationManager.remove("uninstall-helper"); });
+        } else if (action == "setupUpgrade")
+        {
+            // We don't differentiate upgrades from downgrades at the moment - probably won't be
+            // useful very often but metrics data will allow us to review this decision in future
+            button.setAttribute("label",keefox_org.locale.$STR("KeeFox_Install_Setup_KeeFox.label"));
+            button.addEventListener("command", function () { 
+                keefox_org.utils._openAndReuseOneTabPerURL(keefox_org.baseInstallURL+"?upgrade=1");
+                keefox_win.notificationManager.remove("uninstall-helper"); });
         } else // if (action == "help") and fallback for any other actions
         {
             button.setAttribute("label",keefox_org.locale.$STR("KeeFox_Help-Centre-Button.tip"));
@@ -329,10 +337,19 @@ keefox_win.UninstallHelper.prototype =
         let kprpcMissingMono = false;
         let keepassMissing = false;
         let keepassMissingMono = false;
+        let kprpcVersionMismatch = false;
+        let kprpcVersionMismatchMono = false;
+        let connectionError = false;
 
-        if ((connectState == "connected" || connectState == "previouslyConnected") && tutorialProgress.isFinished)
-            allOK = true;
+        if (setupState == "VERSION_CLIENT_TOO_HIGH" || setupState == "VERSION_CLIENT_TOO_LOW" && os == "WINNT")
+            kprpcVersionMismatch = true;
+        else if (setupState == "VERSION_CLIENT_TOO_HIGH" || setupState == "VERSION_CLIENT_TOO_LOW" && os != "WINNT")
+            kprpcVersionMismatchMono = true;
+        else if (setupState != "kprpc" && setupState != "keepass" && setupState != "none")
+            connectionError = true;
         else if ((connectState == "connected" || connectState == "previouslyConnected") && tutorialProgress.isFinished)
+            allOK = true;
+        else if ((connectState == "connected" || connectState == "previouslyConnected") && !tutorialProgress.isFinished)
             tutorialIncomplete = true;
         else if (connectState == "neverConnected" && setupState == "kprpc")
             connectionBlocked = true;
@@ -352,7 +369,7 @@ keefox_win.UninstallHelper.prototype =
                 else
                     mainResponse = this.localise("you-were-close");
 
-                if (allOK)
+                if (allOK || connectionError)
                     customAction = "forum";
                 break;
             case 2:
@@ -367,12 +384,12 @@ keefox_win.UninstallHelper.prototype =
                 break;
             case 5:
                 mainResponse = this.localise("sorry-to-hear-that") + " " + this.localise("not-trusted");
-                if (allOK)
+                if (allOK || connectionError)
                     customAction = "forum";
                 break;
             case 6:
                 mainResponse = this.localise("sorry-to-hear-that") + " " + this.localise("too-slow");
-                if (allOK)
+                if (allOK || connectionError)
                     customAction = "forum";
                 break;
             case 7:
@@ -389,9 +406,12 @@ keefox_win.UninstallHelper.prototype =
                 break;
         }
 
-
-        if (allOK)
+        if (allOK || connectionError)
         {
+            // We don't currently offer any specific advice regarding error messages since the
+            // user should have already seen useful advice when they first occurred but we can
+            // monitor the data metrics in this area and start offering something extra in
+            // future if it looks like it will be worthwhile.
             message = mainResponse;
             action = "help";
         }
@@ -416,12 +436,20 @@ keefox_win.UninstallHelper.prototype =
         {
             message = mainResponse + " " + this.localise("setup-keepass-missing");
             action = "setup";
+        } else if (kprpcVersionMismatch)
+        {
+            message = mainResponse + " " + this.localise("setup-upgrade");
+            action = "setupUpgrade";
+        } else if (kprpcVersionMismatchMono)
+        {
+            message = mainResponse + " " + this.localise("setup-upgrade-mono");
+            action = "setupUpgrade";
         } else
         {
             message = mainResponse + " " + this.localise("setup-keepass-missing-mono");
             action = "setup";
         }
-
+        
         return [message, message2, customAction || action];
     }
 
