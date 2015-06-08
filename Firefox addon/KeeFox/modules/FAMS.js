@@ -367,9 +367,21 @@ FirefoxAddonMessageService.prototype.showMessageHandler = function(message, grou
     var lBody = this.locale.internationaliseString(message.body);
     var lMoreInfoLink = this.locale.internationaliseString(message.moreInfoLink);
 
-    var result = this.showMessage(lTitle, lBody, lMoreInfoLink,
+    let onShowResult = "normal";
+    if (message.onShow)
+    {
+        onShowResult = message.onShow();
+        if (onShowResult == "notnow")
+            return false;
+    }
+
+    var result = false;
+    if (onShowResult == "normal")
+        result = this.showMessage(lTitle, lBody, lMoreInfoLink,
                 message.displayPriorityName, message.displayPersistence, message.actionButtonName, message, groupId);
-    this._log("message ended: " + message.displayCount);
+    else
+        result = true;
+    this._log("message ended: " + message.displayCount + ": " + onShowResult);
     if (result)
     {
         message.lastDisplayedTime = new Date().toUTCString();
@@ -633,6 +645,7 @@ FirefoxAddonMessageService.prototype.getConfiguration = function ()
                 {
                     let msgId = newConf.messageGroups[i].messages[msgIndex].id;
 
+                    //TODO:2: KeeFox specific
                     // The fact we are upgrading suggests the user does not need to be
                     // welcomed to KeeFox (unless it's been years since they last used it)
                     if (msgId == "messages201506020000a" && newConf.version == 6 && conf.version == 5)

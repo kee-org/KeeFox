@@ -521,7 +521,24 @@ var FAMSDefaultConfig = {
                 displayPriorityName: "medium",
                 displayPersistence: 10,
                 minTimeBetweenDisplay: 2419200000, // 1 day
-                lastDisplayedTime: "8 Jul, 2005 23:34:54 UTC"
+                lastDisplayedTime: "8 Jul, 2005 23:34:54 UTC",
+                onShow: function () {
+                    
+                    // If tutorial has been started we skip display of message the first time around
+                    // but 2nd time (~1 day later) they need to have finished part1, part2 and
+                    // have saved a password to avoid the message appearing; 3rd time - they need
+                    // to have finished the main part of it to avoid the message appearing
+                    let progress = keefox_org.tutorialHelper.progress;
+                    
+                    if (this.displayCount == 0 && progress.started)
+                        return "pretend";
+                    else if (this.displayCount == 1 && progress.part1 && progress.part2 && progress.saved)
+                        return "pretend";
+                    else if (this.displayCount > 1 && progress.isFinished)
+                        return "pretend";
+                    return "normal";
+                    //return "notnow";
+                }
             }]
         }]
 };
