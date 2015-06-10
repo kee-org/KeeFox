@@ -825,6 +825,8 @@ KPRPCConnectionObserver.prototype = {
   }
 }
 
+// uriUtils.js expects global variable "Logger"
+var Logger = keefox_org._KFLog;
 keeFoxDialogManager.scriptLoader.loadSubScript(
     "chrome://keefox/content/shared/uriUtils.js", keeFoxDialogManager);
 window.addEventListener("load", keeFoxDialogManager.dialogInit, false);
