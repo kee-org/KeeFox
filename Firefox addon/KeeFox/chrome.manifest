@@ -7,6 +7,9 @@ overlay	chrome://global/content/commonDialog.xul chrome://keefox/content/protoco
 
 overlay chrome://messenger/content/messenger.xul chrome://keefox/content/panel.xul
 
+# This is for the "Provider for Google Calendar" extension in Thunderbird
+overlay chrome://gdata-provider/content/browserRequest.xul chrome://keefox/content/gdata-provider.xul
+
 skin keefox classic/1.0 chrome/skin/
 resource kfmod modules/
 
