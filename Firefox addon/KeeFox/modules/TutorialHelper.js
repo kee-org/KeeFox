@@ -108,21 +108,23 @@ let TutorialHelper = function()
     };
 
     this.sendSetupStateToTutorial = function (browser) {
-        let [ connectState, setupState, setupActive ] = browser.ownerGlobal.keefox_org.getAddonState();
+        let [ connectState, setupState, setupActive, notUsed, dbState ] = browser.ownerGlobal.keefox_org.getAddonState();
 
         // We have probably already worked out our version string (but maybe not if the
         // tutorial page is loaded during session restore)
         if (browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion) {
             browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
                 "connectState": connectState, "setupState": setupState, "setupActive": setupActive,
-                "version": browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion });
+                "version": browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion,
+                "dbState": dbState });
         } else
         {
             Components.utils.import("resource://gre/modules/AddonManager.jsm");
             AddonManager.getAddonByID("keefox@chris.tomlinson", function(addon) {
                 browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
                     "connectState": connectState, "setupState": setupState, "setupActive": setupActive,
-                    "version": addon.version });
+                    "version": addon.version,
+                    "dbState": dbState });
             });
         }
     };

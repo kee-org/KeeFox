@@ -41,6 +41,7 @@ Cu.import("resource://kfmod/config.js");
 Cu.import("resource://kfmod/commands.js");
 Cu.import("resource://kfmod/search.js");
 Cu.import("resource://kfmod/TutorialHelper.js");
+Cu.import("resource://kfmod/SampleChecker.js");
 
 // constructor
 function KeeFox()
@@ -135,6 +136,7 @@ function KeeFox()
     });
 
     this.tutorialHelper = tutorialHelper;
+    this.sampleChecker = sampleChecker;
 
     var observerService = Components.classes["@mozilla.org/observer-service;1"].
                               getService(Ci.nsIObserverService);
@@ -239,23 +241,23 @@ KeeFox.prototype = {
         
         if ((this.os != "WINNT") || (userHasSetMonoLocation != ""))
         {
-          this.useMono = true;
-          utils.useMono = true;
+            this.useMono = true;
+            utils.useMono = true;
         }
         else
         {
-          this.useMono = false;
-          utils.useMono = false;
+            this.useMono = false;
+            utils.useMono = false;
         }
 
         // Set the baseURL to use for Mono vs Windows
         if (!this.useMono)
         {
-          this.baseInstallURL = 'chrome://keefox/content/install.xul';
+            this.baseInstallURL = 'chrome://keefox/content/install.xul';
         }
         else
         {
-          this.baseInstallURL = 'chrome://keefox/content/install_mono.xul';
+            this.baseInstallURL = 'chrome://keefox/content/install_mono.xul';
         }
         
         this._KFLog.info("KeeFox initialising");
@@ -330,19 +332,19 @@ KeeFox.prototype = {
 
             if (this.useMono)
             {
-              monoLocation = utils._discoverMonoLocation(this.defaultMonoExec);
-              if (monoLocation != "not installed")
-              {
-                let monoExecFound = utils._confirmMonoLocation(monoLocation);
-                if (!monoExecFound)
+                monoLocation = utils._discoverMonoLocation(this.defaultMonoExec);
+                if (monoLocation != "not installed")
                 {
-                  this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
+                    let monoExecFound = utils._confirmMonoLocation(monoLocation);
+                    if (!monoExecFound)
+                    {
+                        this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
+                    }
                 }
-              }
-              else
-              {
-                this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
-              }
+                else
+                {
+                    this._keeFoxExtension.prefs.setValue("monoLocation",""); //TODO:2: set this to "not installed"?
+                }
             }
         }
         
@@ -361,8 +363,8 @@ KeeFox.prototype = {
             {
                 if ((this.useMono) && (monoLocation == "not installed"))
                 {
-                  this._KFLog.info("Mono executable not present in expected location");
-                  this._launchInstaller();                    
+                    this._KFLog.info("Mono executable not present in expected location");
+                    this._launchInstaller();                    
                 }
                 else if (!KeePassEXEfound)
                 {
@@ -438,7 +440,7 @@ KeeFox.prototype = {
     {
         this._KFLog.debug("Refreshing KeeFox's view of the KeePass database.");
         var dbName = this.getDatabaseName();
-         if (dbName === null)
+        if (dbName === null)
         {
             this._KFLog.debug("No database is currently open.");
             this._keeFoxStorage.set("KeePassDatabaseOpen", false);
@@ -538,11 +540,11 @@ KeeFox.prototype = {
             var keepassLoc = this._keeFoxExtension.prefs.getValue("keePassInstalledLocation", "");
             if (keepassLoc == "")
             {
-              keepass_exec = homeDir+"/KeePass/KeePass.exe";
+                keepass_exec = homeDir+"/KeePass/KeePass.exe";
             }
             else
             {
-              keepass_exec = keepassLoc+"/KeePass.exe";
+                keepass_exec = keepassLoc+"/KeePass.exe";
             }
             
             args.push(keepass_exec);
@@ -991,13 +993,14 @@ KeeFox.prototype = {
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
 
+                    //TODO:1.5: Localise
                     if (newValue && promptService.confirmEx(window, "Password management",
                         "The KeeFox add-on may not work correctly if you allow"
                         + " Firefox to manage your passwords. Should KeeFox disable"
                         + " the built-in Firefox password manager?",
                                flags, "", "", "", null, {}) == 0)
                     {
-                      prefBranch.setBoolPref("signon.rememberSignons", false);
+                        prefBranch.setBoolPref("signon.rememberSignons", false);
                     }
                     break;
                 case "logLevel":
@@ -1081,11 +1084,11 @@ KeeFox.prototype = {
         var now = (new Date()).getTime();
         
         // avoid refreshing more frequently than every half second
-//        if (refresh && keefox_org.lastKeePassRPCRefresh > now-5000)
-//        {    
-//            keefox_org._KFLog.info("Signal ignored. @" + sigTime);
-//            return;
-//        }
+        //        if (refresh && keefox_org.lastKeePassRPCRefresh > now-5000)
+        //        {    
+        //            keefox_org._KFLog.info("Signal ignored. @" + sigTime);
+        //            return;
+        //        }
         
         // If there is nothing in the queue at the moment we can process this callback straight away
         if (!keefox_org.processingCallback && keefox_org.pendingCallback == "")
@@ -1231,12 +1234,21 @@ KeeFox.prototype = {
         }
 
         let setupActive = keefox_org._keeFoxStorage.get("KFinstallProcessStarted", false);
-        
-        return [connectState,setupState,setupActive, keefox_org.tutorialHelper.progress];
-    }
+
+        let dbState = "none";
+        if (keefox_org.KeePassDatabases != null && keefox_org.KeePassDatabases.length > 0)
+        {
+            if (keefox_org.sampleChecker.databasesContainsSamples(keefox_org.KeePassDatabases))
+                dbState = "ok";
+            else
+                dbState = "noSamples";
+        }
+        return [connectState,setupState,setupActive, keefox_org.tutorialHelper.progress, dbState];
+    },
+
 };
 
-var keefox_org = new KeeFox;
+    var keefox_org = new KeeFox;
 
 // abort if we find a conflict
 if (!utils._checkForConflictingExtensions())
