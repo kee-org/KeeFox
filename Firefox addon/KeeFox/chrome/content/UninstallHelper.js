@@ -88,7 +88,7 @@ keefox_win.UninstallHelper.prototype =
         let anchorPos = this.doc.getElementById("keefox-button").boxObject.screenY;
         let availableHeightForPanel = Math.abs(anchorPos - (avHeight/2))+(avHeight/2);
         
-        if (availableHeightForPanel < 500)
+        if (availableHeightForPanel < 650)
             varients.smallScreen = 1;        
 
         if (Math.random() > 0.5) {
@@ -151,8 +151,8 @@ keefox_win.UninstallHelper.prototype =
         let reasonsRadios = this.doc.createElement('radiogroup');
         reasonsRadios.setAttribute("id","keefox-uninstall-helper-feedback-reason");
 
-        if (varients.smallScreen)
-        {
+        //if (varients.smallScreen)
+        //{
             let grid = this.doc.createElement('grid');
             let columns = this.doc.createElement('columns');
             let column1 = this.doc.createElement('column');
@@ -188,13 +188,13 @@ keefox_win.UninstallHelper.prototype =
             grid.appendChild(rows);
 
             reasonsRadios.appendChild(grid);
-        } else {
+        //} else {
         
-            for (let reason of reasons)
-            {
-                reasonsRadios.appendChild(reason);
-            }
-        }
+        //    for (let reason of reasons)
+        //    {
+        //        reasonsRadios.appendChild(reason);
+        //    }
+        //}
         
         reasonsRadios.selectedIndex = -1;
         container.appendChild(reasonsRadios);
