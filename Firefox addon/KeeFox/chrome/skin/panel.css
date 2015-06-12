@@ -580,6 +580,17 @@ width:50% !important;
     margin-bottom: 10px;
 }
 
+#keefox-uninstall-helper-feedback-container radio,
+#keefox-uninstall-helper-response-container radio {
+    margin: 0px 4px;
+}
+
+#keefox-uninstall-helper-feedback-container radio label,
+#keefox-uninstall-helper-response-container radio label {
+    margin: 0px 4px;
+    width: unset;
+}
+
 #keefox-save-password-update-panel2 > hbox {
     -moz-box-align:center;
 }
@@ -726,3 +737,19 @@ button.KeeFox-SaveLogin-Abort {
     background-color: #fff;
 }
 
+/*
+#keefox-persistent-panel .panel-arrowcontent {
+    overflow-y: auto !important;
+}
+
+
+#keefox-persistent-panel .panel-arrowcontent {
+    overflow-y: auto !important;
+    width:700px;
+}
+
+
+#keefox-persistent-panel .panel-arrowcontent #KeeFox-PanelSection-notifications-window {
+    overflow-y: scroll !important;
+    background-color:red !important;
+}*/

@@ -62,7 +62,8 @@ keefox_win.UninstallHelper.prototype =
             feedbackInvitation: 0,
             reasonOrder: 0,
             successNotification: 0,
-            whyLocation: 0
+            whyLocation: 0,
+            smallScreen: 0
         };
 
         let attachSuccessNotification = function(disabling) {
@@ -82,10 +83,17 @@ keefox_win.UninstallHelper.prototype =
             why.textContent = this.localise("why-sorry");
             container.appendChild(why);
         };
+
+        let avHeight = this.doc.defaultView.screen.availHeight;
+        let anchorPos = this.doc.getElementById("keefox-button").boxObject.screenY;
+        let availableHeightForPanel = Math.abs(anchorPos - (avHeight/2))+(avHeight/2);
         
+        if (availableHeightForPanel < 500)
+            varients.smallScreen = 1;        
 
         if (Math.random() > 0.5) {
-            attachSuccessNotification.call(this,disabling);
+            if (!varients.smallScreen)
+                attachSuccessNotification.call(this,disabling);
             varients.successNotification = 1;
         } else {
             varients.successNotification = 2;
@@ -116,7 +124,7 @@ keefox_win.UninstallHelper.prototype =
             feedbackInvitation = this.localise("feedback-invitation-2");
         }
 
-        if (varients.whyLocation == 1)
+        if (!varients.smallScreen && varients.whyLocation == 1)
             attachWhy.call(this);
 
         attachFeedbackInvitaton.call(this,feedbackInvitation);
@@ -142,10 +150,52 @@ keefox_win.UninstallHelper.prototype =
 
         let reasonsRadios = this.doc.createElement('radiogroup');
         reasonsRadios.setAttribute("id","keefox-uninstall-helper-feedback-reason");
-        for (let reason of reasons)
+
+        if (varients.smallScreen)
         {
-            reasonsRadios.appendChild(reason);
+            let grid = this.doc.createElement('grid');
+            let columns = this.doc.createElement('columns');
+            let column1 = this.doc.createElement('column');
+            let column2 = this.doc.createElement('column');
+            let rows = this.doc.createElement('rows');
+            columns.appendChild(column1);
+            columns.appendChild(column2);
+            grid.appendChild(columns);
+
+
+            let row1 = this.doc.createElement('row');
+            let row2 = this.doc.createElement('row');
+            let row3 = this.doc.createElement('row');
+            let row4 = this.doc.createElement('row');
+            let row5 = this.doc.createElement('row');
+            row1.appendChild(reasons[0]);
+            row1.appendChild(reasons[1]);
+            row2.appendChild(reasons[2]);
+            row2.appendChild(reasons[3]);
+            row3.appendChild(reasons[4]);
+            row3.appendChild(reasons[5]);
+            row4.appendChild(reasons[6]);
+            row4.appendChild(reasons[7]);
+            row5.appendChild(reasons[8]);
+            //row5.appendChild(reasons[1]);
+        
+            rows.appendChild(row1);
+            rows.appendChild(row2);
+            rows.appendChild(row3);
+            rows.appendChild(row4);
+            rows.appendChild(row5);
+
+            grid.appendChild(rows);
+
+            reasonsRadios.appendChild(grid);
+        } else {
+        
+            for (let reason of reasons)
+            {
+                reasonsRadios.appendChild(reason);
+            }
         }
+        
         reasonsRadios.selectedIndex = -1;
         container.appendChild(reasonsRadios);
 
@@ -174,7 +224,7 @@ keefox_win.UninstallHelper.prototype =
         extra.addEventListener("keypress", pnCountNoteChars, false);
         container.appendChild(extra);
 
-        if (varients.whyLocation == 2)
+        if (!varients.smallScreen && varients.whyLocation == 2)
             attachWhy.call(this);
 
         let button = this.doc.createElement('button');
@@ -184,7 +234,7 @@ keefox_win.UninstallHelper.prototype =
 
         container.appendChild(button);
 
-        if (varients.whyLocation == 3)
+        if (!varients.smallScreen && varients.whyLocation == 3)
             attachWhy.call(this);
 
         this.varients = varients;
