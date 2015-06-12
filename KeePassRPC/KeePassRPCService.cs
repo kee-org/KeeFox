@@ -1490,26 +1490,40 @@ namespace KeePassRPC
         {
             EntryConfig destConfig;
             string destJSON = KeePassRPCPlugin.GetPwEntryString(destination, "KPRPC JSON", db);
-            try
+            if (string.IsNullOrEmpty(destJSON))
             {
-                destConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), destJSON);
+                destConfig = new EntryConfig();
             }
-            catch (Exception)
+            else
             {
-                MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + destination.Strings.ReadSafe("URL") + " and the full configuration data is: " + destJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                try
+                {
+                    destConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), destJSON);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + destination.Strings.ReadSafe("URL") + " and the full configuration data is: " + destJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
             }
 
             EntryConfig sourceConfig;
             string sourceJSON = KeePassRPCPlugin.GetPwEntryString(source, "KPRPC JSON", db);
-            try
+            if (string.IsNullOrEmpty(sourceJSON))
             {
-                sourceConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), sourceJSON);
+                sourceConfig = new EntryConfig();
             }
-            catch (Exception)
+            else
             {
-                MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + source.Strings.ReadSafe("URL") + " and the full configuration data is: " + sourceJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                try
+                {
+                    sourceConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), sourceJSON);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + source.Strings.ReadSafe("URL") + " and the full configuration data is: " + sourceJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
             }
 
             destination.CreateBackup(db);
