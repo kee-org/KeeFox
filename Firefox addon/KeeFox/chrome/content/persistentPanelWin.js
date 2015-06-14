@@ -67,25 +67,25 @@ keefox_win.persistentPanel = {
         this.thePanel.addEventListener('popuphidden', this.onpopuphidden, false);
     },
     showNotifications: function () {
-        this.thePanel.removeEventListener('popuphidden', this.showNotifications, false);
-        if (this.thePanel.state == "open")
+        keefox_win.persistentPanel.thePanel.removeEventListener('popuphidden', keefox_win.persistentPanel.showNotifications, false);
+        if (keefox_win.persistentPanel.thePanel.state == "open")
         {
-            this.thePanel.addEventListener('popuphidden', this.showNotifications, false);
-            this.thePanel.hidePopup();
+            keefox_win.persistentPanel.thePanel.addEventListener('popuphidden', keefox_win.persistentPanel.showNotifications, false);
+            keefox_win.persistentPanel.thePanel.hidePopup();
             return;
         }
-        this.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-tab'));
-        this.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
+        keefox_win.persistentPanel.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-tab'));
+        keefox_win.persistentPanel.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
     },
     showWindowNotifications: function () {
-        this.thePanel.removeEventListener('popuphidden', this.showWindowNotifications, false);
-        if (this.thePanel.state == "open")
+        keefox_win.persistentPanel.thePanel.removeEventListener('popuphidden', keefox_win.persistentPanel.showWindowNotifications, false);
+        if (keefox_win.persistentPanel.thePanel.state == "open")
         {
-            this.thePanel.addEventListener('popuphidden', this.showWindowNotifications, false);
-            this.thePanel.hidePopup();
+            keefox_win.persistentPanel.thePanel.addEventListener('popuphidden', keefox_win.persistentPanel.showWindowNotifications, false);
+            keefox_win.persistentPanel.thePanel.hidePopup();
             return;
         }
-        this.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-window'));
-        this.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
+        keefox_win.persistentPanel.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-window'));
+        keefox_win.persistentPanel.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
     }
 };

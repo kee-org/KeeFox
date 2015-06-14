@@ -213,17 +213,41 @@ keefox_win.notificationManager = {
             this.tabNotificationMap.get(window.gBrowser.selectedTab));
     },
     refreshCommonView: function (container, notificationList) {
+
+        // Remove any notifications from the DOM that are no longer referenced in our notificationList
+        for (let dom of container.childNodes)
+        {
+            let keep = false;
+            if (notificationList && notificationList.length > 0) {
+                for (let notification of notificationList)
+                {
+                    if (notification.DOM == dom)
+                    {
+                        keep = true;
+                        break;
+                    }
+                }
+            }
+            if (!keep)
+                container.removeChild(dom);
+        }
+        
+        // Add any new notifications
         if (container && notificationList)
-            //TODO:1.6: order by priority
-            for (var notification of notificationList) {
+            for (let notification of notificationList) {
                 if (!notification.DOM)
                 {
                     notification.DOM = this.renderNotification(notification);
                     container.appendChild(notification.DOM);
                     if (notification.onAttached)
                         notification.onAttached(window.gBrowser.selectedBrowser,document);
+                } else if (!notification.DOM.parentNode) {
+                    // Re-attach an existing notification that was not applicable to the previous tab
+                    container.appendChild(notification.DOM);
                 }
             }
+        
+        //TODO:1.6: re-order by priority
     },
 
     _prepareNotificationButton : function (but, itemDef, notifyBox, name)
