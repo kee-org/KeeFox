@@ -402,5 +402,6 @@ Search.prototype = {
             if (totalResultCount >= this._config.maximumResults)
                 return totalResultCount;
 		}
+        return totalResultCount;
 	}
 };
