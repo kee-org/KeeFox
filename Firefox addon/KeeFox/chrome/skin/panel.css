@@ -72,6 +72,10 @@ panelmultiview[mainViewId="keefox-panelview"] .panel-mainview
     padding:5px;
 }
 
+#keefox-persistent-panel box.panel-arrowcontent
+{
+    background-color: #FFFFFF;
+}
 
 /* backup max height option: Panel wrapper style *
 #KeeFox-PanelSection-div-wrapper
@@ -449,12 +453,13 @@ display: block;
     max-width:24px;
     height:24px;
     max-height:24px;
-    padding:0px;
+    padding:1px 0px 0px 0px;
     margin:0px 5px;
-    line-height:1;
-    font-size:.8em;
+    font-size:14px;
     font-weight: bold;
+    line-height:1;
     color: #dd2222;
+    font-family: Arial,sans-serif;
 }
 
 #keefox-panelview .keeFoxNotification button.KeeFox-Close-Notification:hover,
@@ -477,6 +482,7 @@ display: block;
     margin: 5px;
     min-width: 350px;
     display:inline-block;
+    background-color: #FFFFFF;
 }
 
 #keefox-save-password-db-select
@@ -490,6 +496,7 @@ display: block;
     display:inline-block;
     border: 1px solid #D6D6D6;
     padding: 3px 5px;
+    background-color: #FFFFFF;
 }
 #KeeFox-PanelSection-searchfilter {
     margin:5px 0px 5px 0px;
@@ -595,6 +602,23 @@ width:50% !important;
     -moz-box-align:center;
 }
 
+#keefox-save-password-update-panel2 > hbox:nth-child(1) {
+    padding-top:10px;
+}
+
+#keefox-save-password-update-panel2 > hbox:nth-child(2) {
+    padding-top:10px;
+    margin-top:10px;
+    border-top:1px solid #D6D6D6;
+}
+
+#keefox-save-password-update-panel2 > hbox#KeeFox-loginURLsUpdateStatusContainer {
+    padding-top:10px;
+    margin-top:10px;
+    margin-bottom:0px;
+    border-top:1px solid #D6D6D6;
+}
+
 #KeeFox-SaveLogin-searchbox
 {
     width: calc(100% - 12px);
@@ -648,9 +672,10 @@ button.KeeFox-SaveLogin-Abort {
 }
 
 #KeeFox-loginURLsUpdateRadioGroup {
-    margin:10px 0px;
+    margin:10px 0px 0px 0px;
+    padding-top:10px;
+    border-top:1px solid #D6D6D6;
 }
-
 
 #keefox-persistent-panel .disabled {
     display:none;
@@ -736,20 +761,3 @@ button.KeeFox-SaveLogin-Abort {
 {
     background-color: #fff;
 }
-
-/*
-#keefox-persistent-panel .panel-arrowcontent {
-    overflow-y: auto !important;
-}
-
-
-#keefox-persistent-panel .panel-arrowcontent {
-    overflow-y: auto !important;
-    width:700px;
-}
-
-
-#keefox-persistent-panel .panel-arrowcontent #KeeFox-PanelSection-notifications-window {
-    overflow-y: scroll !important;
-    background-color:red !important;
-}*/
