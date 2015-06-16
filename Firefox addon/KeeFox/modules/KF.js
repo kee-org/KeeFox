@@ -142,6 +142,7 @@ function KeeFox()
                               getService(Ci.nsIObserverService);
     this._observer._kf = this;    
     observerService.addObserver(this._observer, "quit-application", false);   
+    observerService.addObserver(this._observer, "http-on-modify-request", false);
         
     this._keeFoxExtension.prefs._prefBranchRoot.QueryInterface(Ci.nsIPrefBranch2);
     this._keeFoxExtension.prefs._prefBranchRoot.addObserver("signon.rememberSignons", this._observer, false);
@@ -964,17 +965,31 @@ KeeFox.prototype = {
                     window.keefox_org._KFLog.info("KeeFox has shut down. Sad times; come back soon!");
                     break;
                 case "nsPref:changed":
-                    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                                       .getService(Components.interfaces.nsIWindowMediator);
+                    var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+                                       .getService(Ci.nsIWindowMediator);
                     var window = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
 
                     // get a reference to the prompt service component.
-                    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                    .getService(Components.interfaces.nsIPromptService);
-                    subject.QueryInterface(Components.interfaces.nsIPrefBranch);
+                    var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
+                                    .getService(Ci.nsIPromptService);
+                    subject.QueryInterface(Ci.nsIPrefBranch);
                     
                     this.preferenceChangeResponder(subject, data, window, promptService);
+                    break;
+                case "http-on-modify-request":
+                    // Send a custom header to the tutorial website so we know that
+                    // the user is running KeeFox 1.5 or above. We don't send any
+                    // details (such as the exact version) until the tutorial page
+                    // requests the information via a custom Javascript event.
+                    let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
+                    let host = httpChannel.originalURI.host;
+                    if (host.startsWith("tutorial") && 
+                        (host == "tutorial.keefox.org" || 
+                        host == "tutorial-section-b.keefox.org" || 
+                        host == "tutorial-section-c.keefox.org" || 
+                        host == "tutorial-section-d.keefox.org"))
+                        httpChannel.setRequestHeader("X-KeeFox", "Installed", false);
                     break;
             }          
         },
