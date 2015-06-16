@@ -947,7 +947,6 @@ KeeFox.prototype = {
             if (window == undefined || window == null
                 || window.keefox_org == undefined || window.keefox_org == null)
                 return;
-            window.keefox_org._KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
 
             switch(topic)
             {
@@ -965,6 +964,7 @@ KeeFox.prototype = {
                     window.keefox_org._KFLog.info("KeeFox has shut down. Sad times; come back soon!");
                     break;
                 case "nsPref:changed":
+                    window.keefox_org._KFLog.debug("Observed an event: " + subject + "," + topic + "," + data);
                     var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
                                        .getService(Ci.nsIWindowMediator);
                     var window = wm.getMostRecentWindow("navigator:browser") ||
