@@ -75,7 +75,7 @@ keefox_win.persistentPanel = {
             return;
         }
         keefox_win.persistentPanel.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-tab'));
-        keefox_win.persistentPanel.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
+        keefox_win.persistentPanel.thePanel.openPopup(this.getAnchor(), "bottomcenter topleft", 0, 0, false, false);
     },
     showWindowNotifications: function () {
         keefox_win.persistentPanel.thePanel.removeEventListener('popuphidden', keefox_win.persistentPanel.showWindowNotifications, false);
@@ -86,6 +86,20 @@ keefox_win.persistentPanel = {
             return;
         }
         keefox_win.persistentPanel.thePanel.appendChild(document.getElementById('KeeFox-PanelSection-notifications-window'));
-        keefox_win.persistentPanel.thePanel.openPopup(document.getElementById('keefox-button'), "bottomcenter topleft", 0, 0, false, false);
+        keefox_win.persistentPanel.thePanel.openPopup(this.getAnchor(), "bottomcenter topleft", 0, 0, false, false);
+    },
+    getAnchor: function () {
+        let buttonPlacement = keefox_win.mainUI.CustomizableUI.getPlacementOfWidget('keefox-button');
+        if (!buttonPlacement)
+            return document.getElementById('PanelUI-menu-button'); // Widget is not available (in the customisation pallette instead?)
+        
+        let areaType = keefox_win.mainUI.CustomizableUI.getAreaType(buttonPlacement.area);
+
+        if (areaType == keefox_win.mainUI.CustomizableUI.TYPE_MENU_PANEL)
+            return document.getElementById('PanelUI-menu-button');
+        else if (keefox_win.mainUI._widget.overflowed)
+            return document.getElementById('nav-bar-overflow-button');
+        else
+            return document.getElementById('keefox-button');
     }
 };

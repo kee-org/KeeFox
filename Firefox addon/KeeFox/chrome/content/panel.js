@@ -1758,17 +1758,21 @@ keefox_win.panel = {
         if (!buttonPlacement)
             return; // Widget is not available (in the customisation pallette instead?)
         
-        if (buttonPlacement.area == CustomizableUI.TYPE_MENU_PANEL)
+        if (CustomizableUI.getAreaType(buttonPlacement.area) == CustomizableUI.TYPE_MENU_PANEL)
         {
             // We're in the main Firefox menu so we need to make that appear first
+            this._currentWindow.document.defaultView.PanelUI.show();
 
+            // There is probably a missing step here because the Firefox main menu
+            // is all messed up if the user closes the KeeFox panel by clicking to the 
+            // left on the main menu. It's just a bit messy rather than a big problem. 
+            // Some event must be fired oncommand from buttons within the main menu but since 
+            // devtools can't inspect the menu, we can't know what trick is happening. 
         }
 
         this._currentWindow.document.defaultView.PanelUI.showSubView('keefox-panelview',
                     this._widget.anchor,
                     buttonPlacement.area);
-
-
     },
     
     displayContextMenu: function (doc, event, id)
