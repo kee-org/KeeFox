@@ -376,7 +376,12 @@ keefox_tab.sendStatusToTutorialPageHandler = function (message) {
     transferElement.setAttribute("state", JSON.stringify(message.data));
     content.document.documentElement.appendChild(transferElement);
 
-    let event = new Event("KeeFoxAddonStateTransferEvent", { "bubbles": true, "cancelable": false });
+    let event;
+    // From ~FF39 we can use the Event constructor but before that we must use the deprecated
+    // initEvent approach (despite it being "deprecated" since FF11!)
+    // event = new Event("KeeFoxAddonStateTransferEvent", { "bubbles": true, "cancelable": false });
+    event = content.document.createEvent("Events");
+    event.initEvent("KeeFoxAddonStateTransferEvent", true, false);
     transferElement.dispatchEvent(event);
 };
 
