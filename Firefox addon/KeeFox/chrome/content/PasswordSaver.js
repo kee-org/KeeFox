@@ -266,41 +266,11 @@ keefox_win.PasswordSaver.prototype =
         spacer1.setAttribute("flex", "1");
         selectedEntryContainer.appendChild(spacer1);
         let selectedEntryChangeButton = this.doc.createElement('button');
-        selectedEntryChangeButton.setAttribute("label", keefox_org.locale.$STR("change"));
+        selectedEntryChangeButton.setAttribute("label", keefox_org.locale.$STR("search-again"));
         selectedEntryChangeButton.classList.add("KeeFox-SaveLogin-Change-Setting");
         selectedEntryChangeButton.addEventListener("command", this.enableSelectEntryToUpdate.bind(this));
         selectedEntryContainer.appendChild(selectedEntryChangeButton);
         panel.appendChild(selectedEntryContainer);
-
-        let loginFieldsUpdateStatusContainer = this.doc.createElement('hbox');
-        let loginFieldsUpdateStatus = this.doc.createElement('label');
-        loginFieldsUpdateStatus.textContent = keefox_org.locale.$STR("change-field-status");
-        loginFieldsUpdateStatus.classList.add("KeeFox-message");
-        loginFieldsUpdateStatusContainer.appendChild(loginFieldsUpdateStatus);
-        let spacer2 = this.doc.createElement("spacer");
-        spacer2.setAttribute("flex", "1");
-        loginFieldsUpdateStatusContainer.appendChild(spacer2);
-        let loginFieldsUpdateButton = this.doc.createElement('button');
-        loginFieldsUpdateButton.setAttribute("label", keefox_org.locale.$STR("change"));
-        loginFieldsUpdateButton.setAttribute("id","KeeFox-loginFieldsUpdateButton");
-        loginFieldsUpdateButton.classList.add("KeeFox-SaveLogin-Change-Setting");
-        loginFieldsUpdateButton.addEventListener("command", this.enableEditFields.bind(this));
-        loginFieldsUpdateStatusContainer.appendChild(loginFieldsUpdateButton);
-        panel.appendChild(loginFieldsUpdateStatusContainer);
-
-        let loginFieldsUpdateActionContainer = this.doc.createElement('vbox');
-        loginFieldsUpdateActionContainer.classList.add("disabled");
-        loginFieldsUpdateActionContainer.setAttribute("id","KeeFox-loginFieldsUpdateActionContainer");
-        let loginFieldsUpdateActionExplanation = this.doc.createElement('label');
-        loginFieldsUpdateActionExplanation.textContent = keefox_org.locale.$STR("change-field-explanation");
-        loginFieldsUpdateActionExplanation.classList.add("KeeFox-message");
-        loginFieldsUpdateActionContainer.appendChild(loginFieldsUpdateActionExplanation);
-        let loginFieldsUpdateAbortButton = this.doc.createElement('button');
-        loginFieldsUpdateAbortButton.setAttribute("label", keefox_org.locale.$STR("abort-and-edit"));
-        loginFieldsUpdateAbortButton.classList.add("KeeFox-SaveLogin-Abort");
-        loginFieldsUpdateAbortButton.addEventListener("command", this.abortAndLaunchManualEdit.bind(this));
-        loginFieldsUpdateActionContainer.appendChild(loginFieldsUpdateAbortButton);
-        panel.appendChild(loginFieldsUpdateActionContainer);
 
         let loginURLsUpdateStatusContainer = this.doc.createElement('hbox');
         loginURLsUpdateStatusContainer.setAttribute("id","KeeFox-loginURLsUpdateStatusContainer");
@@ -312,7 +282,7 @@ keefox_win.PasswordSaver.prototype =
         spacer3.setAttribute("flex", "1");
         loginURLsUpdateStatusContainer.appendChild(spacer3);
         let loginURLsUpdateButton = this.doc.createElement('button');
-        loginURLsUpdateButton.setAttribute("label", keefox_org.locale.$STR("change"));
+        loginURLsUpdateButton.setAttribute("label", keefox_org.locale.$STR("more-options"));
         loginURLsUpdateButton.classList.add("KeeFox-SaveLogin-Change-Setting");
         loginURLsUpdateButton.addEventListener("command", this.enableEditURLs.bind(this));
         loginURLsUpdateStatusContainer.appendChild(loginURLsUpdateButton);
@@ -376,16 +346,6 @@ keefox_win.PasswordSaver.prototype =
         loginURLsUpdateStatusContainer.classList.remove("enabled");
         loginURLsUpdateRadioGroup.classList.add("enabled");
         loginURLsUpdateRadioGroup.classList.remove("disabled");
-    },
-
-    enableEditFields: function ()
-    {
-        let loginFieldsUpdateButton = this.doc.getElementById("KeeFox-loginFieldsUpdateButton");
-        let loginFieldsUpdateActionContainer = this.doc.getElementById("KeeFox-loginFieldsUpdateActionContainer");
-        loginFieldsUpdateButton.classList.add("disabled");
-        loginFieldsUpdateButton.classList.remove("enabled");
-        loginFieldsUpdateActionContainer.classList.add("enabled");
-        loginFieldsUpdateActionContainer.classList.remove("disabled");
     },
 
     enableNewEntry: function ()
