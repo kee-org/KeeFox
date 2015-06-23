@@ -24,11 +24,12 @@
 let Cc = Components.classes;
 let Ci = Components.interfaces;
 
-keefox_win.PasswordSaver = function(doc, saveData, URLs)
+keefox_win.PasswordSaver = function(doc, saveData, URLs, saveButtonCallback)
 {
     this.doc = doc;
     this.saveData = saveData;
     this.URLs = URLs;
+    this.saveButtonCallback = saveButtonCallback;
 
     Cu.import("resource://kfmod/search.js", this);
 
@@ -215,6 +216,9 @@ keefox_win.PasswordSaver.prototype =
               
         let groupSelContainer = this.createGroupSelector();
         panel.appendChild(groupSelContainer);
+
+        panel.appendChild(this.generateCreateButton());
+
         return panel;
     },
 
@@ -309,7 +313,30 @@ keefox_win.PasswordSaver.prototype =
         loginURLsUpdateRadioGroup.appendChild(loginURLsUpdateRadio4);
         panel.appendChild(loginURLsUpdateRadioGroup);
 
+        panel.appendChild(this.generateUpdateButton());
+
         return panel;
+    },
+    
+    generateCreateButton: function ()
+    {
+        return this.generateCreateUpdateButton(keefox_org.locale.$STR("create"));
+    },
+
+    generateUpdateButton: function ()
+    {
+        return this.generateCreateUpdateButton(keefox_org.locale.$STR("update"));
+    },
+
+    generateCreateUpdateButton: function (label)
+    {
+        let hbox = this.doc.createElement('hbox');
+        hbox.setAttribute("pack","end");
+        let button = this.doc.createElement('button');
+        button.setAttribute("label",label);
+        button.addEventListener("command", this.saveButtonCallback);
+        hbox.appendChild(button);
+        return hbox;
     },
 
     createGroupSelector: function ()

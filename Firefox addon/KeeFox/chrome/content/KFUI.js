@@ -125,40 +125,6 @@ keefox_win.UI = {
         }
 
         var buttons = [
-            // "Save" button
-            {
-                label:     rememberButtonText,
-                accessKey: rememberButtonAccessKey,
-                callback: function (evt) {
-                    evt.stopPropagation();
-                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-
-                    let filterState = keefox_win.SearchFilter.getFilterState(evt.target.ownerDocument, 'SaveLogin');
-                  
-                    saveData.getLogin(function (login, urlMergeMode) {
-                        if (saveData.update)
-                        {
-                            keefox_org.metricsManager.pushEvent("feature", "updateLogin",
-                                { "urlMergeMode": urlMergeMode, "filterState": filterState });
-                            var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
-                            browser.passwordSaver.showUpdateSuccessNotification();
-                        }
-                        else {
-                            keefox_org.metricsManager.pushEvent("feature", "addLogin");
-                            var result = keefox_org.addLogin(login, saveData.group, saveData.db);
-                            if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup",false))
-                                keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-"+saveData.db,saveData.group);
-                        }
-
-                        if (login.URLs[0].startsWith("http://tutorial-section-b.keefox.org/part2"))
-                            keefox_org.tutorialHelper.tutorialProgressSaved();
-
-                        browser.passwordSaver = null;
-                    });
-                    
-                }
-            },
-            
             // "Never" button
             {
                 label:     neverButtonText,
@@ -231,7 +197,36 @@ keefox_win.UI = {
                 container = doc.ownerGlobal.keefox_win.notificationManager
                     .renderStandardMessage(container, notificationText);
 
-                browser.passwordSaver = new doc.ownerGlobal.keefox_win.PasswordSaver(doc, saveData, aLogin.URLs);
+                browser.passwordSaver = new doc.ownerGlobal.keefox_win.PasswordSaver(doc, saveData, aLogin.URLs, function (evt) {
+                    evt.stopPropagation();
+                    browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
+
+                    let filterState = keefox_win.SearchFilter.getFilterState(evt.target.ownerDocument, 'SaveLogin');
+
+                    saveData.getLogin(function (login, urlMergeMode) {
+                        if (saveData.update) {
+                            keefox_org.metricsManager.pushEvent("feature", "updateLogin",
+                                { "urlMergeMode": urlMergeMode, "filterState": filterState });
+                            var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
+                            keefox_win.notificationManager.remove("password-save");
+                            browser.passwordSaver.showUpdateSuccessNotification();
+                        }
+                        else {
+                            keefox_org.metricsManager.pushEvent("feature", "addLogin");
+                            var result = keefox_org.addLogin(login, saveData.group, saveData.db);
+                            if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup", false))
+                                keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-" + saveData.db, saveData.group);
+                            keefox_win.notificationManager.remove("password-save");
+                        }
+
+
+                        if (login.URLs[0].startsWith("http://tutorial-section-b.keefox.org/part2"))
+                            keefox_org.tutorialHelper.tutorialProgressSaved();
+
+                        browser.passwordSaver = null;
+                    });
+
+                });
                 container = browser.passwordSaver.generateUI(container);
               
                 // We might customise other aspects of the notifications but when we want
