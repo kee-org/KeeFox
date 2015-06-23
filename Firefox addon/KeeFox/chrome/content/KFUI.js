@@ -151,6 +151,8 @@ keefox_win.UI = {
 
                         if (login.URLs[0].startsWith("http://tutorial-section-b.keefox.org/part2"))
                             keefox_org.tutorialHelper.tutorialProgressSaved();
+
+                        browser.passwordSaver = null;
                     });
                     
                 }
@@ -171,6 +173,7 @@ keefox_win.UI = {
                     {
                         browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
                         keefox_org.metricsManager.pushEvent("feature", "SaveNever");
+                        browser.passwordSaver = null;
                     }
                 } 
             }
