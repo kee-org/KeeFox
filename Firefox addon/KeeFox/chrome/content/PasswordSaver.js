@@ -522,6 +522,69 @@ keefox_win.PasswordSaver.prototype =
         groupContainer.setAttribute("id",id + '-Container');
         panelSection.appendChild(groupContainer);
         return groupContainer;
+    },
+
+    showUpdateSuccessNotification: function()
+    {
+        if (keefox_org._keeFoxExtension.prefs.getValue("notifyWhenEntryUpdated",true))
+        {
+            let aNotifyBox = keefox_win.UI._getNotificationManager();
+            var buttons = [
+                {
+                    label:     keefox_org.locale.$STR("KeeFox-FAMS-NotifyBar-DoNotShowAgain-Button.label"),
+                    accessKey: keefox_org.locale.$STR("KeeFox-FAMS-NotifyBar-DoNotShowAgain-Button.key"),
+                    popup:     null,
+                    callback:  function() {
+                        keefox_org._keeFoxExtension.prefs.setValue("notifyWhenEntryUpdated",false);
+                    } 
+                }
+            ];
+            let notification = {
+                name: "password-updated",
+                render: function (container) {
+                     
+                    // We will append the rendered view of our own notification information to the
+                    // standard notification container that we have been supplied
+                    var doc = container.ownerDocument;
+                    container = doc.ownerGlobal.keefox_win.notificationManager
+                        .renderStandardMessage(container, doc.ownerGlobal.keefox_org.locale.$STR("password-successfully-updated"));
+                        
+                    let vb = doc.createElement('vbox');
+                    vb.setAttribute("flex","1");
+                    vb.setAttribute("id","keefox-password-updated-notification");
+
+                    let p1 = doc.createElement('label');
+                    p1.textContent = doc.ownerGlobal.keefox_org.locale.$STR("keepass-history-pointer");
+                    p1.setAttribute('class', 'KeeFox-message');
+                    vb.appendChild(p1);
+                    let p2 = doc.createElement('label');
+                    p2.textContent = doc.ownerGlobal.keefox_org.locale.$STR("change-field-status");
+                    p2.setAttribute('class', 'KeeFox-message');
+                    vb.appendChild(p2);
+                    let p3 = doc.createElement('label');
+                    p3.textContent = doc.ownerGlobal.keefox_org.locale.$STR("change-field-explanation");
+                    p3.setAttribute('class', 'KeeFox-message');
+                    vb.appendChild(p3);
+                    let p4 = doc.createElement('label');
+                    p4.textContent = doc.ownerGlobal.keefox_org.locale.$STR("multi-page-update-warning");
+                    p4.setAttribute('class', 'KeeFox-message');
+                    vb.appendChild(p4);
+
+                    container.appendChild(vb);
+              
+                    // We might customise other aspects of the notifications but when we want
+                    // to display buttons we can treat them all the same
+                    container = doc.ownerGlobal.keefox_win.notificationManager
+                        .renderButtons(buttons, doc, aNotifyBox, "password-updated", container);
+
+                    return container;
+                },
+                thisTabOnly: true,
+                priority: null,
+                persist: true
+            };
+            aNotifyBox.add(notification);
+        }
     }
 
 };

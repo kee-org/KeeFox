@@ -576,7 +576,8 @@ width:50% !important;
     display: -moz-box;
 }
 
-#keefox-save-password-update-panel2 label.KeeFox-message {
+#keefox-save-password-update-panel2 label.KeeFox-message,
+#keefox-password-updated-notification label.KeeFox-message {
     width:500px;
 }
 

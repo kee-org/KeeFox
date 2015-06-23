@@ -141,6 +141,7 @@ keefox_win.UI = {
                             keefox_org.metricsManager.pushEvent("feature", "updateLogin",
                                 { "urlMergeMode": urlMergeMode, "filterState": filterState });
                             var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
+                            browser.passwordSaver.showUpdateSuccessNotification();
                         }
                         else {
                             keefox_org.metricsManager.pushEvent("feature", "addLogin");
