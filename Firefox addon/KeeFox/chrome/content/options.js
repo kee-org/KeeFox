@@ -9,7 +9,7 @@ function onLoad(){
         wm.getMostRecentWindow("mail:3pane");
 
     window.keefox_org.locale.internationaliseElements(document,
-      ['KeeFox-prefs','tab-FindingEntries','tab-Notifications','tab-Logging','tab-Advanced','tab-KeePass','tab-ConnectionSecurity','tab-AuthorisedConnections','tab-Commands','desc-when-user-chooses','mi-FillForm','mi-FillAndSubmitForm',
+      ['KeeFox-prefs', 'tab-FindingEntries', 'tab-SavingEntries', 'tab-Logging', 'tab-Advanced', 'tab-KeePass', 'tab-ConnectionSecurity', 'tab-AuthorisedConnections', 'tab-Commands', 'desc-when-user-chooses', 'mi-FillForm', 'mi-FillAndSubmitForm',
       'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
       'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs','check-alwaysDisplayUsernameWhenTitleIsShown',
       'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyWhenLoggedOut',
@@ -18,7 +18,7 @@ function onLoad(){
       'lab-keePassRPCPort','lab-keePassRPCPortWarning','saveFavicons','lab-keePassDBToOpen','keePassDBToOpenBrowseButton',
       'rememberMRUDB', 'rememberMRUGroup', 'lab-keePassRPCInstalledLocation', 'keePassRPCInstalledLocationBrowseButton', 'lab-keePassInstalledLocation', 'keePassInstalledLocationBrowseButton',
       'lab-monoLocation','monoLocationBrowseButton','keePassRememberInstalledLocation','lab-keePassLocation',
-      'desc-site-specific','desc-site-specific-savepass','desc-site-specific-link','desc-site-specific-savepass-link','desc-ConnSL','desc-ConnSL-ManualLink-link','desc-conn-sl-client','slc-Low','slc-Medium','slc-High','sls-Low','sls-Medium','sls-High','desc-conn-sl-client-detail','desc-conn-sl-server','desc-conn-sl-server-detail','desc-conn-sl-low','desc-conn-sl-high','desc-commands-intro','desc-metrics','desc-metrics-link','lab-sendUsageMetrics','lab-maxMatchedLoginsInMainPanel'
+      'desc-site-specific','desc-site-specific-savepass','desc-site-specific-link','desc-site-specific-savepass-link','desc-ConnSL','desc-ConnSL-ManualLink-link','desc-conn-sl-client','slc-Low','slc-Medium','slc-High','sls-Low','sls-Medium','sls-High','desc-conn-sl-client-detail','desc-conn-sl-server','desc-conn-sl-server-detail','desc-conn-sl-low','desc-conn-sl-high','desc-commands-intro','desc-metrics','desc-metrics-link','lab-sendUsageMetrics','lab-maxMatchedLoginsInMainPanel','notifyWhenEntryUpdated'
       ],
       ['title','label','tooltiptext','accesskey','value']);
 

@@ -52,7 +52,8 @@
 
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyWhenLoggedOut" type="bool"/>
-
+      <preference id="KeeFox-pref-notifyWhenEntryUpdated" name="extensions.keefox@chris.tomlinson.notifyWhenEntryUpdated" type="bool"/>
+      
       <preference id="KeeFox-pref-logMethodConsole" name="extensions.keefox@chris.tomlinson.logMethodConsole" type="bool"/>
       <preference id="KeeFox-pref-logMethodStdOut" name="extensions.keefox@chris.tomlinson.logMethodStdOut" type="bool"/>
       <preference id="KeeFox-pref-logMethodFile" name="extensions.keefox@chris.tomlinson.logMethodFile" type="bool"/>
@@ -78,7 +79,7 @@
     <tabbox flex="1">
       <tabs>
         <tab id="tab-FindingEntries" label="%-KeeFox-pref-FindingEntries.heading-%"/>
-        <tab id="tab-Notifications" label="%-KeeFox-pref-Notifications.heading-%"/>
+        <tab id="tab-SavingEntries" label="%-KeeFox-pref-SavingEntries.heading-%"/>
         <tab id="tab-Logging" label="%-KeeFox-pref-Logging.heading-%"/>
         <tab id="tab-Advanced" label="%-KeeFox-pref-Advanced.heading-%"/>
         <tab id="tab-KeePass" label="%-KeeFox-pref-KeePass.heading-%"/>
@@ -166,13 +167,14 @@
               );'>%-KeeFox-pref-site-options-find.link-%</html:a>
             </description>
             
-            <checkbox id="notifyWhenLoggedOut" preference="KeeFox-pref-notifyWhenLoggedOut"
-                    label="%-KeeFox-pref-notifyWhenLoggedOut.label-%" class="itemEnd"/>
-            <button id="famsOptionsButton" label="%-KeeFox-FAMS-Options.label-%..." oncommand='openDialog(
-               "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox",
-               "",
-               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
-              );'/>
+            <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
+                      label="%-KeeFox-pref-saveFavicons.label-%" class="itemEnd" />
+
+            <checkbox id="rememberMRUGroup" preference="KeeFox-pref-rememberMRUGroup"
+                      label="%-KeeFox-pref-rememberMRUGroup.label-%"  class="itemEnd"/>
+            
+            <checkbox id="notifyWhenEntryUpdated" preference="KeeFox-pref-notifyWhenEntryUpdated"
+                    label="%-KeeFox-pref-notifyWhenEntryUpdated.label-%" class="itemEnd"/>
           </vbox>
         </tabpanel>
 
@@ -200,13 +202,19 @@
 
         <tabpanel>
           <vbox align="left">
+            <checkbox id="notifyWhenLoggedOut" preference="KeeFox-pref-notifyWhenLoggedOut"
+                    label="%-KeeFox-pref-notifyWhenLoggedOut.label-%" class="itemEnd"/>
+            <button id="famsOptionsButton" label="%-KeeFox-FAMS-Options.label-%..." oncommand='openDialog(
+               "chrome://keefox/content/famsOptions.xul?famsConfigId=KeeFox",
+               "",
+               "centerscreen,dialog=no,chrome,resizable,dependent,modal"
+              );' class="itemEnd"/>
+            
             <hbox align="center">
               <label id="lab-keePassRPCPort" control="keePassRPCPort" value="%-KeeFox-pref-keePassRPCPort.label-%:"/>
               <textbox preference="KeeFox-pref-keePassRPCPort" id="keePassRPCPort" maxlength="5" size="5"/>
             </hbox>
             <label id="lab-keePassRPCPortWarning" value="%-KeeFox-pref-keePassRPCPortWarning.label-%" class="itemEnd note"/>
-            <checkbox id="saveFavicons" preference="KeeFox-pref-saveFavicons"
-                      label="%-KeeFox-pref-saveFavicons.label-%" class="itemEnd" />
 
             <label id="lab-keePassDBToOpen" control="keePassDBToOpen" value="%-KeeFox-pref-keePassDBToOpen.label-%:"/>
             <hbox class="itemEnd">
@@ -216,8 +224,6 @@
 
             <checkbox id="rememberMRUDB" preference="KeeFox-pref-rememberMRUDB"
                       label="%-KeeFox-pref-rememberMRUDB.label-%"  class="itemEnd"/>
-            <checkbox id="rememberMRUGroup" preference="KeeFox-pref-rememberMRUGroup"
-                      label="%-KeeFox-pref-rememberMRUGroup.label-%"  class="itemEnd"/>
             
             <description id="desc-metrics" width="650">%-KeeFox-pref-metrics-desc-% <html:a id="desc-metrics-link" class="text-link" onclick='javascript:openDialog(
                "https://github.com/luckyrat/KeeFox/wiki/en-%7C-Metrics-collection",
