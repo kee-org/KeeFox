@@ -68,7 +68,7 @@ keefox_win.panel = {
                         let searchFilter = targetDoc.getElementById('KeeFox-PanelSection-searchfilter');
                         let current = targetDoc.getElementById('KeeFox-PanelSection-searchfilter-current');
 
-                        evt.target.ownerGlobal.keefox_win.SearchFilter.updateSearchFilter(searchFilter, current);
+                        evt.target.ownerGlobal.keefox_win.SearchFilter.updateSearchFilterStart(searchFilter, current);
 
                         // We need this delay because the _findFirstFocusableChildItem code needs
                         // to consider only elements that are currently visible and the only way

@@ -36,7 +36,8 @@ keefox_win.SearchFilter = {
 
         let searchFilter = this.createUIElement(doc, 'select', [
             ['class', 'KeeFox-Search-Filter'],
-            ['id', 'KeeFox-'+prefix+'-searchfilter']
+            ['id', 'KeeFox-' + prefix + '-searchfilter'],
+            ['disabled', 'true']
         ]);
         let searchFilterOptionAll = this.createUIElement(doc, 'option', [
             ['class', 'KeeFox-Search-Filter'],
@@ -57,7 +58,7 @@ keefox_win.SearchFilter = {
             searchFilterOptionCurrent.setAttribute("selected", "true");
 
         if (!inMainPanel)
-            this.updateSearchFilter(searchFilter, searchFilterOptionCurrent, currentURIs[0]);
+            this.updateSearchFilterStart(searchFilter, searchFilterOptionCurrent, currentURIs[0]);
 
         searchFilter.appendChild(searchFilterOptionAll);
         searchFilter.appendChild(searchFilterOptionCurrent);
@@ -78,25 +79,42 @@ keefox_win.SearchFilter = {
     },
 
 
-    updateSearchFilter: function (searchFilter, current, currentURL) {
-        //TODO:1.5: Inspect URLs from subframes too (+ deduplicate domains)
+    updateSearchFilterStart: function (searchFilter, current, currentURL) {
+        //TODO:1.5: Inspect URLs from subframes too (+ deduplicate domains).
         let doc = searchFilter.ownerDocument;
 
-        searchFilter.removeAttribute("disabled");
-        searchFilter.selectedIndex = 0;
-        currentURL = currentURL || gBrowser.currentURI;
+        // If we've been given a URI we use only that one, otherwise we ask the content
+        // document to provide a list of all URLs at some future time
+        if (currentURL) {
+            try {
+                let eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"].
+                                    getService(Ci.nsIEffectiveTLDService);
+                let basedomain = eTLDService.getBaseDomain(currentURL);
+                let domains = [basedomain];
+                this.updateSearchFilterFinish(searchFilter, current, domains);
+            } catch (e) {
+                if (e.name == "NS_ERROR_HOST_IS_IP_ADDRESS")
+                    current.setAttribute("value", currentURL.hostPort);
+                else
+                    searchFilter.setAttribute("disabled", "true");
+            }
+        } else {
+            //TODO: Make this get actual domains from content via messageListeners
+            let domains = [gBrowser.currentUri];
+            this.updateSearchFilterFinish(searchFilter, current, domains);
+        }
+    },
 
-        try {
-            let eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"].
-                                getService(Ci.nsIEffectiveTLDService);
-            let basedomain = eTLDService.getBaseDomain(currentURL);
-            let currentUrls = [basedomain];
+    updateSearchFilterFinish: function (searchFilter, current, domains) {
+
+        if (domains && domains.length > 0) {
+            searchFilter.removeAttribute("disabled");
+            searchFilter.selectedIndex = 0;
+            let currentUrls = domains.join(',');
+
             current.setAttribute("value", currentUrls);
-        } catch (e) {
-            if (e.name == "NS_ERROR_HOST_IS_IP_ADDRESS")
-                current.setAttribute("value", currentURL.hostPort);
-            else
-                searchFilter.setAttribute("disabled", "true");
+        } else {
+            searchFilter.setAttribute("disabled", "true");
         }
     },
 
