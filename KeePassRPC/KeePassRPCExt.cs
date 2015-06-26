@@ -266,7 +266,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 
                 _host.MainWindow.FileOpened += OnKPDBOpen;
                 _host.MainWindow.FileClosed += OnKPDBClose;
-                _host.MainWindow.FileCreated += OnKPDBOpen; // or need a specific handler here?
+                _host.MainWindow.FileCreated += OnKPDBCreated;
 
                 //be nice to pick up when entries are edited and update the firefox URL cache imemdiately
                 //for the time being we'll have to hook onto the Save function
@@ -644,7 +644,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 
             InstallKeeFoxSampleEntries(pd, false);
 
-            pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", "2");
+            pd.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
 
             // save the new database & update UI appearance
             pd.Save(_host.MainWindow.CreateStatusBarLogger());
@@ -890,15 +890,11 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     manager.Terminate();
                 _RPCClientManagers.Clear();
             }
-
-            // Tell any waiting RPC threads to just go ahead (and not wait for the user to finish interacting
-            // with the KP UI.
-            //KeePassRPCService.ensureDBisOpenEWH.Set();
-
+            
             // remove event listeners
             _host.MainWindow.FileOpened -= OnKPDBOpen;
             _host.MainWindow.FileClosed -= OnKPDBClose;
-            _host.MainWindow.FileCreated -= OnKPDBOpen; // or need a specific handler here?
+            _host.MainWindow.FileCreated -= OnKPDBCreated;
             _host.MainWindow.FileSaving -= OnKPDBSaving;
             _host.MainWindow.FileSaved -= OnKPDBSaved;
             _host.MainWindow.DocumentManager.ActiveDocumentSelected -= OnKPDBSelected;
@@ -926,9 +922,9 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_SELECTED);
         }
 
-        private void OnKPDBOpen(object sender, FileCreatedEventArgs e)
+        private void OnKPDBCreated(object sender, FileCreatedEventArgs e)
         {
-            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", "2");
+            e.Database.CustomData.Set("KeePassRPC.KeeFox.configVersion", CurrentConfigVersion);
             EnsureDBIconIsInKPRPCIconCache();
             //KeePassRPCService.ensureDBisOpenEWH.Set(); // signal that DB is now open so any waiting JSONRPC thread can go ahead
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
