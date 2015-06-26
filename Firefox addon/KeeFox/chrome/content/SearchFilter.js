@@ -99,9 +99,23 @@ keefox_win.SearchFilter = {
                     searchFilter.setAttribute("disabled", "true");
             }
         } else {
-            //TODO: Make this get actual domains from content via messageListeners
-            let domains = [gBrowser.currentUri];
-            this.updateSearchFilterFinish(searchFilter, current, domains);
+            let callbackName = "keefox:";
+            try {
+                let uuidGenerator = Cc["@mozilla.org/uuid-generator;1"]
+                    .getService(Ci.nsIUUIDGenerator);
+                let uuid = uuidGenerator.generateUUID();
+                callbackName += uuid.toString();
+            } catch (e) {
+                // Fall back to something a little less unique
+                callbackName += Math.random();
+            }
+            let messageManager = gBrowser.selectedBrowser.messageManager;
+            let myCallback = function (message) {
+                messageManager.removeMessageListener(callbackName, myCallback);
+                this.updateSearchFilterFinish(searchFilter, current, message.data.domains);
+            }.bind(this);
+            messageManager.addMessageListener(callbackName, myCallback);
+            messageManager.sendAsyncMessage("keefox:getAllFrameDomains", { callbackName: callbackName });
         }
     },
 

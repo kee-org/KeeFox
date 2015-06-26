@@ -388,6 +388,48 @@ keefox_tab.sendStatusToTutorialPageHandler = function (message) {
 addEventListener("DOMContentLoaded", keefox_tab.checkForTutorialPages, false);
 addMessageListener("keefox:sendStatusToTutorialPage", keefox_tab.sendStatusToTutorialPageHandler);
 
+keefox_tab.getFrameURLs = function (frame) {
+    let allURLs = [];
+    try
+    {
+        let ioService = Cc["@mozilla.org/network/io-service;1"]
+              .getService(Ci.nsIIOService);
+        allURLs.push(ioService.newURI(frame.location.href, null, null));
+    } catch (e)
+    {
+        // Invalid URIs are ignored
+    }
+
+    for (let i = 0; i < frame.frames.length; i++)
+        allURLs = allURLs.concat(keefox_tab.getFrameURLs(frame.frames[i]));
+
+    return allURLs;
+};
+
+keefox_tab.getAllFrameDomainsHandler = function (message) {
+
+    let responseData = { domains: [] };
+    let allUrls = keefox_tab.getFrameURLs(content);
+
+    for (let url of allUrls)
+    {
+        try {
+            let eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"].
+                                getService(Ci.nsIEffectiveTLDService);
+            let basedomain = eTLDService.getBaseDomain(url);
+            if (responseData.domains.indexOf(basedomain) < 0)
+                responseData.domains.push(basedomain);
+        } catch (e) {
+            if (e.name == "NS_ERROR_HOST_IS_IP_ADDRESS")
+                responseData.domains.push(currentURL.hostPort);
+        }
+    }
+
+    sendAsyncMessage(message.data.callbackName, responseData);
+};
+
+addMessageListener("keefox:getAllFrameDomains", keefox_tab.getAllFrameDomainsHandler);
+
 // set up some initial state
 keefox_tab.tabState.currentPage = 0;
 keefox_tab.tabState.maximumPage = 0;
