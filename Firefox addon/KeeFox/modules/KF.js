@@ -1008,11 +1008,8 @@ KeeFox.prototype = {
                     var flags = promptService.BUTTON_POS_0 * promptService.BUTTON_TITLE_YES +
                         promptService.BUTTON_POS_1 * promptService.BUTTON_TITLE_NO;
 
-                    //TODO:1.5: Localise
-                    if (newValue && promptService.confirmEx(window, "Password management",
-                        "The KeeFox add-on may not work correctly if you allow"
-                        + " Firefox to manage your passwords. Should KeeFox disable"
-                        + " the built-in Firefox password manager?",
+                    if (newValue && promptService.confirmEx(window, keefox_org.locale.$STR("password-management"),
+                        keefox_org.locale.$STR("disable-password-manager"),
                                flags, "", "", "", null, {}) == 0)
                     {
                         prefBranch.setBoolPref("signon.rememberSignons", false);

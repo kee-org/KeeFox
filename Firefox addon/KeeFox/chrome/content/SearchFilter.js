@@ -80,7 +80,6 @@ keefox_win.SearchFilter = {
 
 
     updateSearchFilterStart: function (searchFilter, current, currentURL) {
-        //TODO:1.5: Inspect URLs from subframes too (+ deduplicate domains).
         let doc = searchFilter.ownerDocument;
 
         // If we've been given a URI we use only that one, otherwise we ask the content
