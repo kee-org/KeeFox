@@ -89,13 +89,19 @@ keefox_win.panel = {
                     },
                     onViewHiding: function (evt)
                     {
-                        // Clear search terms
-                        evt.target.ownerDocument.getElementById('KeeFox-PanelSection-searchbox').value = "";
-                        // Clear search results
-                        evt.target.ownerGlobal.keefox_win.panel.onSearchComplete.
-                            bind(evt.target.ownerGlobal.keefox_win.panel)([]);
-                        // Close subpanels
-                        evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
+                        try {
+                            // Clear search terms
+                            evt.target.ownerDocument.getElementById('KeeFox-PanelSection-searchbox').value = "";
+                            // Clear search results
+                            evt.target.ownerGlobal.keefox_win.panel.onSearchComplete.
+                                bind(evt.target.ownerGlobal.keefox_win.panel)([]);
+                            // Close subpanels
+                            evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
+                        } catch (e) {
+                            keefox_win.Logger.error("onViewHiding failure. e: " + e + ". Stack: " + e.stack);
+                            //TODO:1.5: Remove rethrow before stable release - just in case this ever happens and causes #474
+                            throw e;
+                        }
                     },
                     onBeforeCreated: function (doc)
                     {
