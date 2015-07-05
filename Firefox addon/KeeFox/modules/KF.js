@@ -281,7 +281,8 @@ KeeFox.prototype = {
                 "KeePassRPC.webSocketPort", this.KeePassRPC.webSocketPort);
 
             // Don't allow user to select an invalid port
-            if (this.KeePassRPC.webSocketPort <= 0 || this.KeePassRPC.webSocketPort > 65535 || this.KeePassRPC.webSocketPort == 12536)
+            if (this.KeePassRPC.webSocketPort <= 0 || this.KeePassRPC.webSocketPort > 65535 
+                || this.KeePassRPC.webSocketPort == 12536 || this.KeePassRPC.webSocketPort == 19455)
             {
                 this._keeFoxExtension.prefs.setValue("KeePassRPC.webSocketPort", 12546);
                 this.KeePassRPC.webSocketPort = 12546;

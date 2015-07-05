@@ -188,7 +188,9 @@ namespace KeePassRPC.Forms
                     if (port <= 0 || port > 65535)
                         throw new ArgumentOutOfRangeException();
                     if (port == _host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536))
-                        throw new ArgumentException();
+                        throw new ArgumentException("The legacy KeePassRPC connection system is configured to use the port you have selected so please select a different port.");
+                    if (port == 19455)
+                        throw new ArgumentException("Port 19455 is commonly used by the unrelated KeePassHTTP plugin so please select a different port.");
                 }
             }
             catch (ArgumentOutOfRangeException)
@@ -197,9 +199,9 @@ namespace KeePassRPC.Forms
                 DialogResult = DialogResult.None;
                 return;
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                MessageBox.Show("The legacy KeePassRPC connection system is configured to use the port you have selected so please select a different port.");
+                MessageBox.Show(ex.Message);
                 DialogResult = DialogResult.None;
                 return;
             }
