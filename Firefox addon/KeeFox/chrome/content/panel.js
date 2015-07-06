@@ -59,6 +59,16 @@ keefox_win.panel = {
                     {
                         var targetDoc = evt.target.ownerDocument;
 
+                        // Tidy up if any mouse-leave events were missed last time
+                        let optionsMenuTrigger = keefox_win.panel._currentWindow.document.getElementById("optionsMenuTrigger");
+                        if (optionsMenuTrigger)
+                        {
+                            let li = optionsMenuTrigger.parentNode;
+                            li.removeChild(optionsMenuTrigger);
+                            li.removeEventListener("mouseleave", keefox_win.panel.onMouseLeaveLogin, false);
+                            li.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
+                        }
+
                         // Make sure our notifications are visible here instead of the persistent
                         // panel (in case user clicks on KeeFox menu button while persistent panel
                         // is still visible). We achieve that by closing the persistent panel and
@@ -1222,7 +1232,6 @@ keefox_win.panel = {
                 usernameId = field.fieldId;
             }
 
-
             var loginItem = this.createUIElement('li', [
                 ['class',''],
                 ['style','background-image:url(data:image/png;base64,' + login.iconImageData + ')'],
@@ -1236,7 +1245,7 @@ keefox_win.panel = {
             ]);
             loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
             loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
-            loginItem.addEventListener("mouseup", function (event) { 
+            loginItem.addEventListener("mouseup", function (event) {
                 event.stopPropagation();
                 if (event.button == 0 || event.button == 1)
                     this.dispatchEvent(new Event("keefoxCommand"));
