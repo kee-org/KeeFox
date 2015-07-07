@@ -35,8 +35,6 @@ keefox_win.panel = {
 
     isOpen: false,
 
-    viewShowingHackTimer : null,
-
     construct : function (currentWindow) {
         this._currentWindow = currentWindow;
         this.panelContainerId = "keefox-panelview";
@@ -83,23 +81,6 @@ keefox_win.panel = {
                         let current = targetDoc.getElementById('KeeFox-PanelSection-searchfilter-current');
 
                         evt.target.ownerGlobal.keefox_win.SearchFilter.updateSearchFilterStart(searchFilter, current);
-
-                        // We need this delay because the _findFirstFocusableChildItem code needs
-                        // to consider only elements that are currently visible and the only way
-                        // to do this is to allow the view to be rendered before inspecting it.
-                        // What we really want is something like an onViewShown event, fired when
-                        // we know that the user is already seeing the finished rendered view.
-                        let panel = evt.target.ownerGlobal.keefox_win.panel;
-                        panel.viewShowingHackTimer = Components.classes["@mozilla.org/timer;1"]
-                                .createInstance(Components.interfaces.nsITimer);
-                        panel.viewShowingHackTimer.initWithCallback(
-                            function () {
-                                let pv = targetDoc.getElementById('keefox-panelview');
-                                //evt.target.ownerGlobal.keefox_win.Logger.debug("Found panelview: " + pv);
-                                let toFocus = panel._findFirstFocusableChildItem(pv);
-                                if (toFocus) toFocus.focus();
-                            },
-                            50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
                     },
                     onViewHiding: function (evt)
                     {
@@ -113,8 +94,6 @@ keefox_win.panel = {
                             evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
                         } catch (e) {
                             keefox_win.Logger.error("onViewHiding failure. e: " + e + ". Stack: " + e.stack);
-                            //TODO:1.5: Remove rethrow before stable release - just in case this ever happens and causes #474
-                            throw e;
                         }
                     },
                     onBeforeCreated: function (doc)
@@ -124,9 +103,16 @@ keefox_win.panel = {
                         win.keefox_win.panel.buildPanel.call(win.keefox_win.panel, win);
                     }
                 });
+
                 keefox_win.Logger.info("Created KeeFox widget");
             }
             this._widget = wrapperGroup.forWindow(this._currentWindow);
+                
+            this._currentWindow.document.addEventListener("keefoxMainPanelOpened", function (event) { 
+                let pv = keefox_win.panel._currentWindow.document.getElementById('keefox-panelview');
+                let toFocus = keefox_win.panel._findFirstFocusableChildItem(pv);
+                if (toFocus) toFocus.focus();
+            }, false);
 
             //TODO:1.5: Need beta testing feedback in case the panel is not always 
             // added to the main document DOM by this stage
@@ -2026,7 +2012,7 @@ keefox_win.panel = {
     attachViewOpeningObserver: function (targetDoc) {
 
         // First we have to look for the Australis panel to be added to the nav-bar
-        let target = targetDoc.querySelector('#nav-bar');
+        let target = targetDoc.getElementById('nav-bar');
         let observer = new MutationObserver(function (mutations, observerInstance) {
             
             mutations.forEach(function (mutation) {
@@ -2043,8 +2029,10 @@ keefox_win.panel = {
                                 let changeValue = mutation.target.getAttribute("panelopen");
                                 if (changeValue == "true") {
                                     keefox_win.panel.isOpen = true;
+                                    targetDoc.dispatchEvent(new CustomEvent("keefoxMainPanelOpened"));
                                 } else {
                                     keefox_win.panel.isOpen = false;
+                                    targetDoc.dispatchEvent(new CustomEvent("keefoxMainPanelClosed"));
                                     observerInstance.disconnect();
                                 }
                             });
