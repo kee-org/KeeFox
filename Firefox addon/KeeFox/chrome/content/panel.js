@@ -31,7 +31,9 @@ keefox_win.panel = {
     _observerService : null,
 
     // The Firefox CustomisableUI widget that our panel is attached to
-    _widget : null,
+    _widget: null,
+
+    isOpen: false,
 
     viewShowingHackTimer : null,
 
@@ -58,6 +60,8 @@ keefox_win.panel = {
                     onViewShowing: function (evt)
                     {
                         var targetDoc = evt.target.ownerDocument;
+
+                        keefox_win.panel.attachViewOpeningObserver(targetDoc);
 
                         // Tidy up if any mouse-leave events were missed last time
                         let optionsMenuTrigger = keefox_win.panel._currentWindow.document.getElementById("optionsMenuTrigger");
@@ -2017,6 +2021,44 @@ keefox_win.panel = {
         }
         // Either the next sibling or null if we couldn't find a sibling before we got to the top of the DOM tree 
         return node;
+    },
+
+    attachViewOpeningObserver: function (targetDoc) {
+
+        // First we have to look for the Australis panel to be added to the nav-bar
+        let target = targetDoc.querySelector('#nav-bar');
+        let observer = new MutationObserver(function (mutations, observerInstance) {
+            
+            mutations.forEach(function (mutation) {
+                for (var node of mutation.addedNodes) {
+                    if (node.id == "customizationui-widget-panel")
+                    {
+                        observerInstance.disconnect();
+
+                        // Then we look for the completion of the animation, etc.
+                        // so that we know the KeeFox panel is fully open (or closed)
+                        let observer = new MutationObserver(function (mutations, observerInstance) {
+
+                            mutations.forEach(function (mutation) {
+                                let changeValue = mutation.target.getAttribute("panelopen");
+                                if (changeValue == "true") {
+                                    keefox_win.panel.isOpen = true;
+                                } else {
+                                    keefox_win.panel.isOpen = false;
+                                    observerInstance.disconnect();
+                                }
+                            });
+                        });
+
+                        let config = { attributes: true, attributeFilter: ["panelopen"] };
+                        observer.observe(node, config);
+                    }
+                }
+            });
+        });
+
+        let config = { childList: true };
+        observer.observe(target, config);
     }
 
 };
