@@ -46,6 +46,30 @@ keefox_win.notificationManager = {
     // to add a 3rd category here if needed in future.
 
     add: function (notification) {
+
+        // Unless it's a persistent or high priority message, we'll wait until the user has closed the current view
+
+        if (!notification.persist && keefox_win.panel.isOpen
+            && notification.priority != keefox_win.notificationManager.PRIORITY_WARNING_HIGH)
+        {
+            let onMainPanelClosed = function (event) {
+                document.removeEventListener("keefoxMainPanelClosed", onMainPanelClosed, false);
+                keefox_win.notificationManager.add(notification);
+            };
+            document.addEventListener("keefoxMainPanelClosed", onMainPanelClosed, false);
+            return;
+        }
+
+        if (!notification.persist && keefox_win.persistentPanel.thePanel.state != "closed"
+            && notification.priority != keefox_win.notificationManager.PRIORITY_WARNING_HIGH)
+        {
+            let onPersistentPanelClosed = function (event) {
+                keefox_win.persistentPanel.thePanel.removeEventListener('popuphidden', onPersistentPanelClosed, false);
+                keefox_win.notificationManager.add(notification);
+            };
+            keefox_win.persistentPanel.thePanel.addEventListener('popuphidden', onPersistentPanelClosed, false);
+            return;
+        }
         
         // We refresh all notifications in the same category after one is added because priorities
         // might mean the display order is not obvious. No doubt this could be made much more
@@ -76,6 +100,7 @@ keefox_win.notificationManager = {
             this.windowNotifications.push(notification);
             this.refreshWindowView();
         }
+
         if (notification.persist)
         {
             if (notification.thisTabOnly)
