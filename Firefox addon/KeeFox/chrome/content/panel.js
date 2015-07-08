@@ -1384,6 +1384,13 @@ keefox_win.panel = {
         if (keefox_win.panel.contextMenuShowing)
             return;
 
+        // Fast user movement can result in the menu overlay button missing on the
+        // login item under the mouse when the panel finishes opening but that's an
+        // extremely minor problem compared to the alternative of requiring the user
+        // to restart Firefox
+        if (!keefox_win.panel.isOpen)
+            return;
+
         let optionsMenuTrigger = keefox_win.panel.createUIElement('div', []);
         optionsMenuTrigger.addEventListener("mouseup", function (event) {
 
