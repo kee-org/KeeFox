@@ -218,6 +218,18 @@ namespace KeePassRPC.Forms
                 return;
             }
 
+            if (expTime < 1)
+            {
+                expTime = 1;
+                MessageBox.Show("Expiry time set to 1 hour. This is the minimum allowed.");
+            }
+
+            if (expTime > 876000)
+            {
+                expTime = 876000;
+                MessageBox.Show("Expiry time set to 100 years. This is the maximum allowed.");
+            }
+
             long secLevel = 2;
             long secLevelClientMin = 2;
             switch ((string)comboBoxSecLevelKeePass.SelectedItem)
