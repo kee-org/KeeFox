@@ -526,18 +526,9 @@ function commandManager () {
                 return;
 
             //TODO:1.6: Make this work when matched logins are displayed in the KeeFox-PanelSubSection-MatchedLoginsList-Overflow instead
+            win.keefox_win.panelInvokedByMatchedLoginsShortcut = true;
             win.keefox_win.panel.displayPanel();
             win.keefox_win.panel.hideSubSections();
-            let container = win.document.getElementById("KeeFox-PanelSubSection-MatchedLoginsList");
-            if (!container)
-                return;
-            let matches = container.getElementsByTagName('li');
-            if (!matches)
-                return;
-            let firstMatch = matches[0];
-            if (!firstMatch)
-                return;
-            firstMatch.focus();
         },
         autoTypeHere: function()
         {

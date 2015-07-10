@@ -109,8 +109,9 @@ keefox_win.panel = {
             this._widget = wrapperGroup.forWindow(this._currentWindow);
                 
             this._currentWindow.document.addEventListener("keefoxMainPanelOpened", function (event) { 
-                let pv = keefox_win.panel._currentWindow.document.getElementById('keefox-panelview');
-                let toFocus = keefox_win.panel._findFirstFocusableChildItem(pv);
+                let preferMatchedLogins = keefox_win.panelInvokedByMatchedLoginsShortcut;
+                keefox_win.panelInvokedByMatchedLoginsShortcut = false;
+                let toFocus = keefox_win.panel._setInitialPanelFocus(preferMatchedLogins);
                 if (toFocus) toFocus.focus();
             }, false);
 
@@ -1931,6 +1932,31 @@ keefox_win.panel = {
         }
     },
 
+    _setInitialPanelFocus: function (preferMatchedLogins)
+    {
+        let focusItem, startNode;
+
+        // e.g. if user invoked main panel via the "fill matched login" shortcut (ctrl-shift-2)
+        if (preferMatchedLogins)
+        {
+            startNode = keefox_win.panel._currentWindow.document.getElementById('KeeFox-PanelSubSection-MatchedLoginsList');
+            focusItem = keefox_win.panel._findFirstFocusableChildItem(startNode, false);
+            if (focusItem)
+                return focusItem;
+        }
+
+        // if we can find the search box, focus on that (if not, we're not logged in to a database
+        // so we fall back to the standard "focus on first visible child" behaviour)
+        
+        startNode = keefox_win.panel._currentWindow.document.getElementById('KeeFox-PanelSection-searchbox');
+        focusItem = keefox_win.panel._findFirstFocusableChildItem(startNode, false);
+        if (focusItem)
+            return focusItem;
+        
+        startNode = keefox_win.panel._currentWindow.document.getElementById('keefox-panelview');
+        return keefox_win.panel._findFirstFocusableChildItem(startNode, false);
+    },
+
     _findFirstFocusableChildItem: function (startNode, reverse)
     {
         // search all children and focus on the first one we find that can be interacted with (i.e. li, button, input)
@@ -1939,6 +1965,7 @@ keefox_win.panel = {
         // for our initial panel design (only one input field and all buttons 
         // are at the bottom apart from "back" buttons which arguably
         // shouldn't be the subject of initial focus anyway).
+
         let tags = ['input','li','button'];
         if (tags.indexOf(startNode.tagName) < 0)
         {
