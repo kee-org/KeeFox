@@ -66,6 +66,7 @@ keefox_win.SearchFilter = {
             keefox_org.search.execute(e.target.ownerDocument.getElementById('KeeFox-'+prefix+'-searchbox').value,
                 searchRequestor.onSearchComplete.bind(searchRequestor),
                 e.target.selectedOptions[0].value.split(','));
+            e.target.ownerDocument.getElementById('KeeFox-'+prefix+'-searchbox').focus();
         };
         searchFilter.addEventListener("change", searchFilterChangeHandler.bind(this), false);
 
