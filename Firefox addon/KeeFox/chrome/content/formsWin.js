@@ -112,7 +112,8 @@ keefox_win.loadAndAutoSubmit = function (button, ctrlClick, URL, uniqueID, dbFil
                 "autoSubmit": true
             }
         });
-        //TODO:e10s: Race condition here?
+        //TODO:1.6: This doesn't usually work because Firefox deletes our framescript
+        // code when navigating from about:newtab
         b.loadURI(URL, null, null);
     }
 };

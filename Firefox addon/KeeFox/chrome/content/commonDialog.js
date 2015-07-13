@@ -789,7 +789,7 @@ var keeFoxDialogManager = {
 
     KPRPCAuthDialogClosing : function ()
     {
-        //TODO:1.5: why doesn't this work? Is it needed?
+        //TODO:1.6: why doesn't this work? Is it needed?
         //this.kprpcConnObserver.unregister();
     }
 
