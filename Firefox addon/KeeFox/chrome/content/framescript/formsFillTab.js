@@ -1581,10 +1581,19 @@ var calculateRelevanceScore = function (login, form,
     // This is similar to _fillManyFormFields so might be able to reuse the results in future
     // (but need to watch for changes that invalidate the earlier calculations).
     let totalRelevanceScore = 0;
+    
+    let formMatchedFieldCount = 0;
+    let radioCount = 0;
+    let minFieldRelevance = 1;
+
+    // Require at least a type match for 2-field forms (e.g. user/pass); 1 missing
+    // match for 3 or 4 field forms; etc.
+    let minMatchedFieldCountRatio = 0.501;
 
     for (var i = 0; i < otherFields.length; i++)
     {
         let mostRelevantScore = 0;
+        let matchFound = false;
         for (var j = 0; j < login.otherFields.length; j++)
         {
             let score = this._calculateFieldMatchScore(
@@ -1593,12 +1602,22 @@ var calculateRelevanceScore = function (login, form,
                 +" (id: "+otherFields[i].fieldId + ") is " + score);
             if (score > mostRelevantScore)
                 mostRelevantScore = score;
+            if (score > minFieldRelevance)
+                matchFound = true;
         }
+        // Must be careful to not let radio fields cause false negatives
+        if (otherFields[i].type == "radio")
+            radioCount++;
+        else if (matchFound)
+            formMatchedFieldCount++;
         totalRelevanceScore += mostRelevantScore;
     }
+    
+
     for (var i = 0; i < passwordFields.length; i++)
     {
         let mostRelevantScore = 0;
+        let matchFound = false;
         for (var j = 0; j < login.passwords.length; j++)
         {
             let score = this._calculateFieldMatchScore(
@@ -1607,12 +1626,24 @@ var calculateRelevanceScore = function (login, form,
                 +" (id: "+passwordFields[i].fieldId + ") is " + score);
             if (score > mostRelevantScore)
                 mostRelevantScore = score;
+            if (score > minFieldRelevance)
+                matchFound = true;
         }
+        if (matchFound)
+            formMatchedFieldCount++;
         totalRelevanceScore += mostRelevantScore;
     }
-
+    
     let formFieldCount = passwordFields.length + otherFields.length;
     let loginFieldCount = login.passwords.length + login.otherFields.length;
+
+    // If the form is only radio fields, we'll end up with a score of 0.
+    if (formMatchedFieldCount / (Math.max(1,formFieldCount - radioCount)) < minMatchedFieldCountRatio)
+    {
+        Logger.info("Relevance for " + login.uniqueID + " set to 0 because form field match ratio is not high enough.");
+        return 0;
+    }
+
     let averageFieldRelevance = totalRelevanceScore / Math.max(formFieldCount, loginFieldCount);
     let adjustedRelevance = averageFieldRelevance / (Math.abs(formFieldCount - loginFieldCount) + 1);
 
