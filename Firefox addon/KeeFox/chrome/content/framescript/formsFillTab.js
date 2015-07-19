@@ -670,7 +670,10 @@ var findMatchesInSingleFrame = function (doc, behaviour)
 
         // If we didn't find a form we want to search, mark this frame as complete immediately
         if (previousRequestId == 0)
+        {
+            tabState.frameResponseCount++;
             aSearchComplete(fak);
+        }
 
     } // end of non-cached behaviour
 };
@@ -895,6 +898,8 @@ var minimumSearchCompletionDelay = 150;
 // that request ID so not be able to call this function
 var aSearchComplete = function (frameArrayKey)
 {
+    Logger.debug("searchCompleteTimeout: " + searchCompleteTimeout + ". tabState.frameResponseCount: " + tabState.frameResponseCount + ". tabState.frameCount:" + tabState.frameCount );
+    
     // If there is a timeout already in progress, delete it
     if (searchCompleteTimeout !== null)
     {
