@@ -421,7 +421,7 @@ keefox_tab.getAllFrameDomainsHandler = function (message) {
                 responseData.domains.push(basedomain);
         } catch (e) {
             if (e.name == "NS_ERROR_HOST_IS_IP_ADDRESS")
-                responseData.domains.push(currentURL.hostPort);
+                responseData.domains.push(url.hostPort);
         }
     }
 

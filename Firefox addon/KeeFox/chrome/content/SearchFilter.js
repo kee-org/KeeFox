@@ -94,7 +94,7 @@ keefox_win.SearchFilter = {
                 this.updateSearchFilterFinish(searchFilter, current, domains);
             } catch (e) {
                 if (e.name == "NS_ERROR_HOST_IS_IP_ADDRESS")
-                    current.setAttribute("value", currentURL.hostPort);
+                    this.updateSearchFilterFinish(searchFilter, current, [currentURL.hostPort]);
                 else
                     searchFilter.setAttribute("disabled", "true");
             }
