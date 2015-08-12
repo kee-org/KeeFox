@@ -838,11 +838,16 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
         // matches first or else we risk no match and no alternative matching logins on the mainUI
         for (var v = 0; v < matchResult.logins[i].length; v++)
         {
-            matchResult.logins[i][v].relevanceScore = calculateRelevanceScore(matchResult.logins[i][v],
+            let relScore = calculateRelevanceScore(matchResult.logins[i][v],
                     findLoginOp.forms[i],matchResult.usernameIndexArray[i],
                     matchResult.passwordFieldsArray[i], matchResult.currentPage,
                     matchResult.otherFieldsArray[i]);
-            
+
+            // choosing best login form should not be affected by lowFieldMatchRatio login score
+            // but when we come to fill the form we can force ourselves into a no-auto-fill behaviour.
+            matchResult.logins[i][v].relevanceScore = relScore.score;
+            matchResult.logins[i][v].lowFieldMatchRatio = relScore.lowFieldMatchRatio;
+
             // also set the form ID and login ID on the internal login object so
             // it will persist when later passed to the UI and we can ultimately 
             // find the same login object when processing a matched login
@@ -860,6 +865,7 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
         }
         firstMatchProcessed = true;
         
+        // Find the best login for this form 
         matchResult.logins[i].forEach(function(c) {
             if (c.relevanceScore > matchResult.formRelevanceScores[i])
                 matchResult.formRelevanceScores[i] = c.relevanceScore;
@@ -1188,11 +1194,17 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             checkMatchingLoginRelevanceThreshold = true;
         }
 
-        if (checkMatchingLoginRelevanceThreshold && matchingLogin != null 
-            && matchingLogin.relevanceScore < 1)
+        if (automated && checkMatchingLoginRelevanceThreshold && matchingLogin != null)
         {
-            Logger.info("Our selected login is not relevant enough to exceed our threshold.");
-            matchingLogin = null;
+            if (matchingLogin.relevanceScore < 1)
+            {
+                Logger.info("Our selected login is not relevant enough to exceed our threshold so will not be auto-filled.");
+                matchingLogin = null;
+            } else if (matchingLogin.lowFieldMatchRatio)
+            {
+                Logger.info("Our selected login has a low field match ratio so will not be auto-filled.");
+                matchingLogin = null;
+            }
         }
 
         if (matchingLogin != null)
@@ -1563,6 +1575,7 @@ var calculateRelevanceScore = function (login, form,
     usernameIndex, passwordFields, currentPage, otherFields) {
     
     let score = 0;
+    let lowFieldMatchRatio = false;
 
     // entry priorities provide a large score such that no other combination of relevance
     // can override them but there will still be differences in relevance for the same
@@ -1589,11 +1602,14 @@ var calculateRelevanceScore = function (login, form,
     // Require at least a type match for 2-field forms (e.g. user/pass); 1 missing
     // match for 3 or 4 field forms; etc.
     let minMatchedFieldCountRatio = 0.501;
+    
+    let fieldIsMatched = [];
 
     for (var i = 0; i < otherFields.length; i++)
     {
         let mostRelevantScore = 0;
         let matchFound = false;
+
         for (var j = 0; j < login.otherFields.length; j++)
         {
             let score = this._calculateFieldMatchScore(
@@ -1602,8 +1618,12 @@ var calculateRelevanceScore = function (login, form,
                 +" (id: "+otherFields[i].fieldId + ") is " + score);
             if (score > mostRelevantScore)
                 mostRelevantScore = score;
-            if (score > minFieldRelevance)
-                matchFound = true;
+            if (score >= minFieldRelevance)
+            {
+                if (!fieldIsMatched[j])
+                    matchFound = true;
+                fieldIsMatched[j] = true;
+            }
         }
         // Must be careful to not let radio fields cause false negatives
         if (otherFields[i].type == "radio")
@@ -1613,11 +1633,13 @@ var calculateRelevanceScore = function (login, form,
         totalRelevanceScore += mostRelevantScore;
     }
     
+    fieldIsMatched = [];
 
     for (var i = 0; i < passwordFields.length; i++)
     {
         let mostRelevantScore = 0;
         let matchFound = false;
+
         for (var j = 0; j < login.passwords.length; j++)
         {
             let score = this._calculateFieldMatchScore(
@@ -1626,8 +1648,12 @@ var calculateRelevanceScore = function (login, form,
                 +" (id: "+passwordFields[i].fieldId + ") is " + score);
             if (score > mostRelevantScore)
                 mostRelevantScore = score;
-            if (score > minFieldRelevance)
-                matchFound = true;
+            if (score >= minFieldRelevance)
+            {
+                if (!fieldIsMatched[j])
+                    matchFound = true;
+                fieldIsMatched[j] = true;
+            }
         }
         if (matchFound)
             formMatchedFieldCount++;
@@ -1636,12 +1662,16 @@ var calculateRelevanceScore = function (login, form,
     
     let formFieldCount = passwordFields.length + otherFields.length;
     let loginFieldCount = login.passwords.length + login.otherFields.length;
+    let fieldMatchRatio = formMatchedFieldCount / (Math.max(1,formFieldCount - radioCount));
+
+    Logger.debug("formFieldCount: " + formFieldCount + ", loginFieldCount: " + loginFieldCount 
+        + ", formMatchedFieldCount: " + formMatchedFieldCount + ", fieldMatchRatio: " + fieldMatchRatio);
 
     // If the form is only radio fields, we'll end up with a score of 0.
-    if (formMatchedFieldCount / (Math.max(1,formFieldCount - radioCount)) < minMatchedFieldCountRatio)
+    if (fieldMatchRatio < minMatchedFieldCountRatio)
     {
-        Logger.info("Relevance for " + login.uniqueID + " set to 0 because form field match ratio is not high enough.");
-        return 0;
+        Logger.info(login.uniqueID + " will be forced to not auto-fill because the form field match ratio (" + fieldMatchRatio + ") is not high enough.");
+        lowFieldMatchRatio = true;
     }
 
     let averageFieldRelevance = totalRelevanceScore / Math.max(formFieldCount, loginFieldCount);
@@ -1650,7 +1680,7 @@ var calculateRelevanceScore = function (login, form,
     score += adjustedRelevance;
 
     Logger.info("Relevance for " + login.uniqueID + " is: " + score);
-    return score;
+    return {score: score, lowFieldMatchRatio: lowFieldMatchRatio};
 };
 
 // Return a property/array key of form top_x_y_z which describes where in the window
