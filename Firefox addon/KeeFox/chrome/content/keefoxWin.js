@@ -212,6 +212,7 @@ keefox_win.progressListener = {
         }
 
         // remove all the old logins from the main UI element and context menus
+        keefox_win.mainUI.resetSearchInterface();
         keefox_win.mainUI.removeLogins();
         keefox_win.context.removeLogins();
     }
@@ -240,6 +241,7 @@ keefox_win._onTabSelected = function(event)
     keefox_win.persistentPanel.onTabSelected();
 
     // remove all the old logins from the main UI element and context menus
+    keefox_win.mainUI.resetSearchInterface();
     keefox_win.mainUI.removeLogins();
     keefox_win.context.removeLogins();
 

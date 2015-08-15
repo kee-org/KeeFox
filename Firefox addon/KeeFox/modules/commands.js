@@ -408,6 +408,7 @@ function commandManager () {
             win.keefox_org.metricsManager.pushEvent ("feature", "detectForms");
             var currentGBrowser = win.gBrowser;
             // Notify all parts of the UI that might need to clear their matched logins data
+            win.keefox_win.mainUI.resetSearchInterface();
             win.keefox_win.mainUI.removeLogins();
             win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage("keefox:findMatches", {
                 autofillOnSuccess: true,

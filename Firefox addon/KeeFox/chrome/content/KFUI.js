@@ -41,6 +41,7 @@ keefox_win.UI = {
         keefox_win.Logger.debug("fillCurrentDocument start");
 
         // remove all the old logins from the main UI element and context menus
+        keefox_win.mainUI.resetSearchInterface();
         keefox_win.mainUI.removeLogins();
         keefox_win.context.removeLogins();
 

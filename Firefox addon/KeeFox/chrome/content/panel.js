@@ -85,11 +85,6 @@ keefox_win.panel = {
                     onViewHiding: function (evt)
                     {
                         try {
-                            // Clear search terms
-                            evt.target.ownerDocument.getElementById('KeeFox-PanelSection-searchbox').value = "";
-                            // Clear search results
-                            evt.target.ownerGlobal.keefox_win.panel.onSearchComplete.
-                                bind(evt.target.ownerGlobal.keefox_win.panel)([]);
                             // Close subpanels
                             evt.target.ownerGlobal.keefox_win.panel.hideSubSections();
                         } catch (e) {
@@ -132,6 +127,16 @@ keefox_win.panel = {
                     .getService(Components.interfaces.nsIObserverService);
         
         currentWindow.messageManager.addMessageListener("keefox:matchedLoginsChanged", this.matchedLoginsChangedListener);
+
+    },
+
+    resetSearchInterface: function ()
+    {
+        // Clear search terms
+        this._currentWindow.document.getElementById('KeeFox-PanelSection-searchbox').value = "";
+        // Clear search results
+        keefox_win.panel.onSearchComplete.
+            bind(keefox_win.panel)([]);
 
     },
 

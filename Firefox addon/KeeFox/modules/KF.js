@@ -407,6 +407,7 @@ KeeFox.prototype = {
             try
             {
                 var win = enumerator.getNext();
+                win.keefox_win.mainUI.resetSearchInterface();
                 win.keefox_win.mainUI.removeLogins(); // remove matched logins
                 win.keefox_win.mainUI.setAllLogins(); // remove list of all logins
                 win.keefox_win.context.removeLogins();
@@ -465,6 +466,7 @@ KeeFox.prototype = {
             try
             {
                 var win = enumerator.getNext();
+                win.keefox_win.mainUI.resetSearchInterface();
                 win.keefox_win.mainUI.removeLogins();
                 win.keefox_win.context.removeLogins();
                 win.keefox_win.mainUI.setAllLogins();
