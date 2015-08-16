@@ -2052,17 +2052,17 @@ keefox_win.panel = {
 
         // First we have to look for the Australis panel to be added to the nav-bar
         let target = targetDoc.getElementById('nav-bar');
-        let observer = new MutationObserver(function (mutations, observerInstance) {
+        let observer = new MutationObserver(function (mutations, childListObserver) {
             
             mutations.forEach(function (mutation) {
                 for (var node of mutation.addedNodes) {
                     if (node.id == "customizationui-widget-panel")
                     {
-                        observerInstance.disconnect();
+                        childListObserver.disconnect();
 
                         // Then we look for the completion of the animation, etc.
                         // so that we know the KeeFox panel is fully open (or closed)
-                        let observer = new MutationObserver(function (mutations, observerInstance) {
+                        let observer = new MutationObserver(function (mutations, attributesObserver) {
 
                             mutations.forEach(function (mutation) {
                                 let changeValue = mutation.target.getAttribute("panelopen");
@@ -2072,7 +2072,8 @@ keefox_win.panel = {
                                 } else {
                                     keefox_win.panel.isOpen = false;
                                     targetDoc.dispatchEvent(new CustomEvent("keefoxMainPanelClosed"));
-                                    observerInstance.disconnect();
+                                    // We can keep the same observer until the panel is closed
+                                    attributesObserver.disconnect();
                                 }
                             });
                         });
