@@ -112,7 +112,7 @@ Search.prototype = {
                     return false;
 
                 for (var url of filterURLs) {
-                    //TODO:1.5: Might need to do something more complex here to avoid false
+                    //TODO:1.6: Might need to do something more complex here to avoid false
                     // matches in other parts of the item's URL. We don't use these results 
                     // for anything security sensitive though so might not be a high priority.
                     if (item.uRLs.filter(function (i) { return (i.toLowerCase().indexOf(url) >= 0); }).length > 0)

@@ -32,7 +32,7 @@ var SampleChecker = function() {
     
 };
 SampleChecker.prototype = {
-    //TODO:1.5: Might need to be more refined RE multiple databases but at least 
+    //TODO:1.6: Might need to be more refined RE multiple databases but at least 
     // this works for 99.9% of new users and the ones that need assistence the most
     databasesContainsSamples: function(dbs) {
         for (let db of dbs)

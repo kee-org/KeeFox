@@ -685,7 +685,7 @@ var scanForOrphanedFields = function (doc)
     let pseudoForm = null;
 
     // much faster than querySelectorAll
-    //TODO:1.5: Although we probably need to refine our selection criteria somewhat once we get real world feedback
+    //TODO:1.6: Although we probably need to refine our selection criteria somewhat once we get real world feedback
     let items = doc.getElementsByTagName("input");
     for (var tag of items)
     {

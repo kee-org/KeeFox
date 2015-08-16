@@ -497,7 +497,7 @@ keefox_win.PasswordSaver.prototype =
                 loginItem.textContent = keefox_org.locale.$STRF("matchedLogin.label", [usernameDisplayValue, login.title]);
             else
                 loginItem.textContent = login.title;
-            //TODO:1.5: Keyboard nav?
+            //TODO:1.6: Keyboard nav?
             //loginItem.addEventListener("keydown", this.keyboardNavHandler, false);
             loginItem.addEventListener("mouseup", function (event) { 
                 // Make sure no parent groups override the actions of this handler

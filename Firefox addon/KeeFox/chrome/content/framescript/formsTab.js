@@ -196,7 +196,7 @@ var _getSaveOnSubmitForSite = function (siteURL)
     return showSaveNotification;
 };
 
-//TODO:e10s: Do we need to clear UUID and DBfilename here too?
+//TODO:1.6: Do we get better reliability if we clear UUID and DBfilename here too? Probably not but double check in 2016
 var resetFormFillSession = function () {
     if (resetFormFillTimer != null) {
         clearTimeout(resetFormFillTimer);

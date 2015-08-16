@@ -110,8 +110,6 @@ keefox_win.panel = {
                 if (toFocus) toFocus.focus();
             }, false);
 
-            //TODO:1.5: Need beta testing feedback in case the panel is not always 
-            // added to the main document DOM by this stage
             // Set the initial status of the KeeFox panel
             this.setupButton_ready();
 

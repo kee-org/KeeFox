@@ -235,9 +235,10 @@ keefox_tab.onInterestingDOMElementAdded = function (event) {
         keefox_tab.tabState.findMatchesASAP = true;
     }
     else {
-        //TODO:e10s: Not sure exactly when this function can be triggered so might need to
+        //TODO:1.6: Not sure exactly when this function can be triggered so might need to
         // do setTimeout to slightly delay the search for forms if we find that they are
-        // incomplete when we inspect the DOM for forms.
+        // incomplete when we inspect the DOM for forms. This might explain the slightly
+        // higher than expected incidence of aysnc "logins found" notifications.
         keefox_tab.Logger.debug("Found an interesting DOM element so will try to find new login matches.");
         keefox_tab.findMatchesInAllFrames(true, false, true);
     }

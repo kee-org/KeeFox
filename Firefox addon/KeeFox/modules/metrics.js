@@ -606,7 +606,7 @@ function mm () {
                 Components.interfaces.nsITimer.TYPE_ONE_SHOT);
         } catch (e)
         {
-            //TODO:1.5: Review need for this try/catch 
+            //TODO:1.6: Review need for this try/catch 
             // Do nothing (can't be sure if we can log safely but this is just a test anyway for the moment...
         }
     };
