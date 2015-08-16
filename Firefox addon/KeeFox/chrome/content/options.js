@@ -9,9 +9,13 @@ function onLoad(){
         wm.getMostRecentWindow("mail:3pane");
 
     window.keefox_org.locale.internationaliseElements(document,
-      ['KeeFox-prefs', 'tab-FindingEntries', 'tab-SavingEntries', 'tab-Logging', 'tab-Advanced', 'tab-KeePass', 'tab-ConnectionSecurity', 'tab-AuthorisedConnections', 'tab-Commands', 'desc-when-user-chooses', 'mi-FillForm', 'mi-FillAndSubmitForm',
-      'desc-when-keefox-chooses','desc-a-standard-form','desc-a-prompt','desc-keefox-should','mi-do-nothing','mi-FillForm2','mi-FillAndSubmitForm2',
-      'mi-do-nothing2','mi-FillForm3','mi-FillAndSubmitForm3','desc-fill-note','check-autoFillFormsWithMultipleMatches','check-searchAllOpenDBs','check-listAllOpenDBs','check-alwaysDisplayUsernameWhenTitleIsShown',
+      ['KeeFox-prefs', 'tab-FindingEntries', 'tab-FillingEntries', 'tab-SavingEntries', 'tab-Logging',
+          'tab-Advanced', 'tab-KeePass', 'tab-ConnectionSecurity', 'tab-AuthorisedConnections',
+          'tab-Commands', 'when-user-chooses', 'when-keefox-chooses-prompt',
+          'when-keefox-chooses-standard-form', 'mi-FillForm', 'mi-FillAndSubmitForm',
+          'mi-do-nothing', 'mi-FillForm2', 'mi-FillAndSubmitForm2',
+      'mi-do-nothing2', 'mi-FillForm3', 'mi-FillAndSubmitForm3', 'desc-fill-note',
+      'check-autoFillFormsWithMultipleMatches', 'check-searchAllOpenDBs', 'check-listAllOpenDBs', 'check-alwaysDisplayUsernameWhenTitleIsShown',
       'notifyBarRequestPasswordSave','desc-exclude-saved-sites','excludedSitesRemoveButton','notifyWhenLoggedOut',
       'famsOptionsButton','desc-log-method','check-log-method-console','check-log-method-stdout','check-log-method-file',
       'desc-log-level','KeeFox-pref-logLevel-debug','KeeFox-pref-logLevel-info','KeeFox-pref-logLevel-warn','KeeFox-pref-logLevel-error',

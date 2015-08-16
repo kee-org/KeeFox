@@ -79,6 +79,7 @@
     <tabbox flex="1">
       <tabs>
         <tab id="tab-FindingEntries" label="%-KeeFox-pref-FindingEntries.heading-%"/>
+        <tab id="tab-FillingEntries" label="%-KeeFox-pref-FillingEntries.heading-%"/>
         <tab id="tab-SavingEntries" label="%-KeeFox-pref-SavingEntries.heading-%"/>
         <tab id="tab-Logging" label="%-KeeFox-pref-Logging.heading-%"/>
         <tab id="tab-Advanced" label="%-KeeFox-pref-Advanced.heading-%"/>
@@ -97,54 +98,7 @@
                "centerscreen,dialog=no,chrome,resizable,dependent,modal"
               );'>%-KeeFox-pref-site-options-find.link-%</html:a>
             </description>
-            <hbox align="center" class="itemEnd">
-              <label control="KeeFox-pref-matchSelected-list" id="desc-when-user-chooses">%-KeeFox-pref-when-user-chooses.desc-%: </label>
-              <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();">
-                <menupopup>
-                  <menuitem id="mi-FillForm" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
-                  <menuitem id="mi-FillAndSubmitForm" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
-                </menupopup>
-              </menulist>
-            </hbox>
             
-            <grid class="findEntryGrid">
-
-              <columns>
-                <column flex="1"/>
-                <column flex="1"/>
-                <column flex="1"/>
-              </columns>
-
-              <rows>
-                <row align="center">
-                  <description id="desc-when-keefox-chooses">%-KeeFox-pref-when-keefox-chooses.desc-%:</description>
-                  <label control="KeeFox-pref-matchStandard-list" id="desc-a-standard-form">%-KeeFox-pref-a-standard-form.desc-%</label>
-                  <label control="KeeFox-pref-matchHTTP-list" id="desc-a-prompt">%-KeeFox-pref-a-prompt.desc-%</label>
-
-                </row>
-                <row align="center">
-                  <description id="desc-keefox-should" class="tableLeftName">%-KeeFox-pref-KeeFoxShould.desc-%:</description>
-                  <menulist id="KeeFox-pref-matchStandard-list" preference="KeeFox-pref-autoSubmitForms" onsyncfrompreference="return onsyncfrompreferenceMatchStandard();" onsynctopreference="return onsynctopreferenceMatchStandard();" class="kfMenu">
-                    <menupopup>
-                      <menuitem id="mi-do-nothing" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
-                      <menuitem id="mi-FillForm2" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
-                      <menuitem id="mi-FillAndSubmitForm2" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
-                    </menupopup>
-                  </menulist>
-                  <menulist id="KeeFox-pref-matchHTTP-list" preference="KeeFox-pref-autoSubmitDialogs" onsyncfrompreference="return onsyncfrompreferenceMatchHTTP();" onsynctopreference="return onsynctopreferenceMatchHTTP();" class="kfMenu">
-                    <menupopup>
-                      <menuitem id="mi-do-nothing2" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
-                      <menuitem id="mi-FillForm3" label="%-KeeFox-pref-FillPrompt.desc-%" value="Fill"/>
-                      <menuitem id="mi-FillAndSubmitForm3" label="%-KeeFox-pref-FillAndSubmitPrompt.desc-%" value="FillAndSubmit"/>
-                    </menupopup>
-                  </menulist>
-                </row>
-              </rows>
-
-            </grid>
-            <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
-            
-            <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" />
             <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
             <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" />
             <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" class="itemEnd" />
@@ -153,6 +107,57 @@
               <textbox preference="KeeFox-pref-maxMatchedLoginsInMainPanel" id="maxMatchedLoginsInMainPanel" maxlength="3" size="3" />
             </hbox>
             
+          </vbox>
+        </tabpanel>
+
+        <tabpanel>
+          <vbox align="left">
+            
+            <grid class="findEntryGrid">
+
+              <columns>
+                <column flex="1"/>
+                <column />
+              </columns>
+
+              <rows>
+                <row align="center">
+                  <label control="KeeFox-pref-matchStandard-list" id="when-keefox-chooses-standard-form" style="text-align:right">%-KeeFox-pref-when-keefox-chooses-standard-form.desc-%:</label>
+                  <menulist id="KeeFox-pref-matchStandard-list" preference="KeeFox-pref-autoSubmitForms" onsyncfrompreference="return onsyncfrompreferenceMatchStandard();" onsynctopreference="return onsynctopreferenceMatchStandard();" class="kfMenu">
+                    <menupopup>
+                      <menuitem id="mi-do-nothing" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
+                      <menuitem id="mi-FillForm2" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
+                      <menuitem id="mi-FillAndSubmitForm2" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
+                    </menupopup>
+                  </menulist>
+                </row>
+                <row align="center">
+                  <label control="KeeFox-pref-matchHTTP-list" id="when-keefox-chooses-prompt" style="text-align:right">%-KeeFox-pref-when-keefox-chooses-prompt.desc-%:</label>
+                  <menulist id="KeeFox-pref-matchHTTP-list" preference="KeeFox-pref-autoSubmitDialogs" onsyncfrompreference="return onsyncfrompreferenceMatchHTTP();" onsynctopreference="return onsynctopreferenceMatchHTTP();" class="kfMenu">
+                    <menupopup>
+                      <menuitem id="mi-do-nothing2" label="%-KeeFox-pref-DoNothing.desc-%" value="DoNothing"/>
+                      <menuitem id="mi-FillForm3" label="%-KeeFox-pref-FillPrompt.desc-%" value="Fill"/>
+                      <menuitem id="mi-FillAndSubmitForm3" label="%-KeeFox-pref-FillAndSubmitPrompt.desc-%" value="FillAndSubmit"/>
+                    </menupopup>
+                  </menulist>
+                </row>
+                <row align="center">
+                  <label control="KeeFox-pref-matchSelected-list" id="when-user-chooses" style="text-align:right">%-KeeFox-pref-when-user-chooses.desc-%:</label>
+                  <menulist id="KeeFox-pref-matchSelected-list" preference="KeeFox-pref-autoSubmitMatchedForms" onsyncfrompreference="return onsyncfrompreferenceMatchSelected();" onsynctopreference="return onsynctopreferenceMatchSelected();">
+                    <menupopup>
+                      <menuitem id="mi-FillForm" label="%-KeeFox-pref-FillForm.desc-%" value="Fill"/>
+                      <menuitem id="mi-FillAndSubmitForm" label="%-KeeFox-pref-FillAndSubmitForm.desc-%" value="FillAndSubmit"/>
+                    </menupopup>
+                  </menulist>
+                </row>
+              </rows>
+
+            </grid>
+
+            <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
+
+            <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" />
+
           </vbox>
         </tabpanel>
 
