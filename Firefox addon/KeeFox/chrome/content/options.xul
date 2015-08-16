@@ -191,7 +191,7 @@
               <checkbox id="check-log-method-stdout" preference="KeeFox-pref-logMethodStdOut" label="%-KeeFox-pref-logMethodStdOut-%"/>
               <checkbox id="check-log-method-file" preference="KeeFox-pref-logMethodFile" label="%-KeeFox-pref-logMethodFile-%" class="itemEnd"/>
             </groupbox>
-            <label control="KeeFox-pref-logLevel-list" id="desc-log-level">%-KeeFox-pref-logLevel.desc-%: </label>
+            <label control="KeeFox-pref-logLevel-list" id="desc-log-level">%-KeeFox-pref-logLevel.desc-%</label>
             <menulist id="KeeFox-pref-logLevel-list" preference="KeeFox-pref-logLevel" onsyncfrompreference="return onsyncfrompreferenceLogLevel();" onsynctopreference="return onsynctopreferenceLogLevel();" class="itemEnd kfMenu">
               <menupopup>
                 <!-- TODO:1.6: verify changing label doesn't break functionality and then localise them -->
