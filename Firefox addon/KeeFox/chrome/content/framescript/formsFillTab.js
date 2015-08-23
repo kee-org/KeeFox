@@ -1603,12 +1603,12 @@ var calculateRelevanceScore = function (login, form,
     // match for 3 or 4 field forms; etc.
     let minMatchedFieldCountRatio = 0.501;
     
-    let fieldIsMatched = [];
+    let entryFieldIsMatched = [];
 
     for (var i = 0; i < otherFields.length; i++)
     {
         let mostRelevantScore = 0;
-        let matchFound = false;
+        let mostRelevantIndex = -1;
 
         for (var j = 0; j < login.otherFields.length; j++)
         {
@@ -1617,28 +1617,31 @@ var calculateRelevanceScore = function (login, form,
             Logger.debug("Suitablility of putting other field "+j+" into form field "+i
                 +" (id: "+otherFields[i].fieldId + ") is " + score);
             if (score > mostRelevantScore)
-                mostRelevantScore = score;
-            if (score >= minFieldRelevance)
             {
-                if (!fieldIsMatched[j])
-                    matchFound = true;
-                fieldIsMatched[j] = true;
+                mostRelevantScore = score;
+                mostRelevantIndex = j;
             }
         }
+
+        if (mostRelevantScore >= minFieldRelevance)
+        {
+            if (!entryFieldIsMatched[mostRelevantIndex])
+                formMatchedFieldCount++;
+            entryFieldIsMatched[mostRelevantIndex] = true;
+        }
+
         // Must be careful to not let radio fields cause false negatives
         if (otherFields[i].type == "radio")
             radioCount++;
-        else if (matchFound)
-            formMatchedFieldCount++;
+
         totalRelevanceScore += mostRelevantScore;
     }
     
-    fieldIsMatched = [];
-
+    entryFieldIsMatched = [];
     for (var i = 0; i < passwordFields.length; i++)
     {
         let mostRelevantScore = 0;
-        let matchFound = false;
+        let mostRelevantIndex = -1;
 
         for (var j = 0; j < login.passwords.length; j++)
         {
@@ -1647,16 +1650,18 @@ var calculateRelevanceScore = function (login, form,
             Logger.debug("Suitablility of putting password field "+j+" into form field "+i
                 +" (id: "+passwordFields[i].fieldId + ") is " + score);
             if (score > mostRelevantScore)
-                mostRelevantScore = score;
-            if (score >= minFieldRelevance)
             {
-                if (!fieldIsMatched[j])
-                    matchFound = true;
-                fieldIsMatched[j] = true;
+                mostRelevantScore = score;
+                mostRelevantIndex = j;
             }
         }
-        if (matchFound)
-            formMatchedFieldCount++;
+        if (mostRelevantScore >= minFieldRelevance)
+        {
+            if (!entryFieldIsMatched[mostRelevantIndex])
+                formMatchedFieldCount++;
+            entryFieldIsMatched[mostRelevantIndex] = true;
+        }
+            
         totalRelevanceScore += mostRelevantScore;
     }
     
@@ -1667,7 +1672,6 @@ var calculateRelevanceScore = function (login, form,
     Logger.debug("formFieldCount: " + formFieldCount + ", loginFieldCount: " + loginFieldCount 
         + ", formMatchedFieldCount: " + formMatchedFieldCount + ", fieldMatchRatio: " + fieldMatchRatio);
 
-    // If the form is only radio fields, we'll end up with a score of 0.
     if (fieldMatchRatio < minMatchedFieldCountRatio)
     {
         Logger.info(login.uniqueID + " will be forced to not auto-fill because the form field match ratio (" + fieldMatchRatio + ") is not high enough.");
