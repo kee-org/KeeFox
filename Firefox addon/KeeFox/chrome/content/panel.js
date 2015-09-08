@@ -1492,7 +1492,7 @@ keefox_win.panel = {
 
         if (enabled)
         {
-            widgetButton.setAttribute("tooltiptext","KeeFox enabled");
+            widgetButton.setAttribute("tooltiptext", keefox_org.locale.$STR("keefox-enabled"));
         } else
         {
             widgetButton.setAttribute("tooltiptext",tooltip);
