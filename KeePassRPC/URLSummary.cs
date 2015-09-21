@@ -51,9 +51,9 @@ namespace KeePassRPC
                 // (i.e. everything except the query string)
                 int qsIndex = URL.IndexOf("?");
                 if (qsIndex > -1)
-                    hostAndPort = URL.Substring(8, qsIndex - 8);
-                else
-                    hostAndPort = URL.Substring(8);
+                    hostAndPort = URL.Substring(7, qsIndex - 7);
+                else if (URL.Length > 7)
+                    hostAndPort = URL.Substring(7);
             }
             else if (protocolIndex > -1)
             {
