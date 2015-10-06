@@ -1149,11 +1149,14 @@ keefox_win.panel = {
         this.setWidgetNotificationForMatchedLogins(container.childElementCount + overflowPanelContainer.childElementCount);
 
         // notify user if necessary
-        if (notifyUserOnSuccess)
+        if (notifyUserOnSuccess 
+            && keefox_org._keeFoxExtension.prefs.getValue("notifyWhenLateDiscovery",true))
+        {
             keefox_win.UI.growl(
                 keefox_org.locale.$STR("matched-logins-found"), 
                 keefox_org.locale.$STR("view-them-in-the-main-keefox-panel"), 
                 true);
+        }
 
         keefox_win.Logger.debug(logins.length + " matched panel logins set!");
     },

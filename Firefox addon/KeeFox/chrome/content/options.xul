@@ -53,7 +53,8 @@
       <preference id="KeeFox-pref-notifyBarRequestPasswordSave" name="extensions.keefox@chris.tomlinson.notifyBarRequestPasswordSave" type="bool"/>
       <preference id="KeeFox-pref-notifyWhenLoggedOut" name="extensions.keefox@chris.tomlinson.notifyWhenLoggedOut" type="bool"/>
       <preference id="KeeFox-pref-notifyWhenEntryUpdated" name="extensions.keefox@chris.tomlinson.notifyWhenEntryUpdated" type="bool"/>
-      
+      <preference id="KeeFox-pref-notifyWhenLateDiscovery" name="extensions.keefox@chris.tomlinson.notifyWhenLateDiscovery" type="bool"/>
+
       <preference id="KeeFox-pref-logMethodConsole" name="extensions.keefox@chris.tomlinson.logMethodConsole" type="bool"/>
       <preference id="KeeFox-pref-logMethodStdOut" name="extensions.keefox@chris.tomlinson.logMethodStdOut" type="bool"/>
       <preference id="KeeFox-pref-logMethodFile" name="extensions.keefox@chris.tomlinson.logMethodFile" type="bool"/>
@@ -101,7 +102,8 @@
             
             <checkbox id="check-searchAllOpenDBs" preference="KeeFox-pref-searchAllOpenDBs" label="%-KeeFox-pref-searchAllOpenDBs.label-%" />
             <checkbox id="check-listAllOpenDBs" preference="KeeFox-pref-listAllOpenDBs" label="%-KeeFox-pref-listAllOpenDBs.label-%" />
-            <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" class="itemEnd" />
+            <checkbox id="check-alwaysDisplayUsernameWhenTitleIsShown" preference="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" label="%-KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown.label-%" />
+            <checkbox id="check-notifyWhenLateDiscovery" preference="KeeFox-pref-notifyWhenLateDiscovery" label="%-KeeFox-pref-notifyWhenLateDiscovery.label-%" class="itemEnd" />
             <hbox align="center" class="itemEnd">
               <label id="lab-maxMatchedLoginsInMainPanel" control="maxMatchedLoginsInMainPanel" value="%-KeeFox-pref-maxMatchedLoginsInMainPanel.label-%:"/>
               <textbox preference="KeeFox-pref-maxMatchedLoginsInMainPanel" id="maxMatchedLoginsInMainPanel" maxlength="3" size="3" />
