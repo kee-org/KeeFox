@@ -986,13 +986,22 @@ KeeFox.prototype = {
                     // details (such as the exact version) until the tutorial page
                     // requests the information via a custom Javascript event.
                     let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
-                    let host = httpChannel.originalURI.host;
-                    if (host.startsWith("tutorial") && 
-                        (host == "tutorial.keefox.org" || 
-                        host == "tutorial-section-b.keefox.org" || 
-                        host == "tutorial-section-c.keefox.org" || 
-                        host == "tutorial-section-d.keefox.org"))
-                        httpChannel.setRequestHeader("X-KeeFox", "Installed", false);
+
+                    // This can throw a NS_ERROR_FAILURE sometimes. No idea why - maybe some
+                    // requests have no host? Anyway, it's not something we're interested in
+                    // but is unfortunate because we now have to try/catch just in case
+                    try {
+                        let host = httpChannel.originalURI.host;
+                        if (host.startsWith("tutorial") && 
+                            (host == "tutorial.keefox.org" || 
+                            host == "tutorial-section-b.keefox.org" || 
+                            host == "tutorial-section-c.keefox.org" || 
+                            host == "tutorial-section-d.keefox.org"))
+                            httpChannel.setRequestHeader("X-KeeFox", "Installed", false);
+                    } catch (e)
+                    {
+                        // Don't care
+                    }
                     break;
             }          
         },
