@@ -1150,7 +1150,10 @@ keefox_win.panel = {
 
         // notify user if necessary
         if (notifyUserOnSuccess)
-            keefox_win.UI.growl("Matched logins found", "View them in the main KeeFox panel", true);
+            keefox_win.UI.growl(
+                keefox_org.locale.$STR("matched-logins-found"), 
+                keefox_org.locale.$STR("view-them-in-the-main-keefox-panel"), 
+                true);
 
         keefox_win.Logger.debug(logins.length + " matched panel logins set!");
     },
