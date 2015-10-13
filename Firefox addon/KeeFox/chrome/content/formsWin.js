@@ -22,10 +22,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
-
 // For tracking which KPRPC requests belong to which tab/framescript
 keefox_win.requestorMap = [];
 

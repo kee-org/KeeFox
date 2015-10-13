@@ -22,12 +22,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
-
-
-
 keefox_win.notificationManager = {
 
     // priorities (subset of old Firefox notification priorities to ease transition

@@ -21,9 +21,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-
 keefox_win.PasswordSaver = function(doc, saveData, URLs, saveButtonCallback)
 {
     this.doc = doc;

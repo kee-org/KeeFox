@@ -29,6 +29,11 @@ let Ci = Components.interfaces;
 let Cu = Components.utils;
 
 var keefox_tab = {};
+
+keefox_tab.Cc = Components.classes;
+keefox_tab.Ci = Components.interfaces;
+keefox_tab.Cu = Components.utils;
+
 keefox_tab.tabState = {};
 
 keefox_tab.scriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]

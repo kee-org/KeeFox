@@ -21,11 +21,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-
-
-
 keefox_win.UI = {
 
     __ioService: null, // IO service for string -> nsIURI conversion

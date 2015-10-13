@@ -22,10 +22,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
-
 /*
  * Called after an HTTP auth (or similar dialog) submission.
  */

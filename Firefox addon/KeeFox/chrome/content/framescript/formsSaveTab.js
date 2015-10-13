@@ -25,8 +25,6 @@
 */
 "use strict";
 
-let Cu = Components.utils;
-
 Cu.import("resource://kfmod/kfDataModel.js");
 
 var formSubmitObserver = {

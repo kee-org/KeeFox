@@ -20,9 +20,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-
 keefox_win.SearchFilter = {
     attachFilterToSearchBox: function (searchBox, searchRequestor, currentURIs) {
         let inMainPanel = false;
@@ -82,6 +79,8 @@ keefox_win.SearchFilter = {
 
     updateSearchFilterStart: function (searchFilter, current, currentURL) {
         let doc = searchFilter.ownerDocument;
+        let Cc = Components.classes;
+        let Ci = Components.interfaces;
 
         // If we've been given a URI we use only that one, otherwise we ask the content
         // document to provide a list of all URLs at some future time

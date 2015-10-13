@@ -1,7 +1,5 @@
 "use strict";
 
-let Cu = Components.utils;
-
 function onLoad(){
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                  .getService(Components.interfaces.nsIWindowMediator);

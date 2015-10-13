@@ -27,10 +27,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
-
 var keefox_win = {};
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");

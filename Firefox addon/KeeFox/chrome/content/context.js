@@ -20,8 +20,6 @@
 */
 "use strict";
 
-let Cu = Components.utils;
-
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 

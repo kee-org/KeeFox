@@ -23,8 +23,6 @@
 */
 "use strict";
 
-let Cu = Components.utils;
-
 var KeeFoxMainThreadHandler = function(source, reason, result, mainWindow, browserWindow)
 {
   this.source = source;

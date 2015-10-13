@@ -23,10 +23,6 @@
 */
 "use strict";
 
-let Cc = Components.classes;
-let Ci = Components.interfaces;
-let Cu = Components.utils;
-
 keefox_win.persistentPanel = {
     thePanel: null,
     onTabSelected: function () {
