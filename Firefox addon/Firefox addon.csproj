@@ -144,10 +144,11 @@
     <None Include="KeeFox\chrome.manifest" />
     <None Include="KeeFox\chrome\content\context.xul" />
     <None Include="KeeFox\chrome\content\famsOptions.xul" />
-    <None Include="KeeFox\chrome\content\groupChooser.xul" />
     <None Include="KeeFox\chrome\content\install.xul" />
     <None Include="KeeFox\chrome\content\install_mono.xul" />
-    <None Include="KeeFox\chrome\content\options.xul" />
+    <None Include="KeeFox\chrome\content\options.xul">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="KeeFox\chrome\content\panel.xul" />
     <None Include="KeeFox\chrome\content\protocolAuth.xul" />
     <None Include="KeeFox\chrome\content\siteOptions.xul" />
