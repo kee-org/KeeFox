@@ -433,8 +433,8 @@ function onsyncfrompreferenceLogLevel()
 function onsynctopreferenceLogLevel()
 {
     var valElement = document.getElementById("KeeFox-pref-logLevel-list").selectedItem;
-    document.getElementById("KeeFox-pref-logLevel-list").value = valElement.label;
-    switch (valElement.label)
+    document.getElementById("KeeFox-pref-logLevel-list").value = valElement.value;
+    switch (valElement.value)
     {
         case "Debugging": return 4;
         case "Information": return 3;
