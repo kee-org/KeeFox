@@ -61,7 +61,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1, 5, 3);
+        public static readonly Version PluginVersion = new Version(1, 5, 4);
 
         private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
         private AutoResetEvent _BackgroundWorkerAutoResetEvent;
@@ -945,8 +945,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             EnsureDBIconIsInKPRPCIconCache();
 
             // If we've not already upgraded the KPRPC data for this database...
-            if (!e.Database.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
-                || int.Parse(e.Database.CustomData.Get("KeePassRPC.KeeFox.configVersion")) < 1)
+            if (GetConfigVersion(e.Database) < 1)
             {
                 RemoveKeeFoxTutorialDuplicateEntries(e.Database);
 
@@ -1025,8 +1024,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                 }
             }
 
-            if (!e.Database.CustomData.Exists("KeePassRPC.KeeFox.configVersion")
-                || int.Parse(e.Database.CustomData.Get("KeePassRPC.KeeFox.configVersion")) < 2)
+            if (GetConfigVersion(e.Database) < 2)
             {
                 // v2 entry config is backwards compatible but we need to upgrade any KeeFox tutorial
                 // entries. This means each entry's config version will remain at 1 but the overall
@@ -1040,6 +1038,18 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             }
 
             SignalAllManagedRPCClients(KeePassRPC.DataExchangeModel.Signal.DATABASE_OPEN);
+        }
+
+        private int GetConfigVersion(PwDatabase db)
+        {
+            if (db.CustomData.Exists("KeePassRPC.KeeFox.configVersion"))
+            {
+                int configVersion = 0;
+                string configVersionString = db.CustomData.Get("KeePassRPC.KeeFox.configVersion");
+                if (int.TryParse(configVersionString, out configVersion))
+                    return configVersion;
+            }
+            return 0;
         }
 
         private void RemoveKeeFoxTutorialDuplicateEntries(PwDatabase db)
