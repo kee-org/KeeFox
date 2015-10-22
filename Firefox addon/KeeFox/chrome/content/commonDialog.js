@@ -656,8 +656,7 @@ var keeFoxDialogManager = {
             }
         }
         
-        let bestMatch = 0;      
-        let bestMatchScore = -1;
+        const bestMatch = 0;
 
         // create a drop down box with all matched logins
         if (showList) {
@@ -668,6 +667,18 @@ var keeFoxDialogManager = {
             var popup = dialogFindLoginStorage.document.createElement("menupopup");
             var done = false;            
             
+            for (var i = 0; i < matchedLogins.length; i++) {
+                matchedLogins[i].relevanceScore = keeFoxDialogManager.calculateRelevanceScore(matchedLogins[i], dialogFindLoginStorage);
+            }
+
+            matchedLogins.sort(function (a, b) {
+                if (a.relevanceScore > b.relevanceScore)
+                    return -1;
+                if (a.relevanceScore < b.relevanceScore)
+                    return 1;
+                return 0;
+            });
+
             for (var i = 0; i < matchedLogins.length; i++){
                 var item = dialogFindLoginStorage.document.createElement("menuitem");
                 item.setAttribute("label", keefox_org.locale.$STRF("matchedLogin.label",
@@ -680,13 +691,6 @@ var keeFoxDialogManager = {
                 item.username = matchedLogins[i].username;
                 item.password = matchedLogins[i].password;
                 popup.appendChild(item);
-                
-                let loginMatchScore = keeFoxDialogManager.calculateRelevanceScore(matchedLogins[i], dialogFindLoginStorage);
-                if (loginMatchScore > bestMatchScore)
-                {
-                    bestMatchScore = loginMatchScore;
-                    bestMatch = i;
-                }
             }
 
             list.appendChild(popup);
