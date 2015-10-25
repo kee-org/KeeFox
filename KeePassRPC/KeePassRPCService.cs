@@ -341,7 +341,7 @@ namespace KeePassRPC
             if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.autoCommit", true))
             {
                 // save active database & update UI appearance
-                if (host.MainWindow.UIFileSave(true))
+                if (host.MainWindow.UIFileSave(false))
                     host.MainWindow.UpdateUI(false, null, true, null, true, null, false);
             }
             else
