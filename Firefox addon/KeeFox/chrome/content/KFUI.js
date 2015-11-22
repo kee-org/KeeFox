@@ -413,7 +413,7 @@ keefox_win.UI = {
 
             Components.classes['@mozilla.org/alerts-service;1'].
                       getService(Components.interfaces.nsIAlertsService).
-                      showAlertNotification("chrome://keefox/skin/KeeFox24.png", title, text, enableClick, '', callback);
+                      showAlertNotification("chrome://keefox/skin/KeeFox64.png", title, text, enableClick, '', callback);
         } catch(e) {
             // prevents runtime error on platforms that don't implement nsIAlertsService
         }

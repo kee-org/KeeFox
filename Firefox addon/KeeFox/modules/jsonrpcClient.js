@@ -226,12 +226,12 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
                 {
                     passwordGenerated = true;
                     window.keefox_org.utils.copyStringToClipboard(resultWrapper.result);
-                    window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.copied"));
+                    window.keefox_win.UI.growl("KeeFox", window.keefox_org.locale.$STR("generatePassword.copied"));
                 }
             }
             if (!passwordGenerated)
             {
-                window.keefox_win.UI.growl(window.keefox_org.locale.$STR("generatePassword.launch"));
+                window.keefox_win.UI.growl("KeeFox", window.keefox_org.locale.$STR("generatePassword.launch"));
             }
         }, ++this.requestId);
     }
