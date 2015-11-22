@@ -635,9 +635,18 @@ var keeFoxDialogManager = {
                 var password = foundLogins[i].passwords[0];
                 var title = foundLogins[i].title;
                 var displayGroupPath = foundLogins[i].database.name + '/' + foundLogins[i].parentGroup.path;
+
+                // We display the URL of the match, if available. In some cases this won't be the
+                // actual URL that KeePass matched which might be a little confusing for users but
+                // we can't change that without passing lots more data back over the KPRPC link
+                // which comes with its own set of drawbacks.
+                var displayHost = dialogFindLoginStorage.host;
+                if (foundLogins[i].URLs.length && foundLogins[i].URLs[0].length)
+                    displayHost = foundLogins[i].URLs[0];
+
                 matchedLogins.push({ 'username' : ((username !== undefined) ? username.value : ''),
                     'password' : ((password !== undefined) ? password.value : ''),
-                    'host' : dialogFindLoginStorage.host,
+                    'host': displayHost,
                     'title' : title,
                     'displayGroupPath' : displayGroupPath,
                     'alwaysAutoFill' : foundLogins[i].alwaysAutoFill,
