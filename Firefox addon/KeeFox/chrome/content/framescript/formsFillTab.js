@@ -1174,6 +1174,8 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             if (matchingLogin == null)
                 Logger.warn("Could not find the required KeePass entry. Maybe the website redirected you to a different domain or hostname?");
            
+        } else if (matchingLogin == null && (!matchResult.logins[mostRelevantFormIndex] || !matchResult.logins[mostRelevantFormIndex].length)) {
+            Logger.debug("No logins for form.");
         } else if (matchingLogin == null) {
             Logger.debug("Multiple logins for form, so estimating most relevant.");
             var mostRelevantLoginIndex = 0;
