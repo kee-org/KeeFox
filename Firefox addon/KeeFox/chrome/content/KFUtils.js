@@ -338,7 +338,7 @@ keefox_win.KFMD5checksumVerification = function(path, testMD5)
         var hash = ch.finish(false);
 
         // convert the binary hash data to a hex string.
-        var s = [keefox_org.utils.toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+        var s = Array.from(hash, (c, i) => keefox_org.utils.toHexString(hash.charCodeAt(i))).join("");
         if (s == testMD5)
             return true;
             

@@ -586,7 +586,7 @@ Utils.prototype = {
         let prng = Components.classes['@mozilla.org/security/random-generator;1'];
         let bytebucket = prng.getService(Components.interfaces.nsIRandomGenerator).generateRandomBytes(bytes, buffer);
     
-        let hex = [this.toHexString(bytebucket[i]) for (i in bytebucket)].join("");
+        let hex = bytebucket.map(this.toHexString).join("");
         return BigInteger.parse(hex, 16);
     },
 
@@ -637,7 +637,7 @@ Utils.prototype = {
             return converterUTF16.convertToByteArray(hash, result);
 
         // convert the binary hash data to a hex string.
-        var s = [utils.toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+        var s = Array.from(hash, (c, i) => utils.toHexString(hash.charCodeAt(i))).join("");
 
         return s;
     },
