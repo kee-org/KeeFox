@@ -323,7 +323,7 @@ var _onFormSubmitFindLoginsComplete = function (resultWrapper, submitDocumentDat
                 // non-first page of a multi-page login form, or when their credentials have been 
                 // invalidated remotely and they end up on one of the non-first pages to 
                 // submit updated credentials)
-                if (submitDocumentDataStorage.formLogin.containedIn(logins[i],false,true,false,false,this))
+                if (submitDocumentDataStorage.formLogin.containedIn(logins[i],false,true,true,false,this))
                     existingLogin = true;
             }
         }
