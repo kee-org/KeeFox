@@ -1025,78 +1025,27 @@ function checkDotNetFramework(mainWindow)
     return dotNetFrameworkFound;
 }
 
-// Even admins can't make changes to the Program Files directory on
-// Windows Vista / 7 so this function will increasingly become
-// useless... might as well at least try it though
 function copyKeePassRPCFilesTo(keePassLocation)
 {
-    var removeExistingPluginFailed = true;
-    removeExistingPluginFailed = false;
-    var destFolder = Components.classes["@mozilla.org/file/local;1"]
-    .createInstance(Components.interfaces.nsILocalFile);
-    destFolder.initWithPath(keePassLocation);
-    destFolder.append("plugins");
-    
-    var destFileKeePassRPC = Components.classes["@mozilla.org/file/local;1"]
-    .createInstance(Components.interfaces.nsILocalFile);
-    destFileKeePassRPC.initWithPath(keePassLocation);
-    destFileKeePassRPC.append("plugins");
-    destFileKeePassRPC.append("KeePassRPC.plgx");
-    
-    try
-    {
-        if (!destFolder.exists())
-            destFolder.create(destFolder.DIRECTORY_TYPE, parseInt("0775", 8));
-        var KeePassRPCfile = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-        KeePassRPCfile.initWithPath(mainWindow.keefox_org.utils.myDepsDir());
-        KeePassRPCfile.append("KeePassRPC.plgx");
-        if (destFileKeePassRPC.exists())
-        {
-            removeExistingPluginFailed = true;
-            destFileKeePassRPC.remove(false);
-            removeExistingPluginFailed = false;
-        }
-        KeePassRPCfile.copyTo(destFolder,"");
-    } catch (ex)
-    {
-        mainWindow.keefox_org._KFLog.error(ex);
-    }
-
     var KeePassRPCfound;
-    
     var keePassRPCLocation;
-    try
-    {
-        keePassRPCLocation = "not installed";
-        keePassRPCLocation = mainWindow.keefox_org.utils._discoverKeePassRPCInstallLocation(); // this also stores the preference
-        KeePassRPCfound = mainWindow.keefox_org.utils._confirmKeePassRPCInstallLocation(keePassRPCLocation);
-    } catch (ex)
-    {
-        mainWindow.keefox_org._KFLog.error(ex);
-    }
     
-    // if we can't find KeePassRPC, it was probably not copied because of
-    // a permissions fault so lets try a fully escalated executable
-    // to get it put into place
-    if (!KeePassRPCfound || removeExistingPluginFailed)
+    // We have to use a fully escalated executable to get the plgx file into place
+    mainWindow.keefox_org._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
+    runKeePassRPCExecutableInstaller(keePassLocation);
+    keePassRPCLocation = "not installed";
+
+    keePassRPCLocation = mainWindow.keefox_org.utils._discoverKeePassRPCInstallLocation(); // this also stores the preference
+    KeePassRPCfound = mainWindow.keefox_org.utils._confirmKeePassRPCInstallLocation(keePassRPCLocation);
+        
+    // still not found! Have to give up :-(
+    if (!KeePassRPCfound)
     {
         mainWindow.keefox_org._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
-        runKeePassRPCExecutableInstaller(keePassLocation);
-        keePassRPCLocation = "not installed";
-
-        keePassRPCLocation = mainWindow.keefox_org.utils._discoverKeePassRPCInstallLocation(); // this also stores the preference
-        KeePassRPCfound = mainWindow.keefox_org.utils._confirmKeePassRPCInstallLocation(keePassRPCLocation);
-        
-        // still not found! Have to give up :-(
-        if (!KeePassRPCfound)
-        {
-            mainWindow.keefox_org._keeFoxExtension.prefs.setValue("keePassRPCInstalledLocation","");
-            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                        .getService(Components.interfaces.nsIPromptService);
-            promptService.alert(mainWindow, mainWindow.keefox_org.locale.$STR("install.somethingsWrong"),mainWindow.keefox_org.locale.$STR("install.KPRPCNotInstalled")); 
-            return false;
-        }
+        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                    .getService(Components.interfaces.nsIPromptService);
+        promptService.alert(mainWindow, mainWindow.keefox_org.locale.$STR("install.somethingsWrong"),mainWindow.keefox_org.locale.$STR("install.KPRPCNotInstalled")); 
+        return false;
     }
     return true;
 }
