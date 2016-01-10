@@ -127,6 +127,15 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
               <label href="http://keefox.org/help" class="text-link" id="lab_KFInstallNotRequired">%-KeeFox_Install_Not_Required_Link.label-%</label>
             </vbox>
 
+            <vbox id="netUpgradeRequired" hidden="true">
+              <description id="desc_netUpgradeRequired">%-KeeFox_Install_NET_Upgrade_Required.label-%</description>
+              <label href="https://www.microsoft.com/en-us/download/details.aspx?id=48130" class="text-link">.NET 4.6</label>
+              <description id="desc_netUpgradeRequired_XP" style="margin-top: 15px;">%-KeeFox_Install_NET_Upgrade_Required_XP.label-%</description>
+              <label href="https://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/dotNetFx40_Client_setup.exe" class="text-link">.NET 4.0 (Windows XP)</label>
+              <description id="desc_netUpgradeRequired_KeePass" style="margin-top: 15px;">%-KeeFox_Install_NET_Upgrade_Required_KeePass.label-%</description>
+              <label href="https://sourceforge.net/projects/keepass/" class="text-link">KeePass</label>
+            </vbox>
+
             <vbox id="ERRORInstallButtonMain" hidden="true">
               <description id="desc_ERRORInstallButtonMain">%-KeeFox_Install_Unexpected_Error.label-%</description>
             </vbox>

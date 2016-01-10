@@ -125,11 +125,11 @@ function prepareInstallPage()
     'desc_IC1KRPCdownloaded','desc_IC2setupKPdownloading','but_IC2setupKPdownloading','desc_IC2setupKPdownloaded','desc_IC2KRPCdownloaded',
     'desc_IC3installing','desc_IC5zipKPdownloading','lab_IC5zipKPdownloading','desc_IC5zipKPdownloaded','desc_IC5installing',
     'desc_InstallFinished', 'nextStepsIntro', 'desc_nextStep1', 'nextStepsTutorialLink', 'nextStepsImportLink', 'nextStepsFinally',
-    'KFInstallPageTitle_description', downgradeWarning
+    'KFInstallPageTitle_description', downgradeWarning, 'desc_netUpgradeRequired', 'desc_netUpgradeRequired_XP', 'desc_netUpgradeRequired_KeePass'
     ],
     ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
         
-    // One of 8 installation options. The user only needs to see information relevant
+    // One of 9 installation options. The user only needs to see information relevant
     // to their starting state.
     var installCase; 
     
@@ -159,24 +159,34 @@ function prepareInstallPage()
         if (!KFupgradeMode && keePassLocation != "not installed")
             showSection('installationFoundWarning');
     }
-    if (userHasAdminRights(mainWindow))
-        if (KFupgradeMode)
-            installCase = 7;
-        else if (keePassLocation != "not installed")
-            installCase = 3;
-        else if (checkDotNetFramework(mainWindow))
-            installCase = 2;
+
+    // Special case for users that are upgrading to a version of KeeFox that indirectly depends on .NET 4.0 or higher. 
+    // Older versions of KeeFox were satisfied by .NET 2.0 but now the checkDotNetFramework
+    // could return false even if KeePass is installed.
+    // This will also trigger if the user has uninstalled .NET since installing KeeFox but that
+    // probably won't ever happen (and the need for manual resolution of that problem is identical anyway)
+    if (KFupgradeMode && keePassLocation != "not installed" && !checkDotNetFramework(mainWindow)) {
+        installCase = 9;
+    } else {
+        if (userHasAdminRights(mainWindow))
+            if (KFupgradeMode)
+                installCase = 7;
+            else if (keePassLocation != "not installed")
+                installCase = 3;
+            else if (checkDotNetFramework(mainWindow))
+                installCase = 2;
+            else
+                installCase = 1;
         else
-            installCase = 1;
-    else
-        if (KFupgradeMode)
-            installCase = 8;
-        else if (keePassLocation != "not installed")
-            installCase = 6;
-        else if (checkDotNetFramework(mainWindow))
-            installCase = 5;
-        else
-            installCase = 4;
+            if (KFupgradeMode)
+                installCase = 8;
+            else if (keePassLocation != "not installed")
+                installCase = 6;
+            else if (checkDotNetFramework(mainWindow))
+                installCase = 5;
+            else
+                installCase = 4;
+    }
 
     mainWindow.keefox_win.Logger.info("applying installation case " + installCase);
  
@@ -244,7 +254,10 @@ function prepareInstallPage()
             installState = KF_INSTALL_STATE_NET_EXECUTED | KF_INSTALL_STATE_KP_EXECUTED 
                 | KF_INSTALL_STATE_KRPC_DOWNLOADED;
             break;   
-            //TODO:2:? update 7 and 8 to show Upgrade text, etc.       
+            //TODO:2:? update 7 and 8 to show Upgrade text, etc.  
+        case 9:
+            showSection('netUpgradeRequired');
+            break;
         default: document.getElementById('ERRORInstallButtonMain').setAttribute('hidden', false); break;
     }
 
@@ -941,7 +954,7 @@ function userHasAdminRights(mainWindow)
     }
 }
 
-// determine if .NET framework version 2 or 4 is installed
+// determine if .NET framework version 4 is installed
 function checkDotNetFramework(mainWindow)
 {
     var dotNetFrameworkFound;
@@ -949,7 +962,7 @@ function checkDotNetFramework(mainWindow)
       
     // platform is a string with one of the following values: "Win32",
     // "Linux i686", "MacPPC", "MacIntel", or other.
-    if (window.navigator.platform == "Win32")
+    if (window.navigator.platform == "Win32" || window.navigator.platform == "Win64")
     {
         var wrk = Components.classes["@mozilla.org/windows-registry-key;1"]
             .createInstance(Components.interfaces.nsIWindowsRegKey);
@@ -968,19 +981,6 @@ function checkDotNetFramework(mainWindow)
                     if (subkey3.hasChild("NDP"))
                     {
                         var subkey4 = subkey3.openChild("NDP", subkey3.ACCESS_READ);
-                        if (subkey4.hasChild("v2.0.50727"))
-                        {
-                            var subkey4a = subkey4.openChild("v2.0.50727", subkey4.ACCESS_READ);
-                            if (subkey4a.hasValue("Install"))
-                            {
-                                if (subkey4a.readIntValue("Install") == 1)
-                                {
-                                    dotNetFrameworkFound = true;
-                                    mainWindow.keefox_win.Logger.info(".NET framework has been found");
-                                }
-                            }
-                            subkey4a.close();
-                        }
                         if (subkey4.hasChild("v4"))
                         {
                             var subkey4b = subkey4.openChild("v4", subkey4.ACCESS_READ);
