@@ -23,14 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using System.IO;
-using System.Configuration.Install;
 
 using KeePass.Plugins;
 using KeePass.Forms;
@@ -40,12 +37,9 @@ using KeePassLib;
 using KeePassLib.Security;
 using KeePass.App;
 using KeePass.UI;
-using Jayrock.JsonRpc;
 using KeePassRPC.Forms;
 using System.Reflection;
 using KeePassLib.Collections;
-
-using System.Runtime.Remoting.Lifetime;
 using KeePassRPC.DataExchangeModel;
 using Fleck2.Interfaces;
 using DomainPublicSuffix;
@@ -61,7 +55,7 @@ namespace KeePassRPC
         //private static LifetimeServices fakeHack = new LifetimeServices();
 
         // version information
-        public static readonly Version PluginVersion = new Version(1, 5, 4);
+        public static readonly Version PluginVersion = new Version(1, 5, 5);
 
         private BackgroundWorker _BackgroundWorker; // used to invoke main thread from other threads
         private AutoResetEvent _BackgroundWorkerAutoResetEvent;
@@ -100,23 +94,14 @@ namespace KeePassRPC
         public string CurrentConfigVersion = "2";
         public volatile bool terminating = false;
 
-        private int FindKeePassRPCPort(IPluginHost host, bool webSocket)
+        private int FindKeePassRPCPort(IPluginHost host)
         {
             bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
-            int port;
-
-            if (webSocket)
-                port = (int)host.CustomConfig.GetULong("KeePassRPC.webSocket.port", 12546);
-            else
-                port = (int)host.CustomConfig.GetULong("KeePassRPC.connection.port", 12536);
+            int port = (int)host.CustomConfig.GetULong("KeePassRPC.webSocket.port", 12546);
 
             if (allowCommandLineOverride)
             {
-                string portStr;
-                if (webSocket)
-                    portStr = host.CommandLineArgs["KeePassRPCWebSocketPort"];
-                else
-                    portStr = host.CommandLineArgs["KeePassRPCPort"];
+                string portStr = host.CommandLineArgs["KeePassRPCWebSocketPort"];
                 if (portStr != null)
                 {
                     try
@@ -132,41 +117,9 @@ namespace KeePassRPC
             }
 
             if (port <= 0 || port > 65535)
-            {
-                if (webSocket)
-                    port = 12546;
-                else
-                    port = 12536;
-            }
-            if (webSocket && port == 12536)
                 port = 12546;
-            if (!webSocket && port == 12546)
-                port = 12536;
 
             return port;
-        }
-
-        private bool FindKeePassRPCSSLEnabled(IPluginHost host)
-        {
-            bool allowCommandLineOverride = host.CustomConfig.GetBool("KeePassRPC.connection.allowCommandLineOverride", true);
-            bool sslEnabled = host.CustomConfig.GetBool("KeePassRPC.connection.SSLEnabled", true);
-
-            if (allowCommandLineOverride)
-            {
-                string SSLEnabledStr = host.CommandLineArgs["SSLEnabled"];
-                if (SSLEnabledStr != null)
-                {
-                    try
-                    {
-                        sslEnabled = bool.Parse(SSLEnabledStr);
-                    }
-                    catch
-                    {
-                        // just stick with what we had already decided
-                    }
-                }
-            }
-            return sslEnabled;
         }
 
         /// <summary>
@@ -218,9 +171,8 @@ namespace KeePassRPC
                 TLDRulesCache.Init(host.CustomConfig.GetString(
                     "KeePassRPC.publicSuffixDomainCache.path",
                     GetLocalConfigLocation() + "publicSuffixDomainCache.txt"));
-
-                // The client managers directly manage the legacy KPRPC connections (i.e. connections from KeeFox < 1.3 in case client and server mismatch is created by user)
-                // The KeeFox client manager also holds objects relating to the web socket connections managed by the Fleck2 library
+                
+                // The KeeFox client manager holds objects relating to the web socket connections managed by the Fleck2 library
                 CreateClientManagers();
 
                 if (logger != null) logger.WriteLine("Client managers started.");
@@ -229,13 +181,11 @@ namespace KeePassRPC
                 _RPCService = new KeePassRPCService(host,
                     getStandardIconsBase64(host.MainWindow.ClientIcons), this);
                 if (logger != null) logger.WriteLine("RPC service started.");
-                int portOld = FindKeePassRPCPort(host, false);
-                int portNew = FindKeePassRPCPort(host, true);
+                int portNew = FindKeePassRPCPort(host);
 
                 try
                 {
-                    _RPCServer = new KeePassRPCServer(portOld, RPCService, this,
-                        FindKeePassRPCSSLEnabled(host), portNew,
+                    _RPCServer = new KeePassRPCServer(RPCService, this, portNew,
                         host.CustomConfig.GetBool("KeePassRPC.webSocket.bindOnlyToLoopback", true));
                 }
                 catch (System.Net.Sockets.SocketException ex)
@@ -246,15 +196,15 @@ namespace KeePassRPC
 
 See https://github.com/luckyrat/KeeFox/wiki/en-|-Options-|-KPRPC-Port
 
-KeePassRPC requires these two ports to be available: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
-                        if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires these two ports to be available: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
+KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
+                        if (logger != null) logger.WriteLine("Socket (port) already in use. KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
                     }
                     else
                     {
                         MessageBox.Show(@"KeePassRPC could not start listening for connections. To allow KeePassRPC clients (e.g. KeeFox) to connect to this instance of KeePass, please fix the problem indicated in the technical detail below and restart KeePass.
 
-KeePassRPC requires these two ports to be working: " + portOld + " and " + portNew + ". Technical detail: " + ex.ToString());
-                        if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires these two ports to be working: " + portOld + " and " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
+KeePassRPC requires this port to be available: " + portNew + ". Technical detail: " + ex.ToString());
+                        if (logger != null) logger.WriteLine("Socket error. KeePassRPC requires this port to be available: " + portNew + ". Maybe check that you have no firewall or other third party security software interfering with your system. Technical detail: " + ex.ToString());
                     }
                     if (logger != null) logger.WriteLine("KPRPC startup failed: " + ex.ToString());
                     _BackgroundWorkerAutoResetEvent.Set(); // terminate _BackgroundWorker
@@ -267,10 +217,6 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
                 _host.MainWindow.FileOpened += OnKPDBOpen;
                 _host.MainWindow.FileClosed += OnKPDBClose;
                 _host.MainWindow.FileCreated += OnKPDBCreated;
-
-                //be nice to pick up when entries are edited and update the firefox URL cache imemdiately
-                //for the time being we'll have to hook onto the Save function
-                //ServerData.m_host.Database.RootGroup...
                 _host.MainWindow.FileSaving += OnKPDBSaving;
                 _host.MainWindow.FileSaved += OnKPDBSaved;
 
@@ -304,10 +250,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 
                 // not acting on upgrade info just yet but we need to track it for future proofing
                 bool upgrading = refreshVersionInfo(host);
-
-                if (!_RPCServer.IsListening)
-                    MessageBox.Show("Could not start listening for RPC connections. KeePassRPC will not function and any services that rely on it will fail to connect to KeePass.");
-
+                
                 // for debug only:
                 //WelcomeForm wf = new WelcomeForm();
                 //DialogResult dr = wf.ShowDialog();
@@ -349,18 +292,7 @@ KeePassRPC requires these two ports to be working: " + portOld + " and " + portN
 
             return strUserDir + strBaseDirName + Path.DirectorySeparatorChar;
         }
-
-        //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        //{
-        //    MessageBox.Show("assembly: " + args.Name);
-        //    AssemblyName name = new AssemblyName(args.Name);
-        //    if (name.Name == "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
-        //    {
-        //        return typeof(System.Web.HttpApplication).Assembly;
-        //    }
-        //    return null;
-        //}
-
+        
         void GlobalWindowManager_WindowAdded(object sender, GwmWindowEventArgs e)
         {
             PwEntryForm ef = e.Form as PwEntryForm;
@@ -869,8 +801,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             string managerName = "null";
             switch (clientName)
             {
-                case "KeeFox": managerName = "KeeFox"; break; // KeeFox >= 1.3
-                case "KeeFox Firefox add-on": managerName = "KeeFox"; break; // KeeFox <= 1.2
+                case "KeeFox": managerName = "KeeFox"; break;
             }
 
             PromoteNullRPCClient(connection, _RPCClientManagers[managerName]);
@@ -882,7 +813,6 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
         public override void Terminate()
         {
             this.terminating = true;
-            RPCServer.Terminate();
             lock (_lockRPCClientManagers)
             {
                 _lockRPCClientManagers.HeldBy = Thread.CurrentThread.ManagedThreadId;
@@ -1685,35 +1615,6 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             ((MethodInvoker)e.UserState).Invoke();
         }
     }
-
-    //public class Log : KeePassLib.Interfaces.IStatusLogger
-    //{
-    //    public bool ContinueWork()
-    //    {
-    //        return true;
-    //    }
-
-    //    public void EndLogging()
-    //    {
-    //        return;
-    //    }
-
-    //    public bool SetProgress(uint uPercent)
-    //    {
-    //        return true;
-    //    }
-
-    //    public bool SetText(string strNewText, KeePassLib.Interfaces.LogStatusType lsType)
-    //    {
-    //        return true;
-    //    }
-
-    //    public void StartLogging(string strOperation, bool bWriteOperationToLog)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
-
 
     public class LockManager
     {

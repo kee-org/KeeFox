@@ -21,10 +21,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Jayrock.JsonRpc;
 using KeePassRPC.DataExchangeModel;
-using System.Threading;
 using System.Windows.Forms;
 using KeePass.Forms;
 using KeePassLib;
@@ -35,13 +33,10 @@ using KeePassLib.Serialization;
 using System.IO;
 using KeePassLib.Security;
 using KeePass.Plugins;
-using System.Security.Cryptography;
 using KeePassLib.Cryptography.PasswordGenerator;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
 using System.Reflection;
 using KeePass.UI;
-using DomainPublicSuffix;
 
 namespace KeePassRPC
 {
@@ -68,110 +63,8 @@ namespace KeePassRPC
         }
         #endregion
 
-        #region Client authentication
-
-        /// <summary>
-        /// Authenticates an RPC client by verifying it is the correct version,
-        /// is in possesion of an identifying string signed by the private key
-        /// companion of the public key embedded in this application and that
-        /// the hash of its unique ID data matches that stored in the KeePass
-        /// config file. Unrecognised clients will be presented to the user
-        /// for one-time validation.
-        /// </summary>
-        /// <param name="versionParts">The version of the client (must be
-        /// identical to this RPC plugin version for authentication
-        /// to succeed)</param>
-        /// <param name="clientId">The claimed name of the RPC client that 
-        /// is attempting to gain access to KeePassRPC</param>
-        /// <param name="b64IdSig">Base64 encoded signature for clientId.</param>
-        /// <param name="b64PrivId">Base64 encoded client type identifer
-        /// (encrypted by a private key on the client)</param>
-        /// <returns>0 if authentication was approved; other positive
-        /// integers to indicate various error conditions</returns>
-        /// <remarks>
-        ///Main limitations are that private keys will be stored on the
-        ///client without protection. File system level protection may
-        ///help, as might use of Firefox master password? Probably not
-        ///becuase we can't prevent malicious extensions installing
-        ///themselves into Firefox anyway. Other clients may face
-        ///similar challenges.
-        ///
-        ///Modification of stored hash could provide a means for attacker
-        ///to use a spoofed client machine to connect but string ID is
-        ///recalculated each time using public key held in program code so
-        ///cos the hash is based on that, attacker can't control the actual
-        ///hash value that the server is expecting - therefore modification
-        ///of the hash key is at worst a DOS.
-        /// </remarks>
-        [JsonRpcMethod]
-        public AuthenticationResult Authenticate(int[] versionParts, string clientId, string b64IdSig, string b64PrivId)
-        {
-            // As of version 1.3+ this method only checks version number
-            // No valid authentication can be achieved by calling this method
-
-            //do version negotiation first so client and server know they'll
-            //be using correct key pairs (in case signatures are changed in future).
-            bool versionMatch = false;
-            if (versionParts == null || versionParts.Length != 3)
-                return new AuthenticationResult(2, clientId); // throw new AuthorisationException("Invalid version specification. Please state the version of RPC client that is requesting authorisation. This can differ from the version of your client application provided that the RPC interface remains identical.", -1, 2);
-
-            Version versionClient = new Version(versionParts[0], versionParts[1], versionParts[2]);
-
-            if (PluginVersion.CompareTo(versionClient) == 0)
-                versionMatch = true;
-
-            if (versionMatch == false)
-            {
-                // Listen for changes to the KeePassRPC plgx file so we can prompt the user to restart
-                try
-                {
-                    ListenForPLGXChanges();
-                }
-                catch (Exception ex)
-                {
-                    KeePassLib.Utility.MessageService.ShowInfo("For beta testing we need to know if you see this error message. Please report it on the forum: http://keefox.org/help/forum Details of the problem follow: " + ex);
-                }
-
-                return new AuthenticationResult(3, clientId); // version mismatch
-            }
-            return new AuthenticationResult(4, clientId); // version OK - client must be having problems communicating with the web socket port
-
-            //// This is the first time this type of client has
-            //// connected to KeePassRPC so we start the new user
-            //// wizard.
-            //// TODO2: support wizards for different clients
-            //if (knownClients.Length == 0 && clientId == "KeeFox Firefox add-on")
-            //{
-            //    // The wizard handles user confirmation - if user says yes,
-            //    // the hash will be stored in the KeePass config file
-            //    PendingRPCClient newClient = new PendingRPCClient(
-            //        clientId, clientHash, new List<string>(knownClients));
-            //    object[] delParams = { newClient };
-            //    object invokeResult = host.MainWindow.Invoke(
-            //        new KeePassRPCExt.WelcomeKeeFoxUserDelegate(
-            //            KeePassRPCPlugin.WelcomeKeeFoxUser), delParams);
-            //    return new AuthenticationResult((int)invokeResult, clientId); // Should be 0 unless user cancels
-            //}
-            //else
-            //{
-            //    DialogResult userConfirmationResult = MessageBox.Show(
-            //        "KeePass detected an attempt to connect to KeePass from '"
-            //        + clientId
-            //        + "'. Should KeePass allow this application to access your passwords?",
-            //        "Security check from the KeePassRPC plugin", MessageBoxButtons.YesNo,
-            //        MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-
-            //    // if user says yes, we store the hash in the KeePass config file
-            //    if (userConfirmationResult == DialogResult.Yes)
-            //    {
-            //        AddKnownRPCClient(new PendingRPCClient(clientId, clientHash, new List<string>(knownClients)));
-            //        return new AuthenticationResult(0, clientId); // everything's good, access granted
-            //    }
-            //    return new AuthenticationResult(5, clientId);
-            //}
-            ////TODO2: audit logging options? needs to be a KeePass supported
-            ////feature really or maybe a seperate plugin?
-        }
+        #region PLGX install detection 
+        //TODO:1.6: (this stopped working in KeeFox 1.3 - maybe we can re-enable it now?)
 
         public void ListenForPLGXChanges()
         {
@@ -226,29 +119,6 @@ namespace KeePassRPC
                 KeePassLib.Utility.MessageService.ShowInfo("Please restart KeePass for the upgrade to take effect. If KeeFox does not detect KeePass within 10 seconds of KeePass restarting, please also restart Firefox.");
             _restartWarningShown = true;
             ((FileSystemWatcher)source).EnableRaisingEvents = false;
-        }
-
-        //TODO2: find some way that this can be private? (but really, what is
-        //private when any plugin could call anything in the appdomain through reflection anyway?...
-        internal void AddKnownRPCClient(PendingRPCClient client)
-        {
-            client.KnownClientList.Add(client.Hash);
-            string newKnownClients = string.Join(",", client.KnownClientList.ToArray());
-            host.CustomConfig.SetString("KeePassRPC.knownClients." + client.ClientId, newKnownClients);
-            host.MainWindow.Invoke((MethodInvoker)delegate { host.MainWindow.SaveConfig(); });
-        }
-
-        /// <summary>
-        /// Gets the public key which can verify the digital
-        /// signature of a claimed RPC client identity. The key
-        /// is embedded in source code to prevent casual modification
-        /// </summary>
-        /// <returns>CspBlob byte array</returns>
-        private byte[] GetClientIdPublicKey()
-        {
-            //SetupPrivateKeySignatures("KeeFox Firefox add-on");
-            byte[] embeddedPublicKey = Convert.FromBase64String("BgIAAAAiAABEU1MxAAQAAKlVa5DMwU6hDdC4w7BBJWmY9b8rtxUhCe/35rTf+BgXFLsF8q2SJTpj0RHghq9qAcX1MSNPy1wCIPGdVch2p4ss0IByc7irnSnfVRZd8t2c+5f/6kwhILpretiqbQrQ40grnDCBGJnydbCJhTLA6yLw414e826sWfrFL8RTN/W0C/N9kD3vaKHcfakszFRgoltGV8bKcwMY1DaGlY/iMYm497rxV8qzBj6aCuNRAieBHrtRz/B10CIChSDpfNBbqPKctCBWGPM82gdwPUVQVbEylC7ZwvcKHzPSUebAFW8dRUrKyf426OaAvBqWyAsg4RR/R/+IDtLpOIsO5slyT4aeeQp8rYjUv0C+9/9oRU7iYCO8iaZ96Pg/z36brJh8HrkgeK9PG09/fnKZpYjCLK4g/XYRBcYNDULM0LPzWkiVXYb/HRjqQI9V9NP78I3m1tOvoYVnEoiPi8/fLQ7c6uPCeR46phN6vznyVGTIbzh0vrM7SygB3inff3gD3KRjfU31I3ar9amF2TGvfDi3twJoOJqOVgEAABNQm4zmjXSi7PPcGENZGU9WCXZJ");
-            return embeddedPublicKey;
         }
 
         #endregion
@@ -445,6 +315,7 @@ namespace KeePassRPC
         }
 
         // A similar function is defined in KeePass MainForm_functions.cs but only from 2.18 so to retain compatibility with 2.15 we can't use it
+        //TODO:1.6: Don't support < 2.15 anymore
         IOConnectionInfo CompleteConnectionInfoUsingMru(IOConnectionInfo ioc)
         {
             if (string.IsNullOrEmpty(ioc.UserName) && string.IsNullOrEmpty(ioc.Password))
@@ -620,34 +491,6 @@ namespace KeePassRPC
             }
         }
 
-
-        /*
-         * public static void ReorderEntriesAsInDatabase(PwObjectList<PwEntry> v,
-			PwDatabase pd)
-		{
-			if((v == null) || (pd == null)) { Debug.Assert(false); return; }
-
-			PwObjectList<PwEntry> vRem = v.CloneShallow();
-			v.Clear();
-
-			EntryHandler eh = delegate(PwEntry pe)
-			{
-				int p = vRem.IndexOf(pe);
-				if(p >= 0)
-				{
-					v.Add(pe);
-					vRem.RemoveAt((uint)p);
-				}
-
-				return true;
-			};
-
-			pd.RootGroup.TraverseTree(TraversalMethod.PreOrder, null, eh);
-
-			foreach(PwEntry peRem in vRem) v.Add(peRem); // Entries not found
-		}
-         * */
-
         private Group GetGroupFromPwGroup(PwGroup pwg)
         {
             //Debug.Indent();
@@ -679,11 +522,9 @@ namespace KeePassRPC
 
             if (!noDetail)
                 rt.ChildGroups = GetChildGroups(pwd, pwg, true, fullDetail);
-            //host.Database.RootGroup.
 
             Database kpd = new Database(pwd.Name, pwd.IOConnectionInfo.Path, rt, (pwd == host.Database) ? true : false,
                 DataExchangeModel.IconCache<string>.GetIconEncoding(pwd.IOConnectionInfo.Path) ?? "");
-            //host.MainWindow.Ic
             //  sw.Stop();
             //  Debug.WriteLine("GetDatabaseFromPwDatabase execution time: " + sw.Elapsed);
             //  Debug.Unindent();
@@ -775,7 +616,6 @@ namespace KeePassRPC
                 return cachedBase64;
             }
         }
-
 
         /// <summary>
         /// extract the current icon information for this entry
@@ -1008,6 +848,7 @@ namespace KeePassRPC
         {
             return Type.GetType("System.Runtime.GCLargeObjectHeapCompactionMode", false) != null;
         }
+        //TODO:1.6: Newer .NET versions
 
         #endregion
 
@@ -1153,6 +994,7 @@ namespace KeePassRPC
 
             // Generate method signature changed in KP 2.18 so we use
             // reflection to enable support for both 2.18 and earlier versions
+            //TODO:1.6: drop support for 2.18
             Type[] mitypes218 = new Type[] { typeof(ProtectedString).MakeByRefType(), typeof(PwProfile), typeof(byte[]), typeof(CustomPwGeneratorPool) };
 
             try
@@ -1193,24 +1035,6 @@ namespace KeePassRPC
                 return newPassword.ReadString();
             else
                 return "";
-
-            //KeePass.Program.Config.PasswordGenerator.AutoGeneratedPasswordsProfile.Name
-
-            ////KeePassLib.Cryptography.PasswordGenerator.PwProfile profile = new KeePassLib.Cryptography.PasswordGenerator.PwProfile();//host.PwGeneratorPool.Find(
-            ////KeePass.Program.PwGeneratorPool
-            // //KeePass.Util.PwGeneratorUtil.
-            //profile.
-            //KeePassLib.Security
-            //KeePassLib.Cryptography.PasswordGenerator.PwGenerator.Generate(null, KeePassLib.Cryptography.PasswordGenerator.PwProfile
-            //foreach (PwProfile pwgo in host.PwGeneratorPool.Config.PasswordGenerator.UserProfiles)
-            //{
-            //    if (pwgo.Name == strProfile)
-            //    {
-            //        SetGenerationOptions(pwgo);
-            //        break;
-            //    }
-            //}
-            //return "password";
         }
 
         #endregion
@@ -2155,12 +1979,13 @@ namespace KeePassRPC
 
                     // SearchEntries method signature changed in KP 2.17 so we use
                     // reflection to enable support for both 2.17 and earlier versions
+                    //TODO:1.6: drop support for 2.17
                     try
                     {
                         mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>) });
                         mi.Invoke(searchGroup, new object[] { sp, output });
                     }
-                    catch (AmbiguousMatchException ex)
+                    catch (AmbiguousMatchException)
                     {
                         // can't find the 2.17 method definition so try for an earlier version
                         mi = typeof(PwGroup).GetMethod("SearchEntries", new Type[] { typeof(SearchParameters), typeof(KeePassLib.Collections.PwObjectList<PwEntry>), typeof(bool) });
@@ -2188,7 +2013,6 @@ namespace KeePassRPC
 
             if (count == 0 && URLs.Length > 0 && !string.IsNullOrEmpty(URLs[0]))
             {
-                int protocolIndex = -1;
                 Dictionary<string, URLSummary> URLHostnameAndPorts = new Dictionary<string, URLSummary>();
 
                 // make sure that hostname and actionURL always represent only the hostname portion
@@ -2234,7 +2058,7 @@ namespace KeePassRPC
                             {
                                 conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 configErrors.Add("Username: " + entryUserName + ". URL: " + pwe.Strings.ReadSafe("URL"));
                                 continue;

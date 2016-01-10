@@ -19,12 +19,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Net.Sockets;
-using System.Net.Security;
-using System.IO;
 using KeePassRPC.Forms;
 using System.Windows.Forms;
 using System.Drawing;
@@ -117,16 +112,6 @@ namespace KeePassRPC
             lock (_lockRPCClients)
             {
                 SignalAll(KeePassRPC.DataExchangeModel.Signal.EXITING);
-                foreach (KeePassRPCClientConnection client in _RPCClientConnections)
-                {
-                    try
-                    {
-                        client.ConnectionStreamClose();
-                    } catch (Exception)
-                    {
-                        // We don't care because we're shutting down and this is a legacy connection so bugs won't be investigated anyway.
-                    }
-                }
                 _RPCClientConnections.Clear();
             }
         }

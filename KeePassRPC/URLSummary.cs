@@ -2,7 +2,7 @@
   KeePassRPC - Uses JSON-RPC to provide RPC facilities to KeePass.
   Example usage includes the KeeFox firefox extension.
   
-  Copyright 2010-2015 Chris Tomlinson <keefox@christomlinson.name>
+  Copyright 2010-2016 Chris Tomlinson <keefox@christomlinson.name>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,9 +20,6 @@
 */
 
 using DomainPublicSuffix;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace KeePassRPC
 {

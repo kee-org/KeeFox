@@ -22,8 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Net.Sockets;
-using System.Net.Security;
 using System.IO;
 using Fleck2.Interfaces;
 using KeePassRPC.DataExchangeModel;
@@ -56,14 +54,7 @@ namespace KeePassRPC
         /// The ID of the next signal we'll send to the client
         /// </summary>
         private int _currentCallBackId = 0;
-        private TcpClient _unencryptedConnection;
-        private bool _channelIsEncrypted;
         private bool _authorised;
-        private SslStream _encryptedConnection;
-        private object streamAccessLock = new object(); // undocumented "The Write method cannot be called
-        //when another write operation is pending" errors can be thrown when accessing the stream from
-        //multiple threads so this protects against that but also being cautious and assuming
-        //similar problems may occur on reading
         private IWebSocketConnection _webSocketConnection = null;
         private SRP _srp;
         private KeyChallengeResponse _kcp;
@@ -82,28 +73,7 @@ namespace KeePassRPC
 
         private KeePassRPC.Forms.AuthForm _authForm;
         KeePassRPCExt KPRPC = null;
-
-
-        /// <summary>
-        /// The underlying TCP connection that links us to this client.
-        /// </summary>
-        [Obsolete("Use web sockets instead")]
-        public TcpClient UnencryptedConnection
-        {
-            get { return _unencryptedConnection; }
-            private set { _unencryptedConnection = value; }
-        }
-
-        /// <summary>
-        /// The underlying TLS encrypted TCP connection that links us to this client.
-        /// </summary>
-        [Obsolete("Use web sockets instead")]
-        public SslStream EncryptedConnection
-        {
-            get { return _encryptedConnection; }
-            private set { _encryptedConnection = value; }
-        }
-
+        
         /// <summary>
         /// The underlying web socket connection that links us to this client.
         /// </summary>
@@ -112,23 +82,12 @@ namespace KeePassRPC
             get { return _webSocketConnection; }
             private set { _webSocketConnection = value; }
         }
-
-        /// <summary>
-        /// Whether the underlying communications channel is encrypted.
-        /// </summary>
-        /// <value><c>true</c> if [channel is encrypted]; otherwise, <c>false</c>.</value>
-        [Obsolete("Use web sockets instead")]
-        public bool ChannelIsEncrypted
-        {
-            get { return _channelIsEncrypted; }
-            private set { _channelIsEncrypted = value; }
-        }
-
+        
         /// <summary>
         /// Whether this client has successfully authenticated to the
         /// server and been authorised to communicate with KeePass
         /// </summary>
-        /// //TODO1.3: verify this is always set and unset at correct times (non-trivial due to required compatibility with old and new KPRPC protocols)
+        /// //TODO1.6: verify this is always set and unset at correct times (non-trivial due to required compatibility with old and new KPRPC protocols)
         public bool Authorised
         {
             get { return _authorised; }
@@ -140,7 +99,7 @@ namespace KeePassRPC
             get
             {
                 // read from config file
-                return KPRPC._host.CustomConfig.GetLong("KeePassRPC.AuthorisationExpiryTime", 31536000); //TODO1.3: 31536000
+                return KPRPC._host.CustomConfig.GetLong("KeePassRPC.AuthorisationExpiryTime", 31536000);
             }
         }
 
@@ -259,65 +218,7 @@ namespace KeePassRPC
 
         private KeyContainerClass _keyContainer;
         private string clientName;
-
-        [Obsolete("Use web sockets instead")]
-        private Stream ConnectionStream
-        {
-            get
-            {
-                lock (streamAccessLock)
-                {
-                    if (ChannelIsEncrypted)
-                        return EncryptedConnection;
-                    else
-                        return UnencryptedConnection.GetStream();
-                }
-            }
-        }
-
-        [Obsolete("Use web sockets instead")]
-        public void ConnectionStreamWrite(byte[] bytes)
-        {
-            lock (streamAccessLock)
-            {
-                this.ConnectionStream.Write(bytes, 0, bytes.Length);
-            }
-        }
-
-        [Obsolete("Use web sockets instead")]
-        public void ConnectionStreamRead(byte[] bytes)
-        {
-            lock (streamAccessLock)
-            {
-                this.ConnectionStream.Read(bytes, 0, bytes.Length);
-            }
-        }
-
-        [Obsolete("Use web sockets instead")]
-        public void ConnectionStreamClose()
-        {
-            lock (streamAccessLock)
-            {
-                this.ConnectionStream.Close();
-            }
-        }
-
-        [Obsolete("Use web socket constructor instead")]
-        public KeePassRPCClientConnection(TcpClient connection, bool isAuthorised)
-        {
-            ChannelIsEncrypted = false;
-            UnencryptedConnection = connection;
-            Authorised = isAuthorised;
-        }
-
-        [Obsolete("Use web socket constructor instead")]
-        public KeePassRPCClientConnection(SslStream connection, bool isAuthorised)
-        {
-            ChannelIsEncrypted = true;
-            EncryptedConnection = connection;
-            Authorised = isAuthorised;
-        }
-
+        
         public KeePassRPCClientConnection(IWebSocketConnection connection, bool isAuthorised, KeePassRPCExt kprpc)
         {
             WebSocketConnection = connection;
@@ -348,40 +249,29 @@ namespace KeePassRPC
 
                 StringBuilder sb = new StringBuilder();
                 Jayrock.Json.Conversion.JsonConvert.Export(call, sb);
-                if (WebSocketConnection != null)
+                KPRPCMessage data2client = new KPRPCMessage();
+                data2client.protocol = "jsonrpc";
+                data2client.version = ProtocolVersion;
+                data2client.jsonrpc = Encrypt(sb.ToString());
+
+                // If there was a problem encrypting our message, just abort - the
+                // client won't be able to do anything useful with an error message
+                if (data2client.jsonrpc == null)
                 {
-                    KPRPCMessage data2client = new KPRPCMessage();
-                    data2client.protocol = "jsonrpc";
-                    data2client.version = ProtocolVersion;
-                    data2client.jsonrpc = Encrypt(sb.ToString());
-
-                    // If there was a problem encrypting our message, just abort - the
-                    // client won't be able to do anything useful with an error message
-                    if (data2client.jsonrpc == null)
-                    {
-                        if (KPRPC.logger != null) KPRPC.logger.WriteLine("Encryption error when trying to send signal: " + signal);
-                        return;
-                    }
-
-                    // Signalling through the websocket needs to be processed on a different thread becuase handling the incoming messages results in a lock on the list of known connections (which also happens before this Signal function is called) so we want to process this as quickly as possible and avoid deadlocks.
-                    // Not sure why this doesn't happen on the standard network port implementation in previous versions (maybe the networking stack created threads automatically before passing on the incoming messages?)
-
-                    //TODO1.3: Does this work in .NET 2?
-                    // Respond to each message on a different thread
-                    ThreadStart work = delegate
-                    {
-                        WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
-                    };
-                    Thread messageHandler = new Thread(work);
-                    messageHandler.Name = "signalDispatcher";
-                    messageHandler.Start();
-
+                    if (KPRPC.logger != null) KPRPC.logger.WriteLine("Encryption error when trying to send signal: " + signal);
+                    return;
                 }
-                else
+
+                // Signalling through the websocket needs to be processed on a different thread becuase handling the incoming messages results in a lock on the list of known connections (which also happens before this Signal function is called) so we want to process this as quickly as possible and avoid deadlocks.
+                
+                // Respond to each message on a different thread
+                ThreadStart work = delegate
                 {
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
-                    this.ConnectionStreamWrite(bytes);
-                }
+                    WebSocketConnection.Send(Jayrock.Json.Conversion.JsonConvert.ExportToString(data2client));
+                };
+                Thread messageHandler = new Thread(work);
+                messageHandler.Name = "signalDispatcher";
+                messageHandler.Start();
             }
             catch (System.IO.IOException)
             {
@@ -412,7 +302,6 @@ namespace KeePassRPC
         {
             // Inspect incoming message
             KPRPCMessage kprpcm;
-            int requiredCommsVersion = 1;
 
             try
             {
