@@ -30,9 +30,9 @@ const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/K
 const KF_KP_FILE_NAME = "KeePass-2.30-Setup.exe?r=&ts=";
 const KF_KP_SAVE_NAME = "KeePass-2.30-Setup.exe"; 
 const KF_KP_FILE_CHECKSUM = "cd430eb0f108bb192d2155c68eb7bb48";
-const KF_NET_DOWNLOAD_PATH = "http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/";
-const KF_NET_FILE_NAME = "dotNetFx40_Client_setup.exe";
-const KF_NET_FILE_CHECKSUM = "61446fdd76788229d3ebaeabe84df38c";
+const KF_NET_DOWNLOAD_PATH = "https://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/";
+const KF_NET_FILE_NAME = "NDP452-KB2901954-Web.exe";
+const KF_NET_FILE_CHECKSUM = "ca41dba55a727f01104871b160cd5b1d";
 const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
 
 const KF_INSTALL_STATE_SELECTED_PRI = 1; // user has asked to run default installation routine
