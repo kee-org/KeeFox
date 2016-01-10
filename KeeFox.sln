@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B0C7A3B-64E0-4A3C-A3E3-49178249EC46}"
 	ProjectSection(SolutionItems) = preProject
 		KeeFox.vsmdi = KeeFox.vsmdi
@@ -17,16 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock", "Jayrock\src\Jayr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jayrock.Json", "Jayrock\src\Jayrock.Json\Jayrock.Json.csproj", "{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeePassRPCTest", "KeePassRPCTest\KeePassRPCTest.csproj", "{08A61455-B0C4-49D0-9973-B776B73572B0}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckForAdminRights", "CheckForAdminRights\CheckForAdminRights.vcxproj", "{8EAC7277-0259-426A-BC92-8E20C2637150}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeeFoxElevate", "KeeFoxElevate\KeeFoxElevate.vcxproj", "{89548631-4274-4226-AF0E-3A8F90650683}"
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = KeeFox.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analyse|Any CPU = Analyse|Any CPU
 		Analyse|Mixed Platforms = Analyse|Mixed Platforms
@@ -163,28 +160,6 @@ Global
 		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.ReleasePLGX|Mixed Platforms.Build.0 = Release|Any CPU
 		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.ReleasePLGX|Win32.ActiveCfg = Release|Any CPU
 		{F10A6A7D-B8E4-4F8B-8BD9-5B42ACE5520E}.ReleasePLGX|x86.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Analyse|Any CPU.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Analyse|Any CPU.Build.0 = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Analyse|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Analyse|Mixed Platforms.Build.0 = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Analyse|Win32.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Analyse|x86.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|Win32.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.Release|x86.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Any CPU.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Any CPU.Build.0 = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|Win32.ActiveCfg = Release|Any CPU
-		{08A61455-B0C4-49D0-9973-B776B73572B0}.ReleasePLGX|x86.ActiveCfg = Release|Any CPU
 		{8EAC7277-0259-426A-BC92-8E20C2637150}.Analyse|Any CPU.ActiveCfg = Release|Win32
 		{8EAC7277-0259-426A-BC92-8E20C2637150}.Analyse|Mixed Platforms.ActiveCfg = Release|Win32
 		{8EAC7277-0259-426A-BC92-8E20C2637150}.Analyse|Mixed Platforms.Build.0 = Release|Win32
@@ -232,5 +207,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = KeeFox.vsmdi
 	EndGlobalSection
 EndGlobal
