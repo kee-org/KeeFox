@@ -21,7 +21,7 @@
 */
 "use strict";
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+//Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/kfDataModel.js");
 
 keefox_win.panel = {

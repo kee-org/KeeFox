@@ -36,7 +36,7 @@ let Cu = Components.utils;
 let Cc = Components.classes;
 
 var EXPORTED_SYMBOLS = ["FirefoxAddonMessageService","keeFoxGetFamsInst"]; //TODO:2: KeeFox specific (to meet Mozilla add-on review guidelines)
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+//Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/locales.js");
 Cu.import("resource://kfmod/FAMS-config.js");
 

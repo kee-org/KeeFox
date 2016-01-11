@@ -27,8 +27,6 @@ let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["jsonrpcClient"];
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-
 Cu.import("resource://kfmod/kprpcClient.js");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/kfDataModel.js");

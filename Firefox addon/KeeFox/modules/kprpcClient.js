@@ -5,9 +5,6 @@ Copyright 2008-2015 Chris Tomlinson <keefox@christomlinson.name>
 kprpcClient.js provides functionality for
 communication using the KeePassRPC protocol >= version 1.3.
 
-Legacy connection features can be removed by extending kprpcClient
-from session instead of kprpcClientLegacy.
-
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -29,10 +26,8 @@ let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["kprpcClient"];
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Timer.jsm");
 
-Cu.import("resource://kfmod/kprpcClientLegacy.js");
 Cu.import("resource://kfmod/KFLogger.js");
 Cu.import("resource://kfmod/biginteger.js");
 
@@ -44,6 +39,8 @@ Cu.import("resource://kfmod/utils.js");
 Cu.import("resource://kfmod/SRP.js");
 Cu.import("resource://gre/modules/Timer.jsm");
 Cu.import("resource://gre/modules/ISO8601DateUtils.jsm");
+
+Cu.import("resource://kfmod/session.js");
 
 try
 {
@@ -65,7 +62,7 @@ function kprpcClient() {
     sjcl.beware["CBC mode is dangerous because it doesn't protect message integrity."]();
 }
 
-kprpcClient.prototype = new kprpcClientLegacy();
+kprpcClient.prototype = new session();
 kprpcClient.prototype.constructor = kprpcClient;
 
 (function() {
@@ -914,7 +911,6 @@ kprpcClient.prototype.constructor = kprpcClient;
             this.certFailedReconnectTimer.cancel();
         if (this.onConnectDelayTimer)
             this.onConnectDelayTimer.cancel();
-        this.disconnect();
         log.debug("JSON-RPC shut down.");
     }
     

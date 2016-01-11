@@ -1,6 +1,6 @@
 /*
 KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass-plugin)
-Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
+Copyright 2008-2016 Chris Tomlinson <keefox@christomlinson.name>
 
 session.js manages the low-level transport connection between this
 client and an KeePassRPC server.
@@ -27,9 +27,7 @@ let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["session"];
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
-Cu.import("resource://kfmod/sessionLegacy.js");
 
 var log = KeeFoxLog;
 
@@ -46,9 +44,6 @@ function session()
     this.webSocketHost = "127.0.0.1";
     this.webSocketURI = "ws://" + this.webSocketHost + ":" + this.webSocketPort;
     this.webSocket = null;
-
-    // The connectFailCount can be incremented by failed HTTP or WS connections
-    this.connectFailCount = 0;
     
     // We use a HTTP channel for basic polling of the port listening status of
     // the KPRPC server because it's quick and not subject to the rate limiting
@@ -59,9 +54,6 @@ function session()
     this.httpChannel = null;
     this.httpChannelURI = "http://" + this.webSocketHost + ":" + this.webSocketPort;
 }
-
-session.prototype = new sessionLegacy();
-session.prototype.constructor = session;
 
 (function() {
 
@@ -119,46 +111,25 @@ session.prototype.constructor = session;
             log.debug("Connection attempt already underway.");
     };
 
-    this.httpConnectionAttemptCallback = function(attemptWebSocket) {
+    this.httpConnectionAttemptCallback = function() {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                     .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
             wm.getMostRecentWindow("mail:3pane");
         var rpc = window.keefox_org.KeePassRPC;
 
-        if (attemptWebSocket)
-        {
-            // We can't try to connect straight away because the old HTTP ephemeral
-            // TCP port is still hanging around during this onClose callback and on some
-            // machines, ephemeral ports flout IANA guidelines including using
-            // KeePassRPC's TCP port. If we tried to connect now, we risk connecting
-            // back to Firefox and causing a deadlock. A small delay gives Firefox
-            // a chance to cleanly close the old port
-            rpc.webSocketTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-            rpc.webSocketTimer.initWithCallback(rpc.tryToconnectToWebsocket,
-                50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);            
-        } else
-        {
-            rpc.connectFailCount++;
-
-            // It is possible that the initial HTTP connection failed because
-            // only a legacy KPRPC server is listening. However, it's far more
-            // likely that the user has just not got KeePass open at the
-            // moment so we will cut down on some un-necessary legacy connection
-            // attempts at the expense of a longer delay when each user
-            // upgrades from KeeFox 1.2.x
-            //TODO:1.6: Remove this when KeeFox 1.3+ usage is sufficiently high (next check in Aug 2015)
-            if (rpc.connectFailCount >= 10)
-            {
-                log.debug("Failed to init a HTTP connection many times so will try legacy connection instead.");
-                rpc.connectFailCount = 0;
-                rpc.connectLegacy();
-            }
-        }
+        // We can't try to connect straight away because the old HTTP ephemeral
+        // TCP port is still hanging around during this onClose callback and on some
+        // machines, ephemeral ports flout IANA guidelines including using
+        // KeePassRPC's TCP port. If we tried to connect now, we risk connecting
+        // back to Firefox and causing a deadlock. A small delay gives Firefox
+        // a chance to cleanly close the old port
+        rpc.webSocketTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+        rpc.webSocketTimer.initWithCallback(rpc.tryToconnectToWebsocket,
+            50, Components.interfaces.nsITimer.TYPE_ONE_SHOT);  
     };
     
-    // Initiates a connection to the KPRPC server. First we try a webSocket
-    // then (eventually) a legacy TCP connection.
+    // Initiates a connection to the KPRPC server.
     this.connect = function()
     {
         if (this.connectLock)
@@ -184,21 +155,7 @@ session.prototype.constructor = session;
         } catch (ex)
         {
             // This shouldn't happen much - most errors will be caught in the onerror function below
-
             this.connectLock = false;
-            this.connectFailCount++;
-
-            // webSocket spec says that we can't know why there was an error so we must
-            // always attempt to establish a legacy connection
-            // but we can be extra conservative here because it is highly unlikely that
-            // the initial HTTP connection attempt status code led us to this point if
-            // a legacy server is listening
-            if (this.connectFailCount >= 30)
-            {
-                log.debug("Failed to open a webSocket connection many times so will try legacy connection instead. Exception: " + ex);
-                this.connectFailCount = 0;
-                return this.connectLegacy();
-            }
             return;
         }
 
@@ -210,7 +167,6 @@ session.prototype.constructor = session;
             var window = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
             window.keefox_org.KeePassRPC.connectLock = false;
-            window.keefox_org.KeePassRPC.connectFailCount = 0;
 
             // Start the SRP or shared key negotiation
             window.keefox_org.KeePassRPC.setup();
@@ -240,19 +196,8 @@ session.prototype.constructor = session;
             var window = wm.getMostRecentWindow("navigator:browser") ||
                         wm.getMostRecentWindow("mail:3pane");
             window.keefox_org.KeePassRPC.connectLock = false;
-            window.keefox_org.KeePassRPC.connectFailCount++;
 
-            // webSocket spec says that we can't know why there was an error so we must
-            // always attempt to establish a legacy connection
-            // but we can be extra conservative here because it is highly unlikely that
-            // the initial HTTP connection attempt status code led us to this point if
-            // a legacy server is listening
-            if (window.keefox_org.KeePassRPC.connectFailCount >= 30)
-            {
-                log.debug("Websocket connection failed many times so going to try legacy connection");
-                window.keefox_org.KeePassRPC.connectFailCount = 0;
-                window.keefox_org.KeePassRPC.connectLegacy();
-            }
+            // webSocket spec says that we can't know why there was an error
             log.debug("Websocket connection error end");
         };
         this.webSocket.onclose = function (event) {
@@ -317,7 +262,7 @@ session.prototype.constructor = session;
                     rpc.speculativeWebSocketAttemptProhibitedUntil = new Date();
                     rpc.speculativeWebSocketAttemptProhibitedUntil.setTime(
                         rpc.speculativeWebSocketAttemptProhibitedUntil.getTime() + 73000);
-                    rpc.httpConnectionAttemptCallback(true);
+                    rpc.httpConnectionAttemptCallback();
                 } else
                 {
                     var ioService = Components.classes["@mozilla.org/network/io-service;1"]
@@ -340,7 +285,6 @@ session.prototype.constructor = session;
                 }
            }
     };
-
 }).apply(session.prototype);
 
 
@@ -380,12 +324,11 @@ KPRPCHTTPStreamListener.prototype = {
     if (aStatus !== 2152398861)
     {
         log.info("HTTP connection not refused. We will now attempt a web socket connection.");
-        this.mCallbackFunc(true);
+        this.mCallbackFunc();
     }
     else
     {
         log.debug("HTTP connection refused. Will not attempt web socket connection.");
-        this.mCallbackFunc(false);
     }
   },
 

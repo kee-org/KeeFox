@@ -265,16 +265,6 @@ KeeFox.prototype = {
         
         this._keeFoxVariableInit();
         this.KeePassRPC = new jsonrpcClient();
-        if (this._keeFoxExtension.prefs.has("KeePassRPC.port")) {
-            this.KeePassRPC.port = this._keeFoxExtension.prefs.getValue(
-                "KeePassRPC.port", this.KeePassRPC.port);
-
-            // Don't allow user to select an invalid port
-            if (this.KeePassRPC.port <= 0 || this.KeePassRPC.port > 65535 || this.KeePassRPC.port == 12546) {
-                this._keeFoxExtension.prefs.setValue("KeePassRPC.port", 12536);
-                this.KeePassRPC.port = 12536;
-            }
-        }
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
         {
             this.KeePassRPC.webSocketPort = this._keeFoxExtension.prefs.getValue(
@@ -282,7 +272,7 @@ KeeFox.prototype = {
 
             // Don't allow user to select an invalid port
             if (this.KeePassRPC.webSocketPort <= 0 || this.KeePassRPC.webSocketPort > 65535 
-                || this.KeePassRPC.webSocketPort == 12536 || this.KeePassRPC.webSocketPort == 19455)
+                || this.KeePassRPC.webSocketPort == 19455)
             {
                 this._keeFoxExtension.prefs.setValue("KeePassRPC.webSocketPort", 12546);
                 this.KeePassRPC.webSocketPort = 12546;
@@ -418,7 +408,6 @@ KeeFox.prototype = {
                 this._KFLog.warn("Could not pause KeeFox in a window. Maybe it is not correctly set-up yet? " + exception);
             }
         }
-        this.KeePassRPC.disconnect();
         this._KFLog.info("KeeFox paused.");
     },
     
@@ -578,15 +567,8 @@ KeeFox.prototype = {
             fileNameIsRelative = true;
         }
 
-        let portParam = "", portLegacyParam = "";
+        let portParam = "";
 
-        if (this._keeFoxExtension.prefs.has("KeePassRPC.port"))
-        {
-            // User interface only allows the web socket port to be configured now but 
-            // the legacy port may have been customised in an earlier version of KeeFox
-            portLegacyParam = "-KeePassRPCPort:" +
-                this._keeFoxExtension.prefs.getValue("KeePassRPC.port",12536);
-        }
         if (this._keeFoxExtension.prefs.has("KeePassRPC.webSocketPort"))
         {
             let port = this._keeFoxExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
@@ -599,8 +581,6 @@ KeeFox.prototype = {
         if (mruparam == "")
             mruparam = this._keeFoxExtension.prefs.getValue("keePassMRUDB","");
 
-        if (portLegacyParam != "")
-            args.push(portLegacyParam);
         if (portParam != "")
             args.push(portParam);
         if (mruparam != "")

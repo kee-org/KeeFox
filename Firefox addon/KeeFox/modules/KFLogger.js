@@ -46,7 +46,6 @@ let Ci = Components.interfaces;
 let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["KeeFoxLog"];
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // constructor
 function KeeFoxLogger()

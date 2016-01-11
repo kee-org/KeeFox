@@ -34,7 +34,6 @@ let Ci = Components.interfaces;
 let Cu = Components.utils;
 
 var EXPORTED_SYMBOLS = ["keeFoxLoginInfo","keeFoxLoginField","keeFoxFormFieldType"];
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
 var keeFoxFormFieldType =

@@ -127,12 +127,10 @@
     <Content Include="KeeFox\modules\KFExtension.js" />
     <Content Include="KeeFox\modules\KFLogger.js" />
     <Content Include="KeeFox\modules\kprpcClient.js" />
-    <Content Include="KeeFox\modules\kprpcClientLegacy.js" />
     <Content Include="KeeFox\modules\locales.js" />
     <Content Include="KeeFox\modules\metrics.js" />
     <Content Include="KeeFox\modules\search.js" />
     <Content Include="KeeFox\modules\session.js" />
-    <Content Include="KeeFox\modules\sessionLegacy.js" />
     <Content Include="KeeFox\modules\sjcl.js" />
     <Content Include="KeeFox\modules\SRP.js" />
     <Content Include="KeeFox\modules\SampleChecker.js" />
