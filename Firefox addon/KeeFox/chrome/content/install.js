@@ -125,7 +125,8 @@ function prepareInstallPage()
     'desc_IC1KRPCdownloaded','desc_IC2setupKPdownloading','but_IC2setupKPdownloading','desc_IC2setupKPdownloaded','desc_IC2KRPCdownloaded',
     'desc_IC3installing','desc_IC5zipKPdownloading','lab_IC5zipKPdownloading','desc_IC5zipKPdownloaded','desc_IC5installing',
     'desc_InstallFinished', 'nextStepsIntro', 'desc_nextStep1', 'nextStepsTutorialLink', 'nextStepsImportLink', 'nextStepsFinally',
-    'KFInstallPageTitle_description', downgradeWarning, 'desc_netUpgradeRequired', 'desc_netUpgradeRequired_XP', 'desc_netUpgradeRequired_KeePass'
+    'KFInstallPageTitle_description', downgradeWarning, 'desc_netUpgradeRequired', 'desc_netUpgradeRequired_XP', 'desc_netUpgradeRequired_KeePass',
+    'desc_UpgradeFinished', 'nextStepsUpgradeFinally'
     ],
     ['title', 'label', 'tooltiptext', 'accesskey', 'value']);
         
@@ -505,7 +506,7 @@ function IC2finished(mainWindow) {
 //TODO:2: customise this for upgrades?)
 
     hideSection('IC2KRPCdownloaded');
-    showSection('InstallFinished');
+    this.KFupgradeMode ? showSection('UpgradeFinished') : showSection('InstallFinished');
     launchAndConnectToKeePass();
 }
 
@@ -839,7 +840,7 @@ function copyKRPCToKnownKPLocationInstall()
         }
   
         hideSection('IC3installing');
-        showSection('InstallFinished');
+        this.KFupgradeMode ? showSection('UpgradeFinished') : showSection('InstallFinished');
         launchAndConnectToKeePass();
     }
 }

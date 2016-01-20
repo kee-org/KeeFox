@@ -370,6 +370,14 @@ IC7 and 8: Currently same as IC3/6 but will display different text to user
 
               <description id="nextStepsFinally">%-KeeFox_Install_Finally.description-% <label href="http://keefox.org/help" class="text-link">http://keefox.org/help</label></description>
             </vbox>
+
+            <!-- everything in this box is displayed when everything is upgraded correctly -->
+            <vbox id="UpgradeFinished" hidden="true">
+              <description style="margin-bottom:10px;" id="desc_UpgradeFinished">%-KeeFox_Install_UpgradeFinished.description-%</description>
+              <description id="nextStepsUpgradeFinally">
+                %-KeeFox_Install_Finally.description-% <label href="http://keefox.org/help" class="text-link">http://keefox.org/help</label>
+              </description>
+            </vbox>
           </vbox> <!-- end KFInstallPageContent -->
         </vbox> <!-- end KFInstallPageMain -->
 
