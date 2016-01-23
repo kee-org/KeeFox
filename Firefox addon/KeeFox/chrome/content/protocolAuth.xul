@@ -27,7 +27,7 @@
 
 <overlay id="KeeFox-Common-Dialog-Overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog id="commonDialog" ondialogaccept="return keeFoxDialogManager.kfCommonDialogOnAccept();">
+  <dialog id="commonDialog" ondialogaccept="return typeof keeFoxDialogManager === 'undefined' || keeFoxDialogManager.kfCommonDialogOnAccept();">
     <script type="application/x-javascript" src="chrome://keefox/content/commonDialog.js"/>
   </dialog>
 </overlay>
