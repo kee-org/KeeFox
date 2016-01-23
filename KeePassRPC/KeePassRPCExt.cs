@@ -612,11 +612,11 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x23});
             List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
 
-            PwGroup kfpg = RPCService.GetRootPwGroup(pd, "").FindGroup(groupUuid, false);
+            PwGroup kfpg = RPCService.GetRootPwGroup(pd, "").FindGroup(groupUuid, true);
             if (kfpg == null)
             {
                 // check that the group doesn't exist outside of the visible home group
-                PwGroup kfpgTestRoot = pd.RootGroup.FindGroup(groupUuid, false);
+                PwGroup kfpgTestRoot = pd.RootGroup.FindGroup(groupUuid, true);
                 if (kfpgTestRoot != null && !skipGroupWarning)
                 {
                     MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
