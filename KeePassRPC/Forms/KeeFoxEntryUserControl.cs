@@ -33,20 +33,7 @@ namespace KeePassRPC.Forms
             InitializeComponent();
             _pwEntryForm = pwEntryForm;
             _strings = strings;
-            string json = strings.ReadSafe("KPRPC JSON");
-            if (string.IsNullOrEmpty(json))
-                _conf = new EntryConfig();
-            else
-            {
-                try
-                {
-                    _conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this.", "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
+            _conf = entry.GetKPRPCConfig(strings);
         }
 
         private void changeAdvancedString(string name, string value, bool protect)
@@ -94,6 +81,9 @@ namespace KeePassRPC.Forms
             bool kfAlwaysAutoFill = false;
             bool kfNeverAutoSubmit = false;
             bool kfAlwaysAutoSubmit = false;
+
+            if (_conf == null)
+                return;
 
             this.checkBoxHideFromKeeFox.CheckedChanged += new System.EventHandler(this.checkBoxHideFromKeeFox_CheckedChanged);
 

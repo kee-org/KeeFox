@@ -638,7 +638,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                     "testU1", "testP1", @"http://tutorial.keefox.org/", null);
                 KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
                 conf.BlockDomainOnlyMatch = true;
-                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
             }
 
@@ -651,7 +651,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.Version = 1;
                 conf.AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" };
                 conf.BlockDomainOnlyMatch = true;
-                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
             }
 
@@ -665,7 +665,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.NeverAutoFill = true;
                 conf.NeverAutoSubmit = true;
                 conf.BlockDomainOnlyMatch = true;
-                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
             }
 
@@ -678,7 +678,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.Version = 1;
                 conf.HTTPRealm = "KeeFox tutorial sample";
                 conf.BlockDomainOnlyMatch = true;
-                pe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
             }
 
@@ -1043,26 +1043,12 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             {
                 foreach (PwEntry pwe in output)
                 {
-                    KeePassRPC.DataExchangeModel.EntryConfig conf = null;
-                    string json = pwe.Strings.ReadSafe("KPRPC JSON");
-                    if (string.IsNullOrEmpty(json))
-                        conf = new EntryConfig();
-                    else
-                    {
-                        try
-                        {
-                            conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
-                        }
-                        catch (Exception)
-                        {
-                            MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this.", "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return false;
-                        }
-                    }
-
+                    var conf = pwe.GetKPRPCConfig();
+                    if (conf == null)
+                        return false;
                     conf.BlockDomainOnlyMatch = true;
                     conf.Priority = 0;
-                    pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                    pwe.SetKPRPCConfig(conf);
                 }
                 return true;
             }
@@ -1071,27 +1057,14 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
 
         private bool UpgradeURLPortEntriesToRetainSubdomainExclusivity(PwDatabase db)
         {
-            KeePassLib.Collections.PwObjectList<PwEntry> output;
+            PwObjectList<PwEntry> output;
             output = db.RootGroup.GetEntries(true);
 
             foreach (PwEntry pwe in output)
             {
-                KeePassRPC.DataExchangeModel.EntryConfig conf = null;
-                string json = pwe.Strings.ReadSafe("KPRPC JSON");
-                if (string.IsNullOrEmpty(json))
-                    conf = new EntryConfig();
-                else
-                {
-                    try
-                    {
-                        conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this.", "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return false;
-                    }
-                }
+                var conf = pwe.GetKPRPCConfig();
+                if (conf == null)
+                    return false;
 
                 List<string> URLs = new List<string>();
                 if (!string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
@@ -1109,7 +1082,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     if (!string.IsNullOrEmpty(urlsum.Port))
                     {
                         conf.BlockDomainOnlyMatch = true;
-                        pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+                        pwe.SetKPRPCConfig(conf);
                     }
                 }
             }
@@ -1581,7 +1554,7 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
             conf.Version = 1;
 
             // Store the new config info
-            pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+            pwe.SetKPRPCConfig(conf);
 
             // Delete all old advanced strings...
 

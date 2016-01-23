@@ -347,23 +347,9 @@ namespace KeePassRPC
 
         private LightEntry GetEntryFromPwEntry(PwEntry pwe, int matchAccuracy, bool fullDetails, PwDatabase db, bool abortIfHidden)
         {
-            string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", db);
-
-            EntryConfig conf;
-            if (string.IsNullOrEmpty(json))
-                conf = new EntryConfig();
-            else
-            {
-                try
-                {
-                    conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + pwe.Strings.ReadSafe("URL") + " and the full configuration data is: " + json, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return null;
-                }
-            }
+            EntryConfig conf = pwe.GetKPRPCConfig();
+            if (conf == null)
+                return null;
             return GetEntryFromPwEntry(pwe, conf, matchAccuracy, fullDetails, db, abortIfHidden);
         }
 
@@ -600,7 +586,7 @@ namespace KeePassRPC
                     pwe.CustomIconUuid = customIconUUID;
             }
 
-            pwe.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(conf)));
+            pwe.SetKPRPCConfig(conf);
         }
 
         private string dbIconToBase64(PwDatabase db)
@@ -1312,43 +1298,13 @@ namespace KeePassRPC
 
         private void MergeEntries(PwEntry destination, PwEntry source, int urlMergeMode, PwDatabase db)
         {
-            EntryConfig destConfig;
-            string destJSON = KeePassRPCPlugin.GetPwEntryString(destination, "KPRPC JSON", db);
-            if (string.IsNullOrEmpty(destJSON))
-            {
-                destConfig = new EntryConfig();
-            }
-            else
-            {
-                try
-                {
-                    destConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), destJSON);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + destination.Strings.ReadSafe("URL") + " and the full configuration data is: " + destJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-            }
+            EntryConfig destConfig = destination.GetKPRPCConfig();
+            if (destConfig == null)
+                return;
 
-            EntryConfig sourceConfig;
-            string sourceJSON = KeePassRPCPlugin.GetPwEntryString(source, "KPRPC JSON", db);
-            if (string.IsNullOrEmpty(sourceJSON))
-            {
-                sourceConfig = new EntryConfig();
-            }
-            else
-            {
-                try
-                {
-                    sourceConfig = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), sourceJSON);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("There are configuration errors in this entry. To fix the entry and prevent this warning message appearing, please edit the value of the 'KeePassRPC JSON config' advanced string. Please ask for help on http://keefox.org/help/forum if you're not sure how to fix this. The URL of the entry is: " + source.Strings.ReadSafe("URL") + " and the full configuration data is: " + sourceJSON, "Warning: Configuration errors", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-            }
+            EntryConfig sourceConfig = source.GetKPRPCConfig();
+            if (sourceConfig == null)
+                return;
 
             destination.CreateBackup(db);
 
@@ -1404,7 +1360,7 @@ namespace KeePassRPC
             if (destURLs.Count > 1)
                 destConfig.AltURLs = destURLs.GetRange(1,destURLs.Count-1).ToArray();
 
-            destination.Strings.Set("KPRPC JSON", new ProtectedString(true, Jayrock.Json.Conversion.JsonConvert.ExportToString(destConfig)));
+            destination.SetKPRPCConfig(destConfig);
             destination.Touch(true);
         }
 
@@ -2045,27 +2001,10 @@ namespace KeePassRPC
 
                         //if (string.IsNullOrEmpty(pwe.Strings.ReadSafe("URL")))
                         //    continue; // entries must have a standard URL entry
+                        
+                        EntryConfig conf = pwe.GetKPRPCConfig(null, ref configErrors);
 
-                        string json = KeePassRPCPlugin.GetPwEntryString(pwe, "KPRPC JSON", db);
-                        EntryConfig conf;
-                        if (string.IsNullOrEmpty(json))
-                        {
-                            conf = new EntryConfig();
-                        }
-                        else
-                        {
-                            try
-                            {
-                                conf = (EntryConfig)Jayrock.Json.Conversion.JsonConvert.Import(typeof(EntryConfig), json);
-                            }
-                            catch (Exception)
-                            {
-                                configErrors.Add("Username: " + entryUserName + ". URL: " + pwe.Strings.ReadSafe("URL"));
-                                continue;
-                            }
-                        }
-
-                        if (conf.Hide)
+                        if (conf == null || conf.Hide)
                             continue;
 
                         bool entryIsAMatch = false;
