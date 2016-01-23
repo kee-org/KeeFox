@@ -604,13 +604,29 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             pd.RootGroup.AddGroup(pg, true);
         }
 
-        private void InstallKeeFoxSampleEntries(PwDatabase pd, bool skipGroupWarning)
+        internal PwGroup GetAndInstallKeeFoxPasswordBackupGroup(PwDatabase pd)
         {
-            PwUuid iconUuid = GetKeeFoxIcon();
+            PwUuid groupUuid = new PwUuid(new byte[] {
+                0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
+                0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x30});
+
+            PwGroup kfpbg = pd.RootGroup.FindGroup(groupUuid, true);
+            if (kfpbg == null)
+            {
+                var kfGroup = GetAndInstallKeeFoxGroup(pd, true);
+                kfpbg = new PwGroup(false, true, "KeeFox Generated Password Backups", PwIcon.Folder);
+                kfpbg.Uuid = groupUuid;
+                kfpbg.CustomIconUuid = GetKeeFoxIcon();
+                kfGroup.AddGroup(kfpbg, true);
+            }
+            return kfpbg;
+        }
+
+        internal PwGroup GetAndInstallKeeFoxGroup(PwDatabase pd, bool skipGroupWarning)
+        {
             PwUuid groupUuid = new PwUuid(new byte[] {
                 0xea, 0x9f, 0xf2, 0xed, 0x05, 0x12, 0x47, 0x47,
                 0xb6, 0x3e, 0xaf, 0xa5, 0x15, 0xa3, 0x04, 0x23});
-            List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
 
             PwGroup kfpg = RPCService.GetRootPwGroup(pd, "").FindGroup(groupUuid, true);
             if (kfpg == null)
@@ -620,23 +636,30 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 if (kfpgTestRoot != null && !skipGroupWarning)
                 {
                     MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    return kfpgTestRoot;
                 }
                 else
                 {
                     kfpg = new PwGroup(false, true, "KeeFox", PwIcon.Folder);
                     kfpg.Uuid = groupUuid;
-                    kfpg.CustomIconUuid = iconUuid;
+                    kfpg.CustomIconUuid = GetKeeFoxIcon();
                     pd.RootGroup.AddGroup(kfpg, true);
                 }
             }
+            return kfpg;
+        }
+
+        private void InstallKeeFoxSampleEntries(PwDatabase pd, bool skipGroupWarning)
+        {
+            PwGroup kfpg = GetAndInstallKeeFoxGroup(pd, skipGroupWarning);
+            List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
 
             if (pd.RootGroup.FindEntry(pwuuids[0], true) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[0],
                     "Quick Start (double click on the URL to learn how to use KeeFox)",
                     "testU1", "testP1", @"http://tutorial.keefox.org/", null);
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                EntryConfig conf = new EntryConfig();
                 conf.BlockDomainOnlyMatch = true;
                 pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
@@ -647,7 +670,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[1],
                     "KeeFox sample entry with alternative URL",
                     "testU2", "testP2", @"http://does.not.exist/", @"This sample helps demonstrate the use of alternative URLs to control which websites each password entry should apply to.");
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                EntryConfig conf = new EntryConfig();
                 conf.Version = 1;
                 conf.AltURLs = new string[] { @"http://tutorial-section-c.keefox.org/part3" };
                 conf.BlockDomainOnlyMatch = true;
@@ -660,7 +683,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[2],
                     "KeeFox sample entry with no auto-fill and no auto-submit",
                     "testU3", "testP3", @"http://tutorial-section-d.keefox.org/part4", @"This sample helps demonstrate the use of advanced settings that give you fine control over the behaviour of a password entry. In this specific example, the entry has been set to never automatically fill matching login forms when the web page loads and to never automatically submit, even when you have explicity told KeeFox to log in to this web page.");
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                EntryConfig conf = new EntryConfig();
                 conf.Version = 1;
                 conf.NeverAutoFill = true;
                 conf.NeverAutoSubmit = true;
@@ -674,7 +697,7 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[4],
                     "KeeFox sample entry for HTTP authentication",
                     "testU4", "testP4", @"http://tutorial-section-d.keefox.org/part6", @"This sample helps demonstrate logging in to HTTP authenticated websites.");
-                KeePassRPC.DataExchangeModel.EntryConfig conf = new DataExchangeModel.EntryConfig();
+                EntryConfig conf = new EntryConfig();
                 conf.Version = 1;
                 conf.HTTPRealm = "KeeFox tutorial sample";
                 conf.BlockDomainOnlyMatch = true;

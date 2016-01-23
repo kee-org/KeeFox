@@ -208,9 +208,9 @@ jsonrpcClient.prototype.constructor = jsonrpcClient;
         return;
     }
 
-    this.generatePassword = function (profileName)
+    this.generatePassword = function (profileName, url)
     {
-        this.request(this, "GeneratePassword", [profileName], function rpc_callback(resultWrapper) {
+        this.request(this, "GeneratePassword", [profileName, url], function rpc_callback(resultWrapper) {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                      .getService(Components.interfaces.nsIWindowMediator);
             var window = wm.getMostRecentWindow("navigator:browser") ||

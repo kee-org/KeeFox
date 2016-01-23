@@ -65,6 +65,8 @@
             this.Expires = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Connected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.Revoke = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.label13 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -161,6 +163,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label13);
+            this.tabPage1.Controls.Add(this.checkBox3);
             this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.textBoxPort);
             this.tabPage1.Controls.Add(this.checkBox2);
@@ -176,7 +180,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(52, 56);
+            this.label6.Location = new System.Drawing.Point(49, 232);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(35, 13);
             this.label6.TabIndex = 3;
@@ -184,7 +188,7 @@
             // 
             // textBoxPort
             // 
-            this.textBoxPort.Location = new System.Drawing.Point(6, 53);
+            this.textBoxPort.Location = new System.Drawing.Point(6, 229);
             this.textBoxPort.Name = "textBoxPort";
             this.textBoxPort.Size = new System.Drawing.Size(40, 20);
             this.textBoxPort.TabIndex = 2;
@@ -445,6 +449,24 @@
             this.Revoke.UseColumnTextForButtonValue = true;
             this.Revoke.Width = 70;
             // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(6, 169);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(80, 17);
+            this.checkBox3.TabIndex = 4;
+            this.checkBox3.Text = "checkBox3";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
+            // label13
+            // 
+            this.label13.Location = new System.Drawing.Point(6, 59);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(460, 107);
+            this.label13.TabIndex = 6;
+            this.label13.Text = "label13";
+            // 
             // OptionsForm
             // 
             this.AcceptButton = this.m_btnOK;
@@ -465,8 +487,8 @@
             this.Name = "OptionsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "KeePassRPC (KeeFox) Options";
-            this.Load += new System.EventHandler(this.OnFormLoad);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.OnFormClosed);
+            this.Load += new System.EventHandler(this.OnFormLoad);
             ((System.ComponentModel.ISupportInitialize)(this.m_bannerImage)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -522,5 +544,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Expires;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Connected;
         private System.Windows.Forms.DataGridViewButtonColumn Revoke;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.CheckBox checkBox3;
     }
 }

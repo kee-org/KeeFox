@@ -899,11 +899,11 @@ KeeFox.prototype = {
         }
     },
 
-    generatePassword: function (profileName)
+    generatePassword: function (profileName, url)
     {
         try
         {
-            return this.KeePassRPC.generatePassword(profileName);
+            return this.KeePassRPC.generatePassword(profileName, url);
         } catch (e)
         {
             this._KFLog.error("Unexpected exception while connecting to KeePassRPC. Please inform the KeeFox team that they should be handling this exception: " + e);

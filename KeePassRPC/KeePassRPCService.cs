@@ -197,6 +197,13 @@ namespace KeePassRPC
             return true;
         }
 
+        private delegate void dlgUpdateUINoSave();
+
+        void updateUINoSave()
+        {
+            host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
+        }
+
         private delegate void dlgSaveDB(PwDatabase databaseToSave);
 
         void saveDB(PwDatabase databaseToSave)
@@ -951,7 +958,7 @@ namespace KeePassRPC
         }
 
         [JsonRpcMethod]
-        public string GeneratePassword(string profileName)
+        public string GeneratePassword(string profileName, string url)
         {
             PwProfile profile = null;
             
@@ -1016,11 +1023,42 @@ namespace KeePassRPC
                 // require a new version of the application to be released
             }
 
+            var password = newPassword.ReadString();
+            if (host.CustomConfig.GetBool("KeePassRPC.KeeFox.backupNewPasswords", true))
+                AddPasswordBackupLogin(password, url);
 
             if (result == PwgError.Success)
-                return newPassword.ReadString();
+                return password;
             else
                 return "";
+        }
+
+        private void AddPasswordBackupLogin(string password, string url)
+        {
+            if (!host.Database.IsOpen)
+                return;
+
+            PwDatabase chosenDB = SelectDatabase("");
+            var parentGroup = KeePassRPCPlugin.GetAndInstallKeeFoxPasswordBackupGroup(chosenDB);
+
+            PwEntry newLogin = new PwEntry(true, true);
+            newLogin.Strings.Set(PwDefs.TitleField, new ProtectedString(
+                chosenDB.MemoryProtection.ProtectTitle, "KeeFox generated password at: " + DateTime.Now));
+            newLogin.Strings.Set(PwDefs.UrlField, new ProtectedString(
+                chosenDB.MemoryProtection.ProtectUrl, url));
+            newLogin.Strings.Set(PwDefs.PasswordField, new ProtectedString(
+                chosenDB.MemoryProtection.ProtectPassword, password));
+            EntryConfig conf = new EntryConfig();
+            conf.BlockDomainOnlyMatch = true;
+            conf.Hide = true;
+            newLogin.SetKPRPCConfig(conf);
+            parentGroup.AddEntry(newLogin, true);
+
+            // We can't save the database at this point because KeePass steals
+            // window focus while saving; that breaks Firefox's Australis UI panels.
+            host.MainWindow.BeginInvoke(new dlgUpdateUINoSave(updateUINoSave));
+
+            return;
         }
 
         #endregion

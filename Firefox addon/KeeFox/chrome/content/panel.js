@@ -1735,7 +1735,7 @@ keefox_win.panel = {
                 profileItem.addEventListener("keefoxCommand", function (event) {
                     let kf = keefox_org;
                     kf.metricsManager.pushEvent ("feature", "generatePasswordFromProfile");
-                    kf.generatePassword(this.textContent);
+                    kf.generatePassword(this.textContent, keefox_win.panel._currentWindow.gLastValidURLStr);
                     keefox_win.panel.CustomizableUI.hidePanelForNode(
                         keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                     keefox_win.panel.hideSubSections();
@@ -1757,7 +1757,7 @@ keefox_win.panel = {
     generatePassword: function () {
         let kf = this._currentWindow.keefox_org;
         kf.metricsManager.pushEvent ("feature", "generatePassword");
-        kf.generatePassword();
+        kf.generatePassword(null, this._currentWindow.gLastValidURLStr);
     },
 
     mainButtonCommandInstallHandler: function (event) {
