@@ -15,21 +15,18 @@ resource kfmod modules/
 
 # locales
 # commented out locales are not complete enough on Transifex
-#locale keefox af-ZA chrome/locale/af-ZA/
 locale keefox cs chrome/locale/cs/
 locale keefox da chrome/locale/da/
 locale keefox de chrome/locale/de/
 locale keefox el chrome/locale/el/
 locale keefox en-US chrome/locale/en-US/
 locale keefox es-AR chrome/locale/es-AR/
-locale keefox es-ES chrome/locale/es-ES/
 locale keefox fi chrome/locale/fi/
 locale keefox fr chrome/locale/fr/
 locale keefox hi chrome/locale/hi/
 locale keefox hu chrome/locale/hu/
 locale keefox it chrome/locale/it/
 locale keefox ko-KR chrome/locale/ko-KR/
-#locale keefox nb-NO chrome/locale/nb-NO/
 locale keefox nl chrome/locale/nl/
 locale keefox pl chrome/locale/pl/
 locale keefox pt-BR chrome/locale/pt-BR/
@@ -40,6 +37,5 @@ locale keefox sl chrome/locale/sl/
 locale keefox sv-SE chrome/locale/sv-SE/
 locale keefox tr chrome/locale/tr/
 locale keefox uk chrome/locale/uk/
-#locale keefox vi-VN chrome/locale/vi-VN/
 locale keefox zh-CN chrome/locale/zh-CN/
 locale keefox zh-TW chrome/locale/zh-TW/

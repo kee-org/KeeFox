@@ -506,7 +506,8 @@ function IC2finished(mainWindow) {
 //TODO:2: customise this for upgrades?)
 
     hideSection('IC2KRPCdownloaded');
-    this.KFupgradeMode ? showSection('UpgradeFinished') : showSection('InstallFinished');
+    let upgrade = KFupgradeMode !== undefined ? KFupgradeMode : this.KFupgradeMode;
+    upgrade ? showSection('UpgradeFinished') : showSection('InstallFinished');
     launchAndConnectToKeePass();
 }
 
@@ -840,7 +841,8 @@ function copyKRPCToKnownKPLocationInstall()
         }
   
         hideSection('IC3installing');
-        this.KFupgradeMode ? showSection('UpgradeFinished') : showSection('InstallFinished');
+        let upgrade = KFupgradeMode !== undefined ? KFupgradeMode : this.KFupgradeMode;
+        upgrade ? showSection('UpgradeFinished') : showSection('InstallFinished');
         launchAndConnectToKeePass();
     }
 }
