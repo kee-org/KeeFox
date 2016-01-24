@@ -424,7 +424,6 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             if (_host.Database != null && _host.Database.IsOpen)
             {
                 InstallKeeFoxSampleEntries(_host.Database, false);
-                _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
             }
         }
 
@@ -633,10 +632,16 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
             {
                 // check that the group doesn't exist outside of the visible home group
                 PwGroup kfpgTestRoot = pd.RootGroup.FindGroup(groupUuid, true);
-                if (kfpgTestRoot != null && !skipGroupWarning)
+                if (kfpgTestRoot != null)
                 {
-                    MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return kfpgTestRoot;
+                    if (skipGroupWarning)
+                    {
+                        return kfpgTestRoot;
+                    } else
+                    {
+                        MessageBox.Show("The KeeFox group already exists but your current home group setting is preventing KeeFox from seeing it. Please change your home group or move the 'KeeFox' group to a location inside your current home group.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return null;
+                    }
                 }
                 else
                 {
@@ -652,7 +657,14 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
         private void InstallKeeFoxSampleEntries(PwDatabase pd, bool skipGroupWarning)
         {
             PwGroup kfpg = GetAndInstallKeeFoxGroup(pd, skipGroupWarning);
+            if (kfpg == null)
+                return;
+
             List<PwUuid> pwuuids = GetKeeFoxTutorialUUIDs();
+            bool entryAdded = false;
+
+            // We search for the KeeFox entries in the entire database 
+            // in case the user has moved them out of the KeeFox group
 
             if (pd.RootGroup.FindEntry(pwuuids[0], true) == null)
             {
@@ -663,9 +675,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.BlockDomainOnlyMatch = true;
                 pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
+                entryAdded = true;
             }
 
-            if (pd.RootGroup.FindEntry(pwuuids[1], false) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[1], true) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[1],
                     "KeeFox sample entry with alternative URL",
@@ -676,9 +689,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.BlockDomainOnlyMatch = true;
                 pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
+                entryAdded = true;
             }
 
-            if (pd.RootGroup.FindEntry(pwuuids[2], false) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[2], true) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[2],
                     "KeeFox sample entry with no auto-fill and no auto-submit",
@@ -690,9 +704,10 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.BlockDomainOnlyMatch = true;
                 pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
+                entryAdded = true;
             }
 
-            if (pd.RootGroup.FindEntry(pwuuids[4], false) == null)
+            if (pd.RootGroup.FindEntry(pwuuids[4], true) == null)
             {
                 PwEntry pe = createKeeFoxSample(pd, pwuuids[4],
                     "KeeFox sample entry for HTTP authentication",
@@ -703,8 +718,11 @@ KeePassRPC requires this port to be available: " + portNew + ". Technical detail
                 conf.BlockDomainOnlyMatch = true;
                 pe.SetKPRPCConfig(conf);
                 kfpg.AddEntry(pe, true);
+                entryAdded = true;
             }
 
+            if (entryAdded)
+                _host.MainWindow.UpdateUI(true, null, true, null, true, null, true);
         }
 
         private PwEntry createKeeFoxSample(PwDatabase pd, PwUuid uuid, string title, string username, string password, string url, string notes)
@@ -1036,7 +1054,6 @@ You can recreate these entries by selecting Tools / Insert KeeFox tutorial sampl
                     pwe.ParentGroup.Entries.Remove(pwe);
                 }
                 InstallKeeFoxSampleEntries(db, true);
-                _host.MainWindow.UpdateUI(false, null, true, null, true, null, true);
             }
         }
 
