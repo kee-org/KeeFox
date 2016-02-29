@@ -1,0 +1,21 @@
+<html>
+<head>
+<title>KeeFox Test - 1P2R</title>
+</head>
+<body>
+<div>This is a page to assist in testing KeeFox features. Submitting a variety of inputs through this form while a KeePass database is open could help identify any unexpected issues or incomplete features.</div>
+<br />
+<div style="font-weight:bold">This page is an example of: A password and two radio buttons with nothing to distinguish them except their values.</div>
+<br />
+<div>Use the KeeFox toolbar and submit button below to test fill and save functionality. Note that the form just submits to a test results page and performs no action on the submitted data.</div>
+<br />
+<form action="testResults.htm" method="get">
+<label for="password">Password</label>: <input type="password" id="password" name="password" /><br />
+<input type="radio" value="radioTest1" name="theSame" /> radioTest1<br />
+<input type="radio" value="radioTest2" name="theSame" /> radioTest2<br />
+
+<br />
+<input type="submit" name="Test" value="Perform test" id="submit" />
+</form>
+</body>
+</html>

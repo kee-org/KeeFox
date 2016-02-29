@@ -58,8 +58,15 @@ var _calculateFieldMatchScore = function (formField, dataField, currentPage, ove
     // might allow them to work correctly)
     if (formField.name != null && formField.name != undefined 
              && formField.name != "" && formField.name == dataField.name
-            )
+        )
         score += 40;
+
+    // Radio buttons have their values set by the website and hence can provide
+    // a useful cue when both id and name matching fails
+    if (formField.type == "radio" && formField.value != null && formField.value != undefined 
+             && formField.value != "" && formField.value == dataField.value
+        )
+        score += 30;
 
     // Although there is a formField.formFieldPage property, it is not accurate
     // so we just compare against the supplied currentPage
