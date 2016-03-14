@@ -219,8 +219,11 @@ var keeFoxDialogManager = {
             realm = "";
             username = ""; // currently not used in FireFox, but may be in future
             
+            var xulAppInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                 .getService(Components.interfaces.nsIXULAppInfo);
+
             /* handle cases for password only prompt in thunderbird */
-            if (Application.id == "{3550f703-e582-4d05-9a08-453d09bdfdc6}")
+            if (xulAppInfo.ID == "{3550f703-e582-4d05-9a08-453d09bdfdc6}")
             {                
                 let protocols = {};
                 let titles = {};

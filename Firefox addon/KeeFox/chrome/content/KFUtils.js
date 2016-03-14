@@ -307,7 +307,9 @@ keefox_win.KFdownloadFile = function(source, URL, destinationFile, mainWindow, b
     // FF36 breaks backwards compatibility
     let versionComparator = Cc["@mozilla.org/xpcom/version-comparator;1"].
         getService(Ci.nsIVersionComparator);
-    if (versionComparator.compare(Application.version, "36.0a1") < 0)
+    let version = Components.classes["@mozilla.org/xre/app-info;1"]
+        .getService(Components.interfaces.nsIXULAppInfo).version;
+    if (versionComparator.compare(version, "36.0a1") < 0)
         persist.saveURI(obj_URI, null, null, null, "", file, null);
     else
         persist.saveURI(obj_URI, null, null, null, null, "", file, null);
