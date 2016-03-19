@@ -3,7 +3,7 @@ KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass 
 Copyright 2008-2013 Chris Tomlinson <keefox@christomlinson.name>
 
 gdata-provider.js
-Copyright 2015 David Lechner <david@lechnology.com>
+Copyright 2015-2016 David Lechner <david@lechnology.com>
 
 Based on commonDialog.js
 
@@ -59,7 +59,9 @@ var keeFoxGDataProviderHelper = {
         // so we use a timer to keep trying until the page is loaded.
 
         try {
-            var email = document.getElementById("requestFrame").contentDocument.getElementById("Email").value
+            var contentDocument = document.getElementById("requestFrame").contentDocument;
+            var emailInput = contentDocument.getElementById("Email");
+            var email = emailInput.value
             keeFoxGDataProviderHelper.dialogInit2();
         } catch (exception) {
             window.setTimeout(keeFoxGDataProviderHelper.dialogInit, 100);
@@ -75,6 +77,21 @@ var keeFoxGDataProviderHelper = {
             } catch (e) {
                 // don't want missing keefox.org object to break standard dialogs
             }
+        }
+    },
+
+    autoFill2 : function(resultWrapper, dialogFindLoginStorage) {
+        // None of the DOM listener functions seem to work on this embedded browser window,
+        // so we use a timer to keep trying until the second page is loaded.
+
+        try {
+            var contentDocument = document.getElementById("requestFrame").contentDocument;
+            var passwdInput = contentDocument.getElementById("Passwd");
+            var passwd = passwdInput.value
+            keeFoxGDataProviderHelper.autoFill(resultWrapper, dialogFindLoginStorage);
+        } catch (exception) {
+            window.setTimeout(keeFoxGDataProviderHelper.autoFill2, 100,
+                resultWrapper, dialogFindLoginStorage);
         }
     },
 
@@ -231,8 +248,10 @@ var keeFoxGDataProviderHelper = {
             }
         }
 
-        if (dialogFindLoginStorage.document.getElementById("requestFrame").contentDocument.getElementById("Passwd").getAttribute("value") != ''
-            && !overWriteFieldsAutomatically)
+        var contentDocument = dialogFindLoginStorage.document.getElementById("requestFrame").contentDocument;
+        var passwdInput = contentDocument.getElementById("Passwd")
+            || contentDocument.getElementById("Passwd-hidden");
+        if (passwdInput.getAttribute("value") != '' && !overWriteFieldsAutomatically)
         {
             autoFill = false;
             autoSubmit = false;
@@ -335,14 +354,24 @@ var keeFoxGDataProviderHelper = {
         {
             // fill in the best matching login
             keefox_org.metricsManager.pushEvent ("feature", "AutoFillDialog");
-            dialogFindLoginStorage.document.getElementById("requestFrame").contentDocument.getElementById("Email").value = matchedLogins[bestMatch].username;
-            dialogFindLoginStorage.document.getElementById("requestFrame").contentDocument.getElementById("Passwd").value = matchedLogins[bestMatch].password;
+            var emailInput = contentDocument.getElementById("Email")
+                || contentDocument.getElementById("Email-hidden");
+            emailInput.value = matchedLogins[bestMatch].username;
+            passwdInput.value = matchedLogins[bestMatch].password;
         }
         if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
         {
             keefox_org.metricsManager.pushEvent ("feature", "AutoSubmitDialog");
-            Dialog.onButton0();
-            close();
+            var nextButton = contentDocument.getElementById("next");
+            if (nextButton) {
+                nextButton.click();
+                window.setTimeout(keeFoxGDataProviderHelper.autoFill2, 100,
+                    resultWrapper, dialogFindLoginStorage);
+            }
+            var signInButton = contentDocument.getElementById("signIn");
+            if (signInButton) {
+                signInButton.click();
+            }
         }
     },
 
@@ -368,10 +397,23 @@ var keeFoxGDataProviderHelper = {
     fill : function (username, password)
     {
         keefox_org.metricsManager.pushEvent ("feature", "MatchedSubmitDialog");
-        document.getElementById("requestFrame").contentDocument.getElementById("Email").value = username;
-        document.getElementById("requestFrame").contentDocument.getElementById("Passwd").value = password;
-        Dialog.onButton0();
-        close();
+        var contentDocument = document.getElementById("requestFrame").contentDocument;
+        var emailInput = contentDocument.getElementById("Email");
+        if (emailInput) {
+            emailInput.value = username;
+        }
+        var passwdInput = contentDocument.getElementById("Passwd");
+        if (passwdInput) {
+            passwdInput.value = password;
+        }
+        var nextButton = contentDocument.getElementById("next");
+        if (nextButton) {
+            nextButton.click();
+        }
+        var signInButton = contentDocument.getElementById("signIn");
+        if (signInButton) {
+            signInButton.click();
+        }
     },
 };
 
