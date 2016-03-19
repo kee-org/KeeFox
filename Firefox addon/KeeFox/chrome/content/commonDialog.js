@@ -312,10 +312,24 @@ var keeFoxDialogManager = {
                   
                 LoadDialogData(this._composeBundle, "smtp", "smtpEnterPasswordPromptTitle",
                     "smtpEnterPasswordPromptWithUsername", "%1$S", null, "%2$S");
+                var imapEnterPasswordPromptTitle = this._imapBundleUsesStrings
+                    ? "imapEnterPasswordPromptTitle" : "5051";
+                var imapEnterPasswordPrompt = this._imapBundleUsesStrings
+                    ? "imapEnterPasswordPrompt" : "5047";
+                var isPreTB40ImapStrings = true;
+                try {
+                    // Take a peek at imapEnterPasswordPrompt
+                    this._imapMsgsBundle.GetStringFromName(imapEnterPasswordPrompt);
+                } catch (e) {
+                    // The string identifier changed again in TB 40
+                    imapEnterPasswordPrompt = "imapEnterServerPasswordPrompt";
+                    isPreTB40ImapStrings = false;
+                }
+                // The prompt changed from using one parameter to using two in TB40
                 LoadDialogData(this._imapMsgsBundle, "imap",
-                    this._imapBundleUsesStrings ? "imapEnterPasswordPromptTitle" : "5051",
-                    this._imapBundleUsesStrings ? "imapEnterPasswordPrompt" : "5047",
-                    "%S", null, null, true);
+                    imapEnterPasswordPromptTitle, imapEnterPasswordPrompt,
+                    isPreTB40ImapStrings ? "%S" : "%2$S", null,
+                    isPreTB40ImapStrings ? null : "%1$S", isPreTB40ImapStrings);
                 LoadDialogData(this._localMsgsBundle, "pop3", "pop3EnterPasswordPromptTitle",
                     "pop3EnterPasswordPrompt", "%2$S", null, "%1$S");
                 LoadDialogData(this._newsBundle, "nntp-1", "enterUserPassTitle",
