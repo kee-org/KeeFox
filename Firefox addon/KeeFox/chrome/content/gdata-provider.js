@@ -36,6 +36,8 @@ if (!Cu)
 Cu.import("resource://kfmod/KF.js");
 
 var keeFoxGDataProviderHelper = {
+    scriptLoader : Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+        .getService(Components.interfaces.mozIJSSubScriptLoader),
 
     __gdataBundle : null, // String bundle for L10N
     get _gdataBundle() {
@@ -102,20 +104,8 @@ var keeFoxGDataProviderHelper = {
 
         // try to pick out the host from the full protocol, host and port
         this.originalHost = host;
-        try {
-            var ioService = Components.classes["@mozilla.org/network/io-service;1"].
-                getService(Components.interfaces.nsIIOService);
-            var uri = ioService.newURI(host, null, null);
-            host = uri.host;
-        } catch (exception) {
-            if (keefox_org._KFLog.logSensitiveData)
-                keefox_org._KFLog.debug("Exception occured while trying to extract the host from this string: " + host + ". " + exception);
-            else
-                keefox_org._KFLog.debug("Exception occured while trying to extract the host from a string");
-        }
-
+        this.host = this.getURIHostAndPort(host) || host;
         this.realm = realm;
-        this.host = host;
         this.username = username;
         this.mustAutoSubmit = mustAutoSubmit;
 
@@ -447,4 +437,6 @@ KPRPCConnectionObserver.prototype = {
   }
 }
 
+keeFoxGDataProviderHelper.scriptLoader.loadSubScript(
+    "chrome://keefox/content/shared/uriUtils.js", keeFoxGDataProviderHelper);
 window.addEventListener("load", keeFoxGDataProviderHelper.dialogInit, false);
