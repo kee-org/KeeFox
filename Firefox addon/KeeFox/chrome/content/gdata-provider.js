@@ -373,69 +373,7 @@ var keeFoxGDataProviderHelper = {
         Dialog.onButton0();
         close();
     },
-
-    kfCommonDialogOnAccept : function ()
-    {
-        try
-        {
-            if (Dialog.args.promptType == "prompt" ||
-                Dialog.args.promptType == "promptUserAndPass" ||
-                Dialog.args.promptType == "promptPassword")
-            {
-                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                         .getService(Components.interfaces.nsIWindowMediator);
-                var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
-                    wm.getMostRecentWindow("mail:3pane");
-                if (parentWindow.keefox_win._getSaveOnSubmitForSite(this.host))
-                    parentWindow.keefox_win.onHTTPAuthSubmit(parentWindow,
-                        document.getElementById("requestFrame").contentDocument.getElementById("Email").value,
-                        document.getElementById("requestFrame").contentDocument.getElementById("Passwd").value,
-                        this.host, this.realm);
-            }
-        } catch (ex)
-        {
-            // Do nothing (probably KeeFox has not initialised yet / properly)
-        }
-        Dialog.onButton0();
-    },
-
-    KPRPCAuthDialogClosing : function ()
-    {
-        //TODO:1.5: why doesn't this work? Is it needed?
-        //this.kprpcConnObserver.unregister();
-    }
-
 };
-
-function KPRPCConnectionObserver()
-{
-  this.register();
-}
-KPRPCConnectionObserver.prototype = {
-  observe: function(subject, topic, data) {
-     if (topic == "KPRPCConnectionClosed")
-     {
-        // Just close the dialog, SRP protocol will handle the cancellation process
-        // but we need to tell it why we are closing
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                         .getService(Components.interfaces.nsIWindowMediator);
-        var parentWindow = wm.getMostRecentWindow("navigator:browser") ||
-            wm.getMostRecentWindow("mail:3pane");
-        parentWindow.keefox_org.KeePassRPC.authPromptAborted = true;
-        close();
-     }
-  },
-  register: function() {
-    var observerService = Components.classes["@mozilla.org/observer-service;1"]
-                          .getService(Components.interfaces.nsIObserverService);
-    observerService.addObserver(this, "KPRPCConnectionClosed", false);
-  },
-  unregister: function() {
-    var observerService = Components.classes["@mozilla.org/observer-service;1"]
-                            .getService(Components.interfaces.nsIObserverService);
-    observerService.removeObserver(this, "KPRPCConnectionClosed");
-  }
-}
 
 keeFoxGDataProviderHelper.scriptLoader.loadSubScript(
     "chrome://keefox/content/shared/uriUtils.js", keeFoxGDataProviderHelper);
