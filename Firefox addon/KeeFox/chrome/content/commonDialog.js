@@ -316,7 +316,7 @@ var keeFoxDialogManager = {
                     this._imapBundleUsesStrings ? "imapEnterPasswordPromptTitle" : "5051",
                     this._imapBundleUsesStrings ? "imapEnterPasswordPrompt" : "5047",
                     "%S", null, null, true);
-                LoadDialogData(this._localMsgsBundle, "pop3", "pop3EnterPasswordPromptTitle",
+                LoadDialogData(this._localMsgsBundle, "pop", "pop3EnterPasswordPromptTitle",
                     "pop3EnterPasswordPrompt", "%2$S", null, "%1$S");
                 LoadDialogData(this._newsBundle, "nntp-1", "enterUserPassTitle",
                     "enterUserPassServer", "%S");
