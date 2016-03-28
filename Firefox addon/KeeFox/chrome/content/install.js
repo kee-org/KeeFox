@@ -22,39 +22,39 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 "use strict";
 
-const KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.31/";
-const KF_KPZIP_FILE_NAME = "KeePass-2.31.zip?r=&ts=";
-const KF_KPZIP_SAVE_NAME = "KeePass-2.31.zip";
-const KF_KPZIP_FILE_CHECKSUM = "7e3c31cd76eea49fc0f7a2319c1fb07b";
-const KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.31/";
-const KF_KP_FILE_NAME = "KeePass-2.31-Setup.exe?r=&ts=";
-const KF_KP_SAVE_NAME = "KeePass-2.31-Setup.exe"; 
-const KF_KP_FILE_CHECKSUM = "fd14a4b1300b17666fc1084cb5a8e9c0";
-const KF_NET_DOWNLOAD_PATH = "https://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/";
-const KF_NET_FILE_NAME = "NDP452-KB2901954-Web.exe";
-const KF_NET_FILE_CHECKSUM = "ca41dba55a727f01104871b160cd5b1d";
-const KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
+var KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.31/";
+var KF_KPZIP_FILE_NAME = "KeePass-2.31.zip?r=&ts=";
+var KF_KPZIP_SAVE_NAME = "KeePass-2.31.zip";
+var KF_KPZIP_FILE_CHECKSUM = "7e3c31cd76eea49fc0f7a2319c1fb07b";
+var KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.31/";
+var KF_KP_FILE_NAME = "KeePass-2.31-Setup.exe?r=&ts=";
+var KF_KP_SAVE_NAME = "KeePass-2.31-Setup.exe";
+var KF_KP_FILE_CHECKSUM = "fd14a4b1300b17666fc1084cb5a8e9c0";
+var KF_NET_DOWNLOAD_PATH = "https://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/";
+var KF_NET_FILE_NAME = "NDP452-KB2901954-Web.exe";
+var KF_NET_FILE_CHECKSUM = "ca41dba55a727f01104871b160cd5b1d";
+var KF_KRPC_FILE_NAME = "KeePassRPCCopier.exe";
 
-const KF_INSTALL_STATE_SELECTED_PRI = 1; // user has asked to run default installation routine
-const KF_INSTALL_STATE_NET_DOWNLOADING = 2;
-const KF_INSTALL_STATE_NET_DOWNLOADED = 4;
-const KF_INSTALL_STATE_NET_EXECUTING = 8;
-const KF_INSTALL_STATE_NET_EXECUTED = 16; // .NET installer has been executed or .NET was already installed
-const KF_INSTALL_STATE_KP_DOWNLOADING = 32;
-const KF_INSTALL_STATE_KP_DOWNLOADED = 64;
-const KF_INSTALL_STATE_KP_EXECUTING = 128;
-const KF_INSTALL_STATE_KP_EXECUTED = 256;  // KeePass installer has been executed or KeePass was already installed
-const KF_INSTALL_STATE_KRPC_DOWNLOADING = 512;
-const KF_INSTALL_STATE_KRPC_DOWNLOADED = 1024; // KeePassRPC files have been downloaded (actually we will bundle them with XPI for time being at least)
-const KF_INSTALL_STATE_KRPC_EXECUTING = 2048; // KeePassRPC files are being copied
-const KF_INSTALL_STATE_KRPC_EXECUTED = 4096;  // KeePassRPC files have been copied
+var KF_INSTALL_STATE_SELECTED_PRI = 1; // user has asked to run default installation routine
+var KF_INSTALL_STATE_NET_DOWNLOADING = 2;
+var KF_INSTALL_STATE_NET_DOWNLOADED = 4;
+var KF_INSTALL_STATE_NET_EXECUTING = 8;
+var KF_INSTALL_STATE_NET_EXECUTED = 16; // .NET installer has been executed or .NET was already installed
+var KF_INSTALL_STATE_KP_DOWNLOADING = 32;
+var KF_INSTALL_STATE_KP_DOWNLOADED = 64;
+var KF_INSTALL_STATE_KP_EXECUTING = 128;
+var KF_INSTALL_STATE_KP_EXECUTED = 256;  // KeePass installer has been executed or KeePass was already installed
+var KF_INSTALL_STATE_KRPC_DOWNLOADING = 512;
+var KF_INSTALL_STATE_KRPC_DOWNLOADED = 1024; // KeePassRPC files have been downloaded (actually we will bundle them with XPI for time being at least)
+var KF_INSTALL_STATE_KRPC_EXECUTING = 2048; // KeePassRPC files are being copied
+var KF_INSTALL_STATE_KRPC_EXECUTED = 4096;  // KeePassRPC files have been copied
 
-const KF_INSTALL_STATE_SELECTED_SEC = 8192; // user has asked to run secondary installation routine
-const KF_INSTALL_STATE_SELECTED_TER = 16384; // user has asked to run tertiary installation routine
-const KF_INSTALL_STATE_KPZIP_DOWNLOADING = 524288;
-const KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
-const KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;
-const KF_INSTALL_STATE_KPZIP_EXECUTED = 4194304;  // KeePass zip has been extracted
+var KF_INSTALL_STATE_SELECTED_SEC = 8192; // user has asked to run secondary installation routine
+var KF_INSTALL_STATE_SELECTED_TER = 16384; // user has asked to run tertiary installation routine
+var KF_INSTALL_STATE_KPZIP_DOWNLOADING = 524288;
+var KF_INSTALL_STATE_KPZIP_DOWNLOADED = 1048576;
+var KF_INSTALL_STATE_KPZIP_EXECUTING = 2097152;
+var KF_INSTALL_STATE_KPZIP_EXECUTED = 4194304;  // KeePass zip has been extracted
 
 // tracks progress of the various installation stages, using KF_INSTALL_STATE_* constants
 var installState = 0;

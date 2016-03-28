@@ -62,6 +62,7 @@ KeeFoxMainThreadHandler.prototype =
                 case "IC5PriDownload": this.handleIC5PriDownload(); break;
             }
         } catch (err) {
+            this.mainWindow.keefox_win.Logger.error(err);
             Cu.reportError(err);
         }
     },
