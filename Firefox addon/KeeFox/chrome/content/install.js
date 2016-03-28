@@ -22,14 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 "use strict";
 
-var KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.31/";
-var KF_KPZIP_FILE_NAME = "KeePass-2.31.zip?r=&ts=";
-var KF_KPZIP_SAVE_NAME = "KeePass-2.31.zip";
-var KF_KPZIP_FILE_CHECKSUM = "7e3c31cd76eea49fc0f7a2319c1fb07b";
-var KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.31/";
-var KF_KP_FILE_NAME = "KeePass-2.31-Setup.exe?r=&ts=";
-var KF_KP_SAVE_NAME = "KeePass-2.31-Setup.exe";
-var KF_KP_FILE_CHECKSUM = "fd14a4b1300b17666fc1084cb5a8e9c0";
+var KF_KPZIP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.32/";
+var KF_KPZIP_FILE_NAME = "KeePass-2.32.zip?r=&ts=";
+var KF_KPZIP_SAVE_NAME = "KeePass-2.32.zip";
+var KF_KPZIP_FILE_CHECKSUM = "b4aeb4ad09d62173e40720e18a35d8bc";
+var KF_KP_DOWNLOAD_PATH = "https://downloads.sourceforge.net/project/keepass/KeePass%202.x/2.32/";
+var KF_KP_FILE_NAME = "KeePass-2.32-Setup.exe?r=&ts=";
+var KF_KP_SAVE_NAME = "KeePass-2.32-Setup.exe";
+var KF_KP_FILE_CHECKSUM = "bb5bb5debce833957c02916dc637cc36";
 var KF_NET_DOWNLOAD_PATH = "https://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/";
 var KF_NET_FILE_NAME = "NDP452-KB2901954-Web.exe";
 var KF_NET_FILE_CHECKSUM = "ca41dba55a727f01104871b160cd5b1d";
