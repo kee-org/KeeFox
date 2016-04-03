@@ -349,18 +349,6 @@ function config()
         }
     };
 
-    this.migrateListOfNoSavePromptURLs = function(urls)
-    {
-        // We know that no custom config has already been set when this is called so that keeps things simple
-
-        for (let i=0; i<urls.length; i++)
-        {
-            let newConfig = this.applyMoreSpecificConfig(JSON.parse(JSON.stringify(this.getConfigDefinitionForURL(urls[i]))), { "preventSaveNotification": true }); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
-            this.setConfigForURL(urls[i],newConfig);
-        }
-        this.save();
-    };
-
     this.migrateRescanFormTimeFromFFPrefs = function(enabled)
     {
         // We know that no custom config has already been set when this is called so that keeps things simple
