@@ -407,7 +407,12 @@ namespace KeePassRPC
                             }
                         }
                         else
-                            formFieldList.Add(new FormField(ff.Name, ff.Name, ff.Value, ff.Type, ff.Id, ff.Page));
+                        {
+                            string ffValue = ff.Value;
+                            if (ffValue.StartsWith("{") && ffValue.EndsWith("}"))
+                                ffValue = KeePassRPCPlugin.GetPwEntryStringFromDereferencableValue(pwe, ffValue, db);
+                            formFieldList.Add(new FormField(ff.Name, ff.Name, ffValue, ff.Type, ff.Id, ff.Page));
+                        }
                     }
                 }
             }
