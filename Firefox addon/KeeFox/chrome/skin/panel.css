@@ -340,7 +340,7 @@ display: block;
 #KeeFox-PanelSubSection-PasswordProfileList[loading]
 {
     height:32px;
-    background-image: url("chrome://browser/skin/tabbrowser/loading.png");
+    background-image: url("chrome://global/skin/icons/loading.png"),url("chrome://browser/skin/tabbrowser/loading.png");
     background-repeat:no-repeat;
     background-position:50% 8px;
 }
@@ -348,7 +348,7 @@ display: block;
 #keefox-uninstall-helper-submit-container {
     min-width:620px;
     height:200px;
-    background-image: url("chrome://browser/skin/tabbrowser/loading.png");
+    background-image: url("chrome://global/skin/icons/loading.png"),url("chrome://browser/skin/tabbrowser/loading.png");
     background-repeat:no-repeat;
     background-position:50% 92px;
 }
