@@ -398,7 +398,14 @@ var keeFoxDialogManager = {
                         currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm2");
                     } catch (exception2)
                     {
-                        currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                        // And again in Firefox >= 51 and Thunderbird
+                        try
+                        {
+                            currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm3");
+                        } catch (exception3)
+                        {
+                            currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                        }
                     }
                 }
 
@@ -431,7 +438,14 @@ var keeFoxDialogManager = {
                 var currentProxyL10nPattern = "";            
                 try 
                 {
-                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                    try 
+                    {
+                        // Name changed in Firefox 49
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy2");
+                    } catch (exception)
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                    }
                 } catch (exception)
                 {
                     currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
@@ -466,7 +480,13 @@ var keeFoxDialogManager = {
                 var currentProxyL10nPattern = "";            
                 try 
                 {
-                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                    try 
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor2");
+                    } catch (exception)
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                    }
                 } catch (exception)
                 {
                     currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
