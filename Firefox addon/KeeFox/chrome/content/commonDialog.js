@@ -392,7 +392,14 @@ var keeFoxDialogManager = {
                     currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm");
                 } catch (exception)
                 {
-                    currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                    // Exception expected in Firefox >= 50 and Thunderbird
+                    try
+                    {
+                        currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm2");
+                    } catch (exception2)
+                    {
+                        currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                    }
                 }
 
                 var realmFirst = false;
