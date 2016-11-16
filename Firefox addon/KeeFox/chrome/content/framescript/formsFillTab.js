@@ -410,6 +410,9 @@ var findMatchesInAllFrames = function (autofillOnSuccess, autosubmitOnSuccess, n
 
 var findMatchesInManyFrames = function (win, behaviour)
 {
+    if (!isUriWeCanFill(win.document.location))
+        return;
+
     Logger.debug("findMatchesInManyFrames start");
     this.findMatchesInSingleFrame(win.document, behaviour);
     

@@ -30,6 +30,9 @@ tabState.latestFindMatchesResults = [];
 tabState.latestFindMatchesResultsByURI = [];
 
 var countAllDocuments = function (frame) {
+    if (!isUriWeCanFill(frame.location))
+        return 0;
+
     var localDocCount = 1;
 
     if (frame.frames.length > 0) {
@@ -38,6 +41,13 @@ var countAllDocuments = function (frame) {
             localDocCount += this.countAllDocuments(frames[i]);
     }
     return localDocCount;
+};
+
+var isUriWeCanFill = function (uri) {
+    if (uri.protocol == "http:" || uri.protocol == "https:" || uri.protocol == "file:") {
+        return true;
+    }
+    return false;
 };
 
 var isATextFormFieldType = function (type)
