@@ -1895,7 +1895,7 @@ namespace KeePassRPC
         /// <summary>
         /// Finds entries. Presence of certain parameters dictates type of search performed in the following priority order: uniqueId; freeTextSearch; URL, realm, etc.. Searching stops as soon as one of the different types of search results in a successful match. Supply a username to limit results from URL and realm searches (to search for username regardless of URL/realm, do a free text search and filter results in your client).
         /// </summary>
-        /// <param name="URLs">The URLs to search for. Host must be lower case as per the URI specs. Other parts are case sensitive.</param>
+        /// <param name="unsanitisedURLs">The URLs to search for. Host must be lower case as per the URI specs. Other parts are case sensitive.</param>
         /// <param name="actionURL">The action URL.</param>
         /// <param name="httpRealm">The HTTP realm.</param>
         /// <param name="lst">The type of login search to perform. E.g. look for form matches or HTTP Auth matches.</param>
@@ -1906,7 +1906,8 @@ namespace KeePassRPC
         /// /// <param name="username">Limit a search for URL to exact username matches only</param>
         /// <returns>An entry suitable for use by a JSON-RPC client.</returns>
         [JsonRpcMethod]
-        public Entry[] FindLogins(string[] URLs, string actionURL, string httpRealm, LoginSearchType lst, bool requireFullURLMatches, 
+        public Entry[] FindLogins(string[] unsanitisedURLs, string actionURL,
+            string httpRealm, LoginSearchType lst, bool requireFullURLMatches, 
             string uniqueID, string dbFileName, string freeTextSearch, string username)
         {
             List<PwDatabase> dbs = null;
@@ -2004,6 +2005,12 @@ namespace KeePassRPC
 
             }
             // else we search for the URLs
+
+            // First, we remove any data URIs from the list - there aren't any practical use cases 
+            // for this which can trump the security risks introduced by attempting to support their use.
+            var santisedURLs = new List<string>(unsanitisedURLs);
+            santisedURLs.RemoveAll(u => u.StartsWith("data:"));
+            var URLs = santisedURLs.ToArray();
 
             if (count == 0 && URLs.Length > 0 && !string.IsNullOrEmpty(URLs[0]))
             {
