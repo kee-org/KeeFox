@@ -1,12 +1,12 @@
 /*
   KeeFox - Allows Firefox to communicate with KeePass (via the KeePassRPC KeePass plugin)
   Copyright 2015 Chris Tomlinson <keefox@christomlinson.name>
-  
+
   There are lots of functions in here that could potentially be refactored further
   to work in Chrome context using JSON representations of data supplied by simpler
   functions in this file. I doubt I'll ever have time for such a large task though
   and I question the efficiency of so much cross-process communication.
-  
+
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -32,13 +32,13 @@ var _calculateFieldMatchScore = function (formField, dataField, currentPage, ove
     let score = 1;
 
     // If field is already filled in and can't be overwritten we make the score 0
-    if ((this.isATextFormFieldType(formField.type) || formField.type == "password") && 
+    if ((this.isATextFormFieldType(formField.type) || formField.type == "password") &&
         (formField.value.length > 0 && !overWriteFieldsAutomatically)
     )
         return 0;
 
     // Do not allow any match if field types are significantly mismatched (e.g. checkbox vs text field)
-    if ( !( this.isATextFormFieldType(formField.type) && (dataField.type == "username" || dataField.type == "text") ) 
+    if ( !( this.isATextFormFieldType(formField.type) && (dataField.type == "username" || dataField.type == "text") )
         && !(formField.type == "password" && dataField.type == "password")
         && !(formField.type == "radio" && dataField.type == "radio")
         && !(formField.type == "checkbox" && dataField.type == "checkbox")
@@ -47,23 +47,23 @@ var _calculateFieldMatchScore = function (formField, dataField, currentPage, ove
         return 0;
 
     // If field IDs match +++++
-    if (formField.fieldId != null && formField.fieldId != undefined 
+    if (formField.fieldId != null && formField.fieldId != undefined
         && formField.fieldId != "" && formField.fieldId == dataField.fieldId
         )
         score += 50;
 
     // If field names match ++++
     // (We do not treat ID and NAME as mutually exclusive because some badly written
-    // websites might have duplicate IDs but different names so this combined approach 
+    // websites might have duplicate IDs but different names so this combined approach
     // might allow them to work correctly)
-    if (formField.name != null && formField.name != undefined 
+    if (formField.name != null && formField.name != undefined
              && formField.name != "" && formField.name == dataField.name
         )
         score += 40;
 
     // Radio buttons have their values set by the website and hence can provide
     // a useful cue when both id and name matching fails
-    if (formField.type == "radio" && formField.value != null && formField.value != undefined 
+    if (formField.type == "radio" && formField.value != null && formField.value != undefined
              && formField.value != "" && formField.value == dataField.value
         )
         score += 30;
@@ -142,7 +142,7 @@ var _fillMatchedFields = function (fields, dataFields, formFields)
         fields = fields.filter(function (element, index, array) {
             return (element.dataFieldIndex != dfi && element.formFieldIndex != ffi);
         });
-        
+
         fields.sort(function (a, b) {
             return b.score - a.score;
         });
@@ -151,10 +151,10 @@ var _fillMatchedFields = function (fields, dataFields, formFields)
 }
 
 var _fillASingleField = function (domElement, fieldType, value)
-{  
+{
     if (fieldType == "select-one")
     {
-        domElement.value = value; 
+        domElement.value = value;
     } else if (fieldType == "checkbox")
     {
         if (value == "KEEFOX_CHECKED_FLAG_TRUE")
@@ -165,28 +165,30 @@ var _fillASingleField = function (domElement, fieldType, value)
     {
         domElement.checked = true;
     } else
-    {    
-        domElement.value = value; 
+    {
+        domElement.value = value;
     }
+
+    domElement.dispatchEvent(new content.UIEvent('change', {view: content, bubbles: true, cancelable: true}));
 }
 
-var _fillManyFormFields = function 
+var _fillManyFormFields = function
     (formFields, dataFields, currentPage, overWriteFieldsAutomatically)
 {
     Logger.debug("_fillManyFormFields started");
-    
+
     if (formFields == null || formFields == undefined || dataFields == null || dataFields == undefined)
         return;
-    
+
     Logger.debug("We've received the data we need");
-    
+
     Logger.info("Filling form fields for page "+currentPage);
-    
+
     if (overWriteFieldsAutomatically)
         Logger.info("Auto-overwriting fields");
     else
         Logger.info("Not auto-overwriting fields");
-    
+
     // we try to fill every form field. We try to match by id first and then name before just guessing.
     // Generally we'll only fill if the matched field is of the same type as the form field but
     // we are flexible RE text and username fields because that's an artificial difference
@@ -220,7 +222,7 @@ var _fillManyFormFields = function
 */
 // Likely to be called from chrome context in response to user interaction (e.g. tab selection or detect-forms request)
 var FindMatchesRequestHandler = function (message) {
-    
+
     if (tabState.frameResponseCount === undefined)
     {
         Logger.debug("FindMatchesRequestHandler ignored a request (too soon - we're still waiting for the tab to init).");
@@ -245,14 +247,14 @@ var FindMatchesRequestHandler = function (message) {
     if (tabState.findMatchesUnderway && message.data.notifyUserOnSuccess)
     {
         sendAsyncMessage("keefox:growl",{
-            "title": "KeeFox is already searching for logins to fill on this page", 
-            "text": "Maybe try again in a few seconds", 
+            "title": "KeeFox is already searching for logins to fill on this page",
+            "text": "Maybe try again in a few seconds",
             "clickToShowPanel": false});
     } else
     {
         findMatchesInAllFrames(
-            message.data.autofillOnSuccess, 
-            message.data.autosubmitOnSuccess, 
+            message.data.autofillOnSuccess,
+            message.data.autosubmitOnSuccess,
             message.data.notifyUserOnSuccess);
     }
 
@@ -310,7 +312,7 @@ var findMatchesInAllFrames = function (autofillOnSuccess, autosubmitOnSuccess, n
 
     // Make sure we don't accidentally run this concurrently (e.g. another DOMContentLoaded
     // event being fired on a different frame while we are waiting to hear back from
-    // KeePassRPC). Should already be handled upstack but just in case... (e.g. 
+    // KeePassRPC). Should already be handled upstack but just in case... (e.g.
     // for user-interactions we can't / don't want to control?)
     if (tabState.findMatchesUnderway)
     {
@@ -334,7 +336,7 @@ var findMatchesInAllFrames = function (autofillOnSuccess, autosubmitOnSuccess, n
             clearTimeout(searchCompleteTimeout);
             searchCompleteTimeout = null;
         }
-        
+
         // We do it even when KeePass is closed/locked if the user has asked to be
         // prompted to open a KeePass database when a form is found
 
@@ -383,12 +385,12 @@ var findMatchesInAllFrames = function (autofillOnSuccess, autosubmitOnSuccess, n
         {
             Logger.info("Found this KeePass uniqueID in the tab: " + tabState.UUID);
             Logger.debug("Found this KeePass DB file name in the tab: " + tabState.dbFileName);
-        
+
             // Keep a record of the specific entry we are going to search for (we delete
             // the tabstate below and re-create it during form fill)
             behaviour.UUID = tabState.UUID;
             behaviour.dbFileName = tabState.dbFileName;
-                
+
             if (tabState.forceAutoSubmit === true && tabState.userRecentlyDemandedAutoSubmit)
             {
                 Logger.debug("We must auto-submit this form.");
@@ -415,14 +417,14 @@ var findMatchesInManyFrames = function (win, behaviour)
 
     Logger.debug("findMatchesInManyFrames start");
     this.findMatchesInSingleFrame(win.document, behaviour);
-    
+
     if (win.frames.length > 0)
     {
         Logger.debug("Filling " + win.frames.length + " sub frames");
         var frames = win.frames;
         for (var i = 0; i < frames.length; i++)
             this.findMatchesInManyFrames (frames[i], behaviour);
-    }    
+    }
 };
 
 var findMatchesInSingleFrame = function (doc, behaviour)
@@ -434,18 +436,18 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     let dbFileName = behaviour.dbFileName;
     let mustAutoSubmitForm = behaviour.mustAutoSubmitForm;
 
-    Logger.info("Finding matches in a document. readyState: " + doc.readyState 
-        + ", autofillOnSuccess: " + autofillOnSuccess + ", autosubmitOnSuccess: " 
+    Logger.info("Finding matches in a document. readyState: " + doc.readyState
+        + ", autofillOnSuccess: " + autofillOnSuccess + ", autosubmitOnSuccess: "
         + autosubmitOnSuccess + ", notifyUserOnSuccess: " + notifyUserOnSuccess
         , "docURI: " + doc.documentURI);
-    
+
     let useCachedResults = true;
 
     var matchResult = {};
-    
+
     matchResult.UUID = "";
     matchResult.logins = [];
-    
+
     // auto fill the form by default unless a preference or tab variable tells us otherwise
     matchResult.wantToAutoFillForm = KFExtension.prefs.getValue("autoFillForms",true);
     matchResult.mustAutoFillForm = false;
@@ -457,11 +459,11 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     matchResult.cannotAutoSubmitForm = false;
 
     // Allow user to override automatic behaviour if multiple logins match this URL
-    matchResult.wantToAutoFillFormWithMultipleMatches = 
+    matchResult.wantToAutoFillFormWithMultipleMatches =
         KFExtension.prefs.getValue("autoFillFormsWithMultipleMatches",true);
-    matchResult.wantToAutoSubmitFormWithMultipleMatches = 
+    matchResult.wantToAutoSubmitFormWithMultipleMatches =
         KFExtension.prefs.getValue("autoSubmitFormsWithMultipleMatches",true);
-    
+
     // overwrite existing username by default unless a preference or tab variable tells us otherwise
     matchResult.overWriteFieldsAutomatically = KFExtension.prefs.getValue("overWriteFieldsAutomatically",true);
 
@@ -470,24 +472,24 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     while (topDoc.defaultView.frameElement)
         topDoc=topDoc.defaultView.frameElement.ownerDocument;
     matchResult.topDoc = topDoc;
-   
+
     matchResult.tabState = tabState;
-    
+
     if (UUID != undefined && UUID != null && UUID != "")
     {
         // Keep a record of the specific entry we are going to search for (we delete
         // the tabstate below and re-create it during form fill)
         matchResult.UUID = UUID;
         matchResult.dbFileName = dbFileName;
-        
+
         // we want to fill the form with this data
         matchResult.mustAutoFillForm = true;
         matchResult.overWriteFieldsAutomatically = true;
-                
+
         if (mustAutoSubmitForm)
             matchResult.mustAutoSubmitForm = true;
     }
-    
+
     // Work out whether there is anything suitable in the cache
     let cacheResults;
 
@@ -495,7 +497,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     useCachedResults = KFExtension.prefs.getValue("tabResultsCacheEnabled", true);
     if (!useCachedResults)
         Logger.warn("The results cache is disabled. Set extensions.keefox@chris.tomlinson.tabResultsCacheEnabled=true to re-enable in order to increase performance.");
-    
+
     // We disable the cache at the moment. I'm not convinced it's vital for the initial
     // e10s release and it needs a lot more work. E.g. make sure it can be invalidated
     // when anything happens which might alter the previous results (KeePass DB change, KeeFox
@@ -511,7 +513,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             useCachedResults = false;
         else if (typeof(cacheResults.results) === "undefined" || cacheResults.results === null)
             useCachedResults = false;
-            
+
         // maybe check cache expiry times?
         //if (cacheResults.createdOn >)
     }
@@ -522,7 +524,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     if (useCachedResults)
     {
         // Whenever possible we'll use previously cached results but there are a
-        // variety of circumstances which cause us to need to ask KeePassRPC what 
+        // variety of circumstances which cause us to need to ask KeePassRPC what
         // the answer is (including the obvious of the results not being available in cache)
 
         Logger.info("Matching KeePass login entries found in cache.");
@@ -532,9 +534,9 @@ var findMatchesInSingleFrame = function (doc, behaviour)
     } else
     {
         matchResult.doc = doc;
-    
+
         var conf = config.getConfigForURL(doc.documentURI);
-        
+
         // Forcing a scan for orphaned fields on all pages. May need to change
         // this if real world performance is too slow.
         conf.scanForOrphanedFields = true;
@@ -554,13 +556,13 @@ var findMatchesInSingleFrame = function (doc, behaviour)
 
         if (!forms || forms.length == 0)
         {
-            Logger.info("No forms found on this page." + (conf.scanForOrphanedFields 
+            Logger.info("No forms found on this page." + (conf.scanForOrphanedFields
                 ? "" : " If you think there should be a form detected, try enabling 'Scan for orphaned fields' in site-specific settings."));
 
             tabState.frameResponseCount++;
             if (tabState.latestFindMatchesResults[fak] !== undefined)
                 delete tabState.latestFindMatchesResults[fak];
-            aSearchComplete(fak); 
+            aSearchComplete(fak);
             return;
         }
 
@@ -575,7 +577,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             tabState.frameResponseCount++;
             if (tabState.latestFindMatchesResults[fak] !== undefined)
                 delete tabState.latestFindMatchesResults[fak];
-            aSearchComplete(fak); 
+            aSearchComplete(fak);
             return;
         }
 
@@ -595,7 +597,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
         matchResult.requestCount = 0;
         matchResult.responseCount = 0;
         matchResult.requestIds = []; // the JSONRPC request Ids that reference this matchResult object (to allow deletion after async callback processing)
-    
+
         var previousRequestId = 0;
 
         // For every form, including any pseudo forms we created earlier
@@ -603,7 +605,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
         {
             var form = forms[i];
             matchResult.logins[i] = [];
-        
+
             // the overall relevance of this form is the maximum of it's
             // matching entries (so we fill the most relevant form)
             matchResult.formRelevanceScores[i] = 0;
@@ -611,14 +613,14 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             Logger.debug("about to get form fields");
             var [usernameIndex, passwordFields, otherFields] =
                 this._getFormFields(form, false);
-            
+
             // We want to fill in this form if we find a password field but first
             // we check whether any whitelist or blacklist entries must override that behaviour
             var interestingForm = null;
 
             interestingForm = config.valueAllowed(form.id,conf.interestingForms.id_w,conf.interestingForms.id_b,interestingForm);
             interestingForm = config.valueAllowed(form.name,conf.interestingForms.name_w,conf.interestingForms.name_b,interestingForm);
-        
+
             if (interestingForm === false)
             {
                 Logger.debug("Lost interest in this form after inspecting form name and ID");
@@ -632,13 +634,13 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             }
 
             //TODO:1.6: #444 interestingForm = keefox_org.config.cssSelectorAllowed(document,conf.interestingForms.f_css_w,conf.interestingForms.f_css_b,interestingForm);
-        
+
             if (interestingForm === false)
             {
                 Logger.debug("Lost interest in this form after inspecting field names and IDs");
                 continue;
             }
-        
+
             if (passwordFields == null || passwordFields.length <= 0 || passwordFields[0] == null)
             {
                 Logger.debug("no password field found in this form");
@@ -650,7 +652,7 @@ var findMatchesInSingleFrame = function (doc, behaviour)
             matchResult.usernameIndexArray[i] = usernameIndex;
             matchResult.passwordFieldsArray[i] = passwordFields;
             matchResult.otherFieldsArray[i] = otherFields;
-        
+
             // The logins returned from KeePass for every form will be identical (based on tab/frame URL)
             if (previousRequestId == 0)
             {
@@ -661,12 +663,12 @@ var findMatchesInSingleFrame = function (doc, behaviour)
                 matchResult.wrappers[i] = findLoginOp;
                 matchResult.requestCount++;
                 findLoginOp.frameArrayKey = getFrameArrayKey(doc);
-                
+
                 // Search KeePass for matching logins. This request is synchronous to
                 // the KeeFox chrome layer but the upstream request to KeePass is asynchronous.
                 let res = sendSyncMessage("keefox:findLogins", { "url": matchResult.formOrigin });
                 var requestId = res[0];
-            
+
                 matchResult.requestIds.push(requestId);
                 findLoginOps[requestId] = findLoginOp;
                 matchResults[requestId] = matchResult;
@@ -729,9 +731,9 @@ var findLoginsCacheHandler = function (convertedResult, findLoginOp, matchResult
 
     // record the form data associated with this frame
     tabState.latestFindMatchesResults[findLoginOp.frameArrayKey] = matchResult;
-    
+
     // see if we're ready to do the next stage of form processing...
-    aSearchComplete(findLoginOp.frameArrayKey); 
+    aSearchComplete(findLoginOp.frameArrayKey);
 };
 
 var findLoginsResultHandler = function (message)
@@ -745,8 +747,8 @@ var findLoginsResultHandler = function (message)
     {
         if ("result" in resultWrapper && resultWrapper.result !== false && resultWrapper.result != null)
         {
-            foundLogins = resultWrapper.result; 
-                    
+            foundLogins = resultWrapper.result;
+
             for (var i in foundLogins)
             {
                 var kfl = keeFoxLoginInfo();
@@ -764,7 +766,7 @@ var findLoginsResultHandler = function (message)
     } catch (e) {
         isError = true;
     }
-    
+
     // Without a resultWrapper.id we are screwed (form filling probably won't work
     // again in this tab). I can't see how that could happen but am mentioning it
     // just in case.
@@ -793,10 +795,10 @@ var findLoginsResultHandler = function (message)
         tabState.frameResponseCount++;
         if (tabState.latestFindMatchesResults[findLoginOp.frameArrayKey] !== undefined)
             delete tabState.latestFindMatchesResults[findLoginOp.frameArrayKey];
-        aSearchComplete(findLoginOp.frameArrayKey); 
+        aSearchComplete(findLoginOp.frameArrayKey);
         return;
     }
-                    
+
     matchResult = getRelevanceOfLoginMatchesAgainstAllForms(convertedResult, findLoginOp, matchResult);
     tabState.frameResponseCount++;
 
@@ -809,14 +811,14 @@ var findLoginsResultHandler = function (message)
     // in future but we'd have to weigh up the performance hit of the cross-process
     // comms and mapping to/from JSON against the memory saving and performance benefit
     // of a higher hit ratio.
-    //tabState.latestFindMatchesResultsByURI[matchResult.formOrigin] = { 
-    //    postLoad: !tabState.pageLoadExpected, 
+    //tabState.latestFindMatchesResultsByURI[matchResult.formOrigin] = {
+    //    postLoad: !tabState.pageLoadExpected,
     //    createdOn: Date(),
     //    results: convertedResult };
     // Not actually doing this until we have a use for the cache data
 
     // see if we're ready to do the next stage of form processing...
-    aSearchComplete(findLoginOp.frameArrayKey); 
+    aSearchComplete(findLoginOp.frameArrayKey);
 };
 
 var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findLoginOp, matchResult)
@@ -829,20 +831,20 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
         // Skip any form that we don't want to match against this set of logins
         if (findLoginOp.formIndexes.indexOf(i) == -1)
             continue;
-        
+
         // if there is more than one form, we have to work with clones of the login result so
-        // that we can manipulate the relevancy scores, etc. independently for each 
-        // form and login combination. We could be more efficient for the common case of 1 form 
-        // by avoiding the clone then but keeping the same behaviour gives us a higher chance 
+        // that we can manipulate the relevancy scores, etc. independently for each
+        // form and login combination. We could be more efficient for the common case of 1 form
+        // by avoiding the clone then but keeping the same behaviour gives us a higher chance
         // of noticing bugs.
         matchResult.logins[i] = JSON.parse(crString); //TODO:2: faster clone? https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm ?
 
         // Nothing to do if we have no matching logins available.
         if (matchResult.logins[i].length == 0)
             continue;
-                    
+
         Logger.info("match found!");
-        
+
         // determine the relevance of each login entry to this form
         // we could skip this when autofilling based on uniqueID but we would have to check for
         // matches first or else we risk no match and no alternative matching logins on the mainUI
@@ -859,23 +861,23 @@ var getRelevanceOfLoginMatchesAgainstAllForms = function (convertedResult, findL
             matchResult.logins[i][v].lowFieldMatchRatio = relScore.lowFieldMatchRatio;
 
             // also set the form ID and login ID on the internal login object so
-            // it will persist when later passed to the UI and we can ultimately 
+            // it will persist when later passed to the UI and we can ultimately
             // find the same login object when processing a matched login
             matchResult.logins[i][v].formIndex = i;
             matchResult.logins[i][v].loginIndex = v;
             matchResult.logins[i][v].frameKey = findLoginOp.frameArrayKey;
-            
+
             // Remember the best form for each login
             if (!firstMatchProcessed || matchResult.logins[i][v].relevanceScore > matchResult.allMatchingLogins[v].relevanceScore)
             {
-                Logger.debug("Higher relevance score found for login " + v + " with formIndex " 
+                Logger.debug("Higher relevance score found for login " + v + " with formIndex "
                     + matchResult.logins[i][v].formIndex + " (" + findLoginOp.forms[i].id + ")");
                 matchResult.allMatchingLogins[v] = matchResult.logins[i][v];
             }
         }
         firstMatchProcessed = true;
-        
-        // Find the best login for this form 
+
+        // Find the best login for this form
         matchResult.logins[i].forEach(function(c) {
             if (c.relevanceScore > matchResult.formRelevanceScores[i])
                 matchResult.formRelevanceScores[i] = c.relevanceScore;
@@ -910,12 +912,12 @@ var minimumSearchCompletionDelay = 150;
 // we have received all the answers we need to fill the form now.
 // We know a search is underway when this is called because:
 // 1) New frames to search will not be accepted during a search
-// 2) Any slow response from KPRPC will fail to find the corresponding data for 
+// 2) Any slow response from KPRPC will fail to find the corresponding data for
 // that request ID so not be able to call this function
 var aSearchComplete = function (frameArrayKey)
 {
     Logger.debug("searchCompleteTimeout: " + searchCompleteTimeout + ". tabState.frameResponseCount: " + tabState.frameResponseCount + ". tabState.frameCount:" + tabState.frameCount );
-    
+
     // If there is a timeout already in progress, delete it
     if (searchCompleteTimeout !== null)
     {
@@ -935,7 +937,7 @@ var aSearchComplete = function (frameArrayKey)
 // we have all the answers we need (or can be bothered to wait for) so lets go
 // ahead with the form fill and submit process.
 var allSearchesComplete = function ()
-{ 
+{
     // Fill and submit
     fillAndSubmit(true);
 
@@ -952,7 +954,7 @@ var allSearchesComplete = function ()
     */
 
     Logger.debug("Deleting any references to login data for recently completed async find logins call.");
-    
+
     for (var prop in tabState.latestFindMatchesResults)
     {
         if (!prop.startsWith("top"))
@@ -1023,12 +1025,12 @@ var getMostRelevantFormForFrame = function (frame, formIndex)
     if (formIndex >= 0)
         mostRelevantFormIndex = formIndex;
     else
-        findMatchesResult.formRelevanceScores.forEach(function(c, index) { 
+        findMatchesResult.formRelevanceScores.forEach(function(c, index) {
             Logger.debug("Relevance of form is " + c);
             if (c > findMatchesResult.formRelevanceScores[mostRelevantFormIndex])
                 mostRelevantFormIndex = index;
         } );
-    
+
     Logger.debug("The most relevant form is #" + mostRelevantFormIndex);
     return {
         "bestFormIndex": mostRelevantFormIndex,
@@ -1059,7 +1061,7 @@ var getBestMatchForFrames = function (frame)
             currentBestFindMatchesResult = frameMatch.bestFindMatchesResult;
         }
     }
-    
+
     // Return the best match from either the subframes or this frame
     return {
         "bestRelevanceScore": currentBestRelevanceScore,
@@ -1076,14 +1078,14 @@ var getBestMatchForFrames = function (frame)
 // specific login to fill and submit to a specific form in a specific frame)
 var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
 {
-    Logger.debug("fillAndSubmit started. automated: " + automated + ", frameKey: " + frameKey 
+    Logger.debug("fillAndSubmit started. automated: " + automated + ", frameKey: " + frameKey
         + ", formIndex: " + formIndex + ", loginIndex: " + loginIndex);
-    
+
     // We do some things differently if we're being manually asked to fill and
     // submit a specific matched login
-    let isMatchedLoginRequest = !automated 
-        && typeof(frameKey) != "undefined" 
-        && typeof(formIndex) != "undefined" 
+    let isMatchedLoginRequest = !automated
+        && typeof(frameKey) != "undefined"
+        && typeof(formIndex) != "undefined"
         && typeof(loginIndex) != "undefined";
 
     // If there is only one frame in this tab, we'll just use that
@@ -1137,7 +1139,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
     var passwordFields = matchResult.passwordFieldsArray[mostRelevantFormIndex];
     var usernameIndex = matchResult.usernameIndexArray[mostRelevantFormIndex];
     var otherFields = matchResult.otherFieldsArray[mostRelevantFormIndex];
-    
+
     // this records the login that we eventually choose as the one to fill the chosen form with
     var matchingLogin = null;
 
@@ -1157,7 +1159,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
     if (!matchResult.cannotAutoFillForm)
     {
         Logger.debug("We are allowed to auto-fill this form.");
-        
+
         // If we've been instructed to fill a specific login, we need to select that
         // login and clear any previously set information about an auto-filled login
         // so it can be set correctly later
@@ -1167,7 +1169,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             matchResult.UUID = null;
             matchResult.dbFileName = null;
         }
-        
+
         let checkMatchingLoginRelevanceThreshold = false;
         if (matchingLogin == null && matchResult.logins[mostRelevantFormIndex].length == 1) {
             matchingLogin = matchResult.logins[mostRelevantFormIndex][0];
@@ -1183,20 +1185,20 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                 }
             if (matchingLogin == null)
                 Logger.warn("Could not find the required KeePass entry. Maybe the website redirected you to a different domain or hostname?");
-           
+
         } else if (matchingLogin == null && (!matchResult.logins[mostRelevantFormIndex] || !matchResult.logins[mostRelevantFormIndex].length)) {
             Logger.debug("No logins for form.");
         } else if (matchingLogin == null) {
             Logger.debug("Multiple logins for form, so estimating most relevant.");
             var mostRelevantLoginIndex = 0;
-            
+
             for (var count = 0; count < matchResult.logins[mostRelevantFormIndex].length; count++)
                 if (matchResult.logins[mostRelevantFormIndex][count].relevanceScore > matchResult.logins[mostRelevantFormIndex][mostRelevantLoginIndex].relevanceScore)
                     mostRelevantLoginIndex = count;
-                
+
             Logger.debug("We think login " + mostRelevantLoginIndex + " is most relevant.");
             matchingLogin = matchResult.logins[mostRelevantFormIndex][mostRelevantLoginIndex];
-            
+
             // If user has specified, prevent automatic fill / submit due to multiple matches
             if (automated && !matchResult.wantToAutoFillFormWithMultipleMatches)
                 matchResult.wantToAutoFillForm = false; //false by default
@@ -1239,7 +1241,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                 matchResult.cannotAutoSubmitForm = true;
                 Logger.info("Exceeded expected number of pages during this form-filling session. Not auto-submiting this form.");
             }
-        
+
             // If the user manually requested this to be filled in or the current page is unknown
             if (!automated || tabState.currentPage <= 0)
             {
@@ -1266,7 +1268,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                 Logger.debug("maximumPage is: " + tabState.maximumPage);
             }
 
-            // Make sure that the state of this tab is reset after a short time ready 
+            // Make sure that the state of this tab is reset after a short time ready
             // for the next website's login form
             if (resetFormFillTimer)
                 clearTimeout(resetFormFillTimer);
@@ -1293,7 +1295,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                 if (tabState.userRecentlyDemandedAutoSubmit)
                     matchResult.wantToAutoSubmitForm = KFExtension.prefs.getValue("autoSubmitMatchedForms", true);
             }
-            
+
             if (matchResult.wantToAutoFillForm || matchResult.mustAutoFillForm)
             {
                 Logger.debug("Going to auto-fill a form");
@@ -1303,7 +1305,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                     tabState.currentPage, matchResult.overWriteFieldsAutomatically || !automated);
                 tabState.lastFilledFields = lastFilledPasswords.concat(lastFilledOther);
                 matchResult.formReadyForSubmit = true;
-            }            
+            }
         }
     }
 
@@ -1318,7 +1320,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             matchResult.dbFileName = matchingLogin.database.fileName;
         }
     }
-    
+
     // If this form fill is the non-final page of a multi-page login process we record the
     // UUID and dbFilename. We also enable auto-submit in some circumstances
     if (matchResult.UUID != undefined && matchResult.UUID != null && matchResult.UUID != "")
@@ -1346,7 +1348,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             }
         }
     }
-    
+
     if (!matchResult.cannotAutoSubmitForm && (matchResult.wantToAutoSubmitForm || matchResult.mustAutoSubmitForm)
         && matchResult.formReadyForSubmit)
     {
@@ -1359,17 +1361,17 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
     } else if (isMatchedLoginRequest)
     {
         Logger.debug("Matched login request is not being auto-submitted.");
-    } else 
+    } else
     {
         Logger.debug("Combining login results from all frames.");
 
         // We could consider deduplicating the results of the search here so we can
-        // deal with situations where the same login could be submitted to forms 
-        // in more than one frame. The code below might be useful if we want to do 
-        // this but I think we need to wait for real-world requirements before deciding 
-        // if this is the right approach. Another alternative is to somehow label 
-        // the logins with the frame information so the user can choose which one 
-        // they want to fill in. Or we could just do nothing if this kind of scenario 
+        // deal with situations where the same login could be submitted to forms
+        // in more than one frame. The code below might be useful if we want to do
+        // this but I think we need to wait for real-world requirements before deciding
+        // if this is the right approach. Another alternative is to somehow label
+        // the logins with the frame information so the user can choose which one
+        // they want to fill in. Or we could just do nothing if this kind of scenario
         // comes up only very rarely.
         //var newUniqueLogins = matchResult.logins[i].filter(function(d) {
         //    return (matchResult.allMatchingLogins.every(function(e) {
@@ -1393,8 +1395,8 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             {
                 Logger.info("Using mainUI password fill.");
                 // Notify all parts of the UI that might need to be updated with new matched logins data
-                sendAsyncMessage("keefox:matchedLoginsChanged", { 
-                    "logins": matchingLoginsFromAllFrames, 
+                sendAsyncMessage("keefox:matchedLoginsChanged", {
+                    "logins": matchingLoginsFromAllFrames,
                     "notifyUserOnSuccess": matchResult.notifyUserOnSuccess
                 });
                 metricsManager.pushEvent ("feature", "AutoFill");
@@ -1402,7 +1404,7 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
             {
                 metricsManager.pushEvent ("feature", "ManualFill"); // Called "MatchedSubmit" previously (yes, I'm an idiot)
             }
-        } else 
+        } else
         {
             Logger.info("Nothing to fill.");
         }
@@ -1413,14 +1415,14 @@ var _fillAllFrames = function (window, initialPageLoad)
 {
     Logger.debug("_fillAllFrames start");
     this._fillDocument(window.document,false);
-    
+
     if (window.frames.length > 0)
     {
         Logger.debug("Filling " + window.frames.length + " sub frames");
         var frames = window.frames;
         for (var i = 0; i < frames.length; i++)
           this._fillAllFrames (frames[i], initialPageLoad);
-    }    
+    }
 };
 
 var _findDocumentByURI = function (window, URI)
@@ -1430,13 +1432,13 @@ var _findDocumentByURI = function (window, URI)
         Logger.debug("Searching through " + window.frames.length + " sub frames");
         var frames = window.frames;
         for (var i = 0; i < frames.length; i++)
-        { 
+        {
             var subResult = this._findDocumentByURI (frames[i], URI);
             if ( subResult != null)
                 return subResult;
         }
     }
-    
+
     if (window.document.documentURI == URI)
         return window.document;
     else
@@ -1457,7 +1459,7 @@ var submitForm = function (form)
     // a goodWord or deprioritised if it matches a badWord (images can only be affected
     // indirectly due to deprioritisation of other possibilities) but all things equal, they will
     // follow the stated priority.
-    
+
     var goodWords = ["submit","login","enter","log in","signin","sign in"]; //TODO:2: other languages
     var badWords = ["reset","cancel","back","abort","undo","exit","empty","clear"]; //TODO:2: other languages
 
@@ -1467,7 +1469,7 @@ var submitForm = function (form)
     let roleElementsDoc = form.ownerDocument.querySelectorAll("[role=button]");
     var submitElement = null;
     var submitElements = [];
-    
+
     // Rank the buttons
     for(let i = 0; i < buttonElements.length; i++)
     {
@@ -1534,8 +1536,8 @@ var submitForm = function (form)
     if (roleElementsDoc.length == 1)
         submitElements.push({'score': 1, 'el': roleElementsDoc[0]});
 
-    // Find the best submit button   
-    var largestScore = 0; 
+    // Find the best submit button
+    var largestScore = 0;
     for(let j = 0; j < submitElements.length; j++)
 	{
 		if(submitElements[j].score > largestScore)
@@ -1546,12 +1548,12 @@ var submitForm = function (form)
 	}
     //TODO:2: more accurate searching of submit buttons, etc. to avoid password resets if possible
     // maybe special cases for common HTML output patterns (e.g. javascript-only ASP.NET forms)
-        
+
     // Remember that it was KeeFox which initiated this form submission so we can
     // avoid searching for matching passwords upon submission
     tabState.KeeFoxTriggeredThePendingFormSubmission = true;
 
-    // If we've found a button to click, use that; if not, just submit the form.  
+    // If we've found a button to click, use that; if not, just submit the form.
     if(submitElement != null)
     {
         Logger.debug("Submiting using element: " + submitElement.name + ": " + submitElement.id);
@@ -1562,7 +1564,7 @@ var submitForm = function (form)
         Logger.debug("Submiting using form");
 		form.submit();
     }
-		
+
 		//TODO:2: maybe something like this might be useful? Dunno why a click()
 		// above wouldn't be sufficient but maybe some custom event raising might be handy...
 		/*
@@ -1570,7 +1572,7 @@ var submitForm = function (form)
   var evt = document.createEvent("MouseEvents");
   evt.initMouseEvent("click", true, true, window,
     0, 0, 0, 0, 0, false, false, false, false, 0, null);
-  var cb = document.getElementById("checkbox"); 
+  var cb = document.getElementById("checkbox");
   var canceled = !cb.dispatchEvent(evt);
   if(canceled) {
     // A handler called preventDefault
@@ -1585,7 +1587,7 @@ var submitForm = function (form)
 
 var calculateRelevanceScore = function (login, form,
     usernameIndex, passwordFields, currentPage, otherFields) {
-    
+
     let score = 0;
     let lowFieldMatchRatio = false;
 
@@ -1598,15 +1600,15 @@ var calculateRelevanceScore = function (login, form,
     // KeeFox 1.5+ no longer considers action URLs in relevance weighting. Since the only
     // login entries of interest are already pre-matched by KeePass, this should have been
     // adding negligable accuracy to the form matching.
-    
+
     // New values will be a little different (e.g. 50 vs 42 for an exact URL
     // match) but that shouldn't be a problem.
     score += login.matchAccuracy;
-    
+
     // This is similar to _fillManyFormFields so might be able to reuse the results in future
     // (but need to watch for changes that invalidate the earlier calculations).
     let totalRelevanceScore = 0;
-    
+
     let formMatchedFieldCount = 0;
     let radioCount = 0;
     let minFieldRelevance = 1;
@@ -1614,7 +1616,7 @@ var calculateRelevanceScore = function (login, form,
     // Require at least a type match for 2-field forms (e.g. user/pass); 1 missing
     // match for 3 or 4 field forms; etc.
     let minMatchedFieldCountRatio = 0.501;
-    
+
     let entryFieldIsMatched = [];
 
     for (var i = 0; i < otherFields.length; i++)
@@ -1648,7 +1650,7 @@ var calculateRelevanceScore = function (login, form,
 
         totalRelevanceScore += mostRelevantScore;
     }
-    
+
     entryFieldIsMatched = [];
     for (var i = 0; i < passwordFields.length; i++)
     {
@@ -1673,15 +1675,15 @@ var calculateRelevanceScore = function (login, form,
                 formMatchedFieldCount++;
             entryFieldIsMatched[mostRelevantIndex] = true;
         }
-            
+
         totalRelevanceScore += mostRelevantScore;
     }
-    
+
     let formFieldCount = passwordFields.length + otherFields.length;
     let loginFieldCount = login.passwords.length + login.otherFields.length;
     let fieldMatchRatio = formMatchedFieldCount / (Math.max(1,formFieldCount - radioCount));
 
-    Logger.debug("formFieldCount: " + formFieldCount + ", loginFieldCount: " + loginFieldCount 
+    Logger.debug("formFieldCount: " + formFieldCount + ", loginFieldCount: " + loginFieldCount
         + ", formMatchedFieldCount: " + formMatchedFieldCount + ", fieldMatchRatio: " + fieldMatchRatio);
 
     if (fieldMatchRatio < minMatchedFieldCountRatio)
@@ -1704,12 +1706,12 @@ var calculateRelevanceScore = function (login, form,
 var getFrameArrayKey = function (doc)
 {
     let parentWin = doc.defaultView.parent;
-    
+
     // Stop at the top level
     if (parentWin === doc.defaultView)
         return "top";
 
-    // Find the index of this doc in the parent window and recurse further towards 
+    // Find the index of this doc in the parent window and recurse further towards
     // top of the hierachy
     for (let i=0; i<parentWin.frames.length; i++)
     {
