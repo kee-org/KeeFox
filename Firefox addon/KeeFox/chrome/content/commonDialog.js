@@ -398,13 +398,26 @@ var keeFoxDialogManager = {
                         currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm2");
                     } catch (exception2)
                     {
-                        currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                        // And again in Firefox >= 51 and Thunderbird
+                        try
+                        {
+                            currentRealmL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForRealm3");
+                        } catch (exception3)
+                        {
+                            currentRealmL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForRealm");
+                        }
                     }
                 }
 
                 var realmFirst = false;
                 if (currentRealmL10nPattern.indexOf("%2$S") > currentRealmL10nPattern.indexOf("%1$S"))
                     realmFirst = true;
+
+                // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=1277895,
+                // Firefox is replacing newline characters with a space on the
+                // strings that are actually displayed in the dialog box, so we
+                // need to do the same.
+                currentRealmL10nPattern = currentRealmL10nPattern.replace(/\n{1,}/g,' ');
 
                 currentRealmL10nPattern = currentRealmL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
                 let regEx = new RegExp(currentRealmL10nPattern);
@@ -431,7 +444,14 @@ var keeFoxDialogManager = {
                 var currentProxyL10nPattern = "";            
                 try 
                 {
-                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                    try 
+                    {
+                        // Name changed in Firefox 49
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy2");
+                    } catch (exception)
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                    }
                 } catch (exception)
                 {
                     currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
@@ -440,6 +460,12 @@ var keeFoxDialogManager = {
                 realmFirst = false;
                 if (currentProxyL10nPattern.indexOf("%2$S") > currentProxyL10nPattern.indexOf("%1$S"))
                     realmFirst = true;
+
+                // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=1277895,
+                // Firefox is replacing newline characters with a space on the
+                // strings that are actually displayed in the dialog box, so we
+                // need to do the same.
+                currentProxyL10nPattern = currentProxyL10nPattern.replace(/\n{1,}/g,' ');
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%2$S","(.+)").replace("%1$S","(.+)");
                 let regEx = new RegExp(currentProxyL10nPattern);
@@ -466,11 +492,23 @@ var keeFoxDialogManager = {
                 var currentProxyL10nPattern = "";            
                 try 
                 {
-                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                    try 
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor2");
+                    } catch (exception)
+                    {
+                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterUserPasswordFor");
+                    }
                 } catch (exception)
                 {
                     currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterUserPasswordFor");
                 }
+
+                // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=1277895,
+                // Firefox is replacing newline characters with a space on the
+                // strings that are actually displayed in the dialog box, so we
+                // need to do the same.
+                currentProxyL10nPattern = currentProxyL10nPattern.replace(/\n{1,}/g,' ');
 
                 currentProxyL10nPattern = currentProxyL10nPattern.replace("%1$S","(.+)");
                 let regEx = new RegExp(currentProxyL10nPattern);

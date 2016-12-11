@@ -23,13 +23,13 @@ using DomainPublicSuffix;
 
 namespace KeePassRPC
 {
-    class URLSummary
+    public class URLSummary
     {
         public string HostnameAndPort;
         public string Port;
         public DomainName Domain;
 
-        public URLSummary(string hostnameAndPort, string port, DomainName domain)
+        private URLSummary(string hostnameAndPort, string port, DomainName domain)
         {
             HostnameAndPort = hostnameAndPort;
             Port = port;
@@ -38,10 +38,15 @@ namespace KeePassRPC
 
         public static URLSummary FromURL(string URL)
         {
+            if (URL.StartsWith("data:"))
+            {
+                return new URLSummary("", "", null);
+            }
+
             bool isFile = false;
             int protocolIndex = URL.IndexOf("://");
             string hostAndPort = "";
-            if (URL.IndexOf("file://") > -1)
+            if (URL.StartsWith("file://"))
             {
                 isFile = true;
                 // the "host and port" of a file is the actual file name
