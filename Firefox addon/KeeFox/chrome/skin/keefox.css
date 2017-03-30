@@ -55,7 +55,7 @@ toolbar[iconsize="small"] toolbarbutton.login-found
 	list-style-image: url("chrome://keefox/skin/KeeOrange.png") !important;
 }
 
-.toolbarbutton-menubutton-button
+#KeeFox-Toolbar .toolbarbutton-menubutton-button
 {
 	-moz-box-orient: horizontal !important;
 	padding: 0px 3px !important;
