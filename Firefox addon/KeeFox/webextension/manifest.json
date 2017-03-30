@@ -1,0 +1,14 @@
+﻿{
+  "manifest_version": 2,
+  "name": "KeeFox",
+  "version": "1.99.99",
+  "description": "KeeFox WebExtensions migration addon",
+
+  "background": {
+    "scripts": [ "background.js" ]
+  },
+
+  "permissions": [
+      "storage"
+    ]
+}

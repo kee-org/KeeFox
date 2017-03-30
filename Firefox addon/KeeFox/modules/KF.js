@@ -42,6 +42,7 @@ Cu.import("resource://kfmod/commands.js");
 Cu.import("resource://kfmod/search.js");
 Cu.import("resource://kfmod/TutorialHelper.js");
 Cu.import("resource://kfmod/SampleChecker.js");
+Cu.import("resource://kfmod/DataMigration.js");
 
 // constructor
 function KeeFox()
@@ -988,6 +989,11 @@ KeeFox.prototype = {
         
         preferenceChangeResponder : function (prefBranch, prefName, window, promptService)
         {
+            if (prefName != "signon.rememberSignons") //TODO: More exclusions
+            {
+                DataMigration.exportAll();
+            }
+
             switch (prefName)
             {
                 case "signon.rememberSignons":

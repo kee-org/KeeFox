@@ -119,6 +119,7 @@
     <Content Include="KeeFox\modules\biginteger.js" />
     <Content Include="KeeFox\modules\commands.js" />
     <Content Include="KeeFox\modules\config.js" />
+    <Content Include="KeeFox\modules\DataMigration.js" />
     <Content Include="KeeFox\modules\FAMS-config.js" />
     <Content Include="KeeFox\modules\FAMS.js" />
     <Content Include="KeeFox\modules\jsonrpcClient.js" />
@@ -136,6 +137,7 @@
     <Content Include="KeeFox\modules\SampleChecker.js" />
     <Content Include="KeeFox\modules\TutorialHelper.js" />
     <Content Include="KeeFox\modules\utils.js" />
+    <Content Include="KeeFox\webextension\background.js" />
     <Content Include="XPIPackageExclusions.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -178,8 +180,8 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="KeeFox\modules\ClassTreeView.jsm" />
+    <None Include="KeeFox\webextension\manifest.json" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF NOT "$(ConfigurationName)"=="XPI" Goto :NotXPI
