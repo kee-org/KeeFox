@@ -51,11 +51,32 @@ catch (e) { }
 
 var log = KeeFoxLog;
 
+const featuresOffered = [
+
+    // Full feature set as of KeeFox 1.6
+    "KPRPC_FEATURE_VERSION_1_6",
+
+    // Trivial example showing how we've added a new client feature
+    "KPRPC_FEATURE_WARN_USER_WHEN_FEATURE_MISSING"
+
+    // in the rare event that we want to check for the absense of a feature
+    // we would add a feature flag along the lines of "KPRPC_FEATURE_REMOVED_INCOMPATIBLE_THING_X"
+
+];
+
+const featuresRequired = [
+
+    // Full feature set as of KeeFox 1.6
+    "KPRPC_FEATURE_VERSION_1_6"
+
+];
+
 function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1,6,4];
+    this.clientVersion = [1, 7, 0];
+    this.features = featuresOffered;
     this.authPromptAborted = false;
     
     // We manually create HMACs to protect the integrity of our AES encrypted messages
@@ -228,9 +249,10 @@ kprpcClient.prototype.constructor = kprpcClient;
                         window.keefox_org._launchInstaller(null,null,true);
                     } else if (data.error.code == "VERSION_CLIENT_TOO_LOW")
                     {
+                        // This means that the server requires us to support a feature that we don't have
                         log.error(window.keefox_org.locale.$STRF("KeeFox-conn-client-v-low", extra));
                         window.keefox_org.latestConnectionError = "VERSION_CLIENT_TOO_LOW";
-                        window.keefox_org._launchInstaller(null,null,true,utils.versionAsString(extra),utils.versionAsString(utils.versionAsInt(this.clientVersion)));
+                        window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-client-features-missing"));
                     } else if (data.error.code == "UNRECOGNISED_PROTOCOL")
                     {
                         log.error(window.keefox_org.locale.$STR("KeeFox-conn-unknown-protocol") + " "
@@ -331,6 +353,20 @@ kprpcClient.prototype.constructor = kprpcClient;
                                             + window.keefox_org.locale.$STRF("KeeFox-further-info-may-follow", ["See KeeFox log"]));
                             break;
             }
+            this.resetConnection();
+            return;
+        }
+
+  	    // Versions of KeePassRPC <= 1.6.x will reject connections (send an "error" property) from 
+  	    // KeeFox clients that are too new (like this one). For >= 1.7 it will only do so if it also 
+  	    // decides that this client does not support features essential for it to function.
+  	    // Therefore if we've reached this far, we can check the server's list of features that get
+  	    // sent back on the server's first handshake response and reject if the server is missing features we need.
+        if (data.features && !featuresRequired.every(function (feature) { return data.features.indexOf(feature) !== -1; }))
+        {
+            log.error(window.keefox_org.locale.$STRF("KeeFox-conn-client-v-high", []));
+            window.keefox_org.latestConnectionError = "VERSION_CLIENT_TOO_HIGH";
+            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-server-features-missing"));
             this.resetConnection();
             return;
         }
@@ -725,7 +761,8 @@ kprpcClient.prototype.constructor = kprpcClient;
   			    protocol: "setup",
 	            srp: setupSRP,
                 key: setupKey,
-	            version: utils.versionAsInt(this.clientVersion),
+                version: utils.versionAsInt(this.clientVersion),
+                features: featuresOffered,
 	        
                 // these parameters allows KPRPC to identify which type of client is making
                 // this request. We can't trust it but it can help the user to understand what's going on.
