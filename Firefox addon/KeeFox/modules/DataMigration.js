@@ -53,7 +53,28 @@ var DataMigration = {
         fullConfig.autoSubmitForms = KFExtension.prefs.getValue("autoSubmitForms",false);
         fullConfig.autoFillFormsWithMultipleMatches = KFExtension.prefs.getValue("autoFillFormsWithMultipleMatches",true);
         fullConfig.logLevel = KFExtension.prefs.getValue("logLevel", 2);
-        //TODO: All the other config
+        fullConfig.KeePassRPCWebSocketPort = KFExtension.prefs.getValue("KeePassRPC.port",12546);
+        fullConfig.autoSubmitDialogs = KFExtension.prefs.getValue("autoSubmitDialogs", false);
+        fullConfig.autoSubmitMatchedForms = KFExtension.prefs.getValue("autoSubmitMatchedForms", false);
+        fullConfig.connSLClient = KFExtension.prefs.getValue("connSLClient", 2);
+        fullConfig.connSLServerMin = KFExtension.prefs.getValue("connSLServerMin", 2);
+        fullConfig.keePassMRUDB = KFExtension.prefs.getValue("keePassMRUDB", "");
+        fullConfig.lastConnectedToKeePass = KFExtension.prefs.getValue("lastConnectedToKeePass", "");
+        fullConfig.listAllOpenDBs = KFExtension.prefs.getValue("listAllOpenDBs", true);
+        fullConfig.logMethodConsole = KFExtension.prefs.getValue("logMethodConsole", false);
+        fullConfig.logMethodFile = KFExtension.prefs.getValue("logMethodFile", false);
+        fullConfig.logSensitiveData = KFExtension.prefs.getValue("logSensitiveData", false);
+        fullConfig.metricsUsageDisabled = KFExtension.prefs.getValue("metricsUsageDisabled", false);
+        fullConfig.metricsUserId = KFExtension.prefs.getValue("metricsUserId", "");
+        fullConfig.notifyWhenEntryUpdated = KFExtension.prefs.getValue("notifyWhenEntryUpdated", true);
+        fullConfig.notifyWhenLateDiscovery = KFExtension.prefs.getValue("notifyWhenLateDiscovery", true);
+        fullConfig.notifyWhenLoggedOut = KFExtension.prefs.getValue("notifyWhenLoggedOut", false);
+        fullConfig.rememberMRUDB = KFExtension.prefs.getValue("rememberMRUDB", true);
+        fullConfig.rememberMRUGroup = KFExtension.prefs.getValue("rememberMRUGroup", true);
+        fullConfig.saveFavicons = KFExtension.prefs.getValue("saveFavicons", true);
+        fullConfig.searchAllOpenDBs = KFExtension.prefs.getValue("searchAllOpenDBs", true);
+        fullConfig.tutorialProgress = KFExtension.prefs.getValue("tutorialProgress", "");
+        fullConfig.config = keefox_org.config.current;
 
         webExtensionPort.postMessage(fullConfig);
     }

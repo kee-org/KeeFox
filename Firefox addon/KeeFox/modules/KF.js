@@ -989,7 +989,26 @@ KeeFox.prototype = {
         
         preferenceChangeResponder : function (prefBranch, prefName, window, promptService)
         {
-            if (prefName != "signon.rememberSignons") //TODO: More exclusions
+            if (prefName != "signon.rememberSignons"
+                && prefName != "KPRPCUsername" 
+                && prefName != "commands" 
+                && prefName != "commandsVersion" 
+                && prefName != "configVersion"
+                && prefName != "flashIconWhenKeePassRPCInactive" 
+                && prefName != "flashIconWhenLoggedOut"
+                && prefName != "install-event-fired" 
+                && prefName != "keePassInstalledLocation" 
+                && prefName != "keePassRPCInstalledLocation" 
+                && prefName != "keePassRememberInstalledLocation"
+                && prefName != "logMethodStdOut"
+                && prefName != "maxAllLoginsInMainPanel"
+                && prefName != "maxMatchedLoginsInMainPanel"
+                && prefName != "notifyBarWhenKeePassRPCInactive" 
+                && prefName != "notifyBarWhenLoggedOut" 
+                && prefName != "tabResultsCacheEnabled" 
+                && prefName != "uniqueProfileId"
+                && !prefName.startsWith("KPRPCStoredKey-")
+                && !prefName.startsWith("MRUGroup-"))
             {
                 DataMigration.exportAll();
             }
