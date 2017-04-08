@@ -168,6 +168,8 @@ var _fillASingleField = function (domElement, fieldType, value)
     {    
         domElement.value = value; 
     }
+
+    domElement.dispatchEvent(new content.UIEvent('change', {view: content, bubbles: true, cancelable: true}));
 }
 
 var _fillManyFormFields = function 
