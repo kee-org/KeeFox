@@ -45,6 +45,7 @@
       <preference id="KeeFox-pref-autoFillDialogs" name="extensions.keefox@chris.tomlinson.autoFillDialogs" type="bool"/>
       <preference id="KeeFox-pref-autoSubmitDialogs" name="extensions.keefox@chris.tomlinson.autoSubmitDialogs" type="bool"/>
       <preference id="KeeFox-pref-autoFillFormsWithMultipleMatches" name="extensions.keefox@chris.tomlinson.autoFillFormsWithMultipleMatches" type="bool"/>
+      <preference id="KeeFox-pref-triggerChangeInputEventAfterFill" name="extensions.keefox@chris.tomlinson.triggerChangeInputEventAfterFill" type="bool"/>
       <preference id="KeeFox-pref-searchAllOpenDBs" name="extensions.keefox@chris.tomlinson.searchAllOpenDBs" type="bool"/>
       <preference id="KeeFox-pref-listAllOpenDBs" name="extensions.keefox@chris.tomlinson.listAllOpenDBs" type="bool"/>
       <preference id="KeeFox-pref-alwaysDisplayUsernameWhenTitleIsShown" name="extensions.keefox@chris.tomlinson.alwaysDisplayUsernameWhenTitleIsShown" type="bool"/>
@@ -159,6 +160,8 @@
             <description id="desc-fill-note" class="itemEnd note">%-KeeFox-pref-FillNote.desc-%</description>
 
             <checkbox id="check-autoFillFormsWithMultipleMatches" preference="KeeFox-pref-autoFillFormsWithMultipleMatches" label="%-KeeFox-pref-autoFillFormsWithMultipleMatches.label-%" />
+
+            <checkbox id="check-triggerChangeInputEventAfterFill" preference="KeeFox-pref-triggerChangeInputEventAfterFill" label="%-KeeFox-pref-triggerChangeInputEventAfterFill.label-%" />
 
           </vbox>
         </tabpanel>
