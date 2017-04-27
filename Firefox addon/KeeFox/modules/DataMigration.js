@@ -74,6 +74,7 @@ var DataMigration = {
         fullConfig.saveFavicons = KFExtension.prefs.getValue("saveFavicons", true);
         fullConfig.searchAllOpenDBs = KFExtension.prefs.getValue("searchAllOpenDBs", true);
         fullConfig.tutorialProgress = KFExtension.prefs.getValue("tutorialProgress", "");
+        fullConfig.triggerChangeInputEventAfterFill = KFExtension.prefs.getValue("triggerChangeInputEventAfterFill", false);
         fullConfig.config = keefox_org.config.current;
 
         webExtensionPort.postMessage(fullConfig);

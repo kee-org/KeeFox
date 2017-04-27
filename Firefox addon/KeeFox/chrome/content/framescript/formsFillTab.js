@@ -168,6 +168,12 @@ var _fillASingleField = function (domElement, fieldType, value)
     {    
         domElement.value = value; 
     }
+
+    if (KFExtension.prefs.getValue("triggerChangeInputEventAfterFill", false)) {
+        Logger.debug("Trigger Change/Input events.");
+        domElement.dispatchEvent(new content.UIEvent('change', {view: content, bubbles: true, cancelable: true}));
+        domElement.dispatchEvent(new content.UIEvent('input', {view: content, bubbles: true, cancelable: true}));
+    }
 }
 
 var _fillManyFormFields = function 
