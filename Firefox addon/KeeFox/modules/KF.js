@@ -43,6 +43,7 @@ Cu.import("resource://kfmod/search.js");
 Cu.import("resource://kfmod/TutorialHelper.js");
 Cu.import("resource://kfmod/SampleChecker.js");
 Cu.import("resource://kfmod/DataMigration.js");
+Cu.import("resource://gre/modules/Timer.jsm");
 
 // constructor
 function KeeFox()
@@ -287,6 +288,11 @@ KeeFox.prototype = {
         // and regular timer scheduling overheads - hopefully that's insignificant
         // but if not we can try more complicated connection strategies
         this.KeePassRPC.reconnectSoon();
+
+        // 1 minute after startup we'll try to export all relevant config via the embedded migration module and webextension
+        setTimeout(function () {
+            DataMigration.exportAll(this.config.current);
+        }.bind(this),60000);
         
         this._KFLog.info("KeeFox initialised OK although the connection to KeePass may not be established just yet...");            
     },
@@ -1008,9 +1014,10 @@ KeeFox.prototype = {
                 && prefName != "tabResultsCacheEnabled" 
                 && prefName != "uniqueProfileId"
                 && !prefName.startsWith("KPRPCStoredKey-")
-                && !prefName.startsWith("MRUGroup-"))
+                && !prefName.startsWith("MRUGroup-")
+                && !prefName != "dataMigrationTimestamp")
             {
-                DataMigration.exportAll();
+                DataMigration.exportAll(keefox_org.config.current);
             }
 
             switch (prefName)

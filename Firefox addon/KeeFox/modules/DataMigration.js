@@ -28,7 +28,6 @@ try
             browser.runtime.onConnect.addListener(port => {
                 KeeFoxLog.debug("Embedded WebExtension connected");
                 webExtensionPort = port;
-                DataMigration.exportAll();
             });
 
         }).catch(error => {
@@ -41,7 +40,7 @@ try
 }
 
 var DataMigration = {
-    exportAll: function() {
+    exportAll: function(siteConfig) {
         if (!webExtensionPort)
             return;
 
@@ -53,7 +52,7 @@ var DataMigration = {
         fullConfig.autoSubmitForms = KFExtension.prefs.getValue("autoSubmitForms",false);
         fullConfig.autoFillFormsWithMultipleMatches = KFExtension.prefs.getValue("autoFillFormsWithMultipleMatches",true);
         fullConfig.logLevel = KFExtension.prefs.getValue("logLevel", 2);
-        fullConfig.KeePassRPCWebSocketPort = KFExtension.prefs.getValue("KeePassRPC.port",12546);
+        fullConfig.KeePassRPCWebSocketPort = KFExtension.prefs.getValue("KeePassRPC.webSocketPort",12546);
         fullConfig.autoSubmitDialogs = KFExtension.prefs.getValue("autoSubmitDialogs", false);
         fullConfig.autoSubmitMatchedForms = KFExtension.prefs.getValue("autoSubmitMatchedForms", false);
         fullConfig.connSLClient = KFExtension.prefs.getValue("connSLClient", 2);
@@ -75,8 +74,10 @@ var DataMigration = {
         fullConfig.searchAllOpenDBs = KFExtension.prefs.getValue("searchAllOpenDBs", true);
         fullConfig.tutorialProgress = KFExtension.prefs.getValue("tutorialProgress", "");
         fullConfig.triggerChangeInputEventAfterFill = KFExtension.prefs.getValue("triggerChangeInputEventAfterFill", false);
-        fullConfig.config = keefox_org.config.current;
+        fullConfig.config = siteConfig;
 
         webExtensionPort.postMessage(fullConfig);
+
+        KFExtension.prefs.setValue("dataMigrationTimestamp", new Date().toISOString());
     }
 };
