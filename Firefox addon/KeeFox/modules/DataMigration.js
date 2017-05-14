@@ -58,6 +58,7 @@ var DataMigration = {
         fullConfig.connSLClient = KFExtension.prefs.getValue("connSLClient", 2);
         fullConfig.connSLServerMin = KFExtension.prefs.getValue("connSLServerMin", 2);
         fullConfig.keePassMRUDB = KFExtension.prefs.getValue("keePassMRUDB", "");
+        fullConfig.keePassDBToOpen = KFExtension.prefs.getValue("keePassDBToOpen", "");
         fullConfig.lastConnectedToKeePass = KFExtension.prefs.getValue("lastConnectedToKeePass", "");
         fullConfig.listAllOpenDBs = KFExtension.prefs.getValue("listAllOpenDBs", true);
         fullConfig.logMethodConsole = KFExtension.prefs.getValue("logMethodConsole", false);
