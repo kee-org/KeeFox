@@ -444,17 +444,24 @@ var keeFoxDialogManager = {
                 var currentProxyL10nPattern = "";            
                 try 
                 {
+                    // Name changed again in Firefox 50 or so
+                    currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy3");
+                } catch (exception)
+                {
                     try 
                     {
                         // Name changed in Firefox 49
                         currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy2");
                     } catch (exception)
                     {
-                        currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                        try
+                        {
+                            currentProxyL10nPattern = this._cdBundle.GetStringFromName("EnterLoginForProxy");
+                        } catch (exception)
+                        {
+                            currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
+                        }
                     }
-                } catch (exception)
-                {
-                    currentProxyL10nPattern = this._promptBundle.GetStringFromName("EnterLoginForProxy");
                 }
 
                 realmFirst = false;
