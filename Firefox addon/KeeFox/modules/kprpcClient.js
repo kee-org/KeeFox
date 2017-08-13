@@ -67,7 +67,10 @@ const featuresOffered = [
 const featuresRequired = [
 
     // Full feature set as of KeeFox 1.6
-    "KPRPC_FEATURE_VERSION_1_6"
+    "KPRPC_FEATURE_VERSION_1_6",
+
+    // Allow clients without the name KeeFox to connect
+    "KPRPC_GENERAL_CLIENTS"
 
 ];
 
@@ -75,7 +78,7 @@ function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1, 7, 0];
+    this.clientVersion = [1, 7, 1];
     this.features = featuresOffered;
     this.authPromptAborted = false;
     
@@ -366,7 +369,34 @@ kprpcClient.prototype.constructor = kprpcClient;
         {
             log.error(window.keefox_org.locale.$STRF("KeeFox-conn-client-v-high", []));
             window.keefox_org.latestConnectionError = "VERSION_CLIENT_TOO_HIGH";
-            window.keefox_win.UI.showConnectionMessage(window.keefox_org.locale.$STR("KeeFox-conn-setup-server-features-missing"));
+
+            var notifyBox = window.keefox_win.UI._getNotificationManager();
+            if (notifyBox) {
+                var buttons = [
+                // "Upgrade KeeFox" button
+                {
+                    label: window.keefox_org.locale.$STR("KeeFox_Install_Upgrade_KeeFox.label"),
+                    accessKey: window.keefox_org.locale.$STR("K"),
+                    popup: null,
+                    callback: function (aNotificationBar, aButton) {
+                        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                 .getService(Components.interfaces.nsIWindowMediator);
+                        var newWindow = wm.getMostRecentWindow("navigator:browser") ||
+                            wm.getMostRecentWindow("mail:3pane");
+                        var b = newWindow.getBrowser();
+                        var newTab = b.loadOneTab("https://keefox.org/upgrade", null, null, null, false, null);
+                    }
+                }];
+                log.debug("Adding keefox-connection-message notification");
+                window.keefox_win.UI._showKeeFoxNotification(notifyBox, "keefox-connection-message",
+                     window.keefox_org.locale.$STRF("KeeFox-conn-setup-server-features-missing", ["https://keefox.org/upgrade"]), buttons, false);
+            }
+
+            // Make sure that the regular reconnection timer and any other
+            // connection attempts are blocked until 2 minutes have passed
+            this.connectionProhibitedUntil = new Date();
+            this.connectionProhibitedUntil.setTime(this.connectionProhibitedUntil.getTime() + 120000);
+
             this.resetConnection();
             return;
         }
