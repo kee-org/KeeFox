@@ -78,7 +78,7 @@ function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1, 7, 1];
+    this.clientVersion = [1, 7, 2];
     this.features = featuresOffered;
     this.authPromptAborted = false;
     
