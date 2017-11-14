@@ -1,3 +1,4 @@
+ISSUES FOR KEE 2.0 SHOULD BE DIRECTED TO https://github.com/kee-org/browser-addon/issues.
 
 Please see http://keefox.org/news/detail/2017/09/19/introducing-kee-20
 
