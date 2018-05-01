@@ -39,6 +39,19 @@ var keeFoxGDataProviderHelper = {
     scriptLoader : Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
         .getService(Components.interfaces.mozIJSSubScriptLoader),
 
+    __messengerBundle : null, // string bundle for thunderbird l10n
+    get _messengerBundle() {    
+        if (!this.__messengerBundle) {
+            var bunService = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService);
+            this.__messengerBundle = bunService.createBundle(
+                "chrome://messenger/locale/messenger.properties");
+            if (!this.__messengerBundle)
+                throw "Messenger string bundle not present!";
+        }        
+        return this.__messengerBundle;
+    },
+    
     __gdataBundle : null, // String bundle for L10N
     get _gdataBundle() {
         if (!this.__gdataBundle) {
@@ -105,18 +118,54 @@ var keeFoxGDataProviderHelper = {
         var mustAutoSubmit = false;
         var host = "", realm = "", username = "";
 
-        try {
-            var requestWindowDescription = this._gdataBundle.GetStringFromName("requestWindowDescription").split("%1$S");
-            keefox_org._KFLog.debug(requestWindowDescription);
-            var split = requestWindowDescription;
-            var description = document.getElementById("dialogMessage").innerHTML;
-            keefox_org._KFLog.debug(description);
-            username = description.replace(split[0], "").replace(split[1], "");
-            keefox_org._KFLog.debug(username);
-            host = username.split("@")[1];
-            keefox_org._KFLog.debug(host);
-        } catch (exception) {
-            keefox_org._KFLog.debug("Error while getting Email input element: " + exception);
+        // see if this is the built-in oauth dialog
+        if (this._messengerBundle) {
+            try {
+                let oauth2WindowTitle = this._messengerBundle.GetStringFromName("oauth2WindowTitle");
+                keefox_org._KFLog.debug("oauth2WindowTitle: " + oauth2WindowTitle);
+                const hostIsFirst = oauth2WindowTitle.indexOf("%2$S") < oauth2WindowTitle.indexOf("%1$S");
+
+                // escape regex chars, if any
+                const regexChars = /[\[\{\(\)\*\+\?\.\\\^\$\|]/g;
+                oauth2WindowTitle = oauth2WindowTitle.replace(regexChars, "\\$&");
+
+                // replace placeholders with regex capture
+                oauth2WindowTitle = oauth2WindowTitle.replace(/%[12]\\\$S/g, "(.*)");
+
+                // scrape the host and username from the title
+                let title = document.getElementById("browserRequest").getAttribute("title");
+                keefox_org._KFLog.debug("title: " + title);
+                [, username, host] = title.match(oauth2WindowTitle);
+                if (hostIsFirst) {
+                    [host, username] = [username, host];
+                }
+                keefox_org._KFLog.debug("username: " + username);
+                keefox_org._KFLog.debug("host: " + host);
+            } catch (exception) {
+                keefox_org._KFLog.debug("Error while parsing oauth2WindowTitle: " + exception);
+            }
+        }
+
+        // if not, it might be the gdata-provider addon dialog
+        if (!host && this._gdataBundle) {
+            try {
+                var requestWindowDescription = this._gdataBundle.GetStringFromName("requestWindowDescription").split("%1$S");
+                keefox_org._KFLog.debug(requestWindowDescription);
+                var split = requestWindowDescription;
+                var description = document.getElementById("dialogMessage").innerHTML;
+                keefox_org._KFLog.debug(description);
+                username = description.replace(split[0], "").replace(split[1], "");
+                keefox_org._KFLog.debug(username);
+                host = username.split("@")[1];
+                keefox_org._KFLog.debug(host);
+            } catch (exception) {
+                keefox_org._KFLog.debug("Error while getting Email input element: " + exception);
+            }
+        }
+
+        if (!host) {
+            // we don't know what this is
+            return;
         }
 
         // try to pick out the host from the full protocol, host and port
@@ -140,7 +189,7 @@ var keeFoxGDataProviderHelper = {
         loadingPasswordsVBox.setAttribute("pack", "center");
         box.appendChild(loadingPasswordsVBox);
 
-        // button to lauch KeePass
+        // button to launch KeePass
         var launchKeePassButton = document.createElement("button");
         launchKeePassButton.setAttribute("id", "keefox-launch-kp-button");
         launchKeePassButton.setAttribute("label", keefox_org.locale.$STR("launchKeePass.label"));
