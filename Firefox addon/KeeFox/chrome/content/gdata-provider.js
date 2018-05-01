@@ -72,9 +72,7 @@ var keeFoxGDataProviderHelper = {
         // so we use a timer to keep trying until the page is loaded.
 
         try {
-            var contentDocument = document.getElementById("requestFrame").contentDocument;
-            var emailInput = contentDocument.getElementById("Email");
-            var email = emailInput.value
+            document.getElementById("requestFrame").contentDocument;
             keeFoxGDataProviderHelper.dialogInit2();
         } catch (exception) {
             window.setTimeout(keeFoxGDataProviderHelper.dialogInit, 100);
@@ -90,21 +88,6 @@ var keeFoxGDataProviderHelper = {
             } catch (e) {
                 // don't want missing keefox.org object to break standard dialogs
             }
-        }
-    },
-
-    autoFill2 : function(resultWrapper, dialogFindLoginStorage) {
-        // None of the DOM listener functions seem to work on this embedded browser window,
-        // so we use a timer to keep trying until the second page is loaded.
-
-        try {
-            var contentDocument = document.getElementById("requestFrame").contentDocument;
-            var passwdInput = contentDocument.getElementById("Passwd");
-            var passwd = passwdInput.value
-            keeFoxGDataProviderHelper.autoFill(resultWrapper, dialogFindLoginStorage);
-        } catch (exception) {
-            window.setTimeout(keeFoxGDataProviderHelper.autoFill2, 100,
-                resultWrapper, dialogFindLoginStorage);
         }
     },
 
@@ -278,34 +261,6 @@ var keeFoxGDataProviderHelper = {
 
         foundLogins = convertedResult;
 
-        // auto fill the dialog by default unless a preference or tab variable tells us otherwise
-        var autoFill = keefox_org._keeFoxExtension.prefs.getValue("autoFillDialogs",true);
-
-        // do not auto submit the dialog by default unless a preference or tab variable tells us otherwise
-        var autoSubmit = keefox_org._keeFoxExtension.prefs.getValue("autoSubmitDialogs",false);
-
-        // overwrite existing username by default unless a preference or tab variable tells us otherwise
-        var overWriteFieldsAutomatically = keefox_org._keeFoxExtension.prefs.getValue("overWriteFieldsAutomatically",true);
-
-        // this protects against infinite loops when the auto-submitted details are rejected
-        if (keefox_org._keeFoxExtension.prefs.has("lastProtocolAuthAttempt"))
-        {
-            if (Math.round(new Date().getTime() / 1000) - keefox_org._keeFoxExtension.prefs.get("lastProtocolAuthAttempt") <= 3)
-            {
-                autoFill = false;
-                autoSubmit = false;
-            }
-        }
-
-        var contentDocument = dialogFindLoginStorage.document.getElementById("requestFrame").contentDocument;
-        var passwdInput = contentDocument.getElementById("Passwd")
-            || contentDocument.getElementById("Passwd-hidden");
-        if (passwdInput.getAttribute("value") != '' && !overWriteFieldsAutomatically)
-        {
-            autoFill = false;
-            autoSubmit = false;
-        }
-
         if (keefox_org._KFLog.logSensitiveData)
             keefox_org._KFLog.info("dialog: found " + foundLogins.length + " matching logins for '"+ dialogFindLoginStorage.realm + "' realm.");
         else
@@ -380,47 +335,30 @@ var keeFoxGDataProviderHelper = {
             }
 
             list.appendChild(popup);
+
+            // new hbox to hold list and buttons
+            var hbox = dialogFindLoginStorage.document.createElement("hbox");
+            hbox.appendChild(list);
+
+            var userButton = dialogFindLoginStorage.document.createElement("button");
+            userButton.setAttribute("label", "Type username");
+            userButton.addEventListener("click", function() {
+                keeFoxGDataProviderHelper.autotype(list, 'username');
+            });
+            hbox.appendChild(userButton);
+
+            var passButton = dialogFindLoginStorage.document.createElement("button");
+            passButton.setAttribute("label", "Type password");
+            passButton.addEventListener("click", function() {
+                keeFoxGDataProviderHelper.autotype(list, 'password');
+            });
+            hbox.appendChild(passButton);
+
             // Remove all of the existing children
             for (i = box.childNodes.length; i > 0; i--) {
                 box.removeChild(box.childNodes[0]);
             }
-            box.appendChild(list);
-        }
-
-        if (matchedLogins[bestMatch] === undefined)
-            return;
-
-        if (matchedLogins[bestMatch].alwaysAutoFill)
-            autoFill = true;
-        if (matchedLogins[bestMatch].neverAutoFill)
-            autoFill = false;
-        if (matchedLogins[bestMatch].alwaysAutoSubmit)
-            autoSubmit = true;
-        if (matchedLogins[bestMatch].neverAutoSubmit)
-            autoSubmit = false;
-
-        if (autoFill)
-        {
-            // fill in the best matching login
-            keefox_org.metricsManager.pushEvent ("feature", "AutoFillDialog");
-            var emailInput = contentDocument.getElementById("Email")
-                || contentDocument.getElementById("Email-hidden");
-            emailInput.value = matchedLogins[bestMatch].username;
-            passwdInput.value = matchedLogins[bestMatch].password;
-        }
-        if (autoSubmit || dialogFindLoginStorage.mustAutoSubmit)
-        {
-            keefox_org.metricsManager.pushEvent ("feature", "AutoSubmitDialog");
-            var nextButton = contentDocument.getElementById("next");
-            if (nextButton) {
-                nextButton.click();
-                window.setTimeout(keeFoxGDataProviderHelper.autoFill2, 100,
-                    resultWrapper, dialogFindLoginStorage);
-            }
-            var signInButton = contentDocument.getElementById("signIn");
-            if (signInButton) {
-                signInButton.click();
-            }
+            box.appendChild(hbox);
         }
     },
 
@@ -445,24 +383,23 @@ var keeFoxGDataProviderHelper = {
 
     fill : function (username, password)
     {
-        keefox_org.metricsManager.pushEvent ("feature", "MatchedSubmitDialog");
-        var contentDocument = document.getElementById("requestFrame").contentDocument;
-        var emailInput = contentDocument.getElementById("Email");
-        if (emailInput) {
-            emailInput.value = username;
+        // not sure if this function is still needed
+    },
+
+    autotype : function (list, type)
+    {
+        const contentDocument = document.getElementById("requestFrame").contentDocument;
+        const inputs = contentDocument.getElementsByTagName("input");
+        var activeInput = undefined;
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].offsetParent) {
+                activeInput = inputs[i];
+            }
         }
-        var passwdInput = contentDocument.getElementById("Passwd");
-        if (passwdInput) {
-            passwdInput.value = password;
-        }
-        var nextButton = contentDocument.getElementById("next");
-        if (nextButton) {
-            nextButton.click();
-        }
-        var signInButton = contentDocument.getElementById("signIn");
-        if (signInButton) {
-            signInButton.click();
-        }
+
+        var item = list.selectedItem;
+        activeInput.focus();
+        activeInput.value = item[type];
     },
 };
 
