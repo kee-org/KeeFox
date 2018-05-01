@@ -296,7 +296,6 @@ function addSite()
     var mainWindow = wm.getMostRecentWindow("navigator:browser") ||
     wm.getMostRecentWindow("mail:3pane");
         
-    mainWindow.keefox_org.metricsManager.pushEvent("feature", "SiteSpecificAdd");
     configMan.setConfigForURL(newURL,{});
     configMan.save();
     go(newURL);

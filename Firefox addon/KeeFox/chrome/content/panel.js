@@ -965,7 +965,6 @@ keefox_win.panel = {
                             function (event) {
                                 keefox_org.utils.copyStringToClipboard(usernameField.value);
                                 keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                                keefox_org.metricsManager.adjustAggregate("copyUsername", 1);
                             });
                     }
                     
@@ -977,7 +976,6 @@ keefox_win.panel = {
                             function (event) {
                                 keefox_org.utils.copyStringToClipboard(passwordField.value);
                                 keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                                keefox_org.metricsManager.adjustAggregate("copyPassword", 1);
                             });
                     }
                     if (otherFieldCount > 1 || passwordFieldCount > 1) {
@@ -999,7 +997,6 @@ keefox_win.panel = {
                                         function (event) {
                                             keefox_org.utils.copyStringToClipboard(o.value);
                                             keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                                            keefox_org.metricsManager.adjustAggregate("copyOther", 1);
                                         });
                                 }
                             });
@@ -1015,7 +1012,6 @@ keefox_win.panel = {
                                     function (event) {
                                         keefox_org.utils.copyStringToClipboard(p.value);
                                         keefox_win.panel.CustomizableUI.hidePanelForNode(keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
-                                        keefox_org.metricsManager.adjustAggregate("copyOther", 1);
                                     });
                                 }
                             });
@@ -1345,10 +1341,6 @@ keefox_win.panel = {
                 {
                     keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                     keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document, event, 'KeeFox-login-context');
-                    if (keefox_win.SearchFilter.getFilterState(document, 'PanelSection') == "all")
-                        keefox_org.metricsManager.adjustAggregate("searchResultContextAll", 1);
-                    else
-                        keefox_org.metricsManager.adjustAggregate("searchResultContextCurrent", 1);
                 }
             }, false);
             loginItem.addEventListener("keefoxCommand", function (event) { 
@@ -1361,20 +1353,12 @@ keefox_win.panel = {
                 keefox_win.panel.CustomizableUI.hidePanelForNode(
                     keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
                 keefox_win.panel.hideSubSections();
-                if (keefox_win.SearchFilter.getFilterState(keefox_win.panel._currentWindow.document, 'PanelSection') == "all")
-                    keefox_org.metricsManager.adjustAggregate("searchResultSelectedAll", 1);
-                else
-                    keefox_org.metricsManager.adjustAggregate("searchResultSelectedCurrent", 1);
             }, false);
             loginItem.addEventListener("keefoxContext", function (event) {
                 keefox_win.panel.addLoginContextActions(document, this.getAttribute('data-uuid'), this.getAttribute('data-fileName'));
                 keefox_win.panel.displayContextMenu(keefox_win.panel._currentWindow.document,
                     { target: event.detail.target, layerX: event.detail.layerX, layerY: event.detail.layerY },
                     'KeeFox-login-context');
-                if (keefox_win.SearchFilter.getFilterState(keefox_win.panel._currentWindow.document, 'PanelSection') == "all")
-                    keefox_org.metricsManager.adjustAggregate("searchResultContextAll", 1);
-                else
-                    keefox_org.metricsManager.adjustAggregate("searchResultContextCurrent", 1);
             }, false);
             loginItem.addEventListener("mouseenter", keefox_win.panel.onMouseEnterLogin, false);
             
@@ -1417,13 +1401,6 @@ keefox_win.panel = {
                     layerY: this.offsetTop + event.layerY
                 },
                 'KeeFox-login-context');
-            keefox_org.metricsManager.adjustAggregate("loginContextButton", 1);
-            if (event.target.parentNode.parentNode.parentNode.id == "KeeFox-PanelSubSection-SearchResults") {
-                if (keefox_win.SearchFilter.getFilterState(keefox_win.panel._currentWindow.document, 'PanelSection') == "all")
-                    keefox_org.metricsManager.adjustAggregate("searchResultContextAll", 1);
-                else
-                    keefox_org.metricsManager.adjustAggregate("searchResultContextCurrent", 1);
-            }
         }, false);
         optionsMenuTrigger.setAttribute("id", "optionsMenuTrigger");
         event.target.appendChild(optionsMenuTrigger);
@@ -1734,7 +1711,6 @@ keefox_win.panel = {
                 }, false);
                 profileItem.addEventListener("keefoxCommand", function (event) {
                     let kf = keefox_org;
-                    kf.metricsManager.pushEvent ("feature", "generatePasswordFromProfile");
                     kf.generatePassword(this.textContent, keefox_win.panel._currentWindow.gLastValidURLStr);
                     keefox_win.panel.CustomizableUI.hidePanelForNode(
                         keefox_win.panel._currentWindow.document.getElementById('keefox-panelview'));
@@ -1756,7 +1732,6 @@ keefox_win.panel = {
 
     generatePassword: function () {
         let kf = this._currentWindow.keefox_org;
-        kf.metricsManager.pushEvent ("feature", "generatePassword");
         kf.generatePassword(null, this._currentWindow.gLastValidURLStr);
     },
 

@@ -437,7 +437,6 @@ keefox_win.PasswordSaver.prototype =
 
     abortAndLaunchManualEdit: function ()
     {
-        keefox_org.metricsManager.pushEvent("feature", "abortAndLaunchManualEdit");
         keefox_org.launchLoginEditor(this.saveData.oldLoginUUID, this.saveData.db);
         keefox_win.notificationManager.remove("password-save");
     },

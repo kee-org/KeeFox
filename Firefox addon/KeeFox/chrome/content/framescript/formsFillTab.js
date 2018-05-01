@@ -720,7 +720,6 @@ var scanForOrphanedFields = function (doc)
             querySelectorAll: function() { return []; }, // Only use is for listing button elements
             submit: function() { return; } // Not possible to submit a pseudo form unless a button with custom JS has already been found
         };
-        metricsManager.adjustAggregate("pseudoFormCreated", 1);
     }
 
     var tn = (new Date()).getTime();
@@ -1357,10 +1356,6 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
         && matchResult.formReadyForSubmit)
     {
         Logger.info("Auto-submitting form...");
-        if (automated)
-            metricsManager.pushEvent ("feature", "AutoSubmit");
-        else
-            metricsManager.pushEvent ("feature", "ManualSubmit"); // Called "MatchedFill" previously (yes, I'm an idiot)
         submitForm(form);
     } else if (isMatchedLoginRequest)
     {
@@ -1403,10 +1398,6 @@ var fillAndSubmit = function (automated, frameKey, formIndex, loginIndex)
                     "logins": matchingLoginsFromAllFrames, 
                     "notifyUserOnSuccess": matchResult.notifyUserOnSuccess
                 });
-                metricsManager.pushEvent ("feature", "AutoFill");
-            } else
-            {
-                metricsManager.pushEvent ("feature", "ManualFill"); // Called "MatchedSubmit" previously (yes, I'm an idiot)
             }
         } else 
         {

@@ -86,9 +86,7 @@ keefox_win.loadAndAutoSubmit = function (button, ctrlClick, URL, uniqueID, dbFil
         keefox_win.Logger.debug("loading and auto submitting button " + button + ctrlClick + ":" + URL);
     else
         keefox_win.Logger.debug("loading and auto submitting button " + button + ctrlClick + "..."); 
-
-    keefox_org.metricsManager.pushEvent ("feature", "loadAndAutoSubmit");
-               
+                   
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
              .getService(Components.interfaces.nsIWindowMediator);
     var newWindow = wm.getMostRecentWindow("navigator:browser") ||

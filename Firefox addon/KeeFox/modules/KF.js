@@ -32,7 +32,6 @@ var EXPORTED_SYMBOLS = ["keefox_org"];
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://kfmod/KFLogger.js");
-Cu.import("resource://kfmod/metrics.js");
 Cu.import("resource://kfmod/jsonrpcClient.js");
 Cu.import("resource://kfmod/locales.js");
 Cu.import("resource://kfmod/utils.js");
@@ -105,33 +104,6 @@ function KeeFox()
 
     this.locale = new Localisation(["chrome://keefox/locale/keefox.properties"]);
     
-    // Set up metrics recording but don't break the main addon if something unexpected happens
-    try
-    {
-        // Most of the metrics manager startup code is asynchronous so there is a
-        // race between the manager and the rest of the KeeFox startup code. I
-        // think this has been covered in the design of the manager (e.g. with 
-        // temporary storage of metrics while the main storage subsystems
-        // initialise) but even if I've got that 100% correct, it is a shame to
-        // double-handle the activity that occurs before the manager is ready
-        // so it may be worth refactoring a few other parts of KeeFox to allow
-        // us to start the metrics manager initialisation sooner.
-        this.metricsManager = metricsManager;
-        let metricsUserId = this._keeFoxExtension.prefs.getValue("metricsUserId", "");
-        if (!metricsUserId)
-        {
-            metricsUserId = this.utils.newGUID();
-            this._keeFoxExtension.prefs.setValue("metricsUserId", metricsUserId);
-        }
-        this.metricsManager.init(this.locale.getCurrentLocale(), metricsUserId, this.utils.newGUID());
-    } catch (e) {
-        this._KFLog.error("Could not load metrics manager. Creating null functions to minimise disruption.");
-        this.metricsManager = {};
-        this.metricsManager.pushEvent = function () {};
-        this.metricsManager.adjustAggregate = function () {};
-        this.metricsManager.setApplicationMetadata = function () {};
-    }
-
     this.search = new Search(this, {
         version: 1,
         searchAllDatabases: this._keeFoxExtension.prefs.getValue("searchAllOpenDBs", true)
@@ -507,8 +479,6 @@ KeeFox.prototype = {
         }
         this.KeePassDatabases = newDatabases;
         this.ActiveKeePassDatabaseIndex = newDatabaseActiveIndex;
-        if (newDatabases.length > 0)
-            this.metricsManager.adjustAggregate("avgOpenDatabases", newDatabases.length);
         this._refreshKPDBCallback();  
     },
     
@@ -1228,8 +1198,6 @@ KeeFox.prototype = {
     uninstallFeedback: function (disabling)
     {
         let [ connectState, setupState, setupActive, tutorialProgress ] = keefox_org.getAddonState();
-        keefox_org.metricsManager.pushEvent("uninstall", disabling ? "disable" : "uninstall", 
-            { "connectState": connectState, "setupState": setupState, "setupActive": setupActive, "tutorialProgress": tutorialProgress }, true);
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                        .getService(Components.interfaces.nsIWindowMediator);
         var window = wm.getMostRecentWindow("navigator:browser") ||
@@ -1240,9 +1208,6 @@ KeeFox.prototype = {
     abortedUninstallFeedback: function ()
     {
         let [ connectState, setupState, setupActive, tutorialProgress ] = keefox_org.getAddonState();
-
-        keefox_org.metricsManager.pushEvent("uninstall", "abort", { 
-            "connectState": connectState, "setupState": setupState, "setupActive": setupActive, "tutorialProgress": tutorialProgress }, true);
     },
 
     getAddonState: function ()

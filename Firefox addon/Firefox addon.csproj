@@ -70,7 +70,6 @@
     <Content Include="KeeFox\chrome\content\framescript\formsTab.js" />
     <Content Include="KeeFox\chrome\content\framescript\keefoxTab.js" />
     <Content Include="KeeFox\chrome\content\framescript\proxies\config.js" />
-    <Content Include="KeeFox\chrome\content\framescript\proxies\metrics.js" />
     <Content Include="KeeFox\chrome\content\framescript\proxies\logger.js" />
     <Content Include="KeeFox\chrome\content\install.js" />
     <Content Include="KeeFox\chrome\content\install_mono.js" />
@@ -129,7 +128,6 @@
     <Content Include="KeeFox\modules\KFLogger.js" />
     <Content Include="KeeFox\modules\kprpcClient.js" />
     <Content Include="KeeFox\modules\locales.js" />
-    <Content Include="KeeFox\modules\metrics.js" />
     <Content Include="KeeFox\modules\search.js" />
     <Content Include="KeeFox\modules\session.js" />
     <Content Include="KeeFox\modules\sjcl.js" />

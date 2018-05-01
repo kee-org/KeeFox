@@ -49,10 +49,9 @@ part of the global scope of this script from within a subscript so we work aroun
 this by passing in our main keefox_tab object for direct manipulation within the
 subscript. */
 
-// Load our logging, config and metrics subsystem proxies
+// Load our logging and config subsystem proxies
 keefox_tab.scriptLoader.loadSubScript("chrome://keefox/content/framescript/proxies/logger.js", keefox_tab);
 keefox_tab.scriptLoader.loadSubScript("chrome://keefox/content/framescript/proxies/config.js", keefox_tab);
-keefox_tab.scriptLoader.loadSubScript("chrome://keefox/content/framescript/proxies/metrics.js", keefox_tab);
 
 // Load our other javascript
 keefox_tab.scriptLoader.loadSubScript("chrome://keefox/content/shared/uriUtils.js", keefox_tab);

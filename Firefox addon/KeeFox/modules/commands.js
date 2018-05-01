@@ -405,7 +405,6 @@ function commandManager () {
             let win = utils.getWindow();
             if (!win) return;
 
-            win.keefox_org.metricsManager.pushEvent ("feature", "detectForms");
             var currentGBrowser = win.gBrowser;
             // Notify all parts of the UI that might need to clear their matched logins data
             win.keefox_win.mainUI.resetSearchInterface();
@@ -569,7 +568,6 @@ function commandManager () {
                     if (!keefox_org.commandManager.conditions[commandName]())
                         continue;
                 keefox_org._KFLog.debug("Executing command action: " + commandName);
-                keefox_org.metricsManager.adjustAggregate("keyboardShortcutsPressed", 1);
                 //TODO:2: Pass event target information to action
                 keefox_org.commandManager.actions[commandName]();
                 break;
@@ -690,7 +688,6 @@ function commandManager () {
                 item.keeFoxValidContexts = this.commands[i].contextLocationFlags;
                 item.addEventListener("command", function(event) {
                         let kf = utils.getWindow().keefox_org;
-                        kf.metricsManager.adjustAggregate("contextMenuItemsPressed", 1);
                         kf.commandManager.actions[this.keeFoxCommandName]();
                     }, false);
             }

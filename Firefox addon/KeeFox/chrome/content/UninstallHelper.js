@@ -249,17 +249,6 @@ keefox_win.UninstallHelper.prototype =
         if (extraText.value.length > 0)
             extra = extraText.value.substr(0,15000);
 
-        keefox_org.metricsManager.pushEvent("uninstall", "feedback", 
-            { 
-                "connectState": this.connectState, 
-                "setupState": this.setupState, 
-                "tutorialProgress": this.tutorialProgress, 
-                "varients": this.varients,
-                "reason": reason,
-                "extra": extra,
-                "disable": this.disabling
-            }, true);
-
         let responseContainer = this.createResponseContainer(reason, this.connectState, this.setupState, this.tutorialProgress);
         responseContainer.classList.add("disabled");
 

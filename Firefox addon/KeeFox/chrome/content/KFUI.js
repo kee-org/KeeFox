@@ -135,7 +135,6 @@ keefox_win.UI = {
                     } finally
                     {
                         browser.messageManager.sendAsyncMessage("keefox:cancelFormRecording");
-                        keefox_org.metricsManager.pushEvent("feature", "SaveNever");
                         browser.passwordSaver = null;
                     }
                 } 
@@ -201,14 +200,11 @@ keefox_win.UI = {
 
                     saveData.getLogin(function (login, urlMergeMode) {
                         if (saveData.update) {
-                            keefox_org.metricsManager.pushEvent("feature", "updateLogin",
-                                { "urlMergeMode": urlMergeMode, "filterState": filterState });
                             var result = keefox_org.updateLogin(login, saveData.oldLoginUUID, urlMergeMode, saveData.db);
                             keefox_win.notificationManager.remove("password-save");
                             browser.passwordSaver.showUpdateSuccessNotification();
                         }
                         else {
-                            keefox_org.metricsManager.pushEvent("feature", "addLogin");
                             var result = keefox_org.addLogin(login, saveData.group, saveData.db);
                             if (keefox_org._keeFoxExtension.prefs.getValue("rememberMRUGroup", false))
                                 keefox_org._keeFoxExtension.prefs.setValue("MRUGroup-" + saveData.db, saveData.group);

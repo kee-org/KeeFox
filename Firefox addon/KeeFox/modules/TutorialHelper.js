@@ -110,23 +110,13 @@ let TutorialHelper = function()
     this.sendSetupStateToTutorial = function (browser) {
         let [ connectState, setupState, setupActive, notUsed, dbState ] = browser.ownerGlobal.keefox_org.getAddonState();
 
-        // We have probably already worked out our version string (but maybe not if the
-        // tutorial page is loaded during session restore)
-        if (browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion) {
+        Components.utils.import("resource://gre/modules/AddonManager.jsm");
+        AddonManager.getAddonByID("keefox@chris.tomlinson", function(addon) {
             browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
                 "connectState": connectState, "setupState": setupState, "setupActive": setupActive,
-                "version": browser.ownerGlobal.keefox_org.metricsManager.ii.addonVersion,
+                "version": addon.version,
                 "dbState": dbState });
-        } else
-        {
-            Components.utils.import("resource://gre/modules/AddonManager.jsm");
-            AddonManager.getAddonByID("keefox@chris.tomlinson", function(addon) {
-                browser.messageManager.sendAsyncMessage("keefox:sendStatusToTutorialPage", {
-                    "connectState": connectState, "setupState": setupState, "setupActive": setupActive,
-                    "version": addon.version,
-                    "dbState": dbState });
-            });
-        }
+        });
     };
     
     this.mm = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
