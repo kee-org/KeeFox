@@ -33,7 +33,7 @@ var FAMSDefaultConfig = {
     // Version number of this configuration. Increment this value to replace the
     // user's message groups and messages with the ones defined here except for display
     // tracking data (number and date and message group frequency)
-    version: 6,
+    version: 7,
 
     //TODO:2: This message service will not function before this time
     startTime: "8 Jul, 2005 23:34:54 UTC",
@@ -445,7 +445,7 @@ var FAMSDefaultConfig = {
                 body: "%-security201201040000a-body-%",
                 moreInfoLink: "%-security201201040000a-link-%",
                 actionButtonName: "VisitSite",
-                earliestDisplayTime: "8 Jan, 2018 23:34:54 UTC",
+                earliestDisplayTime: "8 Jan, 2068 23:34:54 UTC",
                 latestDisplayTime: "8 Jul, 2111 23:34:54 UTC",
                 priority: 0,
                 maxDisplayTimes: 10,
@@ -472,40 +472,6 @@ var FAMSDefaultConfig = {
             lastMessageDisplayedTime: "8 Jul, 2005 23:34:54 UTC",
             userEditable: true,
             messages: [
-            {
-                id: "messages201201040000a",
-                title: "%-messages-help-keefox-%",
-                body: "%-messages201201040000a-body-%",
-                moreInfoLink: "%-messages201201040000a-link-%",
-                actionButtonName: "Rate",
-                earliestDisplayTime: "8 Jul, 2005 23:34:54 UTC",
-                latestDisplayTime: "8 Jul, 2111 23:34:54 UTC",
-                priority: 0,
-                maxDisplayTimes: 3,
-                displayCount: 0,
-                minTimeAfterInstall: 2419200000, // 4 weeks
-                displayPriorityName: "medium",
-                displayPersistence: 10,
-                minTimeBetweenDisplay: 4838400000, // 8 weeks
-                lastDisplayedTime: "8 Jul, 2005 23:34:54 UTC"
-            },
-            {
-                id: "messages201312080000a",
-                title: "%-messages-help-keefox-%",
-                body: "%-messages201312080000a-body-%",
-                moreInfoLink: "%-messages201312080000a-link-%",
-                actionButtonName: "LearnMore",
-                earliestDisplayTime: "8 Jul, 2005 23:34:54 UTC",
-                latestDisplayTime: "8 Jul, 2111 23:34:54 UTC",
-                priority: 0,
-                maxDisplayTimes: 1,
-                displayCount: 0,
-                minTimeAfterInstall: 3600000, // 1 hour - they've already seen privacy policy upon install so don't bombard them with the same info straight away
-                displayPriorityName: "high",
-                displayPersistence: 10,
-                minTimeBetweenDisplay: 2419200000, // 4 weeks
-                lastDisplayedTime: "8 Jul, 2005 23:34:54 UTC"
-            },
             {
                 id: "messages201506020000a",
                 title: "%-messages-welcome-%",
