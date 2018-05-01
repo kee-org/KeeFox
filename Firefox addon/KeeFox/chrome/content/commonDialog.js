@@ -591,6 +591,7 @@ var keeFoxDialogManager = {
                 }
                 loadingPasswords.setAttribute("value", keefox_org.locale.$STR("httpAuth.default"));
                 keeFoxDialogManager.updateTimer = setInterval(function() { keeFoxDialogManager.updateDialog(); }, 1000);
+                window.sizeToContent();
                 return;
             }
             
@@ -604,11 +605,6 @@ var keeFoxDialogManager = {
             var launchKeePassButton = document.getElementById("keefox-launch-kp-button");
             launchKeePassButton.setAttribute("hidden", "true");
 
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
-            var window = wm.getMostRecentWindow("navigator:browser") ||
-                wm.getMostRecentWindow("mail:3pane");
-
             var dialogFindLoginStorage = {};
             dialogFindLoginStorage.host = keeFoxDialogManager.host;
             dialogFindLoginStorage.realm = keeFoxDialogManager.realm;
@@ -619,6 +615,8 @@ var keeFoxDialogManager = {
             var requestId = keefox_org.findLogins(keeFoxDialogManager.originalHost,
                 null, keeFoxDialogManager.realm, null, null, null,
                 keeFoxDialogManager.username, keeFoxDialogManager.autoFill, dialogFindLoginStorage);
+
+            window.sizeToContent();
         }
     },
     
@@ -651,6 +649,7 @@ var keeFoxDialogManager = {
             // set "no passwords" message
             document.getElementById("keefox-autoauth-description")
                 .setAttribute("value", keefox_org.locale.$STR("httpAuth.noMatches"));
+            window.sizeToContent();
             return;
         }        
         
@@ -777,6 +776,8 @@ var keeFoxDialogManager = {
                 box.removeChild(box.childNodes[0]);
             }
             box.appendChild(list);
+
+            window.sizeToContent();
         }
 
         if (matchedLogins[bestMatch] === undefined)
