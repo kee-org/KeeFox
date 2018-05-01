@@ -78,7 +78,7 @@ function kprpcClient() {
     this.requestId = 1;
     this.callbacks = {};
     this.callbacksData = {};
-    this.clientVersion = [1, 7, 2];
+    this.clientVersion = [1, 8, 0];
     this.features = featuresOffered;
     this.authPromptAborted = false;
     
@@ -640,7 +640,6 @@ kprpcClient.prototype.constructor = kprpcClient;
   	        window.keefox_org.changeLocation(currentLocation);
   	    }
   	    window.keefox_org._keeFoxExtension.prefs.setValue("lastConnectedToKeePass", ISO8601DateUtils.create(new Date()));
-  	    window.keefox_org.metricsManager.pushEvent("KeePass", "connected", { "type": type });
   	    window.keefox_org._refreshKPDB();
   	    window.keefox_org.getApplicationMetadata();
   	};
