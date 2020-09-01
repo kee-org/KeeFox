@@ -1,0 +1,23 @@
+name: "Close stale issues"
+on:
+  schedule:
+  - cron: "49 * * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: |
+          Following the recent announcement of the end of critical security patch support for this old software - https://forum.kee.pm/t/keefox-critical-security-support-ends-30th-september-2020-kee-is-unaffected/3219 - this issue has been automatically marked as stale. We will soon close this issue and then archive this repository in early October 2020.
+
+          If you think that the issue contents may still be relevant to the actively maintained Kee project, the successor of KeeFox, please search the community forum for help and post a new topic if appropriate: https://forum.kee.pm
+          
+          Please do not reply to this comment / notification - it won't be seen.
+        days-before-stale: 1
+        days-before-close: 2
+        stale-issue-label: 'project-archived'
+        stale-pr-label: 'project-archived'
+        remove-stale-when-updated: false
