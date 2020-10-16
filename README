@@ -1,13 +1,3 @@
-Simple and secure password management. Login automatically, never forget another password, stay in control of your passwords and improve their security. Powered by the world-renowned KeePass Password Safe.
+Following the recent announcement of the end of critical security patch support for this old software - https://forum.kee.pm/t/keefox-critical-security-support-ends-30th-september-2020-kee-is-unaffected/3219 - this repository has been archived.
 
-KeeFox (http://keefox.org) adds free, secure and easy to use password management features to Firefox which save you time and keep your private data more secure.
-
-KeeFox connects Firefox to KeePass Password Safe, the most popular open source (and free) password manager.
-
-The official add-on can be downloaded at https://addons.mozilla.org/en-US/firefox/addon/keefox/
-
-Please feel free to fork and submit pull requests for any changes or improvements you would like to see incorporated to the official add-on. See https://github.com/luckyrat/KeeFox/wiki/en-|-Development for guidelines and more detail on how and what to develop.
-
-Translate KeeFox into your language by starting here: https://github.com/luckyrat/KeeFox/wiki/en-%7C-Contributing-%7C-Translation
-
-Read about contributing to KeeFox in other ways here: https://github.com/luckyrat/KeeFox/wiki/en-|-Contributing
+The new version (Kee) can be found at https://github.com/kee-org/browser-addon/ and https://kee.pm
